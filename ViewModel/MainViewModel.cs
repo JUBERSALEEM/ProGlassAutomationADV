@@ -13,8 +13,8 @@ namespace ProGlassAutomation.ViewModels
         private bool _isMenuOpen;
         private bool _isSettingsOpen;
 
-        public DashboardViewModel DashboardVM { get; } = new DashboardViewModel();
-        public ProformaInvoiceViewModel ProformaInvoiceVM { get; } = new ProformaInvoiceViewModel();
+        public ProformaInvoiceViewModel ProformaInvoiceVM { get; }
+        public DashboardViewModel DashboardVM { get; }
         public AboutViewModel AboutVM { get; } = new AboutViewModel();
 
         public ViewModelBase CurrentViewModel
@@ -53,6 +53,10 @@ namespace ProGlassAutomation.ViewModels
 
         public MainViewModel()
         {
+            // Create Proforma FIRST, then Dashboard (Dashboard depends on it)
+            ProformaInvoiceVM = new ProformaInvoiceViewModel();
+            DashboardVM = new DashboardViewModel(ProformaInvoiceVM);
+
             ToggleMenuCommand = new RelayCommand(_ =>
             {
                 IsMenuOpen = !IsMenuOpen;
@@ -68,7 +72,6 @@ namespace ProGlassAutomation.ViewModels
             NavigateCommand = new RelayCommand(Navigate);
             ToggleThemeCommand = new RelayCommand(_ => { IsDarkTheme = !IsDarkTheme; });
 
-            // Show About as a module (inside main window)
             ShowAboutCommand = new RelayCommand(_ =>
             {
                 CurrentViewModel = AboutVM;
