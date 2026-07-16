@@ -45,7 +45,6 @@
         <DataTemplate DataType="{x:Type vmAbout:AboutViewModel}">
             <viewsAbout:AboutView/>
         </DataTemplate>
-
         <DataTemplate DataType="{x:Type vmSheetStore:SheetStoreViewModel}">
             <viewsSheetStore:SheetStoreView/>
         </DataTemplate>
@@ -55,7 +54,6 @@
         <DataTemplate DataType="{x:Type vmOptimization:OptimizationViewModel}">
             <viewsOptimization:OptimizationView/>
         </DataTemplate>
-
         <DataTemplate DataType="{x:Type vmProduction:CuttingViewModel}">
             <viewsProduction:CuttingView/>
         </DataTemplate>
@@ -80,7 +78,6 @@
         <DataTemplate DataType="{x:Type vmProduction:DoublingLaminationViewModel}">
             <viewsProduction:DoublingLaminationView/>
         </DataTemplate>
-
         <DataTemplate DataType="{x:Type vmDelivery:DeliveryNoteViewModel}">
             <viewsDelivery:DeliveryNoteView/>
         </DataTemplate>
@@ -91,7 +88,7 @@
             <viewsReports:SalesReportView/>
         </DataTemplate>
 
-        <!-- ============ Styles ============ -->
+        <!-- ============ FLOATING BUTTON ============ -->
         <Style x:Key="FloatingButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="50"/>
             <Setter Property="Height" Value="50"/>
@@ -120,7 +117,7 @@
             </Setter>
         </Style>
 
-        <!-- Sidebar Group Header -->
+        <!-- ============ SIDEBAR ITEM STYLES (NO SHADOWS - FAST) ============ -->
         <Style x:Key="SidebarGroupHeaderStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="10"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -129,7 +126,6 @@
             <Setter Property="Opacity" Value="0.8"/>
         </Style>
 
-        <!-- Sidebar Menu Item Template -->
         <ControlTemplate x:Key="SidebarItemTemplate" TargetType="Button">
             <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="10" Padding="18,0">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -158,6 +154,101 @@
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
             <Setter Property="Template" Value="{StaticResource SidebarItemTemplate}"/>
         </Style>
+
+        <!-- =========================================================== -->
+        <!-- GLASSY VERTICAL SLIDER (SCROLL INDICATOR)                    -->
+        <!-- =========================================================== -->
+
+        <!-- Round thumb with gradient dot -->
+        <Style x:Key="GlassySliderThumbStyle" TargetType="Thumb">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Thumb">
+                        <Grid>
+                            <Ellipse Width="22" Height="22" Fill="White"/>
+                            <Ellipse Width="8" Height="8">
+                                <Ellipse.Fill>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#8B5CF6" Offset="0"/>
+                                        <GradientStop Color="#EC4899" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Ellipse.Fill>
+                            </Ellipse>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Invisible track buttons -->
+        <Style x:Key="InvisibleRepeatButton" TargetType="RepeatButton">
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="IsTabStop" Value="False"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="RepeatButton">
+                        <Border Background="Transparent"/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- VERTICAL glassy slider -->
+        <Style x:Key="GlassyVerticalSliderStyle" TargetType="Slider">
+            <Setter Property="Width" Value="24"/>
+            <Setter Property="Orientation" Value="Vertical"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="IsMoveToPointEnabled" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Slider">
+                        <Grid HorizontalAlignment="Center">
+
+                            <!-- Track pill background -->
+                            <Border Width="14"
+                                    CornerRadius="7"
+                                    Background="{DynamicResource MenuHoverBrush}"
+                                    Opacity="0.6"/>
+
+                            <!-- Progress fill (top -> thumb position) with gradient -->
+                            <Grid>
+                                <Grid.RowDefinitions>
+                                    <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="*"/>
+                                </Grid.RowDefinitions>
+                                <Border Grid.Row="0"
+                                        Width="14"
+                                        CornerRadius="7,7,0,0"
+                                        Height="{Binding ElementName=PART_Track, Path=Thumb.ActualHeight, FallbackValue=22}">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                            <GradientStop Color="#8B5CF6" Offset="0"/>
+                                            <GradientStop Color="#EC4899" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                </Border>
+                            </Grid>
+
+                            <!-- Real track with thumb -->
+                            <Track x:Name="PART_Track" IsDirectionReversed="True">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Style="{StaticResource InvisibleRepeatButton}"
+                                                  Command="Slider.DecreaseLarge"/>
+                                </Track.DecreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb Style="{StaticResource GlassySliderThumbStyle}"/>
+                                </Track.Thumb>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Style="{StaticResource InvisibleRepeatButton}"
+                                                  Command="Slider.IncreaseLarge"/>
+                                </Track.IncreaseRepeatButton>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </Window.Resources>
 
     <Grid>
@@ -182,15 +273,12 @@
             </Rectangle.Style>
         </Rectangle>
 
-        <!-- ============ LEFT DRAWER (GROUPED MENU) ============ -->
+        <!-- ============ LEFT DRAWER (GROUPED MENU) — NO SHADOW FOR PERFORMANCE ============ -->
         <Border Width="290"
                 HorizontalAlignment="Left"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
                 CornerRadius="0,18,18,0"
                 Panel.ZIndex="10">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.35" Color="Black"/>
-            </Border.Effect>
             <Border.Style>
                 <Style TargetType="Border">
                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -202,61 +290,86 @@
                 </Style>
             </Border.Style>
 
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
-                <StackPanel Margin="0,80,0,20">
+            <!-- Two columns: menu (scrollable) + slider (right edge) -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-                    <!-- MAIN -->
-                    <TextBlock Text="MAIN" Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                    <Button Style="{StaticResource SidebarItemStyle}" Content="Dashboard" Tag="&#128200;"
-                            Command="{Binding NavigateCommand}" CommandParameter="Dashboard"/>
+                <!-- Scrollable menu (native scrollbar hidden) -->
+                <ScrollViewer x:Name="MenuScrollViewer"
+                              Grid.Column="0"
+                              VerticalScrollBarVisibility="Hidden"
+                              HorizontalScrollBarVisibility="Disabled"
+                              CanContentScroll="False"
+                              ScrollChanged="MenuScrollViewer_ScrollChanged">
+                    <StackPanel Margin="0,80,0,20">
 
-                    <!-- INVENTORY -->
-                    <TextBlock Text="INVENTORY" Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                    <Button Style="{StaticResource SidebarItemStyle}" Content="Sheet Store" Tag="&#128230;"
-                            Command="{Binding NavigateCommand}" CommandParameter="SheetStore"/>
+                        <!-- MAIN -->
+                        <TextBlock Text="MAIN" Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                        <Button Style="{StaticResource SidebarItemStyle}" Content="Dashboard" Tag="&#128200;"
+                                Command="{Binding NavigateCommand}" CommandParameter="Dashboard"/>
 
-                    <!-- SALES -->
-                    <TextBlock Text="SALES" Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                    <Button Style="{StaticResource SidebarItemStyle}" Content="Proforma Invoice" Tag="&#128221;"
-                            Command="{Binding NavigateCommand}" CommandParameter="ProformaInvoice"/>
-                    <Button Style="{StaticResource SidebarItemStyle}" Content="Job Order" Tag="&#128203;"
-                            Command="{Binding NavigateCommand}" CommandParameter="JobOrder"/>
-                    <Button Style="{StaticResource SidebarItemStyle}" Content="Optimization" Tag="&#9881;"
-                            Command="{Binding NavigateCommand}" CommandParameter="Optimization"/>
+                        <!-- INVENTORY -->
+                        <TextBlock Text="INVENTORY" Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                        <Button Style="{StaticResource SidebarItemStyle}" Content="Sheet Store" Tag="&#128230;"
+                                Command="{Binding NavigateCommand}" CommandParameter="SheetStore"/>
 
-                    <!-- PRODUCTION -->
-                    <TextBlock Text="PRODUCTION" Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                    <Button Style="{StaticResource SidebarItemStyle}" Content="Cutting" Tag="&#9986;"
-                            Command="{Binding NavigateCommand}" CommandParameter="Cutting"/>
-                    <Button Style="{StaticResource SidebarItemStyle}" Content="Holes &amp; Cutouts" Tag="&#128371;"
-                            Command="{Binding NavigateCommand}" CommandParameter="HolesCutouts"/>
-                    <Button Style="{StaticResource SidebarItemStyle}" Content="Polish" Tag="&#10024;"
-                            Command="{Binding NavigateCommand}" CommandParameter="Polish"/>
-                    <Button Style="{StaticResource SidebarItemStyle}" Content="Edge Deletion" Tag="&#128208;"
-                            Command="{Binding NavigateCommand}" CommandParameter="EdgeDeletion"/>
-                    <Button Style="{StaticResource SidebarItemStyle}" Content="Mitring" Tag="&#128314;"
-                            Command="{Binding NavigateCommand}" CommandParameter="Mitring"/>
-                    <Button Style="{StaticResource SidebarItemStyle}" Content="Tempering" Tag="&#128293;"
-                            Command="{Binding NavigateCommand}" CommandParameter="Tempering"/>
-                    <Button Style="{StaticResource SidebarItemStyle}" Content="Pairing" Tag="&#128279;"
-                            Command="{Binding NavigateCommand}" CommandParameter="Pairing"/>
-                    <Button Style="{StaticResource SidebarItemStyle}" Content="Doubling / Lamination" Tag="&#128218;"
-                            Command="{Binding NavigateCommand}" CommandParameter="DoublingLamination"/>
+                        <!-- SALES -->
+                        <TextBlock Text="SALES" Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                        <Button Style="{StaticResource SidebarItemStyle}" Content="Proforma Invoice" Tag="&#128221;"
+                                Command="{Binding NavigateCommand}" CommandParameter="ProformaInvoice"/>
+                        <Button Style="{StaticResource SidebarItemStyle}" Content="Job Order" Tag="&#128203;"
+                                Command="{Binding NavigateCommand}" CommandParameter="JobOrder"/>
+                        <Button Style="{StaticResource SidebarItemStyle}" Content="Optimization" Tag="&#9881;"
+                                Command="{Binding NavigateCommand}" CommandParameter="Optimization"/>
 
-                    <!-- DISPATCH -->
-                    <TextBlock Text="DISPATCH" Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                    <Button Style="{StaticResource SidebarItemStyle}" Content="Delivery Note" Tag="&#128666;"
-                            Command="{Binding NavigateCommand}" CommandParameter="DeliveryNote"/>
-                    <Button Style="{StaticResource SidebarItemStyle}" Content="Tax Invoice" Tag="&#129534;"
-                            Command="{Binding NavigateCommand}" CommandParameter="TaxInvoice"/>
+                        <!-- PRODUCTION -->
+                        <TextBlock Text="PRODUCTION" Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                        <Button Style="{StaticResource SidebarItemStyle}" Content="Cutting" Tag="&#9986;"
+                                Command="{Binding NavigateCommand}" CommandParameter="Cutting"/>
+                        <Button Style="{StaticResource SidebarItemStyle}" Content="Holes &amp; Cutouts" Tag="&#128371;"
+                                Command="{Binding NavigateCommand}" CommandParameter="HolesCutouts"/>
+                        <Button Style="{StaticResource SidebarItemStyle}" Content="Polish" Tag="&#10024;"
+                                Command="{Binding NavigateCommand}" CommandParameter="Polish"/>
+                        <Button Style="{StaticResource SidebarItemStyle}" Content="Edge Deletion" Tag="&#128208;"
+                                Command="{Binding NavigateCommand}" CommandParameter="EdgeDeletion"/>
+                        <Button Style="{StaticResource SidebarItemStyle}" Content="Mitring" Tag="&#128314;"
+                                Command="{Binding NavigateCommand}" CommandParameter="Mitring"/>
+                        <Button Style="{StaticResource SidebarItemStyle}" Content="Tempering" Tag="&#128293;"
+                                Command="{Binding NavigateCommand}" CommandParameter="Tempering"/>
+                        <Button Style="{StaticResource SidebarItemStyle}" Content="Pairing" Tag="&#128279;"
+                                Command="{Binding NavigateCommand}" CommandParameter="Pairing"/>
+                        <Button Style="{StaticResource SidebarItemStyle}" Content="Doubling / Lamination" Tag="&#128218;"
+                                Command="{Binding NavigateCommand}" CommandParameter="DoublingLamination"/>
 
-                    <!-- REPORTS -->
-                    <TextBlock Text="REPORTS" Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                    <Button Style="{StaticResource SidebarItemStyle}" Content="Sales Report" Tag="&#128202;"
-                            Command="{Binding NavigateCommand}" CommandParameter="SalesReport"/>
+                        <!-- DISPATCH -->
+                        <TextBlock Text="DISPATCH" Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                        <Button Style="{StaticResource SidebarItemStyle}" Content="Delivery Note" Tag="&#128666;"
+                                Command="{Binding NavigateCommand}" CommandParameter="DeliveryNote"/>
+                        <Button Style="{StaticResource SidebarItemStyle}" Content="Tax Invoice" Tag="&#129534;"
+                                Command="{Binding NavigateCommand}" CommandParameter="TaxInvoice"/>
 
-                </StackPanel>
-            </ScrollViewer>
+                        <!-- REPORTS -->
+                        <TextBlock Text="REPORTS" Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                        <Button Style="{StaticResource SidebarItemStyle}" Content="Sales Report" Tag="&#128202;"
+                                Command="{Binding NavigateCommand}" CommandParameter="SalesReport"/>
+
+                    </StackPanel>
+                </ScrollViewer>
+
+                <!-- Vertical glassy slider (right edge, full height) -->
+                <Slider x:Name="ScrollSlider"
+                        Grid.Column="1"
+                        Style="{StaticResource GlassyVerticalSliderStyle}"
+                        Margin="4,80,10,20"
+                        Minimum="0"
+                        Maximum="1"
+                        SmallChange="0.05"
+                        LargeChange="0.15"
+                        ValueChanged="ScrollSlider_ValueChanged"/>
+            </Grid>
         </Border>
 
         <!-- ============ RIGHT DRAWER (SETTINGS) ============ -->
