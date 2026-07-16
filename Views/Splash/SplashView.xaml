@@ -1,0 +1,267 @@
+﻿<Window x:Class="ProGlassAutomation.Views.Splash.SplashView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="ProGlass Automation"
+        WindowState="Maximized"
+        WindowStyle="None"
+        ResizeMode="NoResize"
+        ShowInTaskbar="False"
+        Topmost="True"
+        FontFamily="Segoe UI">
+
+    <Window.Resources>
+        <!-- Glass card style (reusable) -->
+        <Style x:Key="GlassCardStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Padding" Value="18,12"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#334155"/>
+            <Setter Property="Background">
+                <Setter.Value>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#1E293B" Offset="0"/>
+                        <GradientStop Color="#0F172A" Offset="1"/>
+                    </LinearGradientBrush>
+                </Setter.Value>
+            </Setter>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="20" ShadowDepth="0"
+                                      Color="#8B5CF6" Opacity="0.25"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Small label style -->
+        <Style x:Key="CardLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#64748B"/>
+        </Style>
+    </Window.Resources>
+
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                <GradientStop Color="#0F172A" Offset="0"/>
+                <GradientStop Color="#1E293B" Offset="0.5"/>
+                <GradientStop Color="#0F172A" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+
+        <!-- Decorative background circles -->
+        <Ellipse Width="600" Height="600"
+                 HorizontalAlignment="Right" VerticalAlignment="Top"
+                 Margin="0,-200,-200,0" Opacity="0.15">
+            <Ellipse.Fill>
+                <RadialGradientBrush>
+                    <GradientStop Color="#8B5CF6" Offset="0"/>
+                    <GradientStop Color="Transparent" Offset="1"/>
+                </RadialGradientBrush>
+            </Ellipse.Fill>
+        </Ellipse>
+        <Ellipse Width="550" Height="550"
+                 HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                 Margin="-180,0,0,-180" Opacity="0.15">
+            <Ellipse.Fill>
+                <RadialGradientBrush>
+                    <GradientStop Color="#EC4899" Offset="0"/>
+                    <GradientStop Color="Transparent" Offset="1"/>
+                </RadialGradientBrush>
+            </Ellipse.Fill>
+        </Ellipse>
+        <Ellipse Width="400" Height="400"
+                 HorizontalAlignment="Center" VerticalAlignment="Center"
+                 Opacity="0.08">
+            <Ellipse.Fill>
+                <RadialGradientBrush>
+                    <GradientStop Color="#3B82F6" Offset="0"/>
+                    <GradientStop Color="Transparent" Offset="1"/>
+                </RadialGradientBrush>
+            </Ellipse.Fill>
+        </Ellipse>
+
+        <!-- Main content — centered -->
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+
+            <!-- Logo -->
+            <Border x:Name="LogoBorder"
+                    Width="140" Height="140"
+                    CornerRadius="34"
+                    HorizontalAlignment="Center"
+                    RenderTransformOrigin="0.5,0.5">
+                <Border.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#8B5CF6" Offset="0"/>
+                        <GradientStop Color="#EC4899" Offset="1"/>
+                    </LinearGradientBrush>
+                </Border.Background>
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="40" ShadowDepth="0"
+                                      Color="#8B5CF6" Opacity="0.7"/>
+                </Border.Effect>
+                <Border.RenderTransform>
+                    <ScaleTransform x:Name="LogoScale" ScaleX="0" ScaleY="0"/>
+                </Border.RenderTransform>
+                <TextBlock Text="PG"
+                           Foreground="White"
+                           FontSize="62"
+                           FontWeight="Bold"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+            </Border>
+
+            <!-- App Name -->
+            <TextBlock x:Name="AppNameText"
+                       Text="ProGlass Automation"
+                       FontSize="42"
+                       FontWeight="Bold"
+                       Foreground="White"
+                       HorizontalAlignment="Center"
+                       Margin="0,36,0,0"
+                       Opacity="0">
+                <TextBlock.RenderTransform>
+                    <TranslateTransform x:Name="AppNameTranslate" Y="20"/>
+                </TextBlock.RenderTransform>
+            </TextBlock>
+
+            <!-- Tagline -->
+            <TextBlock x:Name="TaglineText"
+                       Text="Software for Glass Production Workflow"
+                       FontSize="16"
+                       Foreground="#94A3B8"
+                       HorizontalAlignment="Center"
+                       Margin="0,10,0,0"
+                       Opacity="0"/>
+
+            <!-- Loading dots -->
+            <StackPanel x:Name="LoadingDots"
+                        Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        Margin="0,40,0,0"
+                        Opacity="0">
+                <Ellipse x:Name="Dot1" Width="10" Height="10" Margin="5,0" Fill="#8B5CF6"/>
+                <Ellipse x:Name="Dot2" Width="10" Height="10" Margin="5,0" Fill="#C084FC"/>
+                <Ellipse x:Name="Dot3" Width="10" Height="10" Margin="5,0" Fill="#EC4899"/>
+            </StackPanel>
+
+            <!-- Progress bar -->
+            <Border Width="300" Height="4"
+                    CornerRadius="2"
+                    Background="#334155"
+                    Margin="0,28,0,0">
+                <Border x:Name="ProgressFill"
+                        Width="0"
+                        HorizontalAlignment="Left"
+                        CornerRadius="2">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                            <GradientStop Color="#8B5CF6" Offset="0"/>
+                            <GradientStop Color="#EC4899" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                </Border>
+            </Border>
+
+            <!-- Loading text -->
+            <TextBlock x:Name="LoadingText"
+                       Text="Loading..."
+                       FontSize="12"
+                       Foreground="#64748B"
+                       HorizontalAlignment="Center"
+                       Margin="0,14,0,0"
+                       Opacity="0"/>
+
+        </StackPanel>
+
+        <!-- ============ FOOTER CARDS ============ -->
+
+        <!-- Bottom-Left: Developer Card -->
+        <Border Style="{StaticResource GlassCardStyle}"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom"
+                Margin="40,0,0,40">
+            <StackPanel Orientation="Horizontal">
+                <!-- Avatar circle -->
+                <Border Width="42" Height="42" CornerRadius="21"
+                        VerticalAlignment="Center">
+                    <Border.Background>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#8B5CF6" Offset="0"/>
+                            <GradientStop Color="#EC4899" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Border.Background>
+                    <TextBlock Text="JS"
+                               Foreground="White"
+                               FontSize="15"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+
+                <StackPanel Margin="12,0,4,0" VerticalAlignment="Center">
+                    <TextBlock Text="DEVELOPER" Style="{StaticResource CardLabelStyle}"/>
+                    <TextBlock Text="Juber Saleem"
+                               FontSize="15"
+                               FontWeight="SemiBold"
+                               Foreground="White"
+                               Margin="0,2,0,0"/>
+                    <TextBlock Text="India"
+                               FontSize="10"
+                               Foreground="#94A3B8"
+                               Margin="0,1,0,0"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Bottom-Center: Copyright Card -->
+        <Border Style="{StaticResource GlassCardStyle}"
+                HorizontalAlignment="Center"
+                VerticalAlignment="Bottom"
+                Margin="0,0,0,40">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <TextBlock Text="©"
+                           FontSize="16"
+                           Foreground="#8B5CF6"
+                           FontWeight="Bold"
+                           VerticalAlignment="Center"
+                           Margin="0,0,8,0"/>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="COPYRIGHT" Style="{StaticResource CardLabelStyle}"/>
+                    <TextBlock Text="2025 ProGlass Automation"
+                               FontSize="12"
+                               FontWeight="Medium"
+                               Foreground="White"
+                               Margin="0,2,0,0"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+        <!-- Bottom-Right: Version Card -->
+        <Border Style="{StaticResource GlassCardStyle}"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Margin="0,0,40,40">
+            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                <!-- Version dot indicator -->
+                <Ellipse Width="8" Height="8" VerticalAlignment="Center">
+                    <Ellipse.Fill>
+                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                            <GradientStop Color="#10B981" Offset="0"/>
+                            <GradientStop Color="#059669" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Ellipse.Fill>
+                </Ellipse>
+                <StackPanel Margin="10,0,4,0" VerticalAlignment="Center">
+                    <TextBlock Text="VERSION" Style="{StaticResource CardLabelStyle}"/>
+                    <TextBlock Text="v1.0.0"
+                               FontSize="14"
+                               FontWeight="SemiBold"
+                               Foreground="White"
+                               Margin="0,2,0,0"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+
+    </Grid>
+</Window>
