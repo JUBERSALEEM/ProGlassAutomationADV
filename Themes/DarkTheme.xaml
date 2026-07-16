@@ -1,0 +1,16 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#0F172A"/>
+    <SolidColorBrush x:Key="ModuleBackgroundBrush" Color="#1E293B"/>
+    <SolidColorBrush x:Key="SideMenuBackgroundBrush" Color="#1E293B"/>
+    <SolidColorBrush x:Key="OverlayButtonBackgroundBrush" Color="#3B82F6"/>
+
+    <SolidColorBrush x:Key="PrimaryForegroundBrush" Color="#F1F5F9"/>
+    <SolidColorBrush x:Key="SecondaryForegroundBrush" Color="#94A3B8"/>
+    <SolidColorBrush x:Key="OverlayButtonForegroundBrush" Color="#FFFFFF"/>
+
+    <SolidColorBrush x:Key="AccentBrush" Color="#3B82F6"/>
+    <SolidColorBrush x:Key="MenuHoverBrush" Color="#334155"/>
+
+</ResourceDictionary>

@@ -1,0 +1,18 @@
+﻿<UserControl x:Class="ProGlassAutomation.Views.Dashboard.DashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+
+    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBlock Text="{Binding WelcomeMessage}"
+                       FontSize="36"
+                       FontWeight="Bold"
+                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+            <TextBlock Text="Your central control panel"
+                       FontSize="16"
+                       Margin="0,10,0,0"
+                       HorizontalAlignment="Center"
+                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

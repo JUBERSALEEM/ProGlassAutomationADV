@@ -1,0 +1,214 @@
+﻿<UserControl x:Class="ProGlassAutomation.Views.About.AboutView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="Segoe UI">
+
+    <UserControl.Resources>
+        <!-- Card style -->
+        <Style x:Key="CardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="CornerRadius" Value="16"/>
+            <Setter Property="Padding" Value="30"/>
+            <Setter Property="Effect">
+                <Setter.Value>
+                    <DropShadowEffect BlurRadius="20"
+                                      ShadowDepth="0"
+                                      Opacity="0.15"
+                                      Color="Black"/>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Info label -->
+        <Style x:Key="InfoLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
+
+        <!-- Info value -->
+        <Style x:Key="InfoValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="FontWeight" Value="Medium"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        </Style>
+
+        <!-- Section title -->
+        <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,18"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <StackPanel Margin="40,100,40,40" HorizontalAlignment="Center" MaxWidth="900">
+
+                <!-- ============== APP ICON + NAME HEADER ============== -->
+                <StackPanel HorizontalAlignment="Center" Margin="0,0,0,30">
+
+                    <!-- Large App Icon -->
+                    <Border Width="130" Height="130"
+                            CornerRadius="30"
+                            HorizontalAlignment="Center">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#1E88E5" Offset="0"/>
+                                <GradientStop Color="#1565C0" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="25"
+                                              ShadowDepth="4"
+                                              Opacity="0.4"
+                                              Color="Black"/>
+                        </Border.Effect>
+                        <TextBlock Text="PG"
+                                   Foreground="White"
+                                   FontSize="54"
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+
+                    <!-- App Name -->
+                    <TextBlock Text="{Binding AppName}"
+                               FontSize="42"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               Margin="0,24,0,0"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+
+                    <!-- Tagline -->
+                    <TextBlock Text="{Binding AppTagline}"
+                               FontSize="16"
+                               HorizontalAlignment="Center"
+                               Margin="0,8,0,0"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+
+                    <!-- Version badge -->
+                    <Border Background="{DynamicResource AccentBrush}"
+                            CornerRadius="14"
+                            Padding="16,6"
+                            HorizontalAlignment="Center"
+                            Margin="0,14,0,0">
+                        <TextBlock Text="{Binding Version}"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Foreground="White"/>
+                    </Border>
+                </StackPanel>
+
+                <!-- ============== ABOUT SECTION CARD ============== -->
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+                    <StackPanel>
+                        <TextBlock Text="About" Style="{StaticResource SectionTitleStyle}"/>
+                        <TextBlock TextWrapping="Wrap"
+                                   LineHeight="24"
+                                   FontSize="14"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}">
+                            <Run Text="ProGlass Automation is a purpose-built software designed to streamline and automate the "/>
+                            <Run Text="Glass Production Workflow" FontWeight="SemiBold"/>
+                            <Run Text=". It brings together order management, proforma invoicing, production tracking, and reporting into a single, easy-to-use platform — helping glass manufacturers work faster, reduce errors, and grow their business."/>
+                            <LineBreak/><LineBreak/>
+                            <Run Text="Built with a focus on simplicity, reliability, and modern user experience."/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- ============== DEVELOPER INFO CARD ============== -->
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+                    <StackPanel>
+                        <TextBlock Text="Developer Information" Style="{StaticResource SectionTitleStyle}"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Developer -->
+                            <StackPanel Grid.Column="0" Margin="0,0,20,0">
+                                <TextBlock Text="DEVELOPER" Style="{StaticResource InfoLabelStyle}"/>
+                                <TextBlock Text="{Binding DeveloperName}" Style="{StaticResource InfoValueStyle}"/>
+                            </StackPanel>
+
+                            <!-- Country -->
+                            <StackPanel Grid.Column="1" Margin="0,0,20,0">
+                                <TextBlock Text="COUNTRY" Style="{StaticResource InfoLabelStyle}"/>
+                                <TextBlock Text="{Binding Country}" Style="{StaticResource InfoValueStyle}"/>
+                            </StackPanel>
+
+                            <!-- Email -->
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="EMAIL" Style="{StaticResource InfoLabelStyle}"/>
+                                <TextBlock Style="{StaticResource InfoValueStyle}"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           Cursor="Hand"
+                                           MouseLeftButtonDown="Email_MouseLeftButtonDown"
+                                           Text="{Binding Email}"/>
+                            </StackPanel>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+
+                <!-- ============== FEATURES CARD ============== -->
+                <Border Style="{StaticResource CardStyle}" Margin="0,0,0,20">
+                    <StackPanel>
+                        <TextBlock Text="Key Features" Style="{StaticResource SectionTitleStyle}"/>
+
+                        <UniformGrid Rows="2" Columns="2">
+                            <!-- Feature 1 -->
+                            <StackPanel Orientation="Horizontal" Margin="0,6,20,10">
+                                <TextBlock Text="&#128221;" FontSize="20" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource AccentBrush}"/>
+                                <TextBlock Text="Proforma Invoicing" Margin="12,0,0,0"
+                                           FontSize="14" FontWeight="Medium" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            </StackPanel>
+
+                            <!-- Feature 2 -->
+                            <StackPanel Orientation="Horizontal" Margin="0,6,20,10">
+                                <TextBlock Text="&#128200;" FontSize="20" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource AccentBrush}"/>
+                                <TextBlock Text="Real-time Dashboard" Margin="12,0,0,0"
+                                           FontSize="14" FontWeight="Medium" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            </StackPanel>
+
+                            <!-- Feature 3 -->
+                            <StackPanel Orientation="Horizontal" Margin="0,6,20,10">
+                                <TextBlock Text="&#9881;" FontSize="20" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource AccentBrush}"/>
+                                <TextBlock Text="Production Workflow" Margin="12,0,0,0"
+                                           FontSize="14" FontWeight="Medium" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            </StackPanel>
+
+                            <!-- Feature 4 -->
+                            <StackPanel Orientation="Horizontal" Margin="0,6,20,10">
+                                <TextBlock Text="&#128101;" FontSize="20" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource AccentBrush}"/>
+                                <TextBlock Text="Customer Management" Margin="12,0,0,0"
+                                           FontSize="14" FontWeight="Medium" VerticalAlignment="Center"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            </StackPanel>
+                        </UniformGrid>
+                    </StackPanel>
+                </Border>
+
+                <!-- ============== FOOTER ============== -->
+                <TextBlock Text="{Binding Copyright}"
+                           FontSize="12"
+                           HorizontalAlignment="Center"
+                           Margin="0,20,0,20"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
