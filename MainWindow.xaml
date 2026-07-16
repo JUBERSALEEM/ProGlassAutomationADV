@@ -5,9 +5,23 @@
         xmlns:vmDashboard="clr-namespace:ProGlassAutomation.ViewModels.Dashboard"
         xmlns:vmProforma="clr-namespace:ProGlassAutomation.ViewModels.ProformaInvoice"
         xmlns:vmAbout="clr-namespace:ProGlassAutomation.ViewModels.About"
+        xmlns:vmSheetStore="clr-namespace:ProGlassAutomation.ViewModels.SheetStore"
+        xmlns:vmJobOrder="clr-namespace:ProGlassAutomation.ViewModels.JobOrder"
+        xmlns:vmOptimization="clr-namespace:ProGlassAutomation.ViewModels.Optimization"
+        xmlns:vmProduction="clr-namespace:ProGlassAutomation.ViewModels.Production"
+        xmlns:vmDelivery="clr-namespace:ProGlassAutomation.ViewModels.DeliveryNote"
+        xmlns:vmTaxInvoice="clr-namespace:ProGlassAutomation.ViewModels.TaxInvoice"
+        xmlns:vmReports="clr-namespace:ProGlassAutomation.ViewModels.Reports"
         xmlns:viewsDashboard="clr-namespace:ProGlassAutomation.Views.Dashboard"
         xmlns:viewsProforma="clr-namespace:ProGlassAutomation.Views.ProformaInvoice"
         xmlns:viewsAbout="clr-namespace:ProGlassAutomation.Views.About"
+        xmlns:viewsSheetStore="clr-namespace:ProGlassAutomation.Views.SheetStore"
+        xmlns:viewsJobOrder="clr-namespace:ProGlassAutomation.Views.JobOrder"
+        xmlns:viewsOptimization="clr-namespace:ProGlassAutomation.Views.Optimization"
+        xmlns:viewsProduction="clr-namespace:ProGlassAutomation.Views.Production"
+        xmlns:viewsDelivery="clr-namespace:ProGlassAutomation.Views.DeliveryNote"
+        xmlns:viewsTaxInvoice="clr-namespace:ProGlassAutomation.Views.TaxInvoice"
+        xmlns:viewsReports="clr-namespace:ProGlassAutomation.Views.Reports"
         Title="ProGlass Automation"
         Height="720" Width="1280"
         MinHeight="600" MinWidth="900"
@@ -21,7 +35,7 @@
     </Window.DataContext>
 
     <Window.Resources>
-        <!-- ViewModel-to-View mapping -->
+        <!-- ============ ViewModel -> View mappings ============ -->
         <DataTemplate DataType="{x:Type vmDashboard:DashboardViewModel}">
             <viewsDashboard:DashboardView/>
         </DataTemplate>
@@ -32,7 +46,52 @@
             <viewsAbout:AboutView/>
         </DataTemplate>
 
-        <!-- Floating circular button style -->
+        <DataTemplate DataType="{x:Type vmSheetStore:SheetStoreViewModel}">
+            <viewsSheetStore:SheetStoreView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmJobOrder:JobOrderViewModel}">
+            <viewsJobOrder:JobOrderView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmOptimization:OptimizationViewModel}">
+            <viewsOptimization:OptimizationView/>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vmProduction:CuttingViewModel}">
+            <viewsProduction:CuttingView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmProduction:HolesCutoutsViewModel}">
+            <viewsProduction:HolesCutoutsView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmProduction:PolishViewModel}">
+            <viewsProduction:PolishView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmProduction:EdgeDeletionViewModel}">
+            <viewsProduction:EdgeDeletionView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmProduction:MitringViewModel}">
+            <viewsProduction:MitringView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmProduction:TemperingViewModel}">
+            <viewsProduction:TemperingView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmProduction:PairingViewModel}">
+            <viewsProduction:PairingView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmProduction:DoublingLaminationViewModel}">
+            <viewsProduction:DoublingLaminationView/>
+        </DataTemplate>
+
+        <DataTemplate DataType="{x:Type vmDelivery:DeliveryNoteViewModel}">
+            <viewsDelivery:DeliveryNoteView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmTaxInvoice:TaxInvoiceViewModel}">
+            <viewsTaxInvoice:TaxInvoiceView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmReports:SalesReportViewModel}">
+            <viewsReports:SalesReportView/>
+        </DataTemplate>
+
+        <!-- ============ Styles ============ -->
         <Style x:Key="FloatingButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="50"/>
             <Setter Property="Height" Value="50"/>
@@ -45,17 +104,11 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="border"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="25">
+                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="25">
                             <Border.Effect>
-                                <DropShadowEffect BlurRadius="12"
-                                                  ShadowDepth="2"
-                                                  Opacity="0.35"
-                                                  Color="Black"/>
+                                <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.35" Color="Black"/>
                             </Border.Effect>
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -67,19 +120,48 @@
             </Setter>
         </Style>
 
-        <!-- Sidebar Menu Item Style -->
-        <Style x:Key="SidebarMenuItemStyle" TargetType="Button">
+        <!-- Sidebar Group Header -->
+        <Style x:Key="SidebarGroupHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Margin" Value="22,18,0,8"/>
+            <Setter Property="Opacity" Value="0.8"/>
+        </Style>
+
+        <!-- Sidebar Menu Item Template -->
+        <ControlTemplate x:Key="SidebarItemTemplate" TargetType="Button">
+            <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="10" Padding="18,0">
+                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                    <TextBlock Text="{TemplateBinding Tag}" FontSize="15"
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource AccentBrush}"/>
+                    <TextBlock Text="{TemplateBinding Content}" Margin="14,0,0,0"
+                               FontSize="13" FontWeight="Medium"
+                               VerticalAlignment="Center"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                </StackPanel>
+            </Border>
+            <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter TargetName="border" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                </Trigger>
+            </ControlTemplate.Triggers>
+        </ControlTemplate>
+
+        <Style x:Key="SidebarItemStyle" TargetType="Button">
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Margin" Value="10,3,10,3"/>
-            <Setter Property="Height" Value="46"/>
+            <Setter Property="Margin" Value="10,2,10,2"/>
+            <Setter Property="Height" Value="40"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Template" Value="{StaticResource SidebarItemTemplate}"/>
         </Style>
     </Window.Resources>
 
     <Grid>
-        <!-- Current module fills entire window -->
+        <!-- Current module -->
         <ContentControl Content="{Binding CurrentViewModel}"/>
 
         <!-- Dim overlay -->
@@ -100,8 +182,8 @@
             </Rectangle.Style>
         </Rectangle>
 
-        <!-- Left Drawer (Menu) -->
-        <Border Width="270"
+        <!-- ============ LEFT DRAWER (GROUPED MENU) ============ -->
+        <Border Width="290"
                 HorizontalAlignment="Left"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
                 CornerRadius="0,18,18,0"
@@ -119,62 +201,65 @@
                     </Style.Triggers>
                 </Style>
             </Border.Style>
-            <StackPanel Margin="0,90,0,0">
-                <TextBlock Text="MENU"
-                           Margin="22,0,0,14"
-                           FontSize="11"
-                           FontWeight="Bold"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
 
-                <Button Style="{StaticResource SidebarMenuItemStyle}"
-                        Command="{Binding NavigateCommand}"
-                        CommandParameter="Dashboard">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="10" Padding="18,0">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="&#128200;" FontSize="16" VerticalAlignment="Center"
-                                               Foreground="{DynamicResource AccentBrush}"/>
-                                    <TextBlock Text="Dashboard" Margin="14,0,0,0" FontSize="14" FontWeight="Medium"
-                                               VerticalAlignment="Center"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                </StackPanel>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="border" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <StackPanel Margin="0,80,0,20">
 
-                <Button Style="{StaticResource SidebarMenuItemStyle}"
-                        Command="{Binding NavigateCommand}"
-                        CommandParameter="ProformaInvoice">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="10" Padding="18,0">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                    <TextBlock Text="&#128221;" FontSize="16" VerticalAlignment="Center"
-                                               Foreground="{DynamicResource AccentBrush}"/>
-                                    <TextBlock Text="Proforma Invoice" Margin="14,0,0,0" FontSize="14" FontWeight="Medium"
-                                               VerticalAlignment="Center"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                </StackPanel>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="border" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
-            </StackPanel>
+                    <!-- MAIN -->
+                    <TextBlock Text="MAIN" Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                    <Button Style="{StaticResource SidebarItemStyle}" Content="Dashboard" Tag="&#128200;"
+                            Command="{Binding NavigateCommand}" CommandParameter="Dashboard"/>
+
+                    <!-- INVENTORY -->
+                    <TextBlock Text="INVENTORY" Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                    <Button Style="{StaticResource SidebarItemStyle}" Content="Sheet Store" Tag="&#128230;"
+                            Command="{Binding NavigateCommand}" CommandParameter="SheetStore"/>
+
+                    <!-- SALES -->
+                    <TextBlock Text="SALES" Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                    <Button Style="{StaticResource SidebarItemStyle}" Content="Proforma Invoice" Tag="&#128221;"
+                            Command="{Binding NavigateCommand}" CommandParameter="ProformaInvoice"/>
+                    <Button Style="{StaticResource SidebarItemStyle}" Content="Job Order" Tag="&#128203;"
+                            Command="{Binding NavigateCommand}" CommandParameter="JobOrder"/>
+                    <Button Style="{StaticResource SidebarItemStyle}" Content="Optimization" Tag="&#9881;"
+                            Command="{Binding NavigateCommand}" CommandParameter="Optimization"/>
+
+                    <!-- PRODUCTION -->
+                    <TextBlock Text="PRODUCTION" Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                    <Button Style="{StaticResource SidebarItemStyle}" Content="Cutting" Tag="&#9986;"
+                            Command="{Binding NavigateCommand}" CommandParameter="Cutting"/>
+                    <Button Style="{StaticResource SidebarItemStyle}" Content="Holes &amp; Cutouts" Tag="&#128371;"
+                            Command="{Binding NavigateCommand}" CommandParameter="HolesCutouts"/>
+                    <Button Style="{StaticResource SidebarItemStyle}" Content="Polish" Tag="&#10024;"
+                            Command="{Binding NavigateCommand}" CommandParameter="Polish"/>
+                    <Button Style="{StaticResource SidebarItemStyle}" Content="Edge Deletion" Tag="&#128208;"
+                            Command="{Binding NavigateCommand}" CommandParameter="EdgeDeletion"/>
+                    <Button Style="{StaticResource SidebarItemStyle}" Content="Mitring" Tag="&#128314;"
+                            Command="{Binding NavigateCommand}" CommandParameter="Mitring"/>
+                    <Button Style="{StaticResource SidebarItemStyle}" Content="Tempering" Tag="&#128293;"
+                            Command="{Binding NavigateCommand}" CommandParameter="Tempering"/>
+                    <Button Style="{StaticResource SidebarItemStyle}" Content="Pairing" Tag="&#128279;"
+                            Command="{Binding NavigateCommand}" CommandParameter="Pairing"/>
+                    <Button Style="{StaticResource SidebarItemStyle}" Content="Doubling / Lamination" Tag="&#128218;"
+                            Command="{Binding NavigateCommand}" CommandParameter="DoublingLamination"/>
+
+                    <!-- DISPATCH -->
+                    <TextBlock Text="DISPATCH" Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                    <Button Style="{StaticResource SidebarItemStyle}" Content="Delivery Note" Tag="&#128666;"
+                            Command="{Binding NavigateCommand}" CommandParameter="DeliveryNote"/>
+                    <Button Style="{StaticResource SidebarItemStyle}" Content="Tax Invoice" Tag="&#129534;"
+                            Command="{Binding NavigateCommand}" CommandParameter="TaxInvoice"/>
+
+                    <!-- REPORTS -->
+                    <TextBlock Text="REPORTS" Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                    <Button Style="{StaticResource SidebarItemStyle}" Content="Sales Report" Tag="&#128202;"
+                            Command="{Binding NavigateCommand}" CommandParameter="SalesReport"/>
+
+                </StackPanel>
+            </ScrollViewer>
         </Border>
 
-        <!-- Right Drawer (Settings) -->
+        <!-- ============ RIGHT DRAWER (SETTINGS) ============ -->
         <Border Width="300"
                 HorizontalAlignment="Right"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
@@ -208,14 +293,14 @@
             </StackPanel>
         </Border>
 
-        <!-- Floating Hamburger Button -->
+        <!-- Hamburger -->
         <Button Style="{StaticResource FloatingButtonStyle}"
                 HorizontalAlignment="Left" VerticalAlignment="Top"
                 Margin="15" Content="&#9776;"
                 Command="{Binding ToggleMenuCommand}"
                 ToolTip="Menu" Panel.ZIndex="100"/>
 
-        <!-- Floating Top-Right Group: Logo + Info Button -->
+        <!-- Logo + Info -->
         <StackPanel Orientation="Horizontal"
                     HorizontalAlignment="Right" VerticalAlignment="Top"
                     Margin="15" Panel.ZIndex="100">

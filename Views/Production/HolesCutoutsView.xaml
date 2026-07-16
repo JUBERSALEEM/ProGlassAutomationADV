@@ -1,0 +1,6 @@
+﻿<UserControl x:Class="ProGlassAutomation.Views.Production.HolesCutoutsView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:shared="clr-namespace:ProGlassAutomation.Views.Shared">
+    <shared:ComingSoonView/>
+</UserControl>
