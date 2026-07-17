@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.SheetStore;
+using ProGlassAutomation.Models.SheetStore.SheetStoreHistory;
 using System;
 using System.IO;
 
@@ -14,13 +15,11 @@ namespace ProGlassAutomation.Services.Database
     {
         // ============ TABLES ============
         public DbSet<GlassSheet> GlassSheets { get; set; }
+        public DbSet<SheetHistory> SheetHistories { get; set; }
 
         // Future modules add DbSets here:
         // public DbSet<ProformaInvoice> ProformaInvoices { get; set; }
-        // public DbSet<JobOrder> JobOrders { get; set; }
-        // etc.
 
-        // ============ DATABASE FILE LOCATION ============
         private static readonly string DbFolder = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "ProGlassAutomation");
@@ -31,7 +30,6 @@ namespace ProGlassAutomation.Services.Database
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            // Ensure folder exists
             if (!Directory.Exists(DbFolder))
                 Directory.CreateDirectory(DbFolder);
 
@@ -42,19 +40,31 @@ namespace ProGlassAutomation.Services.Database
         {
             base.OnModelCreating(modelBuilder);
 
-            // Configure GlassSheet — no duplicate SKUs allowed
+            // GlassSheet unique constraint
             modelBuilder.Entity<GlassSheet>()
                 .HasIndex(g => new { g.Category, g.ThicknessMm, g.Color, g.WidthMm, g.HeightMm, g.Supplier })
                 .IsUnique()
                 .HasDatabaseName("IX_GlassSheet_Unique");
 
-            // Decimal precision for pricing columns
             modelBuilder.Entity<GlassSheet>()
                 .Property(g => g.PurchasePricePerSqm)
                 .HasPrecision(18, 2);
 
             modelBuilder.Entity<GlassSheet>()
                 .Property(g => g.SellPricePerSqm)
+                .HasPrecision(18, 2);
+
+            // SheetHistory indexes for fast lookup
+            modelBuilder.Entity<SheetHistory>()
+                .HasIndex(h => h.SheetId)
+                .HasDatabaseName("IX_SheetHistory_SheetId");
+
+            modelBuilder.Entity<SheetHistory>()
+                .HasIndex(h => h.Timestamp)
+                .HasDatabaseName("IX_SheetHistory_Timestamp");
+
+            modelBuilder.Entity<SheetHistory>()
+                .Property(h => h.ValueChanged)
                 .HasPrecision(18, 2);
         }
     }
