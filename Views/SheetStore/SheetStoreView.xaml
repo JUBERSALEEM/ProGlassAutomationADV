@@ -7,8 +7,8 @@
         <Style x:Key="StatBox" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Padding" Value="18,14"/>
-            <Setter Property="Margin" Value="6"/>
+            <Setter Property="Padding" Value="16,14"/>
+            <Setter Property="Margin" Value="5"/>
         </Style>
         <Style x:Key="StatLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="10"/>
@@ -16,9 +16,19 @@
             <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
         </Style>
         <Style x:Key="StatValue" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="22"/>
+            <Setter Property="FontSize" Value="20"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,2,0,0"/>
+        </Style>
+        <Style x:Key="StatValueBig" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="18"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Margin" Value="0,2,0,0"/>
+        </Style>
+        <Style x:Key="StatSubLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
             <Setter Property="Margin" Value="0,2,0,0"/>
         </Style>
         <Style x:Key="ActionBtn" TargetType="Button">
@@ -74,12 +84,13 @@
                             Command="{Binding AddCommand}"/>
                 </DockPanel>
 
-                <!-- STATS ROW -->
-                <UniformGrid Rows="1" Columns="5" Margin="4,0,4,20">
+                <!-- STATS ROW 1: Quantities -->
+                <UniformGrid Rows="1" Columns="4" Margin="4,0,4,10">
                     <Border Style="{StaticResource StatBox}">
                         <StackPanel>
                             <TextBlock Text="ITEMS" Style="{StaticResource StatLabel}"/>
                             <TextBlock Text="{Binding TotalItems}" Style="{StaticResource StatValue}"/>
+                            <TextBlock Text="glass types" Style="{StaticResource StatSubLabel}"/>
                         </StackPanel>
                     </Border>
                     <Border Style="{StaticResource StatBox}">
@@ -88,6 +99,8 @@
                             <TextBlock Text="{Binding TotalStock}"
                                        Style="{StaticResource StatValue}"
                                        Foreground="#10B981"/>
+                            <TextBlock Text="{Binding TotalSqmInStock, StringFormat={}{0:N2} SQM}"
+                                       Style="{StaticResource StatSubLabel}"/>
                         </StackPanel>
                     </Border>
                     <Border Style="{StaticResource StatBox}">
@@ -96,6 +109,7 @@
                             <TextBlock Text="{Binding TotalUsed}"
                                        Style="{StaticResource StatValue}"
                                        Foreground="#EF4444"/>
+                            <TextBlock Text="sheets consumed" Style="{StaticResource StatSubLabel}"/>
                         </StackPanel>
                     </Border>
                     <Border Style="{StaticResource StatBox}">
@@ -104,14 +118,63 @@
                             <TextBlock Text="{Binding TotalBalance}"
                                        Style="{StaticResource StatValue}"
                                        Foreground="#F59E0B"/>
+                            <TextBlock Text="{Binding TotalSqmBalance, StringFormat={}{0:N2} SQM available}"
+                                       Style="{StaticResource StatSubLabel}"/>
                         </StackPanel>
                     </Border>
-                    <Border Style="{StaticResource StatBox}">
+                </UniformGrid>
+
+                <!-- STATS ROW 2: Financial Values (the important ones!) -->
+                <UniformGrid Rows="1" Columns="3" Margin="4,0,4,20">
+                    <Border Style="{StaticResource StatBox}"
+                            Background="#FEF2F2"
+                            BorderBrush="#FCA5A5" BorderThickness="1">
                         <StackPanel>
-                            <TextBlock Text="VALUE (AED)" Style="{StaticResource StatLabel}"/>
-                            <TextBlock Text="{Binding TotalValue, StringFormat={}{0:N0}}"
-                                       Style="{StaticResource StatValue}"
-                                       Foreground="{DynamicResource AccentBrush}"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="💸" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="BUYING VALUE" Margin="6,0,0,0"
+                                           Style="{StaticResource StatLabel}"
+                                           Foreground="#991B1B"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding TotalBuyingValue, StringFormat={}{0:N0}}"
+                                       Style="{StaticResource StatValueBig}"
+                                       Foreground="#991B1B"
+                                       FontSize="22"/>
+                            <TextBlock Text="AED (total investment)" Style="{StaticResource StatSubLabel}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource StatBox}"
+                            Background="#F0FDF4"
+                            BorderBrush="#86EFAC" BorderThickness="1">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="💰" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="SELLING VALUE" Margin="6,0,0,0"
+                                           Style="{StaticResource StatLabel}"
+                                           Foreground="#166534"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding TotalSellingValue, StringFormat={}{0:N0}}"
+                                       Style="{StaticResource StatValueBig}"
+                                       Foreground="#166534"
+                                       FontSize="22"/>
+                            <TextBlock Text="AED (if all sold at current price)" Style="{StaticResource StatSubLabel}"/>
+                        </StackPanel>
+                    </Border>
+                    <Border Style="{StaticResource StatBox}"
+                            Background="#EFF6FF"
+                            BorderBrush="#93C5FD" BorderThickness="1">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="📈" FontSize="14" VerticalAlignment="Center"/>
+                                <TextBlock Text="EXPECTED PROFIT" Margin="6,0,0,0"
+                                           Style="{StaticResource StatLabel}"
+                                           Foreground="#1E40AF"/>
+                            </StackPanel>
+                            <TextBlock Text="{Binding TotalProfit, StringFormat={}{0:N0}}"
+                                       Style="{StaticResource StatValueBig}"
+                                       Foreground="#1E40AF"
+                                       FontSize="22"/>
+                            <TextBlock Text="AED (Selling − Buying)" Style="{StaticResource StatSubLabel}"/>
                         </StackPanel>
                     </Border>
                 </UniformGrid>
@@ -143,18 +206,20 @@
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="40"/>
-                                        <ColumnDefinition Width="2*"/>
-                                        <ColumnDefinition Width="70"/>
-                                        <ColumnDefinition Width="90"/>
-                                        <ColumnDefinition Width="110"/>
-                                        <ColumnDefinition Width="1.4*"/>
-                                        <ColumnDefinition Width="70"/>
-                                        <ColumnDefinition Width="90"/>
-                                        <ColumnDefinition Width="90"/>
-                                        <ColumnDefinition Width="70"/>
-                                        <ColumnDefinition Width="70"/>
-                                        <ColumnDefinition Width="70"/>
-                                        <ColumnDefinition Width="220"/>
+                                        <ColumnDefinition Width="1.6*"/>
+                                        <ColumnDefinition Width="65"/>
+                                        <ColumnDefinition Width="80"/>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="1.2*"/>
+                                        <ColumnDefinition Width="65"/>
+                                        <ColumnDefinition Width="80"/>
+                                        <ColumnDefinition Width="80"/>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="60"/>
+                                        <ColumnDefinition Width="60"/>
+                                        <ColumnDefinition Width="60"/>
+                                        <ColumnDefinition Width="200"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="#" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                     <TextBlock Grid.Column="1" Text="CATEGORY" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -162,13 +227,15 @@
                                     <TextBlock Grid.Column="3" Text="COLOR" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                     <TextBlock Grid.Column="4" Text="SIZE" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                     <TextBlock Grid.Column="5" Text="SUPPLIER" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                    <TextBlock Grid.Column="6" Text="SQM" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                    <TextBlock Grid.Column="7" Text="PURCHASE" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="8" Text="SELL" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="9" Text="STOCK" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
-                                    <TextBlock Grid.Column="10" Text="USED" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
-                                    <TextBlock Grid.Column="11" Text="BAL" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
-                                    <TextBlock Grid.Column="12" Text="ACTIONS" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="6" Text="SQM" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="7" Text="BUY/SQM" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="8" Text="SELL/SQM" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="9" Text="TOTAL BUY" FontSize="10" FontWeight="Bold" Foreground="#991B1B" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="10" Text="TOTAL SELL" FontSize="10" FontWeight="Bold" Foreground="#166534" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="11" Text="STOCK" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="12" Text="USED" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="13" Text="BAL" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="14" Text="ACTIONS" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
                                 </Grid>
                             </Border>
 
@@ -190,18 +257,20 @@
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="40"/>
-                                                    <ColumnDefinition Width="2*"/>
-                                                    <ColumnDefinition Width="70"/>
-                                                    <ColumnDefinition Width="90"/>
-                                                    <ColumnDefinition Width="110"/>
-                                                    <ColumnDefinition Width="1.4*"/>
-                                                    <ColumnDefinition Width="70"/>
-                                                    <ColumnDefinition Width="90"/>
-                                                    <ColumnDefinition Width="90"/>
-                                                    <ColumnDefinition Width="70"/>
-                                                    <ColumnDefinition Width="70"/>
-                                                    <ColumnDefinition Width="70"/>
-                                                    <ColumnDefinition Width="220"/>
+                                                    <ColumnDefinition Width="1.6*"/>
+                                                    <ColumnDefinition Width="65"/>
+                                                    <ColumnDefinition Width="80"/>
+                                                    <ColumnDefinition Width="100"/>
+                                                    <ColumnDefinition Width="1.2*"/>
+                                                    <ColumnDefinition Width="65"/>
+                                                    <ColumnDefinition Width="80"/>
+                                                    <ColumnDefinition Width="80"/>
+                                                    <ColumnDefinition Width="100"/>
+                                                    <ColumnDefinition Width="100"/>
+                                                    <ColumnDefinition Width="60"/>
+                                                    <ColumnDefinition Width="60"/>
+                                                    <ColumnDefinition Width="60"/>
+                                                    <ColumnDefinition Width="200"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0" Text="{Binding Id}" FontSize="12"
                                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -226,10 +295,10 @@
                                                            FontSize="12"
                                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                            VerticalAlignment="Center"/>
-                                                <TextBlock Grid.Column="6" Text="{Binding Sqm, StringFormat={}{0:N2}}"
+                                                <TextBlock Grid.Column="6" Text="{Binding SqmPerSheet, StringFormat={}{0:N4}}"
                                                            FontSize="12" FontWeight="SemiBold"
                                                            Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                           VerticalAlignment="Center"/>
+                                                           VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                                 <TextBlock Grid.Column="7" Text="{Binding PurchasePricePerSqm, StringFormat={}{0:N2}}"
                                                            FontSize="12"
                                                            Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -238,19 +307,27 @@
                                                            FontSize="12"
                                                            Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                            VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                                                <Border Grid.Column="9" Background="#DCFCE7" CornerRadius="6"
+                                                <TextBlock Grid.Column="9" Text="{Binding TotalPurchaseValue, StringFormat={}{0:N0}}"
+                                                           FontSize="12" FontWeight="Bold"
+                                                           Foreground="#991B1B"
+                                                           VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                                <TextBlock Grid.Column="10" Text="{Binding TotalSellValue, StringFormat={}{0:N0}}"
+                                                           FontSize="12" FontWeight="Bold"
+                                                           Foreground="#166534"
+                                                           VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                                                <Border Grid.Column="11" Background="#DCFCE7" CornerRadius="6"
                                                         Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                     <TextBlock Text="{Binding Stock}" FontSize="12" FontWeight="Bold" Foreground="#166534"/>
                                                 </Border>
-                                                <Border Grid.Column="10" Background="#FEE2E2" CornerRadius="6"
+                                                <Border Grid.Column="12" Background="#FEE2E2" CornerRadius="6"
                                                         Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                     <TextBlock Text="{Binding Used}" FontSize="12" FontWeight="Bold" Foreground="#991B1B"/>
                                                 </Border>
-                                                <Border Grid.Column="11" Background="#FEF3C7" CornerRadius="6"
+                                                <Border Grid.Column="13" Background="#FEF3C7" CornerRadius="6"
                                                         Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                                     <TextBlock Text="{Binding Balance}" FontSize="12" FontWeight="Bold" Foreground="#92400E"/>
                                                 </Border>
-                                                <StackPanel Grid.Column="12" Orientation="Horizontal" HorizontalAlignment="Center">
+                                                <StackPanel Grid.Column="14" Orientation="Horizontal" HorizontalAlignment="Center">
                                                     <Button Content="Buy" Style="{StaticResource ActionBtn}"
                                                             Background="#10B981"
                                                             Command="{Binding DataContext.BuyCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"

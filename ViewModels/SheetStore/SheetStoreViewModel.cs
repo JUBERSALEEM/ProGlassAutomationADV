@@ -17,15 +17,22 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
         public ObservableCollection<GlassSheet> Sheets { get; } = new();
 
-        // ============ STATS (computed) ============
+        // ============ STATS ============
         public int TotalItems => Sheets.Count;
         public int TotalStock => Sheets.Sum(s => s.Stock);
         public int TotalUsed => Sheets.Sum(s => s.Used);
         public int TotalBalance => Sheets.Sum(s => s.Balance);
-        public decimal TotalValue => Sheets.Sum(s => s.BalanceValue);
-        public decimal TotalCost => Sheets.Sum(s => s.TotalPurchaseValue);
-        public decimal TotalSellPotential => Sheets.Sum(s => s.TotalSellValue);
-        public decimal TotalProfit => TotalSellPotential - TotalCost;
+
+        // Total SQM
+        public decimal TotalSqmInStock => Sheets.Sum(s => s.TotalSqmInStock);
+        public decimal TotalSqmBalance => Sheets.Sum(s => s.TotalSqmBalance);
+
+        // MONEY VALUES (the important ones you asked for)
+        public decimal TotalBuyingValue => Sheets.Sum(s => s.TotalPurchaseValue);
+        public decimal TotalSellingValue => Sheets.Sum(s => s.TotalSellValue);
+        public decimal TotalProfit => TotalSellingValue - TotalBuyingValue;
+        public decimal TotalBalanceValue => Sheets.Sum(s => s.BalanceValue);
+
         public bool HasSheets => Sheets.Count > 0;
         public bool IsEmpty => Sheets.Count == 0;
 
@@ -70,7 +77,6 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             UseCommand = new RelayCommand(async p => await UseAsync(p as GlassSheet ?? SelectedSheet));
             RefreshCommand = new RelayCommand(async _ => await LoadAsync());
 
-            // Initial load
             _ = LoadAsync();
         }
 
@@ -81,7 +87,6 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 IsBusy = true;
                 var all = await _repo.GetAllAsync();
 
-                // In-memory search filter
                 if (!string.IsNullOrWhiteSpace(SearchText))
                 {
                     var q = SearchText.Trim().ToLower();
@@ -111,10 +116,12 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             OnPropertyChanged(nameof(TotalStock));
             OnPropertyChanged(nameof(TotalUsed));
             OnPropertyChanged(nameof(TotalBalance));
-            OnPropertyChanged(nameof(TotalValue));
-            OnPropertyChanged(nameof(TotalCost));
-            OnPropertyChanged(nameof(TotalSellPotential));
+            OnPropertyChanged(nameof(TotalSqmInStock));
+            OnPropertyChanged(nameof(TotalSqmBalance));
+            OnPropertyChanged(nameof(TotalBuyingValue));
+            OnPropertyChanged(nameof(TotalSellingValue));
             OnPropertyChanged(nameof(TotalProfit));
+            OnPropertyChanged(nameof(TotalBalanceValue));
             OnPropertyChanged(nameof(HasSheets));
             OnPropertyChanged(nameof(IsEmpty));
         }
@@ -169,7 +176,9 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 $"Delete this glass sheet?\n\n" +
                 $"{sheet.Category} • {sheet.ThicknessDisplay} • {sheet.Color}\n" +
                 $"Size: {sheet.SizeDisplay}\n" +
-                $"Supplier: {sheet.Supplier}\n\n" +
+                $"Supplier: {sheet.Supplier}\n" +
+                $"Current stock: {sheet.Stock} sheets " +
+                $"(worth {sheet.TotalPurchaseValue:N0} AED)\n\n" +
                 $"This cannot be undone.",
                 "Confirm Delete",
                 MessageBoxButton.YesNo,
@@ -193,9 +202,11 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         {
             if (sheet == null) return;
 
-            // Simple quantity prompt for now — will build styled dialog later
             var input = Microsoft.VisualBasic.Interaction.InputBox(
-                $"How many sheets to buy?\n\nCurrent stock: {sheet.Stock}",
+                $"How many sheets to buy?\n\n" +
+                $"Current stock: {sheet.Stock} sheets\n" +
+                $"Price per SQM: {sheet.PurchasePricePerSqm:N2} AED\n" +
+                $"SQM per sheet: {sheet.SqmPerSheet:N4}",
                 "Buy Stock",
                 "10");
 
@@ -218,7 +229,9 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             if (sheet == null) return;
 
             var input = Microsoft.VisualBasic.Interaction.InputBox(
-                $"How many sheets to use?\n\nAvailable: {sheet.Balance}",
+                $"How many sheets to use?\n\n" +
+                $"Available: {sheet.Balance} sheets " +
+                $"({sheet.TotalSqmBalance:N2} SQM)",
                 "Use Stock",
                 "1");
 
