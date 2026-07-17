@@ -158,8 +158,6 @@
         <!-- =========================================================== -->
         <!-- GLASSY VERTICAL SLIDER (SCROLL INDICATOR)                    -->
         <!-- =========================================================== -->
-
-        <!-- Round thumb with gradient dot -->
         <Style x:Key="GlassySliderThumbStyle" TargetType="Thumb">
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
@@ -181,7 +179,6 @@
             </Setter>
         </Style>
 
-        <!-- Invisible track buttons -->
         <Style x:Key="InvisibleRepeatButton" TargetType="RepeatButton">
             <Setter Property="Focusable" Value="False"/>
             <Setter Property="IsTabStop" Value="False"/>
@@ -194,7 +191,6 @@
             </Setter>
         </Style>
 
-        <!-- VERTICAL glassy slider -->
         <Style x:Key="GlassyVerticalSliderStyle" TargetType="Slider">
             <Setter Property="Width" Value="24"/>
             <Setter Property="Orientation" Value="Vertical"/>
@@ -204,14 +200,10 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Slider">
                         <Grid HorizontalAlignment="Center">
-
-                            <!-- Track pill background -->
                             <Border Width="14"
                                     CornerRadius="7"
                                     Background="{DynamicResource MenuHoverBrush}"
                                     Opacity="0.6"/>
-
-                            <!-- Progress fill (top -> thumb position) with gradient -->
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -229,8 +221,6 @@
                                     </Border.Background>
                                 </Border>
                             </Grid>
-
-                            <!-- Real track with thumb -->
                             <Track x:Name="PART_Track" IsDirectionReversed="True">
                                 <Track.DecreaseRepeatButton>
                                     <RepeatButton Style="{StaticResource InvisibleRepeatButton}"
@@ -245,6 +235,138 @@
                                 </Track.IncreaseRepeatButton>
                             </Track>
                         </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- =========================================================== -->
+        <!-- MODERN iOS-STYLE TOGGLE SWITCH (ON/OFF WITH LABELS)          -->
+        <!-- =========================================================== -->
+        <Style x:Key="ModernToggleSwitch" TargetType="ToggleButton">
+            <Setter Property="Width" Value="56"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="#CBD5E1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Grid>
+                            <!-- Track (pill background) -->
+                            <Border x:Name="Track"
+                                    CornerRadius="14"
+                                    Background="{TemplateBinding Background}">
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="3" ShadowDepth="0"
+                                                      Opacity="0.15" Color="Black"/>
+                                </Border.Effect>
+                            </Border>
+
+                            <!-- OFF label (visible when OFF) -->
+                            <TextBlock x:Name="OffLabel"
+                                       Text="OFF"
+                                       FontSize="9"
+                                       FontWeight="Bold"
+                                       Foreground="White"
+                                       HorizontalAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,9,0"/>
+
+                            <!-- ON label (visible when ON) -->
+                            <TextBlock x:Name="OnLabel"
+                                       Text="ON"
+                                       FontSize="9"
+                                       FontWeight="Bold"
+                                       Foreground="White"
+                                       HorizontalAlignment="Left"
+                                       VerticalAlignment="Center"
+                                       Margin="9,0,0,0"
+                                       Opacity="0"/>
+
+                            <!-- Thumb (white circle) -->
+                            <Ellipse x:Name="Thumb"
+                                     Width="22" Height="22"
+                                     Fill="White"
+                                     HorizontalAlignment="Left"
+                                     Margin="3,0,0,0">
+                                <Ellipse.Effect>
+                                    <DropShadowEffect BlurRadius="4" ShadowDepth="1"
+                                                      Opacity="0.3" Color="Black"/>
+                                </Ellipse.Effect>
+                                <Ellipse.RenderTransform>
+                                    <TranslateTransform x:Name="ThumbTransform" X="0"/>
+                                </Ellipse.RenderTransform>
+                            </Ellipse>
+                        </Grid>
+
+                        <ControlTemplate.Triggers>
+                            <!-- CHECKED (ON) STATE -->
+                            <Trigger Property="IsChecked" Value="True">
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <!-- Slide thumb right -->
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="ThumbTransform"
+                                                Storyboard.TargetProperty="X"
+                                                To="28" Duration="0:0:0.2">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <CubicEase EasingMode="EaseOut"/>
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                            <!-- Hide OFF label -->
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="OffLabel"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="0" Duration="0:0:0.15"/>
+                                            <!-- Show ON label -->
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="OnLabel"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="1" Duration="0:0:0.15"/>
+                                            <!-- Change track to green -->
+                                            <ColorAnimation
+                                                Storyboard.TargetName="Track"
+                                                Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                To="#10B981" Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <!-- Slide thumb left -->
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="ThumbTransform"
+                                                Storyboard.TargetProperty="X"
+                                                To="0" Duration="0:0:0.2">
+                                                <DoubleAnimation.EasingFunction>
+                                                    <CubicEase EasingMode="EaseOut"/>
+                                                </DoubleAnimation.EasingFunction>
+                                            </DoubleAnimation>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="OffLabel"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="1" Duration="0:0:0.15"/>
+                                            <DoubleAnimation
+                                                Storyboard.TargetName="OnLabel"
+                                                Storyboard.TargetProperty="Opacity"
+                                                To="0" Duration="0:0:0.15"/>
+                                            <ColorAnimation
+                                                Storyboard.TargetName="Track"
+                                                Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                To="#CBD5E1" Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
+                            </Trigger>
+
+                            <!-- Hover effect -->
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Track" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
@@ -273,7 +395,7 @@
             </Rectangle.Style>
         </Rectangle>
 
-        <!-- ============ LEFT DRAWER (GROUPED MENU) — NO SHADOW FOR PERFORMANCE ============ -->
+        <!-- ============ LEFT DRAWER (GROUPED MENU) ============ -->
         <Border Width="290"
                 HorizontalAlignment="Left"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
@@ -290,14 +412,12 @@
                 </Style>
             </Border.Style>
 
-            <!-- Two columns: menu (scrollable) + slider (right edge) -->
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Scrollable menu (native scrollbar hidden) -->
                 <ScrollViewer x:Name="MenuScrollViewer"
                               Grid.Column="0"
                               VerticalScrollBarVisibility="Hidden"
@@ -327,7 +447,7 @@
                         <Button Style="{StaticResource SidebarItemStyle}" Content="Sales Report" Tag="&#128202;"
                                 Command="{Binding NavigateCommand}" CommandParameter="SalesReport"/>
 
-                        <!-- PRODUCTION (raw glass processing) -->
+                        <!-- PRODUCTION -->
                         <TextBlock Text="PRODUCTION" Style="{StaticResource SidebarGroupHeaderStyle}"/>
                         <Button Style="{StaticResource SidebarItemStyle}" Content="Cutting" Tag="&#9986;"
                                 Command="{Binding NavigateCommand}" CommandParameter="Cutting"/>
@@ -342,7 +462,7 @@
                         <Button Style="{StaticResource SidebarItemStyle}" Content="Tempering" Tag="&#128293;"
                                 Command="{Binding NavigateCommand}" CommandParameter="Tempering"/>
 
-                        <!-- DISPATCH (assembly + delivery pipeline) -->
+                        <!-- DISPATCH -->
                         <TextBlock Text="DISPATCH" Style="{StaticResource SidebarGroupHeaderStyle}"/>
                         <Button Style="{StaticResource SidebarItemStyle}" Content="Pairing" Tag="&#128279;"
                                 Command="{Binding NavigateCommand}" CommandParameter="Pairing"/>
@@ -356,7 +476,6 @@
                     </StackPanel>
                 </ScrollViewer>
 
-                <!-- Vertical glassy slider (right edge, full height) -->
                 <Slider x:Name="ScrollSlider"
                         Grid.Column="1"
                         Style="{StaticResource GlassyVerticalSliderStyle}"
@@ -395,13 +514,13 @@
                     <!-- ============ APPEARANCE ============ -->
                     <TextBlock Text="APPEARANCE" FontSize="10" FontWeight="Bold"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               Opacity="0.7" Margin="0,0,0,8"/>
+                               Opacity="0.7" Margin="0,0,0,10"/>
                     <DockPanel Margin="0,0,0,16">
                         <TextBlock Text="Dark Mode" FontSize="14" VerticalAlignment="Center"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <ToggleButton HorizontalAlignment="Right"
                                       IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
-                                      Width="50" Height="24" Cursor="Hand"/>
+                                      Style="{StaticResource ModernToggleSwitch}"/>
                     </DockPanel>
 
                     <Separator Margin="0,4,0,16" Opacity="0.3"/>
@@ -409,13 +528,13 @@
                     <!-- ============ AI ASSISTANT ============ -->
                     <TextBlock Text="AI ASSISTANT" FontSize="10" FontWeight="Bold"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               Opacity="0.7" Margin="0,0,0,8"/>
-                    <DockPanel Margin="0,0,0,12">
+                               Opacity="0.7" Margin="0,0,0,10"/>
+                    <DockPanel Margin="0,0,0,14">
                         <TextBlock Text="Enable AI" FontSize="14" VerticalAlignment="Center"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <ToggleButton HorizontalAlignment="Right"
                                       IsChecked="{Binding IsAiEnabled, Mode=TwoWay}"
-                                      Width="50" Height="24" Cursor="Hand"/>
+                                      Style="{StaticResource ModernToggleSwitch}"/>
                     </DockPanel>
 
                     <TextBlock Text="Gemini API Key" FontSize="12"
