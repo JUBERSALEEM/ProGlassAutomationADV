@@ -29,6 +29,7 @@
         WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
         FontFamily="Segoe UI"
+        Icon="pack://application:,,,/favicon.ico"
         Background="{DynamicResource WindowBackgroundBrush}">
 
     <Window.DataContext>
