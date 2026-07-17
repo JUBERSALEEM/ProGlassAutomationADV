@@ -2,6 +2,7 @@
 using ProGlassAutomation.Services;
 using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.ViewModels.About;
+using ProGlassAutomation.ViewModels.AI;
 using ProGlassAutomation.ViewModels.Dashboard;
 using ProGlassAutomation.ViewModels.DeliveryNote;
 using ProGlassAutomation.ViewModels.JobOrder;
@@ -26,6 +27,9 @@ namespace ProGlassAutomation.ViewModels
         public ProformaInvoiceViewModel ProformaInvoiceVM { get; }
         public DashboardViewModel DashboardVM { get; }
         public AboutViewModel AboutVM { get; } = new AboutViewModel();
+
+        // AI Chat (floating assistant)
+        public AiChatViewModel AiChatVM { get; }
 
         // Placeholder modules
         public SheetStoreViewModel SheetStoreVM { get; } = new SheetStoreViewModel();
@@ -123,6 +127,9 @@ namespace ProGlassAutomation.ViewModels
             // Existing dependency wiring
             ProformaInvoiceVM = new ProformaInvoiceViewModel();
             DashboardVM = new DashboardViewModel(ProformaInvoiceVM);
+
+            // AI Chat — uses global App.Ai service
+            AiChatVM = new AiChatViewModel(App.Ai);
 
             ToggleMenuCommand = new RelayCommand(_ =>
             {

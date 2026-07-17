@@ -22,6 +22,7 @@
         xmlns:viewsDelivery="clr-namespace:ProGlassAutomation.Views.DeliveryNote"
         xmlns:viewsTaxInvoice="clr-namespace:ProGlassAutomation.Views.TaxInvoice"
         xmlns:viewsReports="clr-namespace:ProGlassAutomation.Views.Reports"
+        xmlns:viewsAi="clr-namespace:ProGlassAutomation.Views.AI"
         Title="ProGlass Automation"
         Height="720" Width="1280"
         MinHeight="600" MinWidth="900"
@@ -117,7 +118,7 @@
             </Setter>
         </Style>
 
-        <!-- ============ SIDEBAR ITEM STYLES (NO SHADOWS - FAST) ============ -->
+        <!-- ============ SIDEBAR ITEM STYLES ============ -->
         <Style x:Key="SidebarGroupHeaderStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="10"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -253,7 +254,6 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="ToggleButton">
                         <Grid>
-                            <!-- Track (pill background) -->
                             <Border x:Name="Track"
                                     CornerRadius="14"
                                     Background="{TemplateBinding Background}">
@@ -262,8 +262,6 @@
                                                       Opacity="0.15" Color="Black"/>
                                 </Border.Effect>
                             </Border>
-
-                            <!-- OFF label (visible when OFF) -->
                             <TextBlock x:Name="OffLabel"
                                        Text="OFF"
                                        FontSize="9"
@@ -272,8 +270,6 @@
                                        HorizontalAlignment="Right"
                                        VerticalAlignment="Center"
                                        Margin="0,0,9,0"/>
-
-                            <!-- ON label (visible when ON) -->
                             <TextBlock x:Name="OnLabel"
                                        Text="ON"
                                        FontSize="9"
@@ -283,8 +279,6 @@
                                        VerticalAlignment="Center"
                                        Margin="9,0,0,0"
                                        Opacity="0"/>
-
-                            <!-- Thumb (white circle) -->
                             <Ellipse x:Name="Thumb"
                                      Width="22" Height="22"
                                      Fill="White"
@@ -299,14 +293,11 @@
                                 </Ellipse.RenderTransform>
                             </Ellipse>
                         </Grid>
-
                         <ControlTemplate.Triggers>
-                            <!-- CHECKED (ON) STATE -->
                             <Trigger Property="IsChecked" Value="True">
                                 <Trigger.EnterActions>
                                     <BeginStoryboard>
                                         <Storyboard>
-                                            <!-- Slide thumb right -->
                                             <DoubleAnimation
                                                 Storyboard.TargetName="ThumbTransform"
                                                 Storyboard.TargetProperty="X"
@@ -315,17 +306,14 @@
                                                     <CubicEase EasingMode="EaseOut"/>
                                                 </DoubleAnimation.EasingFunction>
                                             </DoubleAnimation>
-                                            <!-- Hide OFF label -->
                                             <DoubleAnimation
                                                 Storyboard.TargetName="OffLabel"
                                                 Storyboard.TargetProperty="Opacity"
                                                 To="0" Duration="0:0:0.15"/>
-                                            <!-- Show ON label -->
                                             <DoubleAnimation
                                                 Storyboard.TargetName="OnLabel"
                                                 Storyboard.TargetProperty="Opacity"
                                                 To="1" Duration="0:0:0.15"/>
-                                            <!-- Change track to green -->
                                             <ColorAnimation
                                                 Storyboard.TargetName="Track"
                                                 Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
@@ -336,7 +324,6 @@
                                 <Trigger.ExitActions>
                                     <BeginStoryboard>
                                         <Storyboard>
-                                            <!-- Slide thumb left -->
                                             <DoubleAnimation
                                                 Storyboard.TargetName="ThumbTransform"
                                                 Storyboard.TargetProperty="X"
@@ -361,8 +348,6 @@
                                     </BeginStoryboard>
                                 </Trigger.ExitActions>
                             </Trigger>
-
-                            <!-- Hover effect -->
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Track" Property="Opacity" Value="0.9"/>
                             </Trigger>
@@ -596,5 +581,10 @@
                     Command="{Binding ShowAboutCommand}"
                     ToolTip="About"/>
         </StackPanel>
+
+        <!-- ============ AI CHAT (floating button + panel) — TOP-MOST ============ -->
+        <viewsAi:AiChatView DataContext="{Binding AiChatVM}"
+                            Panel.ZIndex="200"/>
+
     </Grid>
 </Window>
