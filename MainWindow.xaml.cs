@@ -12,6 +12,15 @@ namespace ProGlassAutomation
         public MainWindow()
         {
             InitializeComponent();
+
+            // Load saved API key into PasswordBox when window is ready
+            Loaded += (_, __) =>
+            {
+                if (DataContext is MainViewModel vm && !string.IsNullOrEmpty(vm.AiApiKey))
+                {
+                    ApiKeyBox.Password = vm.AiApiKey;
+                }
+            };
         }
 
         private void DimOverlay_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
@@ -44,6 +53,15 @@ namespace ProGlassAutomation
             _isSyncingScroll = true;
             MenuScrollViewer.ScrollToVerticalOffset(e.NewValue * MenuScrollViewer.ScrollableHeight);
             _isSyncingScroll = false;
+        }
+
+        // PasswordBox can't bind directly for security — sync manually to VM
+        private void ApiKeyBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is MainViewModel vm && sender is PasswordBox pb)
+            {
+                vm.AiApiKey = pb.Password;
+            }
         }
     }
 }

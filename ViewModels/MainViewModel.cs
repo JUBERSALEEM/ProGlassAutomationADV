@@ -1,5 +1,6 @@
 ﻿using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services;
+using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.ViewModels.About;
 using ProGlassAutomation.ViewModels.Dashboard;
 using ProGlassAutomation.ViewModels.DeliveryNote;
@@ -19,13 +20,14 @@ namespace ProGlassAutomation.ViewModels
         private ViewModelBase _currentViewModel;
         private bool _isMenuOpen;
         private bool _isSettingsOpen;
+        private string _aiTestStatus;
 
         // Existing modules
         public ProformaInvoiceViewModel ProformaInvoiceVM { get; }
         public DashboardViewModel DashboardVM { get; }
         public AboutViewModel AboutVM { get; } = new AboutViewModel();
 
-        // New placeholder modules
+        // Placeholder modules
         public SheetStoreViewModel SheetStoreVM { get; } = new SheetStoreViewModel();
         public JobOrderViewModel JobOrderVM { get; } = new JobOrderViewModel();
         public OptimizationViewModel OptimizationVM { get; } = new OptimizationViewModel();
@@ -71,11 +73,50 @@ namespace ProGlassAutomation.ViewModels
             }
         }
 
+        // ==================== AI SETTINGS ====================
+
+        public bool IsAiEnabled
+        {
+            get => App.Config?.Ai?.Enabled ?? false;
+            set
+            {
+                if (App.Config?.Ai != null)
+                {
+                    App.Config.Ai.Enabled = value;
+                    ConfigService.Save(App.Config);
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public string AiApiKey
+        {
+            get => App.Config?.Ai?.ApiKey ?? string.Empty;
+            set
+            {
+                if (App.Config?.Ai != null)
+                {
+                    App.Config.Ai.ApiKey = value;
+                    ConfigService.Save(App.Config);
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        public string AiTestStatus
+        {
+            get => _aiTestStatus;
+            set { _aiTestStatus = value; OnPropertyChanged(); }
+        }
+
+        // ==================== COMMANDS ====================
+
         public ICommand ToggleMenuCommand { get; }
         public ICommand ToggleSettingsCommand { get; }
         public ICommand NavigateCommand { get; }
         public ICommand ToggleThemeCommand { get; }
         public ICommand ShowAboutCommand { get; }
+        public ICommand TestAiConnectionCommand { get; }
 
         public MainViewModel()
         {
@@ -103,6 +144,21 @@ namespace ProGlassAutomation.ViewModels
                 CurrentViewModel = AboutVM;
                 IsMenuOpen = false;
                 IsSettingsOpen = false;
+            });
+
+            TestAiConnectionCommand = new RelayCommand(async _ =>
+            {
+                if (App.Ai == null)
+                {
+                    AiTestStatus = "✗ AI service not initialized.";
+                    return;
+                }
+
+                AiTestStatus = "Testing...";
+                var result = await App.Ai.TestConnectionAsync();
+                AiTestStatus = result.Success
+                    ? "✓ " + result.Message
+                    : "✗ " + result.Message;
             });
 
             // Default = Dashboard
