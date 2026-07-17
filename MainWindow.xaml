@@ -316,16 +316,18 @@
                         <Button Style="{StaticResource SidebarItemStyle}" Content="Sheet Store" Tag="&#128230;"
                                 Command="{Binding NavigateCommand}" CommandParameter="SheetStore"/>
 
-                        <!-- SALES -->
-                        <TextBlock Text="SALES" Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                        <!-- SALES & REPORTS -->
+                        <TextBlock Text="SALES &amp; REPORTS" Style="{StaticResource SidebarGroupHeaderStyle}"/>
                         <Button Style="{StaticResource SidebarItemStyle}" Content="Proforma Invoice" Tag="&#128221;"
                                 Command="{Binding NavigateCommand}" CommandParameter="ProformaInvoice"/>
                         <Button Style="{StaticResource SidebarItemStyle}" Content="Job Order" Tag="&#128203;"
                                 Command="{Binding NavigateCommand}" CommandParameter="JobOrder"/>
                         <Button Style="{StaticResource SidebarItemStyle}" Content="Optimization" Tag="&#9881;"
                                 Command="{Binding NavigateCommand}" CommandParameter="Optimization"/>
+                        <Button Style="{StaticResource SidebarItemStyle}" Content="Sales Report" Tag="&#128202;"
+                                Command="{Binding NavigateCommand}" CommandParameter="SalesReport"/>
 
-                        <!-- PRODUCTION -->
+                        <!-- PRODUCTION (raw glass processing) -->
                         <TextBlock Text="PRODUCTION" Style="{StaticResource SidebarGroupHeaderStyle}"/>
                         <Button Style="{StaticResource SidebarItemStyle}" Content="Cutting" Tag="&#9986;"
                                 Command="{Binding NavigateCommand}" CommandParameter="Cutting"/>
@@ -339,22 +341,17 @@
                                 Command="{Binding NavigateCommand}" CommandParameter="Mitring"/>
                         <Button Style="{StaticResource SidebarItemStyle}" Content="Tempering" Tag="&#128293;"
                                 Command="{Binding NavigateCommand}" CommandParameter="Tempering"/>
+
+                        <!-- DISPATCH (assembly + delivery pipeline) -->
+                        <TextBlock Text="DISPATCH" Style="{StaticResource SidebarGroupHeaderStyle}"/>
                         <Button Style="{StaticResource SidebarItemStyle}" Content="Pairing" Tag="&#128279;"
                                 Command="{Binding NavigateCommand}" CommandParameter="Pairing"/>
                         <Button Style="{StaticResource SidebarItemStyle}" Content="Doubling / Lamination" Tag="&#128218;"
                                 Command="{Binding NavigateCommand}" CommandParameter="DoublingLamination"/>
-
-                        <!-- DISPATCH -->
-                        <TextBlock Text="DISPATCH" Style="{StaticResource SidebarGroupHeaderStyle}"/>
                         <Button Style="{StaticResource SidebarItemStyle}" Content="Delivery Note" Tag="&#128666;"
                                 Command="{Binding NavigateCommand}" CommandParameter="DeliveryNote"/>
                         <Button Style="{StaticResource SidebarItemStyle}" Content="Tax Invoice" Tag="&#129534;"
                                 Command="{Binding NavigateCommand}" CommandParameter="TaxInvoice"/>
-
-                        <!-- REPORTS -->
-                        <TextBlock Text="REPORTS" Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                        <Button Style="{StaticResource SidebarItemStyle}" Content="Sales Report" Tag="&#128202;"
-                                Command="{Binding NavigateCommand}" CommandParameter="SalesReport"/>
 
                     </StackPanel>
                 </ScrollViewer>
