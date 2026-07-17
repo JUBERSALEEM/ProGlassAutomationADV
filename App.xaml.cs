@@ -1,6 +1,7 @@
 ﻿using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.AI.AIConnectivity;
 using ProGlassAutomation.Services.AI.AIService;
+using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Views.Splash;
 using System.Threading.Tasks;
 using System.Windows;
@@ -19,23 +20,27 @@ namespace ProGlassAutomation
             // 1) Load persisted config (%AppData%\ProGlassAutomation\config.json)
             Config = ConfigService.Load();
 
-            // 2) Initialize AI + Connectivity services
+            // 2) Initialize database (creates proglass.db + tables on first run)
+            //    Located at: %AppData%\ProGlassAutomation\proglass.db
+            DatabaseInitializer.Initialize();
+
+            // 3) Initialize AI + Connectivity services
             Ai = new GeminiAiService(Config.Ai);
             Connectivity = new ConnectivityService();
             Connectivity.StartMonitoring();
 
-            // 3) Show splash
+            // 4) Show splash
             var splash = new SplashView();
             splash.Show();
 
-            // 4) Simulate loading time (allows animations to play)
+            // 5) Simulate loading time (allows animations to play)
             //    Replace this with real init work later (DB connect, config load, etc.)
             await Task.Delay(2800);
 
-            // 5) Create main window (but don't show yet)
+            // 6) Create main window (but don't show yet)
             var mainWindow = new MainWindow();
 
-            // 6) Fade out splash then show main window
+            // 7) Fade out splash then show main window
             splash.FadeOutAndClose(() =>
             {
                 mainWindow.Show();
