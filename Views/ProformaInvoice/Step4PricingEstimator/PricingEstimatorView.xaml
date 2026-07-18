@@ -12,66 +12,52 @@
                   Padding="0,0,10,0">
         <StackPanel>
 
-            <!-- Placeholder — real header, glass type cards, catalog, params,
-                 treatments, spec groups, and rate bar come in sub-phases 6.2-6.11 -->
-            <TextBlock Text="Step 4: Smart Pricing Estimator"
-                       FontSize="20"
-                       FontWeight="Bold"
-                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+            <!-- ============ HEADER ============ -->
+            <StackPanel Orientation="Horizontal"
+                        Margin="0,0,0,8">
 
-            <TextBlock Text="This is the Step 4 shell. Building this step in 11 small pieces so each file stays clean and testable."
+                <!-- Icon -->
+                <Border Background="{DynamicResource AccentBrush}"
+                        Width="36" Height="36"
+                        CornerRadius="8"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="&#9881;"
+                               FontSize="18"
+                               Foreground="White"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+
+                <!-- Title -->
+                <TextBlock Text="SMART PRICING ESTIMATOR CONSOLE"
+                           FontSize="18"
+                           FontWeight="Bold"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           VerticalAlignment="Center"
+                           Margin="14,0,0,0"/>
+            </StackPanel>
+
+            <!-- Subtitle -->
+            <TextBlock Text="Pick the glass layer structure (SGU / DGU / LAM), configure factors, and apply live computed rates to specifications."
                        FontSize="13"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"
-                       Margin="0,10,0,0"
+                       Margin="0,0,0,20"
                        TextWrapping="Wrap"/>
 
-            <StackPanel Margin="0,20,0,0">
-                <TextBlock Text="COMING NEXT:"
-                           FontSize="11"
-                           FontWeight="Bold"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                           Margin="0,0,0,8"/>
-                <TextBlock Text="• 6.2 — Header (icon + title + subtitle)"
+            <!-- Divider -->
+            <Border Background="{DynamicResource MenuHoverBrush}"
+                    Height="1"
+                    Margin="0,0,0,24"/>
+
+            <!-- ============ BODY PLACEHOLDER ============ -->
+            <Border Background="{DynamicResource MenuHoverBrush}"
+                    CornerRadius="8"
+                    Padding="20,14"
+                    HorizontalAlignment="Left">
+                <TextBlock Text="✓ Header complete — 3 Glass Type cards (SGU / DGU / LAM) coming next"
                            FontSize="12"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                           Margin="0,2,0,0"/>
-                <TextBlock Text="• 6.3 — 3 Glass Type cards (SGU / DGU / LAM)"
-                           FontSize="12"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                           Margin="0,2,0,0"/>
-                <TextBlock Text="• 6.4 — Guardian &amp; AGC catalog panel"
-                           FontSize="12"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                           Margin="0,2,0,0"/>
-                <TextBlock Text="• 6.5 — Parameter row 1 (Thickness, Color, Treatment, Price)"
-                           FontSize="12"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                           Margin="0,2,0,0"/>
-                <TextBlock Text="• 6.6 — Parameter row 2 (Cutting, Tempering, Yield, Margin)"
-                           FontSize="12"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                           Margin="0,2,0,0"/>
-                <TextBlock Text="• 6.7 — Parameter row 3 (Polish dropdown)"
-                           FontSize="12"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                           Margin="0,2,0,0"/>
-                <TextBlock Text="• 6.8 — Processing treatment checkboxes"
-                           FontSize="12"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                           Margin="0,2,0,0"/>
-                <TextBlock Text="• 6.9 — Spec target groups"
-                           FontSize="12"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                           Margin="0,2,0,0"/>
-                <TextBlock Text="• 6.10 — Estimated rate bar + APPLY button"
-                           FontSize="12"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                           Margin="0,2,0,0"/>
-                <TextBlock Text="• 6.11 — Wire price calculation logic"
-                           FontSize="12"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                           Margin="0,2,0,0"/>
-            </StackPanel>
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+            </Border>
 
         </StackPanel>
     </ScrollViewer>
