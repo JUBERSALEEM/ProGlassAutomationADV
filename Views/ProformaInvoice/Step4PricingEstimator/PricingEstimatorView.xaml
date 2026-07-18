@@ -11,7 +11,6 @@
     <!-- ============ SHARED STYLES ============ -->
     <UserControl.Resources>
 
-        <!-- Section Title -->
         <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -19,7 +18,6 @@
             <Setter Property="Margin" Value="0,0,0,14"/>
         </Style>
 
-        <!-- Themed Checkbox -->
         <Style x:Key="ThemedCheckBoxStyle" TargetType="CheckBox">
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="FontSize" Value="13"/>
@@ -74,7 +72,6 @@
                         <UniformGrid Columns="2" Rows="0"/>
                     </ItemsPanelTemplate>
                 </ItemsControl.ItemsPanel>
-
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
                         <Button Command="{Binding DataContext.SelectGlassTypeCommand,
@@ -324,21 +321,17 @@
                     BorderThickness="1.5"
                     BorderBrush="{DynamicResource MenuHoverBrush}">
                 <StackPanel>
-
-                    <!-- Title + Counter Row -->
                     <Grid Margin="0,0,0,14">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-
                         <TextBlock Grid.Column="0"
                                    Text="SELECT SPECIFICATION TARGET GROUPS"
                                    FontSize="11"
                                    FontWeight="Bold"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    VerticalAlignment="Center"/>
-
                         <StackPanel Grid.Column="1"
                                     Orientation="Horizontal"
                                     VerticalAlignment="Center">
@@ -353,15 +346,12 @@
                                        VerticalAlignment="Center"/>
                         </StackPanel>
                     </Grid>
-
-                    <!-- Pill Buttons — one per Spec Group -->
                     <ItemsControl ItemsSource="{Binding SpecGroups}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
                                 <WrapPanel Orientation="Horizontal"/>
                             </ItemsPanelTemplate>
                         </ItemsControl.ItemsPanel>
-
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Button Command="{Binding DataContext.ToggleSpecGroupCommand,
@@ -393,7 +383,6 @@
                                                 </StackPanel>
                                             </Border>
                                             <ControlTemplate.Triggers>
-                                                <!-- Selected State (filled) -->
                                                 <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                                     <Setter TargetName="PillBorder" Property="Background"
                                                             Value="{DynamicResource AccentBrush}"/>
@@ -403,7 +392,6 @@
                                                     <Setter TargetName="NameText" Property="Foreground" Value="White"/>
                                                     <Setter TargetName="CheckIcon" Property="Visibility" Value="Visible"/>
                                                 </DataTrigger>
-                                                <!-- Unselected State (outlined) -->
                                                 <DataTrigger Binding="{Binding IsSelected}" Value="False">
                                                     <Setter TargetName="PillBorder" Property="Background"
                                                             Value="Transparent"/>
@@ -415,7 +403,6 @@
                                                             Value="{DynamicResource PrimaryForegroundBrush}"/>
                                                     <Setter TargetName="CheckIcon" Property="Visibility" Value="Collapsed"/>
                                                 </DataTrigger>
-                                                <!-- Hover -->
                                                 <Trigger Property="IsMouseOver" Value="True">
                                                     <Setter TargetName="PillBorder" Property="Opacity" Value="0.85"/>
                                                 </Trigger>
@@ -426,19 +413,86 @@
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
-
                 </StackPanel>
             </Border>
 
-            <!-- Placeholder for final section -->
-            <Border Background="{DynamicResource MenuHoverBrush}"
-                    CornerRadius="8"
-                    Padding="14,10"
-                    Margin="0,10,0,0"
-                    HorizontalAlignment="Left">
-                <TextBlock Text="✓ Spec Target Groups complete — Estimated Rate bar + APPLY button coming next (final SGU sub-phase)"
-                           FontSize="11"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+            <!-- ============ ESTIMATED RATE BAR + APPLY BUTTON ============ -->
+            <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                    CornerRadius="12"
+                    Padding="20"
+                    Margin="0,16,0,0"
+                    BorderThickness="1.5"
+                    BorderBrush="{DynamicResource MenuHoverBrush}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Left: Estimated Rate Display -->
+                    <StackPanel Grid.Column="0"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="Estimated Selling Rate:"
+                                   FontSize="13"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,12,0"/>
+
+                        <TextBlock Text="AED"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="#22C55E"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,6,0"/>
+
+                        <TextBlock Text="{Binding EstimatedRatePerSqm, StringFormat={}{0:N2}}"
+                                   FontSize="24"
+                                   FontWeight="Bold"
+                                   Foreground="#22C55E"
+                                   VerticalAlignment="Center"/>
+
+                        <TextBlock Text=" / sqm"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   VerticalAlignment="Center"
+                                   Margin="6,0,0,0"/>
+                    </StackPanel>
+
+                    <!-- Right: APPLY Button -->
+                    <Button Grid.Column="1"
+                            Command="{Binding ApplyRateCommand}"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Padding="0"
+                            Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="ApplyBorder"
+                                        Background="{DynamicResource AccentBrush}"
+                                        CornerRadius="10"
+                                        Padding="24,14">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="APPLY CALCULATED RATE TO SELECTED SPECS"
+                                                   FontSize="12"
+                                                   FontWeight="Bold"
+                                                   Foreground="White"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter TargetName="ApplyBorder" Property="Opacity" Value="0.4"/>
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="ApplyBorder" Property="Opacity" Value="0.9"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </Grid>
             </Border>
 
         </StackPanel>

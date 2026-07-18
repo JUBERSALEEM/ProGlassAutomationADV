@@ -1,6 +1,7 @@
 ﻿using ProGlassAutomation.Commands;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
@@ -26,12 +27,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
 
     /// <summary>
     /// Represents a specification target group (pulled from Step 5 data grid).
-    /// Toggling selection includes/excludes this group from calculated rate application.
     /// </summary>
     public class SpecTargetGroup : ViewModelBase
     {
-        public string Name { get; set; }             // e.g., "Spec Group 1"
-        public string Description { get; set; }      // e.g., "6mm HD Grey FT + 12mm ASP + 6mm Clear"
+        public string Name { get; set; }
+        public string Description { get; set; }
 
         private bool _isSelected;
         public bool IsSelected
@@ -108,12 +108,23 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         // === Specification Target Groups ===
         public ObservableCollection<SpecTargetGroup> SpecGroups { get; }
 
-        // Live count of selected spec groups
         public int TotalSpecsActive => SpecGroups?.Count(g => g.IsSelected) ?? 0;
+
+        // === Estimated Rate (calculated live once formula is wired in Phase 6.5) ===
+
+        private decimal _estimatedRatePerSqm;
+        public decimal EstimatedRatePerSqm
+        {
+            get => _estimatedRatePerSqm;
+            set { _estimatedRatePerSqm = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasCalculatedRate)); }
+        }
+
+        public bool HasCalculatedRate => EstimatedRatePerSqm > 0m;
 
         // === Commands ===
         public ICommand SelectGlassTypeCommand { get; }
         public ICommand ToggleSpecGroupCommand { get; }
+        public ICommand ApplyRateCommand { get; }
 
         public PricingEstimatorViewModel()
         {
@@ -158,14 +169,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             };
 
             // Seed sample spec groups
-            // TODO: Will be replaced with live data from Step 5 (Data Grid)
             SpecGroups = new ObservableCollection<SpecTargetGroup>
             {
                 new SpecTargetGroup
                 {
                     Name = "Spec Group 1",
                     Description = "Default spec group",
-                    IsSelected = true   // First group selected by default
+                    IsSelected = true
                 }
             };
 
@@ -184,14 +194,32 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 }
             });
 
+            // Apply calculated rate to selected specs
+            // TODO: In Phase 6.5, wire real calculation + push rate to Step 5 spec groups
+            ApplyRateCommand = new RelayCommand(
+                _ =>
+                {
+                    var selectedCount = SpecGroups.Count(g => g.IsSelected);
+                    MessageBox.Show(
+                        $"Rate application coming in Phase 6.5!\n\n" +
+                        $"Will apply AED {EstimatedRatePerSqm:N2}/sqm to {selectedCount} selected spec group(s).",
+                        "Apply Rate — Placeholder",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                },
+                _ => TotalSpecsActive > 0);   // Only enabled when at least 1 spec group selected
+
             // Default selection = SGU
             SelectedGlassType = GlassTypes[0];
 
-            // Default: no treatments checked
+            // Default treatments
             PolishedEdges = false;
             DrillCutouts = false;
             CountersunkHoles = false;
             EdgeDeletionLayer = false;
+
+            // Placeholder rate (will be calculated live in Phase 6.5)
+            EstimatedRatePerSqm = 0m;
         }
     }
 }
