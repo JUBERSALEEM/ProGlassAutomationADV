@@ -6,6 +6,7 @@ using ProGlassAutomation.Views.SheetStore;
 using ProGlassAutomation.Views.SheetStore.SheetStoreHistory;
 using ProGlassAutomation.ViewModels.SheetStore.SheetStoreHistory;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -19,7 +20,54 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         private readonly ISheetStoreRepository _repo;
         private readonly ISheetHistoryRepository _historyRepo;
 
+        // Full unfiltered list (source of truth)
+        private List<GlassSheet> _allSheets = new();
+
         public ObservableCollection<GlassSheet> Sheets { get; } = new();
+
+        // ============ FILTER DROPDOWN OPTIONS ============
+        public ObservableCollection<string> CategoryOptions { get; } = new();
+        public ObservableCollection<string> ThicknessOptions { get; } = new();
+        public ObservableCollection<string> ColorOptions { get; } = new();
+        public ObservableCollection<string> SupplierOptions { get; } = new();
+
+        // ============ FILTER SELECTIONS ============
+        private const string ALL = "All";
+
+        private string _selectedCategory = ALL;
+        public string SelectedCategory
+        {
+            get => _selectedCategory;
+            set { if (_selectedCategory == value) return; _selectedCategory = value; OnPropertyChanged(); ApplyFilters(); }
+        }
+
+        private string _selectedThickness = ALL;
+        public string SelectedThickness
+        {
+            get => _selectedThickness;
+            set { if (_selectedThickness == value) return; _selectedThickness = value; OnPropertyChanged(); ApplyFilters(); }
+        }
+
+        private string _selectedColor = ALL;
+        public string SelectedColor
+        {
+            get => _selectedColor;
+            set { if (_selectedColor == value) return; _selectedColor = value; OnPropertyChanged(); ApplyFilters(); }
+        }
+
+        private string _selectedSupplier = ALL;
+        public string SelectedSupplier
+        {
+            get => _selectedSupplier;
+            set { if (_selectedSupplier == value) return; _selectedSupplier = value; OnPropertyChanged(); ApplyFilters(); }
+        }
+
+        public bool HasActiveFilters =>
+            SelectedCategory != ALL ||
+            SelectedThickness != ALL ||
+            SelectedColor != ALL ||
+            SelectedSupplier != ALL ||
+            !string.IsNullOrWhiteSpace(SearchText);
 
         // ============ AGGREGATE STATS ============
         public int TotalItems => Sheets.Count;
@@ -82,7 +130,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public string SearchText
         {
             get => _searchText;
-            set { _searchText = value; OnPropertyChanged(); _ = LoadAsync(); }
+            set { if (_searchText == value) return; _searchText = value; OnPropertyChanged(); ApplyFilters(); }
         }
 
         private bool _isBusy;
@@ -101,6 +149,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public ICommand RefreshCommand { get; }
         public ICommand ClearSelectionCommand { get; }
         public ICommand ShowHistoryCommand { get; }
+        public ICommand ClearFiltersCommand { get; }
 
         public SheetStoreViewModel()
         {
@@ -115,6 +164,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             RefreshCommand = new RelayCommand(async _ => await LoadAsync());
             ClearSelectionCommand = new RelayCommand(_ => SelectedSheet = null);
             ShowHistoryCommand = new RelayCommand(_ => ShowHistory());
+            ClearFiltersCommand = new RelayCommand(_ => ClearAllFilters());
 
             _ = LoadAsync();
         }
@@ -124,31 +174,118 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             try
             {
                 IsBusy = true;
-                var all = await _repo.GetAllAsync();
 
-                if (!string.IsNullOrWhiteSpace(SearchText))
-                {
-                    var q = SearchText.Trim().ToLower();
-                    all = all.Where(g =>
-                        g.Category.ToLower().Contains(q) ||
-                        g.Color.ToLower().Contains(q) ||
-                        g.Supplier.ToLower().Contains(q) ||
-                        g.ThicknessDisplay.ToLower().Contains(q)
-                    ).ToList();
-                }
+                _allSheets = await _repo.GetAllAsync();
 
-                Sheets.Clear();
-                foreach (var s in all)
-                    Sheets.Add(s);
+                RebuildFilterOptions();
+                ApplyFilters();
 
                 SelectedSheet = null;
                 LastUpdated = await _historyRepo.GetLastUpdatedAsync();
-                RaiseStatsChanged();
             }
             finally
             {
                 IsBusy = false;
             }
+        }
+
+        /// <summary>
+        /// Rebuilds filter dropdown options from currently loaded data.
+        /// Preserves current selection if it still exists in the new options.
+        /// </summary>
+        private void RebuildFilterOptions()
+        {
+            var oldCategory = SelectedCategory;
+            var oldThickness = SelectedThickness;
+            var oldColor = SelectedColor;
+            var oldSupplier = SelectedSupplier;
+
+            CategoryOptions.Clear();
+            CategoryOptions.Add(ALL);
+            foreach (var c in _allSheets.Select(s => s.Category).Distinct().OrderBy(c => c))
+                CategoryOptions.Add(c);
+
+            ThicknessOptions.Clear();
+            ThicknessOptions.Add(ALL);
+            foreach (var t in _allSheets.Select(s => s.ThicknessDisplay).Distinct().OrderBy(t => t))
+                ThicknessOptions.Add(t);
+
+            ColorOptions.Clear();
+            ColorOptions.Add(ALL);
+            foreach (var c in _allSheets.Select(s => s.Color).Distinct().OrderBy(c => c))
+                ColorOptions.Add(c);
+
+            SupplierOptions.Clear();
+            SupplierOptions.Add(ALL);
+            foreach (var s in _allSheets.Select(x => x.Supplier).Distinct().OrderBy(s => s))
+                SupplierOptions.Add(s);
+
+            // Restore previous selection if still valid; otherwise reset to "All"
+            _selectedCategory = CategoryOptions.Contains(oldCategory) ? oldCategory : ALL;
+            _selectedThickness = ThicknessOptions.Contains(oldThickness) ? oldThickness : ALL;
+            _selectedColor = ColorOptions.Contains(oldColor) ? oldColor : ALL;
+            _selectedSupplier = SupplierOptions.Contains(oldSupplier) ? oldSupplier : ALL;
+
+            OnPropertyChanged(nameof(SelectedCategory));
+            OnPropertyChanged(nameof(SelectedThickness));
+            OnPropertyChanged(nameof(SelectedColor));
+            OnPropertyChanged(nameof(SelectedSupplier));
+        }
+
+        /// <summary>
+        /// Applies all active filters (dropdowns + search) to _allSheets
+        /// and updates the visible Sheets collection.
+        /// </summary>
+        private void ApplyFilters()
+        {
+            IEnumerable<GlassSheet> filtered = _allSheets;
+
+            if (SelectedCategory != ALL)
+                filtered = filtered.Where(s => s.Category == SelectedCategory);
+
+            if (SelectedThickness != ALL)
+                filtered = filtered.Where(s => s.ThicknessDisplay == SelectedThickness);
+
+            if (SelectedColor != ALL)
+                filtered = filtered.Where(s => s.Color == SelectedColor);
+
+            if (SelectedSupplier != ALL)
+                filtered = filtered.Where(s => s.Supplier == SelectedSupplier);
+
+            if (!string.IsNullOrWhiteSpace(SearchText))
+            {
+                var q = SearchText.Trim().ToLower();
+                filtered = filtered.Where(g =>
+                    g.Category.ToLower().Contains(q) ||
+                    g.Color.ToLower().Contains(q) ||
+                    g.Supplier.ToLower().Contains(q) ||
+                    g.ThicknessDisplay.ToLower().Contains(q)
+                );
+            }
+
+            Sheets.Clear();
+            foreach (var s in filtered)
+                Sheets.Add(s);
+
+            RaiseStatsChanged();
+            OnPropertyChanged(nameof(HasActiveFilters));
+        }
+
+        private void ClearAllFilters()
+        {
+            _selectedCategory = ALL;
+            _selectedThickness = ALL;
+            _selectedColor = ALL;
+            _selectedSupplier = ALL;
+            _searchText = string.Empty;
+
+            OnPropertyChanged(nameof(SelectedCategory));
+            OnPropertyChanged(nameof(SelectedThickness));
+            OnPropertyChanged(nameof(SelectedColor));
+            OnPropertyChanged(nameof(SelectedSupplier));
+            OnPropertyChanged(nameof(SearchText));
+
+            ApplyFilters();
         }
 
         private void RaiseStatsChanged()
@@ -225,7 +362,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 {
                     await _repo.UpdateAsync(vm.Result);
 
-                    var changes = new System.Collections.Generic.List<string>();
+                    var changes = new List<string>();
                     if (oldStock != vm.Result.Stock) changes.Add($"Stock: {oldStock} → {vm.Result.Stock}");
                     if (oldBuyPrice != vm.Result.PurchasePricePerSqm) changes.Add($"Buy: {oldBuyPrice:N2} → {vm.Result.PurchasePricePerSqm:N2}");
                     if (oldSellPrice != vm.Result.SellPricePerSqm) changes.Add($"Sell: {oldSellPrice:N2} → {vm.Result.SellPricePerSqm:N2}");
