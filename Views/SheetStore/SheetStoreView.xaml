@@ -202,21 +202,23 @@
                     </Border>
                 </UniformGrid>
 
-                <!-- FILTERS + SEARCH -->
+                <!-- FILTERS + SORT + SEARCH -->
                 <Border Background="{DynamicResource ModuleBackgroundBrush}"
                         CornerRadius="10" Padding="14,12" Margin="10,0,10,16">
                     <StackPanel>
-                        <!-- Row 1: Filters -->
+                        <!-- Row 1: Filters + Sort -->
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="8"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="8"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="8"/>
                                 <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="10"/>
+                                <ColumnDefinition Width="8"/>
+                                <ColumnDefinition Width="1.4*"/>
+                                <ColumnDefinition Width="8"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
@@ -268,8 +270,20 @@
                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                             </StackPanel>
 
+                            <!-- Sort -->
+                            <StackPanel Grid.Column="8">
+                                <TextBlock Text="SORT BY" FontSize="9" FontWeight="Bold"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           Margin="4,0,0,4"/>
+                                <ComboBox ItemsSource="{Binding SortOptions}"
+                                          SelectedItem="{Binding SelectedSort, Mode=TwoWay}"
+                                          Height="34" Padding="10,6" FontSize="12"
+                                          Background="{DynamicResource MenuHoverBrush}"
+                                          Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            </StackPanel>
+
                             <!-- Clear Filters -->
-                            <StackPanel Grid.Column="8" VerticalAlignment="Bottom">
+                            <StackPanel Grid.Column="10" VerticalAlignment="Bottom">
                                 <TextBlock Text=" " FontSize="9" Margin="0,0,0,4"/>
                                 <Button Content="✕ Clear"
                                         Height="34" Padding="14,0"

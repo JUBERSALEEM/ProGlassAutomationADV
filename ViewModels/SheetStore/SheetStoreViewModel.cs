@@ -31,6 +31,30 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public ObservableCollection<string> ColorOptions { get; } = new();
         public ObservableCollection<string> SupplierOptions { get; } = new();
 
+        // ============ SORT OPTIONS ============
+        private const string DEFAULT_SORT = "Category → Color → Thickness";
+
+        public ObservableCollection<string> SortOptions { get; } = new()
+        {
+            DEFAULT_SORT,
+            "Newest first",
+            "Oldest first",
+            "Stock: Low to High",
+            "Stock: High to Low",
+            "Balance: Low to High",
+            "Value: High to Low",
+            "Value: Low to High",
+            "Category A-Z",
+            "Thickness: Thin to Thick"
+        };
+
+        private string _selectedSort = DEFAULT_SORT;
+        public string SelectedSort
+        {
+            get => _selectedSort;
+            set { if (_selectedSort == value) return; _selectedSort = value; OnPropertyChanged(); ApplyFilters(); }
+        }
+
         // ============ FILTER SELECTIONS ============
         private const string ALL = "All";
 
@@ -67,6 +91,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             SelectedThickness != ALL ||
             SelectedColor != ALL ||
             SelectedSupplier != ALL ||
+            SelectedSort != DEFAULT_SORT ||
             !string.IsNullOrWhiteSpace(SearchText);
 
         // ============ AGGREGATE STATS ============
@@ -233,13 +258,14 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         }
 
         /// <summary>
-        /// Applies all active filters (dropdowns + search) to _allSheets
+        /// Applies all active filters + search + sort to _allSheets
         /// and updates the visible Sheets collection.
         /// </summary>
         private void ApplyFilters()
         {
             IEnumerable<GlassSheet> filtered = _allSheets;
 
+            // FILTERS
             if (SelectedCategory != ALL)
                 filtered = filtered.Where(s => s.Category == SelectedCategory);
 
@@ -252,6 +278,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             if (SelectedSupplier != ALL)
                 filtered = filtered.Where(s => s.Supplier == SelectedSupplier);
 
+            // SEARCH
             if (!string.IsNullOrWhiteSpace(SearchText))
             {
                 var q = SearchText.Trim().ToLower();
@@ -263,6 +290,9 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 );
             }
 
+            // SORT
+            filtered = ApplySort(filtered);
+
             Sheets.Clear();
             foreach (var s in filtered)
                 Sheets.Add(s);
@@ -271,18 +301,61 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             OnPropertyChanged(nameof(HasActiveFilters));
         }
 
+        /// <summary>
+        /// Applies the currently selected sort order.
+        /// </summary>
+        private IEnumerable<GlassSheet> ApplySort(IEnumerable<GlassSheet> data)
+        {
+            return SelectedSort switch
+            {
+                "Newest first" =>
+                    data.OrderByDescending(s => s.CreatedAt),
+
+                "Oldest first" =>
+                    data.OrderBy(s => s.CreatedAt),
+
+                "Stock: Low to High" =>
+                    data.OrderBy(s => s.Stock),
+
+                "Stock: High to Low" =>
+                    data.OrderByDescending(s => s.Stock),
+
+                "Balance: Low to High" =>
+                    data.OrderBy(s => s.Balance),
+
+                "Value: High to Low" =>
+                    data.OrderByDescending(s => s.TotalPurchaseValue),
+
+                "Value: Low to High" =>
+                    data.OrderBy(s => s.TotalPurchaseValue),
+
+                "Category A-Z" =>
+                    data.OrderBy(s => s.Category),
+
+                "Thickness: Thin to Thick" =>
+                    data.OrderBy(s => s.ThicknessMm),
+
+                _ => // DEFAULT_SORT "Category → Color → Thickness"
+                    data.OrderBy(s => s.Category)
+                        .ThenBy(s => s.Color)
+                        .ThenBy(s => s.ThicknessMm)
+            };
+        }
+
         private void ClearAllFilters()
         {
             _selectedCategory = ALL;
             _selectedThickness = ALL;
             _selectedColor = ALL;
             _selectedSupplier = ALL;
+            _selectedSort = DEFAULT_SORT;
             _searchText = string.Empty;
 
             OnPropertyChanged(nameof(SelectedCategory));
             OnPropertyChanged(nameof(SelectedThickness));
             OnPropertyChanged(nameof(SelectedColor));
             OnPropertyChanged(nameof(SelectedSupplier));
+            OnPropertyChanged(nameof(SelectedSort));
             OnPropertyChanged(nameof(SearchText));
 
             ApplyFilters();
