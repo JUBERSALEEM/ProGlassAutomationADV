@@ -15,8 +15,6 @@
             <!-- ============ HEADER ============ -->
             <StackPanel Orientation="Horizontal"
                         Margin="0,0,0,8">
-
-                <!-- Icon -->
                 <Border Background="{DynamicResource AccentBrush}"
                         Width="36" Height="36"
                         CornerRadius="8"
@@ -27,8 +25,6 @@
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
                 </Border>
-
-                <!-- Title -->
                 <TextBlock Text="SMART PRICING ESTIMATOR CONSOLE"
                            FontSize="18"
                            FontWeight="Bold"
@@ -37,24 +33,182 @@
                            Margin="14,0,0,0"/>
             </StackPanel>
 
-            <!-- Subtitle -->
-            <TextBlock Text="Pick the glass layer structure (SGU / DGU / LAM), configure factors, and apply live computed rates to specifications."
+            <TextBlock Text="Pick the glass layer structure (SGU / DGU / LAM / DGU+LAM), configure factors, and apply live computed rates to specifications."
                        FontSize="13"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                        Margin="0,0,0,20"
                        TextWrapping="Wrap"/>
 
-            <!-- Divider -->
             <Border Background="{DynamicResource MenuHoverBrush}"
                     Height="1"
                     Margin="0,0,0,24"/>
+
+            <!-- ============ GLASS TYPE CARDS (2x2 grid) ============ -->
+            <ItemsControl ItemsSource="{Binding GlassTypes}"
+                          Margin="0,0,0,20">
+                <ItemsControl.ItemsPanel>
+                    <ItemsPanelTemplate>
+                        <UniformGrid Columns="2" Rows="0"/>
+                    </ItemsPanelTemplate>
+                </ItemsControl.ItemsPanel>
+
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Button Command="{Binding DataContext.SelectGlassTypeCommand,
+                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}"
+                                Background="Transparent"
+                                BorderThickness="0"
+                                Padding="0"
+                                Margin="6"
+                                HorizontalContentAlignment="Stretch"
+                                Cursor="Hand">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="CardBorder"
+                                            Background="{DynamicResource ModuleBackgroundBrush}"
+                                            CornerRadius="12"
+                                            Padding="18"
+                                            BorderThickness="2"
+                                            BorderBrush="{DynamicResource MenuHoverBrush}">
+                                        <StackPanel>
+
+                                            <!-- Top Row: Icon + Title -->
+                                            <StackPanel Orientation="Horizontal"
+                                                        Margin="0,0,0,10">
+                                                <!-- Icon square with per-card color -->
+                                                <Border x:Name="IconBorder"
+                                                        Width="34" Height="34"
+                                                        CornerRadius="8"
+                                                        VerticalAlignment="Center">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="#6366F1"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding Code}" Value="DGU">
+                                                                    <Setter Property="Background" Value="#A855F7"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Code}" Value="LAM">
+                                                                    <Setter Property="Background" Value="#22C55E"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding Code}" Value="DGU+LAM">
+                                                                    <Setter Property="Background" Value="#F97316"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <TextBlock Text="{Binding Icon}"
+                                                               FontSize="16"
+                                                               Foreground="White"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"/>
+                                                </Border>
+
+                                                <TextBlock Text="{Binding Title}"
+                                                           FontSize="14"
+                                                           FontWeight="Bold"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                           VerticalAlignment="Center"
+                                                           Margin="12,0,0,0"
+                                                           TextWrapping="Wrap"/>
+                                            </StackPanel>
+
+                                            <!-- Description -->
+                                            <TextBlock Text="{Binding Description}"
+                                                       FontSize="11"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       TextWrapping="Wrap"
+                                                       Margin="0,0,0,12"/>
+
+                                            <!-- Status Badge (default = Select) -->
+                                            <Border x:Name="StatusBadge"
+                                                    CornerRadius="6"
+                                                    Padding="10,5"
+                                                    HorizontalAlignment="Left"
+                                                    Background="{DynamicResource MenuHoverBrush}">
+                                                <TextBlock x:Name="StatusText"
+                                                           Text="Select"
+                                                           FontSize="10"
+                                                           FontWeight="Bold"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                            </Border>
+
+                                        </StackPanel>
+                                    </Border>
+
+                                    <ControlTemplate.Triggers>
+                                        <!-- Hover state (unselected only) -->
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True"/>
+                                                <Condition Binding="{Binding IsSelected}" Value="False"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter TargetName="CardBorder" Property="BorderBrush"
+                                                    Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                        </MultiDataTrigger>
+
+                                        <!-- SELECTED — SGU (Indigo) -->
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding IsSelected}" Value="True"/>
+                                                <Condition Binding="{Binding Code}" Value="SGU"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter TargetName="CardBorder" Property="BorderBrush" Value="#6366F1"/>
+                                            <Setter TargetName="StatusBadge" Property="Background" Value="#6366F1"/>
+                                            <Setter TargetName="StatusText" Property="Text" Value="✓ Active Estimator"/>
+                                            <Setter TargetName="StatusText" Property="Foreground" Value="White"/>
+                                        </MultiDataTrigger>
+
+                                        <!-- SELECTED — DGU (Purple) -->
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding IsSelected}" Value="True"/>
+                                                <Condition Binding="{Binding Code}" Value="DGU"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter TargetName="CardBorder" Property="BorderBrush" Value="#A855F7"/>
+                                            <Setter TargetName="StatusBadge" Property="Background" Value="#A855F7"/>
+                                            <Setter TargetName="StatusText" Property="Text" Value="✓ Active Estimator"/>
+                                            <Setter TargetName="StatusText" Property="Foreground" Value="White"/>
+                                        </MultiDataTrigger>
+
+                                        <!-- SELECTED — LAM (Green) -->
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding IsSelected}" Value="True"/>
+                                                <Condition Binding="{Binding Code}" Value="LAM"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter TargetName="CardBorder" Property="BorderBrush" Value="#22C55E"/>
+                                            <Setter TargetName="StatusBadge" Property="Background" Value="#22C55E"/>
+                                            <Setter TargetName="StatusText" Property="Text" Value="✓ Active Estimator"/>
+                                            <Setter TargetName="StatusText" Property="Foreground" Value="White"/>
+                                        </MultiDataTrigger>
+
+                                        <!-- SELECTED — DGU+LAM (Orange) -->
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding IsSelected}" Value="True"/>
+                                                <Condition Binding="{Binding Code}" Value="DGU+LAM"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter TargetName="CardBorder" Property="BorderBrush" Value="#F97316"/>
+                                            <Setter TargetName="StatusBadge" Property="Background" Value="#F97316"/>
+                                            <Setter TargetName="StatusText" Property="Text" Value="✓ Active Estimator"/>
+                                            <Setter TargetName="StatusText" Property="Foreground" Value="White"/>
+                                        </MultiDataTrigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
 
             <!-- ============ BODY PLACEHOLDER ============ -->
             <Border Background="{DynamicResource MenuHoverBrush}"
                     CornerRadius="8"
                     Padding="20,14"
+                    Margin="0,10,0,0"
                     HorizontalAlignment="Left">
-                <TextBlock Text="✓ Header complete — 3 Glass Type cards (SGU / DGU / LAM) coming next"
+                <TextBlock Text="✓ Glass Type cards complete — Guardian &amp; AGC catalog panel coming next"
                            FontSize="12"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </Border>
