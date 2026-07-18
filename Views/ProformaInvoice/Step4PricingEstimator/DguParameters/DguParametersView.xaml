@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
-             d:DesignHeight="600" d:DesignWidth="900"
+             d:DesignHeight="650" d:DesignWidth="900"
              FontFamily="Segoe UI">
 
     <UserControl.Resources>
@@ -225,6 +225,33 @@
                     <TextBox Text="{Binding InnerBasePrice, StringFormat={}{0:0.##}}"
                              Style="{StaticResource DarkInputStyle}"/>
                 </StackPanel>
+            </Grid>
+
+            <!-- ===================== ROW 4: Yield Factor + Profit Margin ===================== -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="YIELD FACTOR" Style="{StaticResource DguLabelStyle}"/>
+                    <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DarkInputStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="MARGIN PROFIT %" Style="{StaticResource DguLabelStyle}"/>
+                    <TextBox Text="{Binding MarginProfitPercent, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DarkInputStyle}"/>
+                </StackPanel>
+
+                <!-- Remaining 2 columns intentionally empty (matches screenshot) -->
             </Grid>
 
         </StackPanel>
