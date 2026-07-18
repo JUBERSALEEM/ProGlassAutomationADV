@@ -5,10 +5,14 @@ using ProGlassAutomation.Services.SheetStore;
 using ProGlassAutomation.Services.SheetStore.SheetStoreCsv;
 using ProGlassAutomation.Services.SheetStore.SheetStoreHistory;
 using ProGlassAutomation.Views.SheetStore;
+using ProGlassAutomation.Views.SheetStore.SheetStoreBuy;
 using ProGlassAutomation.Views.SheetStore.SheetStoreCsv;
 using ProGlassAutomation.Views.SheetStore.SheetStoreHistory;
+using ProGlassAutomation.Views.SheetStore.SheetStoreUse;
+using ProGlassAutomation.ViewModels.SheetStore.SheetStoreBuy;
 using ProGlassAutomation.ViewModels.SheetStore.SheetStoreCsv;
 using ProGlassAutomation.ViewModels.SheetStore.SheetStoreHistory;
+using ProGlassAutomation.ViewModels.SheetStore.SheetStoreUse;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -442,10 +446,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 return;
             }
 
-            // Pre-scan for duplicates
-            var duplicates = imported
-                .Where(row => FindDuplicate(row) != null)
-                .ToList();
+            var duplicates = imported.Where(row => FindDuplicate(row) != null).ToList();
 
             int addedCount = 0, stockAddedCount = 0, updatedCount = 0, skippedCount = 0;
             DuplicateAction? rememberedAction = null;
@@ -465,8 +466,6 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                             $"[CSV Import] Initial stock: {added.Stock} sheets. Value: {added.TotalPurchaseValue:N2} AED.",
                             added.Stock, added.TotalPurchaseValue);
                         addedCount++;
-
-                        // Refresh _allSheets so next duplicate check sees the new row
                         _allSheets = await _repo.GetAllAsync();
                         continue;
                     }
@@ -485,11 +484,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                         dupDialog.ShowDialog();
 
                         if (dupVm.Result == null) break;
-
                         action = dupVm.Result.Value;
-
-                        if (dupVm.ApplyToRemaining)
-                            rememberedAction = action;
+                        if (dupVm.ApplyToRemaining) rememberedAction = action;
                     }
 
                     if (action == DuplicateAction.Cancel) break;
@@ -632,56 +628,69 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             }
         }
 
+        // ============ BUY (Beautiful Dialog) ============
+
         private async Task BuyAsync(GlassSheet? sheet)
         {
             if (sheet == null) return;
 
-            var input = Microsoft.VisualBasic.Interaction.InputBox(
-                $"How many sheets to buy?\n\nCurrent stock: {sheet.Stock} sheets\n" +
-                $"Price per SQM: {sheet.PurchasePricePerSqm:N2} AED\nSQM per sheet: {sheet.SqmPerSheet:N4}",
-                "Buy Stock", "10");
+            var vm = new BuyDialogViewModel(sheet);
+            var dialog = new BuyDialogView(vm) { Owner = Application.Current.MainWindow };
+            dialog.ShowDialog();
 
-            if (int.TryParse(input, out int qty) && qty > 0)
+            if (vm.DialogResult == true && vm.Quantity > 0)
             {
                 try
                 {
                     var oldStock = sheet.Stock;
-                    await _repo.BuyStockAsync(sheet.Id, qty);
-                    var value = qty * sheet.SqmPerSheet * sheet.PurchasePricePerSqm;
+                    await _repo.BuyStockAsync(sheet.Id, vm.Quantity);
+                    var value = vm.Quantity * sheet.SqmPerSheet * sheet.PurchasePricePerSqm;
 
-                    await _historyRepo.LogAsync(sheet.Id, DescribeSheet(sheet), "Bought",
-                        $"Purchased {qty} sheets. Stock: {oldStock} → {oldStock + qty}. Value: {value:N2} AED.",
-                        qty, value);
+                    await _historyRepo.LogAsync(
+                        sheet.Id, DescribeSheet(sheet), "Bought",
+                        $"Purchased {vm.Quantity} sheets. Stock: {oldStock} → {oldStock + vm.Quantity}. Value: {value:N2} AED.",
+                        vm.Quantity, value);
                     await LoadAsync();
                 }
                 catch (Exception ex) { ShowError("Could not add stock.\n\n" + ex.Message); }
             }
         }
 
+        // ============ USE (Beautiful Dialog) ============
+
         private async Task UseAsync(GlassSheet? sheet)
         {
             if (sheet == null) return;
 
-            var input = Microsoft.VisualBasic.Interaction.InputBox(
-                $"How many sheets to use?\n\nAvailable: {sheet.Balance} sheets ({sheet.TotalSqmBalance:N2} SQM)",
-                "Use Stock", "1");
+            if (sheet.Balance <= 0)
+            {
+                ShowError("No stock available to use.");
+                return;
+            }
 
-            if (int.TryParse(input, out int qty) && qty > 0)
+            var vm = new UseDialogViewModel(sheet);
+            var dialog = new UseDialogView(vm) { Owner = Application.Current.MainWindow };
+            dialog.ShowDialog();
+
+            if (vm.DialogResult == true && vm.Quantity > 0)
             {
                 try
                 {
                     var oldUsed = sheet.Used;
-                    await _repo.UseStockAsync(sheet.Id, qty);
-                    var value = qty * sheet.SqmPerSheet * sheet.SellPricePerSqm;
+                    await _repo.UseStockAsync(sheet.Id, vm.Quantity);
+                    var value = vm.Quantity * sheet.SqmPerSheet * sheet.SellPricePerSqm;
 
-                    await _historyRepo.LogAsync(sheet.Id, DescribeSheet(sheet), "Used",
-                        $"Consumed {qty} sheets. Used: {oldUsed} → {oldUsed + qty}. Value: {value:N2} AED.",
-                        qty, value);
+                    await _historyRepo.LogAsync(
+                        sheet.Id, DescribeSheet(sheet), "Used",
+                        $"Consumed {vm.Quantity} sheets. Used: {oldUsed} → {oldUsed + vm.Quantity}. Value: {value:N2} AED.",
+                        vm.Quantity, value);
                     await LoadAsync();
                 }
                 catch (Exception ex) { ShowError(ex.Message); }
             }
         }
+
+        // ============ HISTORY ============
 
         private void ShowHistory()
         {
