@@ -4,6 +4,7 @@ using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.Services.SheetStore;
 using ProGlassAutomation.Services.SheetStore.SheetStoreCsv;
 using ProGlassAutomation.Services.SheetStore.SheetStoreExcel;
+using ProGlassAutomation.Services.SheetStore.SheetStorePdf;
 using ProGlassAutomation.Services.SheetStore.SheetStoreHistory;
 using ProGlassAutomation.Views.SheetStore;
 using ProGlassAutomation.Views.SheetStore.SheetStoreBuy;
@@ -30,6 +31,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         private readonly ISheetHistoryRepository _historyRepo;
         private readonly SheetStoreCsvService _csvService;
         private readonly SheetStoreExcelService _excelService;
+        private readonly SheetStorePdfService _pdfService;
 
         private List<GlassSheet> _allSheets = new();
 
@@ -187,6 +189,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public ICommand ExportCsvCommand { get; }
         public ICommand ImportCsvCommand { get; }
         public ICommand ExportExcelCommand { get; }
+        public ICommand ExportPdfCommand { get; }
 
         public SheetStoreViewModel()
         {
@@ -194,6 +197,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             _historyRepo = new SheetHistoryRepository();
             _csvService = new SheetStoreCsvService();
             _excelService = new SheetStoreExcelService();
+            _pdfService = new SheetStorePdfService();
 
             AddCommand = new RelayCommand(async _ => await AddAsync());
             EditCommand = new RelayCommand(async p => await EditAsync(p as GlassSheet ?? SelectedSheet));
@@ -207,6 +211,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             ExportCsvCommand = new RelayCommand(async _ => await ExportCsvAsync());
             ImportCsvCommand = new RelayCommand(async _ => await ImportCsvAsync());
             ExportExcelCommand = new RelayCommand(async _ => await ExportExcelAsync());
+            ExportPdfCommand = new RelayCommand(async _ => await ExportPdfAsync());
 
             _ = LoadAsync();
         }
@@ -465,6 +470,39 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             catch (Exception ex)
             {
                 ShowError("Excel export failed.\n\n" + ex.Message);
+            }
+        }
+
+        // ============ PDF EXPORT ============
+
+        private async Task ExportPdfAsync()
+        {
+            if (!Sheets.Any())
+            {
+                MessageBox.Show("Nothing to export — the current view is empty.",
+                    "Export PDF", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var dialog = new SaveFileDialog
+            {
+                Title = "Export Sheet Store Report as PDF",
+                Filter = "PDF file (*.pdf)|*.pdf",
+                FileName = $"SheetStore_Report_{DateTime.Now:yyyy-MM-dd_HH-mm}.pdf"
+            };
+
+            if (dialog.ShowDialog() != true) return;
+
+            try
+            {
+                await _pdfService.GenerateReportAsync(dialog.FileName, Sheets.ToList(), BuildFilterInfoString());
+                MessageBox.Show(
+                    $"PDF report generated ({Sheets.Count} sheets):\n\n{dialog.FileName}",
+                    "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                ShowError("PDF export failed.\n\n" + ex.Message);
             }
         }
 
