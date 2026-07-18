@@ -39,6 +39,36 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
             set { _basePricePerSqm = value; OnPropertyChanged(); }
         }
 
+        // === Parameter Row 2: Cutting, Tempering, Yield, Margin ===
+
+        private decimal _cuttingCostPerSqm;
+        public decimal CuttingCostPerSqm
+        {
+            get => _cuttingCostPerSqm;
+            set { _cuttingCostPerSqm = value; OnPropertyChanged(); }
+        }
+
+        private decimal _temperingCostPerSqm;
+        public decimal TemperingCostPerSqm
+        {
+            get => _temperingCostPerSqm;
+            set { _temperingCostPerSqm = value; OnPropertyChanged(); }
+        }
+
+        private decimal _yieldFactor;
+        public decimal YieldFactor
+        {
+            get => _yieldFactor;
+            set { _yieldFactor = value; OnPropertyChanged(); }
+        }
+
+        private decimal _targetMarginPercent;
+        public decimal TargetMarginPercent
+        {
+            get => _targetMarginPercent;
+            set { _targetMarginPercent = value; OnPropertyChanged(); }
+        }
+
         // === Dropdown Options ===
 
         public List<string> ThicknessOptions { get; } = new List<string>
@@ -69,13 +99,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
 
         public SguParametersViewModel()
         {
-            // Default values matching typical SGU config
+            // === Row 1 Defaults ===
             SelectedThickness = "6mm";
             GlassColor = "Clear";
             SelectedTreatment = "FT Glass";
             BasePricePerSqm = 46m;
 
-            // Row 2 & 3 fields will be added in sub-phases 6.4c, 6.4d
+            // === Row 2 Defaults ===
+            CuttingCostPerSqm = 15m;
+            TemperingCostPerSqm = 25m;
+            YieldFactor = 0.85m;
+            TargetMarginPercent = 15m;
+
+            // Row 3 (Polish) will be added in Sub-Phase 6.4d
         }
     }
 }

@@ -131,7 +131,7 @@
                               Style="{StaticResource DarkComboBoxStyle}"/>
                 </StackPanel>
 
-                <!-- Glass Color (editable ComboBox — dropdown + manual entry) -->
+                <!-- Glass Color -->
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="GLASS COLOR"
                                Style="{StaticResource SguLabelStyle}"/>
@@ -154,7 +154,52 @@
                     <TextBlock Text="BASE PRICE / SQM (AED)"
                                Style="{StaticResource SguLabelStyle}"/>
                     <TextBox Text="{Binding BasePricePerSqm, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"
-         Style="{StaticResource DarkInputStyle}"/>
+                             Style="{StaticResource DarkInputStyle}"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ============ ROW 2: Cutting | Tempering | Yield | Margin ============ -->
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Cutting Cost / SQM -->
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="CUTTING COST / SQM"
+                               Style="{StaticResource SguLabelStyle}"/>
+                    <TextBox Text="{Binding CuttingCostPerSqm, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DarkInputStyle}"/>
+                </StackPanel>
+
+                <!-- Tempering Cost / SQM -->
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="TEMPERING COST / SQM"
+                               Style="{StaticResource SguLabelStyle}"/>
+                    <TextBox Text="{Binding TemperingCostPerSqm, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DarkInputStyle}"/>
+                </StackPanel>
+
+                <!-- Yield Factor -->
+                <StackPanel Grid.Column="4">
+                    <TextBlock Text="YIELD FACTOR (CLEARING)"
+                               Style="{StaticResource SguLabelStyle}"/>
+                    <TextBox Text="{Binding YieldFactor, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DarkInputStyle}"/>
+                </StackPanel>
+
+                <!-- Target Margin % -->
+                <StackPanel Grid.Column="6">
+                    <TextBlock Text="TARGET MARGIN %"
+                               Style="{StaticResource SguLabelStyle}"/>
+                    <TextBox Text="{Binding TargetMarginPercent, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DarkInputStyle}"/>
                 </StackPanel>
             </Grid>
 
@@ -164,7 +209,7 @@
                     Padding="14,10"
                     Margin="0,4,0,0"
                     HorizontalAlignment="Left">
-                <TextBlock Text="✓ Row 1 complete — Row 2 (Cutting, Tempering, Yield, Margin) coming next"
+                <TextBlock Text="✓ Row 2 complete — Row 3 (Polish / Detail Option dropdown) coming next"
                            FontSize="11"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </Border>
