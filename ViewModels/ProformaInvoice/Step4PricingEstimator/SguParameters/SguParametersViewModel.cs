@@ -69,6 +69,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
             set { _targetMarginPercent = value; OnPropertyChanged(); }
         }
 
+        // === Parameter Row 3: Polish / Detail Option ===
+
+        private string _selectedPolishOption;
+        public string SelectedPolishOption
+        {
+            get => _selectedPolishOption;
+            set { _selectedPolishOption = value; OnPropertyChanged(); }
+        }
+
         // === Dropdown Options ===
 
         public List<string> ThicknessOptions { get; } = new List<string>
@@ -97,6 +106,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
             "Heat Soaked"
         };
 
+        public List<string> PolishOptions { get; } = new List<string>
+        {
+            "None (Standard)",
+            "Polished Edges",
+            "Beveled Edges",
+            "Mitring (45° Bevel)",
+            "Frosted",
+            "Sandblasted"
+        };
+
         public SguParametersViewModel()
         {
             // === Row 1 Defaults ===
@@ -111,7 +130,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
             YieldFactor = 0.85m;
             TargetMarginPercent = 15m;
 
-            // Row 3 (Polish) will be added in Sub-Phase 6.4d
+            // === Row 3 Defaults ===
+            SelectedPolishOption = "None (Standard)";
+
+            // Processing Treatments will be added in Sub-Phase 6.4e
         }
     }
 }

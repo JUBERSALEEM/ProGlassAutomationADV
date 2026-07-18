@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             d:DesignHeight="500" d:DesignWidth="900"
+             d:DesignHeight="550" d:DesignWidth="900"
              FontFamily="Segoe UI">
 
     <!-- ============ SHARED STYLES ============ -->
@@ -203,13 +203,37 @@
                 </StackPanel>
             </Grid>
 
-            <!-- Placeholder for next rows -->
+            <!-- ============ ROW 3: Polish / Detail Option ============ -->
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Polish / Detail Option (single field on left) -->
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="POLISH / DETAIL OPTION"
+                               Style="{StaticResource SguLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding PolishOptions}"
+                              SelectedItem="{Binding SelectedPolishOption}"
+                              Style="{StaticResource DarkComboBoxStyle}"/>
+                </StackPanel>
+
+                <!-- Remaining 3 columns intentionally empty (matches screenshot) -->
+            </Grid>
+
+            <!-- Placeholder for next section -->
             <Border Background="{DynamicResource MenuHoverBrush}"
                     CornerRadius="8"
                     Padding="14,10"
                     Margin="0,4,0,0"
                     HorizontalAlignment="Left">
-                <TextBlock Text="✓ Row 2 complete — Row 3 (Polish / Detail Option dropdown) coming next"
+                <TextBlock Text="✓ Row 3 complete — Processing Treatments checkboxes coming next"
                            FontSize="11"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </Border>
