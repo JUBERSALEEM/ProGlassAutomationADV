@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:sgu="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.SguParameters"
              mc:Ignorable="d"
-             d:DesignHeight="800" d:DesignWidth="900"
+             d:DesignHeight="900" d:DesignWidth="900"
              FontFamily="Segoe UI">
 
     <!-- ============ SHARED STYLES ============ -->
@@ -225,7 +225,7 @@
                 </ContentControl.ContentTemplate>
             </ContentControl>
 
-            <!-- ============ DGU PARAMETERS PANEL (coming in 6.6) ============ -->
+            <!-- ============ DGU / LAM / DGU+LAM PLACEHOLDERS ============ -->
             <Border Margin="0,10,0,0">
                 <Border.Style>
                     <Style TargetType="Border">
@@ -238,16 +238,13 @@
                     </Style>
                 </Border.Style>
                 <Border Background="{DynamicResource MenuHoverBrush}"
-                        CornerRadius="8"
-                        Padding="20,14"
-                        HorizontalAlignment="Left">
+                        CornerRadius="8" Padding="20,14" HorizontalAlignment="Left">
                     <TextBlock Text="DGU parameters panel — coming in Phase 6.6"
                                FontSize="12"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </Border>
             </Border>
 
-            <!-- ============ LAM PARAMETERS PANEL (coming in 6.7) ============ -->
             <Border Margin="0,10,0,0">
                 <Border.Style>
                     <Style TargetType="Border">
@@ -260,16 +257,13 @@
                     </Style>
                 </Border.Style>
                 <Border Background="{DynamicResource MenuHoverBrush}"
-                        CornerRadius="8"
-                        Padding="20,14"
-                        HorizontalAlignment="Left">
+                        CornerRadius="8" Padding="20,14" HorizontalAlignment="Left">
                     <TextBlock Text="LAM parameters panel — coming in Phase 6.7"
                                FontSize="12"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </Border>
             </Border>
 
-            <!-- ============ DGU+LAM PARAMETERS PANEL (blank for now) ============ -->
             <Border Margin="0,10,0,0">
                 <Border.Style>
                     <Style TargetType="Border">
@@ -282,16 +276,47 @@
                     </Style>
                 </Border.Style>
                 <Border Background="{DynamicResource MenuHoverBrush}"
-                        CornerRadius="8"
-                        Padding="20,14"
-                        HorizontalAlignment="Left">
+                        CornerRadius="8" Padding="20,14" HorizontalAlignment="Left">
                     <TextBlock Text="DGU+LAM hybrid parameters — will be added in a future update"
                                FontSize="12"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </Border>
             </Border>
 
-            <!-- ============ CONFIGURE PROCESSING TREATMENTS (shared across all glass types) ============ -->
+            <!-- ============ CONFIGURE PROCESSING TREATMENTS ============ -->
+            <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                    CornerRadius="12"
+                    Padding="20"
+                    Margin="0,16,0,0"
+                    BorderThickness="1.5"
+                    BorderBrush="{DynamicResource MenuHoverBrush}">
+                <StackPanel>
+                    <TextBlock Text="CONFIGURE PROCESSING TREATMENTS"
+                               Style="{StaticResource SectionTitleStyle}"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <CheckBox Grid.Column="0" Content="Polished Edges"
+                                  IsChecked="{Binding PolishedEdges}"
+                                  Style="{StaticResource ThemedCheckBoxStyle}"/>
+                        <CheckBox Grid.Column="1" Content="Drill Cutouts"
+                                  IsChecked="{Binding DrillCutouts}"
+                                  Style="{StaticResource ThemedCheckBoxStyle}"/>
+                        <CheckBox Grid.Column="2" Content="Countersunk Holes"
+                                  IsChecked="{Binding CountersunkHoles}"
+                                  Style="{StaticResource ThemedCheckBoxStyle}"/>
+                        <CheckBox Grid.Column="3" Content="Edge Deletion Layer"
+                                  IsChecked="{Binding EdgeDeletionLayer}"
+                                  Style="{StaticResource ThemedCheckBoxStyle}"/>
+                    </Grid>
+                </StackPanel>
+            </Border>
+
+            <!-- ============ SELECT SPECIFICATION TARGET GROUPS ============ -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     CornerRadius="12"
                     Padding="20"
@@ -300,49 +325,118 @@
                     BorderBrush="{DynamicResource MenuHoverBrush}">
                 <StackPanel>
 
-                    <TextBlock Text="CONFIGURE PROCESSING TREATMENTS"
-                               Style="{StaticResource SectionTitleStyle}"/>
-
-                    <!-- 4 checkboxes in a row -->
-                    <Grid>
+                    <!-- Title + Counter Row -->
+                    <Grid Margin="0,0,0,14">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <CheckBox Grid.Column="0"
-                                  Content="Polished Edges"
-                                  IsChecked="{Binding PolishedEdges}"
-                                  Style="{StaticResource ThemedCheckBoxStyle}"/>
+                        <TextBlock Grid.Column="0"
+                                   Text="SELECT SPECIFICATION TARGET GROUPS"
+                                   FontSize="11"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   VerticalAlignment="Center"/>
 
-                        <CheckBox Grid.Column="1"
-                                  Content="Drill Cutouts"
-                                  IsChecked="{Binding DrillCutouts}"
-                                  Style="{StaticResource ThemedCheckBoxStyle}"/>
-
-                        <CheckBox Grid.Column="2"
-                                  Content="Countersunk Holes"
-                                  IsChecked="{Binding CountersunkHoles}"
-                                  Style="{StaticResource ThemedCheckBoxStyle}"/>
-
-                        <CheckBox Grid.Column="3"
-                                  Content="Edge Deletion Layer"
-                                  IsChecked="{Binding EdgeDeletionLayer}"
-                                  Style="{StaticResource ThemedCheckBoxStyle}"/>
+                        <StackPanel Grid.Column="1"
+                                    Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                            <TextBlock Text="Total Specs Active: "
+                                       FontSize="12"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding TotalSpecsActive}"
+                                       FontSize="12"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
                     </Grid>
+
+                    <!-- Pill Buttons — one per Spec Group -->
+                    <ItemsControl ItemsSource="{Binding SpecGroups}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <WrapPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Button Command="{Binding DataContext.ToggleSpecGroupCommand,
+                                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"
+                                        Background="Transparent"
+                                        BorderThickness="0"
+                                        Padding="0"
+                                        Margin="0,0,8,8"
+                                        Cursor="Hand">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="PillBorder"
+                                                    CornerRadius="20"
+                                                    Padding="16,8"
+                                                    BorderThickness="1.5">
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock x:Name="CheckIcon"
+                                                               Text="✓"
+                                                               FontSize="12"
+                                                               FontWeight="Bold"
+                                                               VerticalAlignment="Center"
+                                                               Margin="0,0,6,0"/>
+                                                    <TextBlock x:Name="NameText"
+                                                               Text="{Binding Name}"
+                                                               FontSize="12"
+                                                               FontWeight="SemiBold"
+                                                               VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <!-- Selected State (filled) -->
+                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter TargetName="PillBorder" Property="Background"
+                                                            Value="{DynamicResource AccentBrush}"/>
+                                                    <Setter TargetName="PillBorder" Property="BorderBrush"
+                                                            Value="{DynamicResource AccentBrush}"/>
+                                                    <Setter TargetName="CheckIcon" Property="Foreground" Value="White"/>
+                                                    <Setter TargetName="NameText" Property="Foreground" Value="White"/>
+                                                    <Setter TargetName="CheckIcon" Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                                <!-- Unselected State (outlined) -->
+                                                <DataTrigger Binding="{Binding IsSelected}" Value="False">
+                                                    <Setter TargetName="PillBorder" Property="Background"
+                                                            Value="Transparent"/>
+                                                    <Setter TargetName="PillBorder" Property="BorderBrush"
+                                                            Value="{DynamicResource MenuHoverBrush}"/>
+                                                    <Setter TargetName="CheckIcon" Property="Foreground"
+                                                            Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                    <Setter TargetName="NameText" Property="Foreground"
+                                                            Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                                    <Setter TargetName="CheckIcon" Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
+                                                <!-- Hover -->
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="PillBorder" Property="Opacity" Value="0.85"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
 
                 </StackPanel>
             </Border>
 
-            <!-- Placeholder for next sections -->
+            <!-- Placeholder for final section -->
             <Border Background="{DynamicResource MenuHoverBrush}"
                     CornerRadius="8"
                     Padding="14,10"
                     Margin="0,10,0,0"
                     HorizontalAlignment="Left">
-                <TextBlock Text="✓ Processing Treatments complete — Specification Target Groups coming next"
+                <TextBlock Text="✓ Spec Target Groups complete — Estimated Rate bar + APPLY button coming next (final SGU sub-phase)"
                            FontSize="11"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </Border>

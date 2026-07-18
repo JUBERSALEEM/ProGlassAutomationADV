@@ -1,5 +1,6 @@
 ﻿using ProGlassAutomation.Commands;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
@@ -14,6 +15,23 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         public string Description { get; set; }
         public string Icon { get; set; }
         public string AccentColor { get; set; }
+
+        private bool _isSelected;
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set { _isSelected = value; OnPropertyChanged(); }
+        }
+    }
+
+    /// <summary>
+    /// Represents a specification target group (pulled from Step 5 data grid).
+    /// Toggling selection includes/excludes this group from calculated rate application.
+    /// </summary>
+    public class SpecTargetGroup : ViewModelBase
+    {
+        public string Name { get; set; }             // e.g., "Spec Group 1"
+        public string Description { get; set; }      // e.g., "6mm HD Grey FT + 12mm ASP + 6mm Clear"
 
         private bool _isSelected;
         public bool IsSelected
@@ -57,7 +75,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             }
         }
 
-        // === Processing Treatments (shared across all glass types) ===
+        // === Processing Treatments (shared) ===
 
         private bool _polishedEdges;
         public bool PolishedEdges
@@ -87,8 +105,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             set { _edgeDeletionLayer = value; OnPropertyChanged(); }
         }
 
+        // === Specification Target Groups ===
+        public ObservableCollection<SpecTargetGroup> SpecGroups { get; }
+
+        // Live count of selected spec groups
+        public int TotalSpecsActive => SpecGroups?.Count(g => g.IsSelected) ?? 0;
+
         // === Commands ===
         public ICommand SelectGlassTypeCommand { get; }
+        public ICommand ToggleSpecGroupCommand { get; }
 
         public PricingEstimatorViewModel()
         {
@@ -132,10 +157,31 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 }
             };
 
+            // Seed sample spec groups
+            // TODO: Will be replaced with live data from Step 5 (Data Grid)
+            SpecGroups = new ObservableCollection<SpecTargetGroup>
+            {
+                new SpecTargetGroup
+                {
+                    Name = "Spec Group 1",
+                    Description = "Default spec group",
+                    IsSelected = true   // First group selected by default
+                }
+            };
+
             SelectGlassTypeCommand = new RelayCommand(param =>
             {
                 if (param is GlassTypeCard card)
                     SelectedGlassType = card;
+            });
+
+            ToggleSpecGroupCommand = new RelayCommand(param =>
+            {
+                if (param is SpecTargetGroup group)
+                {
+                    group.IsSelected = !group.IsSelected;
+                    OnPropertyChanged(nameof(TotalSpecsActive));
+                }
             });
 
             // Default selection = SGU

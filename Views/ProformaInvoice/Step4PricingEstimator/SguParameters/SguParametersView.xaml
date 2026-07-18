@@ -122,7 +122,6 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Thickness -->
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="THICKNESS"
                                Style="{StaticResource SguLabelStyle}"/>
@@ -131,7 +130,6 @@
                               Style="{StaticResource DarkComboBoxStyle}"/>
                 </StackPanel>
 
-                <!-- Glass Color -->
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="GLASS COLOR"
                                Style="{StaticResource SguLabelStyle}"/>
@@ -140,7 +138,6 @@
                               Style="{StaticResource DarkEditableComboBoxStyle}"/>
                 </StackPanel>
 
-                <!-- Treatment Type -->
                 <StackPanel Grid.Column="4">
                     <TextBlock Text="TREATMENT TYPE"
                                Style="{StaticResource SguLabelStyle}"/>
@@ -149,7 +146,6 @@
                               Style="{StaticResource DarkComboBoxStyle}"/>
                 </StackPanel>
 
-                <!-- Base Price / SQM -->
                 <StackPanel Grid.Column="6">
                     <TextBlock Text="BASE PRICE / SQM (AED)"
                                Style="{StaticResource SguLabelStyle}"/>
@@ -170,7 +166,6 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Cutting Cost / SQM -->
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="CUTTING COST / SQM"
                                Style="{StaticResource SguLabelStyle}"/>
@@ -178,7 +173,6 @@
                              Style="{StaticResource DarkInputStyle}"/>
                 </StackPanel>
 
-                <!-- Tempering Cost / SQM -->
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="TEMPERING COST / SQM"
                                Style="{StaticResource SguLabelStyle}"/>
@@ -186,7 +180,6 @@
                              Style="{StaticResource DarkInputStyle}"/>
                 </StackPanel>
 
-                <!-- Yield Factor -->
                 <StackPanel Grid.Column="4">
                     <TextBlock Text="YIELD FACTOR (CLEARING)"
                                Style="{StaticResource SguLabelStyle}"/>
@@ -194,7 +187,6 @@
                              Style="{StaticResource DarkInputStyle}"/>
                 </StackPanel>
 
-                <!-- Target Margin % -->
                 <StackPanel Grid.Column="6">
                     <TextBlock Text="TARGET MARGIN %"
                                Style="{StaticResource SguLabelStyle}"/>
@@ -204,7 +196,7 @@
             </Grid>
 
             <!-- ============ ROW 3: Polish / Detail Option ============ -->
-            <Grid Margin="0,0,0,16">
+            <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="14"/>
@@ -215,7 +207,6 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Polish / Detail Option (single field on left) -->
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="POLISH / DETAIL OPTION"
                                Style="{StaticResource SguLabelStyle}"/>
@@ -226,17 +217,6 @@
 
                 <!-- Remaining 3 columns intentionally empty (matches screenshot) -->
             </Grid>
-
-            <!-- Placeholder for next section -->
-            <Border Background="{DynamicResource MenuHoverBrush}"
-                    CornerRadius="8"
-                    Padding="14,10"
-                    Margin="0,4,0,0"
-                    HorizontalAlignment="Left">
-                <TextBlock Text="✓ Row 3 complete — Processing Treatments checkboxes coming next"
-                           FontSize="11"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-            </Border>
 
         </StackPanel>
     </Border>
