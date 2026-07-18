@@ -4,25 +4,204 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             d:DesignHeight="600" d:DesignWidth="900"
+             d:DesignHeight="700" d:DesignWidth="900"
              FontFamily="Segoe UI">
+
+    <!-- ============ SHARED STYLES ============ -->
+    <UserControl.Resources>
+
+        <!-- Field Label Style -->
+        <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
+
+        <!-- Input TextBox Style — matches Step 1 & Step 2 -->
+        <Style x:Key="DarkInputStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="14,0"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="SelectionBrush" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="InputBorder"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                BorderThickness="1.5"
+                                BorderBrush="{DynamicResource MenuHoverBrush}">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Focusable="False"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          VerticalScrollBarVisibility="Hidden"
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="Center"
+                                          Background="Transparent"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="InputBorder" Property="BorderBrush"
+                                        Value="{DynamicResource SecondaryForegroundBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="InputBorder" Property="BorderBrush"
+                                        Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="InputBorder" Property="BorderThickness"
+                                        Value="2"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled"
                   Padding="0,0,10,0">
         <StackPanel>
 
-            <!-- Placeholder — real header + fields coming in Sub-Phase 5.2 -->
-            <TextBlock Text="Step 3: Client Profile &amp; References"
-                       FontSize="20"
-                       FontWeight="Bold"
-                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+            <!-- ============ HEADER ============ -->
+            <StackPanel Orientation="Horizontal"
+                        Margin="0,0,0,8">
 
-            <TextBlock Text="This is the Step 3 shell. Header and 8 client fields will fill this area in the next sub-phase."
+                <!-- Icon -->
+                <Border Background="{DynamicResource AccentBrush}"
+                        Width="36" Height="36"
+                        CornerRadius="8"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="&#128100;"
+                               FontSize="18"
+                               Foreground="White"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+
+                <!-- Title -->
+                <TextBlock Text="CLIENT PROFILE &amp; REFERENCES"
+                           FontSize="18"
+                           FontWeight="Bold"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           VerticalAlignment="Center"
+                           Margin="14,0,0,0"/>
+            </StackPanel>
+
+            <!-- Subtitle -->
+            <TextBlock Text="Input client credentials, billing addresses, and responsible account executives."
                        FontSize="13"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"
-                       Margin="0,10,0,0"
+                       Margin="0,0,0,20"
                        TextWrapping="Wrap"/>
+
+            <!-- Divider -->
+            <Border Background="{DynamicResource MenuHoverBrush}"
+                    Height="1"
+                    Margin="0,0,0,24"/>
+
+            <!-- ============ CLIENT FIELDS ============ -->
+
+            <!-- Row 1: Customer Name + Customer TRN -->
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="CUSTOMER / BILL TO NAME"
+                               Style="{StaticResource FieldLabelStyle}"/>
+                    <TextBox Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource DarkInputStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="CUSTOMER TRN"
+                               Style="{StaticResource FieldLabelStyle}"/>
+                    <TextBox Text="{Binding CustomerTrn, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource DarkInputStyle}"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Row 2: Reference Code + Sales Representative -->
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="CUSTOMER REFERENCE CODE"
+                               Style="{StaticResource FieldLabelStyle}"/>
+                    <TextBox Text="{Binding CustomerReferenceCode, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource DarkInputStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="RESPONSIBLE SALES REPRESENTATIVE"
+                               Style="{StaticResource FieldLabelStyle}"/>
+                    <TextBox Text="{Binding SalesRepresentative, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource DarkInputStyle}"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Row 3: Document Prepared By (single field, left aligned) -->
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="DOCUMENT PREPARED BY"
+                               Style="{StaticResource FieldLabelStyle}"/>
+                    <TextBox Text="{Binding DocumentPreparedBy, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource DarkInputStyle}"/>
+                </StackPanel>
+
+                <!-- Right column intentionally empty to match screenshot layout -->
+            </Grid>
+
+            <!-- Row 4: Billing Address (full width) -->
+            <StackPanel Margin="0,0,0,16">
+                <TextBlock Text="BILLING / REGISTERED ADDRESS"
+                           Style="{StaticResource FieldLabelStyle}"/>
+                <TextBox Text="{Binding BillingAddress, UpdateSourceTrigger=PropertyChanged}"
+                         Style="{StaticResource DarkInputStyle}"/>
+            </StackPanel>
+
+            <!-- Row 5: Attention + Contact Phone -->
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="ATTENTION EXECUTIVE NAME"
+                               Style="{StaticResource FieldLabelStyle}"/>
+                    <TextBox Text="{Binding AttentionExecutiveName, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource DarkInputStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="CLIENT CONTACT MOBILE / TEL"
+                               Style="{StaticResource FieldLabelStyle}"/>
+                    <TextBox Text="{Binding ClientContactPhone, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource DarkInputStyle}"/>
+                </StackPanel>
+            </Grid>
 
         </StackPanel>
     </ScrollViewer>
