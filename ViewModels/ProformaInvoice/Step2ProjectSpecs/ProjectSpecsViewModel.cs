@@ -6,9 +6,39 @@
     /// </summary>
     public class ProjectSpecsViewModel : ViewModelBase
     {
+        // === Project Fields ===
+
+        private string _projectIdentifierName = string.Empty;
+        public string ProjectIdentifierName
+        {
+            get => _projectIdentifierName;
+            set { _projectIdentifierName = value; OnPropertyChanged(); }
+        }
+
+        private string _projectContractNo = string.Empty;
+        public string ProjectContractNo
+        {
+            get => _projectContractNo;
+            set { _projectContractNo = value; OnPropertyChanged(); }
+        }
+
+        private string _siteDeliveryLocation = string.Empty;
+        public string SiteDeliveryLocation
+        {
+            get => _siteDeliveryLocation;
+            set { _siteDeliveryLocation = value; OnPropertyChanged(); }
+        }
+
+        private string _lpoNumber = string.Empty;
+        public string LpoNumber
+        {
+            get => _lpoNumber;
+            set { _lpoNumber = value; OnPropertyChanged(); }
+        }
+
         public ProjectSpecsViewModel()
         {
-            // Fields will be added in Sub-Phase 4.2
+            // Empty constructor — fields default to empty strings
         }
     }
 }
