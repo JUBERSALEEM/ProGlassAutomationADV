@@ -4,7 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             d:DesignHeight="600" d:DesignWidth="900"
+             d:DesignHeight="700" d:DesignWidth="900"
              FontFamily="Segoe UI">
 
     <!-- ============ SHARED STYLES ============ -->
@@ -18,13 +18,15 @@
             <Setter Property="Margin" Value="0,0,0,6"/>
         </Style>
 
-        <!-- Dark Input TextBox Style -->
+        <!-- Input TextBox Style — always-visible border for light/dark theme support -->
         <Style x:Key="DarkInputStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="{DynamicResource SideMenuBackgroundBrush}"/>
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontSize" Value="14"/>
             <Setter Property="Padding" Value="14,12"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="CaretBrush" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -32,25 +34,69 @@
                         <Border x:Name="InputBorder"
                                 Background="{TemplateBinding Background}"
                                 CornerRadius="8"
-                                BorderThickness="1"
-                                BorderBrush="Transparent">
+                                BorderThickness="1.5"
+                                BorderBrush="{DynamicResource MenuHoverBrush}">
                             <ScrollViewer x:Name="PART_ContentHost"
                                           Margin="{TemplateBinding Padding}"
                                           VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="InputBorder" Property="BorderBrush"
+                                        Value="{DynamicResource SecondaryForegroundBrush}"/>
+                            </Trigger>
                             <Trigger Property="IsFocused" Value="True">
                                 <Setter TargetName="InputBorder" Property="BorderBrush"
                                         Value="{DynamicResource AccentBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="InputBorder" Property="BorderBrush"
-                                        Value="{DynamicResource MenuHoverBrush}"/>
+                                <Setter TargetName="InputBorder" Property="BorderThickness"
+                                        Value="2"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+
+        <!-- DatePicker Style — with visible border -->
+        <Style x:Key="DarkDatePickerStyle" TargetType="DatePicker">
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                </Trigger>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- ComboBox Style — with visible border -->
+        <Style x:Key="DarkComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Height" Value="44"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                </Trigger>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
     </UserControl.Resources>
@@ -63,8 +109,6 @@
             <!-- ============ HEADER ============ -->
             <StackPanel Orientation="Horizontal"
                         Margin="0,0,0,8">
-
-                <!-- Icon -->
                 <Border Background="{DynamicResource AccentBrush}"
                         Width="36" Height="36"
                         CornerRadius="8"
@@ -75,8 +119,6 @@
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
                 </Border>
-
-                <!-- Title -->
                 <TextBlock Text="COMPANY &amp; IDENTIFICATION SETUP"
                            FontSize="18"
                            FontWeight="Bold"
@@ -85,21 +127,19 @@
                            Margin="14,0,0,0"/>
             </StackPanel>
 
-            <!-- Subtitle -->
             <TextBlock Text="Configure your company identity, tax registration, and record numbers."
                        FontSize="13"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                        Margin="0,0,0,20"
                        TextWrapping="Wrap"/>
 
-            <!-- Divider -->
             <Border Background="{DynamicResource MenuHoverBrush}"
                     Height="1"
                     Margin="0,0,0,24"/>
 
             <!-- ============ COMPANY FIELDS ============ -->
 
-            <!-- Row 1: Company Name + TRN (side by side) -->
+            <!-- Row 1: Company Name + TRN -->
             <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -107,7 +147,6 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Company Registered Name -->
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="COMPANY REGISTERED NAME"
                                Style="{StaticResource FieldLabelStyle}"/>
@@ -115,7 +154,6 @@
                              Style="{StaticResource DarkInputStyle}"/>
                 </StackPanel>
 
-                <!-- Company Federal TRN -->
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="COMPANY FEDERAL TRN"
                                Style="{StaticResource FieldLabelStyle}"/>
@@ -124,13 +162,60 @@
                 </StackPanel>
             </Grid>
 
-            <!-- Row 2: Company Headquarters Location (full width) -->
-            <StackPanel Margin="0,0,0,16">
+            <!-- Row 2: HQ Location -->
+            <StackPanel Margin="0,0,0,20">
                 <TextBlock Text="COMPANY HEADQUARTERS LOCATION"
                            Style="{StaticResource FieldLabelStyle}"/>
                 <TextBox Text="{Binding CompanyLocation, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkInputStyle}"/>
             </StackPanel>
+
+            <!-- ============ PROFORMA FIELDS (4 columns) ============ -->
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Proforma ID -->
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="PROFORMA ID"
+                               Style="{StaticResource FieldLabelStyle}"/>
+                    <TextBox Text="{Binding ProformaId, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource DarkInputStyle}"
+                             FontFamily="Consolas"/>
+                </StackPanel>
+
+                <!-- Issue Date -->
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="ISSUE DATE"
+                               Style="{StaticResource FieldLabelStyle}"/>
+                    <DatePicker SelectedDate="{Binding IssueDate}"
+                                Style="{StaticResource DarkDatePickerStyle}"/>
+                </StackPanel>
+
+                <!-- Valid Until -->
+                <StackPanel Grid.Column="4">
+                    <TextBlock Text="VALID UNTIL"
+                               Style="{StaticResource FieldLabelStyle}"/>
+                    <DatePicker SelectedDate="{Binding ValidUntil}"
+                                Style="{StaticResource DarkDatePickerStyle}"/>
+                </StackPanel>
+
+                <!-- Proforma Status -->
+                <StackPanel Grid.Column="6">
+                    <TextBlock Text="PROFORMA STATUS"
+                               Style="{StaticResource FieldLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding StatusOptions}"
+                              SelectedItem="{Binding ProformaStatus}"
+                              Style="{StaticResource DarkComboBoxStyle}"/>
+                </StackPanel>
+            </Grid>
 
             <!-- ============ BODY PLACEHOLDER ============ -->
             <Border Background="{DynamicResource MenuHoverBrush}"
@@ -138,7 +223,7 @@
                     Padding="20,14"
                     Margin="0,10,0,0"
                     HorizontalAlignment="Left">
-                <TextBlock Text="✓ Company fields complete — Proforma fields (ID, dates, status) coming next"
+                <TextBlock Text="✓ Proforma fields complete — Fast Setup profile cards coming next"
                            FontSize="12"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </Border>

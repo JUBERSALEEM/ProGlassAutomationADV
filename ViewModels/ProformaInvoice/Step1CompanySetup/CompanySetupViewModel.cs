@@ -1,4 +1,7 @@
-﻿namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
+﻿using System;
+using System.Collections.Generic;
+
+namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
 {
     /// <summary>
     /// ViewModel for Step 1 of the Proforma Invoice wizard.
@@ -29,10 +32,59 @@
             set { _companyLocation = value; OnPropertyChanged(); }
         }
 
+        // === Proforma Fields ===
+
+        private string _proformaId;
+        public string ProformaId
+        {
+            get => _proformaId;
+            set { _proformaId = value; OnPropertyChanged(); }
+        }
+
+        private DateTime _issueDate;
+        public DateTime IssueDate
+        {
+            get => _issueDate;
+            set { _issueDate = value; OnPropertyChanged(); }
+        }
+
+        private DateTime _validUntil;
+        public DateTime ValidUntil
+        {
+            get => _validUntil;
+            set { _validUntil = value; OnPropertyChanged(); }
+        }
+
+        private string _proformaStatus;
+        public string ProformaStatus
+        {
+            get => _proformaStatus;
+            set { _proformaStatus = value; OnPropertyChanged(); }
+        }
+
+        // Dropdown options for Status
+        public List<string> StatusOptions { get; } = new List<string>
+        {
+            "Draft",
+            "Sent",
+            "Approved",
+            "Rejected",
+            "Expired"
+        };
+
         public CompanySetupViewModel()
         {
+            // Auto-generate proforma ID (PI-YEAR-001 format)
+            ProformaId = $"PI-{DateTime.Now.Year}-001";
+
+            // Default dates
+            IssueDate = DateTime.Now;
+            ValidUntil = DateTime.Now.AddDays(30);
+
+            // Default status
+            ProformaStatus = "Draft";
+
             // Profile cards will be added in Sub-Phase 3.5
-            // Proforma fields (ID, dates, status) will be added in Sub-Phase 3.4
         }
     }
 }
