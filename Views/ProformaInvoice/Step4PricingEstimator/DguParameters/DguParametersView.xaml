@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
-             d:DesignHeight="650" d:DesignWidth="900"
+             d:DesignHeight="700" d:DesignWidth="900"
              FontFamily="Segoe UI">
 
     <UserControl.Resources>
@@ -146,7 +146,7 @@
                 </StackPanel>
             </Grid>
 
-            <!-- ===================== ROW 2: Spacer + U-Insert + Overlap ===================== -->
+            <!-- ===================== ROW 2: Spacer Width + Material + Price ===================== -->
             <Grid Margin="0,0,0,12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -173,21 +173,44 @@
                 </StackPanel>
 
                 <StackPanel Grid.Column="4">
+                    <TextBlock Text="SPACER PRICE (AED)" Style="{StaticResource DguLabelStyle}"/>
+                    <TextBox Text="{Binding SpacerPrice, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DarkInputStyle}"/>
+                </StackPanel>
+
+                <!-- Column 6 intentionally empty (semantic grouping — spacer trio only) -->
+            </Grid>
+
+            <!-- ===================== ROW 3: U-Insert + Overlap ===================== -->
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
                     <TextBlock Text="U-INSERT OPTION" Style="{StaticResource DguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding UInsertOptions}"
                               SelectedItem="{Binding UInsertOption}"
                               Style="{StaticResource DarkComboBoxStyle}"/>
                 </StackPanel>
 
-                <StackPanel Grid.Column="6">
+                <StackPanel Grid.Column="2">
                     <TextBlock Text="OVERLAP OPTION" Style="{StaticResource DguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding OverlapOptions}"
                               SelectedItem="{Binding OverlapOption}"
                               Style="{StaticResource DarkComboBoxStyle}"/>
                 </StackPanel>
+
+                <!-- Columns 4 & 6 intentionally empty -->
             </Grid>
 
-            <!-- ===================== ROW 3: Inner Glass ===================== -->
+            <!-- ===================== ROW 4: Inner Glass ===================== -->
             <Grid Margin="0,0,0,12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -227,7 +250,7 @@
                 </StackPanel>
             </Grid>
 
-            <!-- ===================== ROW 4: Yield Factor + Profit Margin ===================== -->
+            <!-- ===================== ROW 5: Yield Factor + Profit Margin ===================== -->
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -251,7 +274,7 @@
                              Style="{StaticResource DarkInputStyle}"/>
                 </StackPanel>
 
-                <!-- Remaining 2 columns intentionally empty (matches screenshot) -->
+                <!-- Columns 4 & 6 intentionally empty -->
             </Grid>
 
         </StackPanel>

@@ -4,11 +4,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
 {
     /// <summary>
     /// ViewModel for DGU (Double Glass Unit) parameter panel.
-    /// Handles outer/inner glass parameters, spacer configuration,
+    /// Handles outer/inner glass parameters, spacer configuration (with
+    /// auto-suggested pricing based on width + material surcharge),
     /// U-insert & overlap options, yield factor, and margin.
     /// </summary>
     public class DguParametersViewModel : ViewModelBase
     {
+        // Guard flag to prevent recursion when auto-updating spacer price
+        private bool _isSuggestingSpacerPrice;
+
         // ===================== Row 1: Outer Glass =====================
 
         private string _outerThickness;
@@ -39,21 +43,40 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             set { _outerBasePrice = value; OnPropertyChanged(); }
         }
 
-        // ===================== Row 2: Spacer + U-Insert + Overlap =====================
+        // ===================== Row 2: Spacer Width + Material + Price =====================
 
         private string _spacerWidth;
         public string SpacerWidth
         {
             get => _spacerWidth;
-            set { _spacerWidth = value; OnPropertyChanged(); }
+            set
+            {
+                _spacerWidth = value;
+                OnPropertyChanged();
+                SuggestSpacerPrice();
+            }
         }
 
         private string _spacerMaterial;
         public string SpacerMaterial
         {
             get => _spacerMaterial;
-            set { _spacerMaterial = value; OnPropertyChanged(); }
+            set
+            {
+                _spacerMaterial = value;
+                OnPropertyChanged();
+                SuggestSpacerPrice();
+            }
         }
+
+        private decimal _spacerPrice;
+        public decimal SpacerPrice
+        {
+            get => _spacerPrice;
+            set { _spacerPrice = value; OnPropertyChanged(); }
+        }
+
+        // ===================== Row 3: U-Insert + Overlap =====================
 
         private string _uInsertOption;
         public string UInsertOption
@@ -69,7 +92,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             set { _overlapOption = value; OnPropertyChanged(); }
         }
 
-        // ===================== Row 3: Inner Glass =====================
+        // ===================== Row 4: Inner Glass =====================
 
         private string _innerThickness;
         public string InnerThickness
@@ -99,7 +122,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             set { _innerBasePrice = value; OnPropertyChanged(); }
         }
 
-        // ===================== Row 4: Yield + Profit (next phase) =====================
+        // ===================== Row 5: Yield + Margin =====================
 
         private decimal _yieldFactor;
         public decimal YieldFactor
@@ -115,7 +138,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             set { _marginProfitPercent = value; OnPropertyChanged(); }
         }
 
-        // ===================== Options =====================
+        // ===================== Dropdown Options =====================
 
         public List<string> ThicknessOptions { get; } = new()
         {
@@ -183,29 +206,100 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             "With Overlap As Per DWG"
         };
 
+        // ===================== Constructor =====================
+
         public DguParametersViewModel()
         {
             // Row 1 defaults
-            OuterThickness = "6mm";
-            OuterGlassColor = "Clear";
-            OuterTreatment = "FT";
-            OuterBasePrice = 46m;
+            _outerThickness = "6mm";
+            _outerGlassColor = "Clear";
+            _outerTreatment = "FT";
+            _outerBasePrice = 46m;
 
-            // Row 2 defaults
-            SpacerWidth = "12mm ASP";
-            SpacerMaterial = "Normal Mill Aluminum";
-            UInsertOption = "None";
-            OverlapOption = "None (empty spec only)";
+            // Row 2 defaults (set fields directly to avoid triggering suggest before ready)
+            _spacerWidth = "12mm ASP";
+            _spacerMaterial = "Normal Mill Aluminum";
+            _spacerPrice = CalculateSuggestedSpacerPrice(_spacerWidth, _spacerMaterial); // 45
 
             // Row 3 defaults
-            InnerThickness = "6mm";
-            InnerGlassColor = "Clear";
-            InnerTreatment = "FT";
-            InnerBasePrice = 46m;
+            _uInsertOption = "None";
+            _overlapOption = "None (empty spec only)";
 
-            // Row 4 defaults (UI next phase)
-            YieldFactor = 0.85m;
-            MarginProfitPercent = 15m;
+            // Row 4 defaults
+            _innerThickness = "6mm";
+            _innerGlassColor = "Clear";
+            _innerTreatment = "FT";
+            _innerBasePrice = 46m;
+
+            // Row 5 defaults
+            _yieldFactor = 0.85m;
+            _marginProfitPercent = 15m;
+        }
+
+        // ===================== Auto-Suggest Spacer Price =====================
+
+        /// <summary>
+        /// Auto-updates SpacerPrice based on the selected width + material.
+        /// Formula: BasePrice = 37.5 + ((width - 6) / 2) * 2.5 [each 2mm adds 2.5 AED]
+        ///          + Material Surcharge
+        /// User can still override manually by typing in the SpacerPrice field.
+        /// The override will get replaced next time Width/Material changes.
+        /// </summary>
+        private void SuggestSpacerPrice()
+        {
+            if (_isSuggestingSpacerPrice) return;
+
+            _isSuggestingSpacerPrice = true;
+            SpacerPrice = CalculateSuggestedSpacerPrice(_spacerWidth, _spacerMaterial);
+            _isSuggestingSpacerPrice = false;
+        }
+
+        /// <summary>
+        /// Pure calc — no side effects. Extracted so constructor + auto-suggest share logic.
+        /// </summary>
+        private decimal CalculateSuggestedSpacerPrice(string widthText, string material)
+        {
+            // Parse width in mm from "12mm ASP" → 12
+            int widthMm = ParseWidthMm(widthText);
+
+            // Base price formula: starts at 37.5 for 6mm, +2.5 per 2mm increase
+            //   6mm  → 37.5
+            //   12mm → 45.00
+            //   16mm → 50.00
+            //   20mm → 55.00
+            //   24mm → 60.00
+            decimal basePrice = 37.5m + ((widthMm - 6) / 2m) * 2.5m;
+
+            // Material surcharge (editable defaults — real values change over time)
+            decimal materialSurcharge = GetMaterialSurcharge(material);
+
+            return basePrice + materialSurcharge;
+        }
+
+        private int ParseWidthMm(string widthText)
+        {
+            if (string.IsNullOrWhiteSpace(widthText)) return 12;
+
+            // "12mm ASP" → grab digits before "mm"
+            var mmIndex = widthText.IndexOf("mm", System.StringComparison.OrdinalIgnoreCase);
+            if (mmIndex <= 0) return 12;
+
+            var digits = widthText.Substring(0, mmIndex).Trim();
+            return int.TryParse(digits, out int mm) ? mm : 12;
+        }
+
+        private decimal GetMaterialSurcharge(string material)
+        {
+            // Suggested defaults — user overrides via SpacerPrice field anyway
+            return material switch
+            {
+                "Normal Mill Aluminum" => 0m,
+                "Black Aluminum" => 5m,
+                "Warm Edge (Super Spacer)" => 15m,
+                "Stainless Steel" => 10m,
+                "TGI Spacer" => 12m,
+                _ => 0m
+            };
         }
     }
 }
