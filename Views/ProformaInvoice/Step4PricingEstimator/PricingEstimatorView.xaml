@@ -5,8 +5,30 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:sgu="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.SguParameters"
              mc:Ignorable="d"
-             d:DesignHeight="700" d:DesignWidth="900"
+             d:DesignHeight="800" d:DesignWidth="900"
              FontFamily="Segoe UI">
+
+    <!-- ============ SHARED STYLES ============ -->
+    <UserControl.Resources>
+
+        <!-- Section Title -->
+        <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,14"/>
+        </Style>
+
+        <!-- Themed Checkbox -->
+        <Style x:Key="ThemedCheckBoxStyle" TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Padding" Value="8,0,0,0"/>
+        </Style>
+
+    </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled"
@@ -73,11 +95,8 @@
                                             BorderThickness="2"
                                             BorderBrush="{DynamicResource MenuHoverBrush}">
                                         <StackPanel>
-
-                                            <!-- Top Row: Icon + Title -->
                                             <StackPanel Orientation="Horizontal"
                                                         Margin="0,0,0,10">
-                                                <!-- Icon square with per-card color -->
                                                 <Border x:Name="IconBorder"
                                                         Width="34" Height="34"
                                                         CornerRadius="8"
@@ -104,7 +123,6 @@
                                                                HorizontalAlignment="Center"
                                                                VerticalAlignment="Center"/>
                                                 </Border>
-
                                                 <TextBlock Text="{Binding Title}"
                                                            FontSize="14"
                                                            FontWeight="Bold"
@@ -113,15 +131,11 @@
                                                            Margin="12,0,0,0"
                                                            TextWrapping="Wrap"/>
                                             </StackPanel>
-
-                                            <!-- Description -->
                                             <TextBlock Text="{Binding Description}"
                                                        FontSize="11"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                        TextWrapping="Wrap"
                                                        Margin="0,0,0,12"/>
-
-                                            <!-- Status Badge (default = Select) -->
                                             <Border x:Name="StatusBadge"
                                                     CornerRadius="6"
                                                     Padding="10,5"
@@ -133,12 +147,9 @@
                                                            FontWeight="Bold"
                                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                             </Border>
-
                                         </StackPanel>
                                     </Border>
-
                                     <ControlTemplate.Triggers>
-                                        <!-- Hover state (unselected only) -->
                                         <MultiDataTrigger>
                                             <MultiDataTrigger.Conditions>
                                                 <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True"/>
@@ -147,8 +158,6 @@
                                             <Setter TargetName="CardBorder" Property="BorderBrush"
                                                     Value="{DynamicResource SecondaryForegroundBrush}"/>
                                         </MultiDataTrigger>
-
-                                        <!-- SELECTED — SGU (Indigo) -->
                                         <MultiDataTrigger>
                                             <MultiDataTrigger.Conditions>
                                                 <Condition Binding="{Binding IsSelected}" Value="True"/>
@@ -159,8 +168,6 @@
                                             <Setter TargetName="StatusText" Property="Text" Value="✓ Active Estimator"/>
                                             <Setter TargetName="StatusText" Property="Foreground" Value="White"/>
                                         </MultiDataTrigger>
-
-                                        <!-- SELECTED — DGU (Purple) -->
                                         <MultiDataTrigger>
                                             <MultiDataTrigger.Conditions>
                                                 <Condition Binding="{Binding IsSelected}" Value="True"/>
@@ -171,8 +178,6 @@
                                             <Setter TargetName="StatusText" Property="Text" Value="✓ Active Estimator"/>
                                             <Setter TargetName="StatusText" Property="Foreground" Value="White"/>
                                         </MultiDataTrigger>
-
-                                        <!-- SELECTED — LAM (Green) -->
                                         <MultiDataTrigger>
                                             <MultiDataTrigger.Conditions>
                                                 <Condition Binding="{Binding IsSelected}" Value="True"/>
@@ -183,8 +188,6 @@
                                             <Setter TargetName="StatusText" Property="Text" Value="✓ Active Estimator"/>
                                             <Setter TargetName="StatusText" Property="Foreground" Value="White"/>
                                         </MultiDataTrigger>
-
-                                        <!-- SELECTED — DGU+LAM (Orange) -->
                                         <MultiDataTrigger>
                                             <MultiDataTrigger.Conditions>
                                                 <Condition Binding="{Binding IsSelected}" Value="True"/>
@@ -286,6 +289,62 @@
                                FontSize="12"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </Border>
+            </Border>
+
+            <!-- ============ CONFIGURE PROCESSING TREATMENTS (shared across all glass types) ============ -->
+            <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                    CornerRadius="12"
+                    Padding="20"
+                    Margin="0,16,0,0"
+                    BorderThickness="1.5"
+                    BorderBrush="{DynamicResource MenuHoverBrush}">
+                <StackPanel>
+
+                    <TextBlock Text="CONFIGURE PROCESSING TREATMENTS"
+                               Style="{StaticResource SectionTitleStyle}"/>
+
+                    <!-- 4 checkboxes in a row -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <CheckBox Grid.Column="0"
+                                  Content="Polished Edges"
+                                  IsChecked="{Binding PolishedEdges}"
+                                  Style="{StaticResource ThemedCheckBoxStyle}"/>
+
+                        <CheckBox Grid.Column="1"
+                                  Content="Drill Cutouts"
+                                  IsChecked="{Binding DrillCutouts}"
+                                  Style="{StaticResource ThemedCheckBoxStyle}"/>
+
+                        <CheckBox Grid.Column="2"
+                                  Content="Countersunk Holes"
+                                  IsChecked="{Binding CountersunkHoles}"
+                                  Style="{StaticResource ThemedCheckBoxStyle}"/>
+
+                        <CheckBox Grid.Column="3"
+                                  Content="Edge Deletion Layer"
+                                  IsChecked="{Binding EdgeDeletionLayer}"
+                                  Style="{StaticResource ThemedCheckBoxStyle}"/>
+                    </Grid>
+
+                </StackPanel>
+            </Border>
+
+            <!-- Placeholder for next sections -->
+            <Border Background="{DynamicResource MenuHoverBrush}"
+                    CornerRadius="8"
+                    Padding="14,10"
+                    Margin="0,10,0,0"
+                    HorizontalAlignment="Left">
+                <TextBlock Text="✓ Processing Treatments complete — Specification Target Groups coming next"
+                           FontSize="11"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </Border>
 
         </StackPanel>

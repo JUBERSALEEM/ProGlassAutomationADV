@@ -9,11 +9,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
     /// </summary>
     public class GlassTypeCard : ViewModelBase
     {
-        public string Code { get; set; }              // "SGU", "DGU", "LAM", "DGU+LAM"
-        public string Title { get; set; }             // "Single Glass Unit"
-        public string Description { get; set; }       // Full descriptive text
-        public string Icon { get; set; }              // Emoji or symbol
-        public string AccentColor { get; set; }       // Hex color for the card accent
+        public string Code { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public string Icon { get; set; }
+        public string AccentColor { get; set; }
 
         private bool _isSelected;
         public bool IsSelected
@@ -45,18 +45,46 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             {
                 if (_selectedGlassType == value) return;
 
-                // Unmark old selection
                 if (_selectedGlassType != null)
                     _selectedGlassType.IsSelected = false;
 
                 _selectedGlassType = value;
 
-                // Mark new selection
                 if (_selectedGlassType != null)
                     _selectedGlassType.IsSelected = true;
 
                 OnPropertyChanged();
             }
+        }
+
+        // === Processing Treatments (shared across all glass types) ===
+
+        private bool _polishedEdges;
+        public bool PolishedEdges
+        {
+            get => _polishedEdges;
+            set { _polishedEdges = value; OnPropertyChanged(); }
+        }
+
+        private bool _drillCutouts;
+        public bool DrillCutouts
+        {
+            get => _drillCutouts;
+            set { _drillCutouts = value; OnPropertyChanged(); }
+        }
+
+        private bool _countersunkHoles;
+        public bool CountersunkHoles
+        {
+            get => _countersunkHoles;
+            set { _countersunkHoles = value; OnPropertyChanged(); }
+        }
+
+        private bool _edgeDeletionLayer;
+        public bool EdgeDeletionLayer
+        {
+            get => _edgeDeletionLayer;
+            set { _edgeDeletionLayer = value; OnPropertyChanged(); }
         }
 
         // === Commands ===
@@ -75,36 +103,35 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                     Code = "SGU",
                     Title = "Single Glass Unit (SGU)",
                     Description = "Monolithic pane. Direct pricing with custom color & treatments.",
-                    Icon = "\U0001F4E6",       // 📦
-                    AccentColor = "#6366F1"    // Indigo
+                    Icon = "\U0001F4E6",
+                    AccentColor = "#6366F1"
                 },
                 new GlassTypeCard
                 {
                     Code = "DGU",
                     Title = "Double Glass Unit (DGU)",
                     Description = "Insulated glass assembly. Configures spacers, gas insertion & outer/inner treatments.",
-                    Icon = "\U0001F4DA",       // 📚
-                    AccentColor = "#A855F7"    // Purple
+                    Icon = "\U0001F4DA",
+                    AccentColor = "#A855F7"
                 },
                 new GlassTypeCard
                 {
                     Code = "LAM",
                     Title = "Laminated Assembly (LAM)",
                     Description = "Multi-layer safety sandwich. Customizes PVB thickness, outer/inner prices & margins.",
-                    Icon = "\U0001F517",       // 🔗
-                    AccentColor = "#22C55E"    // Green
+                    Icon = "\U0001F517",
+                    AccentColor = "#22C55E"
                 },
                 new GlassTypeCard
                 {
                     Code = "DGU+LAM",
                     Title = "DGU + Laminated (Hybrid)",
                     Description = "Double glazed unit with one laminated layer. Combines thermal and safety performance.",
-                    Icon = "\U0001F3D7",       // 🏗️
-                    AccentColor = "#F97316"    // Orange
+                    Icon = "\U0001F3D7",
+                    AccentColor = "#F97316"
                 }
             };
 
-            // Command: select a card
             SelectGlassTypeCommand = new RelayCommand(param =>
             {
                 if (param is GlassTypeCard card)
@@ -113,6 +140,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
 
             // Default selection = SGU
             SelectedGlassType = GlassTypes[0];
+
+            // Default: no treatments checked
+            PolishedEdges = false;
+            DrillCutouts = false;
+            CountersunkHoles = false;
+            EdgeDeletionLayer = false;
         }
     }
 }
