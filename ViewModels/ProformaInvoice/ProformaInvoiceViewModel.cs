@@ -1,4 +1,7 @@
-﻿using System.Collections.ObjectModel;
+﻿using ProGlassAutomation.Commands;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice
 {
@@ -66,15 +69,37 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             get => _currentStep;
             set
             {
+                if (_currentStep == value) return;
+
+                // Update active flag on all steps
+                if (_currentStep != null) _currentStep.IsActive = false;
                 _currentStep = value;
+                if (_currentStep != null) _currentStep.IsActive = true;
+
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CurrentStepNumber));
                 OnPropertyChanged(nameof(StepProgressText));
+                OnPropertyChanged(nameof(ProgressPercent));
+                OnPropertyChanged(nameof(CanGoBack));
+                OnPropertyChanged(nameof(CanGoNext));
+                OnPropertyChanged(nameof(IsLastStep));
             }
         }
 
         public int CurrentStepNumber => CurrentStep?.StepNumber ?? 1;
         public string StepProgressText => $"STEP  {CurrentStepNumber}  OF  7";
+
+        // Progress bar fill % (0.0 to 1.0)
+        public double ProgressPercent => (double)CurrentStepNumber / 7.0;
+
+        public bool CanGoBack => CurrentStepNumber > 1;
+        public bool CanGoNext => CurrentStepNumber < 7;
+        public bool IsLastStep => CurrentStepNumber == 7;
+
+        // === Commands ===
+        public ICommand NextStepCommand { get; }
+        public ICommand PreviousStepCommand { get; }
+        public ICommand GoToStepCommand { get; }
 
         public ProformaInvoiceViewModel()
         {
@@ -84,8 +109,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 {
                     StepNumber = 1,
                     Title = "Company details",
-                    Subtitle = "TRN, location and billing",
-                    IsActive = true
+                    Subtitle = "TRN, location and billing"
                 },
                 new WizardStep
                 {
@@ -125,7 +149,30 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 }
             };
 
+            // Start on step 1
             CurrentStep = WizardSteps[0];
+
+            // Commands
+            NextStepCommand = new RelayCommand(
+                _ => GoToStep(CurrentStepNumber + 1),
+                _ => CanGoNext);
+
+            PreviousStepCommand = new RelayCommand(
+                _ => GoToStep(CurrentStepNumber - 1),
+                _ => CanGoBack);
+
+            GoToStepCommand = new RelayCommand(param =>
+            {
+                if (param is WizardStep step)
+                    CurrentStep = step;
+            });
+        }
+
+        private void GoToStep(int stepNumber)
+        {
+            var step = WizardSteps.FirstOrDefault(s => s.StepNumber == stepNumber);
+            if (step != null)
+                CurrentStep = step;
         }
     }
 }

@@ -11,9 +11,7 @@
           Margin="0,70,0,0">
 
         <Grid.ColumnDefinitions>
-            <!-- Left Sidebar — Wizard Steps -->
             <ColumnDefinition Width="280"/>
-            <!-- Right Content Area — Step Content -->
             <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
@@ -25,7 +23,6 @@
                 Padding="16,20">
             <StackPanel>
 
-                <!-- Sidebar Title -->
                 <TextBlock Text="INVOICE BUILDER PROGRESS"
                            FontSize="11"
                            FontWeight="Bold"
@@ -36,91 +33,111 @@
                 <ItemsControl ItemsSource="{Binding WizardSteps}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Border x:Name="StepBorder"
-                                    CornerRadius="12"
-                                    Padding="14,12"
+                            <!-- Whole step is now a Button so it's clickable -->
+                            <Button Command="{Binding DataContext.GoToStepCommand,
+                                              RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                    CommandParameter="{Binding}"
+                                    Background="Transparent"
+                                    BorderThickness="0"
+                                    Padding="0"
                                     Margin="0,2"
+                                    HorizontalContentAlignment="Stretch"
                                     Cursor="Hand">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="StepBorder"
+                                                CornerRadius="12"
+                                                Padding="14,12">
 
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="36"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="36"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
 
-                                    <!-- Step Number Circle -->
-                                    <Border x:Name="NumberCircle"
-                                            Grid.Column="0"
-                                            Width="28" Height="28"
-                                            CornerRadius="14"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center">
-                                        <TextBlock x:Name="NumberText"
-                                                   Text="{Binding StepNumber}"
-                                                   FontSize="13"
-                                                   FontWeight="Bold"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"/>
-                                    </Border>
+                                                <!-- Step Number Circle -->
+                                                <Border x:Name="NumberCircle"
+                                                        Grid.Column="0"
+                                                        Width="28" Height="28"
+                                                        CornerRadius="14"
+                                                        HorizontalAlignment="Center"
+                                                        VerticalAlignment="Center">
+                                                    <TextBlock x:Name="NumberText"
+                                                               Text="{Binding StepNumber}"
+                                                               FontSize="13"
+                                                               FontWeight="Bold"
+                                                               HorizontalAlignment="Center"
+                                                               VerticalAlignment="Center"/>
+                                                </Border>
 
-                                    <!-- Step Title + Subtitle -->
-                                    <StackPanel Grid.Column="1"
-                                                VerticalAlignment="Center"
-                                                Margin="10,0,0,0">
-                                        <TextBlock x:Name="TitleText"
-                                                   Text="{Binding Title}"
-                                                   FontSize="14"
-                                                   FontWeight="SemiBold"/>
-                                        <TextBlock x:Name="SubtitleText"
-                                                   Text="{Binding Subtitle}"
-                                                   FontSize="11"
-                                                   Margin="0,2,0,0"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
+                                                <!-- Step Title + Subtitle -->
+                                                <StackPanel Grid.Column="1"
+                                                            VerticalAlignment="Center"
+                                                            Margin="10,0,0,0">
+                                                    <TextBlock x:Name="TitleText"
+                                                               Text="{Binding Title}"
+                                                               FontSize="14"
+                                                               FontWeight="SemiBold"/>
+                                                    <TextBlock x:Name="SubtitleText"
+                                                               Text="{Binding Subtitle}"
+                                                               FontSize="11"
+                                                               Margin="0,2,0,0"/>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
 
-                            <!-- Triggers for Active / Inactive state -->
-                            <DataTemplate.Triggers>
+                                        <ControlTemplate.Triggers>
 
-                                <!-- Active Step — Accent background -->
-                                <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                    <Setter TargetName="StepBorder" Property="Background"
-                                            Value="{DynamicResource AccentBrush}"/>
-                                    <Setter TargetName="NumberCircle" Property="Background"
-                                            Value="#FFFFFF"/>
-                                    <Setter TargetName="NumberText" Property="Foreground"
-                                            Value="{DynamicResource AccentBrush}"/>
-                                    <Setter TargetName="TitleText" Property="Foreground"
-                                            Value="White"/>
-                                    <Setter TargetName="SubtitleText" Property="Foreground"
-                                            Value="#CCFFFFFF"/>
-                                </DataTrigger>
+                                            <!-- Hover state (only for inactive steps) -->
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding IsMouseOver, RelativeSource={RelativeSource Self}}" Value="True"/>
+                                                    <Condition Binding="{Binding IsActive}" Value="False"/>
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter TargetName="StepBorder" Property="Background"
+                                                        Value="{DynamicResource MenuHoverBrush}"/>
+                                            </MultiDataTrigger>
 
-                                <!-- Inactive Step — Transparent background -->
-                                <DataTrigger Binding="{Binding IsActive}" Value="False">
-                                    <Setter TargetName="StepBorder" Property="Background"
-                                            Value="Transparent"/>
-                                    <Setter TargetName="NumberCircle" Property="Background"
-                                            Value="{DynamicResource MenuHoverBrush}"/>
-                                    <Setter TargetName="NumberText" Property="Foreground"
-                                            Value="{DynamicResource SecondaryForegroundBrush}"/>
-                                    <Setter TargetName="TitleText" Property="Foreground"
-                                            Value="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <Setter TargetName="SubtitleText" Property="Foreground"
-                                            Value="{DynamicResource SecondaryForegroundBrush}"/>
-                                </DataTrigger>
+                                            <!-- Active Step -->
+                                            <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                <Setter TargetName="StepBorder" Property="Background"
+                                                        Value="{DynamicResource AccentBrush}"/>
+                                                <Setter TargetName="NumberCircle" Property="Background"
+                                                        Value="#FFFFFF"/>
+                                                <Setter TargetName="NumberText" Property="Foreground"
+                                                        Value="{DynamicResource AccentBrush}"/>
+                                                <Setter TargetName="TitleText" Property="Foreground"
+                                                        Value="White"/>
+                                                <Setter TargetName="SubtitleText" Property="Foreground"
+                                                        Value="#CCFFFFFF"/>
+                                            </DataTrigger>
 
-                                <!-- Completed Step — Checkmark could be added later -->
-                                <DataTrigger Binding="{Binding IsCompleted}" Value="True">
-                                    <Setter TargetName="NumberCircle" Property="Background"
-                                            Value="#22C55E"/>
-                                    <Setter TargetName="NumberText" Property="Foreground"
-                                            Value="White"/>
-                                    <Setter TargetName="NumberText" Property="Text"
-                                            Value="✓"/>
-                                </DataTrigger>
+                                            <!-- Inactive Step -->
+                                            <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                <Setter TargetName="NumberCircle" Property="Background"
+                                                        Value="{DynamicResource MenuHoverBrush}"/>
+                                                <Setter TargetName="NumberText" Property="Foreground"
+                                                        Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                <Setter TargetName="TitleText" Property="Foreground"
+                                                        Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                                <Setter TargetName="SubtitleText" Property="Foreground"
+                                                        Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                            </DataTrigger>
 
-                            </DataTemplate.Triggers>
+                                            <!-- Completed Step -->
+                                            <DataTrigger Binding="{Binding IsCompleted}" Value="True">
+                                                <Setter TargetName="NumberCircle" Property="Background"
+                                                        Value="#22C55E"/>
+                                                <Setter TargetName="NumberText" Property="Foreground"
+                                                        Value="White"/>
+                                                <Setter TargetName="NumberText" Property="Text"
+                                                        Value="✓"/>
+                                            </DataTrigger>
+
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
@@ -134,27 +151,26 @@
 
             <Grid>
                 <Grid.RowDefinitions>
-                    <!-- Progress Bar -->
                     <RowDefinition Height="Auto"/>
-                    <!-- Step Content -->
                     <RowDefinition Height="*"/>
-                    <!-- Bottom Navigation -->
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <!-- Top Progress Bar -->
-                <Grid Grid.Row="0" Margin="0,0,0,20">
-                    <!-- Track -->
+                <!-- Top Progress Bar — now dynamic -->
+                <Grid Grid.Row="0" Margin="0,0,0,20" x:Name="ProgressBarGrid">
                     <Border Background="{DynamicResource MenuHoverBrush}"
                             Height="6"
                             CornerRadius="3"/>
-                    <!-- Fill -->
                     <Border Background="{DynamicResource AccentBrush}"
                             Height="6"
                             CornerRadius="3"
-                            HorizontalAlignment="Left"
-                            Width="160">
-                        <!-- Width = (1/7) * total width — hardcoded for step 1, will be dynamic later -->
+                            HorizontalAlignment="Left">
+                        <Border.Width>
+                            <MultiBinding StringFormat="{}{0}">
+                                <Binding Path="ProgressPercent"/>
+                                <Binding ElementName="ProgressBarGrid" Path="ActualWidth"/>
+                            </MultiBinding>
+                        </Border.Width>
                     </Border>
                 </Grid>
 
@@ -201,25 +217,42 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- Back Button -->
-                    <Border Grid.Column="0"
-                            Background="{DynamicResource ModuleBackgroundBrush}"
-                            CornerRadius="10"
-                            Padding="20,10"
-                            Cursor="Hand"
-                            Opacity="0.5">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#10094;"
-                                       FontSize="12"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,8,0"/>
-                            <TextBlock Text="Back Step"
-                                       FontSize="13"
-                                       FontWeight="SemiBold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                       VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Border>
+                    <Button Grid.Column="0"
+                            Command="{Binding PreviousStepCommand}"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Padding="0"
+                            Cursor="Hand">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="BackBorder"
+                                        Background="{DynamicResource ModuleBackgroundBrush}"
+                                        CornerRadius="10"
+                                        Padding="20,10">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#10094;"
+                                                   FontSize="12"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,8,0"/>
+                                        <TextBlock Text="Back Step"
+                                                   FontSize="13"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter TargetName="BackBorder" Property="Opacity" Value="0.4"/>
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="BackBorder" Property="Opacity" Value="0.85"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
 
                     <!-- Step Counter -->
                     <TextBlock Grid.Column="1"
@@ -231,24 +264,42 @@
                                VerticalAlignment="Center"/>
 
                     <!-- Continue Button -->
-                    <Border Grid.Column="2"
-                            Background="{DynamicResource AccentBrush}"
-                            CornerRadius="10"
-                            Padding="20,10"
+                    <Button Grid.Column="2"
+                            Command="{Binding NextStepCommand}"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Padding="0"
                             Cursor="Hand">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="Continue"
-                                       FontSize="13"
-                                       FontWeight="SemiBold"
-                                       Foreground="White"
-                                       VerticalAlignment="Center"/>
-                            <TextBlock Text="&#10095;"
-                                       FontSize="12"
-                                       Foreground="White"
-                                       VerticalAlignment="Center"
-                                       Margin="8,0,0,0"/>
-                        </StackPanel>
-                    </Border>
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="NextBorder"
+                                        Background="{DynamicResource AccentBrush}"
+                                        CornerRadius="10"
+                                        Padding="20,10">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Continue"
+                                                   FontSize="13"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="White"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Text="&#10095;"
+                                                   FontSize="12"
+                                                   Foreground="White"
+                                                   VerticalAlignment="Center"
+                                                   Margin="8,0,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter TargetName="NextBorder" Property="Opacity" Value="0.4"/>
+                                    </Trigger>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="NextBorder" Property="Opacity" Value="0.9"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
                 </Grid>
             </Grid>
         </Border>
