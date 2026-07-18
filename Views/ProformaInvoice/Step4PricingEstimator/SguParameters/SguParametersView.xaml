@@ -4,22 +4,171 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             d:DesignHeight="400" d:DesignWidth="900"
+             d:DesignHeight="500" d:DesignWidth="900"
              FontFamily="Segoe UI">
 
-    <StackPanel>
+    <!-- ============ SHARED STYLES ============ -->
+    <UserControl.Resources>
 
-        <!-- Placeholder — SGU parameter sections coming next -->
-        <TextBlock Text="SGU Parameters Panel"
-                   FontSize="16"
-                   FontWeight="Bold"
-                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+        <!-- Field Label — Indigo (SGU brand accent) -->
+        <Style x:Key="SguLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#6366F1"/>
+            <Setter Property="Margin" Value="0,0,0,6"/>
+        </Style>
 
-        <TextBlock Text="Single Glass Unit parameter fields will be built here step by step."
-                   FontSize="13"
-                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                   Margin="0,8,0,0"
-                   TextWrapping="Wrap"/>
+        <!-- Section Title — Blue/indigo highlight -->
+        <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#6366F1"/>
+            <Setter Property="Margin" Value="0,0,0,14"/>
+        </Style>
 
-    </StackPanel>
+        <!-- Input TextBox Style -->
+        <Style x:Key="DarkInputStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="14,0"/>
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="SelectionBrush" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="InputBorder"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                BorderThickness="1.5"
+                                BorderBrush="{DynamicResource MenuHoverBrush}">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Focusable="False"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          VerticalScrollBarVisibility="Hidden"
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="Center"
+                                          Background="Transparent"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="InputBorder" Property="BorderBrush"
+                                        Value="{DynamicResource SecondaryForegroundBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="InputBorder" Property="BorderBrush" Value="#6366F1"/>
+                                <Setter TargetName="InputBorder" Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ComboBox Style -->
+        <Style x:Key="DarkComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="12,0"/>
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                </Trigger>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                    <Setter Property="BorderBrush" Value="#6366F1"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Editable ComboBox Style — for Glass Color (dropdown + manual entry) -->
+        <Style x:Key="DarkEditableComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource DarkComboBoxStyle}">
+            <Setter Property="IsEditable" Value="True"/>
+            <Setter Property="IsTextSearchEnabled" Value="True"/>
+        </Style>
+
+    </UserControl.Resources>
+
+    <!-- ============ SGU PARAMETERS PANEL ============ -->
+    <Border Background="{DynamicResource ModuleBackgroundBrush}"
+            CornerRadius="12"
+            Padding="20"
+            Margin="0,10,0,0"
+            BorderThickness="1.5"
+            BorderBrush="{DynamicResource MenuHoverBrush}">
+        <StackPanel>
+
+            <!-- Section Title -->
+            <TextBlock Text="SINGLE GLASS (SGU) PARAMETERS"
+                       Style="{StaticResource SectionTitleStyle}"/>
+
+            <!-- ============ ROW 1: Thickness | Color | Treatment | Base Price ============ -->
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Thickness -->
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="THICKNESS"
+                               Style="{StaticResource SguLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding ThicknessOptions}"
+                              SelectedItem="{Binding SelectedThickness}"
+                              Style="{StaticResource DarkComboBoxStyle}"/>
+                </StackPanel>
+
+                <!-- Glass Color (editable ComboBox — dropdown + manual entry) -->
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="GLASS COLOR"
+                               Style="{StaticResource SguLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding ColorOptions}"
+                              Text="{Binding GlassColor, UpdateSourceTrigger=PropertyChanged}"
+                              Style="{StaticResource DarkEditableComboBoxStyle}"/>
+                </StackPanel>
+
+                <!-- Treatment Type -->
+                <StackPanel Grid.Column="4">
+                    <TextBlock Text="TREATMENT TYPE"
+                               Style="{StaticResource SguLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding TreatmentOptions}"
+                              SelectedItem="{Binding SelectedTreatment}"
+                              Style="{StaticResource DarkComboBoxStyle}"/>
+                </StackPanel>
+
+                <!-- Base Price / SQM -->
+                <StackPanel Grid.Column="6">
+                    <TextBlock Text="BASE PRICE / SQM (AED)"
+                               Style="{StaticResource SguLabelStyle}"/>
+                    <TextBox Text="{Binding BasePricePerSqm, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"
+         Style="{StaticResource DarkInputStyle}"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Placeholder for next rows -->
+            <Border Background="{DynamicResource MenuHoverBrush}"
+                    CornerRadius="8"
+                    Padding="14,10"
+                    Margin="0,4,0,0"
+                    HorizontalAlignment="Left">
+                <TextBlock Text="✓ Row 1 complete — Row 2 (Cutting, Tempering, Yield, Margin) coming next"
+                           FontSize="11"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+            </Border>
+
+        </StackPanel>
+    </Border>
 </UserControl>
