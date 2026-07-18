@@ -61,8 +61,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         public bool HasInvoices => false;
 
         // === Step ViewModels ===
+        // Initialized in constructor with navigation callback
         public Step1CompanySetup.CompanySetupViewModel Step1VM { get; }
-            = new Step1CompanySetup.CompanySetupViewModel();
 
         // === Wizard Steps ===
         public ObservableCollection<WizardStep> WizardSteps { get; }
@@ -113,6 +113,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
 
         public ProformaInvoiceViewModel()
         {
+            // Initialize Step VMs with navigation callback so children can request step jumps
+            Step1VM = new Step1CompanySetup.CompanySetupViewModel(
+                stepNumber => GoToStep(stepNumber));
+
             WizardSteps = new ObservableCollection<WizardStep>
             {
                 new WizardStep

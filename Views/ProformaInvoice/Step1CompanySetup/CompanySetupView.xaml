@@ -18,16 +18,17 @@
             <Setter Property="Margin" Value="0,0,0,6"/>
         </Style>
 
-        <!-- Input TextBox Style -->
+        <!-- Input TextBox Style — FIXED: text rendering + ScrollViewer settings -->
         <Style x:Key="DarkInputStyle" TargetType="TextBox">
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Padding" Value="14,12"/>
+            <Setter Property="Padding" Value="14,0"/>
             <Setter Property="Height" Value="44"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="CaretBrush" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="SelectionBrush" Value="{DynamicResource AccentBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
@@ -37,8 +38,12 @@
                                 BorderThickness="1.5"
                                 BorderBrush="{DynamicResource MenuHoverBrush}">
                             <ScrollViewer x:Name="PART_ContentHost"
+                                          Focusable="False"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          VerticalScrollBarVisibility="Hidden"
                                           Margin="{TemplateBinding Padding}"
-                                          VerticalAlignment="Center"/>
+                                          VerticalAlignment="Center"
+                                          Background="Transparent"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -195,12 +200,15 @@
                                             <Run Text="{Binding ProjectName}"/>
                                         </TextBlock>
 
-                                        <!-- Load Profile Button (wire in Sub-Phase 3.6) -->
+                                        <!-- Load Profile Button -->
                                         <Button Background="Transparent"
                                                 BorderThickness="0"
                                                 Padding="0"
                                                 Cursor="Hand"
-                                                HorizontalAlignment="Left">
+                                                HorizontalAlignment="Left"
+                                                Command="{Binding DataContext.LoadProfileCommand,
+                                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}">
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
                                                     <StackPanel Orientation="Horizontal">
@@ -237,7 +245,8 @@
                             BorderThickness="0"
                             Padding="0"
                             Cursor="Hand"
-                            Margin="0,16,0,0">
+                            Margin="0,16,0,0"
+                            Command="{Binding GoToGridCommand}">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="GoBorder"
@@ -301,6 +310,38 @@
                 <TextBox Text="{Binding CompanyLocation, UpdateSourceTrigger=PropertyChanged}"
                          Style="{StaticResource DarkInputStyle}"/>
             </StackPanel>
+
+            <!-- ============ LOADED PROFILE SUCCESS INDICATOR ============ -->
+            <Border CornerRadius="8"
+                    Padding="14,10"
+                    Margin="0,0,0,16"
+                    HorizontalAlignment="Left">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Setter Property="Background" Value="#1622C55E"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding HasLoadedProfile}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="✓"
+                               FontSize="14"
+                               FontWeight="Bold"
+                               Foreground="#22C55E"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0"/>
+                    <TextBlock FontSize="12"
+                               Foreground="#22C55E"
+                               VerticalAlignment="Center">
+                        <Run Text="Profile loaded: "/>
+                        <Run Text="{Binding LoadedProfileName}" FontWeight="Bold"/>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
 
             <!-- ============ PROFORMA FIELDS (4 columns) ============ -->
             <Grid Margin="0,0,0,16">

@@ -1,6 +1,8 @@
-﻿using System;
+﻿using ProGlassAutomation.Commands;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
 {
@@ -23,6 +25,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
     /// </summary>
     public class CompanySetupViewModel : ViewModelBase
     {
+        // === Callback to parent wizard for navigation ===
+        private readonly Action<int> _navigateToStep;
+
         // === Company Fields ===
 
         private string _companyName = string.Empty;
@@ -89,8 +94,32 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
         // === Saved Company Profiles (Fast Setup Cards) ===
         public ObservableCollection<CompanyProfileCard> SavedProfiles { get; }
 
-        public CompanySetupViewModel()
+        // === Loaded Profile Indicator ===
+        private string _loadedProfileName;
+        public string LoadedProfileName
         {
+            get => _loadedProfileName;
+            set
+            {
+                _loadedProfileName = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasLoadedProfile));
+            }
+        }
+
+        public bool HasLoadedProfile => !string.IsNullOrEmpty(LoadedProfileName);
+
+        // === Commands ===
+        public ICommand LoadProfileCommand { get; }
+        public ICommand GoToGridCommand { get; }
+
+        // Parameterless constructor for design-time / fallback
+        public CompanySetupViewModel() : this(null) { }
+
+        public CompanySetupViewModel(Action<int> navigateToStep)
+        {
+            _navigateToStep = navigateToStep;
+
             // Auto-generate proforma ID (PI-YEAR-001 format)
             ProformaId = $"PI-{DateTime.Now.Year}-001";
 
@@ -140,6 +169,24 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                     Location = "Abu Dhabi, UAE"
                 }
             };
+
+            // Load Profile Command — fills form fields from selected card
+            LoadProfileCommand = new RelayCommand(param =>
+            {
+                if (param is CompanyProfileCard profile)
+                {
+                    CompanyName = profile.CompanyName;
+                    CompanyTrn = profile.Trn;
+                    CompanyLocation = profile.Location;
+                    LoadedProfileName = profile.CompanyName;
+                }
+            });
+
+            // Go Directly to Grid (Step 5) Command
+            GoToGridCommand = new RelayCommand(_ =>
+            {
+                _navigateToStep?.Invoke(5);
+            });
         }
     }
 }
