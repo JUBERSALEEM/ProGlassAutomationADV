@@ -26,10 +26,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
     /// <summary>
     /// ViewModel for Step 4 of the Proforma Invoice wizard.
     /// Handles the Smart Pricing Estimator: glass type selection,
-    /// glass parameters, processing treatments, and live rate calculation.
+    /// per-glass-type parameter panels, processing treatments,
+    /// spec target groups, and live rate calculation.
     /// </summary>
     public class PricingEstimatorViewModel : ViewModelBase
     {
+        // === Panel ViewModels (one per glass type) ===
+        public SguParameters.SguParametersViewModel SguVM { get; }
+
         // === Glass Type Cards ===
         public ObservableCollection<GlassTypeCard> GlassTypes { get; }
 
@@ -60,6 +64,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
 
         public PricingEstimatorViewModel()
         {
+            // Initialize panel VMs
+            SguVM = new SguParameters.SguParametersViewModel();
+
             // Seed 4 glass type options
             GlassTypes = new ObservableCollection<GlassTypeCard>
             {

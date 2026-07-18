@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:sgu="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.SguParameters"
              mc:Ignorable="d"
              d:DesignHeight="700" d:DesignWidth="900"
              FontFamily="Segoe UI">
@@ -202,15 +203,89 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <!-- ============ BODY PLACEHOLDER ============ -->
-            <Border Background="{DynamicResource MenuHoverBrush}"
-                    CornerRadius="8"
-                    Padding="20,14"
-                    Margin="0,10,0,0"
-                    HorizontalAlignment="Left">
-                <TextBlock Text="✓ Glass Type cards complete — Guardian &amp; AGC catalog panel coming next"
-                           FontSize="12"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+            <!-- ============ SGU PARAMETERS PANEL ============ -->
+            <ContentControl Content="{Binding SguVM}">
+                <ContentControl.Style>
+                    <Style TargetType="ContentControl">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedGlassType.Code}" Value="SGU">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </ContentControl.Style>
+                <ContentControl.ContentTemplate>
+                    <DataTemplate>
+                        <sgu:SguParametersView/>
+                    </DataTemplate>
+                </ContentControl.ContentTemplate>
+            </ContentControl>
+
+            <!-- ============ DGU PARAMETERS PANEL (coming in 6.6) ============ -->
+            <Border Margin="0,10,0,0">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedGlassType.Code}" Value="DGU">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Border Background="{DynamicResource MenuHoverBrush}"
+                        CornerRadius="8"
+                        Padding="20,14"
+                        HorizontalAlignment="Left">
+                    <TextBlock Text="DGU parameters panel — coming in Phase 6.6"
+                               FontSize="12"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                </Border>
+            </Border>
+
+            <!-- ============ LAM PARAMETERS PANEL (coming in 6.7) ============ -->
+            <Border Margin="0,10,0,0">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedGlassType.Code}" Value="LAM">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Border Background="{DynamicResource MenuHoverBrush}"
+                        CornerRadius="8"
+                        Padding="20,14"
+                        HorizontalAlignment="Left">
+                    <TextBlock Text="LAM parameters panel — coming in Phase 6.7"
+                               FontSize="12"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                </Border>
+            </Border>
+
+            <!-- ============ DGU+LAM PARAMETERS PANEL (blank for now) ============ -->
+            <Border Margin="0,10,0,0">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedGlassType.Code}" Value="DGU+LAM">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <Border Background="{DynamicResource MenuHoverBrush}"
+                        CornerRadius="8"
+                        Padding="20,14"
+                        HorizontalAlignment="Left">
+                    <TextBlock Text="DGU+LAM hybrid parameters — will be added in a future update"
+                               FontSize="12"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                </Border>
             </Border>
 
         </StackPanel>
