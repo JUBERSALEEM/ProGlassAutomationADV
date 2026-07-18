@@ -28,6 +28,13 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreUse
             }
         }
 
+        private string _jobOrderReference = string.Empty;
+        public string JobOrderReference
+        {
+            get => _jobOrderReference;
+            set { _jobOrderReference = value; OnPropertyChanged(); }
+        }
+
         // Computed previews
         public decimal TotalSqm => Sheet.SqmPerSheet * Quantity;
         public decimal TotalValue => TotalSqm * Sheet.SellPricePerSqm;

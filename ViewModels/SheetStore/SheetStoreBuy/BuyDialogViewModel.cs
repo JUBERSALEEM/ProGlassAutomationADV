@@ -21,6 +21,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreBuy
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(TotalSqm));
                 OnPropertyChanged(nameof(TotalCost));
+                OnPropertyChanged(nameof(NewStockAfterBuy));
+                OnPropertyChanged(nameof(NewBalanceAfterBuy));
                 OnPropertyChanged(nameof(CanConfirm));
             }
         }
@@ -29,6 +31,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreBuy
         public decimal TotalSqm => Sheet.SqmPerSheet * Quantity;
         public decimal TotalCost => TotalSqm * Sheet.PurchasePricePerSqm;
         public int NewStockAfterBuy => Sheet.Stock + Quantity;
+        public int NewBalanceAfterBuy => Sheet.Balance + Quantity;
 
         public bool CanConfirm => Quantity > 0;
 

@@ -656,7 +656,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             }
         }
 
-        // ============ USE (Beautiful Dialog) ============
+        // ============ USE (Beautiful Dialog + Job Order Reference) ============
 
         private async Task UseAsync(GlassSheet? sheet)
         {
@@ -680,9 +680,14 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                     await _repo.UseStockAsync(sheet.Id, vm.Quantity);
                     var value = vm.Quantity * sheet.SqmPerSheet * sheet.SellPricePerSqm;
 
+                    // Include Job Order reference in history if provided
+                    var jobRef = string.IsNullOrWhiteSpace(vm.JobOrderReference)
+                        ? ""
+                        : $" [Job: {vm.JobOrderReference.Trim()}]";
+
                     await _historyRepo.LogAsync(
                         sheet.Id, DescribeSheet(sheet), "Used",
-                        $"Consumed {vm.Quantity} sheets. Used: {oldUsed} → {oldUsed + vm.Quantity}. Value: {value:N2} AED.",
+                        $"Consumed {vm.Quantity} sheets.{jobRef} Used: {oldUsed} → {oldUsed + vm.Quantity}. Value: {value:N2} AED.",
                         vm.Quantity, value);
                     await LoadAsync();
                 }
