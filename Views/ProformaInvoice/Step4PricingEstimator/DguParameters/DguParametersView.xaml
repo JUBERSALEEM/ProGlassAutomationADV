@@ -5,13 +5,12 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
-             d:DesignHeight="500" d:DesignWidth="900"
+             d:DesignHeight="520" d:DesignWidth="900"
              FontFamily="Segoe UI">
 
-    <!-- ============ SHARED STYLES ============ -->
     <UserControl.Resources>
 
-        <!-- Field Label — Purple (DGU brand accent) -->
+        <!-- Field Label — Purple (DGU accent) -->
         <Style x:Key="DguLabelStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="10"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -19,7 +18,7 @@
             <Setter Property="Margin" Value="0,0,0,4"/>
         </Style>
 
-        <!-- Section Title — Purple highlight -->
+        <!-- Section Title -->
         <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -27,7 +26,7 @@
             <Setter Property="Margin" Value="0,0,0,10"/>
         </Style>
 
-        <!-- Input TextBox Style — matches SGU compact style with purple focus -->
+        <!-- Compact Input TextBox Style -->
         <Style x:Key="DarkInputStyle" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
@@ -57,12 +56,17 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="InputBorder" Property="BorderBrush"
+                                <Setter TargetName="InputBorder"
+                                        Property="BorderBrush"
                                         Value="{DynamicResource SecondaryForegroundBrush}"/>
                             </Trigger>
                             <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="InputBorder" Property="BorderBrush" Value="#A855F7"/>
-                                <Setter TargetName="InputBorder" Property="BorderThickness" Value="2"/>
+                                <Setter TargetName="InputBorder"
+                                        Property="BorderBrush"
+                                        Value="#A855F7"/>
+                                <Setter TargetName="InputBorder"
+                                        Property="BorderThickness"
+                                        Value="2"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -70,7 +74,7 @@
             </Setter>
         </Style>
 
-        <!-- ComboBox Style — purple focus -->
+        <!-- Compact ComboBox Style -->
         <Style x:Key="DarkComboBoxStyle" TargetType="ComboBox">
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
@@ -82,7 +86,8 @@
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                    <Setter Property="BorderBrush"
+                            Value="{DynamicResource SecondaryForegroundBrush}"/>
                 </Trigger>
                 <Trigger Property="IsKeyboardFocusWithin" Value="True">
                     <Setter Property="BorderBrush" Value="#A855F7"/>
@@ -91,15 +96,16 @@
             </Style.Triggers>
         </Style>
 
-        <!-- Editable ComboBox Style — for Glass Color (dropdown + manual entry) -->
-        <Style x:Key="DarkEditableComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource DarkComboBoxStyle}">
+        <!-- Editable ComboBox Style — dropdown + manual -->
+        <Style x:Key="DarkEditableComboBoxStyle"
+               TargetType="ComboBox"
+               BasedOn="{StaticResource DarkComboBoxStyle}">
             <Setter Property="IsEditable" Value="True"/>
             <Setter Property="IsTextSearchEnabled" Value="True"/>
         </Style>
 
     </UserControl.Resources>
 
-    <!-- ============ DGU PARAMETERS PANEL ============ -->
     <Border Background="{DynamicResource ModuleBackgroundBrush}"
             CornerRadius="10"
             Padding="14"
@@ -108,11 +114,10 @@
             BorderBrush="{DynamicResource MenuHoverBrush}">
         <StackPanel>
 
-            <!-- Section Title -->
             <TextBlock Text="DOUBLE INSULATED (DGU) PARAMETERS"
                        Style="{StaticResource SectionTitleStyle}"/>
 
-            <!-- ============ ROW 1: Outer Thickness | Outer Color | Outer Treatment | Outer Base Price ============ -->
+            <!-- ===================== ROW 1 ===================== -->
             <Grid Margin="0,0,0,12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -124,43 +129,75 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Outer Glass Thickness -->
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="OUTER GLASS THK"
-                               Style="{StaticResource DguLabelStyle}"/>
+                    <TextBlock Text="OUTER GLASS THK" Style="{StaticResource DguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding ThicknessOptions}"
                               SelectedItem="{Binding OuterThickness}"
                               Style="{StaticResource DarkComboBoxStyle}"/>
                 </StackPanel>
 
-                <!-- Outer Glass Color -->
                 <StackPanel Grid.Column="2">
-                    <TextBlock Text="OUTER GLASS COLOR"
-                               Style="{StaticResource DguLabelStyle}"/>
+                    <TextBlock Text="OUTER GLASS COLOR" Style="{StaticResource DguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding ColorOptions}"
                               Text="{Binding OuterGlassColor, UpdateSourceTrigger=PropertyChanged}"
                               Style="{StaticResource DarkEditableComboBoxStyle}"/>
                 </StackPanel>
 
-                <!-- Outer Glass Treatment -->
                 <StackPanel Grid.Column="4">
-                    <TextBlock Text="OUTER GLASS TREATMENT"
-                               Style="{StaticResource DguLabelStyle}"/>
+                    <TextBlock Text="OUTER GLASS TREATMENT" Style="{StaticResource DguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding TreatmentOptions}"
                               SelectedItem="{Binding OuterTreatment}"
                               Style="{StaticResource DarkComboBoxStyle}"/>
                 </StackPanel>
 
-                <!-- Outer Base Price -->
                 <StackPanel Grid.Column="6">
-                    <TextBlock Text="OUTER BASE PRICE"
-                               Style="{StaticResource DguLabelStyle}"/>
+                    <TextBlock Text="OUTER BASE PRICE" Style="{StaticResource DguLabelStyle}"/>
                     <TextBox Text="{Binding OuterBasePrice, StringFormat={}{0:0.##}}"
                              Style="{StaticResource DarkInputStyle}"/>
                 </StackPanel>
             </Grid>
 
+            <!-- ===================== ROW 2 ===================== -->
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="SPACER WIDTH (MM)" Style="{StaticResource DguLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding SpacerWidthOptions}"
+                              SelectedItem="{Binding SpacerWidth}"
+                              Style="{StaticResource DarkComboBoxStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="SPACER MATERIAL" Style="{StaticResource DguLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding SpacerMaterialOptions}"
+                              SelectedItem="{Binding SpacerMaterial}"
+                              Style="{StaticResource DarkComboBoxStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="4">
+                    <TextBlock Text="U-INSERT OPTION" Style="{StaticResource DguLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding UInsertOptions}"
+                              SelectedItem="{Binding UInsertOption}"
+                              Style="{StaticResource DarkComboBoxStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="6">
+                    <TextBlock Text="OVERLAP OPTION" Style="{StaticResource DguLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding OverlapOptions}"
+                              SelectedItem="{Binding OverlapOption}"
+                              Style="{StaticResource DarkComboBoxStyle}"/>
+                </StackPanel>
+            </Grid>
+
         </StackPanel>
     </Border>
-
 </UserControl>
