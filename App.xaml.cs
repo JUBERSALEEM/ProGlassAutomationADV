@@ -2,6 +2,7 @@
 using ProGlassAutomation.Services.AI.AIConnectivity;
 using ProGlassAutomation.Services.AI.AIService;
 using ProGlassAutomation.Services.Database;
+using ProGlassAutomation.Services.Database.DatabaseBackup;
 using ProGlassAutomation.Views.Splash;
 using System.Threading.Tasks;
 using System.Windows;
@@ -50,6 +51,9 @@ namespace ProGlassAutomation
 
         protected override void OnExit(ExitEventArgs e)
         {
+            // Backup database before closing (keeps last 7 copies)
+            BackupService.CreateBackup();
+
             // Persist config + cleanup
             if (Config != null) ConfigService.Save(Config);
             Connectivity?.StopMonitoring();
