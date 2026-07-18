@@ -69,6 +69,52 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             set { _overlapOption = value; OnPropertyChanged(); }
         }
 
+        // ===================== Row 3: Inner Glass =====================
+
+        private string _innerThickness;
+        public string InnerThickness
+        {
+            get => _innerThickness;
+            set { _innerThickness = value; OnPropertyChanged(); }
+        }
+
+        private string _innerGlassColor;
+        public string InnerGlassColor
+        {
+            get => _innerGlassColor;
+            set { _innerGlassColor = value; OnPropertyChanged(); }
+        }
+
+        private string _innerTreatment;
+        public string InnerTreatment
+        {
+            get => _innerTreatment;
+            set { _innerTreatment = value; OnPropertyChanged(); }
+        }
+
+        private decimal _innerBasePrice;
+        public decimal InnerBasePrice
+        {
+            get => _innerBasePrice;
+            set { _innerBasePrice = value; OnPropertyChanged(); }
+        }
+
+        // ===================== Row 4: Yield + Profit (next phase) =====================
+
+        private decimal _yieldFactor;
+        public decimal YieldFactor
+        {
+            get => _yieldFactor;
+            set { _yieldFactor = value; OnPropertyChanged(); }
+        }
+
+        private decimal _marginProfitPercent;
+        public decimal MarginProfitPercent
+        {
+            get => _marginProfitPercent;
+            set { _marginProfitPercent = value; OnPropertyChanged(); }
+        }
+
         // ===================== Options =====================
 
         public List<string> ThicknessOptions { get; } = new()
@@ -97,7 +143,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             "Heat Soaked"
         };
 
-        // Spacer widths: 6mm to 32mm in 2mm steps (your requirement)
         public List<string> SpacerWidthOptions { get; } = new()
         {
             "6mm ASP",
@@ -116,7 +161,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             "32mm ASP"
         };
 
-        // You approved defaults here
         public List<string> SpacerMaterialOptions { get; } = new()
         {
             "Normal Mill Aluminum",
@@ -153,7 +197,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             UInsertOption = "None";
             OverlapOption = "None (empty spec only)";
 
-            // Row 3 + Row 4 will be added in next phases (6.6d, 6.6e)
+            // Row 3 defaults
+            InnerThickness = "6mm";
+            InnerGlassColor = "Clear";
+            InnerTreatment = "FT";
+            InnerBasePrice = 46m;
+
+            // Row 4 defaults (UI next phase)
+            YieldFactor = 0.85m;
+            MarginProfitPercent = 15m;
         }
     }
 }
