@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
              d:DesignHeight="550" d:DesignWidth="900"
              FontFamily="Segoe UI">
@@ -26,8 +27,9 @@
             <Setter Property="Margin" Value="0,0,0,14"/>
         </Style>
 
-        <!-- Input TextBox Style -->
+        <!-- Input TextBox Style — auto-selects all text on focus for smooth editing -->
         <Style x:Key="DarkInputStyle" TargetType="TextBox">
+            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="BorderThickness" Value="0"/>
