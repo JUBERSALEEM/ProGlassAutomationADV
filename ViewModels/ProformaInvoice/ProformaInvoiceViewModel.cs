@@ -63,6 +63,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         // === Step ViewModels ===
         // Initialized in constructor with navigation callback
         public Step1CompanySetup.CompanySetupViewModel Step1VM { get; }
+        public Step2ProjectSpecs.ProjectSpecsViewModel Step2VM { get; }
 
         // === Wizard Steps ===
         public ObservableCollection<WizardStep> WizardSteps { get; }
@@ -116,6 +117,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             // Initialize Step VMs with navigation callback so children can request step jumps
             Step1VM = new Step1CompanySetup.CompanySetupViewModel(
                 stepNumber => GoToStep(stepNumber));
+
+            Step2VM = new Step2ProjectSpecs.ProjectSpecsViewModel();
 
             WizardSteps = new ObservableCollection<WizardStep>
             {
