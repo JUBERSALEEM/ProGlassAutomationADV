@@ -14,11 +14,11 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreHistory
     public class HistoryViewModel : ViewModelBase
     {
         private readonly ISheetHistoryRepository _repo = new SheetHistoryRepository();
-
-        // Reentrancy guard — prevents multiple concurrent loads
         private bool _isLoading;
 
         public ObservableCollection<SheetHistory> Entries { get; } = new();
+
+        // ============ FILTERS ============
 
         private string _searchText = string.Empty;
         public string SearchText
@@ -46,6 +46,38 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreHistory
             }
         }
 
+        private DateTime? _fromDate;
+        public DateTime? FromDate
+        {
+            get => _fromDate;
+            set
+            {
+                if (_fromDate == value) return;
+                _fromDate = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasDateFilter));
+                _ = LoadAsync();
+            }
+        }
+
+        private DateTime? _toDate;
+        public DateTime? ToDate
+        {
+            get => _toDate;
+            set
+            {
+                if (_toDate == value) return;
+                _toDate = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasDateFilter));
+                _ = LoadAsync();
+            }
+        }
+
+        public bool HasDateFilter => FromDate.HasValue || ToDate.HasValue;
+
+        // ============ STATS ============
+
         public int TotalEntries => Entries.Count;
         public bool HasEntries => Entries.Count > 0;
         public bool IsEmpty => Entries.Count == 0;
@@ -57,8 +89,11 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreHistory
             set { _isBusy = value; OnPropertyChanged(); }
         }
 
+        // ============ COMMANDS ============
+
         public ICommand RefreshCommand { get; }
         public ICommand CloseCommand { get; }
+        public ICommand ClearDatesCommand { get; }
 
         public Action? CloseAction { get; set; }
 
@@ -66,14 +101,21 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreHistory
         {
             RefreshCommand = new RelayCommand(async _ => await LoadAsync());
             CloseCommand = new RelayCommand(_ => CloseAction?.Invoke());
+            ClearDatesCommand = new RelayCommand(_ =>
+            {
+                _fromDate = null;
+                _toDate = null;
+                OnPropertyChanged(nameof(FromDate));
+                OnPropertyChanged(nameof(ToDate));
+                OnPropertyChanged(nameof(HasDateFilter));
+                _ = LoadAsync();
+            });
 
-            // Initial load
             _ = LoadAsync();
         }
 
         private async Task LoadAsync()
         {
-            // Prevent concurrent loads (fixes DB lock + crash on refresh)
             if (_isLoading) return;
             _isLoading = true;
 
@@ -87,6 +129,13 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreHistory
                 if (FilterAction != "All" && !string.IsNullOrEmpty(FilterAction))
                     all = all.Where(h => h.Action == FilterAction).ToList();
 
+                // Filter by date range
+                if (FromDate.HasValue)
+                    all = all.Where(h => h.Timestamp.Date >= FromDate.Value.Date).ToList();
+
+                if (ToDate.HasValue)
+                    all = all.Where(h => h.Timestamp.Date <= ToDate.Value.Date).ToList();
+
                 // Filter by search
                 if (!string.IsNullOrWhiteSpace(SearchText))
                 {
@@ -98,7 +147,6 @@ namespace ProGlassAutomation.ViewModels.SheetStore.SheetStoreHistory
                     ).ToList();
                 }
 
-                // Update collection on UI thread
                 Entries.Clear();
                 foreach (var e in all)
                     Entries.Add(e);

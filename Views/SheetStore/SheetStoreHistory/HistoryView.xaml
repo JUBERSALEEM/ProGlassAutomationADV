@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:conv="clr-namespace:ProGlassAutomation.Converters"
         Title="Sheet Store — History"
-        Width="900" Height="640"
+        Width="1000" Height="680"
         WindowStartupLocation="CenterOwner"
         FontFamily="Segoe UI"
         Background="{DynamicResource WindowBackgroundBrush}">
@@ -40,47 +40,102 @@
         </StackPanel>
 
         <!-- Filters -->
-        <Grid Grid.Row="1" Margin="0,0,0,14">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="200"/>
-                <ColumnDefinition Width="12"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="12"/>
-                <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
+        <Border Grid.Row="1"
+                Background="{DynamicResource ModuleBackgroundBrush}"
+                CornerRadius="10" Padding="14,12" Margin="0,0,0,14">
+            <StackPanel>
+                <!-- Row 1: Action + Date Range -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="180"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="10"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-            <ComboBox Grid.Column="0"
-                      SelectedValue="{Binding FilterAction, UpdateSourceTrigger=PropertyChanged}"
-                      SelectedValuePath="Content"
-                      Height="36" Padding="10,6" FontSize="13"
-                      Background="{DynamicResource MenuHoverBrush}"
-                      Foreground="{DynamicResource PrimaryForegroundBrush}">
-                <ComboBoxItem Content="All" IsSelected="True"/>
-                <ComboBoxItem Content="Added"/>
-                <ComboBoxItem Content="Edited"/>
-                <ComboBoxItem Content="Deleted"/>
-                <ComboBoxItem Content="Bought"/>
-                <ComboBoxItem Content="Used"/>
-            </ComboBox>
+                    <!-- Action Filter -->
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="ACTION" FontSize="9" FontWeight="Bold"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Margin="4,0,0,4"/>
+                        <ComboBox SelectedValue="{Binding FilterAction, UpdateSourceTrigger=PropertyChanged}"
+                                  SelectedValuePath="Content"
+                                  Height="34" Padding="10,6" FontSize="12"
+                                  Background="{DynamicResource MenuHoverBrush}"
+                                  Foreground="{DynamicResource PrimaryForegroundBrush}">
+                            <ComboBoxItem Content="All" IsSelected="True"/>
+                            <ComboBoxItem Content="Added"/>
+                            <ComboBoxItem Content="Edited"/>
+                            <ComboBoxItem Content="Deleted"/>
+                            <ComboBoxItem Content="Bought"/>
+                            <ComboBoxItem Content="Used"/>
+                        </ComboBox>
+                    </StackPanel>
 
-            <Border Grid.Column="2"
-                    Background="{DynamicResource MenuHoverBrush}"
-                    CornerRadius="8" Padding="12,0" Height="36" VerticalAlignment="Center">
-                <DockPanel>
-                    <TextBlock Text="🔍" FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                             BorderThickness="0" Background="Transparent"
-                             VerticalAlignment="Center" FontSize="13"
-                             Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                </DockPanel>
-            </Border>
+                    <!-- From Date -->
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="FROM DATE" FontSize="9" FontWeight="Bold"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Margin="4,0,0,4"/>
+                        <DatePicker SelectedDate="{Binding FromDate, Mode=TwoWay}"
+                                    Height="34" FontSize="12"
+                                    Background="{DynamicResource MenuHoverBrush}"
+                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    </StackPanel>
 
-            <Button Grid.Column="4" Content="🔄 Refresh"
-                    Height="36" Padding="14,0"
-                    Background="{DynamicResource AccentBrush}" Foreground="White"
-                    BorderThickness="0" Cursor="Hand" FontWeight="SemiBold"
-                    Command="{Binding RefreshCommand}"/>
-        </Grid>
+                    <!-- To Date -->
+                    <StackPanel Grid.Column="4">
+                        <TextBlock Text="TO DATE" FontSize="9" FontWeight="Bold"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Margin="4,0,0,4"/>
+                        <DatePicker SelectedDate="{Binding ToDate, Mode=TwoWay}"
+                                    Height="34" FontSize="12"
+                                    Background="{DynamicResource MenuHoverBrush}"
+                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    </StackPanel>
+
+                    <!-- Clear Dates -->
+                    <StackPanel Grid.Column="6" VerticalAlignment="Bottom">
+                        <TextBlock Text=" " FontSize="9" Margin="0,0,0,4"/>
+                        <Button Content="✕ Clear Dates"
+                                Height="34" Padding="12,0"
+                                Background="#EF4444" Foreground="White"
+                                BorderThickness="0" Cursor="Hand" FontWeight="SemiBold"
+                                FontSize="11"
+                                Command="{Binding ClearDatesCommand}"
+                                Visibility="{Binding HasDateFilter, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                    </StackPanel>
+
+                    <!-- Refresh -->
+                    <StackPanel Grid.Column="8" VerticalAlignment="Bottom">
+                        <TextBlock Text=" " FontSize="9" Margin="0,0,0,4"/>
+                        <Button Content="🔄 Refresh"
+                                Height="34" Padding="14,0"
+                                Background="{DynamicResource AccentBrush}" Foreground="White"
+                                BorderThickness="0" Cursor="Hand" FontWeight="SemiBold"
+                                FontSize="11"
+                                Command="{Binding RefreshCommand}"/>
+                    </StackPanel>
+                </Grid>
+
+                <!-- Row 2: Search -->
+                <Border Background="{DynamicResource MenuHoverBrush}"
+                        CornerRadius="8" Padding="12,8" Margin="0,10,0,0">
+                    <DockPanel>
+                        <TextBlock Text="🔍" FontSize="12" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                        <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 BorderThickness="0" Background="Transparent"
+                                 VerticalAlignment="Center" FontSize="13"
+                                 Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    </DockPanel>
+                </Border>
+            </StackPanel>
+        </Border>
 
         <!-- Table -->
         <Border Grid.Row="2"
