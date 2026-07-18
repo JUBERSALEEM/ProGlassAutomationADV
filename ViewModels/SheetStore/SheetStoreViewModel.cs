@@ -3,6 +3,7 @@ using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.Services.SheetStore;
 using ProGlassAutomation.Services.SheetStore.SheetStoreCsv;
+using ProGlassAutomation.Services.SheetStore.SheetStoreExcel;
 using ProGlassAutomation.Services.SheetStore.SheetStoreHistory;
 using ProGlassAutomation.Views.SheetStore;
 using ProGlassAutomation.Views.SheetStore.SheetStoreBuy;
@@ -28,6 +29,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         private readonly ISheetStoreRepository _repo;
         private readonly ISheetHistoryRepository _historyRepo;
         private readonly SheetStoreCsvService _csvService;
+        private readonly SheetStoreExcelService _excelService;
 
         private List<GlassSheet> _allSheets = new();
 
@@ -184,12 +186,14 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public ICommand ClearFiltersCommand { get; }
         public ICommand ExportCsvCommand { get; }
         public ICommand ImportCsvCommand { get; }
+        public ICommand ExportExcelCommand { get; }
 
         public SheetStoreViewModel()
         {
             _repo = new SheetStoreRepository();
             _historyRepo = new SheetHistoryRepository();
             _csvService = new SheetStoreCsvService();
+            _excelService = new SheetStoreExcelService();
 
             AddCommand = new RelayCommand(async _ => await AddAsync());
             EditCommand = new RelayCommand(async p => await EditAsync(p as GlassSheet ?? SelectedSheet));
@@ -202,6 +206,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             ClearFiltersCommand = new RelayCommand(_ => ClearAllFilters());
             ExportCsvCommand = new RelayCommand(async _ => await ExportCsvAsync());
             ImportCsvCommand = new RelayCommand(async _ => await ImportCsvAsync());
+            ExportExcelCommand = new RelayCommand(async _ => await ExportExcelAsync());
 
             _ = LoadAsync();
         }
@@ -380,6 +385,20 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 s.HeightMm == incoming.HeightMm &&
                 s.Supplier == incoming.Supplier);
 
+        private string BuildFilterInfoString()
+        {
+            var filters = new List<string>();
+            if (SelectedCategory != ALL) filters.Add($"Category: {SelectedCategory}");
+            if (SelectedThickness != ALL) filters.Add($"Thickness: {SelectedThickness}");
+            if (SelectedColor != ALL) filters.Add($"Color: {SelectedColor}");
+            if (SelectedSupplier != ALL) filters.Add($"Supplier: {SelectedSupplier}");
+            if (SelectedSort != DEFAULT_SORT) filters.Add($"Sort: {SelectedSort}");
+            if (!string.IsNullOrWhiteSpace(SearchText)) filters.Add($"Search: \"{SearchText}\"");
+            return filters.Count > 0
+                ? string.Join(" • ", filters)
+                : "All sheets (no filters)";
+        }
+
         private void ShowError(string message) =>
             MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
 
@@ -413,6 +432,39 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             catch (Exception ex)
             {
                 ShowError("Export failed.\n\n" + ex.Message);
+            }
+        }
+
+        // ============ EXCEL EXPORT ============
+
+        private async Task ExportExcelAsync()
+        {
+            if (!Sheets.Any())
+            {
+                MessageBox.Show("Nothing to export — the current view is empty.",
+                    "Export Excel", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var dialog = new SaveFileDialog
+            {
+                Title = "Export Sheet Store to Excel",
+                Filter = "Excel file (*.xlsx)|*.xlsx",
+                FileName = $"SheetStore_{DateTime.Now:yyyy-MM-dd_HH-mm}.xlsx"
+            };
+
+            if (dialog.ShowDialog() != true) return;
+
+            try
+            {
+                await _excelService.ExportAsync(dialog.FileName, Sheets.ToList(), BuildFilterInfoString());
+                MessageBox.Show(
+                    $"Exported {Sheets.Count} sheets to Excel:\n\n{dialog.FileName}",
+                    "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                ShowError("Excel export failed.\n\n" + ex.Message);
             }
         }
 
@@ -628,7 +680,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             }
         }
 
-        // ============ BUY (Beautiful Dialog) ============
+        // ============ BUY ============
 
         private async Task BuyAsync(GlassSheet? sheet)
         {
@@ -656,7 +708,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             }
         }
 
-        // ============ USE (Beautiful Dialog + Job Order Reference) ============
+        // ============ USE ============
 
         private async Task UseAsync(GlassSheet? sheet)
         {
@@ -680,7 +732,6 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                     await _repo.UseStockAsync(sheet.Id, vm.Quantity);
                     var value = vm.Quantity * sheet.SqmPerSheet * sheet.SellPricePerSqm;
 
-                    // Include Job Order reference in history if provided
                     var jobRef = string.IsNullOrWhiteSpace(vm.JobOrderReference)
                         ? ""
                         : $" [Job: {vm.JobOrderReference.Trim()}]";

@@ -95,12 +95,17 @@
                                 BorderThickness="0" Cursor="Hand" FontWeight="SemiBold"
                                 ToolTip="Import sheets from CSV file"
                                 Command="{Binding ImportCsvCommand}"/>
-                        <Button Content="📤 Export" Height="40" Padding="14,0" Margin="0,0,8,0"
+                        <Button Content="📤 CSV" Height="40" Padding="14,0" Margin="0,0,8,0"
                                 Background="{DynamicResource MenuHoverBrush}"
                                 Foreground="{DynamicResource PrimaryForegroundBrush}"
                                 BorderThickness="0" Cursor="Hand" FontWeight="SemiBold"
                                 ToolTip="Export current view to CSV"
                                 Command="{Binding ExportCsvCommand}"/>
+                        <Button Content="📊 Excel" Height="40" Padding="14,0" Margin="0,0,8,0"
+                                Background="#10B981" Foreground="White"
+                                BorderThickness="0" Cursor="Hand" FontWeight="SemiBold"
+                                ToolTip="Export current view to formatted Excel (.xlsx)"
+                                Command="{Binding ExportExcelCommand}"/>
                         <Button Content="📜 History" Height="40" Padding="14,0" Margin="0,0,10,0"
                                 Background="{DynamicResource MenuHoverBrush}"
                                 Foreground="{DynamicResource PrimaryForegroundBrush}"
