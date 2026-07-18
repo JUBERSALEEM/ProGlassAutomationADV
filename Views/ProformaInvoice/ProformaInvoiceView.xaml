@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:step1="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step1CompanySetup"
              xmlns:step2="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step2ProjectSpecs"
+             xmlns:step3="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step3ClientProfile"
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="1400"
              FontFamily="Segoe UI">
@@ -232,7 +233,27 @@
                             </ContentControl.ContentTemplate>
                         </ContentControl>
 
-                        <!-- Steps 3-7 Placeholder -->
+                        <!-- Step 3 View -->
+                        <ContentControl Content="{Binding Step3VM}">
+                            <ContentControl.Style>
+                                <Style TargetType="ContentControl">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentStepNumber}" Value="3">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ContentControl.Style>
+
+                            <ContentControl.ContentTemplate>
+                                <DataTemplate>
+                                    <step3:ClientProfileView/>
+                                </DataTemplate>
+                            </ContentControl.ContentTemplate>
+                        </ContentControl>
+
+                        <!-- Steps 4-7 Placeholder -->
                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                             <StackPanel.Style>
                                 <Style TargetType="StackPanel">
@@ -242,6 +263,9 @@
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding CurrentStepNumber}" Value="2">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CurrentStepNumber}" Value="3">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                         </DataTrigger>
                                     </Style.Triggers>
