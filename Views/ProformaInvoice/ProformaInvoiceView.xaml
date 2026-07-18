@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:step1="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step1CompanySetup"
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="1400"
              FontFamily="Segoe UI">
@@ -33,9 +34,8 @@
                 <ItemsControl ItemsSource="{Binding WizardSteps}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <!-- Whole step is now a Button so it's clickable -->
                             <Button Command="{Binding DataContext.GoToStepCommand,
-                                              RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      RelativeSource={RelativeSource AncestorType=UserControl}}"
                                     CommandParameter="{Binding}"
                                     Background="Transparent"
                                     BorderThickness="0"
@@ -156,56 +156,101 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <!-- Top Progress Bar — now dynamic -->
-                <Grid Grid.Row="0" Margin="0,0,0,20" x:Name="ProgressBarGrid">
+                <!-- Top Progress Bar — 7 segments, no converter required -->
+                <Grid Grid.Row="0" Margin="0,0,0,20">
+                    <!-- Track -->
                     <Border Background="{DynamicResource MenuHoverBrush}"
                             Height="6"
                             CornerRadius="3"/>
-                    <Border Background="{DynamicResource AccentBrush}"
-                            Height="6"
-                            CornerRadius="3"
-                            HorizontalAlignment="Left">
-                        <Border.Width>
-                            <MultiBinding StringFormat="{}{0}">
-                                <Binding Path="ProgressPercent"/>
-                                <Binding ElementName="ProgressBarGrid" Path="ActualWidth"/>
-                            </MultiBinding>
-                        </Border.Width>
-                    </Border>
+
+                    <!-- Fill -->
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <Border Grid.Column="0"
+                                Grid.ColumnSpan="{Binding CurrentStepNumber}"
+                                Background="{DynamicResource AccentBrush}"
+                                Height="6"
+                                CornerRadius="3"
+                                HorizontalAlignment="Stretch"/>
+                    </Grid>
                 </Grid>
 
-                <!-- Step Content Placeholder -->
+                <!-- Step Content Area -->
                 <Border Grid.Row="1"
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         CornerRadius="16"
                         Padding="30">
-                    <StackPanel VerticalAlignment="Center"
-                                HorizontalAlignment="Center">
-                        <TextBlock Text="&#128220;"
-                                   FontSize="56"
-                                   HorizontalAlignment="Center"
-                                   Foreground="{DynamicResource AccentBrush}"
-                                   Margin="0,0,0,16"/>
-                        <TextBlock Text="{Binding CurrentStep.Title}"
-                                   FontSize="24"
-                                   FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   HorizontalAlignment="Center"/>
-                        <TextBlock Text="{Binding CurrentStep.Subtitle}"
-                                   FontSize="13"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,8,0,0"/>
-                        <Border Background="{DynamicResource MenuHoverBrush}"
-                                CornerRadius="8"
-                                Padding="16,10"
-                                Margin="0,24,0,0"
-                                HorizontalAlignment="Center">
-                            <TextBlock Text="Step content will be built here"
-                                       FontSize="12"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                        </Border>
-                    </StackPanel>
+
+                    <Grid>
+                        <!-- Step 1 View -->
+                        <ContentControl Content="{Binding Step1VM}">
+                            <ContentControl.Style>
+                                <Style TargetType="ContentControl">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentStepNumber}" Value="1">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ContentControl.Style>
+
+                            <ContentControl.ContentTemplate>
+                                <DataTemplate>
+                                    <step1:CompanySetupView/>
+                                </DataTemplate>
+                            </ContentControl.ContentTemplate>
+                        </ContentControl>
+
+                        <!-- Steps 2-7 Placeholder -->
+                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentStepNumber}" Value="1">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+
+                            <TextBlock Text="&#128220;"
+                                       FontSize="56"
+                                       HorizontalAlignment="Center"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       Margin="0,0,0,16"/>
+                            <TextBlock Text="{Binding CurrentStep.Title}"
+                                       FontSize="24"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="{Binding CurrentStep.Subtitle}"
+                                       FontSize="13"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,8,0,0"/>
+                            <Border Background="{DynamicResource MenuHoverBrush}"
+                                    CornerRadius="8"
+                                    Padding="16,10"
+                                    Margin="0,24,0,0"
+                                    HorizontalAlignment="Center">
+                                <TextBlock Text="This step is not built yet — coming in a future phase"
+                                           FontSize="12"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                            </Border>
+                        </StackPanel>
+
+                    </Grid>
                 </Border>
 
                 <!-- Bottom Navigation Bar -->
@@ -301,6 +346,7 @@
                         </Button.Template>
                     </Button>
                 </Grid>
+
             </Grid>
         </Border>
     </Grid>

@@ -60,6 +60,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         public int PendingCount => 0;
         public bool HasInvoices => false;
 
+        // === Step ViewModels ===
+        public Step1CompanySetup.CompanySetupViewModel Step1VM { get; }
+            = new Step1CompanySetup.CompanySetupViewModel();
+
         // === Wizard Steps ===
         public ObservableCollection<WizardStep> WizardSteps { get; }
 
@@ -71,10 +75,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             {
                 if (_currentStep == value) return;
 
-                // Update active flag on all steps
-                if (_currentStep != null) _currentStep.IsActive = false;
+                if (_currentStep != null)
+                    _currentStep.IsActive = false;
+
                 _currentStep = value;
-                if (_currentStep != null) _currentStep.IsActive = true;
+
+                if (_currentStep != null)
+                    _currentStep.IsActive = true;
 
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(CurrentStepNumber));
@@ -83,13 +90,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 OnPropertyChanged(nameof(CanGoBack));
                 OnPropertyChanged(nameof(CanGoNext));
                 OnPropertyChanged(nameof(IsLastStep));
+
+                // Ensure Back/Continue enable/disable updates immediately
+                CommandManager.InvalidateRequerySuggested();
             }
         }
 
         public int CurrentStepNumber => CurrentStep?.StepNumber ?? 1;
         public string StepProgressText => $"STEP  {CurrentStepNumber}  OF  7";
 
-        // Progress bar fill % (0.0 to 1.0)
+        // Still useful for future (if we later switch to smooth progress bar)
         public double ProgressPercent => (double)CurrentStepNumber / 7.0;
 
         public bool CanGoBack => CurrentStepNumber > 1;
@@ -149,10 +159,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 }
             };
 
-            // Start on step 1
             CurrentStep = WizardSteps[0];
 
-            // Commands
             NextStepCommand = new RelayCommand(
                 _ => GoToStep(CurrentStepNumber + 1),
                 _ => CanGoNext);
