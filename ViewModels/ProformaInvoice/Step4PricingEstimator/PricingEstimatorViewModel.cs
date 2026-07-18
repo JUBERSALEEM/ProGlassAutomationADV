@@ -1,5 +1,7 @@
 ﻿using ProGlassAutomation.Commands;
+using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
 using System.Windows;
 using System.Windows.Input;
@@ -72,6 +74,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                     _selectedGlassType.IsSelected = true;
 
                 OnPropertyChanged();
+
+                // Recalculate rate when glass type changes
+                RecalculateEstimatedRate();
             }
         }
 
@@ -110,13 +115,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
 
         public int TotalSpecsActive => SpecGroups?.Count(g => g.IsSelected) ?? 0;
 
-        // === Estimated Rate (calculated live once formula is wired in Phase 6.5) ===
+        // === Estimated Rate (calculated live) ===
 
         private decimal _estimatedRatePerSqm;
         public decimal EstimatedRatePerSqm
         {
             get => _estimatedRatePerSqm;
-            set { _estimatedRatePerSqm = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasCalculatedRate)); }
+            set
+            {
+                _estimatedRatePerSqm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasCalculatedRate));
+            }
         }
 
         public bool HasCalculatedRate => EstimatedRatePerSqm > 0m;
@@ -130,6 +140,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         {
             // Initialize panel VMs
             SguVM = new SguParameters.SguParametersViewModel();
+
+            // Subscribe to SGU parameter changes to auto-recalculate rate
+            SguVM.PropertyChanged += OnSguParametersChanged;
 
             // Seed 4 glass type options
             GlassTypes = new ObservableCollection<GlassTypeCard>
@@ -195,19 +208,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             });
 
             // Apply calculated rate to selected specs
-            // TODO: In Phase 6.5, wire real calculation + push rate to Step 5 spec groups
+            // TODO: In Step 5 wiring, push rate to Step 5 spec groups
             ApplyRateCommand = new RelayCommand(
                 _ =>
                 {
                     var selectedCount = SpecGroups.Count(g => g.IsSelected);
                     MessageBox.Show(
-                        $"Rate application coming in Phase 6.5!\n\n" +
-                        $"Will apply AED {EstimatedRatePerSqm:N2}/sqm to {selectedCount} selected spec group(s).",
-                        "Apply Rate — Placeholder",
+                        $"Applying rate to {selectedCount} spec group(s):\n\n" +
+                        $"Rate: AED {EstimatedRatePerSqm:N2} / sqm\n\n" +
+                        $"(Full push to Step 5 grid will be wired when Step 5 is built.)",
+                        "Rate Applied",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
                 },
-                _ => TotalSpecsActive > 0);   // Only enabled when at least 1 spec group selected
+                _ => TotalSpecsActive > 0 && EstimatedRatePerSqm > 0m);
 
             // Default selection = SGU
             SelectedGlassType = GlassTypes[0];
@@ -218,8 +232,104 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             CountersunkHoles = false;
             EdgeDeletionLayer = false;
 
-            // Placeholder rate (will be calculated live in Phase 6.5)
-            EstimatedRatePerSqm = 0m;
+            // Initial calculation with default SGU values
+            RecalculateEstimatedRate();
+        }
+
+        // ==================== LIVE CALCULATION ====================
+
+        /// <summary>
+        /// Called whenever any SGU parameter changes. Triggers rate recalculation.
+        /// </summary>
+        private void OnSguParametersChanged(object sender, PropertyChangedEventArgs e)
+        {
+            // Only recalculate on fields that actually affect the price
+            switch (e.PropertyName)
+            {
+                case nameof(SguParameters.SguParametersViewModel.BasePricePerSqm):
+                case nameof(SguParameters.SguParametersViewModel.YieldFactor):
+                case nameof(SguParameters.SguParametersViewModel.CuttingCostPerSqm):
+                case nameof(SguParameters.SguParametersViewModel.TemperingCostPerSqm):
+                case nameof(SguParameters.SguParametersViewModel.TargetMarginPercent):
+                    RecalculateEstimatedRate();
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Master calculation entry point.
+        /// Routes to the correct formula based on the selected glass type.
+        /// </summary>
+        private void RecalculateEstimatedRate()
+        {
+            if (SelectedGlassType == null)
+            {
+                EstimatedRatePerSqm = 0m;
+                return;
+            }
+
+            switch (SelectedGlassType.Code)
+            {
+                case "SGU":
+                    EstimatedRatePerSqm = CalculateSguRate();
+                    break;
+
+                case "DGU":
+                    // TODO: Wire when Phase 6.6 DGU calculation is built
+                    EstimatedRatePerSqm = 0m;
+                    break;
+
+                case "LAM":
+                    // TODO: Wire when Phase 6.7 LAM calculation is built
+                    EstimatedRatePerSqm = 0m;
+                    break;
+
+                case "DGU+LAM":
+                    // Blank for now (per business decision)
+                    EstimatedRatePerSqm = 0m;
+                    break;
+
+                default:
+                    EstimatedRatePerSqm = 0m;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// SGU (Single Glass Unit) pricing formula:
+        ///   Step 1: raw = Base Price per SQM
+        ///   Step 2: cost = raw / Yield Factor       (adjusts for wastage)
+        ///   Step 3: cost = cost + Cutting Cost
+        ///   Step 4: cost = cost + Tempering Cost
+        ///   Step 5: rate = cost * (1 + Margin%/100)
+        ///
+        /// Example: Base=25, Yield=0.85, Cut=10, Temp=10, Margin=15%
+        ///   25 / 0.85           = 29.41
+        ///   29.41 + 10          = 39.41
+        ///   39.41 + 10          = 49.41
+        ///   49.41 * 1.15        = 56.82  ← rate/sqm
+        /// </summary>
+        private decimal CalculateSguRate()
+        {
+            var vm = SguVM;
+
+            decimal basePrice = vm.BasePricePerSqm;
+            decimal yieldFactor = vm.YieldFactor;
+            decimal cuttingCost = vm.CuttingCostPerSqm;
+            decimal temperingCost = vm.TemperingCostPerSqm;
+            decimal marginPercent = vm.TargetMarginPercent;
+
+            // Safety: prevent divide-by-zero if user clears yield field
+            if (yieldFactor <= 0m)
+                yieldFactor = 1m;
+
+            decimal step1 = basePrice;                                    // 25.00
+            decimal step2 = step1 / yieldFactor;                          // 29.41
+            decimal step3 = step2 + cuttingCost;                          // 39.41
+            decimal step4 = step3 + temperingCost;                        // 49.41
+            decimal step5 = step4 * (1m + (marginPercent / 100m));        // 56.82
+
+            return Math.Round(step5, 2);
         }
     }
 }

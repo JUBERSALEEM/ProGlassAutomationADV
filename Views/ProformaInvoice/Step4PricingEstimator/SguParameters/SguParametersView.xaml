@@ -27,7 +27,7 @@
             <Setter Property="Margin" Value="0,0,0,14"/>
         </Style>
 
-        <!-- Input TextBox Style — auto-selects all text on focus for smooth editing -->
+        <!-- Input TextBox Style — auto-selects on focus, updates on LostFocus for smooth decimal entry -->
         <Style x:Key="DarkInputStyle" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
@@ -151,7 +151,7 @@
                 <StackPanel Grid.Column="6">
                     <TextBlock Text="BASE PRICE / SQM (AED)"
                                Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding BasePricePerSqm, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"
+                    <TextBox Text="{Binding BasePricePerSqm, StringFormat={}{0:0.##}}"
                              Style="{StaticResource DarkInputStyle}"/>
                 </StackPanel>
             </Grid>
@@ -171,28 +171,28 @@
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="CUTTING COST / SQM"
                                Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding CuttingCostPerSqm, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"
+                    <TextBox Text="{Binding CuttingCostPerSqm, StringFormat={}{0:0.##}}"
                              Style="{StaticResource DarkInputStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="TEMPERING COST / SQM"
                                Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding TemperingCostPerSqm, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"
+                    <TextBox Text="{Binding TemperingCostPerSqm, StringFormat={}{0:0.##}}"
                              Style="{StaticResource DarkInputStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="4">
                     <TextBlock Text="YIELD FACTOR (CLEARING)"
                                Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding YieldFactor, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"
+                    <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}"
                              Style="{StaticResource DarkInputStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="6">
                     <TextBlock Text="TARGET MARGIN %"
                                Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding TargetMarginPercent, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"
+                    <TextBox Text="{Binding TargetMarginPercent, StringFormat={}{0:0.##}}"
                              Style="{StaticResource DarkInputStyle}"/>
                 </StackPanel>
             </Grid>
@@ -216,8 +216,6 @@
                               SelectedItem="{Binding SelectedPolishOption}"
                               Style="{StaticResource DarkComboBoxStyle}"/>
                 </StackPanel>
-
-                <!-- Remaining 3 columns intentionally empty (matches screenshot) -->
             </Grid>
 
         </StackPanel>
