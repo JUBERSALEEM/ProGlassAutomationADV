@@ -65,6 +65,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         public Step1CompanySetup.CompanySetupViewModel Step1VM { get; }
         public Step2ProjectSpecs.ProjectSpecsViewModel Step2VM { get; }
         public Step3ClientProfile.ClientProfileViewModel Step3VM { get; }
+        public Step4PricingEstimator.PricingEstimatorViewModel Step4VM { get; }
 
         // === Wizard Steps ===
         public ObservableCollection<WizardStep> WizardSteps { get; }
@@ -121,6 +122,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
 
             Step2VM = new Step2ProjectSpecs.ProjectSpecsViewModel();
             Step3VM = new Step3ClientProfile.ClientProfileViewModel();
+            Step4VM = new Step4PricingEstimator.PricingEstimatorViewModel();
 
             WizardSteps = new ObservableCollection<WizardStep>
             {

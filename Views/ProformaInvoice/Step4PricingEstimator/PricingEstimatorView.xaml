@@ -1,0 +1,78 @@
+﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.PricingEstimatorView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="700" d:DesignWidth="900"
+             FontFamily="Segoe UI">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  Padding="0,0,10,0">
+        <StackPanel>
+
+            <!-- Placeholder — real header, glass type cards, catalog, params,
+                 treatments, spec groups, and rate bar come in sub-phases 6.2-6.11 -->
+            <TextBlock Text="Step 4: Smart Pricing Estimator"
+                       FontSize="20"
+                       FontWeight="Bold"
+                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+
+            <TextBlock Text="This is the Step 4 shell. Building this step in 11 small pieces so each file stays clean and testable."
+                       FontSize="13"
+                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       Margin="0,10,0,0"
+                       TextWrapping="Wrap"/>
+
+            <StackPanel Margin="0,20,0,0">
+                <TextBlock Text="COMING NEXT:"
+                           FontSize="11"
+                           FontWeight="Bold"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Margin="0,0,0,8"/>
+                <TextBlock Text="• 6.2 — Header (icon + title + subtitle)"
+                           FontSize="12"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Margin="0,2,0,0"/>
+                <TextBlock Text="• 6.3 — 3 Glass Type cards (SGU / DGU / LAM)"
+                           FontSize="12"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Margin="0,2,0,0"/>
+                <TextBlock Text="• 6.4 — Guardian &amp; AGC catalog panel"
+                           FontSize="12"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Margin="0,2,0,0"/>
+                <TextBlock Text="• 6.5 — Parameter row 1 (Thickness, Color, Treatment, Price)"
+                           FontSize="12"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Margin="0,2,0,0"/>
+                <TextBlock Text="• 6.6 — Parameter row 2 (Cutting, Tempering, Yield, Margin)"
+                           FontSize="12"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Margin="0,2,0,0"/>
+                <TextBlock Text="• 6.7 — Parameter row 3 (Polish dropdown)"
+                           FontSize="12"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Margin="0,2,0,0"/>
+                <TextBlock Text="• 6.8 — Processing treatment checkboxes"
+                           FontSize="12"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Margin="0,2,0,0"/>
+                <TextBlock Text="• 6.9 — Spec target groups"
+                           FontSize="12"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Margin="0,2,0,0"/>
+                <TextBlock Text="• 6.10 — Estimated rate bar + APPLY button"
+                           FontSize="12"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Margin="0,2,0,0"/>
+                <TextBlock Text="• 6.11 — Wire price calculation logic"
+                           FontSize="12"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Margin="0,2,0,0"/>
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
