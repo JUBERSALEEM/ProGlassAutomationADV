@@ -52,8 +52,6 @@
                 </Setter.Value>
             </Setter>
         </Style>
-
-        <!-- Row style — hover + click behavior for data rows -->
         <Style x:Key="DataRowStyle" TargetType="Border">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
@@ -91,7 +89,19 @@
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     </StackPanel>
                     <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
-                        <Button Content="📜 History" Height="40" Padding="16,0" Margin="0,0,10,0"
+                        <Button Content="📥 Import" Height="40" Padding="14,0" Margin="0,0,8,0"
+                                Background="{DynamicResource MenuHoverBrush}"
+                                Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                BorderThickness="0" Cursor="Hand" FontWeight="SemiBold"
+                                ToolTip="Import sheets from CSV file"
+                                Command="{Binding ImportCsvCommand}"/>
+                        <Button Content="📤 Export" Height="40" Padding="14,0" Margin="0,0,8,0"
+                                Background="{DynamicResource MenuHoverBrush}"
+                                Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                BorderThickness="0" Cursor="Hand" FontWeight="SemiBold"
+                                ToolTip="Export current view to CSV"
+                                Command="{Binding ExportCsvCommand}"/>
+                        <Button Content="📜 History" Height="40" Padding="14,0" Margin="0,0,10,0"
                                 Background="{DynamicResource MenuHoverBrush}"
                                 Foreground="{DynamicResource PrimaryForegroundBrush}"
                                 BorderThickness="0" Cursor="Hand" FontWeight="SemiBold"

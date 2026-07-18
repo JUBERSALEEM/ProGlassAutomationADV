@@ -1,0 +1,245 @@
+﻿<Window x:Class="ProGlassAutomation.Views.SheetStore.SheetStoreCsv.DuplicateResolutionView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Duplicate Sheet Detected"
+        Width="760" Height="620"
+        WindowStartupLocation="CenterOwner"
+        ResizeMode="NoResize"
+        FontFamily="Segoe UI"
+        Background="{DynamicResource WindowBackgroundBrush}">
+
+    <Window.Resources>
+        <Style x:Key="ColumnHeader" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+        <Style x:Key="RowLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="10,8"/>
+        </Style>
+        <Style x:Key="RowValue" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="10,8"/>
+        </Style>
+        <Style x:Key="DiffValue" TargetType="TextBlock" BasedOn="{StaticResource RowValue}">
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#EF4444"/>
+        </Style>
+        <Style x:Key="ActionBtn" TargetType="Button">
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="Padding" Value="16,0"/>
+            <Setter Property="Margin" Value="4,0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </Window.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <StackPanel Grid.Row="0" Margin="0,0,0,14">
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="⚠️" FontSize="24" VerticalAlignment="Center"/>
+                <StackPanel Margin="12,0,0,0">
+                    <TextBlock Text="DUPLICATE SHEET DETECTED"
+                               FontSize="18" FontWeight="Bold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    <TextBlock Text="{Binding HeaderText}"
+                               FontSize="11" FontWeight="Bold"
+                               Foreground="{DynamicResource AccentBrush}" Margin="0,2,0,0"/>
+                </StackPanel>
+            </StackPanel>
+            <TextBlock Text="This sheet already exists. Choose how to handle it:"
+                       FontSize="12" Margin="0,8,0,0"
+                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+        </StackPanel>
+
+        <!-- Sheet identity -->
+        <Border Grid.Row="1"
+                Background="{DynamicResource MenuHoverBrush}"
+                CornerRadius="8" Padding="14,10" Margin="0,0,0,14">
+            <TextBlock Text="{Binding SheetLabel}"
+                       FontSize="13" FontWeight="SemiBold"
+                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+        </Border>
+
+        <!-- Comparison grid -->
+        <Border Grid.Row="2"
+                Background="{DynamicResource ModuleBackgroundBrush}"
+                CornerRadius="10" Padding="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="150"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Headers -->
+                <Border Grid.Row="0" Grid.Column="0" Background="{DynamicResource MenuHoverBrush}"
+                        Padding="10,10" CornerRadius="10,0,0,0">
+                    <TextBlock Text="FIELD" FontSize="11" FontWeight="Bold"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               HorizontalAlignment="Center"/>
+                </Border>
+                <Border Grid.Row="0" Grid.Column="1" Background="#3B82F6" Padding="10,10">
+                    <TextBlock Text="📀 EXISTING (in DB)" Style="{StaticResource ColumnHeader}"/>
+                </Border>
+                <Border Grid.Row="0" Grid.Column="2" Background="#F59E0B" Padding="10,10"
+                        CornerRadius="0,10,0,0">
+                    <TextBlock Text="📥 INCOMING (from CSV)" Style="{StaticResource ColumnHeader}"/>
+                </Border>
+
+                <!-- Purchase Price -->
+                <TextBlock Grid.Row="1" Grid.Column="0" Text="PURCHASE/SQM" Style="{StaticResource RowLabel}"/>
+                <TextBlock Grid.Row="1" Grid.Column="1"
+                           Text="{Binding Existing.PurchasePricePerSqm, StringFormat={}{0:N2}}"
+                           Style="{StaticResource RowValue}"/>
+                <TextBlock Grid.Row="1" Grid.Column="2"
+                           Text="{Binding Incoming.PurchasePricePerSqm, StringFormat={}{0:N2}}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource RowValue}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding BuyPriceDifferent}" Value="True">
+                                    <Setter Property="Foreground" Value="#EF4444"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+
+                <!-- Sell Price -->
+                <TextBlock Grid.Row="2" Grid.Column="0" Text="SELL/SQM" Style="{StaticResource RowLabel}"/>
+                <TextBlock Grid.Row="2" Grid.Column="1"
+                           Text="{Binding Existing.SellPricePerSqm, StringFormat={}{0:N2}}"
+                           Style="{StaticResource RowValue}"/>
+                <TextBlock Grid.Row="2" Grid.Column="2"
+                           Text="{Binding Incoming.SellPricePerSqm, StringFormat={}{0:N2}}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource RowValue}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding SellPriceDifferent}" Value="True">
+                                    <Setter Property="Foreground" Value="#EF4444"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+
+                <!-- Stock -->
+                <TextBlock Grid.Row="3" Grid.Column="0" Text="STOCK" Style="{StaticResource RowLabel}"/>
+                <TextBlock Grid.Row="3" Grid.Column="1"
+                           Text="{Binding Existing.Stock}"
+                           Style="{StaticResource RowValue}"/>
+                <TextBlock Grid.Row="3" Grid.Column="2"
+                           Text="{Binding Incoming.Stock}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock" BasedOn="{StaticResource RowValue}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding StockDifferent}" Value="True">
+                                    <Setter Property="Foreground" Value="#EF4444"/>
+                                    <Setter Property="FontWeight" Value="Bold"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+
+                <!-- Used -->
+                <TextBlock Grid.Row="4" Grid.Column="0" Text="USED" Style="{StaticResource RowLabel}"/>
+                <TextBlock Grid.Row="4" Grid.Column="1"
+                           Text="{Binding Existing.Used}"
+                           Style="{StaticResource RowValue}"/>
+                <TextBlock Grid.Row="4" Grid.Column="2"
+                           Text="{Binding Incoming.Used}"
+                           Style="{StaticResource RowValue}"/>
+
+                <!-- Balance (info only) -->
+                <TextBlock Grid.Row="5" Grid.Column="0" Text="BALANCE" Style="{StaticResource RowLabel}"/>
+                <TextBlock Grid.Row="5" Grid.Column="1"
+                           Text="{Binding Existing.Balance}"
+                           Style="{StaticResource RowValue}"/>
+                <TextBlock Grid.Row="5" Grid.Column="2"
+                           Text="{Binding Incoming.Balance}"
+                           Style="{StaticResource RowValue}"/>
+            </Grid>
+        </Border>
+
+        <!-- Apply to all checkbox -->
+        <CheckBox Grid.Row="3"
+                  Content="Apply this action to all remaining duplicates"
+                  IsChecked="{Binding ApplyToRemaining, Mode=TwoWay}"
+                  FontSize="12"
+                  Foreground="{DynamicResource PrimaryForegroundBrush}"
+                  Margin="0,14,0,10"
+                  Cursor="Hand"/>
+
+        <!-- Action buttons -->
+        <Grid Grid.Row="4">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Button Grid.Column="0" Style="{StaticResource ActionBtn}"
+                    Background="#64748B" Content="Skip"
+                    ToolTip="Ignore this row, keep existing sheet unchanged"
+                    Command="{Binding SkipCommand}"/>
+
+            <Button Grid.Column="1" Style="{StaticResource ActionBtn}"
+                    Background="#10B981" Content="+ Add to Stock"
+                    ToolTip="Add incoming stock to existing (keeps prices)"
+                    Command="{Binding AddToStockCommand}"/>
+
+            <Button Grid.Column="2" Style="{StaticResource ActionBtn}"
+                    Background="#F59E0B" Content="Update All"
+                    ToolTip="Overwrite all fields with incoming values"
+                    Command="{Binding UpdateAllCommand}"/>
+
+            <Button Grid.Column="3" Style="{StaticResource ActionBtn}"
+                    Background="#EF4444" Content="✕ Cancel Import"
+                    ToolTip="Stop the entire import"
+                    Command="{Binding CancelImportCommand}"/>
+        </Grid>
+    </Grid>
+</Window>

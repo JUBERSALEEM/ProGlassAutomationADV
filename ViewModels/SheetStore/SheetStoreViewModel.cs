@@ -1,9 +1,13 @@
-﻿using ProGlassAutomation.Commands;
+﻿using Microsoft.Win32;
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.Services.SheetStore;
+using ProGlassAutomation.Services.SheetStore.SheetStoreCsv;
 using ProGlassAutomation.Services.SheetStore.SheetStoreHistory;
 using ProGlassAutomation.Views.SheetStore;
+using ProGlassAutomation.Views.SheetStore.SheetStoreCsv;
 using ProGlassAutomation.Views.SheetStore.SheetStoreHistory;
+using ProGlassAutomation.ViewModels.SheetStore.SheetStoreCsv;
 using ProGlassAutomation.ViewModels.SheetStore.SheetStoreHistory;
 using System;
 using System.Collections.Generic;
@@ -19,8 +23,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
     {
         private readonly ISheetStoreRepository _repo;
         private readonly ISheetHistoryRepository _historyRepo;
+        private readonly SheetStoreCsvService _csvService;
 
-        // Full unfiltered list (source of truth)
         private List<GlassSheet> _allSheets = new();
 
         public ObservableCollection<GlassSheet> Sheets { get; } = new();
@@ -105,7 +109,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public decimal TotalSellingValue => Sheets.Sum(s => s.TotalSellValue);
         public decimal TotalProfit => TotalSellingValue - TotalBuyingValue;
 
-        // ============ DISPLAY STATS (switches on selection) ============
+        // ============ DISPLAY STATS ============
         public int DisplayItems => TotalItems;
         public int DisplayStock => SelectedSheet?.Stock ?? TotalStock;
         public int DisplayUsed => SelectedSheet?.Used ?? TotalUsed;
@@ -139,7 +143,6 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             : "No changes yet";
 
         public bool HasEverBeenUpdated => LastUpdated.HasValue;
-
         public bool HasSheets => Sheets.Count > 0;
         public bool IsEmpty => Sheets.Count == 0;
 
@@ -175,11 +178,14 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public ICommand ClearSelectionCommand { get; }
         public ICommand ShowHistoryCommand { get; }
         public ICommand ClearFiltersCommand { get; }
+        public ICommand ExportCsvCommand { get; }
+        public ICommand ImportCsvCommand { get; }
 
         public SheetStoreViewModel()
         {
             _repo = new SheetStoreRepository();
             _historyRepo = new SheetHistoryRepository();
+            _csvService = new SheetStoreCsvService();
 
             AddCommand = new RelayCommand(async _ => await AddAsync());
             EditCommand = new RelayCommand(async p => await EditAsync(p as GlassSheet ?? SelectedSheet));
@@ -190,21 +196,22 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             ClearSelectionCommand = new RelayCommand(_ => SelectedSheet = null);
             ShowHistoryCommand = new RelayCommand(_ => ShowHistory());
             ClearFiltersCommand = new RelayCommand(_ => ClearAllFilters());
+            ExportCsvCommand = new RelayCommand(async _ => await ExportCsvAsync());
+            ImportCsvCommand = new RelayCommand(async _ => await ImportCsvAsync());
 
             _ = LoadAsync();
         }
+
+        // ============ LOAD ============
 
         private async Task LoadAsync()
         {
             try
             {
                 IsBusy = true;
-
                 _allSheets = await _repo.GetAllAsync();
-
                 RebuildFilterOptions();
                 ApplyFilters();
-
                 SelectedSheet = null;
                 LastUpdated = await _historyRepo.GetLastUpdatedAsync();
             }
@@ -214,10 +221,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             }
         }
 
-        /// <summary>
-        /// Rebuilds filter dropdown options from currently loaded data.
-        /// Preserves current selection if it still exists in the new options.
-        /// </summary>
+        // ============ FILTERS ============
+
         private void RebuildFilterOptions()
         {
             var oldCategory = SelectedCategory;
@@ -245,7 +250,6 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             foreach (var s in _allSheets.Select(x => x.Supplier).Distinct().OrderBy(s => s))
                 SupplierOptions.Add(s);
 
-            // Restore previous selection if still valid; otherwise reset to "All"
             _selectedCategory = CategoryOptions.Contains(oldCategory) ? oldCategory : ALL;
             _selectedThickness = ThicknessOptions.Contains(oldThickness) ? oldThickness : ALL;
             _selectedColor = ColorOptions.Contains(oldColor) ? oldColor : ALL;
@@ -257,28 +261,19 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             OnPropertyChanged(nameof(SelectedSupplier));
         }
 
-        /// <summary>
-        /// Applies all active filters + search + sort to _allSheets
-        /// and updates the visible Sheets collection.
-        /// </summary>
         private void ApplyFilters()
         {
             IEnumerable<GlassSheet> filtered = _allSheets;
 
-            // FILTERS
             if (SelectedCategory != ALL)
                 filtered = filtered.Where(s => s.Category == SelectedCategory);
-
             if (SelectedThickness != ALL)
                 filtered = filtered.Where(s => s.ThicknessDisplay == SelectedThickness);
-
             if (SelectedColor != ALL)
                 filtered = filtered.Where(s => s.Color == SelectedColor);
-
             if (SelectedSupplier != ALL)
                 filtered = filtered.Where(s => s.Supplier == SelectedSupplier);
 
-            // SEARCH
             if (!string.IsNullOrWhiteSpace(SearchText))
             {
                 var q = SearchText.Trim().ToLower();
@@ -286,59 +281,32 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                     g.Category.ToLower().Contains(q) ||
                     g.Color.ToLower().Contains(q) ||
                     g.Supplier.ToLower().Contains(q) ||
-                    g.ThicknessDisplay.ToLower().Contains(q)
-                );
+                    g.ThicknessDisplay.ToLower().Contains(q));
             }
 
-            // SORT
             filtered = ApplySort(filtered);
 
             Sheets.Clear();
-            foreach (var s in filtered)
-                Sheets.Add(s);
+            foreach (var s in filtered) Sheets.Add(s);
 
             RaiseStatsChanged();
             OnPropertyChanged(nameof(HasActiveFilters));
         }
 
-        /// <summary>
-        /// Applies the currently selected sort order.
-        /// </summary>
         private IEnumerable<GlassSheet> ApplySort(IEnumerable<GlassSheet> data)
         {
             return SelectedSort switch
             {
-                "Newest first" =>
-                    data.OrderByDescending(s => s.CreatedAt),
-
-                "Oldest first" =>
-                    data.OrderBy(s => s.CreatedAt),
-
-                "Stock: Low to High" =>
-                    data.OrderBy(s => s.Stock),
-
-                "Stock: High to Low" =>
-                    data.OrderByDescending(s => s.Stock),
-
-                "Balance: Low to High" =>
-                    data.OrderBy(s => s.Balance),
-
-                "Value: High to Low" =>
-                    data.OrderByDescending(s => s.TotalPurchaseValue),
-
-                "Value: Low to High" =>
-                    data.OrderBy(s => s.TotalPurchaseValue),
-
-                "Category A-Z" =>
-                    data.OrderBy(s => s.Category),
-
-                "Thickness: Thin to Thick" =>
-                    data.OrderBy(s => s.ThicknessMm),
-
-                _ => // DEFAULT_SORT "Category → Color → Thickness"
-                    data.OrderBy(s => s.Category)
-                        .ThenBy(s => s.Color)
-                        .ThenBy(s => s.ThicknessMm)
+                "Newest first" => data.OrderByDescending(s => s.CreatedAt),
+                "Oldest first" => data.OrderBy(s => s.CreatedAt),
+                "Stock: Low to High" => data.OrderBy(s => s.Stock),
+                "Stock: High to Low" => data.OrderByDescending(s => s.Stock),
+                "Balance: Low to High" => data.OrderBy(s => s.Balance),
+                "Value: High to Low" => data.OrderByDescending(s => s.TotalPurchaseValue),
+                "Value: Low to High" => data.OrderBy(s => s.TotalPurchaseValue),
+                "Category A-Z" => data.OrderBy(s => s.Category),
+                "Thickness: Thin to Thick" => data.OrderBy(s => s.ThicknessMm),
+                _ => data.OrderBy(s => s.Category).ThenBy(s => s.Color).ThenBy(s => s.ThicknessMm)
             };
         }
 
@@ -360,6 +328,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
             ApplyFilters();
         }
+
+        // ============ STATS ============
 
         private void RaiseStatsChanged()
         {
@@ -392,8 +362,192 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             OnPropertyChanged(nameof(SelectionLabel));
         }
 
+        // ============ HELPERS ============
+
         private static string DescribeSheet(GlassSheet s) =>
             $"{s.Category} • {s.ThicknessDisplay} • {s.Color} • {s.SizeDisplay}";
+
+        private GlassSheet? FindDuplicate(GlassSheet incoming) =>
+            _allSheets.FirstOrDefault(s =>
+                s.Category == incoming.Category &&
+                s.ThicknessMm == incoming.ThicknessMm &&
+                s.Color == incoming.Color &&
+                s.WidthMm == incoming.WidthMm &&
+                s.HeightMm == incoming.HeightMm &&
+                s.Supplier == incoming.Supplier);
+
+        private void ShowError(string message) =>
+            MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+        // ============ CSV EXPORT ============
+
+        private async Task ExportCsvAsync()
+        {
+            if (!Sheets.Any())
+            {
+                MessageBox.Show("Nothing to export — the current view is empty.",
+                    "Export CSV", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            var dialog = new SaveFileDialog
+            {
+                Title = "Export Sheet Store to CSV",
+                Filter = "CSV file (*.csv)|*.csv",
+                FileName = $"SheetStore_{DateTime.Now:yyyy-MM-dd_HH-mm}.csv"
+            };
+
+            if (dialog.ShowDialog() != true) return;
+
+            try
+            {
+                await _csvService.ExportAsync(dialog.FileName, Sheets.ToList());
+                MessageBox.Show(
+                    $"Exported {Sheets.Count} sheets to:\n\n{dialog.FileName}",
+                    "Export Complete", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                ShowError("Export failed.\n\n" + ex.Message);
+            }
+        }
+
+        // ============ CSV IMPORT ============
+
+        private async Task ImportCsvAsync()
+        {
+            var dialog = new OpenFileDialog
+            {
+                Title = "Import Sheets from CSV",
+                Filter = "CSV file (*.csv)|*.csv|All files (*.*)|*.*"
+            };
+
+            if (dialog.ShowDialog() != true) return;
+
+            List<GlassSheet> imported;
+            try
+            {
+                imported = await _csvService.ImportAsync(dialog.FileName);
+            }
+            catch (Exception ex)
+            {
+                ShowError("Could not read CSV file.\n\n" + ex.Message);
+                return;
+            }
+
+            if (imported.Count == 0)
+            {
+                MessageBox.Show("The CSV file has no rows to import.",
+                    "Import CSV", MessageBoxButton.OK, MessageBoxImage.Information);
+                return;
+            }
+
+            // Pre-scan for duplicates
+            var duplicates = imported
+                .Where(row => FindDuplicate(row) != null)
+                .ToList();
+
+            int addedCount = 0, stockAddedCount = 0, updatedCount = 0, skippedCount = 0;
+            DuplicateAction? rememberedAction = null;
+            int duplicateNumber = 0;
+
+            try
+            {
+                foreach (var row in imported)
+                {
+                    var existing = FindDuplicate(row);
+
+                    if (existing == null)
+                    {
+                        var added = await _repo.AddAsync(row);
+                        await _historyRepo.LogAsync(
+                            added.Id, DescribeSheet(added), "Added",
+                            $"[CSV Import] Initial stock: {added.Stock} sheets. Value: {added.TotalPurchaseValue:N2} AED.",
+                            added.Stock, added.TotalPurchaseValue);
+                        addedCount++;
+
+                        // Refresh _allSheets so next duplicate check sees the new row
+                        _allSheets = await _repo.GetAllAsync();
+                        continue;
+                    }
+
+                    duplicateNumber++;
+                    DuplicateAction action;
+
+                    if (rememberedAction.HasValue)
+                    {
+                        action = rememberedAction.Value;
+                    }
+                    else
+                    {
+                        var dupVm = new DuplicateResolutionViewModel(existing, row, duplicateNumber, duplicates.Count);
+                        var dupDialog = new DuplicateResolutionView(dupVm) { Owner = Application.Current.MainWindow };
+                        dupDialog.ShowDialog();
+
+                        if (dupVm.Result == null) break;
+
+                        action = dupVm.Result.Value;
+
+                        if (dupVm.ApplyToRemaining)
+                            rememberedAction = action;
+                    }
+
+                    if (action == DuplicateAction.Cancel) break;
+
+                    switch (action)
+                    {
+                        case DuplicateAction.Skip:
+                            skippedCount++;
+                            break;
+
+                        case DuplicateAction.AddToStock:
+                            if (row.Stock > 0)
+                            {
+                                var oldStock = existing.Stock;
+                                await _repo.BuyStockAsync(existing.Id, row.Stock);
+                                var value = row.Stock * existing.SqmPerSheet * existing.PurchasePricePerSqm;
+                                await _historyRepo.LogAsync(
+                                    existing.Id, DescribeSheet(existing), "Bought",
+                                    $"[CSV Import] Added {row.Stock} sheets. Stock: {oldStock} → {oldStock + row.Stock}. Value: {value:N2} AED.",
+                                    row.Stock, value);
+                                stockAddedCount++;
+                            }
+                            else skippedCount++;
+                            break;
+
+                        case DuplicateAction.UpdateAll:
+                            existing.PurchasePricePerSqm = row.PurchasePricePerSqm;
+                            existing.SellPricePerSqm = row.SellPricePerSqm;
+                            existing.Stock = row.Stock;
+                            existing.Used = row.Used;
+                            await _repo.UpdateAsync(existing);
+                            await _historyRepo.LogAsync(
+                                existing.Id, DescribeSheet(existing), "Edited",
+                                $"[CSV Import] Overwritten. Buy: {existing.PurchasePricePerSqm:N2}, " +
+                                $"Sell: {existing.SellPricePerSqm:N2}, Stock: {existing.Stock}, Used: {existing.Used}.");
+                            updatedCount++;
+                            break;
+                    }
+                }
+
+                await LoadAsync();
+
+                MessageBox.Show(
+                    $"Import complete!\n\n" +
+                    $"✓ {addedCount} new sheets added\n" +
+                    $"✓ {stockAddedCount} duplicates got stock added\n" +
+                    $"✓ {updatedCount} sheets updated\n" +
+                    $"✕ {skippedCount} duplicates skipped",
+                    "Import Summary", MessageBoxButton.OK, MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                ShowError("Import failed partway.\n\n" + ex.Message);
+                await LoadAsync();
+            }
+        }
+
+        // ============ CRUD ============
 
         private async Task AddAsync()
         {
@@ -469,8 +623,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                     var valueLost = sheet.TotalPurchaseValue;
 
                     await _repo.DeleteAsync(sheet.Id);
-                    await _historyRepo.LogAsync(
-                        sheet.Id, desc, "Deleted",
+                    await _historyRepo.LogAsync(sheet.Id, desc, "Deleted",
                         $"Removed from inventory. Lost {stockLost} sheets worth {valueLost:N2} AED.",
                         stockLost, valueLost);
                     await LoadAsync();
@@ -484,10 +637,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             if (sheet == null) return;
 
             var input = Microsoft.VisualBasic.Interaction.InputBox(
-                $"How many sheets to buy?\n\n" +
-                $"Current stock: {sheet.Stock} sheets\n" +
-                $"Price per SQM: {sheet.PurchasePricePerSqm:N2} AED\n" +
-                $"SQM per sheet: {sheet.SqmPerSheet:N4}",
+                $"How many sheets to buy?\n\nCurrent stock: {sheet.Stock} sheets\n" +
+                $"Price per SQM: {sheet.PurchasePricePerSqm:N2} AED\nSQM per sheet: {sheet.SqmPerSheet:N4}",
                 "Buy Stock", "10");
 
             if (int.TryParse(input, out int qty) && qty > 0)
@@ -498,8 +649,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                     await _repo.BuyStockAsync(sheet.Id, qty);
                     var value = qty * sheet.SqmPerSheet * sheet.PurchasePricePerSqm;
 
-                    await _historyRepo.LogAsync(
-                        sheet.Id, DescribeSheet(sheet), "Bought",
+                    await _historyRepo.LogAsync(sheet.Id, DescribeSheet(sheet), "Bought",
                         $"Purchased {qty} sheets. Stock: {oldStock} → {oldStock + qty}. Value: {value:N2} AED.",
                         qty, value);
                     await LoadAsync();
@@ -513,8 +663,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             if (sheet == null) return;
 
             var input = Microsoft.VisualBasic.Interaction.InputBox(
-                $"How many sheets to use?\n\n" +
-                $"Available: {sheet.Balance} sheets ({sheet.TotalSqmBalance:N2} SQM)",
+                $"How many sheets to use?\n\nAvailable: {sheet.Balance} sheets ({sheet.TotalSqmBalance:N2} SQM)",
                 "Use Stock", "1");
 
             if (int.TryParse(input, out int qty) && qty > 0)
@@ -525,8 +674,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                     await _repo.UseStockAsync(sheet.Id, qty);
                     var value = qty * sheet.SqmPerSheet * sheet.SellPricePerSqm;
 
-                    await _historyRepo.LogAsync(
-                        sheet.Id, DescribeSheet(sheet), "Used",
+                    await _historyRepo.LogAsync(sheet.Id, DescribeSheet(sheet), "Used",
                         $"Consumed {qty} sheets. Used: {oldUsed} → {oldUsed + qty}. Value: {value:N2} AED.",
                         qty, value);
                     await LoadAsync();
@@ -540,11 +688,6 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             var vm = new HistoryViewModel();
             var dialog = new HistoryView(vm) { Owner = Application.Current.MainWindow };
             dialog.ShowDialog();
-        }
-
-        private void ShowError(string message)
-        {
-            MessageBox.Show(message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 }
