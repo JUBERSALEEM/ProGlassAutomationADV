@@ -69,6 +69,36 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
             set { _innerBasePrice = value; OnPropertyChanged(); }
         }
 
+        // ===================== Row 3: PVB Interlayer Specs =====================
+
+        private string _pvbThickness;
+        public string PvbThickness
+        {
+            get => _pvbThickness;
+            set { _pvbThickness = value; OnPropertyChanged(); }
+        }
+
+        private string _pvbColor;
+        public string PvbColor
+        {
+            get => _pvbColor;
+            set { _pvbColor = value; OnPropertyChanged(); }
+        }
+
+        private decimal _pvbMaterialRate;
+        public decimal PvbMaterialRate
+        {
+            get => _pvbMaterialRate;
+            set { _pvbMaterialRate = value; OnPropertyChanged(); }
+        }
+
+        private string _laminationPolish;
+        public string LaminationPolish
+        {
+            get => _laminationPolish;
+            set { _laminationPolish = value; OnPropertyChanged(); }
+        }
+
         // ===================== Shared Dropdown Options =====================
 
         public List<string> ThicknessOptions { get; } = new()
@@ -97,6 +127,37 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
             "Heat Soaked"
         };
 
+        // ===================== LAM-Specific Dropdown Options =====================
+
+        public List<string> PvbThicknessOptions { get; } = new()
+        {
+            "0.38mm",
+            "0.76mm",
+            "1.14mm",
+            "1.52mm",
+            "2.28mm",
+            "3.04mm"
+        };
+
+        public List<string> PvbColorOptions { get; } = new()
+        {
+            "Clear",
+            "White",
+            "Frosted",
+            "Milky White",
+            "Black",
+            "Grey",
+            "Bronze"
+        };
+
+        public List<string> LaminationPolishOptions { get; } = new()
+        {
+            "None (Standard)",
+            "With All Side Polish",
+            "With Edge Polish Only",
+            "With Beveled Edges"
+        };
+
         public LamParametersViewModel()
         {
             // === Row 1 Defaults ===
@@ -111,7 +172,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
             InnerTreatment = "FT";
             InnerBasePrice = 46m;
 
-            // Rows 3, 4 will be added in Sub-Phases 6.7d, 6.7e
+            // === Row 3 Defaults ===
+            PvbThickness = "1.52mm";
+            PvbColor = "Clear";
+            PvbMaterialRate = 80m;
+            LaminationPolish = "None (Standard)";
+
+            // Rows 4, 5 will be added in Sub-Phases 6.7e, 6.7f
         }
     }
 }
