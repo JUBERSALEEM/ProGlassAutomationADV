@@ -4,8 +4,9 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:wastages="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges.Wastages"
+             xmlns:custom="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges.CustomCharges"
              mc:Ignorable="d"
-             d:DesignHeight="900" d:DesignWidth="1200"
+             d:DesignHeight="1200" d:DesignWidth="1200"
              FontFamily="Segoe UI">
 
     <UserControl.Resources>
@@ -417,11 +418,17 @@
             ============================================================ -->
             <wastages:WastagesSectionView DataContext="{Binding WastagesSection}"/>
 
+            <!-- ============================================================
+                 PHASE 7.11d: CUSTOM MANUAL CHARGES SECTION
+                 (Free-form line items: delivery, packaging, design fees, etc.)
+            ============================================================ -->
+            <custom:CustomChargesSectionView DataContext="{Binding CustomChargesSection}"/>
+
             <!-- Phase status note -->
             <Border Background="{DynamicResource MenuHoverBrush}" CornerRadius="6" Padding="12,8" Margin="0,30,0,20" HorizontalAlignment="Left">
                 <TextBlock FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap">
-                    <Run FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">Phase 7.11c complete.</Run>
-                    <Run>Argon, Silicon, Overlap, Shutter, Mitring, Polish, Cutouts, Holes, and Color-Aggregated Wastages implemented. Custom manual charges → Phase 7.11d.</Run>
+                    <Run FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">Step 6 Complete.</Run>
+                    <Run>All predefined charges, polish sub-types, color-aggregated wastages, and manual custom charges are implemented and integrated into the total.</Run>
                 </TextBlock>
             </Border>
 

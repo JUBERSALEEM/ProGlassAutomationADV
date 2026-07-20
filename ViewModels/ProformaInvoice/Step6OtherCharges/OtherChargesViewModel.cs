@@ -2,6 +2,7 @@
 using ProGlassAutomation.ViewModels;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastages;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.CustomCharges;
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -15,6 +16,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
     /// Owns predefined charge rows, wires them to live DataGrid metrics via GridSourceOption,
     /// computes Polish LM per sub-type by iterating raw spec-group rows,
     /// manages the Glass Wastages sub-section (color-aggregated),
+    /// manages the Custom Manual Charges sub-section (free-form line items),
     /// and exposes the running Total Other Charges (excluding VAT/Discount).
     /// </summary>
     public class OtherChargesViewModel : ViewModelBase
@@ -35,6 +37,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
 
         /// <summary>Phase 7.11c — Color-aggregated wastage rows section.</summary>
         public WastagesSectionViewModel WastagesSection { get; }
+
+        /// <summary>Phase 7.11d — Free-form manual charges section.</summary>
+        public CustomChargesSectionViewModel CustomChargesSection { get; }
 
         // ── Total ──────────────────────────────────────────────────────────
 
@@ -59,7 +64,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
 
             // Phase 7.11c: instantiate wastages sub-VM
             WastagesSection = new WastagesSectionViewModel(_dataGridVM);
-            WastagesSection.PropertyChanged += OnWastagesSectionChanged;
+            WastagesSection.PropertyChanged += OnSubSectionChanged;
+
+            // Phase 7.11d: instantiate custom manual charges sub-VM
+            CustomChargesSection = new CustomChargesSectionViewModel();
+            CustomChargesSection.PropertyChanged += OnSubSectionChanged;
 
             // Subscribe to DataGrid changes for Polish recalculation + Wastage source sync
             _dataGridVM.SpecGroups.CollectionChanged += OnSpecGroupsCollectionChanged;
@@ -209,11 +218,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
             }
         }
 
-        // ── Wastages section change tracking ───────────────────────────────
+        // ── Sub-section change tracking (Wastages + Custom Charges) ────────
 
-        private void OnWastagesSectionChanged(object sender, PropertyChangedEventArgs e)
+        private void OnSubSectionChanged(object sender, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(WastagesSectionViewModel.TotalWastageValue))
+            if (e.PropertyName == nameof(WastagesSectionViewModel.TotalWastageValue)
+                || e.PropertyName == nameof(CustomChargesSectionViewModel.TotalCustomChargesValue))
             {
                 RecalculateTotal();
             }
@@ -374,8 +384,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                 if (row.IsActive) predefinedSum += row.ResultAmount;
 
             decimal wastageSum = WastagesSection?.TotalWastageValue ?? 0m;
+            decimal customSum = CustomChargesSection?.TotalCustomChargesValue ?? 0m;
 
-            TotalOtherCharges = Math.Round(predefinedSum + wastageSum, 2);
+            TotalOtherCharges = Math.Round(predefinedSum + wastageSum + customSum, 2);
         }
     }
 }

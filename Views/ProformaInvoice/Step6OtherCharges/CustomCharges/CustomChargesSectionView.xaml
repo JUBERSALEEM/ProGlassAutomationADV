@@ -1,0 +1,112 @@
+﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges.CustomCharges.CustomChargesSectionView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="1200">
+
+    <StackPanel Margin="0,20,0,0">
+        <!-- Section Title -->
+        <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <TextBlock Text="➕" FontSize="14" VerticalAlignment="Center" Margin="0,0,10,0"/>
+            <TextBlock Text="INCLUDE MISSING/OTHER MANUAL CHARGE" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
+        </StackPanel>
+        <TextBlock Text="Add a custom line charge that does not follow the predefined templates (e.g. specialized transport, custom packaging, design fees)." 
+                   FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="26,0,0,15"/>
+
+        <!-- List of Added Manual Charges -->
+        <ItemsControl ItemsSource="{Binding AddedCharges}">
+            <ItemsControl.ItemTemplate>
+                <DataTemplate>
+                    <Border BorderThickness="0,0,0,1" BorderBrush="{DynamicResource MenuHoverBrush}" Padding="0,8" Margin="26,0,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="40"/>
+                                <!-- Active -->
+                                <ColumnDefinition Width="*"/>
+                                <!-- Name -->
+                                <ColumnDefinition Width="120"/>
+                                <!-- Qty/Unit -->
+                                <ColumnDefinition Width="120"/>
+                                <!-- Rate -->
+                                <ColumnDefinition Width="200"/>
+                                <!-- Result -->
+                                <ColumnDefinition Width="40"/>
+                                <!-- Delete -->
+                            </Grid.ColumnDefinitions>
+
+                            <CheckBox Grid.Column="0" IsChecked="{Binding IsActive}" VerticalAlignment="Center"/>
+
+                            <TextBlock Grid.Column="1" Text="{Binding ChargeName}" FontSize="12" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
+
+                            <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding Qty, StringFormat={}{0:0.##}}" FontWeight="Bold" Foreground="#3B82F6"/>
+                                <TextBlock Text="{Binding Unit, StringFormat={} {0}}" FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="4,2,0,0"/>
+                            </StackPanel>
+
+                            <TextBlock Grid.Column="3" Text="{Binding Rate, StringFormat=AED {0:N2}}" VerticalAlignment="Center" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+
+                            <TextBlock Grid.Column="4" Text="{Binding FormulaDisplay}" FontSize="11" FontWeight="Bold" Foreground="#22C55E" VerticalAlignment="Center" TextAlignment="Right"/>
+
+                            <Button Grid.Column="5" Command="{Binding DataContext.RemoveChargeCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Background="Transparent" BorderThickness="0" Cursor="Hand">
+                                <TextBlock Text="✕" Foreground="#EF4444" FontWeight="Bold"/>
+                            </Button>
+                        </Grid>
+                    </Border>
+                </DataTemplate>
+            </ItemsControl.ItemTemplate>
+        </ItemsControl>
+
+        <!-- ADD FORM (Matches Screenshot) -->
+        <Border Background="#101826" CornerRadius="10" Padding="15" Margin="0,15,0,0" BorderThickness="1" BorderBrush="{DynamicResource MenuHoverBrush}">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="3*"/>
+                    <!-- Name -->
+                    <ColumnDefinition Width="1*"/>
+                    <!-- Qty -->
+                    <ColumnDefinition Width="1*"/>
+                    <!-- Unit -->
+                    <ColumnDefinition Width="1*"/>
+                    <!-- Rate -->
+                    <ColumnDefinition Width="Auto"/>
+                    <!-- Button -->
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" Margin="0,0,15,0">
+                    <TextBlock Text="CHARGE NAME" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,5"/>
+                    <TextBox Text="{Binding InputName, UpdateSourceTrigger=PropertyChanged}" Tag="e.g. Special Wooden Packing Crates" Height="34" VerticalContentAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1" Margin="0,0,15,0">
+                    <TextBlock Text="QUANTITY" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,5"/>
+                    <TextBox Text="{Binding InputQty, UpdateSourceTrigger=PropertyChanged}" Height="34" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2" Margin="0,0,15,0">
+                    <TextBlock Text="UNIT" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,5"/>
+                    <ComboBox ItemsSource="{Binding UnitOptions}" SelectedItem="{Binding InputUnit}" Height="34" VerticalContentAlignment="Center"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="3" Margin="0,0,15,0">
+                    <TextBlock Text="RATE (AED)" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,5"/>
+                    <TextBox Text="{Binding InputRate, UpdateSourceTrigger=PropertyChanged}" Height="34" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"/>
+                </StackPanel>
+
+                <Button Grid.Column="4" Command="{Binding AddChargeCommand}" Background="{DynamicResource AccentBrush}" Foreground="White" Padding="25,0" Margin="0,18,0,0" Height="34" Cursor="Hand" VerticalAlignment="Bottom">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border Background="{TemplateBinding Background}" CornerRadius="6">
+                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                    <TextBlock Text="+" FontWeight="Bold" FontSize="16" Margin="0,-2,8,0"/>
+                                    <TextBlock Text="Add" FontWeight="Bold" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+        </Border>
+    </StackPanel>
+</UserControl>
