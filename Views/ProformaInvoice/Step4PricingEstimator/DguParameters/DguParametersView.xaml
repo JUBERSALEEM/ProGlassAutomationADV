@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
-             d:DesignHeight="700" d:DesignWidth="900"
+             d:DesignHeight="720" d:DesignWidth="900"
              FontFamily="Segoe UI">
 
     <UserControl.Resources>
@@ -106,7 +106,27 @@
             <TextBlock Text="DOUBLE INSULATED (DGU) PARAMETERS"
                        Style="{StaticResource SectionTitleStyle}"/>
 
-            <!-- ===================== ROW 1: Outer Glass ===================== -->
+            <!-- Live Spec Name Preview -->
+            <Border Background="#16A855F7"
+                    CornerRadius="6"
+                    Padding="10,6"
+                    Margin="0,0,0,12"
+                    HorizontalAlignment="Left">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Generated Spec: "
+                               FontSize="10"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,6,0"/>
+                    <TextBlock Text="{Binding GeneratedSpecName}"
+                               FontSize="11"
+                               FontWeight="Bold"
+                               Foreground="#A855F7"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <!-- ROW 1: Outer Glass -->
             <Grid Margin="0,0,0,12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -146,7 +166,7 @@
                 </StackPanel>
             </Grid>
 
-            <!-- ===================== ROW 2: Spacer Width + Material + Price ===================== -->
+            <!-- ROW 2: Spacer Width + Material + Price -->
             <Grid Margin="0,0,0,12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -177,15 +197,11 @@
                     <TextBox Text="{Binding SpacerPrice, StringFormat={}{0:0.##}}"
                              Style="{StaticResource DarkInputStyle}"/>
                 </StackPanel>
-
-                <!-- Column 6 intentionally empty (semantic grouping — spacer trio only) -->
             </Grid>
 
-            <!-- ===================== ROW 3: U-Insert + Overlap ===================== -->
+            <!-- ROW 3: U-Insert + Overlap + Inner As Per DWG -->
             <Grid Margin="0,0,0,12">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
@@ -207,10 +223,21 @@
                               Style="{StaticResource DarkComboBoxStyle}"/>
                 </StackPanel>
 
-                <!-- Columns 4 & 6 intentionally empty -->
+                <!-- NEW: Inner Glass As Per DWG checkbox -->
+                <StackPanel Grid.Column="4" VerticalAlignment="Center">
+                    <TextBlock Text="INNER SUFFIX" Style="{StaticResource DguLabelStyle}"/>
+                    <CheckBox Content="Inner Glass As Per DWG"
+                              IsChecked="{Binding InnerAsPerDwg}"
+                              Foreground="{DynamicResource PrimaryForegroundBrush}"
+                              FontSize="12"
+                              VerticalContentAlignment="Center"
+                              Cursor="Hand"
+                              Padding="6,0,0,0"
+                              Height="36"/>
+                </StackPanel>
             </Grid>
 
-            <!-- ===================== ROW 4: Inner Glass ===================== -->
+            <!-- ROW 4: Inner Glass -->
             <Grid Margin="0,0,0,12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -250,7 +277,7 @@
                 </StackPanel>
             </Grid>
 
-            <!-- ===================== ROW 5: Yield Factor + Profit Margin ===================== -->
+            <!-- ROW 5: Yield Factor + Profit Margin -->
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -273,8 +300,6 @@
                     <TextBox Text="{Binding MarginProfitPercent, StringFormat={}{0:0.##}}"
                              Style="{StaticResource DarkInputStyle}"/>
                 </StackPanel>
-
-                <!-- Columns 4 & 6 intentionally empty -->
             </Grid>
 
         </StackPanel>

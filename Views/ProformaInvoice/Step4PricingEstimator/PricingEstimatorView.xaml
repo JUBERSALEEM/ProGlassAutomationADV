@@ -226,7 +226,6 @@
                 </ContentControl.ContentTemplate>
             </ContentControl>
 
-            <!-- ============ DGU / LAM / DGU+LAM PLACEHOLDERS ============ -->
             <!-- ============ DGU PARAMETERS PANEL ============ -->
             <ContentControl Content="{Binding DguVM}">
                 <ContentControl.Style>

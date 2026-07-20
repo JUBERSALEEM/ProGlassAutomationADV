@@ -5,13 +5,11 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
-             d:DesignHeight="450" d:DesignWidth="900"
+             d:DesignHeight="500" d:DesignWidth="900"
              FontFamily="Segoe UI">
 
-    <!-- ============ SHARED STYLES ============ -->
     <UserControl.Resources>
 
-        <!-- Field Label — Indigo (SGU brand accent) -->
         <Style x:Key="SguLabelStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="10"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -19,7 +17,6 @@
             <Setter Property="Margin" Value="0,0,0,4"/>
         </Style>
 
-        <!-- Section Title — Blue/indigo highlight -->
         <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -27,7 +24,6 @@
             <Setter Property="Margin" Value="0,0,0,10"/>
         </Style>
 
-        <!-- Input TextBox Style — compact for normal window fit -->
         <Style x:Key="DarkInputStyle" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
@@ -70,7 +66,6 @@
             </Setter>
         </Style>
 
-        <!-- ComboBox Style — compact -->
         <Style x:Key="DarkComboBoxStyle" TargetType="ComboBox">
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
@@ -91,7 +86,6 @@
             </Style.Triggers>
         </Style>
 
-        <!-- Editable ComboBox Style — for Glass Color (dropdown + manual entry) -->
         <Style x:Key="DarkEditableComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource DarkComboBoxStyle}">
             <Setter Property="IsEditable" Value="True"/>
             <Setter Property="IsTextSearchEnabled" Value="True"/>
@@ -99,7 +93,6 @@
 
     </UserControl.Resources>
 
-    <!-- ============ SGU PARAMETERS PANEL ============ -->
     <Border Background="{DynamicResource ModuleBackgroundBrush}"
             CornerRadius="12"
             Padding="16"
@@ -108,11 +101,30 @@
             BorderBrush="{DynamicResource MenuHoverBrush}">
         <StackPanel>
 
-            <!-- Section Title -->
             <TextBlock Text="SINGLE GLASS (SGU) PARAMETERS"
                        Style="{StaticResource SectionTitleStyle}"/>
 
-            <!-- ============ ROW 1: Thickness | Color | Treatment | Base Price ============ -->
+            <!-- Live Spec Name Preview -->
+            <Border Background="#166366F1"
+                    CornerRadius="6"
+                    Padding="10,6"
+                    Margin="0,0,0,12"
+                    HorizontalAlignment="Left">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="Generated Spec: "
+                               FontSize="10"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,6,0"/>
+                    <TextBlock Text="{Binding GeneratedSpecName}"
+                               FontSize="11"
+                               FontWeight="Bold"
+                               Foreground="#6366F1"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </Border>
+
+            <!-- ROW 1: Thickness | Color | Treatment | Base Price -->
             <Grid Margin="0,0,0,12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -125,38 +137,34 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="THICKNESS"
-                               Style="{StaticResource SguLabelStyle}"/>
+                    <TextBlock Text="THICKNESS" Style="{StaticResource SguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding ThicknessOptions}"
                               SelectedItem="{Binding SelectedThickness}"
                               Style="{StaticResource DarkComboBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
-                    <TextBlock Text="GLASS COLOR"
-                               Style="{StaticResource SguLabelStyle}"/>
+                    <TextBlock Text="GLASS COLOR" Style="{StaticResource SguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding ColorOptions}"
                               Text="{Binding GlassColor, UpdateSourceTrigger=PropertyChanged}"
                               Style="{StaticResource DarkEditableComboBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="4">
-                    <TextBlock Text="TREATMENT TYPE"
-                               Style="{StaticResource SguLabelStyle}"/>
+                    <TextBlock Text="TREATMENT TYPE" Style="{StaticResource SguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding TreatmentOptions}"
                               SelectedItem="{Binding SelectedTreatment}"
                               Style="{StaticResource DarkComboBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="6">
-                    <TextBlock Text="BASE PRICE / SQM (AED)"
-                               Style="{StaticResource SguLabelStyle}"/>
+                    <TextBlock Text="BASE PRICE / SQM (AED)" Style="{StaticResource SguLabelStyle}"/>
                     <TextBox Text="{Binding BasePricePerSqm, StringFormat={}{0:0.##}}"
                              Style="{StaticResource DarkInputStyle}"/>
                 </StackPanel>
             </Grid>
 
-            <!-- ============ ROW 2: Cutting | Tempering | Yield | Margin ============ -->
+            <!-- ROW 2: Cutting | Tempering | Yield | Margin -->
             <Grid Margin="0,0,0,12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -169,35 +177,31 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="CUTTING COST / SQM"
-                               Style="{StaticResource SguLabelStyle}"/>
+                    <TextBlock Text="CUTTING COST / SQM" Style="{StaticResource SguLabelStyle}"/>
                     <TextBox Text="{Binding CuttingCostPerSqm, StringFormat={}{0:0.##}}"
                              Style="{StaticResource DarkInputStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
-                    <TextBlock Text="TEMPERING COST / SQM"
-                               Style="{StaticResource SguLabelStyle}"/>
+                    <TextBlock Text="TEMPERING COST / SQM" Style="{StaticResource SguLabelStyle}"/>
                     <TextBox Text="{Binding TemperingCostPerSqm, StringFormat={}{0:0.##}}"
                              Style="{StaticResource DarkInputStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="4">
-                    <TextBlock Text="YIELD FACTOR (CLEARING)"
-                               Style="{StaticResource SguLabelStyle}"/>
+                    <TextBlock Text="YIELD FACTOR (CLEARING)" Style="{StaticResource SguLabelStyle}"/>
                     <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}"
                              Style="{StaticResource DarkInputStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="6">
-                    <TextBlock Text="TARGET MARGIN %"
-                               Style="{StaticResource SguLabelStyle}"/>
+                    <TextBlock Text="TARGET MARGIN %" Style="{StaticResource SguLabelStyle}"/>
                     <TextBox Text="{Binding TargetMarginPercent, StringFormat={}{0:0.##}}"
                              Style="{StaticResource DarkInputStyle}"/>
                 </StackPanel>
             </Grid>
 
-            <!-- ============ ROW 3: Polish / Detail Option ============ -->
+            <!-- ROW 3: Polish / Detail Option -->
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -210,13 +214,11 @@
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="POLISH / DETAIL OPTION"
-                               Style="{StaticResource SguLabelStyle}"/>
+                    <TextBlock Text="POLISH / DETAIL OPTION" Style="{StaticResource SguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding PolishOptions}"
                               SelectedItem="{Binding SelectedPolishOption}"
                               Style="{StaticResource DarkComboBoxStyle}"/>
                 </StackPanel>
-
             </Grid>
 
         </StackPanel>

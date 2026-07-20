@@ -19,21 +19,36 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
         public string OuterThickness
         {
             get => _outerThickness;
-            set { _outerThickness = value; OnPropertyChanged(); }
+            set
+            {
+                _outerThickness = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GeneratedSpecName));
+            }
         }
 
         private string _outerGlassColor;
         public string OuterGlassColor
         {
             get => _outerGlassColor;
-            set { _outerGlassColor = value; OnPropertyChanged(); }
+            set
+            {
+                _outerGlassColor = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GeneratedSpecName));
+            }
         }
 
         private string _outerTreatment;
         public string OuterTreatment
         {
             get => _outerTreatment;
-            set { _outerTreatment = value; OnPropertyChanged(); }
+            set
+            {
+                _outerTreatment = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GeneratedSpecName));
+            }
         }
 
         private decimal _outerBasePrice;
@@ -53,6 +68,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             {
                 _spacerWidth = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(GeneratedSpecName));
                 SuggestSpacerPrice();
             }
         }
@@ -82,14 +98,24 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
         public string UInsertOption
         {
             get => _uInsertOption;
-            set { _uInsertOption = value; OnPropertyChanged(); }
+            set
+            {
+                _uInsertOption = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GeneratedSpecName));
+            }
         }
 
         private string _overlapOption;
         public string OverlapOption
         {
             get => _overlapOption;
-            set { _overlapOption = value; OnPropertyChanged(); }
+            set
+            {
+                _overlapOption = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GeneratedSpecName));
+            }
         }
 
         // ===================== Row 4: Inner Glass =====================
@@ -98,21 +124,36 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
         public string InnerThickness
         {
             get => _innerThickness;
-            set { _innerThickness = value; OnPropertyChanged(); }
+            set
+            {
+                _innerThickness = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GeneratedSpecName));
+            }
         }
 
         private string _innerGlassColor;
         public string InnerGlassColor
         {
             get => _innerGlassColor;
-            set { _innerGlassColor = value; OnPropertyChanged(); }
+            set
+            {
+                _innerGlassColor = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GeneratedSpecName));
+            }
         }
 
         private string _innerTreatment;
         public string InnerTreatment
         {
             get => _innerTreatment;
-            set { _innerTreatment = value; OnPropertyChanged(); }
+            set
+            {
+                _innerTreatment = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GeneratedSpecName));
+            }
         }
 
         private decimal _innerBasePrice;
@@ -136,6 +177,38 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
         {
             get => _marginProfitPercent;
             set { _marginProfitPercent = value; OnPropertyChanged(); }
+        }
+
+        // ===================== Auto-Generated Spec Name =====================
+
+        /// <summary>
+        /// Human-readable spec name auto-built from current DGU parameters.
+        /// Format: "{Outer Glass} + {Spacer}[+ U-Insert Variant] + {Inner Glass}[+ Overlap]"
+        /// Examples:
+        ///   "6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass"
+        ///   "6mm HD Grey FT Glass + 12mm ASP With U-Insert + 6mm Clear FT Glass"
+        ///   "6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass With Overlap As Per DWG"
+        /// Saved to specifications.db when user clicks APPLY in main VM.
+        /// </summary>
+        public string GeneratedSpecName
+        {
+            get
+            {
+                // Outer glass segment
+                var outer = $"{OuterThickness} {OuterGlassColor} {OuterTreatment} Glass";
+
+                // Spacer segment (may include U-Insert variant)
+                var spacer = SpacerWidth ?? "";
+                if (!string.IsNullOrWhiteSpace(UInsertOption) && UInsertOption != "None")
+                    spacer += $" {UInsertOption}";
+
+                // Inner glass segment (may include Overlap variant)
+                var inner = $"{InnerThickness} {InnerGlassColor} {InnerTreatment} Glass";
+                if (!string.IsNullOrWhiteSpace(OverlapOption) && OverlapOption != "None (empty spec only)")
+                    inner += $" {OverlapOption}";
+
+                return $"{outer} + {spacer} + {inner}";
+            }
         }
 
         // ===================== Dropdown Options =====================
@@ -216,10 +289,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             _outerTreatment = "FT";
             _outerBasePrice = 46m;
 
-            // Row 2 defaults (set fields directly to avoid triggering suggest before ready)
+            // Row 2 defaults
             _spacerWidth = "12mm ASP";
             _spacerMaterial = "Normal Mill Aluminum";
-            _spacerPrice = CalculateSuggestedSpacerPrice(_spacerWidth, _spacerMaterial); // 45
+            _spacerPrice = CalculateSuggestedSpacerPrice(_spacerWidth, _spacerMaterial);
 
             // Row 3 defaults
             _uInsertOption = "None";
@@ -238,59 +311,33 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
 
         // ===================== Auto-Suggest Spacer Price =====================
 
-        /// <summary>
-        /// Auto-updates SpacerPrice based on the selected width + material.
-        /// Formula: BasePrice = 37.5 + ((width - 6) / 2) * 2.5 [each 2mm adds 2.5 AED]
-        ///          + Material Surcharge
-        /// User can still override manually by typing in the SpacerPrice field.
-        /// The override will get replaced next time Width/Material changes.
-        /// </summary>
         private void SuggestSpacerPrice()
         {
             if (_isSuggestingSpacerPrice) return;
-
             _isSuggestingSpacerPrice = true;
             SpacerPrice = CalculateSuggestedSpacerPrice(_spacerWidth, _spacerMaterial);
             _isSuggestingSpacerPrice = false;
         }
 
-        /// <summary>
-        /// Pure calc — no side effects. Extracted so constructor + auto-suggest share logic.
-        /// </summary>
         private decimal CalculateSuggestedSpacerPrice(string widthText, string material)
         {
-            // Parse width in mm from "12mm ASP" → 12
             int widthMm = ParseWidthMm(widthText);
-
-            // Base price formula: starts at 37.5 for 6mm, +2.5 per 2mm increase
-            //   6mm  → 37.5
-            //   12mm → 45.00
-            //   16mm → 50.00
-            //   20mm → 55.00
-            //   24mm → 60.00
             decimal basePrice = 37.5m + ((widthMm - 6) / 2m) * 2.5m;
-
-            // Material surcharge (editable defaults — real values change over time)
             decimal materialSurcharge = GetMaterialSurcharge(material);
-
             return basePrice + materialSurcharge;
         }
 
         private int ParseWidthMm(string widthText)
         {
             if (string.IsNullOrWhiteSpace(widthText)) return 12;
-
-            // "12mm ASP" → grab digits before "mm"
             var mmIndex = widthText.IndexOf("mm", System.StringComparison.OrdinalIgnoreCase);
             if (mmIndex <= 0) return 12;
-
             var digits = widthText.Substring(0, mmIndex).Trim();
             return int.TryParse(digits, out int mm) ? mm : 12;
         }
 
         private decimal GetMaterialSurcharge(string material)
         {
-            // Suggested defaults — user overrides via SpacerPrice field anyway
             return material switch
             {
                 "Normal Mill Aluminum" => 0m,

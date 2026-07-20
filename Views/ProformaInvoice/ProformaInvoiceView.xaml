@@ -246,6 +246,25 @@
                             </ContentControl.ContentTemplate>
                         </ContentControl>
 
+                        <!-- Step 4 View — THIS WAS MISSING! -->
+                        <ContentControl Content="{Binding Step4VM}">
+                            <ContentControl.Style>
+                                <Style TargetType="ContentControl">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentStepNumber}" Value="4">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ContentControl.Style>
+                            <ContentControl.ContentTemplate>
+                                <DataTemplate>
+                                    <step4:PricingEstimatorView/>
+                                </DataTemplate>
+                            </ContentControl.ContentTemplate>
+                        </ContentControl>
+
                         <!-- Step 5 View -->
                         <ContentControl Content="{Binding Step5VM}">
                             <ContentControl.Style>
@@ -258,7 +277,6 @@
                                     </Style.Triggers>
                                 </Style>
                             </ContentControl.Style>
-
                             <ContentControl.ContentTemplate>
                                 <DataTemplate>
                                     <step5:DataGridView/>

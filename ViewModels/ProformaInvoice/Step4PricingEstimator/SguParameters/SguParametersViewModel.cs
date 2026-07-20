@@ -15,21 +15,36 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
         public string SelectedThickness
         {
             get => _selectedThickness;
-            set { _selectedThickness = value; OnPropertyChanged(); }
+            set
+            {
+                _selectedThickness = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GeneratedSpecName));
+            }
         }
 
         private string _glassColor;
         public string GlassColor
         {
             get => _glassColor;
-            set { _glassColor = value; OnPropertyChanged(); }
+            set
+            {
+                _glassColor = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GeneratedSpecName));
+            }
         }
 
         private string _selectedTreatment;
         public string SelectedTreatment
         {
             get => _selectedTreatment;
-            set { _selectedTreatment = value; OnPropertyChanged(); }
+            set
+            {
+                _selectedTreatment = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GeneratedSpecName));
+            }
         }
 
         private decimal _basePricePerSqm;
@@ -77,6 +92,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
             get => _selectedPolishOption;
             set { _selectedPolishOption = value; OnPropertyChanged(); }
         }
+
+        // ===================== Auto-Generated Spec Name =====================
+
+        /// <summary>
+        /// Human-readable spec name auto-built from current parameters.
+        /// Format: "{Thickness} {Color} {Treatment} Glass"
+        /// Example: "6mm Clear FT Glass"
+        /// Saved to specifications.db when user clicks APPLY in main VM.
+        /// </summary>
+        public string GeneratedSpecName =>
+            $"{SelectedThickness} {GlassColor} {SelectedTreatment} Glass";
 
         // === Dropdown Options ===
 
@@ -132,8 +158,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
 
             // === Row 3 Defaults ===
             SelectedPolishOption = "None (Standard)";
-
-            // Processing Treatments will be added in Sub-Phase 6.4e
         }
     }
 }

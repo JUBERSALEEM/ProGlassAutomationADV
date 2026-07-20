@@ -15,21 +15,36 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
         public string OuterThickness
         {
             get => _outerThickness;
-            set { _outerThickness = value; OnPropertyChanged(); }
+            set
+            {
+                _outerThickness = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GeneratedSpecName));
+            }
         }
 
         private string _outerGlassColor;
         public string OuterGlassColor
         {
             get => _outerGlassColor;
-            set { _outerGlassColor = value; OnPropertyChanged(); }
+            set
+            {
+                _outerGlassColor = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GeneratedSpecName));
+            }
         }
 
         private string _outerTreatment;
         public string OuterTreatment
         {
             get => _outerTreatment;
-            set { _outerTreatment = value; OnPropertyChanged(); }
+            set
+            {
+                _outerTreatment = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GeneratedSpecName));
+            }
         }
 
         private decimal _outerBasePrice;
@@ -45,21 +60,36 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
         public string InnerThickness
         {
             get => _innerThickness;
-            set { _innerThickness = value; OnPropertyChanged(); }
+            set
+            {
+                _innerThickness = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GeneratedSpecName));
+            }
         }
 
         private string _innerGlassColor;
         public string InnerGlassColor
         {
             get => _innerGlassColor;
-            set { _innerGlassColor = value; OnPropertyChanged(); }
+            set
+            {
+                _innerGlassColor = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GeneratedSpecName));
+            }
         }
 
         private string _innerTreatment;
         public string InnerTreatment
         {
             get => _innerTreatment;
-            set { _innerTreatment = value; OnPropertyChanged(); }
+            set
+            {
+                _innerTreatment = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GeneratedSpecName));
+            }
         }
 
         private decimal _innerBasePrice;
@@ -75,14 +105,24 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
         public string PvbThickness
         {
             get => _pvbThickness;
-            set { _pvbThickness = value; OnPropertyChanged(); }
+            set
+            {
+                _pvbThickness = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GeneratedSpecName));
+            }
         }
 
         private string _pvbColor;
         public string PvbColor
         {
             get => _pvbColor;
-            set { _pvbColor = value; OnPropertyChanged(); }
+            set
+            {
+                _pvbColor = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GeneratedSpecName));
+            }
         }
 
         private decimal _pvbMaterialRate;
@@ -96,7 +136,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
         public string LaminationPolish
         {
             get => _laminationPolish;
-            set { _laminationPolish = value; OnPropertyChanged(); }
+            set
+            {
+                _laminationPolish = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(GeneratedSpecName));
+            }
         }
 
         // ===================== Row 4: Per-Pane Cutting & Tempering Costs =====================
@@ -143,6 +188,33 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
         {
             get => _marginProfitPercent;
             set { _marginProfitPercent = value; OnPropertyChanged(); }
+        }
+
+        // ===================== Auto-Generated Spec Name =====================
+
+        /// <summary>
+        /// Human-readable spec name auto-built from current LAM parameters.
+        /// Format: "{Outer Glass} + {PVB Layer} + {Inner Glass}[+ Polish]"
+        /// Examples:
+        ///   "6mm Clear FT Glass + 1.52mm Clear PVB + 6mm Clear FT Glass"
+        ///   "6mm Clear FT Glass + 0.76mm Frosted PVB + 6mm Clear FT Glass With All Side Polish"
+        /// Saved to specifications.db when user clicks APPLY in main VM.
+        /// </summary>
+        public string GeneratedSpecName
+        {
+            get
+            {
+                var outer = $"{OuterThickness} {OuterGlassColor} {OuterTreatment} Glass";
+                var pvb = $"{PvbThickness} {PvbColor} PVB";
+                var inner = $"{InnerThickness} {InnerGlassColor} {InnerTreatment} Glass";
+
+                var baseName = $"{outer} + {pvb} + {inner}";
+
+                if (!string.IsNullOrWhiteSpace(LaminationPolish) && LaminationPolish != "None (Standard)")
+                    baseName += $" {LaminationPolish}";
+
+                return baseName;
+            }
         }
 
         // ===================== Shared Dropdown Options =====================
