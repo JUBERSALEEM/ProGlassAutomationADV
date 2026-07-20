@@ -64,8 +64,38 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
                 Unit = OtherChargeUnit.Lm,
                 DefaultRate = 30m,
                 DefaultSourceKey = "LM1"
+            },
+
+            // ═══════════════ Phase 7.11b ═══════════════
+
+            new Template
+            {
+                Key = "POLISH",
+                ChargeName = "Polish (lm)",
+                Description = "Continuous flat edge polishing, arrising, and buffing. Sub-type controls formula.",
+                Unit = OtherChargeUnit.Lm,
+                DefaultRate = 6m,
+                DefaultSourceKey = "" // Polish uses sub-type, not source dropdown
+            },
+            new Template
+            {
+                Key = "CUTOUT",
+                ChargeName = "Cutout (Qty)",
+                Description = "Water-jet internal precision cutouts for hinges and structural patches.",
+                Unit = OtherChargeUnit.Qty,
+                DefaultRate = 50m,
+                DefaultSourceKey = "TOTAL_PIECES"
+            },
+            new Template
+            {
+                Key = "HOLES",
+                ChargeName = "Holes (Qty)",
+                Description = "Structural glass hole drilling (8mm to 15mm) on CNC drillers.",
+                Unit = OtherChargeUnit.Qty,
+                DefaultRate = 15m,
+                DefaultSourceKey = "TOTAL_PIECES"
             }
-            // Phase 7.11b will add: Polish (with sub-type), Cutout, Holes
+
             // Phase 7.11c will add: Wastages (color-aggregated)
         };
     }

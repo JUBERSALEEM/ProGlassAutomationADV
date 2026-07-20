@@ -14,19 +14,19 @@ invoices include additional service charges like:
 - Overlap edge stepping
 - Structural shutter bonding
 - Beveled mitring cuts
-- Polish, cutouts, holes (added in later phases)
-- Glass color wastage allowances (added in later phases)
+- Polish (with sub-types)
+- Cutouts (water-jet)
+- Holes (CNC drilled)
+- Glass color wastage allowances (added in Phase 7.11c)
 
 Each charge is calculated as: Quantity from DataGrid x Rate = Amount
 
 ## Phase Rollout
 
 - Phase 7.11a  Metric Discovery Hub + basic charges (Argon, Silicon, Overlap, Shutter Bonding, Mitring)
-- Phase 7.11b  Polish sub-types + Cutout/Holes with DGU/LAM auto-doubling
+- Phase 7.11b  Polish sub-types + Cutout/Holes                            <-- YOU ARE HERE
 - Phase 7.11c  Wastages with color-based auto-aggregation across spec groups
 - Phase 7.11d  Custom manual charges + full integration into Invoice Main Summary
-
-This README documents Phase 7.11a.
 
 ## What This Is NOT
 
@@ -55,11 +55,12 @@ Related files live at:
 - Models/ProformaInvoice/Step6OtherCharges/GridSourceOption.cs
 - Models/ProformaInvoice/Step6OtherCharges/OtherChargeRow.cs
 - Models/ProformaInvoice/Step6OtherCharges/PredefinedChargeTemplates.cs
+- Models/ProformaInvoice/Step6OtherCharges/PolishSubType.cs
 
 ## Architecture
 
 Step 6 is fully driven by live data from Step 5 (DataGrid).
-No standalone database or service layer needed for this phase.
+No standalone database or service layer needed.
 
     ProformaInvoiceViewModel
     |
@@ -79,12 +80,69 @@ No standalone database or service layer needed for this phase.
            |
            +-- ChargeRows (predefined templates)
                  each row has AvailableSources filtered by Unit type
+                 Polish rows have AvailablePolishSubTypes instead
                  each row calculates ResultAmount = MetricQty x Rate
                  Total = sum of active rows' ResultAmount
 
+## Polish Charge (Phase 7.11b)
+
+Polish is a SPECIAL row — it does NOT use the AvailableSources dropdown.
+Instead, it uses AvailablePolishSubTypes, and Metric Qty is calculated
+by iterating every glass item row across all spec groups.
+
+### Polish Sub-Types
+
+| Sub-Type                      | Formula                       | Notes                          |
+|-------------------------------|-------------------------------|--------------------------------|
+| All Side Polish               | (W+H)/1000 x 2 x Qty          | Full perimeter, same as LM1    |
+| Both Height Side              | H/1000 x 2 x Qty              | Heights only, both sides       |
+| Both Width Side               | W/1000 x 2 x Qty              | Widths only, both sides        |
+| All Side Polish As Per DWG    | (W+H)/1000 x 2 x Qty          | Same as All Side + DWG note    |
+| Custom (Manual)               | User types description + qty  | Free-text + manual entry       |
+
+### Polish LM Calculation
+
+For each glass row across all spec groups:
+
+- If SGU: apply formula to (W1, H1) only
+- If DGU/LAM: apply formula to BOTH (W1, H1) AND (W2, H2), then sum
+- Multiply by Qty
+
+Total Polish LM = sum of all rows.
+
+Example — 5 rows in a DGU spec group, "All Side Polish":
+
+    Row 1: W1=3000 H1=1250, W2=2900 H2=1150, Qty=10
+      Glass 1: (3000+1250)/1000 * 2 = 8.5
+      Glass 2: (2900+1150)/1000 * 2 = 8.1
+      Row LM: (8.5 + 8.1) * 10 = 166 lm
+    ...
+
+### Custom Polish
+
+When user selects "Custom (Manual)", the row expands to show:
+
+- Custom Description text input (e.g. "Special water-jet polish")
+- Manual Qty input (user types the LM value directly)
+
+The formula display then reads:
+
+    12.50 LM x 15.00 AED = 187.50 AED (SPECIAL WATER-JET POLISH)
+
+## Cutout / Holes (Phase 7.11b)
+
+Both use the same math and same source options (Total Pieces or Double Glass).
+User chooses which one applies based on business rule for that invoice.
+
+- SGU: 1 piece = 1 hole/cutout   -> pick "Total Pieces"
+- DGU/LAM: 1 unit = 2 glasses    -> pick "Double Glass (1+1)"
+
+Rates are user-editable per invoice (defaults: Cutout=50, Holes=15).
+
 ## Metric Discovery Hub
 
-Top section of Step 6 shows live stats aggregated from all Spec Groups:
+Top section of Step 6 shows live stats aggregated from all Spec Groups.
+Values auto-refresh whenever DataGrid changes.
 
 | Metric                 | Source                             | Unit |
 |------------------------|------------------------------------|------|
@@ -99,27 +157,25 @@ Top section of Step 6 shows live stats aggregated from all Spec Groups:
 | DGU Cavity Area        | SQM1 for DGU groups only           | sqm  |
 | Primary Glass Refs     | Unique spec names from all groups  | list |
 
-All values auto-refresh whenever DataGrid changes (add row, edit
-dimension, change spec, add/remove spec group).
+## Charge Rows (Phase 7.11a + 7.11b)
 
-## Charge Rows (Phase 7.11a)
-
-Five predefined templates ship in this phase:
-
-| Charge          | Unit | Default Rate | Default Source     |
-|-----------------|------|--------------|--------------------|
-| Argon Gas       | Sqm  | 45.00        | SQM1               |
-| Silicon bed     | Lm   | 6.00         | LM1                |
-| Overlap         | Lm   | 6.00         | LM1                |
-| Shutter Bonding | Lm   | 25.00        | LM1 + LM2          |
-| Mitring         | Lm   | 30.00        | LM1                |
+| Charge          | Unit | Default Rate | Default Source     | Notes           |
+|-----------------|------|--------------|--------------------|-----------------|
+| Argon Gas       | Sqm  | 45.00        | SQM1               |                 |
+| Silicon bed     | Lm   | 6.00         | LM1                |                 |
+| Overlap         | Lm   | 6.00         | LM1                |                 |
+| Shutter Bonding | Lm   | 25.00        | LM1 + LM2          |                 |
+| Mitring         | Lm   | 30.00        | LM1                |                 |
+| Polish          | Lm   | 6.00         | (sub-type driven)  | Special row     |
+| Cutout          | Qty  | 50.00        | Total Pieces       |                 |
+| Holes           | Qty  | 15.00        | Total Pieces       |                 |
 
 Each row has:
 
 - Active checkbox (uncheck = row grayed out, excluded from total)
 - Charge name + description
-- Target Grid Source dropdown (filtered by Unit type)
-- Metric Qty (auto-populated from selected source, read-only)
+- Target Grid Source dropdown (or Polish sub-type for Polish row)
+- Metric Qty (auto-populated, read-only except Custom Polish)
 - Rate (editable per invoice)
 - Formula & Result display
 
@@ -136,61 +192,52 @@ cannot pick incompatible sources.
 
 Format: {MetricQty} {UNIT} x {Rate} AED = {Total} AED ({HINT})
 
-Example:
+Examples:
 
     303.33 LM x 6.00 AED = 1,819.98 AED (W1 H1 PERIMETER (LM1))
+    179.52 LM x 6.00 AED = 1,077.12 AED (ALL SIDE POLISH)
+    88.20 LM x 6.00 AED = 529.20 AED (BOTH HEIGHT SIDE)
+    12.50 LM x 15.00 AED = 187.50 AED (SPECIAL WATER-JET POLISH)
 
 When a row is unchecked, display shows: DISABLED
 
-## LM Calculation Rules
-
-Handled in DataGrid (Step 5) - already implemented:
-
-- SGU: LM = (W + H) / 1000 x 2 x Qty  (perimeter with factor 2)
-- DGU: LM = (W + H) / 1000 x 2 x Qty  (perimeter with factor 2)
-- LAM: LM = (W + H) / 1000 x 4 x Qty  (all-side polish with factor 4)
-
-Step 6 just consumes the pre-computed Lm1 / Lm2 values from each row.
-
 ## Change Tracking
 
-The Hub subscribes to Spec Group property changes. Recalculation is
-triggered only for these properties (performance guard):
+The VM subscribes to:
 
-- FooterTotalQty
-- FooterTotalSqm
-- FooterTotalSqm2
-- FooterTotalLm1
-- FooterTotalLm2
-- SelectedGlassType
+- MetricHub.PropertyChanged -> refresh source values + total
+- SpecGroups.CollectionChanged -> hook/unhook groups
+- Each SpecGroup.PropertyChanged (SelectedGlassType) -> recalc polish
+- Each SpecGroup.ItemRows.CollectionChanged -> hook/unhook rows
+- Each GlassItemRow.PropertyChanged (W1/H1/W2/H2/Qty) -> recalc polish
 
-Other property changes (GroupName rename, scroll, focus) do NOT
-trigger recalculation.
-
-Batched paste operations (150+ rows) refresh the Hub only once
-after the batch completes, thanks to SpecGroup's _isBulkAdding flag
-from Phase 7.10b/c.
+Polish recalculation walks every glass row across every spec group.
+This is O(rows) but only triggered when dimensions actually change,
+and dimensional edits are always followed by a single batched update
+thanks to SpecGroup's _isBulkAdding flag from Phase 7.10b/c.
 
 ## Testing Checklist
 
 - [ ] Metric Hub shows correct totals matching DataGrid footers
 - [ ] Adding a spec group updates all metric cards
 - [ ] Editing a row dimension updates metrics live
-- [ ] LM1 dropdown value matches Hub LM1 value
-- [ ] Checking Argon Gas shows formula and result
-- [ ] Unchecking a row shows DISABLED and excludes it from Total
-- [ ] Rate edit updates result live
+- [ ] Argon Gas: check + rate 45 -> correct formula
+- [ ] Silicon bed dropdown offers LM1/LM2/LM1+LM2 only
+- [ ] Polish: check + "All Side Polish" -> LM matches LM1 (for SGU)
+- [ ] Polish: check + "Both Height Side" -> LM = H/1000*2*Qty summed
+- [ ] Polish: check + DGU spec group -> LM sums Glass 1 + Glass 2 perimeters
+- [ ] Polish: pick "Custom (Manual)" -> extra inputs appear
+- [ ] Custom Polish: type description + qty -> formula uses custom text
+- [ ] Cutout: check + Total Pieces -> qty matches Total Pieces
+- [ ] Cutout: check + Double Glass -> qty matches Double Glass count
+- [ ] Holes: same behavior as Cutout
+- [ ] Unchecking any row shows DISABLED and excludes from Total
 - [ ] Total Other Charges = sum of active rows only
-- [ ] DGU-only spec group shows correct DGU Cavity Area
-- [ ] SGU-only spec group shows DGU Cavity Area = 0
-- [ ] Double Glass count = Qty for SGU, Qty x 2 for DGU/LAM
 
 ## Future Phases
 
-- Phase 7.11b - Polish sub-type dropdown (All Side / Both Height Side / As Per DWG)
-- Phase 7.11b - Cutout/Holes with SGU=1 vs DGU/LAM=2 doubling
-- Phase 7.11c - Wastages with color-based auto-aggregation
-- Phase 7.11d - Custom manual charges section
+- Phase 7.11c - Wastages with color-based auto-aggregation across spec groups
+- Phase 7.11d - Custom manual charges section (free-form line items)
 - Phase 7.12  - Invoice Main Summary (Discount + VAT + Grand Total)
 - Phase 7.13  - Print Preview / PDF layout
 - Phase 7.14  - Save PI to database (Other Charges become part of PI record)

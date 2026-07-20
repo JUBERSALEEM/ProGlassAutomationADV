@@ -3,6 +3,7 @@ using ProGlassAutomation.ViewModels;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 using System;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
 
@@ -11,6 +12,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
     /// <summary>
     /// Main ViewModel for Step 6 (Other Charges).
     /// Owns predefined charge rows, wires them to live DataGrid metrics via GridSourceOption,
+    /// computes Polish LM per sub-type by iterating raw spec-group rows,
     /// and exposes the running Total Other Charges (excluding VAT/Discount).
     /// </summary>
     public class OtherChargesViewModel : ViewModelBase
@@ -49,72 +51,30 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
 
             BuildSourcePool();
             BuildChargeRows();
+
+            // Subscribe to DataGrid changes for Polish recalculation
+            _dataGridVM.SpecGroups.CollectionChanged += OnSpecGroupsCollectionChanged;
+            foreach (var g in _dataGridVM.SpecGroups)
+                HookSpecGroup(g);
+
+            RecalculatePolishRows();
         }
 
         // ── Source pool ────────────────────────────────────────────────────
 
-        /// <summary>
-        /// Creates the master list of grid-source options and their live values.
-        /// Called once on init — options are then continuously updated by OnHubPropertyChanged.
-        /// </summary>
         private void BuildSourcePool()
         {
             AllSources.Clear();
 
-            AllSources.Add(new GridSourceOption
-            {
-                Key = "LM1",
-                Unit = OtherChargeUnit.Lm,
-                FormulaHint = "W1 H1 PERIMETER (LM1)"
-            });
-            AllSources.Add(new GridSourceOption
-            {
-                Key = "LM2",
-                Unit = OtherChargeUnit.Lm,
-                FormulaHint = "W2 H2 PERIMETER (LM2)"
-            });
-            AllSources.Add(new GridSourceOption
-            {
-                Key = "LM_COMBINED",
-                Unit = OtherChargeUnit.Lm,
-                FormulaHint = "LM1 + LM2 COMBINED"
-            });
-            AllSources.Add(new GridSourceOption
-            {
-                Key = "SQM1",
-                Unit = OtherChargeUnit.Sqm,
-                FormulaHint = "GLASS 1 AREA (SQM1)"
-            });
-            AllSources.Add(new GridSourceOption
-            {
-                Key = "SQM2",
-                Unit = OtherChargeUnit.Sqm,
-                FormulaHint = "GLASS 2 AREA (SQM2)"
-            });
-            AllSources.Add(new GridSourceOption
-            {
-                Key = "SQM_COMBINED",
-                Unit = OtherChargeUnit.Sqm,
-                FormulaHint = "SQM1 + SQM2 COMBINED"
-            });
-            AllSources.Add(new GridSourceOption
-            {
-                Key = "DGU_CAVITY",
-                Unit = OtherChargeUnit.Sqm,
-                FormulaHint = "DGU CAVITY AREA"
-            });
-            AllSources.Add(new GridSourceOption
-            {
-                Key = "TOTAL_PIECES",
-                Unit = OtherChargeUnit.Qty,
-                FormulaHint = "TOTAL PIECE COUNT"
-            });
-            AllSources.Add(new GridSourceOption
-            {
-                Key = "DOUBLE_GLASS",
-                Unit = OtherChargeUnit.Qty,
-                FormulaHint = "GLASS COUNT (DGU/LAM ×2)"
-            });
+            AllSources.Add(new GridSourceOption { Key = "LM1", Unit = OtherChargeUnit.Lm, FormulaHint = "W1 H1 PERIMETER (LM1)" });
+            AllSources.Add(new GridSourceOption { Key = "LM2", Unit = OtherChargeUnit.Lm, FormulaHint = "W2 H2 PERIMETER (LM2)" });
+            AllSources.Add(new GridSourceOption { Key = "LM_COMBINED", Unit = OtherChargeUnit.Lm, FormulaHint = "LM1 + LM2 COMBINED" });
+            AllSources.Add(new GridSourceOption { Key = "SQM1", Unit = OtherChargeUnit.Sqm, FormulaHint = "GLASS 1 AREA (SQM1)" });
+            AllSources.Add(new GridSourceOption { Key = "SQM2", Unit = OtherChargeUnit.Sqm, FormulaHint = "GLASS 2 AREA (SQM2)" });
+            AllSources.Add(new GridSourceOption { Key = "SQM_COMBINED", Unit = OtherChargeUnit.Sqm, FormulaHint = "SQM1 + SQM2 COMBINED" });
+            AllSources.Add(new GridSourceOption { Key = "DGU_CAVITY", Unit = OtherChargeUnit.Sqm, FormulaHint = "DGU CAVITY AREA" });
+            AllSources.Add(new GridSourceOption { Key = "TOTAL_PIECES", Unit = OtherChargeUnit.Qty, FormulaHint = "TOTAL PIECE COUNT" });
+            AllSources.Add(new GridSourceOption { Key = "DOUBLE_GLASS", Unit = OtherChargeUnit.Qty, FormulaHint = "GLASS COUNT (DGU/LAM ×2)" });
 
             SyncSourceValuesFromHub();
         }
@@ -124,7 +84,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
             SyncSourceValuesFromHub();
         }
 
-        /// <summary>Pushes the latest Hub metric values into every GridSourceOption.</summary>
         private void SyncSourceValuesFromHub()
         {
             foreach (var src in AllSources)
@@ -194,16 +153,27 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                     IsActive = false
                 };
 
-                // Filter available sources by unit type
-                foreach (var src in AllSources.Where(s => s.Unit == template.Unit))
-                    row.AvailableSources.Add(src);
+                if (row.IsPolishRow)
+                {
+                    // Populate polish sub-types
+                    foreach (var info in PolishSubTypeInfo.All)
+                        row.AvailablePolishSubTypes.Add(info);
 
-                // Pre-select the template's suggested source
-                var defaultSrc = row.AvailableSources.FirstOrDefault(s => s.Key == template.DefaultSourceKey);
-                if (defaultSrc != null)
-                    row.SelectedSource = defaultSrc;
-                else if (row.AvailableSources.Count > 0)
-                    row.SelectedSource = row.AvailableSources[0];
+                    // Default to "All Side Polish"
+                    row.SelectedPolishSubType = row.AvailablePolishSubTypes[0];
+                }
+                else
+                {
+                    // Standard row — filter available sources by unit type
+                    foreach (var src in AllSources.Where(s => s.Unit == template.Unit))
+                        row.AvailableSources.Add(src);
+
+                    var defaultSrc = row.AvailableSources.FirstOrDefault(s => s.Key == template.DefaultSourceKey);
+                    if (defaultSrc != null)
+                        row.SelectedSource = defaultSrc;
+                    else if (row.AvailableSources.Count > 0)
+                        row.SelectedSource = row.AvailableSources[0];
+                }
 
                 row.PropertyChanged += OnChargeRowChanged;
                 ChargeRows.Add(row);
@@ -216,6 +186,146 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                 or nameof(OtherChargeRow.IsActive))
             {
                 RecalculateTotal();
+            }
+
+            // Polish sub-type change or active toggle → recompute polish LM
+            if (sender is OtherChargeRow row && row.IsPolishRow
+                && e.PropertyName is nameof(OtherChargeRow.SelectedPolishSubType)
+                    or nameof(OtherChargeRow.IsActive))
+            {
+                RecalculatePolishRows();
+            }
+        }
+
+        // ── Polish LM calculation ──────────────────────────────────────────
+
+        /// <summary>
+        /// Called whenever spec groups / rows / dimensions change.
+        /// Iterates every glass row across every spec group and computes
+        /// the total polish LM based on the row's selected sub-type formula.
+        /// </summary>
+        private void RecalculatePolishRows()
+        {
+            foreach (var row in ChargeRows.Where(r => r.IsPolishRow))
+            {
+                if (row.SelectedPolishSubType == null
+                    || row.SelectedPolishSubType.Type == PolishSubType.Custom)
+                {
+                    // Custom → user enters qty manually; nothing to compute here
+                    continue;
+                }
+
+                decimal totalLm = 0m;
+                foreach (var group in _dataGridVM.SpecGroups)
+                {
+                    foreach (var itemRow in group.ItemRows)
+                    {
+                        totalLm += CalculatePolishLmForRow(
+                            itemRow.W1, itemRow.H1, itemRow.W2, itemRow.H2,
+                            itemRow.Qty, group.SelectedGlassType,
+                            row.SelectedPolishSubType.Type);
+                    }
+                }
+
+                row.SetCalculatedPolishQty(Math.Round(totalLm, 3));
+            }
+        }
+
+        /// <summary>
+        /// Computes polish LM for ONE glass row based on sub-type formula.
+        /// For DGU/LAM (2 glasses), polish applies to BOTH glasses so we sum W1H1 + W2H2 perimeters.
+        /// </summary>
+        private static decimal CalculatePolishLmForRow(
+            int w1, int h1, int w2, int h2, int qty, string glassType, PolishSubType subType)
+        {
+            if (qty <= 0) return 0m;
+
+            bool isDoubleGlass = glassType == "DGU" || glassType == "LAM" || glassType == "DGU+LAM";
+
+            decimal lm = 0m;
+
+            // Glass 1 (outer)
+            if (w1 > 0 && h1 > 0)
+                lm += CalcSingleGlassPolish(w1, h1, subType);
+
+            // Glass 2 (inner) — only for DGU/LAM
+            if (isDoubleGlass && w2 > 0 && h2 > 0)
+                lm += CalcSingleGlassPolish(w2, h2, subType);
+
+            return lm * qty;
+        }
+
+        private static decimal CalcSingleGlassPolish(int w, int h, PolishSubType subType)
+        {
+            return subType switch
+            {
+                PolishSubType.AllSidePolish => ((decimal)w + h) / 1000m * 2m,
+                PolishSubType.AllSidePolishAsPerDwg => ((decimal)w + h) / 1000m * 2m,
+                PolishSubType.BothHeightSide => (decimal)h / 1000m * 2m,
+                PolishSubType.BothWidthSide => (decimal)w / 1000m * 2m,
+                _ => 0m
+            };
+        }
+
+        // ── Spec group change tracking ─────────────────────────────────────
+
+        private void OnSpecGroupsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.OldItems != null)
+                foreach (SpecGroup g in e.OldItems)
+                    UnhookSpecGroup(g);
+
+            if (e.NewItems != null)
+                foreach (SpecGroup g in e.NewItems)
+                    HookSpecGroup(g);
+
+            RecalculatePolishRows();
+        }
+
+        private void HookSpecGroup(SpecGroup group)
+        {
+            group.PropertyChanged += OnSpecGroupPropertyChanged;
+            group.ItemRows.CollectionChanged += OnItemRowsCollectionChanged;
+            foreach (var item in group.ItemRows)
+                item.PropertyChanged += OnItemRowPropertyChanged;
+        }
+
+        private void UnhookSpecGroup(SpecGroup group)
+        {
+            group.PropertyChanged -= OnSpecGroupPropertyChanged;
+            group.ItemRows.CollectionChanged -= OnItemRowsCollectionChanged;
+            foreach (var item in group.ItemRows)
+                item.PropertyChanged -= OnItemRowPropertyChanged;
+        }
+
+        private void OnSpecGroupPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SpecGroup.SelectedGlassType))
+                RecalculatePolishRows();
+        }
+
+        private void OnItemRowsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.OldItems != null)
+                foreach (GlassItemRow r in e.OldItems)
+                    r.PropertyChanged -= OnItemRowPropertyChanged;
+
+            if (e.NewItems != null)
+                foreach (GlassItemRow r in e.NewItems)
+                    r.PropertyChanged += OnItemRowPropertyChanged;
+
+            RecalculatePolishRows();
+        }
+
+        private void OnItemRowPropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName is nameof(GlassItemRow.W1)
+                or nameof(GlassItemRow.H1)
+                or nameof(GlassItemRow.W2)
+                or nameof(GlassItemRow.H2)
+                or nameof(GlassItemRow.Qty))
+            {
+                RecalculatePolishRows();
             }
         }
 
