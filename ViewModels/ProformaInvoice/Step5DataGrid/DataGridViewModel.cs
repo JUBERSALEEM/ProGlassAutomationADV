@@ -143,12 +143,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
         public ICommand AddRowCommand { get; }
         public ICommand RemoveRowCommand { get; }
+        public ICommand PasteExcelCommand { get; }
 
         public SpecGroup()
         {
             ItemRows.CollectionChanged += OnItemRowsChanged;
             AddRowCommand = new RelayCommand(_ => AddNewRow());
             RemoveRowCommand = new RelayCommand(p => { if (p is GlassItemRow r) ItemRows.Remove(r); });
+            PasteExcelCommand = new RelayCommand(_ => PasteFromClipboard());
         }
 
         private void OnItemRowsChanged(object s, NotifyCollectionChangedEventArgs e)
@@ -191,6 +193,61 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             var row = new GlassItemRow { SerialNumber = ItemRows.Count + 1, GlassRef = "", Qty = 1, Rate = EffectiveRate };
             row.PerimeterFactor = SelectedGlassType == "LAM" ? 4 : 2;
             ItemRows.Add(row);
+        }
+
+        private void PasteFromClipboard()
+        {
+            if (!System.Windows.Clipboard.ContainsText()) return;
+
+            var text = System.Windows.Clipboard.GetText();
+            if (string.IsNullOrWhiteSpace(text)) return;
+
+            var lines = text.Split(new[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
+            int added = 0;
+
+            foreach (var line in lines)
+            {
+                var parts = line.Split('\t');
+                if (parts.Length < 3) continue; // Need at least Ref, W1, H1
+
+                var row = new GlassItemRow
+                {
+                    SerialNumber = ItemRows.Count + 1,
+                    Rate = EffectiveRate,
+                    PerimeterFactor = SelectedGlassType == "LAM" ? 4 : 2
+                };
+
+                // Parse columns based on how many were pasted
+                // Format: GlassRef, W1, H1 [, W2, H2] [, Qty]
+                row.GlassRef = parts[0].Trim();
+
+                if (parts.Length >= 2 && int.TryParse(parts[1].Trim(), out int w1)) row.W1 = w1;
+                if (parts.Length >= 3 && int.TryParse(parts[2].Trim(), out int h1)) row.H1 = h1;
+                if (parts.Length >= 4 && int.TryParse(parts[3].Trim(), out int w2)) row.W2 = w2;
+                if (parts.Length >= 5 && int.TryParse(parts[4].Trim(), out int h2)) row.H2 = h2;
+                if (parts.Length >= 6 && int.TryParse(parts[5].Trim(), out int qty)) row.Qty = qty;
+                else row.Qty = 1;
+
+                ItemRows.Add(row);
+                added++;
+            }
+
+            if (added > 0)
+            {
+                System.Windows.MessageBox.Show(
+                    $"Pasted {added} row(s) from clipboard.",
+                    "Excel Paste",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Information);
+            }
+            else
+            {
+                System.Windows.MessageBox.Show(
+                    "No valid rows found in clipboard.\n\nExpected format (tab-separated):\nGlassRef  W1  H1  [W2  H2]  [Qty]",
+                    "Paste Failed",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+            }
         }
 
         private void RenumberRows()

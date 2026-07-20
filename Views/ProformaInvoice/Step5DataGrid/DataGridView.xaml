@@ -313,6 +313,12 @@
                                 <!-- ===== ITEM ROWS TABLE ===== -->
                                 <Border Background="{DynamicResource WindowBackgroundBrush}" CornerRadius="6" Padding="10" BorderThickness="1.5" BorderBrush="{DynamicResource MenuHoverBrush}"
                                         behaviors:DataGridNavigationBehavior.EnableExcelNav="True">
+                                    <Border.ContextMenu>
+                                        <ContextMenu>
+                                            <MenuItem Header="📋 Paste from Excel (Ctrl+V)" Command="{Binding PasteExcelCommand}" FontSize="12"/>
+                                            <MenuItem Header="➕ Add New Row" Command="{Binding AddRowCommand}" FontSize="12"/>
+                                        </ContextMenu>
+                                    </Border.ContextMenu>
                                     <StackPanel>
 
                                         <Grid Margin="0,0,0,8">

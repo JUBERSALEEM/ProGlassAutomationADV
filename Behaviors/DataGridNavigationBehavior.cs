@@ -7,35 +7,13 @@ using System.Windows.Media;
 namespace ProGlassAutomation.Behaviors
 {
     /// <summary>
-    /// Excel-like keyboard navigation for data grid rows.
-    /// 
-    /// Tab        → Next cell (right), wraps to next row
-    /// Shift+Tab  → Previous cell (left), wraps to previous row
-    /// Right Arrow→ Next cell (right)
-    /// Left Arrow → Previous cell (left)
-    /// Enter      → Same anchor column in next row (where user first clicked)
-    /// Down Arrow → Same column position in next row
-    /// Up Arrow   → Same column position in previous row
-    /// 
-    /// Anchor column logic:
-    ///   When user clicks a cell, that column becomes the "anchor".
-    ///   Pressing Enter always returns to that anchor column in the next row.
-    ///   The anchor resets when user clicks a cell in a different row.
-    /// 
-    /// All movements auto-select text in target cell for immediate editing.
-    /// 
-    /// Usage in XAML:
-    ///   xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
-    ///   
-    ///   <Border behaviors:DataGridNavigationBehavior.EnableExcelNav="True">
-    ///       ... your ItemsControl with TextBoxes ...
-    ///   </Border>
+    /// Excel-like keyboard navigation and smart paste with auto-row expansion.
     /// </summary>
     public static class DataGridNavigationBehavior
     {
-        // Tracks which column the user first clicked/focused in the current row
         private static int _anchorColumn = -1;
         private static int _anchorRow = -1;
+        private static FrameworkElement _container;
 
         public static readonly DependencyProperty EnableExcelNavProperty =
             DependencyProperty.RegisterAttached(
@@ -44,31 +22,127 @@ namespace ProGlassAutomation.Behaviors
                 typeof(DataGridNavigationBehavior),
                 new UIPropertyMetadata(false, OnEnableChanged));
 
-        public static bool GetEnableExcelNav(DependencyObject obj)
-            => (bool)obj.GetValue(EnableExcelNavProperty);
-
-        public static void SetEnableExcelNav(DependencyObject obj, bool value)
-            => obj.SetValue(EnableExcelNavProperty, value);
+        public static bool GetEnableExcelNav(DependencyObject obj) => (bool)obj.GetValue(EnableExcelNavProperty);
+        public static void SetEnableExcelNav(DependencyObject obj, bool value) => obj.SetValue(EnableExcelNavProperty, value);
 
         private static void OnEnableChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
         {
             if (d is not FrameworkElement el) return;
 
-            // Detach first to prevent double-hooking
             el.PreviewKeyDown -= OnKey;
             el.GotFocus -= OnGotFocus;
+            el.RemoveHandler(DataObject.PastingEvent, new DataObjectPastingEventHandler(OnDataObjectPasting));
 
             if ((bool)e.NewValue)
             {
+                _container = el;
                 el.PreviewKeyDown += OnKey;
                 el.GotFocus += OnGotFocus;
+                el.AddHandler(DataObject.PastingEvent, new DataObjectPastingEventHandler(OnDataObjectPasting));
             }
         }
 
+        private static void OnDataObjectPasting(object sender, DataObjectPastingEventArgs e)
+        {
+            if (Keyboard.FocusedElement is not TextBox currentBox) return;
+            if (_container == null) return;
+
+            var clipText = e.DataObject.GetData(typeof(string)) as string;
+            if (string.IsNullOrWhiteSpace(clipText)) return;
+
+            bool hasTab = clipText.Contains('\t');
+            bool hasSpace = clipText.Trim().Contains(' ');
+            bool hasNewline = clipText.Contains('\n') || clipText.Contains('\r');
+
+            if (!hasTab && !hasSpace && !hasNewline) return;
+
+            e.CancelCommand();
+
+            var allBoxes = FindAllTextBoxes(_container);
+            int idx = allBoxes.IndexOf(currentBox);
+            if (idx < 0) return;
+
+            int colsPerRow = GetColumnsPerRow(currentBox, _container);
+            if (colsPerRow <= 0) colsPerRow = 7;
+
+            SmartPaste(currentBox, idx, allBoxes, colsPerRow, clipText);
+            e.Handled = true;
+        }
+
+        private static void SmartPaste(TextBox current, int startIdx, List<TextBox> allBoxes, int colsPerRow, string clipText)
+        {
+            var lines = clipText.Split(new[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
+
+            int currentRowIndex = startIdx / colsPerRow;
+            int rowStartIdx = currentRowIndex * colsPerRow;
+
+            foreach (var line in lines)
+            {
+                // 1. Ensure row exists. If not, trigger AddRowCommand on the SpecGroup ViewModel
+                if (rowStartIdx >= allBoxes.Count)
+                {
+                    if (TryAddRow(current))
+                    {
+                        // Refresh boxes and layout to find the newly created TextBoxes
+                        _container.UpdateLayout();
+                        allBoxes = FindAllTextBoxes(_container);
+                    }
+                    else break; // Could not add row, stop pasting
+                }
+
+                // 2. Parse the line
+                var values = line.Split('\t');
+                if (values.Length <= 1)
+                    values = line.Trim().Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
+
+                // 3. Paste values into the row
+                for (int i = 0; i < values.Length; i++)
+                {
+                    int targetIdx = rowStartIdx + i;
+                    if (targetIdx >= allBoxes.Count || i >= colsPerRow) break;
+
+                    var targetBox = allBoxes[targetIdx];
+                    var trimmed = values[i].Trim();
+
+                    if (trimmed == "-" || trimmed == "–" || trimmed == "N/A" || trimmed == "n/a" || trimmed == "")
+                        trimmed = "0";
+
+                    targetBox.Text = trimmed;
+
+                    var binding = targetBox.GetBindingExpression(TextBox.TextProperty);
+                    binding?.UpdateSource();
+                }
+
+                // Move to next row start
+                rowStartIdx += colsPerRow;
+            }
+
+            // Return focus to start
+            if (startIdx < allBoxes.Count) FocusAndSelect(allBoxes[startIdx]);
+        }
+
         /// <summary>
-        /// When user clicks a cell directly (mouse click), set that as the anchor column.
-        /// Only resets anchor when the row changes.
+        /// Finds the SpecGroup ViewModel and executes its AddRowCommand.
         /// </summary>
+        private static bool TryAddRow(DependencyObject element)
+        {
+            var itemsControl = FindParentOfType<ItemsControl>(element);
+            dynamic vm = itemsControl?.DataContext;
+            if (vm != null)
+            {
+                try
+                {
+                    if (vm.AddRowCommand != null && vm.AddRowCommand.CanExecute(null))
+                    {
+                        vm.AddRowCommand.Execute(null);
+                        return true;
+                    }
+                }
+                catch { }
+            }
+            return false;
+        }
+
         private static void OnGotFocus(object sender, RoutedEventArgs e)
         {
             if (e.OriginalSource is not TextBox tb) return;
@@ -79,12 +153,9 @@ namespace ProGlassAutomation.Behaviors
             if (idx < 0) return;
 
             int colsPerRow = GetColumnsPerRow(tb, container);
-            if (colsPerRow <= 0) colsPerRow = 7;
+            int currentRow = idx / (colsPerRow > 0 ? colsPerRow : 7);
+            int currentCol = idx % (colsPerRow > 0 ? colsPerRow : 7);
 
-            int currentRow = idx / colsPerRow;
-            int currentCol = idx % colsPerRow;
-
-            // If user clicked into a different row, or anchor not set yet, update anchor
             if (_anchorRow != currentRow || _anchorColumn < 0)
             {
                 _anchorColumn = currentCol;
@@ -94,17 +165,14 @@ namespace ProGlassAutomation.Behaviors
 
         private static void OnKey(object sender, KeyEventArgs e)
         {
-            // Only handle when a TextBox has focus
             if (e.OriginalSource is not TextBox current) return;
             if (sender is not FrameworkElement container) return;
+            if (e.Key == Key.V && Keyboard.Modifiers == ModifierKeys.Control) return;
 
-            // Get ALL TextBoxes in the entire table container (flat list, row by row)
             var allBoxes = FindAllTextBoxes(container);
             int idx = allBoxes.IndexOf(current);
             if (idx < 0) return;
 
-            // Count how many editable TextBoxes per row
-            // (GlassRef, W1, H1, W2, H2, Qty, Rate = 7 per row)
             int colsPerRow = GetColumnsPerRow(current, container);
             if (colsPerRow <= 0) colsPerRow = 7;
 
@@ -113,29 +181,22 @@ namespace ProGlassAutomation.Behaviors
 
             switch (e.Key)
             {
-                // ===== TAB: Move right (or left with Shift) =====
                 case Key.Tab:
                     e.Handled = true;
                     if (Keyboard.Modifiers == ModifierKeys.Shift)
                     {
-                        // Move left, wrap to previous row end
                         int prevIdx = idx - 1;
-                        if (prevIdx >= 0)
-                            FocusAndSelect(allBoxes[prevIdx]);
+                        if (prevIdx >= 0) FocusAndSelect(allBoxes[prevIdx]);
                     }
                     else
                     {
-                        // Move right, wrap to next row start
                         int nextIdx = idx + 1;
-                        if (nextIdx < allBoxes.Count)
-                            FocusAndSelect(allBoxes[nextIdx]);
+                        if (nextIdx < allBoxes.Count) FocusAndSelect(allBoxes[nextIdx]);
                     }
                     break;
 
-                // ===== ENTER: Anchor column in next row =====
                 case Key.Enter:
                     e.Handled = true;
-                    // Go to the column where user first clicked, in the next row
                     int anchorCol = _anchorColumn >= 0 ? _anchorColumn : currentCol;
                     int enterIdx = (currentRow + 1) * colsPerRow + anchorCol;
                     if (enterIdx < allBoxes.Count)
@@ -145,82 +206,49 @@ namespace ProGlassAutomation.Behaviors
                     }
                     break;
 
-                // ===== RIGHT ARROW: Next cell (right) =====
                 case Key.Right:
                     e.Handled = true;
-                    int rightIdx = idx + 1;
-                    if (rightIdx < allBoxes.Count)
-                        FocusAndSelect(allBoxes[rightIdx]);
+                    if (idx + 1 < allBoxes.Count) FocusAndSelect(allBoxes[idx + 1]);
                     break;
 
-                // ===== LEFT ARROW: Previous cell (left) =====
                 case Key.Left:
                     e.Handled = true;
-                    int leftIdx = idx - 1;
-                    if (leftIdx >= 0)
-                        FocusAndSelect(allBoxes[leftIdx]);
+                    if (idx - 1 >= 0) FocusAndSelect(allBoxes[idx - 1]);
                     break;
 
-                // ===== DOWN ARROW: Same column, next row =====
                 case Key.Down:
                     e.Handled = true;
-                    int downIdx = idx + colsPerRow;
-                    if (downIdx < allBoxes.Count)
-                        FocusAndSelect(allBoxes[downIdx]);
+                    if (idx + colsPerRow < allBoxes.Count) FocusAndSelect(allBoxes[idx + colsPerRow]);
                     break;
 
-                // ===== UP ARROW: Same column, previous row =====
                 case Key.Up:
                     e.Handled = true;
-                    int upIdx = idx - colsPerRow;
-                    if (upIdx >= 0)
-                        FocusAndSelect(allBoxes[upIdx]);
+                    if (idx - colsPerRow >= 0) FocusAndSelect(allBoxes[idx - colsPerRow]);
                     break;
             }
         }
 
-        /// <summary>
-        /// Focus the target TextBox and select all its text for immediate editing.
-        /// </summary>
-        private static void FocusAndSelect(TextBox tb)
-        {
-            tb.Focus();
-            tb.SelectAll();
-        }
+        private static void FocusAndSelect(TextBox tb) { tb.Focus(); tb.SelectAll(); }
 
-        /// <summary>
-        /// Counts how many TextBoxes are in the current row.
-        /// Used to calculate columns-per-row for Up/Down/Enter navigation.
-        /// </summary>
         private static int GetColumnsPerRow(TextBox current, FrameworkElement container)
         {
             var rowBorder = FindRowBorder(current);
             if (rowBorder == null) return 7;
-
             var rowBoxes = FindAllTextBoxes(rowBorder);
             return rowBoxes.Count > 0 ? rowBoxes.Count : 7;
         }
 
-        /// <summary>
-        /// Walks up the visual tree to find the row's Border container.
-        /// Our rows use Border with bottom BorderThickness > 0 and Padding > 0.
-        /// </summary>
         private static Border FindRowBorder(DependencyObject element)
         {
             var current = VisualTreeHelper.GetParent(element);
             while (current != null)
             {
-                if (current is Border b && b.BorderThickness.Bottom > 0 && b.Padding.Top > 0)
-                    return b;
+                if (current is Border b && b.BorderThickness.Bottom > 0 && b.Padding.Top > 0) return b;
                 current = VisualTreeHelper.GetParent(current);
             }
             return null;
         }
 
-        /// <summary>
-        /// Recursively finds all TextBox elements within a visual tree parent.
-        /// Returns them in document order (left to right, top to bottom).
-        /// </summary>
         private static List<TextBox> FindAllTextBoxes(DependencyObject parent)
         {
             var result = new List<TextBox>();
@@ -228,12 +256,21 @@ namespace ProGlassAutomation.Behaviors
             for (int i = 0; i < count; i++)
             {
                 var child = VisualTreeHelper.GetChild(parent, i);
-                if (child is TextBox tb)
-                    result.Add(tb);
-                else
-                    result.AddRange(FindAllTextBoxes(child));
+                if (child is TextBox tb) result.Add(tb);
+                else result.AddRange(FindAllTextBoxes(child));
             }
             return result;
+        }
+
+        private static T FindParentOfType<T>(DependencyObject element) where T : DependencyObject
+        {
+            var current = VisualTreeHelper.GetParent(element);
+            while (current != null)
+            {
+                if (current is T found) return found;
+                current = VisualTreeHelper.GetParent(current);
+            }
+            return null;
         }
     }
 }
