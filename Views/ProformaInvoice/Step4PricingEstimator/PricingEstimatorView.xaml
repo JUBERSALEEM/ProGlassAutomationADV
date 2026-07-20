@@ -5,6 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:sgu="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.SguParameters"
              xmlns:dgu="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.DguParameters"
+             xmlns:lam="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.LamParameters"
              mc:Ignorable="d"
              d:DesignHeight="900" d:DesignWidth="900"
              FontFamily="Segoe UI">
@@ -244,9 +245,10 @@
                 </ContentControl.ContentTemplate>
             </ContentControl>
 
-            <Border Margin="0,8,0,0">
-                <Border.Style>
-                    <Style TargetType="Border">
+            <!-- ============ LAM PARAMETERS PANEL ============ -->
+            <ContentControl Content="{Binding LamVM}">
+                <ContentControl.Style>
+                    <Style TargetType="ContentControl">
                         <Setter Property="Visibility" Value="Collapsed"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding SelectedGlassType.Code}" Value="LAM">
@@ -254,14 +256,13 @@
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
-                </Border.Style>
-                <Border Background="{DynamicResource MenuHoverBrush}"
-                        CornerRadius="6" Padding="14,10" HorizontalAlignment="Left">
-                    <TextBlock Text="LAM parameters — coming in Phase 6.7"
-                               FontSize="11"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                </Border>
-            </Border>
+                </ContentControl.Style>
+                <ContentControl.ContentTemplate>
+                    <DataTemplate>
+                        <lam:LamParametersView/>
+                    </DataTemplate>
+                </ContentControl.ContentTemplate>
+            </ContentControl>
 
             <Border Margin="0,8,0,0">
                 <Border.Style>
