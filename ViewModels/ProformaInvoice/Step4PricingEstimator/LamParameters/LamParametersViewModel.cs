@@ -4,8 +4,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
 {
     /// <summary>
     /// ViewModel for LAM (Laminated Assembly) parameter panel.
-    /// Handles outer/inner glass, PVB interlayer configuration,
-    /// lamination costs (layup + autoclave), yield factor, and margin.
+    /// Handles outer/inner glass, PVB interlayer, per-pane cutting & tempering costs,
+    /// yield factor, and margin.
     /// </summary>
     public class LamParametersViewModel : ViewModelBase
     {
@@ -69,7 +69,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
             set { _innerBasePrice = value; OnPropertyChanged(); }
         }
 
-        // ===================== Row 3: PVB Interlayer Specs =====================
+        // ===================== Row 3: PVB Interlayer =====================
 
         private string _pvbThickness;
         public string PvbThickness
@@ -97,6 +97,52 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
         {
             get => _laminationPolish;
             set { _laminationPolish = value; OnPropertyChanged(); }
+        }
+
+        // ===================== Row 4: Per-Pane Cutting & Tempering Costs =====================
+
+        private decimal _outerCuttingCost;
+        public decimal OuterCuttingCost
+        {
+            get => _outerCuttingCost;
+            set { _outerCuttingCost = value; OnPropertyChanged(); }
+        }
+
+        private decimal _innerCuttingCost;
+        public decimal InnerCuttingCost
+        {
+            get => _innerCuttingCost;
+            set { _innerCuttingCost = value; OnPropertyChanged(); }
+        }
+
+        private decimal _outerTemperingCost;
+        public decimal OuterTemperingCost
+        {
+            get => _outerTemperingCost;
+            set { _outerTemperingCost = value; OnPropertyChanged(); }
+        }
+
+        private decimal _innerTemperingCost;
+        public decimal InnerTemperingCost
+        {
+            get => _innerTemperingCost;
+            set { _innerTemperingCost = value; OnPropertyChanged(); }
+        }
+
+        // ===================== Row 5: Yield + Margin =====================
+
+        private decimal _yieldFactor;
+        public decimal YieldFactor
+        {
+            get => _yieldFactor;
+            set { _yieldFactor = value; OnPropertyChanged(); }
+        }
+
+        private decimal _marginProfitPercent;
+        public decimal MarginProfitPercent
+        {
+            get => _marginProfitPercent;
+            set { _marginProfitPercent = value; OnPropertyChanged(); }
         }
 
         // ===================== Shared Dropdown Options =====================
@@ -178,7 +224,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
             PvbMaterialRate = 80m;
             LaminationPolish = "None (Standard)";
 
-            // Rows 4, 5 will be added in Sub-Phases 6.7e, 6.7f
+            // === Row 4 Defaults (per-pane cutting + tempering) ===
+            OuterCuttingCost = 15m;
+            InnerCuttingCost = 15m;
+            OuterTemperingCost = 25m;
+            InnerTemperingCost = 25m;
+
+            // === Row 5 Defaults ===
+            YieldFactor = 0.85m;
+            MarginProfitPercent = 15m;
         }
     }
 }

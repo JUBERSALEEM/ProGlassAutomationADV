@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
-             d:DesignHeight="600" d:DesignWidth="900"
+             d:DesignHeight="700" d:DesignWidth="900"
              FontFamily="Segoe UI">
 
     <UserControl.Resources>
@@ -198,7 +198,6 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- PVB Thickness -->
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="PVB THICKNESS" Style="{StaticResource LamLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding PvbThicknessOptions}"
@@ -206,7 +205,6 @@
                               Style="{StaticResource DarkComboBoxStyle}"/>
                 </StackPanel>
 
-                <!-- PVB Color -->
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="PVB COLOR" Style="{StaticResource LamLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding PvbColorOptions}"
@@ -214,20 +212,82 @@
                               Style="{StaticResource DarkEditableComboBoxStyle}"/>
                 </StackPanel>
 
-                <!-- PVB Material Rate -->
                 <StackPanel Grid.Column="4">
                     <TextBlock Text="PVB MATERIAL RATE" Style="{StaticResource LamLabelStyle}"/>
                     <TextBox Text="{Binding PvbMaterialRate, StringFormat={}{0:0.##}}"
                              Style="{StaticResource DarkInputStyle}"/>
                 </StackPanel>
 
-                <!-- Lamination Polish -->
                 <StackPanel Grid.Column="6">
                     <TextBlock Text="LAMINATION POLISH" Style="{StaticResource LamLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding LaminationPolishOptions}"
                               SelectedItem="{Binding LaminationPolish}"
                               Style="{StaticResource DarkComboBoxStyle}"/>
                 </StackPanel>
+            </Grid>
+
+            <!-- ===================== ROW 4: Per-Pane Cutting & Tempering Costs ===================== -->
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="OUTER CUTTING COST" Style="{StaticResource LamLabelStyle}"/>
+                    <TextBox Text="{Binding OuterCuttingCost, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DarkInputStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="INNER CUTTING COST" Style="{StaticResource LamLabelStyle}"/>
+                    <TextBox Text="{Binding InnerCuttingCost, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DarkInputStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="4">
+                    <TextBlock Text="OUTER TEMPERING COST" Style="{StaticResource LamLabelStyle}"/>
+                    <TextBox Text="{Binding OuterTemperingCost, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DarkInputStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="6">
+                    <TextBlock Text="INNER TEMPERING COST" Style="{StaticResource LamLabelStyle}"/>
+                    <TextBox Text="{Binding InnerTemperingCost, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DarkInputStyle}"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ===================== ROW 5: Yield + Margin ===================== -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="YIELD FACTOR" Style="{StaticResource LamLabelStyle}"/>
+                    <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DarkInputStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="MARGIN PROFIT %" Style="{StaticResource LamLabelStyle}"/>
+                    <TextBox Text="{Binding MarginProfitPercent, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DarkInputStyle}"/>
+                </StackPanel>
+
+                <!-- Columns 4 & 6 intentionally empty -->
             </Grid>
 
         </StackPanel>
