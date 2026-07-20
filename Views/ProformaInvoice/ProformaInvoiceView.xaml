@@ -9,6 +9,7 @@
              xmlns:step4="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator"
              xmlns:step5="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step5DataGrid"
              xmlns:step6="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges"
+             xmlns:step7="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview"
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="1400"
              FontFamily="Segoe UI">
@@ -285,7 +286,7 @@
                             </ContentControl.ContentTemplate>
                         </ContentControl>
 
-                        <!-- Step 6 View  (NEW — Phase 7.11a) -->
+                        <!-- Step 6 View  (Phase 7.11a-d) -->
                         <ContentControl Content="{Binding Step6VM}">
                             <ContentControl.Style>
                                 <Style TargetType="ContentControl">
@@ -304,59 +305,26 @@
                             </ContentControl.ContentTemplate>
                         </ContentControl>
 
-                        <!-- Step 7 Placeholder (only Step 7 is not yet built) -->
-                        <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
-                            <StackPanel.Style>
-                                <Style TargetType="StackPanel">
-                                    <Setter Property="Visibility" Value="Visible"/>
+                        <!-- Step 7 View  (NEW — Phase 7.12) -->
+                        <ContentControl Content="{Binding Step7VM}">
+                            <ContentControl.Style>
+                                <Style TargetType="ContentControl">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding CurrentStepNumber}" Value="1">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding CurrentStepNumber}" Value="2">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding CurrentStepNumber}" Value="3">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding CurrentStepNumber}" Value="4">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding CurrentStepNumber}" Value="5">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                        <DataTrigger Binding="{Binding CurrentStepNumber}" Value="6">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        <DataTrigger Binding="{Binding CurrentStepNumber}" Value="7">
+                                            <Setter Property="Visibility" Value="Visible"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
-                            </StackPanel.Style>
+                            </ContentControl.Style>
+                            <ContentControl.ContentTemplate>
+                                <DataTemplate>
+                                    <step7:PrintPreviewView/>
+                                </DataTemplate>
+                            </ContentControl.ContentTemplate>
+                        </ContentControl>
 
-                            <TextBlock Text="&#128220;"
-                                       FontSize="48"
-                                       HorizontalAlignment="Center"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       Margin="0,0,0,12"/>
-                            <TextBlock Text="{Binding CurrentStep.Title}"
-                                       FontSize="20"
-                                       FontWeight="Bold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                       HorizontalAlignment="Center"/>
-                            <TextBlock Text="{Binding CurrentStep.Subtitle}"
-                                       FontSize="12"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,6,0,0"/>
-                            <Border Background="{DynamicResource MenuHoverBrush}"
-                                    CornerRadius="6"
-                                    Padding="14,8"
-                                    Margin="0,18,0,0"
-                                    HorizontalAlignment="Center">
-                                <TextBlock Text="This step is not built yet — coming in a future phase"
-                                           FontSize="11"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            </Border>
-                        </StackPanel>
+                        <!-- All 7 steps now implemented — placeholder removed -->
 
                     </Grid>
                 </Border>
