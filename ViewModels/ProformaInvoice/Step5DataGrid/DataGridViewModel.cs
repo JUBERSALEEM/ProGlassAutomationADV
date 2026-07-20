@@ -26,13 +26,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         public int H1 { get => _h1; set { _h1 = value; OnPropertyChanged(); RecalculateAll(); } }
 
         private int _w2;
-        public int W2 { get => _w2; set { _w2 = value; OnPropertyChanged(); RecalculateSqm2(); } }
+        public int W2 { get => _w2; set { _w2 = value; OnPropertyChanged(); RecalculateAll(); } }
 
         private int _h2;
-        public int H2 { get => _h2; set { _h2 = value; OnPropertyChanged(); RecalculateSqm2(); } }
+        public int H2 { get => _h2; set { _h2 = value; OnPropertyChanged(); RecalculateAll(); } }
 
         private int _qty = 1;
-        public int Qty { get => _qty; set { _qty = value; OnPropertyChanged(); RecalculateAll(); RecalculateSqm2(); } }
+        public int Qty { get => _qty; set { _qty = value; OnPropertyChanged(); RecalculateAll(); } }
 
         private decimal _sqm1;
         public decimal Sqm1 { get => _sqm1; private set { _sqm1 = value; OnPropertyChanged(); } }
@@ -52,19 +52,37 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         private decimal _value;
         public decimal Value { get => _value; private set { _value = value; OnPropertyChanged(); } }
 
-        private void RecalculateAll()
+        // LM properties
+        private decimal _lm1;
+        public decimal Lm1 { get => _lm1; private set { _lm1 = value; OnPropertyChanged(); } }
+
+        private decimal _lm2;
+        public decimal Lm2 { get => _lm2; private set { _lm2 = value; OnPropertyChanged(); } }
+
+        // Factor: 2 for SGU/DGU, 4 for LAM (all side polish)
+        private int _perimeterFactor = 2;
+        public int PerimeterFactor { get => _perimeterFactor; set { _perimeterFactor = value; OnPropertyChanged(); RecalculateAll(); } }
+
+        public void RecalculateAll()
         {
+            // SQM1
             decimal rawSqm1 = (decimal)W1 * H1 / 1_000_000m;
             Sqm1 = W1 > 0 && H1 > 0 ? System.Math.Max(System.Math.Round(rawSqm1, 3), MIN_SQM) : 0m;
             TotalSqm = System.Math.Round(Sqm1 * Qty, 3);
-            Value = System.Math.Round(Sqm1 * Qty * Rate, 2);
-        }
 
-        private void RecalculateSqm2()
-        {
+            // SQM2
             decimal rawSqm2 = (decimal)W2 * H2 / 1_000_000m;
             Sqm2 = W2 > 0 && H2 > 0 ? System.Math.Max(System.Math.Round(rawSqm2, 3), MIN_SQM) : 0m;
             TotalSqm2 = System.Math.Round(Sqm2 * Qty, 3);
+
+            // LM1 = (W1+H1)/1000 * factor * qty
+            Lm1 = W1 > 0 && H1 > 0 ? System.Math.Round(((decimal)W1 + H1) / 1000m * PerimeterFactor * Qty, 3) : 0m;
+
+            // LM2 = (W2+H2)/1000 * factor * qty
+            Lm2 = W2 > 0 && H2 > 0 ? System.Math.Round(((decimal)W2 + H2) / 1000m * PerimeterFactor * Qty, 3) : 0m;
+
+            // Value
+            Value = System.Math.Round(Sqm1 * Qty * Rate, 2);
         }
     }
 
@@ -103,7 +121,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         public decimal EffectiveRate => System.Math.Round(BaseRate * (1m + (SurchargePercent / 100m)), 2);
 
         private string _selectedGlassType;
-        public string SelectedGlassType { get => _selectedGlassType; set { _selectedGlassType = value; OnPropertyChanged(); LoadFilteredSpecs(); } }
+        public string SelectedGlassType
+        {
+            get => _selectedGlassType;
+            set { _selectedGlassType = value; OnPropertyChanged(); UpdatePerimeterFactors(); LoadFilteredSpecs(); }
+        }
 
         private string _selectedSpecName;
         public string SelectedSpecName { get => _selectedSpecName; set { _selectedSpecName = value; OnPropertyChanged(); TryAutoFillRate(); } }
@@ -115,6 +137,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         public int FooterTotalQty => ItemRows?.Sum(r => r.Qty) ?? 0;
         public decimal FooterTotalSqm => System.Math.Round(ItemRows?.Sum(r => r.TotalSqm) ?? 0m, 3);
         public decimal FooterTotalSqm2 => System.Math.Round(ItemRows?.Sum(r => r.TotalSqm2) ?? 0m, 3);
+        public decimal FooterTotalLm1 => System.Math.Round(ItemRows?.Sum(r => r.Lm1) ?? 0m, 3);
+        public decimal FooterTotalLm2 => System.Math.Round(ItemRows?.Sum(r => r.Lm2) ?? 0m, 3);
         public decimal FooterTotalValue => System.Math.Round(ItemRows?.Sum(r => r.Value) ?? 0m, 2);
 
         public ICommand AddRowCommand { get; }
@@ -138,7 +162,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
         private void OnRowChanged(object s, PropertyChangedEventArgs e)
         {
-            if (e.PropertyName is nameof(GlassItemRow.Qty) or nameof(GlassItemRow.Sqm1) or nameof(GlassItemRow.TotalSqm) or nameof(GlassItemRow.Sqm2) or nameof(GlassItemRow.TotalSqm2) or nameof(GlassItemRow.Value))
+            if (e.PropertyName is nameof(GlassItemRow.Qty) or nameof(GlassItemRow.Sqm1) or nameof(GlassItemRow.TotalSqm) or nameof(GlassItemRow.Sqm2) or nameof(GlassItemRow.TotalSqm2) or nameof(GlassItemRow.Lm1) or nameof(GlassItemRow.Lm2) or nameof(GlassItemRow.Value))
                 RefreshFooter();
 
             // Auto-adjust rate based on SQM size
@@ -157,18 +181,28 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             OnPropertyChanged(nameof(FooterTotalQty));
             OnPropertyChanged(nameof(FooterTotalSqm));
             OnPropertyChanged(nameof(FooterTotalSqm2));
+            OnPropertyChanged(nameof(FooterTotalLm1));
+            OnPropertyChanged(nameof(FooterTotalLm2));
             OnPropertyChanged(nameof(FooterTotalValue));
         }
 
         private void AddNewRow()
         {
-            ItemRows.Add(new GlassItemRow { SerialNumber = ItemRows.Count + 1, GlassRef = "", Qty = 1, Rate = EffectiveRate });
+            var row = new GlassItemRow { SerialNumber = ItemRows.Count + 1, GlassRef = "", Qty = 1, Rate = EffectiveRate };
+            row.PerimeterFactor = SelectedGlassType == "LAM" ? 4 : 2;
+            ItemRows.Add(row);
         }
 
         private void RenumberRows()
         {
             for (int i = 0; i < ItemRows.Count; i++)
                 ItemRows[i].SerialNumber = i + 1;
+        }
+
+        private void UpdatePerimeterFactors()
+        {
+            int factor = SelectedGlassType == "LAM" ? 4 : 2;
+            foreach (var row in ItemRows) row.PerimeterFactor = factor;
         }
 
         private void UpdateAllRowRates()
