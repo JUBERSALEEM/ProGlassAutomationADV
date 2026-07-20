@@ -3,11 +3,104 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
              d:DesignHeight="500" d:DesignWidth="900"
              FontFamily="Segoe UI">
 
-    <!-- ============ LAM PARAMETERS PANEL PLACEHOLDER ============ -->
+    <UserControl.Resources>
+
+        <!-- Field Label — Green (LAM brand accent) -->
+        <Style x:Key="LamLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#22C55E"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+
+        <!-- Section Title — Green highlight -->
+        <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#22C55E"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+
+        <!-- Input TextBox Style — matches SGU/DGU compact style with green focus -->
+        <Style x:Key="DarkInputStyle" TargetType="TextBox">
+            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="SelectionBrush" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="InputBorder"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="6"
+                                BorderThickness="1.5"
+                                BorderBrush="{DynamicResource MenuHoverBrush}">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Focusable="False"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          VerticalScrollBarVisibility="Hidden"
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="Center"
+                                          Background="Transparent"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="InputBorder" Property="BorderBrush"
+                                        Value="{DynamicResource SecondaryForegroundBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="InputBorder" Property="BorderBrush" Value="#22C55E"/>
+                                <Setter TargetName="InputBorder" Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ComboBox Style — green focus -->
+        <Style x:Key="DarkComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                </Trigger>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                    <Setter Property="BorderBrush" Value="#22C55E"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Editable ComboBox Style — for Glass Color (dropdown + manual entry) -->
+        <Style x:Key="DarkEditableComboBoxStyle"
+               TargetType="ComboBox"
+               BasedOn="{StaticResource DarkComboBoxStyle}">
+            <Setter Property="IsEditable" Value="True"/>
+            <Setter Property="IsTextSearchEnabled" Value="True"/>
+        </Style>
+
+    </UserControl.Resources>
+
+    <!-- ============ LAM PARAMETERS PANEL ============ -->
     <Border Background="{DynamicResource ModuleBackgroundBrush}"
             CornerRadius="10"
             Padding="14"
@@ -16,17 +109,57 @@
             BorderBrush="{DynamicResource MenuHoverBrush}">
         <StackPanel>
 
-            <!-- Section Title — LAM brand color (green) -->
+            <!-- Section Title -->
             <TextBlock Text="LAMINATION ASSEMBLY (LAM) PARAMETERS"
-                       FontSize="11"
-                       FontWeight="Bold"
-                       Foreground="#22C55E"
-                       Margin="0,0,0,10"/>
+                       Style="{StaticResource SectionTitleStyle}"/>
 
-            <TextBlock Text="LAM parameter fields will be built step by step: Outer Glass → Inner Glass → PVB + Lamination Costs → Yield + Margin."
-                       FontSize="12"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                       TextWrapping="Wrap"/>
+            <!-- ============ ROW 1: Outer Thickness | Outer Color | Outer Treatment | Outer Base Price ============ -->
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Outer Glass Thickness -->
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="OUTER GLASS THK"
+                               Style="{StaticResource LamLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding ThicknessOptions}"
+                              SelectedItem="{Binding OuterThickness}"
+                              Style="{StaticResource DarkComboBoxStyle}"/>
+                </StackPanel>
+
+                <!-- Outer Glass Color -->
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="OUTER GLASS COLOR"
+                               Style="{StaticResource LamLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding ColorOptions}"
+                              Text="{Binding OuterGlassColor, UpdateSourceTrigger=PropertyChanged}"
+                              Style="{StaticResource DarkEditableComboBoxStyle}"/>
+                </StackPanel>
+
+                <!-- Outer Glass Treatment -->
+                <StackPanel Grid.Column="4">
+                    <TextBlock Text="OUTER GLASS TREATMENT"
+                               Style="{StaticResource LamLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding TreatmentOptions}"
+                              SelectedItem="{Binding OuterTreatment}"
+                              Style="{StaticResource DarkComboBoxStyle}"/>
+                </StackPanel>
+
+                <!-- Outer Base Price -->
+                <StackPanel Grid.Column="6">
+                    <TextBlock Text="OUTER BASE PRICE"
+                               Style="{StaticResource LamLabelStyle}"/>
+                    <TextBox Text="{Binding OuterBasePrice, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DarkInputStyle}"/>
+                </StackPanel>
+            </Grid>
 
         </StackPanel>
     </Border>
