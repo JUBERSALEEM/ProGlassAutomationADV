@@ -8,6 +8,7 @@
              xmlns:step3="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step3ClientProfile"
              xmlns:step4="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator"
              xmlns:step5="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step5DataGrid"
+             xmlns:step6="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges"
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="1400"
              FontFamily="Segoe UI">
@@ -246,7 +247,7 @@
                             </ContentControl.ContentTemplate>
                         </ContentControl>
 
-                        <!-- Step 4 View — THIS WAS MISSING! -->
+                        <!-- Step 4 View -->
                         <ContentControl Content="{Binding Step4VM}">
                             <ContentControl.Style>
                                 <Style TargetType="ContentControl">
@@ -284,7 +285,26 @@
                             </ContentControl.ContentTemplate>
                         </ContentControl>
 
-                        <!-- Steps 6-7 Placeholder -->
+                        <!-- Step 6 View  (NEW — Phase 7.11a) -->
+                        <ContentControl Content="{Binding Step6VM}">
+                            <ContentControl.Style>
+                                <Style TargetType="ContentControl">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding CurrentStepNumber}" Value="6">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ContentControl.Style>
+                            <ContentControl.ContentTemplate>
+                                <DataTemplate>
+                                    <step6:OtherChargesView/>
+                                </DataTemplate>
+                            </ContentControl.ContentTemplate>
+                        </ContentControl>
+
+                        <!-- Step 7 Placeholder (only Step 7 is not yet built) -->
                         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
                             <StackPanel.Style>
                                 <Style TargetType="StackPanel">
@@ -303,6 +323,9 @@
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding CurrentStepNumber}" Value="5">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding CurrentStepNumber}" Value="6">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                         </DataTrigger>
                                     </Style.Triggers>

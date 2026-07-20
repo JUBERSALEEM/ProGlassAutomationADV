@@ -68,6 +68,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         public Step4PricingEstimator.PricingEstimatorViewModel Step4VM { get; }
         public Step5DataGrid.DataGridViewModel Step5VM { get; }
 
+        // Phase 7.11a: Step 6 needs live access to Step 5's SpecGroups
+        // for the Metric Discovery Hub, so we pass Step5VM into its constructor.
+        public Step6OtherCharges.OtherChargesViewModel Step6VM { get; }
+
         // === Wizard Steps ===
         public ObservableCollection<WizardStep> WizardSteps { get; }
 
@@ -125,6 +129,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             Step3VM = new Step3ClientProfile.ClientProfileViewModel();
             Step4VM = new Step4PricingEstimator.PricingEstimatorViewModel();
             Step5VM = new Step5DataGrid.DataGridViewModel();
+
+            // Step 6 must be created AFTER Step5VM exists so it can subscribe to
+            // its live SpecGroups collection for Metric Discovery Hub aggregation.
+            Step6VM = new Step6OtherCharges.OtherChargesViewModel(Step5VM);
 
             WizardSteps = new ObservableCollection<WizardStep>
             {
