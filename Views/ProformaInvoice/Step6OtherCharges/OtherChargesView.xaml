@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:wastages="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges.Wastages"
              mc:Ignorable="d"
              d:DesignHeight="900" d:DesignWidth="1200"
              FontFamily="Segoe UI">
@@ -241,7 +242,7 @@
             </Border>
 
             <!-- ============================================================
-                 CHARGE ROWS
+                 CHARGE ROWS (Predefined: Argon, Silicon, Overlap, Shutter, Mitring, Polish, Cutout, Holes)
             ============================================================ -->
             <ItemsControl ItemsSource="{Binding ChargeRows}">
                 <ItemsControl.ItemTemplate>
@@ -410,11 +411,17 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
+            <!-- ============================================================
+                 PHASE 7.11c: GLASS WASTAGES SECTION
+                 (Multi-spec color aggregation with popup source picker)
+            ============================================================ -->
+            <wastages:WastagesSectionView DataContext="{Binding WastagesSection}"/>
+
             <!-- Phase status note -->
-            <Border Background="{DynamicResource MenuHoverBrush}" CornerRadius="6" Padding="12,8" Margin="0,16,0,0" HorizontalAlignment="Left">
+            <Border Background="{DynamicResource MenuHoverBrush}" CornerRadius="6" Padding="12,8" Margin="0,30,0,20" HorizontalAlignment="Left">
                 <TextBlock FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap">
-                    <Run FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">Phase 7.11b complete.</Run>
-                    <Run>Polish (with 5 sub-types + custom) and Cutout/Holes added. Wastages (color-aggregation) → Phase 7.11c. Custom manual charges → Phase 7.11d.</Run>
+                    <Run FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">Phase 7.11c complete.</Run>
+                    <Run>Argon, Silicon, Overlap, Shutter, Mitring, Polish, Cutouts, Holes, and Color-Aggregated Wastages implemented. Custom manual charges → Phase 7.11d.</Run>
                 </TextBlock>
             </Border>
 

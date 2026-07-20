@@ -1,0 +1,80 @@
+﻿using ProGlassAutomation.Commands;
+using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Windows.Input;
+
+namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastages
+{
+    public class WastagesSectionViewModel : ViewModelBase
+    {
+        private readonly DataGridViewModel _dataGrid;
+
+        public ObservableCollection<WastageRow> WastageRows { get; } = new();
+
+        private decimal _totalWastageValue;
+        public decimal TotalWastageValue
+        {
+            get => _totalWastageValue;
+            private set { if (_totalWastageValue == value) return; _totalWastageValue = value; OnPropertyChanged(); }
+        }
+
+        public ICommand AddWastageCommand { get; }
+        public ICommand RemoveWastageCommand { get; }
+
+        public WastagesSectionViewModel(DataGridViewModel dataGrid)
+        {
+            _dataGrid = dataGrid;
+            AddWastageCommand = new RelayCommand(_ => AddWastage());
+            RemoveWastageCommand = new RelayCommand(p => { if (p is WastageRow r) { WastageRows.Remove(r); RecalculateTotal(); } });
+        }
+
+        private void AddWastage()
+        {
+            var row = new WastageRow();
+            SyncSourcesForRow(row);
+            row.PropertyChanged += (s, e) => { if (e.PropertyName == nameof(WastageRow.ResultAmount) || e.PropertyName == nameof(WastageRow.IsActive)) RecalculateTotal(); };
+            WastageRows.Add(row);
+        }
+
+        public void SyncAllWastageSources()
+        {
+            foreach (var row in WastageRows) SyncSourcesForRow(row);
+            RecalculateTotal();
+        }
+
+        private void SyncSourcesForRow(WastageRow row)
+        {
+            var checkedIds = row.AvailableSources
+                .Where(s => s.IsChecked)
+                .Select(s => $"{s.SpecNumber}-{s.SideLabel}")
+                .ToList();
+
+            row.AvailableSources.Clear();
+
+            foreach (var group in _dataGrid.SpecGroups)
+            {
+                // Outer
+                var outer = new SpecGroupColorSide { SpecNumber = group.GroupNumber, SpecName = group.GroupName, SideLabel = "Outer (W1/H1)", SqmValue = group.FooterTotalSqm };
+                if (checkedIds.Contains($"{outer.SpecNumber}-{outer.SideLabel}")) outer.IsChecked = true;
+                row.AvailableSources.Add(outer);
+
+                // Inner (if DGU/LAM)
+                bool hasInner = group.SelectedGlassType != "SGU";
+                if (hasInner)
+                {
+                    var inner = new SpecGroupColorSide { SpecNumber = group.GroupNumber, SpecName = group.GroupName, SideLabel = "Inner (W2/H2)", SqmValue = group.FooterTotalSqm2 };
+                    if (checkedIds.Contains($"{inner.SpecNumber}-{inner.SideLabel}")) inner.IsChecked = true;
+                    row.AvailableSources.Add(inner);
+                }
+            }
+            row.ForceRefreshSqm();
+        }
+
+        private void RecalculateTotal()
+        {
+            TotalWastageValue = WastageRows.Where(r => r.IsActive).Sum(r => r.ResultAmount);
+        }
+    }
+}

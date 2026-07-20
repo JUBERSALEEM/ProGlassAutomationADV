@@ -1,6 +1,7 @@
 ﻿using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.ViewModels;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastages;
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
@@ -13,6 +14,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
     /// Main ViewModel for Step 6 (Other Charges).
     /// Owns predefined charge rows, wires them to live DataGrid metrics via GridSourceOption,
     /// computes Polish LM per sub-type by iterating raw spec-group rows,
+    /// manages the Glass Wastages sub-section (color-aggregated),
     /// and exposes the running Total Other Charges (excluding VAT/Discount).
     /// </summary>
     public class OtherChargesViewModel : ViewModelBase
@@ -30,6 +32,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
 
         /// <summary>Predefined charge rows (Argon, Silicon, Overlap, etc.).</summary>
         public ObservableCollection<OtherChargeRow> ChargeRows { get; } = new();
+
+        /// <summary>Phase 7.11c — Color-aggregated wastage rows section.</summary>
+        public WastagesSectionViewModel WastagesSection { get; }
 
         // ── Total ──────────────────────────────────────────────────────────
 
@@ -52,7 +57,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
             BuildSourcePool();
             BuildChargeRows();
 
-            // Subscribe to DataGrid changes for Polish recalculation
+            // Phase 7.11c: instantiate wastages sub-VM
+            WastagesSection = new WastagesSectionViewModel(_dataGridVM);
+            WastagesSection.PropertyChanged += OnWastagesSectionChanged;
+
+            // Subscribe to DataGrid changes for Polish recalculation + Wastage source sync
             _dataGridVM.SpecGroups.CollectionChanged += OnSpecGroupsCollectionChanged;
             foreach (var g in _dataGridVM.SpecGroups)
                 HookSpecGroup(g);
@@ -82,6 +91,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
         private void OnHubPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             SyncSourceValuesFromHub();
+
+            // Phase 7.11c: also refresh wastage sqm sources when metrics update
+            WastagesSection?.SyncAllWastageSources();
         }
 
         private void SyncSourceValuesFromHub()
@@ -197,6 +209,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
             }
         }
 
+        // ── Wastages section change tracking ───────────────────────────────
+
+        private void OnWastagesSectionChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(WastagesSectionViewModel.TotalWastageValue))
+            {
+                RecalculateTotal();
+            }
+        }
+
         // ── Polish LM calculation ──────────────────────────────────────────
 
         /// <summary>
@@ -280,6 +302,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                     HookSpecGroup(g);
 
             RecalculatePolishRows();
+
+            // Phase 7.11c: refresh wastage sources when spec groups added/removed
+            WastagesSection?.SyncAllWastageSources();
         }
 
         private void HookSpecGroup(SpecGroup group)
@@ -301,7 +326,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
         private void OnSpecGroupPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             if (e.PropertyName == nameof(SpecGroup.SelectedGlassType))
+            {
                 RecalculatePolishRows();
+                WastagesSection?.SyncAllWastageSources();
+            }
+
+            // Phase 7.11c: refresh wastage sources when footer totals change
+            if (e.PropertyName is nameof(SpecGroup.FooterTotalSqm)
+                or nameof(SpecGroup.FooterTotalSqm2)
+                or nameof(SpecGroup.GroupName))
+            {
+                WastagesSection?.SyncAllWastageSources();
+            }
         }
 
         private void OnItemRowsCollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -333,11 +369,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
 
         private void RecalculateTotal()
         {
-            decimal sum = 0m;
+            decimal predefinedSum = 0m;
             foreach (var row in ChargeRows)
-                if (row.IsActive) sum += row.ResultAmount;
+                if (row.IsActive) predefinedSum += row.ResultAmount;
 
-            TotalOtherCharges = Math.Round(sum, 2);
+            decimal wastageSum = WastagesSection?.TotalWastageValue ?? 0m;
+
+            TotalOtherCharges = Math.Round(predefinedSum + wastageSum, 2);
         }
     }
 }
