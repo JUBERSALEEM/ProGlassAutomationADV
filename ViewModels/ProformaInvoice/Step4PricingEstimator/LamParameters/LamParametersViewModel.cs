@@ -39,6 +39,36 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
             set { _outerBasePrice = value; OnPropertyChanged(); }
         }
 
+        // ===================== Row 2: Inner Glass =====================
+
+        private string _innerThickness;
+        public string InnerThickness
+        {
+            get => _innerThickness;
+            set { _innerThickness = value; OnPropertyChanged(); }
+        }
+
+        private string _innerGlassColor;
+        public string InnerGlassColor
+        {
+            get => _innerGlassColor;
+            set { _innerGlassColor = value; OnPropertyChanged(); }
+        }
+
+        private string _innerTreatment;
+        public string InnerTreatment
+        {
+            get => _innerTreatment;
+            set { _innerTreatment = value; OnPropertyChanged(); }
+        }
+
+        private decimal _innerBasePrice;
+        public decimal InnerBasePrice
+        {
+            get => _innerBasePrice;
+            set { _innerBasePrice = value; OnPropertyChanged(); }
+        }
+
         // ===================== Shared Dropdown Options =====================
 
         public List<string> ThicknessOptions { get; } = new()
@@ -75,7 +105,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
             OuterTreatment = "FT";
             OuterBasePrice = 46m;
 
-            // Rows 2, 3, 4 will be added in Sub-Phases 6.7c, 6.7d, 6.7e
+            // === Row 2 Defaults ===
+            InnerThickness = "6mm";
+            InnerGlassColor = "Clear";
+            InnerTreatment = "FT";
+            InnerBasePrice = 46m;
+
+            // Rows 3, 4 will be added in Sub-Phases 6.7d, 6.7e
         }
     }
 }
