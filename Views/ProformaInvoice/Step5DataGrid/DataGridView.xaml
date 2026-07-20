@@ -8,6 +8,68 @@
              d:DesignHeight="800" d:DesignWidth="900"
              FontFamily="Segoe UI">
 
+    <!-- ============ SHARED STYLES ============ -->
+    <UserControl.Resources>
+
+        <!-- Compact Input Style for Base Rate / Surcharge -->
+        <Style x:Key="CompactInputStyle" TargetType="TextBox">
+            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="8,0"/>
+            <Setter Property="Height" Value="28"/>
+            <Setter Property="Width" Value="60"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="HorizontalContentAlignment" Value="Center"/>
+            <Setter Property="CaretBrush" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="SelectionBrush" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="InputBorder"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="4"
+                                BorderThickness="1"
+                                BorderBrush="{DynamicResource MenuHoverBrush}">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Focusable="False"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          VerticalScrollBarVisibility="Hidden"
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="Center"
+                                          Background="Transparent"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="InputBorder" Property="BorderBrush"
+                                        Value="{DynamicResource SecondaryForegroundBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="InputBorder" Property="BorderBrush"
+                                        Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="InputBorder" Property="BorderThickness"
+                                        Value="1.5"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Field Label Style for Header -->
+        <Style x:Key="HeaderLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+        </Style>
+
+    </UserControl.Resources>
+
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled"
                   Padding="0,0,8,0">
@@ -96,11 +158,13 @@
                                 BorderBrush="{DynamicResource MenuHoverBrush}">
                             <StackPanel>
 
-                                <!-- Group Header Row -->
-                                <Grid Margin="0,0,0,8">
+                                <!-- ===== Group Header Row (Badge + Name + Base Rate + Surcharge + Delete) ===== -->
+                                <Grid Margin="0,0,0,10">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
 
@@ -125,10 +189,33 @@
                                                FontWeight="Bold"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                VerticalAlignment="Center"
-                                               Margin="12,0,0,0"/>
+                                               Margin="12,0,0,0"
+                                               TextTrimming="CharacterEllipsis"/>
 
-                                    <!-- Remove Button (only visible if more than 1 group) -->
-                                    <Button Grid.Column="2"
+                                    <!-- Base Rate -->
+                                    <StackPanel Grid.Column="2"
+                                                Orientation="Horizontal"
+                                                VerticalAlignment="Center"
+                                                Margin="0,0,14,0">
+                                        <TextBlock Text="BASE RATE:"
+                                                   Style="{StaticResource HeaderLabelStyle}"/>
+                                        <TextBox Text="{Binding BaseRate, StringFormat={}{0:0.##}}"
+                                                 Style="{StaticResource CompactInputStyle}"/>
+                                    </StackPanel>
+
+                                    <!-- Surcharge % -->
+                                    <StackPanel Grid.Column="3"
+                                                Orientation="Horizontal"
+                                                VerticalAlignment="Center"
+                                                Margin="0,0,10,0">
+                                        <TextBlock Text="SURCHARGE %:"
+                                                   Style="{StaticResource HeaderLabelStyle}"/>
+                                        <TextBox Text="{Binding SurchargePercent, StringFormat={}{0:0.##}}"
+                                                 Style="{StaticResource CompactInputStyle}"/>
+                                    </StackPanel>
+
+                                    <!-- Remove Button -->
+                                    <Button Grid.Column="4"
                                             Command="{Binding DataContext.RemoveSpecGroupCommand,
                                                       RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}"
@@ -160,16 +247,47 @@
                                     </Button>
                                 </Grid>
 
-                                <!-- Placeholder for group content -->
+                                <!-- Effective Rate Live Display -->
+                                <Border Background="#1622C55E"
+                                        CornerRadius="6"
+                                        Padding="10,6"
+                                        HorizontalAlignment="Left"
+                                        Margin="0,0,0,10">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Effective Rate:"
+                                                   FontSize="11"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,6,0"/>
+                                        <TextBlock Text="AED"
+                                                   FontSize="11"
+                                                   FontWeight="Bold"
+                                                   Foreground="#22C55E"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,4,0"/>
+                                        <TextBlock Text="{Binding EffectiveRate, StringFormat={}{0:N2}}"
+                                                   FontSize="12"
+                                                   FontWeight="Bold"
+                                                   Foreground="#22C55E"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Text=" / sqm"
+                                                   FontSize="10"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="4,0,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- Placeholder for upcoming glass specs + item rows -->
                                 <Border Background="{DynamicResource MenuHoverBrush}"
                                         CornerRadius="6"
                                         Padding="14,10">
                                     <StackPanel>
-                                        <TextBlock Text="✓ Spec Group card container ready"
+                                        <TextBlock Text="✓ Group header complete (Base Rate + Surcharge)"
                                                    FontSize="11"
                                                    FontWeight="SemiBold"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                        <TextBlock Text="Coming next: Header (Base Rate + Surcharge %) + Glass Specs + Item Rows"
+                                        <TextBlock Text="Coming next: Outer/Inner Glass Spec dropdowns + item rows table"
                                                    FontSize="10"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    Margin="0,4,0,0"/>

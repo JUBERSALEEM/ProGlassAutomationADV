@@ -20,8 +20,40 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             set { _groupName = value; OnPropertyChanged(); }
         }
 
-        // Item rows, glass specs, base rate, surcharge etc. will be added
-        // in Sub-Phases 7.3 through 7.11
+        // === Header Info: Base Rate + Surcharge % ===
+
+        private decimal _baseRate;
+        public decimal BaseRate
+        {
+            get => _baseRate;
+            set
+            {
+                _baseRate = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(EffectiveRate));
+            }
+        }
+
+        private decimal _surchargePercent;
+        public decimal SurchargePercent
+        {
+            get => _surchargePercent;
+            set
+            {
+                _surchargePercent = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(EffectiveRate));
+            }
+        }
+
+        /// <summary>
+        /// Auto-calculated final rate per SQM after applying surcharge.
+        /// Formula: EffectiveRate = BaseRate * (1 + SurchargePercent / 100)
+        /// Example: BaseRate=150, Surcharge=20% -> EffectiveRate = 180.00
+        /// </summary>
+        public decimal EffectiveRate => System.Math.Round(BaseRate * (1m + (SurchargePercent / 100m)), 2);
+
+        // Item rows, glass specs will be added in Sub-Phases 7.4 through 7.11
     }
 
     /// <summary>
@@ -76,7 +108,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             var newGroup = new SpecGroup
             {
                 GroupNumber = SpecGroups.Count + 1,
-                GroupName = $"Spec Group {SpecGroups.Count + 1}"
+                GroupName = $"Spec Group {SpecGroups.Count + 1}",
+                BaseRate = 150m,         // Sensible default (matches screenshot)
+                SurchargePercent = 0m    // No surcharge by default
             };
             SpecGroups.Add(newGroup);
         }
