@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:summary="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step5DataGrid.GrandTotalSummary"
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="900"
              FontFamily="Segoe UI">
@@ -281,9 +282,7 @@
             </Setter>
         </Style>
 
-        <!-- ==========================================
-             VIRTUALIZED ROW ITEM STYLE FOR LISTVIEW
-             ========================================== -->
+        <!-- VIRTUALIZED ROW ITEM STYLE FOR LISTVIEW -->
         <Style x:Key="VirtualizedRowContainerStyle" TargetType="ListViewItem">
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Padding" Value="0"/>
@@ -474,7 +473,7 @@
                                     </StackPanel>
                                 </Grid>
 
-                                <!-- ===== GLASS PANEL ITEMS TABLE ===== -->
+                                <!-- GLASS PANEL ITEMS TABLE -->
                                 <Border Background="{DynamicResource WindowBackgroundBrush}"
                                         CornerRadius="6" Padding="10"
                                         BorderThickness="1.5"
@@ -558,9 +557,7 @@
                                             </Grid>
                                         </Border>
 
-                                        <!-- =========================================
-                                             VIRTUALIZED LISTVIEW — handles 1000+ rows
-                                             ========================================= -->
+                                        <!-- VIRTUALIZED LISTVIEW -->
                                         <ListView
                                             ItemsSource="{Binding ItemRows}"
                                             ItemContainerStyle="{StaticResource VirtualizedRowContainerStyle}"
@@ -846,6 +843,14 @@
                     </ControlTemplate>
                 </Button.Template>
             </Button>
+
+            <!-- ============================================================
+                 PHASE 7.10d: Grand Total Summary (per-spec rollup + grand)
+                 Read-only. Does NOT include Other Charges / Discount / VAT.
+                 Those live in Phase 7.12 Invoice Main Summary.
+            ============================================================ -->
+            <summary:GrandTotalSummaryView DataContext="{Binding SummaryViewModel}"
+                                           Margin="0,6,0,0"/>
 
         </StackPanel>
     </ScrollViewer>

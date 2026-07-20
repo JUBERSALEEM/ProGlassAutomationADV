@@ -1,0 +1,243 @@
+﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step5DataGrid.GrandTotalSummary.GrandTotalSummaryView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="300" d:DesignWidth="900"
+             FontFamily="Segoe UI">
+
+    <UserControl.Resources>
+        <Style x:Key="ColHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="RowCellStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="GrandCellStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Border Background="{DynamicResource ModuleBackgroundBrush}"
+            CornerRadius="10"
+            Padding="20"
+            Margin="0,16,0,0"
+            BorderThickness="1.5"
+            BorderBrush="{DynamicResource AccentBrush}">
+
+        <StackPanel>
+
+            <!-- Header -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                <Border Background="{DynamicResource AccentBrush}"
+                        Width="30" Height="30" CornerRadius="6"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="&#128200;"
+                               FontSize="15" Foreground="White"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="GRAND TOTAL SUMMARY"
+                               FontSize="14" FontWeight="Bold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    <TextBlock Text="Per-spec breakdown and datagrid grand totals"
+                               FontSize="10"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Margin="0,2,0,0"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center"
+                            Margin="20,0,0,0">
+                    <TextBlock Text="Spec Groups:"
+                               FontSize="11" FontWeight="Bold"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <Border Background="{DynamicResource AccentBrush}"
+                            CornerRadius="6" Padding="10,3" MinWidth="36">
+                        <TextBlock Text="{Binding TotalSpecGroups}"
+                                   FontSize="13" FontWeight="Bold"
+                                   Foreground="White"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                </StackPanel>
+            </StackPanel>
+
+            <Border Background="{DynamicResource MenuHoverBrush}" Height="1" Margin="0,0,0,12"/>
+
+            <!-- Column Headers -->
+            <Grid Margin="0,0,0,6">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="40"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="90"/>
+                    <ColumnDefinition Width="110"/>
+                    <ColumnDefinition Width="110"/>
+                    <ColumnDefinition Width="140"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="#"        Style="{StaticResource ColHeaderStyle}"/>
+                <TextBlock Grid.Column="1" Text="SPEC GROUP" Style="{StaticResource ColHeaderStyle}"/>
+                <TextBlock Grid.Column="2" Text="QTY"      Style="{StaticResource ColHeaderStyle}" HorizontalAlignment="Right"/>
+                <TextBlock Grid.Column="3" Text="TOTAL SQM" Style="{StaticResource ColHeaderStyle}" HorizontalAlignment="Right"/>
+                <TextBlock Grid.Column="4" Text="TOTAL LM"  Style="{StaticResource ColHeaderStyle}" HorizontalAlignment="Right"/>
+                <TextBlock Grid.Column="5" Text="VALUE (AED)" Style="{StaticResource ColHeaderStyle}" HorizontalAlignment="Right"/>
+            </Grid>
+
+            <!-- Per-Spec-Group Rows -->
+            <ItemsControl ItemsSource="{Binding SummaryRows}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Padding="0,8"
+                                BorderThickness="0,0,0,1"
+                                BorderBrush="{DynamicResource MenuHoverBrush}"
+                                Margin="0,0,0,2">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="40"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="90"/>
+                                    <ColumnDefinition Width="110"/>
+                                    <ColumnDefinition Width="110"/>
+                                    <ColumnDefinition Width="140"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- # badge -->
+                                <Border Grid.Column="0"
+                                        Background="{DynamicResource AccentBrush}"
+                                        Width="26" Height="26" CornerRadius="6"
+                                        HorizontalAlignment="Left"
+                                        VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding GroupNumber}"
+                                               FontSize="12" FontWeight="Bold"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding DisplayLabel}"
+                                           Style="{StaticResource RowCellStyle}"
+                                           TextTrimming="CharacterEllipsis"
+                                           Margin="6,0,0,0"/>
+
+                                <TextBlock Grid.Column="2"
+                                           Text="{Binding TotalQty, StringFormat={}{0} pcs}"
+                                           Style="{StaticResource RowCellStyle}"
+                                           HorizontalAlignment="Right"/>
+
+                                <TextBlock Grid.Column="3"
+                                           Text="{Binding TotalSqm, StringFormat={}{0:0.000} sqm}"
+                                           Style="{StaticResource RowCellStyle}"
+                                           HorizontalAlignment="Right"
+                                           Foreground="#3B82F6"/>
+
+                                <TextBlock Grid.Column="4"
+                                           Text="{Binding TotalLm, StringFormat={}{0:0.00} lm}"
+                                           Style="{StaticResource RowCellStyle}"
+                                           HorizontalAlignment="Right"
+                                           Foreground="#A855F7"/>
+
+                                <TextBlock Grid.Column="5"
+                                           Text="{Binding TotalValue, StringFormat=AED {0:N2}}"
+                                           Style="{StaticResource RowCellStyle}"
+                                           HorizontalAlignment="Right"
+                                           Foreground="#22C55E"
+                                           FontWeight="Bold"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- Grand Total Row -->
+            <Border Background="{DynamicResource AccentBrush}"
+                    CornerRadius="6"
+                    Padding="8,12"
+                    Margin="0,10,0,0">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="40"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="90"/>
+                        <ColumnDefinition Width="110"/>
+                        <ColumnDefinition Width="110"/>
+                        <ColumnDefinition Width="140"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0"
+                               Text="&#127942;"
+                               FontSize="16"
+                               Foreground="White"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+
+                    <TextBlock Grid.Column="1"
+                               Text="GRAND TOTAL"
+                               FontSize="13"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               VerticalAlignment="Center"
+                               Margin="6,0,0,0"/>
+
+                    <TextBlock Grid.Column="2"
+                               Text="{Binding GrandTotalQty, StringFormat={}{0} pcs}"
+                               Style="{StaticResource GrandCellStyle}"
+                               Foreground="White"
+                               HorizontalAlignment="Right"/>
+
+                    <TextBlock Grid.Column="3"
+                               Text="{Binding GrandTotalSqm, StringFormat={}{0:0.000} sqm}"
+                               Style="{StaticResource GrandCellStyle}"
+                               Foreground="White"
+                               HorizontalAlignment="Right"/>
+
+                    <TextBlock Grid.Column="4"
+                               Text="{Binding GrandTotalLm, StringFormat={}{0:0.00} lm}"
+                               Style="{StaticResource GrandCellStyle}"
+                               Foreground="White"
+                               HorizontalAlignment="Right"/>
+
+                    <TextBlock Grid.Column="5"
+                               Text="{Binding GrandTotalValue, StringFormat=AED {0:N2}}"
+                               FontSize="14"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               HorizontalAlignment="Right"
+                               VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
+
+            <!-- Empty State -->
+            <TextBlock Text="No spec groups yet. Add a spec group above to see totals here."
+                       FontSize="11" FontStyle="Italic"
+                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       HorizontalAlignment="Center"
+                       Margin="0,14,0,4">
+                <TextBlock.Style>
+                    <Style TargetType="TextBlock">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding TotalSpecGroups}" Value="0">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </TextBlock.Style>
+            </TextBlock>
+
+        </StackPanel>
+    </Border>
+</UserControl>

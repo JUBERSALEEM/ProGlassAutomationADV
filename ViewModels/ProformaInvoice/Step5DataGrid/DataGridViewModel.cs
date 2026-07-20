@@ -1,6 +1,7 @@
 ﻿using ProGlassAutomation.Behaviors;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.Specifications;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid.GrandTotalSummary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -228,7 +229,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
     public class SpecGroup : ViewModelBase, IExcelPasteable
     {
-        public int GroupNumber { get; set; }
+        private int _groupNumber;
+        public int GroupNumber
+        {
+            get => _groupNumber;
+            set { if (_groupNumber == value) return; _groupNumber = value; OnPropertyChanged(); }
+        }
 
         private string _groupName = "";
         public string GroupName
@@ -489,7 +495,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
             int factor = _selectedGlassType == "LAM" ? 4 : 2;
 
-            // ── Phase 1: Parse all lines into raw data tuples (pure CPU) ─────
             var parsed = new List<(string glassRef, int w1, int h1, int w2, int h2, int qty)>(lines.Length);
 
             foreach (var line in lines)
@@ -523,20 +528,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 return;
             }
 
-            // ── Phase 2: Determine paste start position ──────────────────────
-            // If focused row is an existing EMPTY row → start there (overwrite it and continue)
-            // If focused row is a filled row OR no context → append at end
             int startIdx = -1;
             if (startRowContext is GlassItemRow anchorRow)
             {
                 int anchorIdx = ItemRows.IndexOf(anchorRow);
                 if (anchorIdx >= 0 && anchorRow.IsEmpty)
-                {
                     startIdx = anchorIdx;
-                }
             }
 
-            // ── Phase 3: Bulk apply — reuse existing empty rows, add new for the rest ──
             _isBulkAdding = true;
             var touchedRows = new List<GlassItemRow>(parsed.Count);
 
@@ -544,7 +543,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             {
                 int parsedIdx = 0;
 
-                // 3a) Overwrite starting from startIdx (if valid) into existing rows
                 if (startIdx >= 0)
                 {
                     for (int i = startIdx; i < ItemRows.Count && parsedIdx < parsed.Count; i++)
@@ -552,10 +550,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                         var (glassRef, w1, h1, w2, h2, qty) = parsed[parsedIdx];
                         var existingRow = ItemRows[i];
 
-                        // First silent set to compute Sqm1
                         existingRow.SetAllSilent(glassRef, w1, h1, w2, h2, qty, factor, EffectiveRate);
-
-                        // Adjust rate based on Sqm1
                         decimal correctRate = existingRow.Sqm1 >= 4m ? EffectiveRate : BaseRate;
                         if (existingRow.Rate != correctRate)
                             existingRow.SetAllSilent(glassRef, w1, h1, w2, h2, qty, factor, correctRate);
@@ -565,7 +560,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     }
                 }
 
-                // 3b) Any remaining parsed lines are appended as NEW rows
                 while (parsedIdx < parsed.Count)
                 {
                     var (glassRef, w1, h1, w2, h2, qty) = parsed[parsedIdx];
@@ -586,16 +580,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 _isBulkAdding = false;
             }
 
-            // ── Phase 4: Deferred updates ────────────────────────────────────
             TotalRows = ItemRows.Count;
             RenumberRows();
             RecalculateFooter();
 
-            // Notify UI for all touched rows
             foreach (var row in touchedRows)
                 row.FireAllChanged();
 
-            // ── Phase 5: Non-blocking success feedback ───────────────────────
             System.Windows.Application.Current?.Dispatcher.BeginInvoke(
                 new Action(() =>
                 {
@@ -612,7 +603,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         {
             if (!System.Windows.Clipboard.ContainsText()) return;
 
-            // Context menu paste → try to start at first empty row if exists, else append
             GlassItemRow firstEmpty = null;
             foreach (var r in ItemRows)
             {
@@ -674,6 +664,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         public ICommand AddSpecGroupCommand { get; }
         public ICommand RemoveSpecGroupCommand { get; }
 
+        /// <summary>
+        /// Phase 7.10d: Read-only per-spec rollup + grand total across all spec groups.
+        /// </summary>
+        public GrandTotalSummaryViewModel SummaryViewModel { get; }
+
         public DataGridViewModel()
         {
             SpecGroups = new();
@@ -688,6 +683,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     RenumberGroups();
                 }
             });
+
+            // Wire the summary AFTER initial spec group exists
+            SummaryViewModel = new GrandTotalSummaryViewModel(SpecGroups);
         }
 
         private void AddNewSpecGroup()
