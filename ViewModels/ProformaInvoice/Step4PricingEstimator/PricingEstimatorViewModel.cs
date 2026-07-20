@@ -148,6 +148,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             // Subscribe to parameter changes to auto-recalculate rate
             SguVM.PropertyChanged += OnSguParametersChanged;
             DguVM.PropertyChanged += OnDguParametersChanged;
+            LamVM.PropertyChanged += OnLamParametersChanged;
 
             // Seed 4 glass type options
             GlassTypes = new ObservableCollection<GlassTypeCard>
@@ -272,6 +273,25 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             }
         }
 
+        private void OnLamParametersChanged(object sender, PropertyChangedEventArgs e)
+        {
+            switch (e.PropertyName)
+            {
+                case nameof(LamParameters.LamParametersViewModel.OuterBasePrice):
+                case nameof(LamParameters.LamParametersViewModel.InnerBasePrice):
+                case nameof(LamParameters.LamParametersViewModel.PvbMaterialRate):
+                case nameof(LamParameters.LamParametersViewModel.OuterCuttingCost):
+                case nameof(LamParameters.LamParametersViewModel.InnerCuttingCost):
+                case nameof(LamParameters.LamParametersViewModel.OuterTemperingCost):
+                case nameof(LamParameters.LamParametersViewModel.InnerTemperingCost):
+                case nameof(LamParameters.LamParametersViewModel.YieldFactor):
+                case nameof(LamParameters.LamParametersViewModel.MarginProfitPercent):
+                    if (SelectedGlassType?.Code == "LAM")
+                        RecalculateEstimatedRate();
+                    break;
+            }
+        }
+
         private void RecalculateEstimatedRate()
         {
             if (SelectedGlassType == null)
@@ -291,8 +311,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                     break;
 
                 case "LAM":
-                    // TODO: Wire when Phase 6.7 LAM calculation is built
-                    EstimatedRatePerSqm = 0m;
+                    EstimatedRatePerSqm = CalculateLamRate();
                     break;
 
                 case "DGU+LAM":
@@ -368,6 +387,51 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             decimal step4 = step3 * (1m + (marginPercent / 100m));    // 150.51
 
             return Math.Round(step4, 2);
+        }
+
+        /// <summary>
+        /// LAM (Laminated Assembly) pricing formula:
+        ///   Step 1: Glass Cost = Outer Price + Inner Price
+        ///   Step 2: Base Cost  = Glass Cost / Yield Factor  (yield applies to raw glass ONLY)
+        ///   Step 3: + PVB      = Base Cost + PVB Material Rate
+        ///   Step 4: + Cutting  = + Outer Cutting + Inner Cutting
+        ///   Step 5: + Tempering= + Outer Tempering + Inner Tempering
+        ///   Step 6: * (1 + Margin/100)
+        ///
+        /// Example: Outer=25, Inner=25, PVB=110, OCut=5, ICut=5,
+        ///          OTemp=10, ITemp=10, Yield=0.85, Margin=15%
+        ///   25 + 25                       = 50
+        ///   50 / 0.85                     = 58.82
+        ///   58.82 + 110                   = 168.82
+        ///   168.82 + 5 + 5                = 178.82
+        ///   178.82 + 10 + 10              = 198.82
+        ///   198.82 * 1.15                 = 228.65  ← rate/sqm
+        /// </summary>
+        private decimal CalculateLamRate()
+        {
+            var vm = LamVM;
+
+            decimal outerPrice = vm.OuterBasePrice;
+            decimal innerPrice = vm.InnerBasePrice;
+            decimal pvbRate = vm.PvbMaterialRate;
+            decimal outerCutting = vm.OuterCuttingCost;
+            decimal innerCutting = vm.InnerCuttingCost;
+            decimal outerTempering = vm.OuterTemperingCost;
+            decimal innerTempering = vm.InnerTemperingCost;
+            decimal yieldFactor = vm.YieldFactor;
+            decimal marginPercent = vm.MarginProfitPercent;
+
+            if (yieldFactor <= 0m)
+                yieldFactor = 1m;
+
+            decimal step1 = outerPrice + innerPrice;                              // 50
+            decimal step2 = step1 / yieldFactor;                                  // 58.82
+            decimal step3 = step2 + pvbRate;                                      // 168.82
+            decimal step4 = step3 + outerCutting + innerCutting;                  // 178.82
+            decimal step5 = step4 + outerTempering + innerTempering;              // 198.82
+            decimal step6 = step5 * (1m + (marginPercent / 100m));                // 228.65
+
+            return Math.Round(step6, 2);
         }
     }
 }
