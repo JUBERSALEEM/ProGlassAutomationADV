@@ -1,5 +1,29 @@
-﻿namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
+﻿using ProGlassAutomation.Commands;
+using System.Collections.ObjectModel;
+using System.Windows.Input;
+
+namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 {
+    /// <summary>
+    /// Represents a single specification group in the data grid.
+    /// Each group will contain multiple item rows (glass panels)
+    /// with dimensions, quantities, rates, and values.
+    /// </summary>
+    public class SpecGroup : ViewModelBase
+    {
+        public int GroupNumber { get; set; }
+
+        private string _groupName;
+        public string GroupName
+        {
+            get => _groupName;
+            set { _groupName = value; OnPropertyChanged(); }
+        }
+
+        // Item rows, glass specs, base rate, surcharge etc. will be added
+        // in Sub-Phases 7.3 through 7.11
+    }
+
     /// <summary>
     /// ViewModel for Step 5 of the Proforma Invoice wizard.
     /// Handles the data grid where users add glass panel line items.
@@ -13,21 +37,61 @@
         public string Title { get; } = "SPECIFICATION SUB-GROUPS";
         public string Subtitle { get; } = "Specify the number of unique glass specifications in this proforma.";
 
-        // === Total Groups Counter (will grow as user adds spec groups) ===
-        private int _totalSpecGroups;
-        public int TotalSpecGroups
-        {
-            get => _totalSpecGroups;
-            set { _totalSpecGroups = value; OnPropertyChanged(); }
-        }
+        // === Spec Groups Collection ===
+        public ObservableCollection<SpecGroup> SpecGroups { get; }
+
+        // === Total Groups Counter (auto-updates from collection) ===
+        public int TotalSpecGroups => SpecGroups?.Count ?? 0;
+
+        // === Commands ===
+        public ICommand AddSpecGroupCommand { get; }
+        public ICommand RemoveSpecGroupCommand { get; }
 
         public DataGridViewModel()
         {
-            // Start with 1 spec group (like the screenshot)
-            TotalSpecGroups = 1;
+            SpecGroups = new ObservableCollection<SpecGroup>();
 
-            // Spec groups collection, item rows, calculations will be added
-            // in sub-phases 7.2 through 7.12
+            // Auto-update TotalSpecGroups when collection changes
+            SpecGroups.CollectionChanged += (s, e) => OnPropertyChanged(nameof(TotalSpecGroups));
+
+            // Seed with 1 default spec group (like the screenshot)
+            AddNewSpecGroup();
+
+            // Command: Add new spec group
+            AddSpecGroupCommand = new RelayCommand(_ => AddNewSpecGroup());
+
+            // Command: Remove a spec group
+            RemoveSpecGroupCommand = new RelayCommand(param =>
+            {
+                if (param is SpecGroup group && SpecGroups.Count > 1)
+                {
+                    SpecGroups.Remove(group);
+                    RenumberGroups();
+                }
+            });
+        }
+
+        private void AddNewSpecGroup()
+        {
+            var newGroup = new SpecGroup
+            {
+                GroupNumber = SpecGroups.Count + 1,
+                GroupName = $"Spec Group {SpecGroups.Count + 1}"
+            };
+            SpecGroups.Add(newGroup);
+        }
+
+        private void RenumberGroups()
+        {
+            for (int i = 0; i < SpecGroups.Count; i++)
+            {
+                SpecGroups[i].GroupNumber = i + 1;
+                // Only auto-rename if name matches default pattern
+                if (SpecGroups[i].GroupName?.StartsWith("Spec Group ") == true)
+                {
+                    SpecGroups[i].GroupName = $"Spec Group {i + 1}";
+                }
+            }
         }
     }
 }

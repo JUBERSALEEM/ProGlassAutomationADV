@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
-             d:DesignHeight="700" d:DesignWidth="900"
+             d:DesignHeight="800" d:DesignWidth="900"
              FontFamily="Segoe UI">
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
@@ -82,28 +82,146 @@
                 </StackPanel>
             </Grid>
 
-            <!-- ============ SPEC GROUPS CONTAINER (coming in Sub-Phase 7.2) ============ -->
-            <Border Background="{DynamicResource MenuHoverBrush}"
-                    CornerRadius="8"
-                    Padding="20,14"
-                    Margin="0,10,0,0">
-                <StackPanel>
-                    <TextBlock Text="✓ Step 5 shell + header complete"
-                               FontSize="12"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock Text="Coming next: Sub-Phase 7.2 — Spec Group card container"
-                               FontSize="11"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               Margin="0,4,0,0"/>
-                    <TextBlock Text="Item row columns will be: SR | Glass Ref | W1 | H1 | W2 | H2 | Qty | SQM | Total SQM | Rate | Value"
-                               FontSize="10"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               Margin="0,6,0,0"
-                               TextWrapping="Wrap"
-                               FontStyle="Italic"/>
-                </StackPanel>
-            </Border>
+            <!-- ============ SPEC GROUPS LIST ============ -->
+            <ItemsControl ItemsSource="{Binding SpecGroups}"
+                          Margin="0,0,0,12">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <!-- Each Spec Group Card -->
+                        <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                                CornerRadius="10"
+                                Padding="16"
+                                Margin="0,0,0,10"
+                                BorderThickness="1.5"
+                                BorderBrush="{DynamicResource MenuHoverBrush}">
+                            <StackPanel>
+
+                                <!-- Group Header Row -->
+                                <Grid Margin="0,0,0,8">
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- Numbered Badge -->
+                                    <Border Grid.Column="0"
+                                            Background="{DynamicResource AccentBrush}"
+                                            Width="28" Height="28"
+                                            CornerRadius="6"
+                                            VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding GroupNumber}"
+                                                   FontSize="14"
+                                                   FontWeight="Bold"
+                                                   Foreground="White"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                    </Border>
+
+                                    <!-- Group Name -->
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding GroupName}"
+                                               FontSize="13"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               VerticalAlignment="Center"
+                                               Margin="12,0,0,0"/>
+
+                                    <!-- Remove Button (only visible if more than 1 group) -->
+                                    <Button Grid.Column="2"
+                                            Command="{Binding DataContext.RemoveSpecGroupCommand,
+                                                      RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            Padding="0"
+                                            Cursor="Hand"
+                                            ToolTip="Remove this spec group">
+                                        <Button.Template>
+                                            <ControlTemplate TargetType="Button">
+                                                <Border x:Name="RemoveBorder"
+                                                        Background="Transparent"
+                                                        CornerRadius="6"
+                                                        Padding="8,6">
+                                                    <TextBlock Text="&#128465;"
+                                                               FontSize="14"
+                                                               Foreground="#EF4444"
+                                                               VerticalAlignment="Center"/>
+                                                </Border>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="RemoveBorder"
+                                                                Property="Background"
+                                                                Value="#22EF4444"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Button.Template>
+                                    </Button>
+                                </Grid>
+
+                                <!-- Placeholder for group content -->
+                                <Border Background="{DynamicResource MenuHoverBrush}"
+                                        CornerRadius="6"
+                                        Padding="14,10">
+                                    <StackPanel>
+                                        <TextBlock Text="✓ Spec Group card container ready"
+                                                   FontSize="11"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                        <TextBlock Text="Coming next: Header (Base Rate + Surcharge %) + Glass Specs + Item Rows"
+                                                   FontSize="10"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   Margin="0,4,0,0"/>
+                                    </StackPanel>
+                                </Border>
+
+                            </StackPanel>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- ============ ADD NEW SPEC GROUP BUTTON ============ -->
+            <Button Command="{Binding AddSpecGroupCommand}"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Padding="0"
+                    Margin="0,4,0,0"
+                    Cursor="Hand"
+                    HorizontalAlignment="Left">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="AddBorder"
+                                Background="{DynamicResource ModuleBackgroundBrush}"
+                                CornerRadius="8"
+                                Padding="16,10"
+                                BorderThickness="1.5"
+                                BorderBrush="{DynamicResource AccentBrush}">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="+"
+                                           FontSize="16"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,8,0"/>
+                                <TextBlock Text="ADD NEW SPEC GROUP"
+                                           FontSize="11"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="AddBorder" Property="Background"
+                                        Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="AddBorder" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
 
         </StackPanel>
     </ScrollViewer>
