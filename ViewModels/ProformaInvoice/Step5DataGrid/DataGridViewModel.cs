@@ -1,5 +1,8 @@
 ﻿using ProGlassAutomation.Commands;
+using ProGlassAutomation.Models.ProformaInvoice.Specifications;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
@@ -46,14 +49,90 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
         }
 
-        /// <summary>
-        /// Auto-calculated final rate per SQM after applying surcharge.
-        /// Formula: EffectiveRate = BaseRate * (1 + SurchargePercent / 100)
-        /// Example: BaseRate=150, Surcharge=20% -> EffectiveRate = 180.00
-        /// </summary>
         public decimal EffectiveRate => System.Math.Round(BaseRate * (1m + (SurchargePercent / 100m)), 2);
 
-        // Item rows, glass specs will be added in Sub-Phases 7.4 through 7.11
+        // === Glass Type + Specification Selection ===
+
+        /// <summary>
+        /// Selected glass type (SGU / DGU / LAM / DGU+LAM).
+        /// When changed, the Specification dropdown filters and reloads.
+        /// </summary>
+        private string _selectedGlassType;
+        public string SelectedGlassType
+        {
+            get => _selectedGlassType;
+            set
+            {
+                _selectedGlassType = value;
+                OnPropertyChanged();
+
+                // Reload specs filtered by new glass type
+                LoadFilteredSpecs();
+            }
+        }
+
+        /// <summary>
+        /// User can type manually OR pick from dropdown.
+        /// Selecting from dropdown auto-fills BaseRate.
+        /// </summary>
+        private string _selectedSpecName;
+        public string SelectedSpecName
+        {
+            get => _selectedSpecName;
+            set
+            {
+                _selectedSpecName = value;
+                OnPropertyChanged();
+
+                // Auto-fill BaseRate from matching spec
+                TryAutoFillRate();
+            }
+        }
+
+        // === Filtered Specs List (loaded from DB) ===
+        public ObservableCollection<SavedSpecification> FilteredSpecs { get; }
+            = new ObservableCollection<SavedSpecification>();
+
+        /// <summary>
+        /// Loads specs from specifications.db, filtered by SelectedGlassType.
+        /// Sorted by UsageCount DESC, then LastUsedAt DESC.
+        /// </summary>
+        public async void LoadFilteredSpecs()
+        {
+            FilteredSpecs.Clear();
+
+            if (string.IsNullOrWhiteSpace(SelectedGlassType) || App.Specs == null)
+                return;
+
+            try
+            {
+                var specs = await App.Specs.GetAllAsync(SelectedGlassType);
+                foreach (var s in specs)
+                    FilteredSpecs.Add(s);
+            }
+            catch
+            {
+                // Silently fail if DB not accessible; user can still type manually
+            }
+        }
+
+        /// <summary>
+        /// When user picks a spec from dropdown, auto-fill the Base Rate.
+        /// If user typed a custom spec name (not in list), no rate change.
+        /// </summary>
+        private void TryAutoFillRate()
+        {
+            if (string.IsNullOrWhiteSpace(SelectedSpecName) || FilteredSpecs == null)
+                return;
+
+            var match = FilteredSpecs.FirstOrDefault(s =>
+                string.Equals(s.SpecName, SelectedSpecName, System.StringComparison.OrdinalIgnoreCase));
+
+            if (match != null)
+            {
+                BaseRate = match.PricePerSqm;
+            }
+        }
     }
 
     /// <summary>
@@ -68,6 +147,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         // === Header Info ===
         public string Title { get; } = "SPECIFICATION SUB-GROUPS";
         public string Subtitle { get; } = "Specify the number of unique glass specifications in this proforma.";
+
+        // === Glass Type Options (shared across all spec groups) ===
+        public List<string> GlassTypeOptions { get; } = new List<string>
+        {
+            "SGU",
+            "DGU",
+            "LAM",
+            "DGU+LAM"
+        };
 
         // === Spec Groups Collection ===
         public ObservableCollection<SpecGroup> SpecGroups { get; }
@@ -109,8 +197,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             {
                 GroupNumber = SpecGroups.Count + 1,
                 GroupName = $"Spec Group {SpecGroups.Count + 1}",
-                BaseRate = 150m,         // Sensible default (matches screenshot)
-                SurchargePercent = 0m    // No surcharge by default
+                BaseRate = 150m,
+                SurchargePercent = 0m,
+                SelectedGlassType = "SGU"   // Default to SGU (triggers spec load)
             };
             SpecGroups.Add(newGroup);
         }
@@ -120,7 +209,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             for (int i = 0; i < SpecGroups.Count; i++)
             {
                 SpecGroups[i].GroupNumber = i + 1;
-                // Only auto-rename if name matches default pattern
                 if (SpecGroups[i].GroupName?.StartsWith("Spec Group ") == true)
                 {
                     SpecGroups[i].GroupName = $"Spec Group {i + 1}";

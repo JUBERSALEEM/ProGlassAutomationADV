@@ -1,4 +1,5 @@
 ﻿using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
@@ -48,6 +49,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
     /// Handles the Smart Pricing Estimator: glass type selection,
     /// per-glass-type parameter panels, processing treatments,
     /// spec target groups, and live rate calculation.
+    /// APPLY button saves the current spec to specifications.db.
     /// </summary>
     public class PricingEstimatorViewModel : ViewModelBase
     {
@@ -215,19 +217,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 }
             });
 
+            // APPLY button: saves the current spec + rate to specifications.db
             ApplyRateCommand = new RelayCommand(
-                _ =>
-                {
-                    var selectedCount = SpecGroups.Count(g => g.IsSelected);
-                    var glassType = SelectedGlassType?.Code ?? "N/A";
-                    MessageBox.Show(
-                        $"Applying {glassType} rate to {selectedCount} spec group(s):\n\n" +
-                        $"Rate: AED {EstimatedRatePerSqm:N2} / sqm\n\n" +
-                        $"(Full push to Step 5 grid will be wired when Step 5 is built.)",
-                        "Rate Applied",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
-                },
+                async _ => await ApplyRateAsync(),
                 _ => TotalSpecsActive > 0 && EstimatedRatePerSqm > 0m);
 
             // Default selection = SGU
@@ -241,6 +233,89 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
 
             // Initial calc
             RecalculateEstimatedRate();
+        }
+
+        // ==================== APPLY RATE (SAVE TO DATABASE) ====================
+
+        /// <summary>
+        /// Called when user clicks APPLY RATE TO SELECTED SPECS button.
+        /// Saves the currently configured spec (name + rate) to specifications.db
+        /// for later reuse in Step 5 (Data Grid) spec dropdown.
+        ///
+        /// If spec already exists (same GlassType + SpecName):
+        ///   - Rate is updated to latest value
+        ///   - UsageCount is incremented
+        ///   - LastUsedAt is set to now
+        /// </summary>
+        private async System.Threading.Tasks.Task ApplyRateAsync()
+        {
+            if (SelectedGlassType == null || EstimatedRatePerSqm <= 0m)
+            {
+                MessageBox.Show(
+                    "Please configure the glass parameters and ensure the estimated rate is greater than zero.",
+                    "Cannot Apply Rate",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            // Get the auto-generated spec name from the active panel
+            string glassType = SelectedGlassType.Code;
+            string specName = GetCurrentSpecName(glassType);
+            decimal rate = EstimatedRatePerSqm;
+
+            if (string.IsNullOrWhiteSpace(specName))
+            {
+                MessageBox.Show(
+                    "Spec name could not be generated. Please check your glass parameters.",
+                    "Cannot Apply Rate",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                // Save (or update) the spec in the database
+                var savedSpec = await App.Specs.SaveOrUpdateAsync(glassType, specName, rate);
+
+                var isNew = savedSpec.UsageCount == 1;
+                var actionText = isNew ? "saved as new spec" : $"updated (used {savedSpec.UsageCount}x)";
+
+                MessageBox.Show(
+                    $"Spec {actionText} to database:\n\n" +
+                    $"Glass Type: {glassType}\n" +
+                    $"Spec: {specName}\n" +
+                    $"Rate: AED {rate:N2} / sqm\n\n" +
+                    $"This spec is now available in Step 5 (Data Grid) dropdown.",
+                    "Spec Applied",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Failed to save spec:\n\n{ex.Message}",
+                    "Database Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Retrieves the current auto-generated spec name from the active panel VM.
+        /// Each panel exposes a GeneratedSpecName computed property.
+        /// </summary>
+        private string GetCurrentSpecName(string glassType)
+        {
+            return glassType switch
+            {
+                "SGU" => SguVM.GeneratedSpecName,
+                "DGU" => DguVM.GeneratedSpecName,
+                "LAM" => LamVM.GeneratedSpecName,
+                "DGU+LAM" => "DGU+LAM Hybrid (not yet implemented)",
+                _ => string.Empty
+            };
         }
 
         // ==================== LIVE CALCULATION ====================
