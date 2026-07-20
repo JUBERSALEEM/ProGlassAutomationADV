@@ -6,14 +6,10 @@ using System.Windows.Media;
 
 namespace ProGlassAutomation.Behaviors
 {
-    /// <summary>
-    /// Excel-like keyboard navigation and smart paste with auto-row expansion.
-    /// </summary>
     public static class DataGridNavigationBehavior
     {
         private static int _anchorColumn = -1;
         private static int _anchorRow = -1;
-        private static FrameworkElement _container;
 
         public static readonly DependencyProperty EnableExcelNavProperty =
             DependencyProperty.RegisterAttached(
@@ -35,7 +31,6 @@ namespace ProGlassAutomation.Behaviors
 
             if ((bool)e.NewValue)
             {
-                _container = el;
                 el.PreviewKeyDown += OnKey;
                 el.GotFocus += OnGotFocus;
                 el.AddHandler(DataObject.PastingEvent, new DataObjectPastingEventHandler(OnDataObjectPasting));
@@ -44,103 +39,66 @@ namespace ProGlassAutomation.Behaviors
 
         private static void OnDataObjectPasting(object sender, DataObjectPastingEventArgs e)
         {
-            if (Keyboard.FocusedElement is not TextBox currentBox) return;
-            if (_container == null) return;
+            if (Keyboard.FocusedElement is not TextBox focusedBox) return;
 
             var clipText = e.DataObject.GetData(typeof(string)) as string;
             if (string.IsNullOrWhiteSpace(clipText)) return;
 
             bool hasTab = clipText.Contains('\t');
-            bool hasSpace = clipText.Trim().Contains(' ');
             bool hasNewline = clipText.Contains('\n') || clipText.Contains('\r');
+            if (!hasTab && !hasNewline) return;
 
-            if (!hasTab && !hasSpace && !hasNewline) return;
-
+            // Cancel default TextBox paste
             e.CancelCommand();
-
-            var allBoxes = FindAllTextBoxes(_container);
-            int idx = allBoxes.IndexOf(currentBox);
-            if (idx < 0) return;
-
-            int colsPerRow = GetColumnsPerRow(currentBox, _container);
-            if (colsPerRow <= 0) colsPerRow = 7;
-
-            SmartPaste(currentBox, idx, allBoxes, colsPerRow, clipText);
             e.Handled = true;
-        }
 
-        private static void SmartPaste(TextBox current, int startIdx, List<TextBox> allBoxes, int colsPerRow, string clipText)
-        {
-            var lines = clipText.Split(new[] { '\r', '\n' }, System.StringSplitOptions.RemoveEmptyEntries);
+            // Determine which data row the focused TextBox belongs to
+            object startRowDataContext = FindRowDataContext(focusedBox);
 
-            int currentRowIndex = startIdx / colsPerRow;
-            int rowStartIdx = currentRowIndex * colsPerRow;
-
-            foreach (var line in lines)
+            // Route to ViewModel — find IExcelPasteable in the visual tree
+            if (sender is DependencyObject senderDep)
             {
-                // 1. Ensure row exists. If not, trigger AddRowCommand on the SpecGroup ViewModel
-                if (rowStartIdx >= allBoxes.Count)
+                var pasteable = FindViewModelInTree(senderDep);
+                if (pasteable != null)
                 {
-                    if (TryAddRow(current))
-                    {
-                        // Refresh boxes and layout to find the newly created TextBoxes
-                        _container.UpdateLayout();
-                        allBoxes = FindAllTextBoxes(_container);
-                    }
-                    else break; // Could not add row, stop pasting
+                    pasteable.PasteFromText(clipText, startRowDataContext);
+                    return;
                 }
-
-                // 2. Parse the line
-                var values = line.Split('\t');
-                if (values.Length <= 1)
-                    values = line.Trim().Split(new[] { ' ' }, System.StringSplitOptions.RemoveEmptyEntries);
-
-                // 3. Paste values into the row
-                for (int i = 0; i < values.Length; i++)
-                {
-                    int targetIdx = rowStartIdx + i;
-                    if (targetIdx >= allBoxes.Count || i >= colsPerRow) break;
-
-                    var targetBox = allBoxes[targetIdx];
-                    var trimmed = values[i].Trim();
-
-                    if (trimmed == "-" || trimmed == "–" || trimmed == "N/A" || trimmed == "n/a" || trimmed == "")
-                        trimmed = "0";
-
-                    targetBox.Text = trimmed;
-
-                    var binding = targetBox.GetBindingExpression(TextBox.TextProperty);
-                    binding?.UpdateSource();
-                }
-
-                // Move to next row start
-                rowStartIdx += colsPerRow;
             }
 
-            // Return focus to start
-            if (startIdx < allBoxes.Count) FocusAndSelect(allBoxes[startIdx]);
+            System.Windows.MessageBox.Show(
+                "Paste not supported here. Use the context menu 'Paste from Excel' button.",
+                "Paste",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
         }
 
         /// <summary>
-        /// Finds the SpecGroup ViewModel and executes its AddRowCommand.
+        /// Walks up the visual tree from the focused element to find the ListViewItem's
+        /// DataContext, which represents the data row where paste originated.
         /// </summary>
-        private static bool TryAddRow(DependencyObject element)
+        private static object FindRowDataContext(DependencyObject element)
         {
-            var itemsControl = FindParentOfType<ItemsControl>(element);
-            dynamic vm = itemsControl?.DataContext;
-            if (vm != null)
+            var current = VisualTreeHelper.GetParent(element);
+            while (current != null)
             {
-                try
-                {
-                    if (vm.AddRowCommand != null && vm.AddRowCommand.CanExecute(null))
-                    {
-                        vm.AddRowCommand.Execute(null);
-                        return true;
-                    }
-                }
-                catch { }
+                if (current is ListViewItem lvi)
+                    return lvi.DataContext;
+                current = VisualTreeHelper.GetParent(current);
             }
-            return false;
+            return null;
+        }
+
+        private static IExcelPasteable FindViewModelInTree(DependencyObject start)
+        {
+            var current = start;
+            while (current != null)
+            {
+                if (current is FrameworkElement fe && fe.DataContext is IExcelPasteable pasteable)
+                    return pasteable;
+                current = VisualTreeHelper.GetParent(current);
+            }
+            return null;
         }
 
         private static void OnGotFocus(object sender, RoutedEventArgs e)
@@ -152,9 +110,10 @@ namespace ProGlassAutomation.Behaviors
             int idx = allBoxes.IndexOf(tb);
             if (idx < 0) return;
 
-            int colsPerRow = GetColumnsPerRow(tb, container);
-            int currentRow = idx / (colsPerRow > 0 ? colsPerRow : 7);
-            int currentCol = idx % (colsPerRow > 0 ? colsPerRow : 7);
+            int colsPerRow = GetColumnsPerRow(tb);
+            int cols = colsPerRow > 0 ? colsPerRow : 7;
+            int currentRow = idx / cols;
+            int currentCol = idx % cols;
 
             if (_anchorRow != currentRow || _anchorColumn < 0)
             {
@@ -173,7 +132,7 @@ namespace ProGlassAutomation.Behaviors
             int idx = allBoxes.IndexOf(current);
             if (idx < 0) return;
 
-            int colsPerRow = GetColumnsPerRow(current, container);
+            int colsPerRow = GetColumnsPerRow(current);
             if (colsPerRow <= 0) colsPerRow = 7;
 
             int currentCol = idx % colsPerRow;
@@ -183,16 +142,9 @@ namespace ProGlassAutomation.Behaviors
             {
                 case Key.Tab:
                     e.Handled = true;
-                    if (Keyboard.Modifiers == ModifierKeys.Shift)
-                    {
-                        int prevIdx = idx - 1;
-                        if (prevIdx >= 0) FocusAndSelect(allBoxes[prevIdx]);
-                    }
-                    else
-                    {
-                        int nextIdx = idx + 1;
-                        if (nextIdx < allBoxes.Count) FocusAndSelect(allBoxes[nextIdx]);
-                    }
+                    int tabTarget = Keyboard.Modifiers == ModifierKeys.Shift ? idx - 1 : idx + 1;
+                    if (tabTarget >= 0 && tabTarget < allBoxes.Count)
+                        FocusAndSelect(allBoxes[tabTarget]);
                     break;
 
                 case Key.Enter:
@@ -230,20 +182,20 @@ namespace ProGlassAutomation.Behaviors
 
         private static void FocusAndSelect(TextBox tb) { tb.Focus(); tb.SelectAll(); }
 
-        private static int GetColumnsPerRow(TextBox current, FrameworkElement container)
+        private static int GetColumnsPerRow(TextBox current)
         {
-            var rowBorder = FindRowBorder(current);
-            if (rowBorder == null) return 7;
-            var rowBoxes = FindAllTextBoxes(rowBorder);
-            return rowBoxes.Count > 0 ? rowBoxes.Count : 7;
+            var rowContainer = FindRowContainer(current);
+            if (rowContainer == null) return 7;
+            var boxes = FindAllTextBoxes(rowContainer);
+            return boxes.Count > 0 ? boxes.Count : 7;
         }
 
-        private static Border FindRowBorder(DependencyObject element)
+        private static DependencyObject FindRowContainer(DependencyObject element)
         {
             var current = VisualTreeHelper.GetParent(element);
             while (current != null)
             {
-                if (current is Border b && b.BorderThickness.Bottom > 0 && b.Padding.Top > 0) return b;
+                if (current is ListViewItem) return current;
                 current = VisualTreeHelper.GetParent(current);
             }
             return null;
@@ -252,25 +204,32 @@ namespace ProGlassAutomation.Behaviors
         private static List<TextBox> FindAllTextBoxes(DependencyObject parent)
         {
             var result = new List<TextBox>();
+            if (parent == null) return result;
+            CollectTextBoxes(parent, result);
+            return result;
+        }
+
+        private static void CollectTextBoxes(DependencyObject parent, List<TextBox> result)
+        {
             int count = VisualTreeHelper.GetChildrenCount(parent);
             for (int i = 0; i < count; i++)
             {
                 var child = VisualTreeHelper.GetChild(parent, i);
-                if (child is TextBox tb) result.Add(tb);
-                else result.AddRange(FindAllTextBoxes(child));
+                if (child is TextBox tb)
+                    result.Add(tb);
+                else
+                    CollectTextBoxes(child, result);
             }
-            return result;
         }
+    }
 
-        private static T FindParentOfType<T>(DependencyObject element) where T : DependencyObject
-        {
-            var current = VisualTreeHelper.GetParent(element);
-            while (current != null)
-            {
-                if (current is T found) return found;
-                current = VisualTreeHelper.GetParent(current);
-            }
-            return null;
-        }
+    public interface IExcelPasteable
+    {
+        /// <summary>
+        /// Paste clipboard text starting at the given row (or at end if null / row not found / row is empty logic decides).
+        /// </summary>
+        void PasteFromText(string clipboardText, object startRowContext = null);
+
+        void AddRows(int count);
     }
 }

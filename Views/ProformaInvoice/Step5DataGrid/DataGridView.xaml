@@ -27,8 +27,18 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="InputBorder" Background="{TemplateBinding Background}" CornerRadius="4" BorderThickness="1" BorderBrush="{DynamicResource MenuHoverBrush}">
-                            <ScrollViewer x:Name="PART_ContentHost" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" Margin="{TemplateBinding Padding}" VerticalAlignment="Center" Background="Transparent"/>
+                        <Border x:Name="InputBorder"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="4"
+                                BorderThickness="1"
+                                BorderBrush="{DynamicResource MenuHoverBrush}">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Focusable="False"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          VerticalScrollBarVisibility="Hidden"
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="Center"
+                                          Background="Transparent"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
@@ -74,7 +84,11 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBoxItem">
-                        <Border x:Name="ItemBorder" Background="Transparent" CornerRadius="4" Padding="{TemplateBinding Padding}" Margin="2,1">
+                        <Border x:Name="ItemBorder"
+                                Background="Transparent"
+                                CornerRadius="4"
+                                Padding="{TemplateBinding Padding}"
+                                Margin="2,1">
                             <ContentPresenter/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -107,25 +121,49 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">
                         <Grid>
-                            <Border x:Name="MainBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
+                            <Border x:Name="MainBorder"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="6">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="30"/>
                                     </Grid.ColumnDefinitions>
-                                    <ContentPresenter Grid.Column="0" Content="{TemplateBinding SelectionBoxItem}" ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}" Margin="{TemplateBinding Padding}" VerticalAlignment="Center" HorizontalAlignment="Left" IsHitTestVisible="False"/>
+                                    <ContentPresenter Grid.Column="0"
+                                                      Content="{TemplateBinding SelectionBoxItem}"
+                                                      ContentTemplate="{TemplateBinding SelectionBoxItemTemplate}"
+                                                      Margin="{TemplateBinding Padding}"
+                                                      VerticalAlignment="Center"
+                                                      HorizontalAlignment="Left"
+                                                      IsHitTestVisible="False"/>
                                     <Path Grid.Column="1" x:Name="Arrow" Style="{StaticResource ChevronPathStyle}"/>
                                 </Grid>
                             </Border>
-                            <ToggleButton Background="Transparent" BorderThickness="0" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Focusable="False" ClickMode="Press">
+                            <ToggleButton Background="Transparent"
+                                          BorderThickness="0"
+                                          IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                          Focusable="False"
+                                          ClickMode="Press">
                                 <ToggleButton.Template>
                                     <ControlTemplate TargetType="ToggleButton">
                                         <Border Background="Transparent"/>
                                     </ControlTemplate>
                                 </ToggleButton.Template>
                             </ToggleButton>
-                            <Popup Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
-                                <Border MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}" Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1.5" CornerRadius="6" Margin="0,4,0,0">
+                            <Popup Placement="Bottom"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   AllowsTransparency="True"
+                                   Focusable="False"
+                                   PopupAnimation="Slide">
+                                <Border MinWidth="{TemplateBinding ActualWidth}"
+                                        MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                                        Background="{DynamicResource ModuleBackgroundBrush}"
+                                        BorderBrush="{DynamicResource AccentBrush}"
+                                        BorderThickness="1.5"
+                                        CornerRadius="6"
+                                        Margin="0,4,0,0">
                                     <Border.Effect>
                                         <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.25" Color="Black"/>
                                     </Border.Effect>
@@ -169,14 +207,35 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="ComboBox">
                         <Grid>
-                            <Border x:Name="MainBorder" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6">
+                            <Border x:Name="MainBorder"
+                                    Background="{TemplateBinding Background}"
+                                    BorderBrush="{TemplateBinding BorderBrush}"
+                                    BorderThickness="{TemplateBinding BorderThickness}"
+                                    CornerRadius="6">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="30"/>
                                     </Grid.ColumnDefinitions>
-                                    <TextBox x:Name="PART_EditableTextBox" Grid.Column="0" Background="Transparent" Foreground="{TemplateBinding Foreground}" BorderThickness="0" Padding="{TemplateBinding Padding}" VerticalContentAlignment="Center" FontSize="{TemplateBinding FontSize}" CaretBrush="{DynamicResource PrimaryForegroundBrush}" SelectionBrush="{DynamicResource AccentBrush}" Focusable="True" IsReadOnly="False"/>
-                                    <ToggleButton Grid.Column="1" Background="Transparent" BorderThickness="0" IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}" Focusable="False" Cursor="Hand" ClickMode="Press">
+                                    <TextBox x:Name="PART_EditableTextBox"
+                                             Grid.Column="0"
+                                             Background="Transparent"
+                                             Foreground="{TemplateBinding Foreground}"
+                                             BorderThickness="0"
+                                             Padding="{TemplateBinding Padding}"
+                                             VerticalContentAlignment="Center"
+                                             FontSize="{TemplateBinding FontSize}"
+                                             CaretBrush="{DynamicResource PrimaryForegroundBrush}"
+                                             SelectionBrush="{DynamicResource AccentBrush}"
+                                             Focusable="True"
+                                             IsReadOnly="False"/>
+                                    <ToggleButton Grid.Column="1"
+                                                  Background="Transparent"
+                                                  BorderThickness="0"
+                                                  IsChecked="{Binding IsDropDownOpen, Mode=TwoWay, RelativeSource={RelativeSource TemplatedParent}}"
+                                                  Focusable="False"
+                                                  Cursor="Hand"
+                                                  ClickMode="Press">
                                         <ToggleButton.Template>
                                             <ControlTemplate TargetType="ToggleButton">
                                                 <Border Background="Transparent">
@@ -187,8 +246,18 @@
                                     </ToggleButton>
                                 </Grid>
                             </Border>
-                            <Popup Placement="Bottom" IsOpen="{TemplateBinding IsDropDownOpen}" AllowsTransparency="True" Focusable="False" PopupAnimation="Slide">
-                                <Border MinWidth="{TemplateBinding ActualWidth}" MaxHeight="{TemplateBinding MaxDropDownHeight}" Background="{DynamicResource ModuleBackgroundBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1.5" CornerRadius="6" Margin="0,4,0,0">
+                            <Popup Placement="Bottom"
+                                   IsOpen="{TemplateBinding IsDropDownOpen}"
+                                   AllowsTransparency="True"
+                                   Focusable="False"
+                                   PopupAnimation="Slide">
+                                <Border MinWidth="{TemplateBinding ActualWidth}"
+                                        MaxHeight="{TemplateBinding MaxDropDownHeight}"
+                                        Background="{DynamicResource ModuleBackgroundBrush}"
+                                        BorderBrush="{DynamicResource AccentBrush}"
+                                        BorderThickness="1.5"
+                                        CornerRadius="6"
+                                        Margin="0,4,0,0">
                                     <Border.Effect>
                                         <DropShadowEffect BlurRadius="10" ShadowDepth="2" Opacity="0.25" Color="Black"/>
                                     </Border.Effect>
@@ -212,41 +281,95 @@
             </Setter>
         </Style>
 
+        <!-- ==========================================
+             VIRTUALIZED ROW ITEM STYLE FOR LISTVIEW
+             ========================================== -->
+        <Style x:Key="VirtualizedRowContainerStyle" TargetType="ListViewItem">
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListViewItem">
+                        <Border BorderThickness="0,0,0,1"
+                                BorderBrush="{DynamicResource MenuHoverBrush}"
+                                Padding="0,3"
+                                Margin="0,0,0,1">
+                            <ContentPresenter/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </UserControl.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled" Padding="0,0,8,0">
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  Padding="0,0,8,0">
         <StackPanel>
 
+            <!-- Header -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                <Border Background="{DynamicResource AccentBrush}" Width="28" Height="28" CornerRadius="6" VerticalAlignment="Center">
-                    <TextBlock Text="&#128203;" FontSize="14" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Border Background="{DynamicResource AccentBrush}"
+                        Width="28" Height="28" CornerRadius="6"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="&#128203;" FontSize="14" Foreground="White"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
-                <TextBlock Text="{Binding Title}" FontSize="15" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" Margin="10,0,0,0"/>
+                <TextBlock Text="{Binding Title}"
+                           FontSize="15" FontWeight="Bold"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           VerticalAlignment="Center" Margin="10,0,0,0"/>
             </StackPanel>
-            <TextBlock Text="{Binding Subtitle}" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,12" TextWrapping="Wrap"/>
+
+            <TextBlock Text="{Binding Subtitle}"
+                       FontSize="11"
+                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       Margin="0,0,0,12" TextWrapping="Wrap"/>
+
             <Border Background="{DynamicResource MenuHoverBrush}" Height="1" Margin="0,0,0,14"/>
 
+            <!-- Top bar -->
             <Grid Margin="0,0,0,14">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Manage your specification groups below." FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" TextWrapping="Wrap"/>
-                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
-                    <TextBlock Text="Total Spec Groups:" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <Border Background="{DynamicResource AccentBrush}" CornerRadius="6" Padding="12,4" MinWidth="40">
-                        <TextBlock Text="{Binding TotalSpecGroups}" FontSize="14" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <TextBlock Grid.Column="0"
+                           Text="Manage your specification groups below."
+                           FontSize="11"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           VerticalAlignment="Center" TextWrapping="Wrap"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal"
+                            VerticalAlignment="Center" Margin="20,0,0,0">
+                    <TextBlock Text="Total Spec Groups:"
+                               FontSize="11" FontWeight="Bold"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <Border Background="{DynamicResource AccentBrush}"
+                            CornerRadius="6" Padding="12,4" MinWidth="40">
+                        <TextBlock Text="{Binding TotalSpecGroups}"
+                                   FontSize="14" FontWeight="Bold"
+                                   Foreground="White"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
                     </Border>
                 </StackPanel>
             </Grid>
 
+            <!-- Spec Groups -->
             <ItemsControl ItemsSource="{Binding SpecGroups}" Margin="0,0,0,12">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Background="{DynamicResource ModuleBackgroundBrush}" CornerRadius="10" Padding="16" Margin="0,0,0,10" BorderThickness="1.5" BorderBrush="{DynamicResource MenuHoverBrush}">
+                        <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                                CornerRadius="10" Padding="16" Margin="0,0,0,10"
+                                BorderThickness="1.5"
+                                BorderBrush="{DynamicResource MenuHoverBrush}">
                             <StackPanel>
 
-                                <!-- Group Header -->
+                                <!-- Group Header Row -->
                                 <Grid Margin="0,0,0,10">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="Auto"/>
@@ -255,22 +378,44 @@
                                         <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
-                                    <Border Grid.Column="0" Background="{DynamicResource AccentBrush}" Width="28" Height="28" CornerRadius="6" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding GroupNumber}" FontSize="14" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    <Border Grid.Column="0"
+                                            Background="{DynamicResource AccentBrush}"
+                                            Width="28" Height="28" CornerRadius="6"
+                                            VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding GroupNumber}"
+                                                   FontSize="14" FontWeight="Bold"
+                                                   Foreground="White"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
                                     </Border>
-                                    <TextBlock Grid.Column="1" Text="{Binding GroupName}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center" Margin="12,0,0,0" TextTrimming="CharacterEllipsis"/>
-                                    <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,14,0">
+                                    <TextBlock Grid.Column="1"
+                                               Text="{Binding GroupName}"
+                                               FontSize="13" FontWeight="Bold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               VerticalAlignment="Center"
+                                               Margin="12,0,0,0"
+                                               TextTrimming="CharacterEllipsis"/>
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal"
+                                                VerticalAlignment="Center" Margin="0,0,14,0">
                                         <TextBlock Text="BASE RATE:" Style="{StaticResource HeaderLabelStyle}"/>
-                                        <TextBox Text="{Binding BaseRate, StringFormat={}{0:0.##}}" Style="{StaticResource CompactInputStyle}"/>
+                                        <TextBox Text="{Binding BaseRate, StringFormat={}{0:0.##}}"
+                                                 Style="{StaticResource CompactInputStyle}"/>
                                     </StackPanel>
-                                    <StackPanel Grid.Column="3" Orientation="Horizontal" VerticalAlignment="Center" Margin="0,0,10,0">
+                                    <StackPanel Grid.Column="3" Orientation="Horizontal"
+                                                VerticalAlignment="Center" Margin="0,0,10,0">
                                         <TextBlock Text="SURCHARGE %:" Style="{StaticResource HeaderLabelStyle}"/>
-                                        <TextBox Text="{Binding SurchargePercent, StringFormat={}{0:0.##}}" Style="{StaticResource CompactInputStyle}"/>
+                                        <TextBox Text="{Binding SurchargePercent, StringFormat={}{0:0.##}}"
+                                                 Style="{StaticResource CompactInputStyle}"/>
                                     </StackPanel>
-                                    <Button Grid.Column="4" Command="{Binding DataContext.RemoveSpecGroupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}" CommandParameter="{Binding}" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Remove">
+                                    <Button Grid.Column="4"
+                                            Command="{Binding DataContext.RemoveSpecGroupCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Background="Transparent" BorderThickness="0"
+                                            Cursor="Hand" ToolTip="Remove">
                                         <Button.Template>
                                             <ControlTemplate TargetType="Button">
-                                                <Border x:Name="RB" Background="Transparent" CornerRadius="6" Padding="8,6">
+                                                <Border x:Name="RB" Background="Transparent"
+                                                        CornerRadius="6" Padding="8,6">
                                                     <TextBlock Text="&#128465;" FontSize="14" Foreground="#EF4444"/>
                                                 </Border>
                                                 <ControlTemplate.Triggers>
@@ -283,13 +428,26 @@
                                     </Button>
                                 </Grid>
 
-                                <!-- Effective Rate -->
-                                <Border Background="#1622C55E" CornerRadius="6" Padding="10,6" HorizontalAlignment="Left" Margin="0,0,0,12">
+                                <!-- Effective Rate Badge -->
+                                <Border Background="#1622C55E" CornerRadius="6"
+                                        Padding="10,6" HorizontalAlignment="Left"
+                                        Margin="0,0,0,12">
                                     <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="Effective Rate:" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                        <TextBlock Text="AED" FontSize="11" FontWeight="Bold" Foreground="#22C55E" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                        <TextBlock Text="{Binding EffectiveRate, StringFormat={}{0:N2}}" FontSize="12" FontWeight="Bold" Foreground="#22C55E" VerticalAlignment="Center"/>
-                                        <TextBlock Text=" / sqm" FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" Margin="4,0,0,0"/>
+                                        <TextBlock Text="Effective Rate:"
+                                                   FontSize="11"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   VerticalAlignment="Center" Margin="0,0,6,0"/>
+                                        <TextBlock Text="AED"
+                                                   FontSize="11" FontWeight="Bold"
+                                                   Foreground="#22C55E"
+                                                   VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                        <TextBlock Text="{Binding EffectiveRate, StringFormat={}{0:N2}}"
+                                                   FontSize="12" FontWeight="Bold"
+                                                   Foreground="#22C55E" VerticalAlignment="Center"/>
+                                        <TextBlock Text=" / sqm"
+                                                   FontSize="10"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   VerticalAlignment="Center" Margin="4,0,0,0"/>
                                     </StackPanel>
                                 </Border>
 
@@ -302,41 +460,65 @@
                                     </Grid.ColumnDefinitions>
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="GLASS TYPE" Style="{StaticResource FieldLabelStyle}"/>
-                                        <ComboBox ItemsSource="{Binding DataContext.GlassTypeOptions, RelativeSource={RelativeSource AncestorType=UserControl}}" SelectedItem="{Binding SelectedGlassType}" Style="{StaticResource ThemedComboBoxStyle}"/>
+                                        <ComboBox ItemsSource="{Binding DataContext.GlassTypeOptions, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                  SelectedItem="{Binding SelectedGlassType}"
+                                                  Style="{StaticResource ThemedComboBoxStyle}"/>
                                     </StackPanel>
                                     <StackPanel Grid.Column="2">
-                                        <TextBlock Text="SPECIFICATION (pick saved or type custom)" Style="{StaticResource FieldLabelStyle}"/>
-                                        <ComboBox ItemsSource="{Binding FilteredSpecs}" DisplayMemberPath="SpecName" Text="{Binding SelectedSpecName, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource EditableComboBoxStyle}"/>
+                                        <TextBlock Text="SPECIFICATION (pick saved or type custom)"
+                                                   Style="{StaticResource FieldLabelStyle}"/>
+                                        <ComboBox ItemsSource="{Binding FilteredSpecs}"
+                                                  DisplayMemberPath="SpecName"
+                                                  Text="{Binding SelectedSpecName, UpdateSourceTrigger=PropertyChanged}"
+                                                  Style="{StaticResource EditableComboBoxStyle}"/>
                                     </StackPanel>
                                 </Grid>
 
-                                <!-- ===== ITEM ROWS TABLE ===== -->
-                                <Border Background="{DynamicResource WindowBackgroundBrush}" CornerRadius="6" Padding="10" BorderThickness="1.5" BorderBrush="{DynamicResource MenuHoverBrush}"
-                                        behaviors:DataGridNavigationBehavior.EnableExcelNav="True">
+                                <!-- ===== GLASS PANEL ITEMS TABLE ===== -->
+                                <Border Background="{DynamicResource WindowBackgroundBrush}"
+                                        CornerRadius="6" Padding="10"
+                                        BorderThickness="1.5"
+                                        BorderBrush="{DynamicResource MenuHoverBrush}">
                                     <Border.ContextMenu>
                                         <ContextMenu>
-                                            <MenuItem Header="📋 Paste from Excel (Ctrl+V)" Command="{Binding PasteExcelCommand}" FontSize="12"/>
-                                            <MenuItem Header="➕ Add New Row" Command="{Binding AddRowCommand}" FontSize="12"/>
+                                            <MenuItem Header="📋 Paste from Excel (Ctrl+V)"
+                                                      Command="{Binding PasteExcelCommand}"
+                                                      FontSize="12"/>
+                                            <MenuItem Header="➕ Add New Row"
+                                                      Command="{Binding AddRowCommand}"
+                                                      FontSize="12"/>
                                         </ContextMenu>
                                     </Border.ContextMenu>
                                     <StackPanel>
 
+                                        <!-- Table toolbar -->
                                         <Grid Margin="0,0,0,8">
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="*"/>
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="GLASS PANEL ITEMS" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>
+                                            <TextBlock Grid.Column="0"
+                                                       Text="GLASS PANEL ITEMS"
+                                                       FontSize="10" FontWeight="Bold"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       VerticalAlignment="Center"/>
                                             <StackPanel Grid.Column="1" Orientation="Horizontal">
-                                                <TextBlock Text="Rows: " FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                                <Border Background="{DynamicResource MenuHoverBrush}" CornerRadius="4" Padding="8,2" MinWidth="30">
-                                                    <TextBlock Text="{Binding TotalRows}" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center"/>
+                                                <TextBlock Text="Rows: "
+                                                           FontSize="10"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                <Border Background="{DynamicResource MenuHoverBrush}"
+                                                        CornerRadius="4" Padding="8,2" MinWidth="30">
+                                                    <TextBlock Text="{Binding TotalRows}"
+                                                               FontSize="11" FontWeight="Bold"
+                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                               HorizontalAlignment="Center"/>
                                                 </Border>
                                             </StackPanel>
                                         </Grid>
 
-                                        <!-- Table Header -->
-                                        <Border Background="{DynamicResource MenuHoverBrush}" CornerRadius="4" Padding="4,6" Margin="0,0,0,4">
+                                        <!-- Column Headers -->
+                                        <Border Background="{DynamicResource MenuHoverBrush}"
+                                                CornerRadius="4" Padding="4,6" Margin="0,0,0,0">
                                             <Border.Style>
                                                 <Style TargetType="Border">
                                                     <Setter Property="Visibility" Value="Visible"/>
@@ -376,59 +558,138 @@
                                             </Grid>
                                         </Border>
 
-                                        <!-- Item Rows -->
-                                        <ItemsControl ItemsSource="{Binding ItemRows}">
-                                            <ItemsControl.ItemTemplate>
+                                        <!-- =========================================
+                                             VIRTUALIZED LISTVIEW — handles 1000+ rows
+                                             ========================================= -->
+                                        <ListView
+                                            ItemsSource="{Binding ItemRows}"
+                                            ItemContainerStyle="{StaticResource VirtualizedRowContainerStyle}"
+                                            Background="Transparent"
+                                            BorderThickness="0"
+                                            HorizontalContentAlignment="Stretch"
+                                            ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                            ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                            MaxHeight="420"
+                                            VirtualizingPanel.IsVirtualizing="True"
+                                            VirtualizingPanel.VirtualizationMode="Recycling"
+                                            VirtualizingPanel.IsContainerVirtualizable="True"
+                                            VirtualizingPanel.ScrollUnit="Item"
+                                            behaviors:DataGridNavigationBehavior.EnableExcelNav="True">
+                                            <ListView.Template>
+                                                <ControlTemplate TargetType="ListView">
+                                                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                                  HorizontalScrollBarVisibility="Disabled"
+                                                                  CanContentScroll="True">
+                                                        <ItemsPresenter/>
+                                                    </ScrollViewer>
+                                                </ControlTemplate>
+                                            </ListView.Template>
+                                            <ListView.ItemsPanel>
+                                                <ItemsPanelTemplate>
+                                                    <VirtualizingStackPanel
+                                                        IsVirtualizing="True"
+                                                        VirtualizationMode="Recycling"/>
+                                                </ItemsPanelTemplate>
+                                            </ListView.ItemsPanel>
+                                            <ListView.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Border BorderThickness="0,0,0,1" BorderBrush="{DynamicResource MenuHoverBrush}" Padding="0,3" Margin="0,0,0,1">
-                                                        <Grid>
-                                                            <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="26"/>
-                                                                <ColumnDefinition Width="1.8*"/>
-                                                                <ColumnDefinition Width="0.8*"/>
-                                                                <ColumnDefinition Width="0.8*"/>
-                                                                <ColumnDefinition Width="0.8*"/>
-                                                                <ColumnDefinition Width="0.8*"/>
-                                                                <ColumnDefinition Width="0.7*"/>
-                                                                <ColumnDefinition Width="0.9*"/>
-                                                                <ColumnDefinition Width="0.9*"/>
-                                                                <ColumnDefinition Width="0.8*"/>
-                                                                <ColumnDefinition Width="1.2*"/>
-                                                                <ColumnDefinition Width="26"/>
-                                                            </Grid.ColumnDefinitions>
-                                                            <TextBlock Grid.Column="0" Text="{Binding SerialNumber}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                            <TextBox Grid.Column="1" Text="{Binding GlassRef, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CompactInputStyle}" Width="Auto" Margin="2,0" HorizontalContentAlignment="Left" Padding="4,0"/>
-                                                            <TextBox Grid.Column="2" Text="{Binding W1}" Style="{StaticResource CompactInputStyle}" Width="Auto" Margin="2,0"/>
-                                                            <TextBox Grid.Column="3" Text="{Binding H1}" Style="{StaticResource CompactInputStyle}" Width="Auto" Margin="2,0"/>
-                                                            <TextBox Grid.Column="4" Text="{Binding W2}" Style="{StaticResource CompactInputStyle}" Width="Auto" Margin="2,0"/>
-                                                            <TextBox Grid.Column="5" Text="{Binding H2}" Style="{StaticResource CompactInputStyle}" Width="Auto" Margin="2,0"/>
-                                                            <TextBox Grid.Column="6" Text="{Binding Qty}" Style="{StaticResource CompactInputStyle}" Width="Auto" Margin="2,0"/>
-                                                            <TextBlock Grid.Column="7" Text="{Binding Sqm1, StringFormat={}{0:0.000}}" FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                            <TextBlock Grid.Column="8" Text="{Binding TotalSqm, StringFormat={}{0:0.000}}" FontSize="10" FontWeight="SemiBold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                            <TextBox Grid.Column="9" Text="{Binding Rate, StringFormat={}{0:0.##}}" Style="{StaticResource CompactInputStyle}" Width="Auto" Margin="1,0"/>
-                                                            <TextBlock Grid.Column="10" Text="{Binding Value, StringFormat=AED {0:N2}}" FontSize="10" FontWeight="Bold" Foreground="#22C55E" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                                            <Button Grid.Column="11" Command="{Binding DataContext.RemoveRowCommand, RelativeSource={RelativeSource AncestorType=ItemsControl}}" CommandParameter="{Binding}" Background="Transparent" BorderThickness="0" Cursor="Hand" ToolTip="Delete Row" HorizontalAlignment="Center">
-                                                                <Button.Template>
-                                                                    <ControlTemplate TargetType="Button">
-                                                                        <Border x:Name="DB" Background="Transparent" CornerRadius="4" Padding="4,2">
-                                                                            <TextBlock Text="✕" FontSize="11" FontWeight="Bold" Foreground="#EF4444"/>
-                                                                        </Border>
-                                                                        <ControlTemplate.Triggers>
-                                                                            <Trigger Property="IsMouseOver" Value="True">
-                                                                                <Setter TargetName="DB" Property="Background" Value="#22EF4444"/>
-                                                                            </Trigger>
-                                                                        </ControlTemplate.Triggers>
-                                                                    </ControlTemplate>
-                                                                </Button.Template>
-                                                            </Button>
-                                                        </Grid>
-                                                    </Border>
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="26"/>
+                                                            <ColumnDefinition Width="1.8*"/>
+                                                            <ColumnDefinition Width="0.8*"/>
+                                                            <ColumnDefinition Width="0.8*"/>
+                                                            <ColumnDefinition Width="0.8*"/>
+                                                            <ColumnDefinition Width="0.8*"/>
+                                                            <ColumnDefinition Width="0.7*"/>
+                                                            <ColumnDefinition Width="0.9*"/>
+                                                            <ColumnDefinition Width="0.9*"/>
+                                                            <ColumnDefinition Width="0.8*"/>
+                                                            <ColumnDefinition Width="1.2*"/>
+                                                            <ColumnDefinition Width="26"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <TextBlock Grid.Column="0"
+                                                                   Text="{Binding SerialNumber}"
+                                                                   FontSize="11" FontWeight="SemiBold"
+                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        <TextBox Grid.Column="1"
+                                                                 Text="{Binding GlassRef, UpdateSourceTrigger=PropertyChanged}"
+                                                                 Style="{StaticResource CompactInputStyle}"
+                                                                 Width="Auto" Margin="2,0"
+                                                                 HorizontalContentAlignment="Left"
+                                                                 Padding="4,0"/>
+                                                        <TextBox Grid.Column="2"
+                                                                 Text="{Binding W1, UpdateSourceTrigger=LostFocus}"
+                                                                 Style="{StaticResource CompactInputStyle}"
+                                                                 Width="Auto" Margin="2,0"/>
+                                                        <TextBox Grid.Column="3"
+                                                                 Text="{Binding H1, UpdateSourceTrigger=LostFocus}"
+                                                                 Style="{StaticResource CompactInputStyle}"
+                                                                 Width="Auto" Margin="2,0"/>
+                                                        <TextBox Grid.Column="4"
+                                                                 Text="{Binding W2, UpdateSourceTrigger=LostFocus}"
+                                                                 Style="{StaticResource CompactInputStyle}"
+                                                                 Width="Auto" Margin="2,0"/>
+                                                        <TextBox Grid.Column="5"
+                                                                 Text="{Binding H2, UpdateSourceTrigger=LostFocus}"
+                                                                 Style="{StaticResource CompactInputStyle}"
+                                                                 Width="Auto" Margin="2,0"/>
+                                                        <TextBox Grid.Column="6"
+                                                                 Text="{Binding Qty, UpdateSourceTrigger=LostFocus}"
+                                                                 Style="{StaticResource CompactInputStyle}"
+                                                                 Width="Auto" Margin="2,0"/>
+                                                        <TextBlock Grid.Column="7"
+                                                                   Text="{Binding Sqm1, StringFormat={}{0:0.000}}"
+                                                                   FontSize="10"
+                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        <TextBlock Grid.Column="8"
+                                                                   Text="{Binding TotalSqm, StringFormat={}{0:0.000}}"
+                                                                   FontSize="10" FontWeight="SemiBold"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                        <TextBox Grid.Column="9"
+                                                                 Text="{Binding Rate, StringFormat={}{0:0.##}, UpdateSourceTrigger=LostFocus}"
+                                                                 Style="{StaticResource CompactInputStyle}"
+                                                                 Width="Auto" Margin="1,0"/>
+                                                        <TextBlock Grid.Column="10"
+                                                                   Text="{Binding Value, StringFormat=AED {0:N2}}"
+                                                                   FontSize="10" FontWeight="Bold"
+                                                                   Foreground="#22C55E"
+                                                                   HorizontalAlignment="Right"
+                                                                   VerticalAlignment="Center"
+                                                                   Margin="0,0,4,0"/>
+                                                        <Button Grid.Column="11"
+                                                                Command="{Binding DataContext.RemoveRowCommand, RelativeSource={RelativeSource AncestorType=ListView}}"
+                                                                CommandParameter="{Binding}"
+                                                                Background="Transparent" BorderThickness="0"
+                                                                Cursor="Hand" ToolTip="Delete Row"
+                                                                HorizontalAlignment="Center">
+                                                            <Button.Template>
+                                                                <ControlTemplate TargetType="Button">
+                                                                    <Border x:Name="DB" Background="Transparent"
+                                                                            CornerRadius="4" Padding="4,2">
+                                                                        <TextBlock Text="✕" FontSize="11"
+                                                                                   FontWeight="Bold"
+                                                                                   Foreground="#EF4444"/>
+                                                                    </Border>
+                                                                    <ControlTemplate.Triggers>
+                                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                                            <Setter TargetName="DB" Property="Background" Value="#22EF4444"/>
+                                                                        </Trigger>
+                                                                    </ControlTemplate.Triggers>
+                                                                </ControlTemplate>
+                                                            </Button.Template>
+                                                        </Button>
+                                                    </Grid>
                                                 </DataTemplate>
-                                            </ItemsControl.ItemTemplate>
-                                        </ItemsControl>
+                                            </ListView.ItemTemplate>
+                                        </ListView>
 
                                         <!-- Footer Totals -->
-                                        <Border Background="{DynamicResource MenuHoverBrush}" CornerRadius="4" Padding="4,8" Margin="0,6,0,0">
+                                        <Border Background="{DynamicResource MenuHoverBrush}"
+                                                CornerRadius="4" Padding="4,8" Margin="0,6,0,0">
                                             <Border.Style>
                                                 <Style TargetType="Border">
                                                     <Setter Property="Visibility" Value="Visible"/>
@@ -454,27 +715,59 @@
                                                     <ColumnDefinition Width="1.2*"/>
                                                     <ColumnDefinition Width="26"/>
                                                 </Grid.ColumnDefinitions>
-                                                <TextBlock Grid.Column="1" Text="SUBTOTAL" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="4,0"/>
+                                                <TextBlock Grid.Column="1" Text="SUBTOTAL"
+                                                           FontSize="10" FontWeight="Bold"
+                                                           Foreground="{DynamicResource AccentBrush}"
+                                                           VerticalAlignment="Center" Margin="4,0"/>
                                                 <StackPanel Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding FooterTotalLm1, StringFormat=LM:{0:0.00}}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding FooterTotalLm1, StringFormat=LM:{0:0.00}}"
+                                                               FontSize="10" FontWeight="Bold"
+                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                               HorizontalAlignment="Center"/>
                                                 </StackPanel>
                                                 <StackPanel Grid.Column="3" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding FooterTotalSqm, StringFormat=SQ:{0:0.00}}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding FooterTotalSqm, StringFormat=SQ:{0:0.00}}"
+                                                               FontSize="10" FontWeight="Bold"
+                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                               HorizontalAlignment="Center"/>
                                                 </StackPanel>
                                                 <StackPanel Grid.Column="4" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding FooterTotalLm2, StringFormat=LM:{0:0.00}}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding FooterTotalLm2, StringFormat=LM:{0:0.00}}"
+                                                               FontSize="10" FontWeight="Bold"
+                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                               HorizontalAlignment="Center"/>
                                                 </StackPanel>
                                                 <StackPanel Grid.Column="5" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding FooterTotalSqm2, StringFormat=SQ:{0:0.00}}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center"/>
+                                                    <TextBlock Text="{Binding FooterTotalSqm2, StringFormat=SQ:{0:0.00}}"
+                                                               FontSize="10" FontWeight="Bold"
+                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                               HorizontalAlignment="Center"/>
                                                 </StackPanel>
-                                                <TextBlock Grid.Column="6" Text="{Binding FooterTotalQty, StringFormat={}{0} pcs}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                <TextBlock Grid.Column="8" Text="{Binding FooterTotalSqm, StringFormat={}{0:0.000} sqm}" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                                                <TextBlock Grid.Column="10" Text="{Binding FooterTotalValue, StringFormat=AED {0:N2}}" FontSize="11" FontWeight="Bold" Foreground="#22C55E" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="0,0,4,0"/>
+                                                <TextBlock Grid.Column="6"
+                                                           Text="{Binding FooterTotalQty, StringFormat={}{0} pcs}"
+                                                           FontSize="10" FontWeight="Bold"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="8"
+                                                           Text="{Binding FooterTotalSqm, StringFormat={}{0:0.000} sqm}"
+                                                           FontSize="10" FontWeight="Bold"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                <TextBlock Grid.Column="10"
+                                                           Text="{Binding FooterTotalValue, StringFormat=AED {0:N2}}"
+                                                           FontSize="11" FontWeight="Bold"
+                                                           Foreground="#22C55E"
+                                                           HorizontalAlignment="Right"
+                                                           VerticalAlignment="Center"
+                                                           Margin="0,0,4,0"/>
                                             </Grid>
                                         </Border>
 
-                                        <!-- Empty state -->
-                                        <TextBlock Text="No rows yet. Click below to add your first glass panel." FontSize="11" FontStyle="Italic" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center" Margin="0,8,0,8">
+                                        <!-- Empty State -->
+                                        <TextBlock Text="No rows yet. Click below to add your first glass panel."
+                                                   FontSize="11" FontStyle="Italic"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   HorizontalAlignment="Center" Margin="0,8,0,8">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -488,13 +781,24 @@
                                         </TextBlock>
 
                                         <!-- Add Row Button -->
-                                        <Button Command="{Binding AddRowCommand}" Background="Transparent" BorderThickness="0" Margin="0,6,0,0" Cursor="Hand" HorizontalAlignment="Left">
+                                        <Button Command="{Binding AddRowCommand}"
+                                                Background="Transparent" BorderThickness="0"
+                                                Margin="0,6,0,0" Cursor="Hand"
+                                                HorizontalAlignment="Left">
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
-                                                    <Border x:Name="AB" Background="{DynamicResource ModuleBackgroundBrush}" CornerRadius="6" Padding="12,7" BorderThickness="1" BorderBrush="{DynamicResource AccentBrush}">
+                                                    <Border x:Name="AB"
+                                                            Background="{DynamicResource ModuleBackgroundBrush}"
+                                                            CornerRadius="6" Padding="12,7"
+                                                            BorderThickness="1"
+                                                            BorderBrush="{DynamicResource AccentBrush}">
                                                         <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="+" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,0,6,0"/>
-                                                            <TextBlock Text="ADD ITEM ROW" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                                            <TextBlock Text="+" FontSize="14" FontWeight="Bold"
+                                                                       Foreground="{DynamicResource AccentBrush}"
+                                                                       Margin="0,0,6,0"/>
+                                                            <TextBlock Text="ADD ITEM ROW" FontSize="10"
+                                                                       FontWeight="Bold"
+                                                                       Foreground="{DynamicResource AccentBrush}"/>
                                                         </StackPanel>
                                                     </Border>
                                                     <ControlTemplate.Triggers>
@@ -515,14 +819,23 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <!-- Add Spec Group -->
-            <Button Command="{Binding AddSpecGroupCommand}" Background="Transparent" BorderThickness="0" Margin="0,4,0,0" Cursor="Hand" HorizontalAlignment="Left">
+            <!-- Add Spec Group Button -->
+            <Button Command="{Binding AddSpecGroupCommand}"
+                    Background="Transparent" BorderThickness="0"
+                    Margin="0,4,0,0" Cursor="Hand" HorizontalAlignment="Left">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="AGB" Background="{DynamicResource ModuleBackgroundBrush}" CornerRadius="8" Padding="16,10" BorderThickness="1.5" BorderBrush="{DynamicResource AccentBrush}">
+                        <Border x:Name="AGB"
+                                Background="{DynamicResource ModuleBackgroundBrush}"
+                                CornerRadius="8" Padding="16,10"
+                                BorderThickness="1.5"
+                                BorderBrush="{DynamicResource AccentBrush}">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="+" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0"/>
-                                <TextBlock Text="ADD NEW SPEC GROUP" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
+                                <TextBlock Text="+" FontSize="16" FontWeight="Bold"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           Margin="0,0,8,0"/>
+                                <TextBlock Text="ADD NEW SPEC GROUP" FontSize="11" FontWeight="Bold"
+                                           Foreground="{DynamicResource AccentBrush}"/>
                             </StackPanel>
                         </Border>
                         <ControlTemplate.Triggers>
