@@ -55,6 +55,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         public SguParameters.SguParametersViewModel SguVM { get; }
         public DguParameters.DguParametersViewModel DguVM { get; }
         public LamParameters.LamParametersViewModel LamVM { get; }
+        public DguLamParameters.DguLamParametersViewModel DguLamVM { get; }
 
         // === Glass Type Cards ===
         public ObservableCollection<GlassTypeCard> GlassTypes { get; }
@@ -144,6 +145,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             SguVM = new SguParameters.SguParametersViewModel();
             DguVM = new DguParameters.DguParametersViewModel();
             LamVM = new LamParameters.LamParametersViewModel();
+            DguLamVM = new DguLamParameters.DguLamParametersViewModel();
 
             // Subscribe to parameter changes to auto-recalculate rate
             SguVM.PropertyChanged += OnSguParametersChanged;

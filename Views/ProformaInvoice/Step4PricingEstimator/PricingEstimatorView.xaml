@@ -6,6 +6,7 @@
              xmlns:sgu="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.SguParameters"
              xmlns:dgu="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.DguParameters"
              xmlns:lam="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.LamParameters"
+             xmlns:dgulam="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.DguLamParameters"
              mc:Ignorable="d"
              d:DesignHeight="900" d:DesignWidth="900"
              FontFamily="Segoe UI">
@@ -264,9 +265,10 @@
                 </ContentControl.ContentTemplate>
             </ContentControl>
 
-            <Border Margin="0,8,0,0">
-                <Border.Style>
-                    <Style TargetType="Border">
+            <!-- ============ DGU+LAM PARAMETERS PANEL ============ -->
+            <ContentControl Content="{Binding DguLamVM}">
+                <ContentControl.Style>
+                    <Style TargetType="ContentControl">
                         <Setter Property="Visibility" Value="Collapsed"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding SelectedGlassType.Code}" Value="DGU+LAM">
@@ -274,14 +276,13 @@
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
-                </Border.Style>
-                <Border Background="{DynamicResource MenuHoverBrush}"
-                        CornerRadius="6" Padding="14,10" HorizontalAlignment="Left">
-                    <TextBlock Text="DGU+LAM hybrid — coming soon"
-                               FontSize="11"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                </Border>
-            </Border>
+                </ContentControl.Style>
+                <ContentControl.ContentTemplate>
+                    <DataTemplate>
+                        <dgulam:DguLamParametersView/>
+                    </DataTemplate>
+                </ContentControl.ContentTemplate>
+            </ContentControl>
 
             <!-- ============ COMPACT PROCESSING TREATMENTS ============ -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"

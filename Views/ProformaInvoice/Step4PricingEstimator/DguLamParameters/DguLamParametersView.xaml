@@ -1,0 +1,119 @@
+﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.DguLamParameters.DguLamParametersView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="400" d:DesignWidth="900"
+             FontFamily="Segoe UI">
+
+    <!-- ============ DGU+LAM PLACEHOLDER PANEL ============ -->
+    <Border Background="{DynamicResource ModuleBackgroundBrush}"
+            CornerRadius="10"
+            Padding="30"
+            Margin="0,10,0,0"
+            BorderThickness="1.5"
+            BorderBrush="{DynamicResource MenuHoverBrush}">
+        <StackPanel HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+
+            <!-- Icon -->
+            <Border Background="#F97316"
+                    Width="48" Height="48"
+                    CornerRadius="10"
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,16">
+                <TextBlock Text="&#128119;"
+                           FontSize="24"
+                           Foreground="White"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+            </Border>
+
+            <!-- Title -->
+            <TextBlock Text="DGU + LAMINATED (HYBRID)"
+                       FontSize="14"
+                       FontWeight="Bold"
+                       Foreground="#F97316"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,8"/>
+
+            <!-- Subtitle -->
+            <TextBlock Text="Coming in a future release"
+                       FontSize="12"
+                       FontWeight="SemiBold"
+                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,14"/>
+
+            <!-- Description -->
+            <TextBlock TextAlignment="Center"
+                       TextWrapping="Wrap"
+                       MaxWidth="500"
+                       FontSize="12"
+                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       Margin="0,0,0,18">
+                <Run Text="DGU+LAM combines an insulated glass unit with one laminated pane, delivering both thermal insulation and safety/security performance. Common uses:"/>
+            </TextBlock>
+
+            <!-- Use Cases -->
+            <StackPanel HorizontalAlignment="Center" Margin="0,0,0,18">
+                <StackPanel Orientation="Horizontal" Margin="0,2">
+                    <TextBlock Text="•" FontSize="12" Foreground="#F97316" Margin="0,0,8,0"/>
+                    <TextBlock Text="High-end architectural facades"
+                               FontSize="12"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,2">
+                    <TextBlock Text="•" FontSize="12" Foreground="#F97316" Margin="0,0,8,0"/>
+                    <TextBlock Text="Hurricane / impact resistant glazing"
+                               FontSize="12"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,2">
+                    <TextBlock Text="•" FontSize="12" Foreground="#F97316" Margin="0,0,8,0"/>
+                    <TextBlock Text="Sound insulation for premium interiors"
+                               FontSize="12"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,2">
+                    <TextBlock Text="•" FontSize="12" Foreground="#F97316" Margin="0,0,8,0"/>
+                    <TextBlock Text="Bullet-resistant glass assemblies"
+                               FontSize="12"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Status Badge -->
+            <Border Background="#F97316"
+                    CornerRadius="16"
+                    Padding="14,6"
+                    HorizontalAlignment="Center">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#9881;"
+                               FontSize="11"
+                               Foreground="White"
+                               VerticalAlignment="Center"
+                               Margin="0,0,6,0"/>
+                    <TextBlock Text="PLANNED FOR PHASE 2 RELEASE"
+                               FontSize="10"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Tip -->
+            <TextBlock Text="For now, use DGU or LAM separately based on which property matters more for your project."
+                       TextAlignment="Center"
+                       TextWrapping="Wrap"
+                       MaxWidth="450"
+                       FontSize="11"
+                       FontStyle="Italic"
+                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       Margin="0,20,0,0"/>
+
+        </StackPanel>
+    </Border>
+
+</UserControl>
