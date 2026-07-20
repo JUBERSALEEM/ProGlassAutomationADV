@@ -83,7 +83,7 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
-        <!-- ===== ComboBoxItem Style (shared by both dropdowns) ===== -->
+        <!-- ===== ComboBoxItem Style (shared) ===== -->
         <Style x:Key="ThemedComboBoxItemStyle" TargetType="ComboBoxItem">
             <Setter Property="Padding" Value="12,8"/>
             <Setter Property="FontSize" Value="13"/>
@@ -243,7 +243,6 @@
                                         <ColumnDefinition Width="30"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <!-- Custom editable TextBox inside ComboBox -->
                                     <TextBox x:Name="PART_EditableTextBox"
                                              Grid.Column="0"
                                              Background="Transparent"
@@ -257,7 +256,6 @@
                                              Focusable="True"
                                              IsReadOnly="False"/>
 
-                                    <!-- Dropdown Toggle Button with Chevron -->
                                     <ToggleButton x:Name="ToggleButton"
                                                   Grid.Column="1"
                                                   Background="Transparent"
@@ -529,7 +527,6 @@
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <!-- Glass Type Dropdown -->
                                     <StackPanel Grid.Column="0">
                                         <TextBlock Text="GLASS TYPE"
                                                    Style="{StaticResource FieldLabelStyle}"/>
@@ -539,7 +536,6 @@
                                                   Style="{StaticResource ThemedComboBoxStyle}"/>
                                     </StackPanel>
 
-                                    <!-- Specification Dropdown (Editable) -->
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="SPECIFICATION (pick saved or type custom)"
                                                    Style="{StaticResource FieldLabelStyle}"/>
@@ -550,19 +546,125 @@
                                     </StackPanel>
                                 </Grid>
 
-                                <!-- Placeholder for upcoming item rows -->
-                                <Border Background="{DynamicResource MenuHoverBrush}"
+                                <!-- ============ NEW: ITEM ROWS SECTION ============ -->
+                                <Border Background="{DynamicResource ModuleBackgroundBrush}"
                                         CornerRadius="6"
-                                        Padding="14,10">
+                                        Padding="12"
+                                        BorderThickness="1"
+                                        BorderBrush="{DynamicResource MenuHoverBrush}">
                                     <StackPanel>
-                                        <TextBlock Text="✓ Dropdowns fully styled"
+
+                                        <!-- Header with title + count -->
+                                        <Grid Margin="0,0,0,10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <TextBlock Grid.Column="0"
+                                                       Text="GLASS PANEL ITEMS"
+                                                       FontSize="10"
+                                                       FontWeight="Bold"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       VerticalAlignment="Center"/>
+
+                                            <StackPanel Grid.Column="1"
+                                                        Orientation="Horizontal"
+                                                        VerticalAlignment="Center">
+                                                <TextBlock Text="Rows: "
+                                                           FontSize="10"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           VerticalAlignment="Center"/>
+                                                <Border Background="{DynamicResource MenuHoverBrush}"
+                                                        CornerRadius="4"
+                                                        Padding="8,2"
+                                                        MinWidth="30">
+                                                    <TextBlock Text="{Binding TotalRows}"
+                                                               FontSize="11"
+                                                               FontWeight="Bold"
+                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                               HorizontalAlignment="Center"/>
+                                                </Border>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <!-- Simple row list (columns come in 7.8b) -->
+                                        <ItemsControl ItemsSource="{Binding ItemRows}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border Background="{DynamicResource MenuHoverBrush}"
+                                                            CornerRadius="4"
+                                                            Padding="10,6"
+                                                            Margin="0,0,0,4">
+                                                        <TextBlock FontSize="11"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                                            <Run Text="Row #"/>
+                                                            <Run Text="{Binding SerialNumber}" FontWeight="Bold"/>
+                                                            <Run Text=" — awaiting cells (next sub-phase)"/>
+                                                        </TextBlock>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <!-- Empty state message -->
+                                        <TextBlock Text="No rows yet. Click below to add your first glass panel."
                                                    FontSize="11"
-                                                   FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                        <TextBlock Text="Coming next: Item rows table (SR | Ref | W1 | H1 | W2 | H2 | Qty | SQM | Total | Rate | Value)"
-                                                   FontSize="10"
+                                                   FontStyle="Italic"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   Margin="0,4,0,0"/>
+                                                   HorizontalAlignment="Center"
+                                                   Margin="0,8,0,8">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding TotalRows}" Value="0">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+
+                                        <!-- ADD ITEM ROW button -->
+                                        <Button Command="{Binding AddRowCommand}"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                Padding="0"
+                                                Margin="0,6,0,0"
+                                                Cursor="Hand"
+                                                HorizontalAlignment="Left">
+                                            <Button.Template>
+                                                <ControlTemplate TargetType="Button">
+                                                    <Border x:Name="AddRowBorder"
+                                                            Background="{DynamicResource ModuleBackgroundBrush}"
+                                                            CornerRadius="6"
+                                                            Padding="12,7"
+                                                            BorderThickness="1"
+                                                            BorderBrush="{DynamicResource AccentBrush}">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="+"
+                                                                       FontSize="14"
+                                                                       FontWeight="Bold"
+                                                                       Foreground="{DynamicResource AccentBrush}"
+                                                                       VerticalAlignment="Center"
+                                                                       Margin="0,0,6,0"/>
+                                                            <TextBlock Text="ADD ITEM ROW"
+                                                                       FontSize="10"
+                                                                       FontWeight="Bold"
+                                                                       Foreground="{DynamicResource AccentBrush}"
+                                                                       VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="AddRowBorder" Property="Opacity" Value="0.75"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
+                                                </ControlTemplate>
+                                            </Button.Template>
+                                        </Button>
+
                                     </StackPanel>
                                 </Border>
 

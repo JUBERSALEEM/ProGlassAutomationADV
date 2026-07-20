@@ -8,9 +8,125 @@ using System.Windows.Input;
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 {
     /// <summary>
+    /// Represents a single glass panel line item (one row in the data grid).
+    /// Has 11 columns: SR | GlassRef | W1 | H1 | W2 | H2 | Qty | SQM1 | SQM2 | Rate | Value
+    ///
+    /// Formulas:
+    ///   SQM1 = max((W1 × H1) / 1,000,000, 0.5)   [per piece, minimum 0.5]
+    ///   SQM2 = max((W2 × H2) / 1,000,000, 0.5)   [per piece, minimum 0.5]
+    ///   Value = SQM1 × Qty × Rate                  [total value for the row]
+    ///
+    /// SQM1/SQM2/Value are auto-calculated from other fields.
+    /// </summary>
+    public class GlassItemRow : ViewModelBase
+    {
+        // Minimum billable SQM per piece (industry rule)
+        private const decimal MIN_SQM = 0.5m;
+
+        private int _serialNumber;
+        public int SerialNumber
+        {
+            get => _serialNumber;
+            set { _serialNumber = value; OnPropertyChanged(); }
+        }
+
+        private string _glassRef;
+        public string GlassRef
+        {
+            get => _glassRef;
+            set { _glassRef = value; OnPropertyChanged(); }
+        }
+
+        private int _w1;
+        public int W1
+        {
+            get => _w1;
+            set { _w1 = value; OnPropertyChanged(); RecalculateAll(); }
+        }
+
+        private int _h1;
+        public int H1
+        {
+            get => _h1;
+            set { _h1 = value; OnPropertyChanged(); RecalculateAll(); }
+        }
+
+        private int _w2;
+        public int W2
+        {
+            get => _w2;
+            set { _w2 = value; OnPropertyChanged(); RecalculateSqm2(); }
+        }
+
+        private int _h2;
+        public int H2
+        {
+            get => _h2;
+            set { _h2 = value; OnPropertyChanged(); RecalculateSqm2(); }
+        }
+
+        private int _qty = 1;
+        public int Qty
+        {
+            get => _qty;
+            set { _qty = value; OnPropertyChanged(); RecalculateAll(); }
+        }
+
+        private decimal _sqm1;
+        public decimal Sqm1
+        {
+            get => _sqm1;
+            private set { _sqm1 = value; OnPropertyChanged(); }
+        }
+
+        private decimal _sqm2;
+        public decimal Sqm2
+        {
+            get => _sqm2;
+            private set { _sqm2 = value; OnPropertyChanged(); }
+        }
+
+        private decimal _rate;
+        public decimal Rate
+        {
+            get => _rate;
+            set { _rate = value; OnPropertyChanged(); RecalculateAll(); }
+        }
+
+        private decimal _value;
+        public decimal Value
+        {
+            get => _value;
+            private set { _value = value; OnPropertyChanged(); }
+        }
+
+        /// <summary>
+        /// Recalculates SQM1 and Value.
+        /// SQM1 = max((W1 × H1) / 1,000,000, 0.5)  [per piece, minimum 0.5]
+        /// Value = SQM1 × Qty × Rate
+        /// </summary>
+        private void RecalculateAll()
+        {
+            decimal rawSqm1 = (decimal)W1 * H1 / 1_000_000m;
+            Sqm1 = System.Math.Max(System.Math.Round(rawSqm1, 3), MIN_SQM);
+
+            Value = System.Math.Round(Sqm1 * Qty * Rate, 2);
+        }
+
+        /// <summary>
+        /// Recalculates SQM2 only (independent of Value).
+        /// SQM2 = max((W2 × H2) / 1,000,000, 0.5)  [per piece, minimum 0.5]
+        /// </summary>
+        private void RecalculateSqm2()
+        {
+            decimal rawSqm2 = (decimal)W2 * H2 / 1_000_000m;
+            Sqm2 = System.Math.Max(System.Math.Round(rawSqm2, 3), MIN_SQM);
+        }
+    }
+
+    /// <summary>
     /// Represents a single specification group in the data grid.
-    /// Each group will contain multiple item rows (glass panels)
-    /// with dimensions, quantities, rates, and values.
+    /// Each group contains multiple item rows (glass panels).
     /// </summary>
     public class SpecGroup : ViewModelBase
     {
@@ -53,10 +169,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
         // === Glass Type + Specification Selection ===
 
-        /// <summary>
-        /// Selected glass type (SGU / DGU / LAM / DGU+LAM).
-        /// When changed, the Specification dropdown filters and reloads.
-        /// </summary>
         private string _selectedGlassType;
         public string SelectedGlassType
         {
@@ -65,16 +177,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             {
                 _selectedGlassType = value;
                 OnPropertyChanged();
-
-                // Reload specs filtered by new glass type
                 LoadFilteredSpecs();
             }
         }
 
-        /// <summary>
-        /// User can type manually OR pick from dropdown.
-        /// Selecting from dropdown auto-fills BaseRate.
-        /// </summary>
         private string _selectedSpecName;
         public string SelectedSpecName
         {
@@ -83,20 +189,59 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             {
                 _selectedSpecName = value;
                 OnPropertyChanged();
-
-                // Auto-fill BaseRate from matching spec
                 TryAutoFillRate();
             }
         }
 
-        // === Filtered Specs List (loaded from DB) ===
         public ObservableCollection<SavedSpecification> FilteredSpecs { get; }
             = new ObservableCollection<SavedSpecification>();
 
-        /// <summary>
-        /// Loads specs from specifications.db, filtered by SelectedGlassType.
-        /// Sorted by UsageCount DESC, then LastUsedAt DESC.
-        /// </summary>
+        // === Item Rows (Glass Panels) ===
+        public ObservableCollection<GlassItemRow> ItemRows { get; }
+            = new ObservableCollection<GlassItemRow>();
+
+        public int TotalRows => ItemRows?.Count ?? 0;
+
+        // === Commands ===
+        public ICommand AddRowCommand { get; }
+        public ICommand RemoveRowCommand { get; }
+
+        public SpecGroup()
+        {
+            ItemRows.CollectionChanged += (s, e) =>
+            {
+                OnPropertyChanged(nameof(TotalRows));
+                RenumberRows();
+            };
+
+            AddRowCommand = new RelayCommand(_ => AddNewRow());
+            RemoveRowCommand = new RelayCommand(param =>
+            {
+                if (param is GlassItemRow row)
+                    ItemRows.Remove(row);
+            });
+        }
+
+        private void AddNewRow()
+        {
+            var newRow = new GlassItemRow
+            {
+                SerialNumber = ItemRows.Count + 1,
+                GlassRef = string.Empty,
+                Qty = 1,
+                Rate = EffectiveRate   // Default rate from spec group
+            };
+            ItemRows.Add(newRow);
+        }
+
+        private void RenumberRows()
+        {
+            for (int i = 0; i < ItemRows.Count; i++)
+            {
+                ItemRows[i].SerialNumber = i + 1;
+            }
+        }
+
         public async void LoadFilteredSpecs()
         {
             FilteredSpecs.Clear();
@@ -110,16 +255,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 foreach (var s in specs)
                     FilteredSpecs.Add(s);
             }
-            catch
-            {
-                // Silently fail if DB not accessible; user can still type manually
-            }
+            catch { }
         }
 
-        /// <summary>
-        /// When user picks a spec from dropdown, auto-fill the Base Rate.
-        /// If user typed a custom spec name (not in list), no rate change.
-        /// </summary>
         private void TryAutoFillRate()
         {
             if (string.IsNullOrWhiteSpace(SelectedSpecName) || FilteredSpecs == null)
@@ -138,17 +276,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
     /// <summary>
     /// ViewModel for Step 5 of the Proforma Invoice wizard.
     /// Handles the data grid where users add glass panel line items.
-    /// Each spec group contains multiple item rows with 11 columns:
-    /// SR | GlassRef | W1 | H1 | W2 | H2 | Qty | SQM | TotalSQM | Rate | Value
-    /// Rates from Step 4 (Pricing Estimator) are pushed here via APPLY button.
+    /// Each spec group contains multiple item rows with 11 columns.
     /// </summary>
     public class DataGridViewModel : ViewModelBase
     {
-        // === Header Info ===
         public string Title { get; } = "SPECIFICATION SUB-GROUPS";
         public string Subtitle { get; } = "Specify the number of unique glass specifications in this proforma.";
 
-        // === Glass Type Options (shared across all spec groups) ===
         public List<string> GlassTypeOptions { get; } = new List<string>
         {
             "SGU",
@@ -157,30 +291,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             "DGU+LAM"
         };
 
-        // === Spec Groups Collection ===
         public ObservableCollection<SpecGroup> SpecGroups { get; }
 
-        // === Total Groups Counter (auto-updates from collection) ===
         public int TotalSpecGroups => SpecGroups?.Count ?? 0;
 
-        // === Commands ===
         public ICommand AddSpecGroupCommand { get; }
         public ICommand RemoveSpecGroupCommand { get; }
 
         public DataGridViewModel()
         {
             SpecGroups = new ObservableCollection<SpecGroup>();
-
-            // Auto-update TotalSpecGroups when collection changes
             SpecGroups.CollectionChanged += (s, e) => OnPropertyChanged(nameof(TotalSpecGroups));
 
-            // Seed with 1 default spec group (like the screenshot)
             AddNewSpecGroup();
 
-            // Command: Add new spec group
             AddSpecGroupCommand = new RelayCommand(_ => AddNewSpecGroup());
-
-            // Command: Remove a spec group
             RemoveSpecGroupCommand = new RelayCommand(param =>
             {
                 if (param is SpecGroup group && SpecGroups.Count > 1)
@@ -199,7 +324,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 GroupName = $"Spec Group {SpecGroups.Count + 1}",
                 BaseRate = 150m,
                 SurchargePercent = 0m,
-                SelectedGlassType = "SGU"   // Default to SGU (triggers spec load)
+                SelectedGlassType = "SGU"
             };
             SpecGroups.Add(newGroup);
         }
