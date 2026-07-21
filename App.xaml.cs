@@ -31,8 +31,6 @@ namespace ProGlassAutomation
             //  TEMPORARY DIAGNOSTIC: Global exception handler
             //  Catches WPF dispatcher crashes (layout/render pass errors)
             //  that bypass normal try/catch blocks.
-            //  Shows a MessageBox with full error details instead of
-            //  silently crashing the app. Remove after debugging.
             // ══════════════════════════════════════════════════════════════
             DispatcherUnhandledException += (s, args) =>
             {
@@ -48,25 +46,20 @@ namespace ProGlassAutomation
                 msg += $"\n\nStack:\n{stack}";
 
                 MessageBox.Show(msg, "App Crash — Debug", MessageBoxButton.OK, MessageBoxImage.Error);
-                args.Handled = true; // Prevent app from closing
+                args.Handled = true;
             };
 
             // 1) Load persisted config (%AppData%\ProGlassAutomation\config.json)
             Config = ConfigService.Load();
 
-            // 2) Initialize main database (creates proglass.db + tables on first run)
-            //    Located at: %AppData%\ProGlassAutomation\proglass.db
+            // 2) Initialize main database (proglass.db)
             DatabaseInitializer.Initialize();
 
-            // 3) Initialize Specifications database (separate specifications.db)
-            //    Stores reusable glass specs generated from Step 4 for use in Step 5
-            //    Located at: %AppData%\ProGlassAutomation\specifications.db
+            // 3) Initialize Specifications database (specifications.db)
             Specs = new SpecificationsRepository();
             await Specs.InitializeAsync();
 
-            // 4) Initialize Proforma Invoices database (separate proformainvoices.db)
-            //    Stores saved invoices with full wizard-state snapshots
-            //    Located at: %AppData%\ProGlassAutomation\proformainvoices.db
+            // 4) Initialize Proforma Invoices database (proformainvoices.db)
             Invoices = new ProformaInvoiceRepository();
             await Invoices.InitializeAsync();
 
@@ -79,18 +72,30 @@ namespace ProGlassAutomation
             var splash = new SplashView();
             splash.Show();
 
-            // 7) Simulate loading time (allows animations to play)
-            //    Replace this with real init work later (DB connect, config load, etc.)
+            // 7) Loading time for splash animations
             await Task.Delay(2800);
 
-            // 8) Create main window (but don't show yet)
+            // 8) Create main window (not shown yet)
             var mainWindow = new MainWindow();
 
-            // 9) Fade out splash then show main window
+            // ══════════════════════════════════════════════════════════════
+            //  Phase 8.2c — Proper splash-to-main handoff
+            //  1. Register main window as app's primary BEFORE showing
+            //  2. Splash fades out (releases Topmost internally)
+            //  3. On fade complete: show + activate + focus main window,
+            //     then close splash
+            //  Prevents the main window from opening BEHIND the splash
+            //  and requiring a taskbar click to bring to foreground.
+            // ══════════════════════════════════════════════════════════════
+            MainWindow = mainWindow;
+
             splash.FadeOutAndClose(() =>
             {
                 mainWindow.Show();
-                MainWindow = mainWindow;
+                mainWindow.Activate();      // bring to foreground
+                mainWindow.Focus();         // grab keyboard focus
+                mainWindow.Topmost = true;  // force above splash residue
+                mainWindow.Topmost = false; // immediately release so other apps can go on top
             });
         }
 
