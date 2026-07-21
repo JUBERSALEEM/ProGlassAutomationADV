@@ -6,6 +6,10 @@
              xmlns:ss="clr-namespace:ProGlassAutomation.Views.Dashboard.SheetStore"
              xmlns:pi="clr-namespace:ProGlassAutomation.Views.Dashboard.ProformaInvoice"
              FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
              Loaded="OnLoaded">
 
     <UserControl.Resources>
@@ -25,9 +29,9 @@
         <Style x:Key="TabButtonStyle" TargetType="Button">
             <Setter Property="Background"      Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding"         Value="20,14"/>
+            <Setter Property="Padding"         Value="22,16"/>
             <Setter Property="Cursor"          Value="Hand"/>
-            <Setter Property="FontSize"        Value="13"/>
+            <Setter Property="FontSize"        Value="14"/>
             <Setter Property="FontFamily"      Value="Segoe UI"/>
             <Setter Property="Foreground"
                     Value="{DynamicResource SecondaryForegroundBrush}"/>
@@ -38,12 +42,12 @@
                                 Padding="{TemplateBinding Padding}">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{TemplateBinding Tag}"
-                                           FontSize="14"
+                                           FontSize="16"
                                            VerticalAlignment="Center"
-                                           Margin="0,0,7,0"/>
+                                           Margin="0,0,8,0"/>
                                 <TextBlock x:Name="Label"
                                            Text="{TemplateBinding Content}"
-                                           FontSize="13"
+                                           FontSize="14"
                                            FontWeight="{TemplateBinding FontWeight}"
                                            VerticalAlignment="Center"
                                            Foreground="{TemplateBinding Foreground}"/>
@@ -62,22 +66,16 @@
 
     </UserControl.Resources>
 
-    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+    <Grid Background="#F9FAFB">
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
-            <!-- hamburger spacer -->
             <RowDefinition Height="Auto"/>
-            <!-- tab strip -->
             <RowDefinition Height="1"/>
-            <!-- divider -->
             <RowDefinition Height="*"/>
-            <!-- page content -->
         </Grid.RowDefinitions>
 
         <!-- ── TAB STRIP ─────────────────────────────────────────────── -->
-        <Border Grid.Row="1"
-                Background="{DynamicResource ModuleBackgroundBrush}"
-                Padding="16,0">
+        <Border Grid.Row="1" Background="White" Padding="20,0">
             <ItemsControl ItemsSource="{Binding Pages}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -92,7 +90,6 @@
                                 <RowDefinition Height="3"/>
                             </Grid.RowDefinitions>
 
-                            <!-- tab button -->
                             <Button Grid.Row="0"
                                     Content="{Binding TabTitle}"
                                     Tag="{Binding TabIcon}"
@@ -104,7 +101,6 @@
                                     <Style TargetType="Button"
                                            BasedOn="{StaticResource TabButtonStyle}">
                                         <Style.Triggers>
-                                            <!-- active tab: accent foreground + bold -->
                                             <DataTrigger Value="True">
                                                 <DataTrigger.Binding>
                                                     <MultiBinding
@@ -115,17 +111,14 @@
                                                         <Binding Path="."/>
                                                     </MultiBinding>
                                                 </DataTrigger.Binding>
-                                                <Setter Property="Foreground"
-                                                        Value="{DynamicResource AccentBrush}"/>
-                                                <Setter Property="FontWeight"
-                                                        Value="SemiBold"/>
+                                                <Setter Property="Foreground" Value="#0F172A"/>
+                                                <Setter Property="FontWeight" Value="SemiBold"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Button.Style>
                             </Button>
 
-                            <!-- underline indicator -->
                             <Border Grid.Row="1" CornerRadius="2,2,0,0">
                                 <Border.Style>
                                     <Style TargetType="Border">
@@ -141,27 +134,20 @@
                                                         <Binding Path="."/>
                                                     </MultiBinding>
                                                 </DataTrigger.Binding>
-                                                <Setter Property="Background"
-                                                        Value="{DynamicResource AccentBrush}"/>
+                                                <Setter Property="Background" Value="#0F4C3A"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </Border.Style>
                             </Border>
-
                         </Grid>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </Border>
 
-        <!-- ── divider ───────────────────────────────────────────────── -->
-        <Border Grid.Row="2"
-                Background="{DynamicResource SecondaryForegroundBrush}"
-                Opacity="0.12"/>
+        <Border Grid.Row="2" Background="#E5E7EB"/>
 
-        <!-- ── active page content ───────────────────────────────────── -->
-        <ContentPresenter Grid.Row="3"
-                          Content="{Binding ActivePage}"/>
+        <ContentPresenter Grid.Row="3" Content="{Binding ActivePage}"/>
     </Grid>
 </UserControl>

@@ -122,12 +122,27 @@ namespace ProGlassAutomation.ViewModels
         // ═════════════════════════════════════════════════════════════════
         public MainViewModel()
         {
-            // DashboardVM has NO dependency on ProformaInvoiceVM
+            // ── construct modules ─────────────────────────────────────────
             DashboardVM = new DashboardViewModel();
             ProformaInvoiceVM = new ProformaInvoiceViewModel();
-
             AiChatVM = new AiChatViewModel(App.Ai);
 
+            // ── wire dashboard navigation callbacks ───────────────────────
+            // NavigateTo: tells the dashboard quick actions how to navigate
+            // the main shell — same Navigate() method used by the hamburger menu.
+            DashboardVM.NavigateTo = target =>
+            {
+                Navigate(target);
+            };
+
+            // TriggerNewInvoice: after navigating to PI module,
+            // auto-opens the new invoice wizard.
+            DashboardVM.TriggerNewInvoice = () =>
+            {
+                ProformaInvoiceVM.TriggerNewInvoice();
+            };
+
+            // ── commands ──────────────────────────────────────────────────
             ToggleMenuCommand = new RelayCommand(_ =>
             {
                 IsMenuOpen = !IsMenuOpen;

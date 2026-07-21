@@ -50,6 +50,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
     /// Phase 7.19: List-first architecture — module landing page shows
     /// SavedInvoicesList. User creates new or edits existing from the list.
     /// Wizard is shown on demand, with "Back to List" navigation.
+    /// Phase 8.2: Added TriggerNewInvoice() public method so Dashboard
+    /// quick action can open the new invoice wizard via MainViewModel callback.
     /// </summary>
     public class ProformaInvoiceViewModel : ViewModelBase
     {
@@ -307,5 +309,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                     MessageBoxImage.Error);
             }
         }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  PHASE 8.2 — Public trigger for Dashboard quick action
+        // ══════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Called by MainViewModel when the Dashboard "New Invoice" quick
+        /// action is clicked. Delegates to StartNewInvoice() so the wizard
+        /// resets and opens — same behaviour as clicking "+ NEW INVOICE"
+        /// on the list page directly.
+        /// </summary>
+        public void TriggerNewInvoice() => StartNewInvoice();
     }
 }

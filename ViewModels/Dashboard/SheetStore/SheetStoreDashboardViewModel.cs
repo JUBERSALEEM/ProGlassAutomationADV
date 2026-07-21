@@ -10,6 +10,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     /// Sheet Store dashboard page.
     /// KPIs : Sheet Types, Inventory Value, Available SQM, Low/Out-of-Stock count.
     /// Chart: Available SQM per category — vertical bars.
+    /// Phase 8.2a: Cards now use TintColor for subtle tinted backgrounds.
     /// </summary>
     public class SheetStoreDashboardViewModel : DashboardPageBase
     {
@@ -73,6 +74,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     Title        = "Sheet Types",
                     DisplayValue = sheetTypes.ToString("N0"),
                     BadgeColor   = "#6366F1",
+                    TintColor    = "#EEF2FF",    // indigo-50
                     SubLabel     = $"{categories} categories in store"
                 },
                 new KpiCardModel
@@ -81,6 +83,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     Title        = "Inventory Value",
                     DisplayValue = $"AED {totalValue:N0}",
                     BadgeColor   = "#10B981",
+                    TintColor    = "#F0FDF4",    // green-50
                     SubLabel     = "Balance sheets at sell price"
                 },
                 new KpiCardModel
@@ -89,6 +92,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     Title        = "Available SQM",
                     DisplayValue = $"{totalSqm:N1} m²",
                     BadgeColor   = "#F59E0B",
+                    TintColor    = "#FFFBEB",    // amber-50
                     SubLabel     = "Total balance across all types"
                 },
                 new KpiCardModel
@@ -97,6 +101,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     Title        = "Low / Out of Stock",
                     DisplayValue = $"{lowStockCount} / {outOfStock}",
                     BadgeColor   = lowStockCount > 0 ? "#EF4444" : "#10B981",
+                    TintColor    = lowStockCount > 0 ? "#FEF2F2" : "#F0FDF4",
                     SubLabel     = lowStockCount > 0
                                        ? $"{outOfStock} out · {lowStockCount} critical"
                                        : "All stock levels healthy",
@@ -104,7 +109,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 }
             };
 
-            // ── category bars (available SQM per category) ────────────────
+            // ── category bars ─────────────────────────────────────────────
             var grouped = sheets
                 .GroupBy(s => s.Category)
                 .Select((g, idx) => new

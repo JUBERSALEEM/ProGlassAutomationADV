@@ -1,4 +1,5 @@
 ﻿using ProGlassAutomation.Commands;
+using System;
 using System.Collections.Generic;
 using System.Windows.Input;
 
@@ -8,6 +9,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     /// Shell ViewModel for the multi-page Dashboard.
     /// Owns the tab list and the currently active sub-page.
     /// Lazy-loads each sub-page on first tab selection via ActivePage setter.
+    /// NavigateTo and TriggerNewInvoice are wired by MainViewModel after
+    /// construction and passed down to OverviewVM.
     /// </summary>
     public class DashboardViewModel : ViewModelBase
     {
@@ -23,7 +26,6 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 if (_activePage == value) return;
                 _activePage = value;
                 OnPropertyChanged();
-                // trigger LoadAsync on the newly selected page
                 _ = _activePage.LoadAsync();
             }
         }
@@ -35,6 +37,25 @@ namespace ProGlassAutomation.ViewModels.Dashboard
 
         // ── commands ──────────────────────────────────────────────────────
         public ICommand SelectTabCommand { get; }
+
+        // ── navigation callbacks — set by MainViewModel after construction ─
+        /// <summary>
+        /// Wired by MainViewModel: target => Navigate(target).
+        /// Passed down to OverviewVM so quick action buttons can navigate.
+        /// </summary>
+        public Action<string>? NavigateTo
+        {
+            set => OverviewVM.NavigateTo = value;
+        }
+
+        /// <summary>
+        /// Wired by MainViewModel: () => ProformaInvoiceVM.TriggerNewInvoice().
+        /// Passed down to OverviewVM for the "+ New Invoice" quick action.
+        /// </summary>
+        public Action? TriggerNewInvoice
+        {
+            set => OverviewVM.TriggerNewInvoice = value;
+        }
 
         // ═════════════════════════════════════════════════════════════════
         public DashboardViewModel()

@@ -10,6 +10,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     /// Proforma Invoice dashboard page.
     /// KPIs : Total, Approved, Sent/Pending, Draft counts + values.
     /// Charts: Status distribution bars + Top 5 customers by value.
+    /// Phase 8.2a: Cards now use TintColor for subtle tinted backgrounds.
     /// </summary>
     public class PiDashboardViewModel : DashboardPageBase
     {
@@ -81,6 +82,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     Title        = "Total Invoices",
                     DisplayValue = total.ToString("N0"),
                     BadgeColor   = "#6366F1",
+                    TintColor    = "#EEF2FF",    // indigo-50
                     SubLabel     = $"Total value AED {totalVal:N0}"
                 },
                 new KpiCardModel
@@ -89,6 +91,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     Title        = "Approved",
                     DisplayValue = approvedCount.ToString("N0"),
                     BadgeColor   = "#10B981",
+                    TintColor    = "#F0FDF4",    // green-50
                     SubLabel     = $"AED {approvedVal:N0} confirmed"
                 },
                 new KpiCardModel
@@ -97,6 +100,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     Title        = "Sent / Pending",
                     DisplayValue = sentCount.ToString("N0"),
                     BadgeColor   = "#3B82F6",
+                    TintColor    = "#EFF6FF",    // blue-50
                     SubLabel     = $"AED {pendingVal:N0} awaiting response"
                 },
                 new KpiCardModel
@@ -105,6 +109,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     Title        = "Draft",
                     DisplayValue = draftCount.ToString("N0"),
                     BadgeColor   = "#6B7280",
+                    TintColor    = "#F9FAFB",    // gray-50
                     SubLabel     = $"{rejectedCount} rejected"
                 }
             };
@@ -133,7 +138,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     IsHighlight = maxStatus > 0 && s.Count == maxStatus
                 }));
 
-            // ── top 5 customers by invoice value ──────────────────────────
+            // ── top 5 customers ───────────────────────────────────────────
             var topCustomers = invoices
                 .GroupBy(i => string.IsNullOrWhiteSpace(i.CustomerName)
                                   ? "Unknown" : i.CustomerName)
