@@ -1,9 +1,10 @@
 ﻿using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
-using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.CustomCharges;
+using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.ViewModels;
+using ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step2ProjectSpecs;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step3ClientProfile;
@@ -11,6 +12,7 @@ using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.InvoiceMainSummary;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsAndConditions;
+using ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -77,6 +79,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
         public ICommand PrintCommand { get; }
         public ICommand ExportPdfCommand { get; }
         public ICommand SaveInvoiceCommand { get; }
+        public ICommand LoadInvoiceCommand { get; }   // Phase 7.16
         public ICommand SendEmailCommand { get; }
 
         public FrameworkElement PrintTarget { get; set; }
@@ -99,8 +102,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             Terms = terms ?? throw new ArgumentNullException(nameof(terms));
 
             PrintCommand = new RelayCommand(_ => ExecutePrint());
-            ExportPdfCommand = new RelayCommand(_ => ShowComingSoon("PDF Export", "Phase 7.16"));
+            ExportPdfCommand = new RelayCommand(_ => ShowComingSoon("PDF Export", "Phase 7.17"));
             SaveInvoiceCommand = new RelayCommand(_ => ExecuteSaveInvoice());
+            LoadInvoiceCommand = new RelayCommand(_ => ExecuteLoadInvoice());
             SendEmailCommand = new RelayCommand(_ => ShowComingSoon("Send Email", "Phase 7.20"));
         }
 
@@ -223,10 +227,101 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             string verb = isUpdate ? "updated" : "saved";
             MessageBox.Show(
                 $"Invoice '{proformaId}' was {verb} successfully.\n\n" +
-                "You can load it later from the saved-invoice list (Phase 7.17).",
+                "You can load it later using the LOAD INVOICE button.",
                 "Save Successful",
                 MessageBoxButton.OK,
                 MessageBoxImage.Information);
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  PHASE 7.16 — LOAD SAVED INVOICE
+        //  Opens the SavedInvoicesListDialog, waits for user selection,
+        //  confirms unsaved-changes handling, then rehydrates all wizard VMs.
+        // ══════════════════════════════════════════════════════════════════
+
+        private async void ExecuteLoadInvoice()
+        {
+            if (App.Invoices == null)
+            {
+                MessageBox.Show(
+                    "Invoice database is not initialized. Please restart the app.",
+                    "Load Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return;
+            }
+
+            // Warn about unsaved changes (simple heuristic: any data in Company/Client/rows)
+            bool hasCurrentData =
+                !string.IsNullOrWhiteSpace(Company.CompanyName) ||
+                !string.IsNullOrWhiteSpace(Client.CustomerName) ||
+                DataGrid.SpecGroups.Any(g => g.ItemRows.Count > 0);
+
+            if (hasCurrentData)
+            {
+                var choice = MessageBox.Show(
+                    "Loading a saved invoice will replace your current wizard data.\n\n" +
+                    "• YES → Save current invoice first, then load\n" +
+                    "• NO → Discard current data and load\n" +
+                    "• CANCEL → Return to editing",
+                    "Unsaved Changes",
+                    MessageBoxButton.YesNoCancel,
+                    MessageBoxImage.Question);
+
+                if (choice == MessageBoxResult.Cancel) return;
+
+                if (choice == MessageBoxResult.Yes)
+                {
+                    ExecuteSaveInvoice();
+                    // Continue to load dialog regardless — user just wanted to save first
+                }
+            }
+
+            // Open the picker dialog
+            var dialog = new SavedInvoicesListDialog
+            {
+                Owner = Application.Current.MainWindow
+            };
+
+            bool? ok = dialog.ShowDialog();
+            if (ok != true || dialog.SelectedInvoiceId <= 0) return;
+
+            // Fetch the full entity and rehydrate the wizard
+            try
+            {
+                var entity = await App.Invoices.GetByIdAsync(dialog.SelectedInvoiceId);
+                if (entity == null)
+                {
+                    MessageBox.Show(
+                        "Selected invoice could not be found.",
+                        "Load Failed",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+
+                var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
+
+                ProformaInvoiceMapper.RestoreWizardFromSnapshot(
+                    snapshot,
+                    Company, Project, Client, DataGrid, OtherCharges,
+                    MainSummary, Terms, this);
+
+                MessageBox.Show(
+                    $"Invoice '{entity.ProformaId}' loaded successfully.\n\n" +
+                    "All wizard steps have been updated. Review each step and make changes as needed.",
+                    "Load Successful",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Failed to load invoice:\n\n{ex.Message}",
+                    "Load Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
         }
 
         // ── Layout constants (all values in DIPs = 1/96 inch) ─────────────

@@ -1,0 +1,50 @@
+﻿<Window x:Class="ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList.SavedInvoicesListDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:local="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList"
+        mc:Ignorable="d"
+        Title="Load Saved Proforma Invoice"
+        Height="800" Width="1400"
+        MinHeight="600" MinWidth="1000"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="Segoe UI"
+        Background="{DynamicResource WindowBackgroundBrush}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Embedded list UserControl -->
+        <local:SavedInvoicesListView x:Name="EmbeddedListView" Grid.Row="0"/>
+
+        <!-- Close button at bottom -->
+        <Border Grid.Row="1"
+                Background="{DynamicResource ModuleBackgroundBrush}"
+                BorderThickness="0,1,0,0" BorderBrush="{DynamicResource MenuHoverBrush}"
+                Padding="20,10">
+            <Button Content="✕ CLOSE"
+                    HorizontalAlignment="Right"
+                    Padding="16,7" Cursor="Hand"
+                    Background="Transparent"
+                    BorderBrush="{DynamicResource MenuHoverBrush}" BorderThickness="1"
+                    Foreground="{DynamicResource PrimaryForegroundBrush}"
+                    FontWeight="Bold" FontSize="11"
+                    Click="OnCloseClick">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="4">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+            </Button>
+        </Border>
+    </Grid>
+</Window>

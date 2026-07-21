@@ -74,7 +74,7 @@
             <Border Background="{DynamicResource MenuHoverBrush}" Height="1" Margin="0,0,0,14"/>
 
             <!-- ============================================================
-                 TOOLBAR — Print / PDF / Save / Email
+                 TOOLBAR — Print / Load / Save / PDF / Email
             ============================================================ -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     CornerRadius="8" Padding="14,10" Margin="0,0,0,16"
@@ -88,11 +88,12 @@
                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
                         <TextBlock Text="INVOICE ACTIONS" FontSize="10" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"/>
-                        <TextBlock Text="Print current preview or export/save the invoice (some actions require future phases)"
+                        <TextBlock Text="Print, load, save invoice — PDF export and email coming in later phases"
                                    FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,2,0,0"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal">
+
                         <Button Style="{StaticResource PrimaryToolbarButtonStyle}"
                                 Command="{Binding PrintableInvoice.PrintCommand}"
                                 ToolTip="Print the invoice preview (also usable as Print to PDF)">
@@ -102,21 +103,32 @@
                             </StackPanel>
                         </Button>
 
+                        <!-- Phase 7.16: LOAD INVOICE (new) -->
                         <Button Style="{StaticResource ToolbarButtonStyle}"
-                                Command="{Binding PrintableInvoice.ExportPdfCommand}"
-                                ToolTip="Coming in Phase 7.16">
+                                Command="{Binding PrintableInvoice.LoadInvoiceCommand}"
+                                ToolTip="Load a previously saved invoice">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="&#128196;" FontSize="14" Margin="0,0,6,0"/>
-                                <TextBlock Text="EXPORT PDF"/>
+                                <TextBlock Text="&#128194;" FontSize="14" Margin="0,0,6,0"/>
+                                <TextBlock Text="LOAD INVOICE"/>
+                            </StackPanel>
+                        </Button>
+
+                        <!-- Phase 7.15: SAVE INVOICE (live) -->
+                        <Button Style="{StaticResource ToolbarButtonStyle}"
+                                Command="{Binding PrintableInvoice.SaveInvoiceCommand}"
+                                ToolTip="Save invoice to database">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#128190;" FontSize="14" Margin="0,0,6,0"/>
+                                <TextBlock Text="SAVE INVOICE"/>
                             </StackPanel>
                         </Button>
 
                         <Button Style="{StaticResource ToolbarButtonStyle}"
-                                Command="{Binding PrintableInvoice.SaveInvoiceCommand}"
-                                ToolTip="Coming in Phase 7.15">
+                                Command="{Binding PrintableInvoice.ExportPdfCommand}"
+                                ToolTip="Coming in Phase 7.17">
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="&#128190;" FontSize="14" Margin="0,0,6,0"/>
-                                <TextBlock Text="SAVE INVOICE"/>
+                                <TextBlock Text="&#128196;" FontSize="14" Margin="0,0,6,0"/>
+                                <TextBlock Text="EXPORT PDF"/>
                             </StackPanel>
                         </Button>
 
@@ -168,8 +180,8 @@
                 <TextBlock FontSize="10"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            TextWrapping="Wrap">
-                    <Run FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">Phase 7.14 complete.</Run>
-                    <Run>Editable Terms &amp; Conditions section with 6 UAE default clauses (Payment / Delivery / Warranty / Validity / Taxes / Installation). Live-synced to printable preview. Save Invoice, PDF export, and Send Email coming in later phases.</Run>
+                    <Run FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">Phase 7.16 complete.</Run>
+                    <Run>Save + Load round-trip closed. Browse, load, duplicate, and delete saved invoices via the LOAD INVOICE button. QuestPDF branded PDF export coming in Phase 7.17.</Run>
                 </TextBlock>
             </Border>
 

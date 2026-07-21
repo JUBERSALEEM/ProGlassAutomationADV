@@ -1,5 +1,7 @@
 ﻿using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
+using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.CustomCharges;
+using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages;
 using ProGlassAutomation.Models.ProformaInvoice.Step7PrintPreview.TermsAndConditions;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step2ProjectSpecs;
@@ -9,6 +11,7 @@ using ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.InvoiceMainSummary;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.PrintableInvoice;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsAndConditions;
+using System;
 using System.Linq;
 using System.Text.Json;
 
@@ -17,10 +20,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
     /// <summary>
     /// Converts between live wizard ViewModels and the JSON-serializable
     /// ProformaInvoiceSnapshot / SavedProformaInvoice entity.
-    ///
-    /// Phase 7.15 focuses on the SAVE direction (VMs → Snapshot → Entity).
-    /// The RESTORE direction (Snapshot → VMs) will be extended in Phase 7.17
-    /// when we add the Load Saved Invoice UI.
+    /// Supports both SAVE (VMs → Snapshot → Entity) and RESTORE
+    /// (Entity → Snapshot → VMs) paths.
     /// </summary>
     public static class ProformaInvoiceMapper
     {
@@ -79,7 +80,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         {
             var snap = new ProformaInvoiceSnapshot
             {
-                // Step 1
                 Company = new CompanySnapshot
                 {
                     CompanyName = company.CompanyName ?? "",
@@ -91,7 +91,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     ProformaStatus = company.ProformaStatus ?? "Draft"
                 },
 
-                // Step 2
                 Project = new ProjectSnapshot
                 {
                     ProjectIdentifierName = project.ProjectIdentifierName ?? "",
@@ -100,7 +99,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     LpoNumber = project.LpoNumber ?? ""
                 },
 
-                // Step 3
                 Client = new ClientSnapshot
                 {
                     CustomerName = client.CustomerName ?? "",
@@ -113,7 +111,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     ClientContactPhone = client.ClientContactPhone ?? ""
                 },
 
-                // Phase 7.12
                 Summary = new InvoiceSummarySnapshot
                 {
                     DiscountType = summary.SelectedDiscountType.ToString(),
@@ -122,7 +119,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     VatPercent = summary.VatPercent
                 },
 
-                // Phase 7.13
                 PreparedBy = new PreparedBySnapshot
                 {
                     PreparedByName = printable.PreparedByName ?? "",
@@ -134,8 +130,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             };
 
             // Step 5 — spec groups + rows
-            // Note: OuterGlassColor / InnerGlassColor are not yet on SpecGroup
-            // — they will be added in a future phase when color-based reporting is needed.
             foreach (var group in dataGrid.SpecGroups)
             {
                 var g = new SpecGroupSnapshot
@@ -212,7 +206,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 });
             }
 
-            // Phase 7.14 — Terms & Conditions clauses
+            // Phase 7.14 — Terms & Conditions
             foreach (var clause in terms.Clauses)
             {
                 var c = new TermClauseSnapshot
@@ -234,12 +228,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  RESTORE PATH: Snapshot → VMs (Phase 7.17 will fully implement)
+        //  RESTORE PATH: Entity → Snapshot → VMs
+        //  (Phase 7.16 — Load Saved Invoice)
         // ══════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Deserializes the JSON snapshot from a saved entity. Phase 7.17
-        /// will consume this to rehydrate wizard ViewModels on Load.
+        /// Deserializes the JSON snapshot from a saved entity.
         /// </summary>
         public static ProformaInvoiceSnapshot DeserializeSnapshot(SavedProformaInvoice entity)
         {
@@ -254,6 +248,244 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             catch
             {
                 return new ProformaInvoiceSnapshot();
+            }
+        }
+
+        /// <summary>
+        /// Rehydrates all wizard ViewModels from a snapshot. Called by
+        /// SavedInvoicesListViewModel after user picks an invoice to load.
+        /// Handles null/missing fields gracefully.
+        /// </summary>
+        public static void RestoreWizardFromSnapshot(
+            ProformaInvoiceSnapshot snap,
+            CompanySetupViewModel company,
+            ProjectSpecsViewModel project,
+            ClientProfileViewModel client,
+            DataGridViewModel dataGrid,
+            OtherChargesViewModel otherCharges,
+            InvoiceMainSummaryViewModel summary,
+            TermsAndConditionsViewModel terms,
+            PrintableInvoiceViewModel printable)
+        {
+            if (snap == null) return;
+
+            // ── Step 1: Company ─────────────────────────────────────────
+            if (snap.Company != null)
+            {
+                company.CompanyName = snap.Company.CompanyName ?? "";
+                company.CompanyTrn = snap.Company.CompanyTrn ?? "";
+                company.CompanyLocation = snap.Company.CompanyLocation ?? "";
+                company.ProformaId = snap.Company.ProformaId ?? "";
+                company.IssueDate = snap.Company.IssueDate;
+                company.ValidUntil = snap.Company.ValidUntil;
+                company.ProformaStatus = snap.Company.ProformaStatus ?? "Draft";
+            }
+
+            // ── Step 2: Project ─────────────────────────────────────────
+            if (snap.Project != null)
+            {
+                project.ProjectIdentifierName = snap.Project.ProjectIdentifierName ?? "";
+                project.ProjectContractNo = snap.Project.ProjectContractNo ?? "";
+                project.SiteDeliveryLocation = snap.Project.SiteDeliveryLocation ?? "";
+                project.LpoNumber = snap.Project.LpoNumber ?? "";
+            }
+
+            // ── Step 3: Client ──────────────────────────────────────────
+            if (snap.Client != null)
+            {
+                client.CustomerName = snap.Client.CustomerName ?? "";
+                client.CustomerTrn = snap.Client.CustomerTrn ?? "";
+                client.CustomerReferenceCode = snap.Client.CustomerReferenceCode ?? "";
+                client.SalesRepresentative = snap.Client.SalesRepresentative ?? "";
+                client.DocumentPreparedBy = snap.Client.DocumentPreparedBy ?? "";
+                client.BillingAddress = snap.Client.BillingAddress ?? "";
+                client.AttentionExecutiveName = snap.Client.AttentionExecutiveName ?? "";
+                client.ClientContactPhone = snap.Client.ClientContactPhone ?? "";
+            }
+
+            // ── Step 5: DataGrid spec groups ───────────────────────────
+            RestoreDataGrid(snap, dataGrid);
+
+            // ── Step 6: Other Charges ───────────────────────────────────
+            RestoreOtherCharges(snap, otherCharges);
+
+            // ── Phase 7.12: Financial Summary settings ─────────────────
+            if (snap.Summary != null)
+            {
+                if (System.Enum.TryParse<ProGlassAutomation.Models.ProformaInvoice.Step7PrintPreview.InvoiceMainSummary.DiscountType>(
+                        snap.Summary.DiscountType, out var dt))
+                {
+                    summary.SelectedDiscountType = dt;
+                }
+                summary.DiscountValue = snap.Summary.DiscountValue;
+                summary.IsVatApplicable = snap.Summary.IsVatApplicable;
+                summary.VatPercent = snap.Summary.VatPercent;
+            }
+
+            // ── Phase 7.14: Terms & Conditions ──────────────────────────
+            RestoreTerms(snap, terms);
+
+            // ── Phase 7.13: Prepared By ─────────────────────────────────
+            if (snap.PreparedBy != null)
+            {
+                printable.PreparedByName = snap.PreparedBy.PreparedByName ?? "";
+                printable.PreparedByDept = snap.PreparedBy.PreparedByDept ?? "";
+                printable.PreparedByStatus = snap.PreparedBy.PreparedByStatus ?? "";
+                printable.TermsText = snap.PreparedBy.TermsText ?? "";
+                printable.FooterDisclaimer = snap.PreparedBy.FooterDisclaimer ?? "";
+            }
+        }
+
+        private static void RestoreDataGrid(ProformaInvoiceSnapshot snap, DataGridViewModel dataGrid)
+        {
+            if (snap.SpecGroups == null) return;
+
+            // Wipe existing spec groups
+            dataGrid.SpecGroups.Clear();
+
+            foreach (var gSnap in snap.SpecGroups)
+            {
+                var group = new SpecGroup
+                {
+                    GroupNumber = gSnap.GroupNumber,
+                    GroupName = gSnap.GroupName ?? "",
+                    SelectedGlassType = gSnap.SelectedGlassType ?? "",
+                    SelectedSpecName = gSnap.SelectedSpecName ?? "",
+                    BaseRate = gSnap.BaseRate,
+                    SurchargePercent = gSnap.SurchargePercent
+                };
+
+                // Restore rows via bulk mode to avoid heavy re-renders
+                if (gSnap.ItemRows != null && gSnap.ItemRows.Count > 0)
+                {
+                    foreach (var rSnap in gSnap.ItemRows)
+                    {
+                        var row = new GlassItemRow();
+                        row.SetAllSilent(
+                            rSnap.GlassRef ?? "",
+                            rSnap.W1,
+                            rSnap.H1,
+                            rSnap.W2,
+                            rSnap.H2,
+                            rSnap.Qty,
+                            rSnap.PerimeterFactor,
+                            rSnap.Rate);
+                        row.SerialNumber = rSnap.SerialNumber;
+                        group.ItemRows.Add(row);
+                    }
+                }
+
+                dataGrid.SpecGroups.Add(group);
+            }
+        }
+
+        private static void RestoreOtherCharges(ProformaInvoiceSnapshot snap, OtherChargesViewModel otherCharges)
+        {
+            if (snap.OtherCharges == null) return;
+
+            // Predefined charges — match by TemplateKey
+            if (snap.OtherCharges.PredefinedCharges != null)
+            {
+                foreach (var cSnap in snap.OtherCharges.PredefinedCharges)
+                {
+                    var row = otherCharges.ChargeRows.FirstOrDefault(r => r.TemplateKey == cSnap.TemplateKey);
+                    if (row == null) continue;
+
+                    row.IsActive = cSnap.IsActive;
+                    row.Rate = cSnap.Rate;
+
+                    // Restore selected source (non-polish rows)
+                    if (!row.IsPolishRow && !string.IsNullOrWhiteSpace(cSnap.SelectedSourceKey))
+                    {
+                        var src = row.AvailableSources.FirstOrDefault(s => s.Key == cSnap.SelectedSourceKey);
+                        if (src != null) row.SelectedSource = src;
+                    }
+
+                    // Restore polish sub-type + custom fields
+                    if (row.IsPolishRow && !string.IsNullOrWhiteSpace(cSnap.PolishSubType))
+                    {
+                        if (System.Enum.TryParse<PolishSubType>(cSnap.PolishSubType, out var pst))
+                        {
+                            var meta = row.AvailablePolishSubTypes.FirstOrDefault(p => p.Type == pst);
+                            if (meta != null) row.SelectedPolishSubType = meta;
+                        }
+                        row.CustomPolishDescription = cSnap.CustomPolishDescription ?? "";
+                        row.CustomPolishQty = cSnap.CustomPolishQty;
+                    }
+                }
+            }
+
+            // Wastages — clear and rebuild
+            otherCharges.WastagesSection.WastageRows.Clear();
+            if (snap.OtherCharges.Wastages != null)
+            {
+                foreach (var wSnap in snap.OtherCharges.Wastages)
+                {
+                    // Trigger add so sources get populated from current spec groups
+                    otherCharges.WastagesSection.AddWastageCommand.Execute(null);
+                    var newRow = otherCharges.WastagesSection.WastageRows.LastOrDefault();
+                    if (newRow == null) continue;
+
+                    newRow.IsActive = wSnap.IsActive;
+                    newRow.ColorName = wSnap.ColorName ?? "";
+                    newRow.Rate = wSnap.Rate;
+
+                    // Restore checked sources by matching "SpecNumber-SideLabel" key
+                    if (wSnap.CheckedSourceKeys != null)
+                    {
+                        foreach (var src in newRow.AvailableSources)
+                        {
+                            string key = $"{src.SpecNumber}-{src.SideLabel}";
+                            src.IsChecked = wSnap.CheckedSourceKeys.Contains(key);
+                        }
+                    }
+                }
+            }
+
+            // Custom charges — clear and rebuild
+            otherCharges.CustomChargesSection.AddedCharges.Clear();
+            if (snap.OtherCharges.CustomCharges != null)
+            {
+                foreach (var cSnap in snap.OtherCharges.CustomCharges)
+                {
+                    var custom = new CustomChargeRow
+                    {
+                        IsActive = cSnap.IsActive,
+                        ChargeName = cSnap.ChargeName ?? "",
+                        Qty = cSnap.Qty,
+                        Rate = cSnap.Rate
+                    };
+                    if (System.Enum.TryParse<OtherChargeUnit>(cSnap.Unit, out var unit))
+                        custom.Unit = unit;
+
+                    otherCharges.CustomChargesSection.AddedCharges.Add(custom);
+                }
+            }
+        }
+
+        private static void RestoreTerms(ProformaInvoiceSnapshot snap, TermsAndConditionsViewModel terms)
+        {
+            if (snap.TermClauses == null) return;
+
+            terms.Clauses.Clear();
+            foreach (var cSnap in snap.TermClauses)
+            {
+                var clause = new TermClause
+                {
+                    Order = cSnap.Order,
+                    IsActive = cSnap.IsActive,
+                    Title = cSnap.Title ?? "",
+                    Body = cSnap.Body ?? "",
+                    ValidityDays = cSnap.ValidityDays
+                };
+                if (System.Enum.TryParse<TermClauseType>(cSnap.Type, out var t))
+                    clause.Type = t;
+
+                if (cSnap.SubLines != null)
+                    foreach (var line in cSnap.SubLines)
+                        clause.SubLines.Add(line);
+
+                terms.Clauses.Add(clause);
             }
         }
     }
