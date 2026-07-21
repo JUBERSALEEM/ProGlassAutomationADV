@@ -273,6 +273,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
         public decimal EffectiveRate => Math.Round(_baseRate * (1m + (_surchargePercent / 100m)), 2);
 
+        /// <summary>
+        /// Display label for print/preview headers.
+        /// Shows SelectedSpecName if available, otherwise GroupName.
+        /// Example: "6mm HD Grey FT Glass + 12mm ASP + 6mm Clear DGU with [Polish]"
+        /// </summary>
+        public string SpecDisplayName => !string.IsNullOrWhiteSpace(SelectedSpecName)
+            ? SelectedSpecName
+            : (GroupName ?? $"Spec Group {GroupNumber}");
+
         private string _selectedGlassType = "";
         public string SelectedGlassType
         {
@@ -290,7 +299,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         public string SelectedSpecName
         {
             get => _selectedSpecName;
-            set { _selectedSpecName = value; OnPropertyChanged(); TryAutoFillRate(); }
+            set { _selectedSpecName = value; OnPropertyChanged(); OnPropertyChanged(nameof(SpecDisplayName)); TryAutoFillRate(); }
         }
 
         public ObservableCollection<SavedSpecification> FilteredSpecs { get; } = new();

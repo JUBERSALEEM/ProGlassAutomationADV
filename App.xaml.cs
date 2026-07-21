@@ -6,6 +6,7 @@ using ProGlassAutomation.Services.Database.DatabaseBackup;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
 using ProGlassAutomation.Views.Splash;
+using System;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -26,6 +27,30 @@ namespace ProGlassAutomation
 
         private async void Application_Startup(object sender, StartupEventArgs e)
         {
+            // ══════════════════════════════════════════════════════════════
+            //  TEMPORARY DIAGNOSTIC: Global exception handler
+            //  Catches WPF dispatcher crashes (layout/render pass errors)
+            //  that bypass normal try/catch blocks.
+            //  Shows a MessageBox with full error details instead of
+            //  silently crashing the app. Remove after debugging.
+            // ══════════════════════════════════════════════════════════════
+            DispatcherUnhandledException += (s, args) =>
+            {
+                string msg = $"UNHANDLED EXCEPTION:\n\n" +
+                    $"Type: {args.Exception.GetType().Name}\n" +
+                    $"Message: {args.Exception.Message}";
+
+                if (args.Exception.InnerException != null)
+                    msg += $"\n\nInner: {args.Exception.InnerException.Message}";
+
+                string stack = args.Exception.StackTrace ?? "";
+                if (stack.Length > 600) stack = stack.Substring(0, 600) + "...";
+                msg += $"\n\nStack:\n{stack}";
+
+                MessageBox.Show(msg, "App Crash — Debug", MessageBoxButton.OK, MessageBoxImage.Error);
+                args.Handled = true; // Prevent app from closing
+            };
+
             // 1) Load persisted config (%AppData%\ProGlassAutomation\config.json)
             Config = ConfigService.Load();
 

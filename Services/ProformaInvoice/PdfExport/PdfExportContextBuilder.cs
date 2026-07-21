@@ -75,10 +75,13 @@ namespace ProGlassAutomation.Services.ProformaInvoice.PdfExport
             // Step 5: Spec Groups
             foreach (var group in dataGrid.SpecGroups)
             {
+                string specLabel = !string.IsNullOrWhiteSpace(group.SelectedSpecName)
+    ? group.SelectedSpecName
+    : (group.GroupName ?? $"Spec Group {group.GroupNumber}");
                 var pdfGroup = new PdfSpecGroup
                 {
                     GroupNumber = group.GroupNumber,
-                    GroupName = group.GroupName ?? "",
+                    GroupName = specLabel,
                     TotalQty = group.FooterTotalQty,
                     TotalSqm = group.FooterTotalSqm,
                     TotalValue = group.FooterTotalValue

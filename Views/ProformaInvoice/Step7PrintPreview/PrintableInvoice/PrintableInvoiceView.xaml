@@ -244,8 +244,7 @@
                                     <TextBlock Text="SPECIFICATION " FontSize="10" FontWeight="Bold" Foreground="White"/>
                                     <TextBlock Text="{Binding GroupNumber}" FontSize="10" FontWeight="Bold" Foreground="White"/>
                                     <TextBlock Text=": " FontSize="10" FontWeight="Bold" Foreground="White"/>
-                                    <TextBlock Text="{Binding GroupName}" FontSize="10" FontWeight="Bold" Foreground="White"
-                                               TextTrimming="CharacterEllipsis"/>
+                                    <TextBlock Text="{Binding SpecDisplayName}" FontSize="10" FontWeight="Bold" Foreground="White" TextTrimming="CharacterEllipsis"/>
                                 </StackPanel>
                             </Border>
 

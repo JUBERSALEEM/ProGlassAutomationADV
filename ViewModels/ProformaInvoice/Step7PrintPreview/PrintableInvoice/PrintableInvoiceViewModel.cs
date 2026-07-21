@@ -167,19 +167,41 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                 var dialog = new System.Windows.Controls.PrintDialog();
                 if (dialog.ShowDialog() != true) return;
 
-                var fixedDoc = BuildPrintableDocument(dialog);
+                FixedDocument fixedDoc;
+                try
+                {
+                    fixedDoc = BuildPrintableDocument(dialog);
+                }
+                catch (Exception buildEx)
+                {
+                    string msg = $"BUILD FAILED:\n\nType: {buildEx.GetType().Name}\nMessage: {buildEx.Message}";
+                    if (buildEx.InnerException != null)
+                        msg += $"\n\nInner: {buildEx.InnerException.Message}";
+                    msg += $"\n\nStack (first 600 chars):\n{(buildEx.StackTrace ?? "").Substring(0, Math.Min(600, (buildEx.StackTrace ?? "").Length))}";
+                    MessageBox.Show(msg, "Print Build Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                    return;
+                }
 
-                dialog.PrintDocument(
-                    fixedDoc.DocumentPaginator,
-                    $"Proforma Invoice - {Company.ProformaId}");
+                try
+                {
+                    dialog.PrintDocument(fixedDoc.DocumentPaginator, $"Proforma Invoice - {Company.ProformaId}");
+                }
+                catch (Exception printEx)
+                {
+                    string msg = $"PRINT SEND FAILED:\n\nType: {printEx.GetType().Name}\nMessage: {printEx.Message}";
+                    if (printEx.InnerException != null)
+                        msg += $"\n\nInner: {printEx.InnerException.Message}";
+                    msg += $"\n\nStack (first 600 chars):\n{(printEx.StackTrace ?? "").Substring(0, Math.Min(600, (printEx.StackTrace ?? "").Length))}";
+                    MessageBox.Show(msg, "Print Send Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    $"Print failed: {ex.Message}",
-                    "Print Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                string msg = $"PRINT FAILED (OUTER):\n\nType: {ex.GetType().Name}\nMessage: {ex.Message}";
+                if (ex.InnerException != null)
+                    msg += $"\n\nInner: {ex.InnerException.Message}";
+                msg += $"\n\nStack (first 600 chars):\n{(ex.StackTrace ?? "").Substring(0, Math.Min(600, (ex.StackTrace ?? "").Length))}";
+                MessageBox.Show(msg, "Print Error", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
@@ -771,8 +793,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                 Background = AccentBrush,
                 Padding = new Thickness(8, 5, 8, 5)
             };
+            string specLabel = !string.IsNullOrWhiteSpace(group.SelectedSpecName)
+    ? group.SelectedSpecName
+    : (group.GroupName ?? $"Spec Group {group.GroupNumber}");
             header.Child = MakeText(
-                $"SPECIFICATION {group.GroupNumber}: {group.GroupName}",
+                $"SPECIFICATION {group.GroupNumber}: {specLabel}",
                 10, FontWeights.Bold, Brushes.White);
             stack.Children.Add(header);
 

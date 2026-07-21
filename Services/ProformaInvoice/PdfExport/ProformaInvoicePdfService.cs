@@ -147,8 +147,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.PdfExport
             container.PaddingBottom(10).Column(col =>
             {
                 // Header bar
+                string specLabel = !string.IsNullOrWhiteSpace(group.GroupName) ? group.GroupName : $"Spec Group {group.GroupNumber}";
                 col.Item().Background(ACCENT).PaddingHorizontal(8).PaddingVertical(5)
-                    .Text($"SPECIFICATION {group.GroupNumber}: {group.GroupName}")
+                    .Text($"SPECIFICATION {group.GroupNumber}: {specLabel}")
                     .FontSize(10).Bold().FontColor(Colors.White);
 
                 // Table
