@@ -13,6 +13,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.PdfExport
     /// <summary>
     /// Builds a PdfExportContext from live wizard ViewModels.
     /// Separates WPF concerns from PDF generation.
+    /// Phase 7.19d: Populates individual W1/H1/W2/H2 int fields on
+    /// PdfGlassRow so print/PDF/Excel/CSV can render them as separate
+    /// columns instead of combined "W×H" strings.
     /// </summary>
     public static class PdfExportContextBuilder
     {
@@ -76,8 +79,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.PdfExport
             foreach (var group in dataGrid.SpecGroups)
             {
                 string specLabel = !string.IsNullOrWhiteSpace(group.SelectedSpecName)
-    ? group.SelectedSpecName
-    : (group.GroupName ?? $"Spec Group {group.GroupNumber}");
+                    ? group.SelectedSpecName
+                    : (group.GroupName ?? $"Spec Group {group.GroupNumber}");
+
                 var pdfGroup = new PdfSpecGroup
                 {
                     GroupNumber = group.GroupNumber,
@@ -93,8 +97,18 @@ namespace ProGlassAutomation.Services.ProformaInvoice.PdfExport
                     {
                         Serial = row.SerialNumber,
                         GlassRef = row.GlassRef ?? "",
+
+                        // Phase 7.19d — individual dimension columns
+                        W1 = row.W1,
+                        H1 = row.H1,
+                        W2 = row.W2,
+                        H2 = row.H2,
+
+                        // Backward-compat combined strings (unused by current
+                        // rendering paths but populated for safety)
                         SizeW1H1 = $"{row.W1}×{row.H1}",
                         SizeW2H2 = $"{row.W2}×{row.H2}",
+
                         Qty = row.Qty,
                         Area = row.TotalSqm,
                         Rate = row.Rate,

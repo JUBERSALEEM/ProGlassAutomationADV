@@ -56,7 +56,6 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
-        <!-- Phase 7.16a: T&C clause title style for print preview -->
         <Style x:Key="TncTitleStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="9"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -72,7 +71,6 @@
         </Style>
     </UserControl.Resources>
 
-    <!-- A4 paper canvas — width 794px at 96 DPI = exact A4 -->
     <Border x:Name="PrintablePaper"
             Background="White"
             Width="794"
@@ -97,7 +95,6 @@
                     <ColumnDefinition Width="220"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Left: Company branding -->
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="{Binding Company.CompanyName, TargetNullValue=PROGLASS AUTOMATION ERP, FallbackValue=PROGLASS AUTOMATION ERP}"
                                FontSize="17" FontWeight="Bold"
@@ -119,7 +116,6 @@
                     </StackPanel>
                 </StackPanel>
 
-                <!-- Right: Proforma badge -->
                 <Border Grid.Column="1"
                         Background="#F1F5F9"
                         CornerRadius="3"
@@ -165,7 +161,6 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Client Block -->
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="CLIENT / BILL TO:" Style="{StaticResource PrintSectionHeaderStyle}"/>
                     <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
@@ -195,7 +190,6 @@
                     </StackPanel>
                 </StackPanel>
 
-                <!-- Project Block -->
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="PROJECT ESTIMATE METRIC:" Style="{StaticResource PrintSectionHeaderStyle}"/>
                     <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
@@ -232,7 +226,8 @@
             <Border Background="#CBD5E1" Height="1" Margin="0,0,0,10"/>
 
             <!-- ══════════════════════════════════════════════════════
-                 SPECIFICATION TABLES
+                 SPECIFICATION TABLES — 10 columns (Phase 7.19d)
+                 # | GLASS REF | W1 | H1 | W2 | H2 | QTY | AREA | RATE | TOTAL
             ══════════════════════════════════════════════════════ -->
             <ItemsControl ItemsSource="{Binding DataGrid.SpecGroups}">
                 <ItemsControl.ItemTemplate>
@@ -252,22 +247,36 @@
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="28"/>
-                                        <ColumnDefinition Width="1.8*"/>
-                                        <ColumnDefinition Width="1*"/>
-                                        <ColumnDefinition Width="1*"/>
-                                        <ColumnDefinition Width="42"/>
+                                        <!-- # -->
+                                        <ColumnDefinition Width="1.6*"/>
+                                        <!-- GLASS REF -->
+                                        <ColumnDefinition Width="35"/>
+                                        <!-- W1 -->
+                                        <ColumnDefinition Width="35"/>
+                                        <!-- H1 -->
+                                        <ColumnDefinition Width="35"/>
+                                        <!-- W2 -->
+                                        <ColumnDefinition Width="35"/>
+                                        <!-- H2 -->
+                                        <ColumnDefinition Width="40"/>
+                                        <!-- QTY -->
                                         <ColumnDefinition Width="0.85*"/>
+                                        <!-- AREA -->
                                         <ColumnDefinition Width="0.75*"/>
+                                        <!-- RATE -->
                                         <ColumnDefinition Width="0.95*"/>
+                                        <!-- TOTAL -->
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="#" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Center"/>
                                     <TextBlock Grid.Column="1" Text="GLASS REF / DESCRIPTION" Style="{StaticResource TableHeaderStyle}"/>
-                                    <TextBlock Grid.Column="2" Text="SIZE W1×H1 (mm)" Style="{StaticResource TableHeaderStyle}"/>
-                                    <TextBlock Grid.Column="3" Text="SIZE W2×H2 (mm)" Style="{StaticResource TableHeaderStyle}"/>
-                                    <TextBlock Grid.Column="4" Text="QTY" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Center"/>
-                                    <TextBlock Grid.Column="5" Text="AREA (sqm)" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="6" Text="RATE (AED)" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="7" Text="TOTAL (AED)" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="2" Text="W1" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="3" Text="H1" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="4" Text="W2" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="5" Text="H2" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="6" Text="QTY" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="7" Text="AREA (sqm)" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="8" Text="RATE (AED)" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="9" Text="TOTAL (AED)" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
                                 </Grid>
                             </Border>
 
@@ -278,26 +287,26 @@
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="28"/>
-                                                    <ColumnDefinition Width="1.8*"/>
-                                                    <ColumnDefinition Width="1*"/>
-                                                    <ColumnDefinition Width="1*"/>
-                                                    <ColumnDefinition Width="42"/>
+                                                    <ColumnDefinition Width="1.6*"/>
+                                                    <ColumnDefinition Width="35"/>
+                                                    <ColumnDefinition Width="35"/>
+                                                    <ColumnDefinition Width="35"/>
+                                                    <ColumnDefinition Width="35"/>
+                                                    <ColumnDefinition Width="40"/>
                                                     <ColumnDefinition Width="0.85*"/>
                                                     <ColumnDefinition Width="0.75*"/>
                                                     <ColumnDefinition Width="0.95*"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0" Text="{Binding SerialNumber}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Center"/>
                                                 <TextBlock Grid.Column="1" Text="{Binding GlassRef}" Style="{StaticResource TableCellStyle}" TextTrimming="CharacterEllipsis"/>
-                                                <TextBlock Grid.Column="2" Style="{StaticResource TableCellStyle}">
-                                                    <Run Text="{Binding W1, Mode=OneWay}"/><Run Text="×"/><Run Text="{Binding H1, Mode=OneWay}"/>
-                                                </TextBlock>
-                                                <TextBlock Grid.Column="3" Style="{StaticResource TableCellStyle}">
-                                                    <Run Text="{Binding W2, Mode=OneWay}"/><Run Text="×"/><Run Text="{Binding H2, Mode=OneWay}"/>
-                                                </TextBlock>
-                                                <TextBlock Grid.Column="4" Text="{Binding Qty}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Center"/>
-                                                <TextBlock Grid.Column="5" Text="{Binding TotalSqm, StringFormat={}{0:0.000}}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
-                                                <TextBlock Grid.Column="6" Text="{Binding Rate, StringFormat={}{0:N2}}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
-                                                <TextBlock Grid.Column="7" Text="{Binding Value, StringFormat={}{0:N2}}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right" FontWeight="Bold"/>
+                                                <TextBlock Grid.Column="2" Text="{Binding W1}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
+                                                <TextBlock Grid.Column="3" Text="{Binding H1}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
+                                                <TextBlock Grid.Column="4" Text="{Binding W2}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
+                                                <TextBlock Grid.Column="5" Text="{Binding H2}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
+                                                <TextBlock Grid.Column="6" Text="{Binding Qty}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Center"/>
+                                                <TextBlock Grid.Column="7" Text="{Binding TotalSqm, StringFormat={}{0:0.000}}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
+                                                <TextBlock Grid.Column="8" Text="{Binding Rate, StringFormat={}{0:N2}}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
+                                                <TextBlock Grid.Column="9" Text="{Binding Value, StringFormat={}{0:N2}}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right" FontWeight="Bold"/>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
@@ -330,7 +339,7 @@
             </ItemsControl>
 
             <!-- ══════════════════════════════════════════════════════
-                 OTHER CHARGES DETAIL LIST
+                 OTHER CHARGES DETAIL LIST (unchanged)
             ══════════════════════════════════════════════════════ -->
             <Border Background="#4F46E5" Padding="8,5" CornerRadius="2,2,0,0" Margin="0,4,0,0">
                 <TextBlock Text="SUPPLEMENTARY / FABRICATION OTHER CHARGES"
@@ -457,7 +466,7 @@
             </Border>
 
             <!-- ══════════════════════════════════════════════════════
-                 FINANCIAL SUMMARY WATERFALL
+                 FINANCIAL SUMMARY (unchanged)
             ══════════════════════════════════════════════════════ -->
             <Border BorderThickness="0,1,0,0" BorderBrush="#CBD5E1" Padding="0,10,0,0" Margin="0,10,0,0">
                 <StackPanel HorizontalAlignment="Right" MinWidth="320">
@@ -540,9 +549,7 @@
             </Border>
 
             <!-- ══════════════════════════════════════════════════════
-                 PHASE 7.16a — TERMS & CONDITIONS SECTION
-                 Renders active clauses from Terms.Clauses with numbered
-                 titles, indented body text, and bullet sub-lines.
+                 TERMS & CONDITIONS (unchanged)
             ══════════════════════════════════════════════════════ -->
             <Border Background="#4F46E5" Padding="8,5" CornerRadius="2,2,0,0" Margin="0,14,0,0">
                 <TextBlock Text="TERMS &amp; CONDITIONS"
@@ -554,7 +561,6 @@
                     <ItemsControl ItemsSource="{Binding Terms.Clauses}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <!-- Only render active clauses -->
                                 <StackPanel Margin="0,0,0,8">
                                     <StackPanel.Style>
                                         <Style TargetType="StackPanel">
@@ -567,18 +573,15 @@
                                         </Style>
                                     </StackPanel.Style>
 
-                                    <!-- Numbered title: "1. PAYMENT TERMS" -->
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="{Binding Order}" Style="{StaticResource TncTitleStyle}"/>
                                         <TextBlock Text=". " Style="{StaticResource TncTitleStyle}"/>
                                         <TextBlock Text="{Binding Title}" Style="{StaticResource TncTitleStyle}"/>
                                     </StackPanel>
 
-                                    <!-- Body text (indented) -->
                                     <TextBlock Text="{Binding Body}"
                                                Style="{StaticResource TncBodyStyle}"/>
 
-                                    <!-- Sub-lines (Payment Terms bullets) -->
                                     <ItemsControl ItemsSource="{Binding SubLines}" Margin="24,2,0,0">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
@@ -594,7 +597,6 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
-                    <!-- Empty state when Terms.Clauses is empty or all inactive -->
                     <TextBlock Text="No terms configured. Add clauses in the Terms editor above."
                                FontSize="9" FontStyle="Italic" Foreground="#94A3B8"
                                HorizontalAlignment="Center" Margin="0,4,0,0">
@@ -613,7 +615,7 @@
             </Border>
 
             <!-- ══════════════════════════════════════════════════════
-                 FOOTER DISCLAIMER + EDITABLE TERMS TEXT
+                 FOOTER + SIGNATURES (unchanged)
             ══════════════════════════════════════════════════════ -->
             <Border BorderThickness="0,1,0,0" BorderBrush="#CBD5E1" Padding="0,8,0,0" Margin="0,12,0,0">
                 <StackPanel>
@@ -630,9 +632,6 @@
                 </StackPanel>
             </Border>
 
-            <!-- ══════════════════════════════════════════════════════
-                 PREPARED BY + CLIENT SIGNATURE
-            ══════════════════════════════════════════════════════ -->
             <Grid Margin="0,12,0,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>

@@ -794,23 +794,28 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                 Padding = new Thickness(8, 5, 8, 5)
             };
             string specLabel = !string.IsNullOrWhiteSpace(group.SelectedSpecName)
-    ? group.SelectedSpecName
-    : (group.GroupName ?? $"Spec Group {group.GroupNumber}");
+                ? group.SelectedSpecName
+                : (group.GroupName ?? $"Spec Group {group.GroupNumber}");
             header.Child = MakeText(
                 $"SPECIFICATION {group.GroupNumber}: {specLabel}",
                 10, FontWeights.Bold, Brushes.White);
             stack.Children.Add(header);
 
-            var widths = new[] { 28.0, 1.8, 1.0, 1.0, 42.0, 0.85, 0.75, 0.95 };
+            // Phase 7.19d — 10 columns: # | GLASS REF | W1 | H1 | W2 | H2 | QTY | AREA | RATE | TOTAL
+            var widths = new[] { 28.0, 1.6, 35.0, 35.0, 35.0, 35.0, 40.0, 0.85, 0.75, 0.95 };
             var headerLabels = new[]
             {
-                "#", "GLASS REF / DESCRIPTION", "SIZE W1×H1 (mm)", "SIZE W2×H2 (mm)",
+                "#", "GLASS REF / DESCRIPTION",
+                "W1", "H1", "W2", "H2",
                 "QTY", "AREA (sqm)", "RATE (AED)", "TOTAL (AED)"
             };
             var alignments = new[]
             {
-                HorizontalAlignment.Center, HorizontalAlignment.Left, HorizontalAlignment.Left, HorizontalAlignment.Left,
-                HorizontalAlignment.Center, HorizontalAlignment.Right, HorizontalAlignment.Right, HorizontalAlignment.Right
+                HorizontalAlignment.Center, HorizontalAlignment.Left,
+                HorizontalAlignment.Right, HorizontalAlignment.Right,
+                HorizontalAlignment.Right, HorizontalAlignment.Right,
+                HorizontalAlignment.Center, HorizontalAlignment.Right,
+                HorizontalAlignment.Right,  HorizontalAlignment.Right
             };
 
             var tblHeader = new Border { Background = TableHeaderBrush };
@@ -837,12 +842,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
 
                 AddTableCell(rowGrid, 0, row.SerialNumber.ToString(), FontWeights.Normal, HorizontalAlignment.Center);
                 AddTableCell(rowGrid, 1, row.GlassRef ?? "", FontWeights.Normal, HorizontalAlignment.Left);
-                AddTableCell(rowGrid, 2, $"{row.W1}×{row.H1}", FontWeights.Normal, HorizontalAlignment.Left);
-                AddTableCell(rowGrid, 3, $"{row.W2}×{row.H2}", FontWeights.Normal, HorizontalAlignment.Left);
-                AddTableCell(rowGrid, 4, row.Qty.ToString(), FontWeights.Normal, HorizontalAlignment.Center);
-                AddTableCell(rowGrid, 5, row.TotalSqm.ToString("0.000"), FontWeights.Normal, HorizontalAlignment.Right);
-                AddTableCell(rowGrid, 6, row.Rate.ToString("N2"), FontWeights.Normal, HorizontalAlignment.Right);
-                AddTableCell(rowGrid, 7, row.Value.ToString("N2"), FontWeights.Bold, HorizontalAlignment.Right);
+                AddTableCell(rowGrid, 2, row.W1.ToString(), FontWeights.Normal, HorizontalAlignment.Right);
+                AddTableCell(rowGrid, 3, row.H1.ToString(), FontWeights.Normal, HorizontalAlignment.Right);
+                AddTableCell(rowGrid, 4, row.W2.ToString(), FontWeights.Normal, HorizontalAlignment.Right);
+                AddTableCell(rowGrid, 5, row.H2.ToString(), FontWeights.Normal, HorizontalAlignment.Right);
+                AddTableCell(rowGrid, 6, row.Qty.ToString(), FontWeights.Normal, HorizontalAlignment.Center);
+                AddTableCell(rowGrid, 7, row.TotalSqm.ToString("0.000"), FontWeights.Normal, HorizontalAlignment.Right);
+                AddTableCell(rowGrid, 8, row.Rate.ToString("N2"), FontWeights.Normal, HorizontalAlignment.Right);
+                AddTableCell(rowGrid, 9, row.Value.ToString("N2"), FontWeights.Bold, HorizontalAlignment.Right);
 
                 rowBorder.Child = rowGrid;
                 stack.Children.Add(rowBorder);

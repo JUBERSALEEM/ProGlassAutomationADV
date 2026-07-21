@@ -112,12 +112,20 @@ namespace ProGlassAutomation.Services.ProformaInvoice.InvoiceExportImport
 
         // ══════════════════════════════════════════════════════════════════
         //  SHEET 2: Glass Panels
+        //  Phase 7.19d — 12 columns:
+        //  Spec # | Spec Name | # | Glass Ref | W1 | H1 | W2 | H2 | Qty | Area | Rate | Total
         // ══════════════════════════════════════════════════════════════════
 
         private void BuildGlassSheet(IXLWorksheet ws, PdfExportContext ctx)
         {
             // Headers
-            var headers = new[] { "Spec #", "Spec Name", "#", "Glass Ref", "W1×H1 (mm)", "W2×H2 (mm)", "Qty", "Area (sqm)", "Rate (AED)", "Total (AED)" };
+            var headers = new[]
+            {
+                "Spec #", "Spec Name", "#", "Glass Ref",
+                "W1", "H1", "W2", "H2",
+                "Qty", "Area (sqm)", "Rate (AED)", "Total (AED)"
+            };
+            int totalCols = headers.Length; // 12
 
             for (int i = 0; i < headers.Length; i++)
             {
@@ -138,22 +146,24 @@ namespace ProGlassAutomation.Services.ProformaInvoice.InvoiceExportImport
                     ws.Cell(row, 2).Value = group.GroupName;
                     ws.Cell(row, 3).Value = item.Serial;
                     ws.Cell(row, 4).Value = item.GlassRef;
-                    ws.Cell(row, 5).Value = item.SizeW1H1;
-                    ws.Cell(row, 6).Value = item.SizeW2H2;
-                    ws.Cell(row, 7).Value = item.Qty;
-                    ws.Cell(row, 8).Value = item.Area;
-                    ws.Cell(row, 9).Value = item.Rate;
-                    ws.Cell(row, 10).Value = item.Total;
+                    ws.Cell(row, 5).Value = item.W1;
+                    ws.Cell(row, 6).Value = item.H1;
+                    ws.Cell(row, 7).Value = item.W2;
+                    ws.Cell(row, 8).Value = item.H2;
+                    ws.Cell(row, 9).Value = item.Qty;
+                    ws.Cell(row, 10).Value = item.Area;
+                    ws.Cell(row, 11).Value = item.Rate;
+                    ws.Cell(row, 12).Value = item.Total;
 
                     // Number formatting
-                    ws.Cell(row, 8).Style.NumberFormat.Format = "#,##0.000";
-                    ws.Cell(row, 9).Style.NumberFormat.Format = "#,##0.00";
-                    ws.Cell(row, 10).Style.NumberFormat.Format = "#,##0.00";
+                    ws.Cell(row, 10).Style.NumberFormat.Format = "#,##0.000";
+                    ws.Cell(row, 11).Style.NumberFormat.Format = "#,##0.00";
+                    ws.Cell(row, 12).Style.NumberFormat.Format = "#,##0.00";
 
                     // Alternate row coloring
                     if (row % 2 == 0)
                     {
-                        for (int c = 1; c <= 10; c++)
+                        for (int c = 1; c <= totalCols; c++)
                             ws.Cell(row, c).Style.Fill.BackgroundColor = XLColor.FromHtml("#F8FAFC");
                     }
 
@@ -165,17 +175,17 @@ namespace ProGlassAutomation.Services.ProformaInvoice.InvoiceExportImport
                 ws.Cell(row, 2).Value = $"SPEC {group.GroupNumber} SUBTOTAL";
                 ws.Cell(row, 2).Style.Font.Bold = true;
                 ws.Cell(row, 2).Style.Font.FontColor = XLColor.FromHtml("#4F46E5");
-                ws.Cell(row, 7).Value = group.TotalQty;
-                ws.Cell(row, 7).Style.Font.Bold = true;
-                ws.Cell(row, 8).Value = group.TotalSqm;
-                ws.Cell(row, 8).Style.Font.Bold = true;
-                ws.Cell(row, 8).Style.NumberFormat.Format = "#,##0.000";
-                ws.Cell(row, 10).Value = group.TotalValue;
+                ws.Cell(row, 9).Value = group.TotalQty;
+                ws.Cell(row, 9).Style.Font.Bold = true;
+                ws.Cell(row, 10).Value = group.TotalSqm;
                 ws.Cell(row, 10).Style.Font.Bold = true;
-                ws.Cell(row, 10).Style.Font.FontColor = XLColor.FromHtml("#047857");
-                ws.Cell(row, 10).Style.NumberFormat.Format = "#,##0.00";
+                ws.Cell(row, 10).Style.NumberFormat.Format = "#,##0.000";
+                ws.Cell(row, 12).Value = group.TotalValue;
+                ws.Cell(row, 12).Style.Font.Bold = true;
+                ws.Cell(row, 12).Style.Font.FontColor = XLColor.FromHtml("#047857");
+                ws.Cell(row, 12).Style.NumberFormat.Format = "#,##0.00";
 
-                for (int c = 1; c <= 10; c++)
+                for (int c = 1; c <= totalCols; c++)
                     ws.Cell(row, c).Style.Fill.BackgroundColor = XLColor.FromHtml("#F1F5F9");
 
                 row++;
@@ -185,24 +195,24 @@ namespace ProGlassAutomation.Services.ProformaInvoice.InvoiceExportImport
             ws.Cell(row, 2).Value = "GRAND TOTAL";
             ws.Cell(row, 2).Style.Font.Bold = true;
             ws.Cell(row, 2).Style.Font.FontSize = 12;
-            ws.Cell(row, 7).Value = ctx.SpecGroups.Sum(g => g.TotalQty);
-            ws.Cell(row, 7).Style.Font.Bold = true;
-            ws.Cell(row, 8).Value = ctx.SpecGroups.Sum(g => g.TotalSqm);
-            ws.Cell(row, 8).Style.Font.Bold = true;
-            ws.Cell(row, 8).Style.NumberFormat.Format = "#,##0.000";
-            ws.Cell(row, 10).Value = ctx.SpecGroups.Sum(g => g.TotalValue);
+            ws.Cell(row, 9).Value = ctx.SpecGroups.Sum(g => g.TotalQty);
+            ws.Cell(row, 9).Style.Font.Bold = true;
+            ws.Cell(row, 10).Value = ctx.SpecGroups.Sum(g => g.TotalSqm);
             ws.Cell(row, 10).Style.Font.Bold = true;
-            ws.Cell(row, 10).Style.Font.FontSize = 12;
-            ws.Cell(row, 10).Style.Font.FontColor = XLColor.FromHtml("#047857");
-            ws.Cell(row, 10).Style.NumberFormat.Format = "#,##0.00";
+            ws.Cell(row, 10).Style.NumberFormat.Format = "#,##0.000";
+            ws.Cell(row, 12).Value = ctx.SpecGroups.Sum(g => g.TotalValue);
+            ws.Cell(row, 12).Style.Font.Bold = true;
+            ws.Cell(row, 12).Style.Font.FontSize = 12;
+            ws.Cell(row, 12).Style.Font.FontColor = XLColor.FromHtml("#047857");
+            ws.Cell(row, 12).Style.NumberFormat.Format = "#,##0.00";
 
-            for (int c = 1; c <= 10; c++)
+            for (int c = 1; c <= totalCols; c++)
                 ws.Cell(row, c).Style.Fill.BackgroundColor = XLColor.FromHtml("#4F46E5");
 
             ws.Cell(row, 2).Style.Font.FontColor = XLColor.White;
-            ws.Cell(row, 7).Style.Font.FontColor = XLColor.White;
-            ws.Cell(row, 8).Style.Font.FontColor = XLColor.White;
+            ws.Cell(row, 9).Style.Font.FontColor = XLColor.White;
             ws.Cell(row, 10).Style.Font.FontColor = XLColor.White;
+            ws.Cell(row, 12).Style.Font.FontColor = XLColor.White;
 
             // Auto-fit
             ws.Columns().AdjustToContents();

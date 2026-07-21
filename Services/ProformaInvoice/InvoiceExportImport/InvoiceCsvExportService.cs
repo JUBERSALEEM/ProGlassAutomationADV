@@ -17,20 +17,24 @@ namespace ProGlassAutomation.Services.ProformaInvoice.InvoiceExportImport
                 HasHeaderRecord = true
             });
 
-            // Header row
+            // ══════════════════════════════════════════════════════════════
+            //  Phase 7.19d — 12 columns:
+            //  Spec # | Spec Name | Row # | Glass Ref | W1 | H1 | W2 | H2 | Qty | Area | Rate | Total
+            // ══════════════════════════════════════════════════════════════
             csv.WriteField("Spec #");
             csv.WriteField("Spec Name");
             csv.WriteField("Row #");
             csv.WriteField("Glass Ref");
-            csv.WriteField("W1×H1 (mm)");
-            csv.WriteField("W2×H2 (mm)");
+            csv.WriteField("W1");
+            csv.WriteField("H1");
+            csv.WriteField("W2");
+            csv.WriteField("H2");
             csv.WriteField("Qty");
             csv.WriteField("Area (sqm)");
             csv.WriteField("Rate (AED)");
             csv.WriteField("Total (AED)");
             csv.NextRecord();
 
-            // Data rows
             foreach (var group in ctx.SpecGroups)
             {
                 foreach (var row in group.Rows)
@@ -39,8 +43,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.InvoiceExportImport
                     csv.WriteField(group.GroupName);
                     csv.WriteField(row.Serial);
                     csv.WriteField(row.GlassRef);
-                    csv.WriteField(row.SizeW1H1);
-                    csv.WriteField(row.SizeW2H2);
+                    csv.WriteField(row.W1);
+                    csv.WriteField(row.H1);
+                    csv.WriteField(row.W2);
+                    csv.WriteField(row.H2);
                     csv.WriteField(row.Qty);
                     csv.WriteField(row.Area.ToString("0.000"));
                     csv.WriteField(row.Rate.ToString("N2"));
@@ -49,21 +55,20 @@ namespace ProGlassAutomation.Services.ProformaInvoice.InvoiceExportImport
                 }
             }
 
-            // Empty row
             csv.NextRecord();
 
-            // Summary section
-            csv.WriteField(""); csv.WriteField(""); csv.WriteField(""); csv.WriteField(""); csv.WriteField(""); csv.WriteField(""); csv.WriteField(""); csv.WriteField("");
+            // Summary section — 11 empty fields + label + value = 12 fields
+            for (int i = 0; i < 10; i++) csv.WriteField("");
             csv.WriteField("Glass Materials Total");
             csv.WriteField(ctx.GlassMaterialsTotal.ToString("N2"));
             csv.NextRecord();
 
-            csv.WriteField(""); csv.WriteField(""); csv.WriteField(""); csv.WriteField(""); csv.WriteField(""); csv.WriteField(""); csv.WriteField(""); csv.WriteField("");
+            for (int i = 0; i < 10; i++) csv.WriteField("");
             csv.WriteField("Other Charges Total");
             csv.WriteField(ctx.OtherChargesTotal.ToString("N2"));
             csv.NextRecord();
 
-            csv.WriteField(""); csv.WriteField(""); csv.WriteField(""); csv.WriteField(""); csv.WriteField(""); csv.WriteField(""); csv.WriteField(""); csv.WriteField("");
+            for (int i = 0; i < 10; i++) csv.WriteField("");
             csv.WriteField("GRAND TOTAL (VAT INC)");
             csv.WriteField(ctx.GrandTotal.ToString("N2"));
             csv.NextRecord();

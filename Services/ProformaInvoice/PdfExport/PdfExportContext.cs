@@ -77,8 +77,21 @@ namespace ProGlassAutomation.Services.ProformaInvoice.PdfExport
     {
         public int Serial { get; set; }
         public string GlassRef { get; set; } = "";
+
+        // ── Phase 7.19d: Individual dimension columns ─────────────────────
+        // Used by print/PDF/Excel/CSV as separate columns instead of
+        // combined "1372×532" strings for cleaner tabular data.
+        public int W1 { get; set; }
+        public int H1 { get; set; }
+        public int W2 { get; set; }
+        public int H2 { get; set; }
+
+        // ── Legacy combined strings (kept for backward compatibility) ─────
+        // Not used by the current rendering paths — retained so any
+        // existing code that reads them keeps working.
         public string SizeW1H1 { get; set; } = "";
         public string SizeW2H2 { get; set; } = "";
+
         public int Qty { get; set; }
         public decimal Area { get; set; }
         public decimal Rate { get; set; }

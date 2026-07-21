@@ -78,7 +78,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.PdfExport
         {
             container.Column(col =>
             {
-                // Client + Project
                 col.Item().PaddingTop(10).Row(row =>
                 {
                     row.RelativeItem().Element(c => ComposeClientBlock(c, ctx));
@@ -88,28 +87,21 @@ namespace ProGlassAutomation.Services.ProformaInvoice.PdfExport
 
                 col.Item().PaddingVertical(8).LineHorizontal(1).LineColor(LINE);
 
-                // Spec tables
                 foreach (var group in ctx.SpecGroups)
                     col.Item().Element(c => ComposeSpecTable(c, group));
 
-                // Other charges
                 col.Item().Element(c => ComposeOtherCharges(c, ctx));
-
-                // Financial summary
                 col.Item().Element(c => ComposeFinancialSummary(c, ctx));
 
-                // Terms & Conditions
                 if (ctx.TermClauses.Any())
                     col.Item().Element(c => ComposeTermsAndConditions(c, ctx));
 
-                // Footer disclaimer
                 col.Item().PaddingTop(10).BorderTop(1).BorderColor(LINE).PaddingTop(6).Column(footer =>
                 {
                     footer.Item().Text(ctx.FooterDisclaimer).FontSize(8).Italic().FontColor(MUTED);
                     footer.Item().Text($"Terms: {ctx.TermsText}").FontSize(8).Italic().FontColor(MUTED);
                 });
 
-                // Signature blocks
                 col.Item().Element(c => ComposeSignatureBlocks(c, ctx));
             });
         }
@@ -142,35 +134,37 @@ namespace ProGlassAutomation.Services.ProformaInvoice.PdfExport
             });
         }
 
+        // ══════════════════════════════════════════════════════════════════
+        //  Phase 7.19d — 10 columns: # | GLASS REF | W1 | H1 | W2 | H2 | QTY | AREA | RATE | TOTAL
+        // ══════════════════════════════════════════════════════════════════
         private void ComposeSpecTable(IContainer container, PdfSpecGroup group)
         {
             container.PaddingBottom(10).Column(col =>
             {
-                // Header bar
                 string specLabel = !string.IsNullOrWhiteSpace(group.GroupName) ? group.GroupName : $"Spec Group {group.GroupNumber}";
                 col.Item().Background(ACCENT).PaddingHorizontal(8).PaddingVertical(5)
                     .Text($"SPECIFICATION {group.GroupNumber}: {specLabel}")
                     .FontSize(10).Bold().FontColor(Colors.White);
 
-                // Table
                 col.Item().Table(table =>
                 {
                     table.ColumnsDefinition(c =>
                     {
-                        c.ConstantColumn(28);
-                        c.RelativeColumn(1.8f);
-                        c.RelativeColumn(1f);
-                        c.RelativeColumn(1f);
-                        c.ConstantColumn(42);
-                        c.RelativeColumn(0.85f);
-                        c.RelativeColumn(0.75f);
-                        c.RelativeColumn(0.95f);
+                        c.ConstantColumn(28);       // #
+                        c.RelativeColumn(1.6f);     // Glass Ref
+                        c.ConstantColumn(35);       // W1
+                        c.ConstantColumn(35);       // H1
+                        c.ConstantColumn(35);       // W2
+                        c.ConstantColumn(35);       // H2
+                        c.ConstantColumn(40);       // Qty
+                        c.RelativeColumn(0.85f);    // Area
+                        c.RelativeColumn(0.75f);    // Rate
+                        c.RelativeColumn(0.95f);    // Total
                     });
 
-                    // Column headers
                     table.Header(header =>
                     {
-                        var headers = new[] { "#", "GLASS REF", "W1×H1 (mm)", "W2×H2 (mm)", "QTY", "AREA", "RATE", "TOTAL" };
+                        var headers = new[] { "#", "GLASS REF", "W1", "H1", "W2", "H2", "QTY", "AREA", "RATE", "TOTAL" };
                         foreach (var h in headers)
                         {
                             header.Cell().Background(TABLE_HEADER).PaddingHorizontal(6).PaddingVertical(5)
@@ -178,13 +172,14 @@ namespace ProGlassAutomation.Services.ProformaInvoice.PdfExport
                         }
                     });
 
-                    // Data rows
                     foreach (var row in group.Rows)
                     {
                         AddCell(table, row.Serial.ToString());
                         AddCell(table, row.GlassRef);
-                        AddCell(table, row.SizeW1H1);
-                        AddCell(table, row.SizeW2H2);
+                        AddCellRight(table, row.W1.ToString());
+                        AddCellRight(table, row.H1.ToString());
+                        AddCellRight(table, row.W2.ToString());
+                        AddCellRight(table, row.H2.ToString());
                         AddCellCenter(table, row.Qty.ToString());
                         AddCellRight(table, row.Area.ToString("0.000"));
                         AddCellRight(table, row.Rate.ToString("N2"));
@@ -192,7 +187,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.PdfExport
                     }
                 });
 
-                // Sub-total row
                 col.Item().Background(LIGHT_BG).BorderBottom(1).BorderColor(LINE)
                     .PaddingHorizontal(6).PaddingVertical(5).Row(r =>
                     {
