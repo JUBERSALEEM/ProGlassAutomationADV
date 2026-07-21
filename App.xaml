@@ -9,13 +9,16 @@
                 <ResourceDictionary Source="pack://application:,,,/Themes/LightTheme.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- Global converters -->
+            <!-- ── built-in converters ───────────────────────────────── -->
             <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-            <conv:ColorStringConverter x:Key="ColorStringConverter"/>
 
-            <!-- Phase 7.13: conditional display of Subtotal Before VAT
-                 (only shown when discount amount > 0) -->
-            <conv:DecimalIsPositiveConverter x:Key="DecimalIsPositiveConverter"/>
+            <!-- ── custom converters ─────────────────────────────────── -->
+            <conv:ColorStringConverter              x:Key="ColorStringConverter"/>
+            <conv:DecimalIsPositiveConverter        x:Key="DecimalIsPositiveConverter"/>
+            <conv:ReferenceEqualityConverter        x:Key="ReferenceEqualityConverter"/>
+            <conv:ScaleConverter                    x:Key="ScaleConverter"/>
+            <conv:InverseBoolToVisibilityConverter  x:Key="InverseBoolToVisibilityConverter"/>
+
         </ResourceDictionary>
     </Application.Resources>
 </Application>

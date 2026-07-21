@@ -1,43 +1,73 @@
-﻿using ProGlassAutomation.ViewModels.ProformaInvoice;
-using System.ComponentModel;
+﻿using ProGlassAutomation.Commands;
+using System.Collections.Generic;
+using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.Dashboard
 {
+    /// <summary>
+    /// Shell ViewModel for the multi-page Dashboard.
+    /// Owns the tab list and the currently active sub-page.
+    /// Lazy-loads each sub-page on first tab selection via ActivePage setter.
+    /// </summary>
     public class DashboardViewModel : ViewModelBase
     {
-        public string WelcomeMessage { get; } = "Welcome to ProGlass Automation Dashboard";
+        // ── tab pages ─────────────────────────────────────────────────────
+        public List<DashboardPageBase> Pages { get; }
 
-        // Direct reference to Proforma VM (quick binding — will refactor later)
-        public ProformaInvoiceViewModel ProformaVM { get; }
-
-        public decimal TotalSales => ProformaVM.TotalSales;
-        public int InvoiceCount => ProformaVM.InvoiceCount;
-        public int PendingCount => ProformaVM.PendingCount;
-        public int CustomerCount => 142; // Placeholder until Customers module exists
-
-        public DashboardViewModel(ProformaInvoiceViewModel proformaVM)
+        private DashboardPageBase _activePage;
+        public DashboardPageBase ActivePage
         {
-            ProformaVM = proformaVM;
-
-            // Whenever Proforma raises a property change on aggregates,
-            // re-raise on Dashboard so bindings refresh
-            ProformaVM.PropertyChanged += ProformaVM_PropertyChanged;
+            get => _activePage;
+            set
+            {
+                if (_activePage == value) return;
+                _activePage = value;
+                OnPropertyChanged();
+                // trigger LoadAsync on the newly selected page
+                _ = _activePage.LoadAsync();
+            }
         }
 
-        private void ProformaVM_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        // ── sub-page VMs ──────────────────────────────────────────────────
+        public OverviewDashboardViewModel OverviewVM { get; }
+        public SheetStoreDashboardViewModel SheetStoreVM { get; }
+        public PiDashboardViewModel ProformaVM { get; }
+
+        // ── commands ──────────────────────────────────────────────────────
+        public ICommand SelectTabCommand { get; }
+
+        // ═════════════════════════════════════════════════════════════════
+        public DashboardViewModel()
         {
-            switch (e.PropertyName)
+            OverviewVM = new OverviewDashboardViewModel();
+            SheetStoreVM = new SheetStoreDashboardViewModel();
+            ProformaVM = new PiDashboardViewModel();
+
+            Pages = new List<DashboardPageBase>
             {
-                case nameof(ProformaInvoiceViewModel.TotalSales):
-                    OnPropertyChanged(nameof(TotalSales));
-                    break;
-                case nameof(ProformaInvoiceViewModel.InvoiceCount):
-                    OnPropertyChanged(nameof(InvoiceCount));
-                    break;
-                case nameof(ProformaInvoiceViewModel.PendingCount):
-                    OnPropertyChanged(nameof(PendingCount));
-                    break;
-            }
+                OverviewVM,
+                SheetStoreVM,
+                ProformaVM
+            };
+
+            SelectTabCommand = new RelayCommand(p =>
+            {
+                if (p is DashboardPageBase page)
+                    ActivePage = page;
+            });
+
+            // default tab — set backing field directly to avoid double load
+            _activePage = OverviewVM;
+            _ = OverviewVM.LoadAsync();
+        }
+
+        /// <summary>
+        /// Called by DashboardView.xaml.cs OnLoaded.
+        /// Refreshes the active page every time the user navigates to Dashboard.
+        /// </summary>
+        public void OnViewLoaded()
+        {
+            _ = ActivePage.LoadAsync();
         }
     }
 }

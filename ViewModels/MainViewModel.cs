@@ -23,19 +23,18 @@ namespace ProGlassAutomation.ViewModels
         private bool _isSettingsOpen;
         private string _aiTestStatus;
 
-        // Existing modules
-        public ProformaInvoiceViewModel ProformaInvoiceVM { get; }
+        // ── modules ───────────────────────────────────────────────────────
         public DashboardViewModel DashboardVM { get; }
+        public ProformaInvoiceViewModel ProformaInvoiceVM { get; }
         public AboutViewModel AboutVM { get; } = new AboutViewModel();
 
-        // AI Chat (floating assistant)
+        // ── AI chat ───────────────────────────────────────────────────────
         public AiChatViewModel AiChatVM { get; }
 
-        // Placeholder modules
+        // ── placeholder modules ───────────────────────────────────────────
         public SheetStoreViewModel SheetStoreVM { get; } = new SheetStoreViewModel();
         public JobOrderViewModel JobOrderVM { get; } = new JobOrderViewModel();
         public OptimizationViewModel OptimizationVM { get; } = new OptimizationViewModel();
-
         public CuttingViewModel CuttingVM { get; } = new CuttingViewModel();
         public HolesCutoutsViewModel HolesCutoutsVM { get; } = new HolesCutoutsViewModel();
         public PolishViewModel PolishVM { get; } = new PolishViewModel();
@@ -44,27 +43,27 @@ namespace ProGlassAutomation.ViewModels
         public TemperingViewModel TemperingVM { get; } = new TemperingViewModel();
         public PairingViewModel PairingVM { get; } = new PairingViewModel();
         public DoublingLaminationViewModel DoublingLaminationVM { get; } = new DoublingLaminationViewModel();
-
         public DeliveryNoteViewModel DeliveryNoteVM { get; } = new DeliveryNoteViewModel();
         public TaxInvoiceViewModel TaxInvoiceVM { get; } = new TaxInvoiceViewModel();
         public SalesReportViewModel SalesReportVM { get; } = new SalesReportViewModel();
 
+        // ── current view ──────────────────────────────────────────────────
         public ViewModelBase CurrentViewModel
         {
             get => _currentViewModel;
-            set { _currentViewModel = value; OnPropertyChanged(); }
+            set { if (_currentViewModel == value) return; _currentViewModel = value; OnPropertyChanged(); }
         }
 
         public bool IsMenuOpen
         {
             get => _isMenuOpen;
-            set { _isMenuOpen = value; OnPropertyChanged(); }
+            set { if (_isMenuOpen == value) return; _isMenuOpen = value; OnPropertyChanged(); }
         }
 
         public bool IsSettingsOpen
         {
             get => _isSettingsOpen;
-            set { _isSettingsOpen = value; OnPropertyChanged(); }
+            set { if (_isSettingsOpen == value) return; _isSettingsOpen = value; OnPropertyChanged(); }
         }
 
         public bool IsDarkTheme
@@ -77,8 +76,7 @@ namespace ProGlassAutomation.ViewModels
             }
         }
 
-        // ==================== AI SETTINGS ====================
-
+        // ── AI settings ───────────────────────────────────────────────────
         public bool IsAiEnabled
         {
             get => App.Config?.Ai?.Enabled ?? false;
@@ -110,11 +108,10 @@ namespace ProGlassAutomation.ViewModels
         public string AiTestStatus
         {
             get => _aiTestStatus;
-            set { _aiTestStatus = value; OnPropertyChanged(); }
+            set { if (_aiTestStatus == value) return; _aiTestStatus = value; OnPropertyChanged(); }
         }
 
-        // ==================== COMMANDS ====================
-
+        // ── commands ──────────────────────────────────────────────────────
         public ICommand ToggleMenuCommand { get; }
         public ICommand ToggleSettingsCommand { get; }
         public ICommand NavigateCommand { get; }
@@ -122,13 +119,13 @@ namespace ProGlassAutomation.ViewModels
         public ICommand ShowAboutCommand { get; }
         public ICommand TestAiConnectionCommand { get; }
 
+        // ═════════════════════════════════════════════════════════════════
         public MainViewModel()
         {
-            // Existing dependency wiring
+            // DashboardVM has NO dependency on ProformaInvoiceVM
+            DashboardVM = new DashboardViewModel();
             ProformaInvoiceVM = new ProformaInvoiceViewModel();
-            DashboardVM = new DashboardViewModel(ProformaInvoiceVM);
 
-            // AI Chat — uses global App.Ai service
             AiChatVM = new AiChatViewModel(App.Ai);
 
             ToggleMenuCommand = new RelayCommand(_ =>
@@ -160,7 +157,6 @@ namespace ProGlassAutomation.ViewModels
                     AiTestStatus = "✗ AI service not initialized.";
                     return;
                 }
-
                 AiTestStatus = "Testing...";
                 var result = await App.Ai.TestConnectionAsync();
                 AiTestStatus = result.Success
@@ -168,10 +164,11 @@ namespace ProGlassAutomation.ViewModels
                     : "✗ " + result.Message;
             });
 
-            // Default = Dashboard
+            // default landing page
             CurrentViewModel = DashboardVM;
         }
 
+        // ── navigation ────────────────────────────────────────────────────
         private void Navigate(object parameter)
         {
             switch (parameter?.ToString())
