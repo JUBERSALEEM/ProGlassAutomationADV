@@ -1,6 +1,9 @@
 ﻿using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
+using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice
@@ -44,7 +47,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
 
     /// <summary>
     /// Main ViewModel for the Proforma Invoice module.
-    /// Hosts the 7-step wizard for building new invoices.
+    /// Phase 7.19: List-first architecture — module landing page shows
+    /// SavedInvoicesList. User creates new or edits existing from the list.
+    /// Wizard is shown on demand, with "Back to List" navigation.
     /// </summary>
     public class ProformaInvoiceViewModel : ViewModelBase
     {
@@ -61,21 +66,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         public bool HasInvoices => false;
 
         // === Step ViewModels ===
-        // Initialized in constructor with navigation callback
         public Step1CompanySetup.CompanySetupViewModel Step1VM { get; }
         public Step2ProjectSpecs.ProjectSpecsViewModel Step2VM { get; }
         public Step3ClientProfile.ClientProfileViewModel Step3VM { get; }
         public Step4PricingEstimator.PricingEstimatorViewModel Step4VM { get; }
         public Step5DataGrid.DataGridViewModel Step5VM { get; }
-
-        // Phase 7.11a: Step 6 needs live access to Step 5's SpecGroups
-        // for the Metric Discovery Hub, so we pass Step5VM into its constructor.
         public Step6OtherCharges.OtherChargesViewModel Step6VM { get; }
-
-        // Phase 7.12 + 7.13: Step 7 needs live access to Step 1 (company header),
-        // Step 2 (project block), Step 3 (client block), Step 5 (glass subtotal +
-        // spec tables), and Step 6 (other charges subtotal + detail list) for the
-        // full A4 printable invoice preview and the Invoice Main Summary card.
         public Step7PrintPreview.PrintPreviewViewModel Step7VM { get; }
 
         // === Wizard Steps ===
@@ -105,29 +101,51 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 OnPropertyChanged(nameof(CanGoNext));
                 OnPropertyChanged(nameof(IsLastStep));
 
-                // Ensure Back/Continue enable/disable updates immediately
                 CommandManager.InvalidateRequerySuggested();
             }
         }
 
         public int CurrentStepNumber => CurrentStep?.StepNumber ?? 1;
         public string StepProgressText => $"STEP  {CurrentStepNumber}  OF  7";
-
-        // Still useful for future (if we later switch to smooth progress bar)
         public double ProgressPercent => (double)CurrentStepNumber / 7.0;
-
         public bool CanGoBack => CurrentStepNumber > 1;
         public bool CanGoNext => CurrentStepNumber < 7;
         public bool IsLastStep => CurrentStepNumber == 7;
+
+        // ══════════════════════════════════════════════════════════════════
+        //  PHASE 7.19 — LIST ↔ WIZARD navigation state
+        //  When IsListView = true, the SavedInvoicesList is shown.
+        //  When false, the 7-step wizard is shown.
+        // ══════════════════════════════════════════════════════════════════
+
+        private bool _isListView = true;
+        public bool IsListView
+        {
+            get => _isListView;
+            set
+            {
+                if (_isListView == value) return;
+                _isListView = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsWizardView));
+            }
+        }
+
+        public bool IsWizardView => !_isListView;
+
+        /// <summary>The saved invoices list VM — shown as the module landing page.</summary>
+        public SavedInvoicesList.SavedInvoicesListViewModel SavedInvoicesListVM { get; }
 
         // === Commands ===
         public ICommand NextStepCommand { get; }
         public ICommand PreviousStepCommand { get; }
         public ICommand GoToStepCommand { get; }
+        public ICommand NewInvoiceCommand { get; }
+        public ICommand BackToListCommand { get; }
 
         public ProformaInvoiceViewModel()
         {
-            // Initialize Step VMs with navigation callback so children can request step jumps
+            // Initialize Step VMs
             Step1VM = new Step1CompanySetup.CompanySetupViewModel(
                 stepNumber => GoToStep(stepNumber));
 
@@ -136,68 +154,25 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             Step4VM = new Step4PricingEstimator.PricingEstimatorViewModel();
             Step5VM = new Step5DataGrid.DataGridViewModel();
 
-            // Step 6 must be created AFTER Step5VM exists so it can subscribe to
-            // its live SpecGroups collection for Metric Discovery Hub aggregation.
             Step6VM = new Step6OtherCharges.OtherChargesViewModel(Step5VM);
 
-            // Step 7 (Phase 7.13) now needs ALL upstream step VMs so the printable
-            // A4 preview can render company header, client/project blocks, spec
-            // tables, other charges detail list, and the financial summary card.
             Step7VM = new Step7PrintPreview.PrintPreviewViewModel(
-                Step1VM,
-                Step2VM,
-                Step3VM,
-                Step5VM,
-                Step6VM);
+                Step1VM, Step2VM, Step3VM, Step5VM, Step6VM);
 
             WizardSteps = new ObservableCollection<WizardStep>
             {
-                new WizardStep
-                {
-                    StepNumber = 1,
-                    Title = "Company details",
-                    Subtitle = "TRN, location and billing"
-                },
-                new WizardStep
-                {
-                    StepNumber = 2,
-                    Title = "Project",
-                    Subtitle = "Reference numbers, PO and l..."
-                },
-                new WizardStep
-                {
-                    StepNumber = 3,
-                    Title = "Other references",
-                    Subtitle = "Clients, salesman and attention"
-                },
-                new WizardStep
-                {
-                    StepNumber = 4,
-                    Title = "Glass type & specs",
-                    Subtitle = "Estimators, materials & treatm..."
-                },
-                new WizardStep
-                {
-                    StepNumber = 5,
-                    Title = "Data grid",
-                    Subtitle = "Multi-spec row configurations"
-                },
-                new WizardStep
-                {
-                    StepNumber = 6,
-                    Title = "Other charges",
-                    Subtitle = "Supplementary, prep, delivery"
-                },
-                new WizardStep
-                {
-                    StepNumber = 7,
-                    Title = "Print preview",
-                    Subtitle = "Review, terms and ERP conve..."
-                }
+                new WizardStep { StepNumber = 1, Title = "Company details",    Subtitle = "TRN, location and billing" },
+                new WizardStep { StepNumber = 2, Title = "Project",            Subtitle = "Reference numbers, PO and l..." },
+                new WizardStep { StepNumber = 3, Title = "Other references",   Subtitle = "Clients, salesman and attention" },
+                new WizardStep { StepNumber = 4, Title = "Glass type & specs", Subtitle = "Estimators, materials & treatm..." },
+                new WizardStep { StepNumber = 5, Title = "Data grid",          Subtitle = "Multi-spec row configurations" },
+                new WizardStep { StepNumber = 6, Title = "Other charges",      Subtitle = "Supplementary, prep, delivery" },
+                new WizardStep { StepNumber = 7, Title = "Print preview",      Subtitle = "Review, terms and ERP conve..." }
             };
 
             CurrentStep = WizardSteps[0];
 
+            // Wizard navigation commands
             NextStepCommand = new RelayCommand(
                 _ => GoToStep(CurrentStepNumber + 1),
                 _ => CanGoNext);
@@ -211,6 +186,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 if (param is WizardStep step)
                     CurrentStep = step;
             });
+
+            // Phase 7.19: List ↔ Wizard navigation
+            NewInvoiceCommand = new RelayCommand(_ => StartNewInvoice());
+            BackToListCommand = new RelayCommand(_ => ReturnToList());
+
+            // Saved Invoices List VM — the module landing page
+            SavedInvoicesListVM = new SavedInvoicesList.SavedInvoicesListViewModel();
+            SavedInvoicesListVM.OnInvoiceLoadRequested = LoadInvoiceIntoWizard;
         }
 
         private void GoToStep(int stepNumber)
@@ -218,6 +201,111 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             var step = WizardSteps.FirstOrDefault(s => s.StepNumber == stepNumber);
             if (step != null)
                 CurrentStep = step;
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  PHASE 7.19 — List ↔ Wizard navigation methods
+        // ══════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Creates a fresh wizard (resets all steps) and switches to wizard view.
+        /// Called when user clicks "+ NEW INVOICE" on the list page.
+        /// </summary>
+        private void StartNewInvoice()
+        {
+            // Reset Step 1
+            Step1VM.CompanyName = "";
+            Step1VM.CompanyTrn = "";
+            Step1VM.CompanyLocation = "";
+            Step1VM.ProformaId = $"PI-{DateTime.Now.Year}-{(DateTime.Now.Ticks % 1000):000}";
+            Step1VM.IssueDate = DateTime.Now;
+            Step1VM.ValidUntil = DateTime.Now.AddDays(7);
+            Step1VM.ProformaStatus = "Draft";
+
+            // Reset Step 2
+            Step2VM.ProjectIdentifierName = "";
+            Step2VM.ProjectContractNo = "";
+            Step2VM.SiteDeliveryLocation = "";
+            Step2VM.LpoNumber = "";
+
+            // Reset Step 3
+            Step3VM.CustomerName = "";
+            Step3VM.CustomerTrn = "";
+            Step3VM.CustomerReferenceCode = "";
+            Step3VM.SalesRepresentative = "";
+            Step3VM.DocumentPreparedBy = "";
+            Step3VM.BillingAddress = "";
+            Step3VM.AttentionExecutiveName = "";
+            Step3VM.ClientContactPhone = "";
+
+            // Reset Step 5 — clear all spec groups and add a fresh one
+            Step5VM.SpecGroups.Clear();
+            Step5VM.SpecGroups.Add(new Step5DataGrid.SpecGroup
+            {
+                GroupNumber = 1,
+                GroupName = "Spec Group 1",
+                BaseRate = 150m,
+                SurchargePercent = 0m,
+                SelectedGlassType = "SGU"
+            });
+
+            // Navigate to Step 1 and show wizard
+            CurrentStep = WizardSteps[0];
+            IsListView = false;
+        }
+
+        /// <summary>
+        /// Returns to the saved invoices list view.
+        /// Called when user clicks "Back to List" in the wizard bottom nav.
+        /// </summary>
+        private void ReturnToList()
+        {
+            IsListView = true;
+            // Refresh the list in case user saved something while in wizard
+            _ = SavedInvoicesListVM.LoadInvoicesAsync();
+        }
+
+        /// <summary>
+        /// Called when user clicks LOAD on a row in the SavedInvoicesList.
+        /// Fetches the full entity, restores the wizard from the JSON snapshot,
+        /// and switches to wizard view at Step 1 for review.
+        /// </summary>
+        private async void LoadInvoiceIntoWizard(int invoiceId)
+        {
+            if (App.Invoices == null) return;
+
+            try
+            {
+                var entity = await App.Invoices.GetByIdAsync(invoiceId);
+                if (entity == null)
+                {
+                    MessageBox.Show(
+                        "Selected invoice could not be found.",
+                        "Load Failed",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+
+                var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
+
+                ProformaInvoiceMapper.RestoreWizardFromSnapshot(
+                    snapshot,
+                    Step1VM, Step2VM, Step3VM, Step5VM, Step6VM,
+                    Step7VM.InvoiceMainSummary, Step7VM.Terms, Step7VM.PrintableInvoice);
+
+                // Switch to wizard at Step 1 for review
+                CurrentStep = WizardSteps[0];
+                IsListView = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Failed to load invoice:\n\n{ex.Message}",
+                    "Load Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
         }
     }
 }
