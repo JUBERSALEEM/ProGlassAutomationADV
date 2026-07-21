@@ -72,8 +72,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         // for the Metric Discovery Hub, so we pass Step5VM into its constructor.
         public Step6OtherCharges.OtherChargesViewModel Step6VM { get; }
 
-        // Phase 7.12: Step 7 needs live access to both Step 5 (glass subtotal)
-        // and Step 6 (other charges subtotal) for the Invoice Main Summary.
+        // Phase 7.12 + 7.13: Step 7 needs live access to Step 1 (company header),
+        // Step 2 (project block), Step 3 (client block), Step 5 (glass subtotal +
+        // spec tables), and Step 6 (other charges subtotal + detail list) for the
+        // full A4 printable invoice preview and the Invoice Main Summary card.
         public Step7PrintPreview.PrintPreviewViewModel Step7VM { get; }
 
         // === Wizard Steps ===
@@ -138,9 +140,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             // its live SpecGroups collection for Metric Discovery Hub aggregation.
             Step6VM = new Step6OtherCharges.OtherChargesViewModel(Step5VM);
 
-            // Step 7 (Phase 7.12) needs both Step5VM (glass materials subtotal)
-            // and Step6VM (other charges subtotal) for the Invoice Main Summary.
-            Step7VM = new Step7PrintPreview.PrintPreviewViewModel(Step5VM, Step6VM);
+            // Step 7 (Phase 7.13) now needs ALL upstream step VMs so the printable
+            // A4 preview can render company header, client/project blocks, spec
+            // tables, other charges detail list, and the financial summary card.
+            Step7VM = new Step7PrintPreview.PrintPreviewViewModel(
+                Step1VM,
+                Step2VM,
+                Step3VM,
+                Step5VM,
+                Step6VM);
 
             WizardSteps = new ObservableCollection<WizardStep>
             {

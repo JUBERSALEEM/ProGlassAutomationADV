@@ -12,6 +12,10 @@
             <!-- Global converters -->
             <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
             <conv:ColorStringConverter x:Key="ColorStringConverter"/>
+
+            <!-- Phase 7.13: conditional display of Subtotal Before VAT
+                 (only shown when discount amount > 0) -->
+            <conv:DecimalIsPositiveConverter x:Key="DecimalIsPositiveConverter"/>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

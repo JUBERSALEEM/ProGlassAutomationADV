@@ -1,0 +1,597 @@
+﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview.PrintableInvoice.PrintableInvoiceView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="1123" d:DesignWidth="794"
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Ideal"
+             TextOptions.TextRenderingMode="Auto"
+             TextOptions.TextHintingMode="Fixed"
+             RenderOptions.BitmapScalingMode="HighQuality"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+
+        <Style x:Key="PrintSectionHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+
+        <Style x:Key="PrintLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="Foreground" Value="#475569"/>
+        </Style>
+
+        <Style x:Key="PrintValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#0F172A"/>
+        </Style>
+
+        <Style x:Key="EditableTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="BorderBrush" Value="#CBD5E1"/>
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="Padding" Value="2,1"/>
+        </Style>
+
+        <Style x:Key="TableHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Padding" Value="6,5"/>
+        </Style>
+
+        <Style x:Key="TableCellStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="Padding" Value="6,4"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Resources>
+
+    <!-- A4 paper canvas — width 794px at 96 DPI = exact A4 -->
+    <Border x:Name="PrintablePaper"
+            Background="White"
+            Width="794"
+            MinHeight="1123"
+            Padding="32,24"
+            BorderThickness="1"
+            BorderBrush="#E2E8F0"
+            UseLayoutRounding="True"
+            SnapsToDevicePixels="True">
+        <Border.Effect>
+            <DropShadowEffect BlurRadius="20" ShadowDepth="0" Opacity="0.15" Color="Black"/>
+        </Border.Effect>
+
+        <StackPanel>
+
+            <!-- ══════════════════════════════════════════════════════
+                 COMPANY HEADER
+            ══════════════════════════════════════════════════════ -->
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="220"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Left: Company branding (uses ACTUAL company from Step 1) -->
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="{Binding Company.CompanyName, TargetNullValue=PROGLASS AUTOMATION ERP, FallbackValue=PROGLASS AUTOMATION ERP}"
+                               FontSize="17" FontWeight="Bold"
+                               Foreground="#4F46E5"/>
+                    <TextBlock Text="Premium Glass Glazing, High-Yield Manufacturing &amp; Logistics Spec"
+                               FontSize="9"
+                               Foreground="#475569"
+                               Margin="0,2,0,0"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
+                        <TextBlock Text="{Binding Company.CompanyLocation, TargetNullValue=United Arab Emirates, FallbackValue=United Arab Emirates}"
+                                   FontSize="9" Foreground="#475569"/>
+                        <TextBlock Text=" • www.proglass-automation.com"
+                                   FontSize="9" Foreground="#475569"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
+                        <TextBlock Text="TRN: " FontSize="9" FontWeight="SemiBold" Foreground="#475569"/>
+                        <TextBlock Text="{Binding Company.CompanyTrn, TargetNullValue=—, FallbackValue=—}"
+                                   FontSize="9" FontWeight="SemiBold" Foreground="#0F172A"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Right: Proforma badge -->
+                <Border Grid.Column="1"
+                        Background="#F1F5F9"
+                        CornerRadius="3"
+                        Padding="12,8"
+                        BorderThickness="1"
+                        BorderBrush="#CBD5E1">
+                    <StackPanel>
+                        <TextBlock Text="PROFORMA INVOICE"
+                                   FontSize="12" FontWeight="Bold"
+                                   Foreground="#0F172A"
+                                   HorizontalAlignment="Center"/>
+                        <Grid Margin="0,6,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+                            <TextBlock Grid.Row="0" Grid.Column="0" Text="Ref:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,0"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1"
+                                       Text="{Binding Company.ProformaId, TargetNullValue=PI-XXXX-XXX, FallbackValue=PI-XXXX-XXX}"
+                                       Style="{StaticResource PrintValueStyle}"/>
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Date:" Style="{StaticResource PrintLabelStyle}" Margin="0,2,6,0"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1"
+                                       Text="{Binding Company.IssueDate, StringFormat=yyyy-MM-dd, TargetNullValue=YYYY-MM-DD, FallbackValue=YYYY-MM-DD}"
+                                       Style="{StaticResource PrintValueStyle}" Margin="0,2,0,0"/>
+                        </Grid>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <Border Background="#CBD5E1" Height="1" Margin="0,0,0,10"/>
+
+            <!-- ══════════════════════════════════════════════════════
+                 CLIENT + PROJECT BLOCKS
+            ══════════════════════════════════════════════════════ -->
+            <Grid Margin="0,0,0,12">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Client Block -->
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="CLIENT / BILL TO:" Style="{StaticResource PrintSectionHeaderStyle}"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
+                        <TextBlock Text="Customer Name: " Style="{StaticResource PrintLabelStyle}"/>
+                        <TextBlock Text="{Binding Client.CustomerName, TargetNullValue=—, FallbackValue=—}" Style="{StaticResource PrintValueStyle}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
+                        <TextBlock Text="TRN/VAT Number: " Style="{StaticResource PrintLabelStyle}"/>
+                        <TextBlock Text="{Binding Client.CustomerTrn, TargetNullValue=—, FallbackValue=—}" Style="{StaticResource PrintValueStyle}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
+                        <TextBlock Text="Attention Name: " Style="{StaticResource PrintLabelStyle}"/>
+                        <TextBlock Text="{Binding Client.AttentionExecutiveName, TargetNullValue=—, FallbackValue=—}" Style="{StaticResource PrintValueStyle}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
+                        <TextBlock Text="Contact Details: " Style="{StaticResource PrintLabelStyle}"/>
+                        <TextBlock Text="{Binding Client.ClientContactPhone, TargetNullValue=—, FallbackValue=—}" Style="{StaticResource PrintValueStyle}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
+                        <TextBlock Text="Billing Address: " Style="{StaticResource PrintLabelStyle}"/>
+                        <TextBlock Text="{Binding Client.BillingAddress, TargetNullValue=—, FallbackValue=—}"
+                                   Style="{StaticResource PrintValueStyle}" TextWrapping="Wrap"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
+                        <TextBlock Text="Client Reference: " Style="{StaticResource PrintLabelStyle}"/>
+                        <TextBlock Text="{Binding Client.CustomerReferenceCode, TargetNullValue=—, FallbackValue=—}" Style="{StaticResource PrintValueStyle}"/>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Project Block -->
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="PROJECT ESTIMATE METRIC:" Style="{StaticResource PrintSectionHeaderStyle}"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
+                        <TextBlock Text="Project Designation: " Style="{StaticResource PrintLabelStyle}"/>
+                        <TextBlock Text="{Binding Project.ProjectIdentifierName, TargetNullValue=—, FallbackValue=—}" Style="{StaticResource PrintValueStyle}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
+                        <TextBlock Text="Project Code / ID: " Style="{StaticResource PrintLabelStyle}"/>
+                        <TextBlock Text="{Binding Project.ProjectContractNo, TargetNullValue=—, FallbackValue=—}" Style="{StaticResource PrintValueStyle}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
+                        <TextBlock Text="Site Delivery: " Style="{StaticResource PrintLabelStyle}"/>
+                        <TextBlock Text="{Binding Project.SiteDeliveryLocation, TargetNullValue=—, FallbackValue=—}" Style="{StaticResource PrintValueStyle}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
+                        <TextBlock Text="LPO / PO Reference: " Style="{StaticResource PrintLabelStyle}"/>
+                        <TextBlock Text="{Binding Project.LpoNumber, TargetNullValue=—, FallbackValue=—}" Style="{StaticResource PrintValueStyle}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
+                        <TextBlock Text="Assigned Salesman: " Style="{StaticResource PrintLabelStyle}"/>
+                        <TextBlock Text="{Binding Client.SalesRepresentative, TargetNullValue=—, FallbackValue=—}" Style="{StaticResource PrintValueStyle}"/>
+                    </StackPanel>
+                    <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
+                        <TextBlock Text="Valid Until: " Style="{StaticResource PrintLabelStyle}"/>
+                        <TextBlock Text="{Binding Company.ValidUntil, StringFormat=yyyy-MM-dd, TargetNullValue=—, FallbackValue=—}"
+                                   Style="{StaticResource PrintValueStyle}"/>
+                        <TextBlock Text=" • Status: " Style="{StaticResource PrintLabelStyle}"/>
+                        <TextBlock Text="{Binding Company.ProformaStatus, TargetNullValue=Draft, FallbackValue=Draft}"
+                                   Style="{StaticResource PrintValueStyle}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Grid>
+
+            <Border Background="#CBD5E1" Height="1" Margin="0,0,0,10"/>
+
+            <!-- ══════════════════════════════════════════════════════
+                 SPECIFICATION TABLES
+            ══════════════════════════════════════════════════════ -->
+            <ItemsControl ItemsSource="{Binding DataGrid.SpecGroups}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel Margin="0,0,0,10">
+
+                            <Border Background="#4F46E5" Padding="8,5" CornerRadius="2,2,0,0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="SPECIFICATION " FontSize="10" FontWeight="Bold" Foreground="White"/>
+                                    <TextBlock Text="{Binding GroupNumber}" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                                    <TextBlock Text=": " FontSize="10" FontWeight="Bold" Foreground="White"/>
+                                    <TextBlock Text="{Binding GroupName}" FontSize="10" FontWeight="Bold" Foreground="White"
+                                               TextTrimming="CharacterEllipsis"/>
+                                </StackPanel>
+                            </Border>
+
+                            <Border Background="#1E293B">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="28"/>
+                                        <ColumnDefinition Width="1.8*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="42"/>
+                                        <ColumnDefinition Width="0.85*"/>
+                                        <ColumnDefinition Width="0.75*"/>
+                                        <ColumnDefinition Width="0.95*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="#" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="GLASS REF / DESCRIPTION" Style="{StaticResource TableHeaderStyle}"/>
+                                    <TextBlock Grid.Column="2" Text="SIZE W1×H1 (mm)" Style="{StaticResource TableHeaderStyle}"/>
+                                    <TextBlock Grid.Column="3" Text="SIZE W2×H2 (mm)" Style="{StaticResource TableHeaderStyle}"/>
+                                    <TextBlock Grid.Column="4" Text="QTY" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="5" Text="AREA (sqm)" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="6" Text="RATE (AED)" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                                    <TextBlock Grid.Column="7" Text="TOTAL (AED)" Style="{StaticResource TableHeaderStyle}" HorizontalAlignment="Right"/>
+                                </Grid>
+                            </Border>
+
+                            <ItemsControl ItemsSource="{Binding ItemRows}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BorderThickness="0,0,0,1" BorderBrush="#E2E8F0">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="28"/>
+                                                    <ColumnDefinition Width="1.8*"/>
+                                                    <ColumnDefinition Width="1*"/>
+                                                    <ColumnDefinition Width="1*"/>
+                                                    <ColumnDefinition Width="42"/>
+                                                    <ColumnDefinition Width="0.85*"/>
+                                                    <ColumnDefinition Width="0.75*"/>
+                                                    <ColumnDefinition Width="0.95*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0" Text="{Binding SerialNumber}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Center"/>
+                                                <TextBlock Grid.Column="1" Text="{Binding GlassRef}" Style="{StaticResource TableCellStyle}" TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock Grid.Column="2" Style="{StaticResource TableCellStyle}">
+                                                    <Run Text="{Binding W1, Mode=OneWay}"/><Run Text="×"/><Run Text="{Binding H1, Mode=OneWay}"/>
+                                                </TextBlock>
+                                                <TextBlock Grid.Column="3" Style="{StaticResource TableCellStyle}">
+                                                    <Run Text="{Binding W2, Mode=OneWay}"/><Run Text="×"/><Run Text="{Binding H2, Mode=OneWay}"/>
+                                                </TextBlock>
+                                                <TextBlock Grid.Column="4" Text="{Binding Qty}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Center"/>
+                                                <TextBlock Grid.Column="5" Text="{Binding TotalSqm, StringFormat={}{0:0.000}}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
+                                                <TextBlock Grid.Column="6" Text="{Binding Rate, StringFormat={}{0:N2}}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right"/>
+                                                <TextBlock Grid.Column="7" Text="{Binding Value, StringFormat={}{0:N2}}" Style="{StaticResource TableCellStyle}" HorizontalAlignment="Right" FontWeight="Bold"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <Border Background="#F1F5F9" Padding="6,5" BorderThickness="0,0,0,1" BorderBrush="#CBD5E1">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                        <TextBlock Text="SPEC SUB-TOTALS:" FontSize="9" FontWeight="Bold" Foreground="#4F46E5"/>
+                                        <TextBlock Text=" QTY: " FontSize="9" Foreground="#475569" Margin="6,0,0,0"/>
+                                        <TextBlock Text="{Binding FooterTotalQty}" FontSize="9" FontWeight="Bold" Foreground="#0F172A"/>
+                                        <TextBlock Text="  •  AREA: " FontSize="9" Foreground="#475569"/>
+                                        <TextBlock Text="{Binding FooterTotalSqm, StringFormat={}{0:0.000} sqm}" FontSize="9" FontWeight="Bold" Foreground="#0F172A"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <TextBlock Text="VALUE: AED " FontSize="9" FontWeight="Bold" Foreground="#4F46E5"/>
+                                        <TextBlock Text="{Binding FooterTotalValue, StringFormat={}{0:N2}}" FontSize="10" FontWeight="Bold" Foreground="#047857"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- ══════════════════════════════════════════════════════
+                 OTHER CHARGES DETAIL LIST
+            ══════════════════════════════════════════════════════ -->
+            <Border Background="#4F46E5" Padding="8,5" CornerRadius="2,2,0,0" Margin="0,4,0,0">
+                <TextBlock Text="SUPPLEMENTARY / FABRICATION OTHER CHARGES"
+                           FontSize="10" FontWeight="Bold" Foreground="White"/>
+            </Border>
+
+            <Border Background="#F8FAFC" Padding="8" BorderThickness="1,0,1,1" BorderBrush="#E2E8F0">
+                <StackPanel>
+                    <ItemsControl ItemsSource="{Binding OtherCharges.ChargeRows}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,2">
+                                    <Grid.Style>
+                                        <Style TargetType="Grid">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Style>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="1.2*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding ChargeName}" Style="{StaticResource PrintValueStyle}"/>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <TextBlock Text="Qty: " Style="{StaticResource PrintLabelStyle}"/>
+                                        <TextBlock Text="{Binding MetricQty, StringFormat={}{0:0.##}}" Style="{StaticResource PrintValueStyle}"/>
+                                        <TextBlock Text=" " Style="{StaticResource PrintLabelStyle}"/>
+                                        <TextBlock Text="{Binding Unit}" Style="{StaticResource PrintLabelStyle}"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                        <TextBlock Text="Rate: AED " Style="{StaticResource PrintLabelStyle}"/>
+                                        <TextBlock Text="{Binding Rate, StringFormat={}{0:N2}}" Style="{StaticResource PrintValueStyle}"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="3" Text="{Binding ResultAmount, StringFormat=AED {0:N2}}"
+                                               HorizontalAlignment="Right" FontSize="10" FontWeight="Bold" Foreground="#0F172A"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <ItemsControl ItemsSource="{Binding OtherCharges.WastagesSection.WastageRows}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,2">
+                                    <Grid.Style>
+                                        <Style TargetType="Grid">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Style>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="1.2*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" Orientation="Horizontal">
+                                        <TextBlock Text="Wastage — " Style="{StaticResource PrintValueStyle}"/>
+                                        <TextBlock Text="{Binding ColorName}" Style="{StaticResource PrintValueStyle}"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <TextBlock Text="Qty: " Style="{StaticResource PrintLabelStyle}"/>
+                                        <TextBlock Text="{Binding TotalSqm, StringFormat={}{0:0.###} sqm}" Style="{StaticResource PrintValueStyle}"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                        <TextBlock Text="Rate: AED " Style="{StaticResource PrintLabelStyle}"/>
+                                        <TextBlock Text="{Binding Rate, StringFormat={}{0:N2}}" Style="{StaticResource PrintValueStyle}"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="3" Text="{Binding ResultAmount, StringFormat=AED {0:N2}}"
+                                               HorizontalAlignment="Right" FontSize="10" FontWeight="Bold" Foreground="#0F172A"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <ItemsControl ItemsSource="{Binding OtherCharges.CustomChargesSection.AddedCharges}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Grid Margin="0,2">
+                                    <Grid.Style>
+                                        <Style TargetType="Grid">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Grid.Style>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="1.2*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                        <ColumnDefinition Width="1*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="{Binding ChargeName}" Style="{StaticResource PrintValueStyle}"/>
+                                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                                        <TextBlock Text="Qty: " Style="{StaticResource PrintLabelStyle}"/>
+                                        <TextBlock Text="{Binding Qty, StringFormat={}{0:0.##}}" Style="{StaticResource PrintValueStyle}"/>
+                                        <TextBlock Text=" " Style="{StaticResource PrintLabelStyle}"/>
+                                        <TextBlock Text="{Binding Unit}" Style="{StaticResource PrintLabelStyle}"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" Orientation="Horizontal">
+                                        <TextBlock Text="Rate: AED " Style="{StaticResource PrintLabelStyle}"/>
+                                        <TextBlock Text="{Binding Rate, StringFormat={}{0:N2}}" Style="{StaticResource PrintValueStyle}"/>
+                                    </StackPanel>
+                                    <TextBlock Grid.Column="3" Text="{Binding ResultAmount, StringFormat=AED {0:N2}}"
+                                               HorizontalAlignment="Right" FontSize="10" FontWeight="Bold" Foreground="#0F172A"/>
+                                </Grid>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </StackPanel>
+            </Border>
+
+            <!-- ══════════════════════════════════════════════════════
+                 FINANCIAL SUMMARY WATERFALL
+            ══════════════════════════════════════════════════════ -->
+            <Border BorderThickness="0,1,0,0" BorderBrush="#CBD5E1" Padding="0,10,0,0" Margin="0,10,0,0">
+                <StackPanel HorizontalAlignment="Right" MinWidth="320">
+
+                    <Grid Margin="0,0,0,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Glass Materials Total:" Style="{StaticResource PrintValueStyle}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding MainSummary.GlassMaterialsSubtotal, StringFormat={}{0:N2} AED}" Style="{StaticResource PrintValueStyle}"/>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Other Processing/Delivery Total:" Style="{StaticResource PrintValueStyle}"/>
+                        <TextBlock Grid.Column="1" Text="{Binding MainSummary.OtherChargesSubtotal, StringFormat={}{0:N2} AED}" Style="{StaticResource PrintValueStyle}"/>
+                    </Grid>
+
+                    <Border Background="#CBD5E1" Height="1" Margin="0,3"/>
+
+                    <Grid Margin="0,0,0,3">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Estimated Net Subtotal:" FontSize="10" FontWeight="Bold" Foreground="#0F172A"/>
+                        <TextBlock Grid.Column="1" Text="{Binding MainSummary.NetSubtotal, StringFormat={}{0:N2} AED}" FontSize="10" FontWeight="Bold" Foreground="#0F172A"/>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,3"
+                          Visibility="{Binding MainSummary.DiscountAmount, Converter={StaticResource DecimalIsPositiveConverter}, ConverterParameter=Visibility, FallbackValue=Collapsed}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Discount:" Style="{StaticResource PrintValueStyle}" Foreground="#B91C1C"/>
+                        <TextBlock Grid.Column="1" Text="{Binding MainSummary.DiscountAmount, StringFormat=- {0:N2} AED}" Style="{StaticResource PrintValueStyle}" Foreground="#B91C1C"/>
+                    </Grid>
+
+                    <Grid Margin="0,0,0,3">
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding MainSummary.IsVatApplicable}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                            <TextBlock Text="Standard UAE VAT (" Style="{StaticResource PrintValueStyle}"/>
+                            <TextBlock Text="{Binding MainSummary.VatPercent, StringFormat={}{0:0.##}}" Style="{StaticResource PrintValueStyle}"/>
+                            <TextBlock Text="%):" Style="{StaticResource PrintValueStyle}"/>
+                        </StackPanel>
+                        <TextBlock Grid.Column="1" Text="{Binding MainSummary.VatAmount, StringFormat={}{0:N2} AED}" Style="{StaticResource PrintValueStyle}"/>
+                    </Grid>
+
+                    <Border Background="#4F46E5" CornerRadius="3" Padding="12,8" Margin="0,6,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="TOTAL EST VALUE (VAT INC):" FontSize="12" FontWeight="Bold" Foreground="White"/>
+                            <TextBlock Grid.Column="1" Text="{Binding MainSummary.GrandTotalVatInclusive, StringFormat={}{0:N2} AED}"
+                                       FontSize="13" FontWeight="Bold" Foreground="White"/>
+                        </Grid>
+                    </Border>
+
+                </StackPanel>
+            </Border>
+
+            <!-- ══════════════════════════════════════════════════════
+                 TERMS + FOOTER
+            ══════════════════════════════════════════════════════ -->
+            <Border BorderThickness="0,1,0,0" BorderBrush="#CBD5E1" Padding="0,8,0,0" Margin="0,12,0,0">
+                <StackPanel>
+                    <TextBlock Text="{Binding FooterDisclaimer}"
+                               FontSize="8" FontStyle="Italic"
+                               Foreground="#475569" TextWrapping="Wrap"/>
+                    <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
+                        <TextBlock Text="Terms: " FontSize="8" FontStyle="Italic" Foreground="#475569"/>
+                        <TextBox Text="{Binding TermsText, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource EditableTextBoxStyle}"
+                                 FontSize="8" FontStyle="Italic" Foreground="#475569"
+                                 BorderThickness="0" MinWidth="600"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
+            <!-- ══════════════════════════════════════════════════════
+                 PREPARED BY + CLIENT SIGNATURE
+            ══════════════════════════════════════════════════════ -->
+            <Grid Margin="0,12,0,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" BorderThickness="1" BorderBrush="#CBD5E1" Padding="10,8" CornerRadius="2">
+                    <StackPanel>
+                        <TextBlock Text="PREPARED BY (ERP AUTHENTICATED)"
+                                   FontSize="9" FontWeight="Bold"
+                                   Foreground="#4F46E5" Margin="0,0,0,4"/>
+                        <TextBox Text="{Binding PreparedByName, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource EditableTextBoxStyle}"
+                                 FontSize="10" FontWeight="SemiBold" Foreground="#0F172A"/>
+                        <TextBox Text="{Binding PreparedByDept, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource EditableTextBoxStyle}"
+                                 FontSize="9" Foreground="#475569" Margin="0,2,0,0"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                            <TextBlock Text="Status: " FontSize="9" Foreground="#475569"/>
+                            <TextBox Text="{Binding PreparedByStatus, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource EditableTextBoxStyle}"
+                                     FontSize="9" FontWeight="Bold" Foreground="#047857" MinWidth="80"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2" BorderThickness="1" BorderBrush="#CBD5E1" Padding="10,8" CornerRadius="2">
+                    <StackPanel>
+                        <TextBlock Text="CLIENT APPROVAL SIGN &amp; MOB NUMBER"
+                                   FontSize="9" FontWeight="Bold"
+                                   Foreground="#4F46E5" Margin="0,0,0,4"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                            <TextBlock Text="Approval Sign:" FontSize="9" Foreground="#475569"/>
+                            <Border Background="#CBD5E1" Height="1" VerticalAlignment="Bottom" MinWidth="140" Margin="6,0,0,3"/>
+                        </StackPanel>
+                        <StackPanel Orientation="Horizontal" Margin="0,3,0,0">
+                            <TextBlock Text="Mobile Number:" FontSize="9" Foreground="#475569"/>
+                            <Border Background="#CBD5E1" Height="1" VerticalAlignment="Bottom" MinWidth="140" Margin="6,0,0,3"/>
+                        </StackPanel>
+                        <TextBlock Text="Authorized Name &amp; Stamp"
+                                   FontSize="9" Foreground="#475569" Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+        </StackPanel>
+    </Border>
+</UserControl>

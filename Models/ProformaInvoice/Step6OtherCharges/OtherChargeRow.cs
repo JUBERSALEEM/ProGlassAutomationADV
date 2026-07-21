@@ -83,10 +83,10 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
         // ── Polish-specific state ──────────────────────────────────────────
 
         /// <summary>Available polish sub-types (populated once).</summary>
-        public ObservableCollection<PolishSubTypeInfo.Info> AvailablePolishSubTypes { get; } = new();
+        public ObservableCollection<PolishSubTypeMeta> AvailablePolishSubTypes { get; } = new();
 
-        private PolishSubTypeInfo.Info _selectedPolishSubType;
-        public PolishSubTypeInfo.Info SelectedPolishSubType
+        private PolishSubTypeMeta _selectedPolishSubType;
+        public PolishSubTypeMeta SelectedPolishSubType
         {
             get => _selectedPolishSubType;
             set

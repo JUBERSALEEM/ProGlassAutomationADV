@@ -8,52 +8,58 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
     /// </summary>
     public enum PolishSubType
     {
-        AllSidePolish,           // (W + H) / 1000 * 2 * qty  → full perimeter
-        BothHeightSide,          // H / 1000 * 2 * qty        → heights only, both sides
-        BothWidthSide,           // W / 1000 * 2 * qty        → widths only, both sides
-        AllSidePolishAsPerDwg,   // (W + H) / 1000 * 2 * qty  → same as AllSide + "As Per DWG" note
-        Custom                   // user types free-text description + manual qty entry
+        AllSidePolish,
+        BothHeightSide,
+        BothWidthSide,
+        AllSidePolishAsPerDwg,
+        Custom
     }
 
     /// <summary>
-    /// Static metadata for polish sub-types (labels, formula hints).
+    /// Metadata for a polish sub-type (label + formula hint).
+    /// Top-level class (not nested) so WPF XAML serializer can handle it.
+    /// </summary>
+    public class PolishSubTypeMeta
+    {
+        public PolishSubType Type { get; set; }
+        public string DisplayLabel { get; set; } = "";
+        public string FormulaHint { get; set; } = "";
+
+        public override string ToString() => DisplayLabel;
+    }
+
+    /// <summary>
+    /// Static registry of all polish sub-types.
     /// </summary>
     public static class PolishSubTypeInfo
     {
-        public class Info
+        public static List<PolishSubTypeMeta> All { get; } = new()
         {
-            public PolishSubType Type { get; set; }
-            public string DisplayLabel { get; set; } = "";
-            public string FormulaHint { get; set; } = "";
-        }
-
-        public static List<Info> All { get; } = new()
-        {
-            new Info
+            new PolishSubTypeMeta
             {
                 Type = PolishSubType.AllSidePolish,
                 DisplayLabel = "All Side Polish",
                 FormulaHint = "(W+H)/1000 × 2 × Qty"
             },
-            new Info
+            new PolishSubTypeMeta
             {
                 Type = PolishSubType.BothHeightSide,
                 DisplayLabel = "Both Height Side",
                 FormulaHint = "H/1000 × 2 × Qty"
             },
-            new Info
+            new PolishSubTypeMeta
             {
                 Type = PolishSubType.BothWidthSide,
                 DisplayLabel = "Both Width Side",
                 FormulaHint = "W/1000 × 2 × Qty"
             },
-            new Info
+            new PolishSubTypeMeta
             {
                 Type = PolishSubType.AllSidePolishAsPerDwg,
                 DisplayLabel = "All Side Polish As Per DWG",
                 FormulaHint = "(W+H)/1000 × 2 × Qty (As Per DWG)"
             },
-            new Info
+            new PolishSubTypeMeta
             {
                 Type = PolishSubType.Custom,
                 DisplayLabel = "Custom (Manual)",
@@ -61,7 +67,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
             }
         };
 
-        public static Info GetInfo(PolishSubType type)
+        public static PolishSubTypeMeta GetInfo(PolishSubType type)
         {
             foreach (var info in All)
                 if (info.Type == type) return info;

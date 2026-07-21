@@ -4,12 +4,52 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:summary="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview.InvoiceMainSummary"
+             xmlns:printable="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview.PrintableInvoice"
              mc:Ignorable="d"
-             d:DesignHeight="800" d:DesignWidth="1200"
+             d:DesignHeight="900" d:DesignWidth="1200"
              FontFamily="Segoe UI">
 
+    <UserControl.Resources>
+        <Style x:Key="ToolbarButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="Padding" Value="14,7"/>
+            <Setter Property="Margin" Value="0,0,8,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PrimaryToolbarButtonStyle" TargetType="Button" BasedOn="{StaticResource ToolbarButtonStyle}">
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+        </Style>
+    </UserControl.Resources>
+
     <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Disabled"
+                  HorizontalScrollBarVisibility="Auto"
                   Padding="0,0,8,0">
         <StackPanel>
 
@@ -18,8 +58,7 @@
                 <Border Background="{DynamicResource AccentBrush}"
                         Width="30" Height="30" CornerRadius="6"
                         VerticalAlignment="Center">
-                    <TextBlock Text="&#128220;"
-                               FontSize="15" Foreground="White"
+                    <TextBlock Text="&#128220;" FontSize="15" Foreground="White"
                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
                 <TextBlock Text="{Binding Title}"
@@ -31,22 +70,98 @@
                        FontSize="11"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                        Margin="0,0,0,12" TextWrapping="Wrap"/>
-            <Border Background="{DynamicResource MenuHoverBrush}" Height="1" Margin="0,0,0,20"/>
+            <Border Background="{DynamicResource MenuHoverBrush}" Height="1" Margin="0,0,0,14"/>
 
             <!-- ============================================================
-                 PHASE 7.12 — INVOICE MAIN SUMMARY (financial totals card)
+                 TOOLBAR — Print / PDF / Save / Email
+            ============================================================ -->
+            <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                    CornerRadius="8" Padding="14,10" Margin="0,0,0,16"
+                    BorderThickness="1" BorderBrush="{DynamicResource MenuHoverBrush}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                        <TextBlock Text="INVOICE ACTIONS" FontSize="10" FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentBrush}"/>
+                        <TextBlock Text="Print current preview or export/save the invoice (some actions require future phases)"
+                                   FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,2,0,0"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal">
+                        <Button Style="{StaticResource PrimaryToolbarButtonStyle}"
+                                Command="{Binding PrintableInvoice.PrintCommand}"
+                                ToolTip="Print the invoice preview (also usable as Print to PDF)">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#128424;" FontSize="14" Margin="0,0,6,0"/>
+                                <TextBlock Text="PRINT"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Style="{StaticResource ToolbarButtonStyle}"
+                                Command="{Binding PrintableInvoice.ExportPdfCommand}"
+                                ToolTip="Coming in Phase 7.16">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#128196;" FontSize="14" Margin="0,0,6,0"/>
+                                <TextBlock Text="EXPORT PDF"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Style="{StaticResource ToolbarButtonStyle}"
+                                Command="{Binding PrintableInvoice.SaveInvoiceCommand}"
+                                ToolTip="Coming in Phase 7.15">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#128190;" FontSize="14" Margin="0,0,6,0"/>
+                                <TextBlock Text="SAVE INVOICE"/>
+                            </StackPanel>
+                        </Button>
+
+                        <Button Style="{StaticResource ToolbarButtonStyle}"
+                                Command="{Binding PrintableInvoice.SendEmailCommand}"
+                                ToolTip="Coming in Phase 7.20"
+                                Margin="0">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="&#9993;" FontSize="14" Margin="0,0,6,0"/>
+                                <TextBlock Text="SEND EMAIL"/>
+                            </StackPanel>
+                        </Button>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+            <!-- ============================================================
+                 PHASE 7.12 — INVOICE MAIN SUMMARY (editable card)
             ============================================================ -->
             <summary:InvoiceMainSummaryView DataContext="{Binding InvoiceMainSummary}"/>
+
+            <!-- ============================================================
+                 PHASE 7.13 — PRINTABLE A4 PAPER PREVIEW
+            ============================================================ -->
+            <Border Background="#374151" CornerRadius="8" Padding="30,20" Margin="0,20,0,0">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,20">
+                        <TextBlock Text="&#128196;" FontSize="16" Foreground="White" Margin="0,0,8,0"/>
+                        <TextBlock Text="A4 INVOICE PREVIEW" FontSize="11" FontWeight="Bold" Foreground="White"/>
+                        <TextBlock Text=" • Live from all wizard steps" FontSize="10" Foreground="#9CA3AF" Margin="6,1,0,0"/>
+                    </StackPanel>
+
+                    <printable:PrintableInvoiceView DataContext="{Binding PrintableInvoice}"
+                                                    HorizontalAlignment="Center"/>
+                </StackPanel>
+            </Border>
 
             <!-- Phase status note -->
             <Border Background="{DynamicResource MenuHoverBrush}"
                     CornerRadius="6" Padding="12,8"
-                    Margin="0,30,0,20" HorizontalAlignment="Left">
+                    Margin="0,20,0,20" HorizontalAlignment="Left">
                 <TextBlock FontSize="10"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            TextWrapping="Wrap">
-                    <Run FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">Phase 7.12 complete.</Run>
-                    <Run>Invoice Main Summary with Discount (% or AED) and toggleable VAT is live. Terms &amp; Conditions, ERP conversion, and PDF export coming in future phases.</Run>
+                    <Run FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">Phase 7.13 complete.</Run>
+                    <Run>Full A4 printable preview with all wizard data. Editable Terms + Prepared By fields. Print is functional; PDF export, Save, and Email coming in later phases.</Run>
                 </TextBlock>
             </Border>
 
