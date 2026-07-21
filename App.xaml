@@ -18,6 +18,7 @@
             <conv:ReferenceEqualityConverter        x:Key="ReferenceEqualityConverter"/>
             <conv:ScaleConverter                    x:Key="ScaleConverter"/>
             <conv:InverseBoolToVisibilityConverter  x:Key="InverseBoolToVisibilityConverter"/>
+            <conv:BrushKeyConverter                 x:Key="BrushKeyConverter"/>
 
         </ResourceDictionary>
     </Application.Resources>

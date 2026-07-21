@@ -11,52 +11,50 @@
 
         <!-- ═══════════ CARDS ═══════════ -->
 
-        <!-- generic card — used for chart + activity containers -->
         <Style x:Key="CardStyle" TargetType="Border">
-            <Setter Property="Background"      Value="White"/>
-            <Setter Property="BorderBrush"     Value="#E5E7EB"/>
+            <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius"    Value="16"/>
             <Setter Property="Padding"         Value="24"/>
             <Setter Property="Margin"          Value="8"/>
         </Style>
 
-        <!-- tinted KPI card — uses TintColor from model -->
+        <!-- tinted KPI card — TintColor is a theme brush key -->
         <Style x:Key="TintedCardStyle" TargetType="Border">
             <Setter Property="Background"
                     Value="{Binding TintColor,
-                            Converter={StaticResource ColorStringConverter}}"/>
+                            Converter={StaticResource BrushKeyConverter}}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="CornerRadius"    Value="16"/>
             <Setter Property="Padding"         Value="22"/>
             <Setter Property="Margin"          Value="8"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsAlert}" Value="True">
-                    <Setter Property="BorderBrush"     Value="#EF4444"/>
+                    <Setter Property="BorderBrush"     Value="{DynamicResource DangerBrush}"/>
                     <Setter Property="BorderThickness" Value="2"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
 
-        <!-- ═══════════ SECTION TITLES ═══════════ -->
         <Style x:Key="SectionTitle" TargetType="TextBlock">
             <Setter Property="FontSize"   Value="20"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="Margin"     Value="8,0,8,4"/>
         </Style>
 
         <Style x:Key="SectionSubtitle" TargetType="TextBlock">
             <Setter Property="FontSize"   Value="12"/>
-            <Setter Property="Foreground" Value="#6B7280"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
             <Setter Property="Margin"     Value="8,0,8,10"/>
         </Style>
 
         <!-- ═══════════ QUICK ACTION BUTTONS ═══════════ -->
 
         <Style x:Key="QuickActionPrimary" TargetType="Button">
-            <Setter Property="Background"      Value="#0F4C3A"/>
-            <Setter Property="Foreground"      Value="White"/>
+            <Setter Property="Background"      Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Foreground"      Value="{DynamicResource OnAccentForegroundBrush}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding"         Value="24,14"/>
             <Setter Property="Margin"          Value="0,0,10,0"/>
@@ -83,7 +81,8 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="#22C55E"/>
+                                <Setter TargetName="Root" Property="Background"
+                                        Value="{DynamicResource AccentHoverBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="Root" Property="Opacity" Value="0.85"/>
@@ -98,14 +97,14 @@
         </Style>
 
         <Style x:Key="QuickActionSecondary" TargetType="Button" BasedOn="{StaticResource QuickActionPrimary}">
-            <Setter Property="Background" Value="White"/>
-            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Root"
                                 Background="{TemplateBinding Background}"
-                                BorderBrush="#E5E7EB"
+                                BorderBrush="{DynamicResource BorderBrush}"
                                 BorderThickness="1.5"
                                 CornerRadius="24"
                                 Padding="{TemplateBinding Padding}">
@@ -122,8 +121,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="BorderBrush" Value="#0F4C3A"/>
-                                <Setter TargetName="Root" Property="Background"  Value="#F0FDF4"/>
+                                <Setter TargetName="Root" Property="BorderBrush"
+                                        Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Root" Property="Background"
+                                        Value="{DynamicResource MenuHoverBrush}"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="Root" Property="Opacity" Value="0.4"/>
@@ -138,7 +139,7 @@
         <DataTemplate x:Key="ActivityTemplate">
             <Border Padding="14,12" Margin="0,0,0,8"
                     Background="{Binding TintColor,
-                                 Converter={StaticResource ColorStringConverter}}"
+                                 Converter={StaticResource BrushKeyConverter}}"
                     BorderBrush="Transparent"
                     BorderThickness="1"
                     CornerRadius="12">
@@ -148,7 +149,7 @@
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="BorderBrush"
                                         Value="{Binding StatusColor,
-                                                Converter={StaticResource ColorStringConverter}}"/>
+                                                Converter={StaticResource BrushKeyConverter}}"/>
                             </Trigger>
                         </Style.Triggers>
                     </Style>
@@ -163,7 +164,7 @@
                     <Border Grid.Column="0"
                             Width="40" Height="40" CornerRadius="10"
                             Background="{Binding StatusColor,
-                                         Converter={StaticResource ColorStringConverter}}"
+                                         Converter={StaticResource BrushKeyConverter}}"
                             Margin="0,0,14,0"
                             VerticalAlignment="Center">
                         <TextBlock Text="{Binding Icon}" FontSize="18"
@@ -174,11 +175,11 @@
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="{Binding Title}"
                                    FontSize="14" FontWeight="SemiBold"
-                                   Foreground="#0F172A"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    TextTrimming="CharacterEllipsis"/>
                         <TextBlock Text="{Binding SubTitle}"
                                    FontSize="12" Margin="0,3,0,0"
-                                   Foreground="#6B7280"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
 
@@ -189,14 +190,14 @@
                         <TextBlock Text="{Binding ValueDisplay}"
                                    FontSize="14" FontWeight="Bold"
                                    HorizontalAlignment="Right"
-                                   Foreground="#0F172A"/>
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <Border CornerRadius="10" Margin="0,6,0,0"
                                 Padding="10,4" HorizontalAlignment="Right"
                                 Background="{Binding StatusColor,
-                                             Converter={StaticResource ColorStringConverter}}">
+                                             Converter={StaticResource BrushKeyConverter}}">
                             <TextBlock Text="{Binding StatusLabel}"
                                        FontSize="10" FontWeight="Bold"
-                                       Foreground="White"/>
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         </Border>
                     </StackPanel>
                 </Grid>
@@ -208,29 +209,31 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="28,24,28,40">
 
-            <!-- ── HEADER ─────────────────────────────────────────────── -->
             <StackPanel Margin="8,0,8,20">
                 <TextBlock Text="Dashboard"
                            FontSize="30" FontWeight="Bold"
-                           Foreground="#0F172A"/>
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                 <TextBlock Text="Plan, prioritize, and accomplish your business tasks with ease."
                            FontSize="13" Margin="0,4,0,0"
-                           Foreground="#6B7280"/>
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </StackPanel>
 
             <Border Visibility="{Binding IsLoading,
                                  Converter={StaticResource BoolToVisibilityConverter}}"
                     Padding="12" Margin="8,0,8,12">
                 <TextBlock Text="⏳  Loading overview…" FontSize="13"
-                           HorizontalAlignment="Center" Foreground="#6B7280"/>
+                           HorizontalAlignment="Center"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </Border>
 
             <Border Visibility="{Binding HasError,
                                  Converter={StaticResource BoolToVisibilityConverter}}"
-                    Background="#FEE2E2" CornerRadius="12"
+                    Background="{DynamicResource TintRedBrush}"
+                    CornerRadius="12"
                     Padding="16" Margin="8,0,8,12">
                 <TextBlock Text="{Binding ErrorMessage}"
-                           Foreground="#991B1B" FontSize="13" TextWrapping="Wrap"/>
+                           Foreground="{DynamicResource DangerBrush}"
+                           FontSize="13" TextWrapping="Wrap"/>
             </Border>
 
             <!-- ── QUICK ACTIONS ──────────────────────────────────────── -->
@@ -259,18 +262,18 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- HERO CARD — Total Sales with gradient -->
+                <!-- HERO CARD — Total Sales gradient -->
                 <Border Grid.Column="0" CornerRadius="16" Padding="24" Margin="8">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="#0F4C3A" Offset="0"/>
-                            <GradientStop Color="#064E3B" Offset="1"/>
+                            <GradientStop Color="{Binding Source={StaticResource AccentDarkBrush}, Path=Color}" Offset="0"/>
+                            <GradientStop Color="{Binding Source={StaticResource AccentLightBrush}, Path=Color}" Offset="1"/>
                         </LinearGradientBrush>
                     </Border.Background>
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
                             <Border Width="46" Height="46" CornerRadius="12"
-                                    Background="#22C55E"
+                                    Background="{DynamicResource AccentLightBrush}"
                                     HorizontalAlignment="Left">
                                 <TextBlock Text="💰" FontSize="22"
                                            HorizontalAlignment="Center"
@@ -284,20 +287,23 @@
                         </StackPanel>
                         <TextBlock Text="{Binding TotalSalesDisplay}"
                                    FontSize="38" FontWeight="Bold"
-                                   Foreground="White" Margin="0,16,0,0"/>
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                   Margin="0,16,0,0"/>
                         <TextBlock Text="VAT inclusive · all time"
                                    FontSize="12" Foreground="#86EFAC"
                                    Margin="0,6,0,0"/>
-                        <Border Background="#22C55E" CornerRadius="8"
+                        <Border Background="{DynamicResource AccentLightBrush}"
+                                CornerRadius="8"
                                 Padding="10,5" HorizontalAlignment="Left"
                                 Margin="0,14,0,0">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="↗" FontSize="12"
-                                           FontWeight="Bold" Foreground="White"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
                                            VerticalAlignment="Center"/>
                                 <TextBlock Text="Live data"
                                            FontSize="11" FontWeight="SemiBold"
-                                           Foreground="White"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
                                            Margin="4,0,0,0"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
@@ -320,7 +326,7 @@
                                     <StackPanel Orientation="Horizontal">
                                         <Border Width="42" Height="42" CornerRadius="11"
                                                 Background="{Binding BadgeColor,
-                                                             Converter={StaticResource ColorStringConverter}}"
+                                                             Converter={StaticResource BrushKeyConverter}}"
                                                 HorizontalAlignment="Left">
                                             <TextBlock Text="{Binding Icon}"
                                                        FontSize="20"
@@ -329,17 +335,17 @@
                                         </Border>
                                         <TextBlock Text="{Binding Title}"
                                                    FontSize="13" FontWeight="SemiBold"
-                                                   Foreground="#374151"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    VerticalAlignment="Center"
                                                    Margin="12,0,0,0"/>
                                     </StackPanel>
                                     <TextBlock Text="{Binding DisplayValue}"
                                                FontSize="28" FontWeight="Bold"
-                                               Foreground="#0F172A"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                Margin="0,14,0,0"/>
                                     <TextBlock Text="{Binding SubLabel}"
                                                FontSize="11" Margin="0,6,0,0"
-                                               Foreground="#6B7280"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                TextWrapping="Wrap"/>
                                 </StackPanel>
                             </Border>
@@ -380,7 +386,7 @@
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Top"
                                                        Margin="0,0,0,4"
-                                                       Foreground="#0F172A"/>
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                             <Border Width="60"
                                                     CornerRadius="8,8,4,4"
                                                     VerticalAlignment="Bottom"
@@ -414,17 +420,19 @@
                                                    FontSize="12" FontWeight="SemiBold"
                                                    HorizontalAlignment="Center"
                                                    Margin="0,10,0,0"
-                                                   Foreground="#6B7280"/>
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                     </Grid>
                                 </DataTemplate>
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <Border Height="1" Margin="0,4,0,0" Background="#E5E7EB"/>
+                        <Border Height="1" Margin="0,4,0,0"
+                                Background="{DynamicResource DividerBrush}"/>
 
                         <TextBlock Text="Values in AED · VAT inclusive"
                                    FontSize="11" HorizontalAlignment="Right"
-                                   Margin="0,10,4,0" Foreground="#9CA3AF"/>
+                                   Margin="0,10,4,0"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
                     </StackPanel>
 
                     <StackPanel HorizontalAlignment="Center" Margin="0,50"
@@ -435,10 +443,11 @@
                         <TextBlock Text="No sales data yet"
                                    FontSize="16" FontWeight="SemiBold"
                                    HorizontalAlignment="Center"
-                                   Margin="0,12,0,4" Foreground="#0F172A"/>
+                                   Margin="0,12,0,4"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <TextBlock Text="Create your first Proforma Invoice to see sales data."
                                    FontSize="12" HorizontalAlignment="Center"
-                                   Foreground="#6B7280"/>
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -466,17 +475,18 @@
                         <TextBlock Text="No recent activity"
                                    FontSize="16" FontWeight="SemiBold"
                                    HorizontalAlignment="Center"
-                                   Margin="0,12,0,4" Foreground="#0F172A"/>
+                                   Margin="0,12,0,4"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <TextBlock Text="Activity from invoices and sheet store will appear here."
                                    FontSize="12" HorizontalAlignment="Center"
-                                   Foreground="#6B7280"/>
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     </StackPanel>
                 </Grid>
             </Border>
 
             <TextBlock Text="{Binding LastRefreshed}"
                        FontSize="11" Opacity="0.5" Margin="10,14,0,0"
-                       Foreground="#6B7280"/>
+                       Foreground="{DynamicResource MutedForegroundBrush}"/>
 
         </StackPanel>
     </ScrollViewer>

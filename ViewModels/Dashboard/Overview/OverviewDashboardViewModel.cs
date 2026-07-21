@@ -19,6 +19,10 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     /// Chart   : Monthly Sales vertical bar chart — last 6 months.
     /// Feed    : Recent Activity — last 10 events merged from invoices + sheet history.
     /// Phase 8.2a: Cards + rows now use TintColor for subtle tinted backgrounds.
+    /// Phase 8.2e: Card BadgeColor/TintColor and activity StatusColor/TintColor
+    ///             now hold theme brush KEY names for automatic theme adaptation.
+    /// Phase 8.2f: Overrides OnThemeChanged() to force re-notify observable
+    ///             collections so WPF rebuilds card templates on theme swap.
     /// </summary>
     public class OverviewDashboardViewModel : DashboardPageBase
     {
@@ -161,7 +165,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             // ── 3. Hero ───────────────────────────────────────────────────
             TotalSalesDisplay = $"AED {totalSales:N0}";
 
-            // ── 4. KPI cards (3 secondary — with tinted backgrounds) ──────
+            // ── 4. KPI cards (3 secondary — theme brush keys) ─────────────
             KpiCards = new ObservableCollection<KpiCardModel>
             {
                 new KpiCardModel
@@ -169,8 +173,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     Icon         = "📄",
                     Title        = "Total Invoices",
                     DisplayValue = totalInvoices.ToString("N0"),
-                    BadgeColor   = "#6366F1",
-                    TintColor    = "#EEF2FF",   // indigo-50
+                    BadgeColor   = "AccentBrush",
+                    TintColor    = "TintIndigoBrush",
                     SubLabel     = $"Draft {draftCount}  ·  Sent {sentCount}  ·  Approved {approvedCount}"
                 },
                 new KpiCardModel
@@ -178,8 +182,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     Icon         = "🏪",
                     Title        = "Inventory Value",
                     DisplayValue = $"AED {inventory:N0}",
-                    BadgeColor   = "#F59E0B",
-                    TintColor    = "#FFFBEB",   // amber-50
+                    BadgeColor   = "WarningBrush",
+                    TintColor    = "TintAmberBrush",
                     SubLabel     = $"{sheets.Count} sheet types · balance at sell price"
                 },
                 new KpiCardModel
@@ -187,8 +191,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     Icon         = lowStock > 0 ? "⚠️" : "✅",
                     Title        = "Low Stock Alerts",
                     DisplayValue = lowStock.ToString("N0"),
-                    BadgeColor   = lowStock > 0 ? "#EF4444" : "#10B981",
-                    TintColor    = lowStock > 0 ? "#FEF2F2" : "#F0FDF4",  // red-50 or green-50
+                    BadgeColor   = lowStock > 0 ? "DangerBrush" : "SuccessBrush",
+                    TintColor    = lowStock > 0 ? "TintRedBrush" : "TintGreenBrush",
                     SubLabel     = lowStock > 0
                                        ? $"{lowStock} sheet type(s) with ≤ 5 remaining"
                                        : "All stock levels OK",
@@ -249,7 +253,6 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 {
                     var date = i.UpdatedAt != default ? i.UpdatedAt : i.CreatedAt;
                     var isUpdated = i.UpdatedAt != default && i.UpdatedAt != i.CreatedAt;
-                    var statusColor = ResolveStatusColor(i.Status);
                     return new ActivityFeedItem
                     {
                         Icon = "📄",
@@ -259,7 +262,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                                        $"{(isUpdated ? "Updated" : "Created")} {date:dd MMM yyyy}",
                         ValueDisplay = $"AED {i.GrandTotalVatInclusive:N0}",
                         StatusLabel = i.Status ?? "Draft",
-                        StatusColor = statusColor,
+                        StatusColor = ResolveStatusColor(i.Status),
                         TintColor = ResolveStatusTint(i.Status),
                         ModuleTag = "ProformaInvoice",
                         SortDate = date
@@ -291,7 +294,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                                            ? $"AED {h.ValueChanged:N0}"
                                            : "—",
                     StatusLabel = h.Action,
-                    StatusColor = h.ActionColor,
+                    StatusColor = ResolveActionColor(h.Action),
                     TintColor = ResolveActionTint(h.Action),
                     ModuleTag = "SheetStore",
                     SortDate = h.Timestamp
@@ -313,37 +316,65 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             HasRecentActivity = merged.Count > 0;
         }
 
-        // ── helpers ───────────────────────────────────────────────────────
+        // ═════════════════════════════════════════════════════════════════
+        // PHASE 8.2f — THEME SWAP HANDLER
+        // Forces WPF to rebuild card + activity DataTemplates so the
+        // BrushKeyConverter re-resolves against the new theme brushes.
+        // ═════════════════════════════════════════════════════════════════
+
+        protected override void OnThemeChanged()
+        {
+            // Rebuild observable collections with the same data — this
+            // triggers WPF to teardown+recreate the DataTemplates which
+            // in turn re-runs BrushKeyConverter against the new theme.
+            KpiCards = new ObservableCollection<KpiCardModel>(_kpiCards);
+            RecentActivity = new ObservableCollection<ActivityFeedItem>(_recentActivity);
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  Theme-aware color helpers — return brush KEY names, not hex
+        // ══════════════════════════════════════════════════════════════════
 
         private static string ResolveStatusColor(string? status) =>
             status?.ToLowerInvariant() switch
             {
-                "draft" => "#6B7280",
-                "sent" => "#3B82F6",
-                "approved" => "#10B981",
-                "rejected" => "#EF4444",
-                _ => "#6B7280"
+                "draft" => "NeutralBrush",
+                "sent" => "InfoBrush",
+                "approved" => "SuccessBrush",
+                "rejected" => "DangerBrush",
+                _ => "NeutralBrush"
             };
 
         private static string ResolveStatusTint(string? status) =>
             status?.ToLowerInvariant() switch
             {
-                "draft" => "#F9FAFB",    // gray-50
-                "sent" => "#EFF6FF",    // blue-50
-                "approved" => "#F0FDF4",    // green-50
-                "rejected" => "#FEF2F2",    // red-50
-                _ => "#F9FAFB"
+                "draft" => "TintGrayBrush",
+                "sent" => "TintBlueBrush",
+                "approved" => "TintGreenBrush",
+                "rejected" => "TintRedBrush",
+                _ => "TintGrayBrush"
+            };
+
+        private static string ResolveActionColor(string? action) =>
+            action?.ToLowerInvariant() switch
+            {
+                "added" => "SuccessBrush",
+                "edited" => "WarningBrush",
+                "deleted" => "DangerBrush",
+                "bought" => "InfoBrush",
+                "used" => "AccentBrush",
+                _ => "NeutralBrush"
             };
 
         private static string ResolveActionTint(string? action) =>
             action?.ToLowerInvariant() switch
             {
-                "added" => "#F0FDF4",    // green-50
-                "edited" => "#FFFBEB",    // amber-50
-                "deleted" => "#FEF2F2",    // red-50
-                "bought" => "#EFF6FF",    // blue-50
-                "used" => "#F5F3FF",    // purple-50
-                _ => "#F9FAFB"
+                "added" => "TintGreenBrush",
+                "edited" => "TintAmberBrush",
+                "deleted" => "TintRedBrush",
+                "bought" => "TintBlueBrush",
+                "used" => "TintPurpleBrush",
+                _ => "TintGrayBrush"
             };
 
         private static bool Eq(string? a, string b) =>

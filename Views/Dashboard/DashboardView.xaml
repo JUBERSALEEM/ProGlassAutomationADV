@@ -14,7 +14,6 @@
 
     <UserControl.Resources>
 
-        <!-- ── page → view wiring via DataTemplate ──────────────────── -->
         <DataTemplate DataType="{x:Type vm:OverviewDashboardViewModel}">
             <ov:OverviewDashboardView/>
         </DataTemplate>
@@ -25,7 +24,6 @@
             <pi:PiDashboardView/>
         </DataTemplate>
 
-        <!-- ── tab button style ─────────────────────────────────────── -->
         <Style x:Key="TabButtonStyle" TargetType="Button">
             <Setter Property="Background"      Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -66,7 +64,7 @@
 
     </UserControl.Resources>
 
-    <Grid Background="#F9FAFB">
+    <Grid Background="{DynamicResource WindowBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="60"/>
             <RowDefinition Height="Auto"/>
@@ -74,8 +72,9 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ── TAB STRIP ─────────────────────────────────────────────── -->
-        <Border Grid.Row="1" Background="White" Padding="20,0">
+        <Border Grid.Row="1"
+                Background="{DynamicResource ModuleBackgroundBrush}"
+                Padding="20,0">
             <ItemsControl ItemsSource="{Binding Pages}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -111,7 +110,8 @@
                                                         <Binding Path="."/>
                                                     </MultiBinding>
                                                 </DataTrigger.Binding>
-                                                <Setter Property="Foreground" Value="#0F172A"/>
+                                                <Setter Property="Foreground"
+                                                        Value="{DynamicResource AccentBrush}"/>
                                                 <Setter Property="FontWeight" Value="SemiBold"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -134,7 +134,8 @@
                                                         <Binding Path="."/>
                                                     </MultiBinding>
                                                 </DataTrigger.Binding>
-                                                <Setter Property="Background" Value="#0F4C3A"/>
+                                                <Setter Property="Background"
+                                                        Value="{DynamicResource AccentBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -146,7 +147,7 @@
             </ItemsControl>
         </Border>
 
-        <Border Grid.Row="2" Background="#E5E7EB"/>
+        <Border Grid.Row="2" Background="{DynamicResource DividerBrush}"/>
 
         <ContentPresenter Grid.Row="3" Content="{Binding ActivePage}"/>
     </Grid>

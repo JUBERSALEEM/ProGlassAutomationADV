@@ -10,26 +10,25 @@
     <UserControl.Resources>
 
         <Style x:Key="CardStyle" TargetType="Border">
-            <Setter Property="Background"      Value="White"/>
-            <Setter Property="BorderBrush"     Value="#E5E7EB"/>
+            <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius"    Value="16"/>
             <Setter Property="Padding"         Value="24"/>
             <Setter Property="Margin"          Value="8"/>
         </Style>
 
-        <!-- tinted KPI card -->
         <Style x:Key="TintedCardStyle" TargetType="Border">
             <Setter Property="Background"
                     Value="{Binding TintColor,
-                            Converter={StaticResource ColorStringConverter}}"/>
+                            Converter={StaticResource BrushKeyConverter}}"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="CornerRadius"    Value="16"/>
             <Setter Property="Padding"         Value="22"/>
             <Setter Property="Margin"          Value="8"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsAlert}" Value="True">
-                    <Setter Property="BorderBrush"     Value="#EF4444"/>
+                    <Setter Property="BorderBrush"     Value="{DynamicResource DangerBrush}"/>
                     <Setter Property="BorderThickness" Value="2"/>
                 </DataTrigger>
             </Style.Triggers>
@@ -38,13 +37,13 @@
         <Style x:Key="SectionTitle" TargetType="TextBlock">
             <Setter Property="FontSize"   Value="20"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="Margin"     Value="8,0,8,4"/>
         </Style>
 
         <Style x:Key="SectionSubtitle" TargetType="TextBlock">
             <Setter Property="FontSize"   Value="12"/>
-            <Setter Property="Foreground" Value="#6B7280"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
             <Setter Property="Margin"     Value="8,0,8,10"/>
         </Style>
 
@@ -54,7 +53,7 @@
                     <StackPanel Orientation="Horizontal">
                         <Border Width="42" Height="42" CornerRadius="11"
                                 Background="{Binding BadgeColor,
-                                             Converter={StaticResource ColorStringConverter}}"
+                                             Converter={StaticResource BrushKeyConverter}}"
                                 HorizontalAlignment="Left">
                             <TextBlock Text="{Binding Icon}" FontSize="20"
                                        HorizontalAlignment="Center"
@@ -62,16 +61,17 @@
                         </Border>
                         <TextBlock Text="{Binding Title}"
                                    FontSize="13" FontWeight="SemiBold"
-                                   Foreground="#374151"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    VerticalAlignment="Center"
                                    Margin="12,0,0,0"/>
                     </StackPanel>
                     <TextBlock Text="{Binding DisplayValue}"
                                FontSize="28" FontWeight="Bold"
-                               Foreground="#0F172A" Margin="0,14,0,0"/>
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                               Margin="0,14,0,0"/>
                     <TextBlock Text="{Binding SubLabel}"
                                FontSize="11" Margin="0,6,0,0"
-                               Foreground="#6B7280"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
                                TextWrapping="Wrap"/>
                 </StackPanel>
             </Border>
@@ -90,7 +90,7 @@
                                HorizontalAlignment="Center"
                                VerticalAlignment="Top"
                                Margin="0,0,0,4"
-                               Foreground="#0F172A"/>
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     <Border Width="70"
                             CornerRadius="8,8,4,4"
                             VerticalAlignment="Bottom"
@@ -127,7 +127,7 @@
                            TextWrapping="Wrap"
                            MaxWidth="90"
                            Margin="0,10,0,0"
-                           Foreground="#6B7280"/>
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </Grid>
         </DataTemplate>
 
@@ -139,25 +139,28 @@
             <StackPanel Margin="8,0,8,20">
                 <TextBlock Text="Sheet Store"
                            FontSize="30" FontWeight="Bold"
-                           Foreground="#0F172A"/>
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                 <TextBlock Text="Track inventory, monitor stock levels, and manage glass sheet types."
                            FontSize="13" Margin="0,4,0,0"
-                           Foreground="#6B7280"/>
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </StackPanel>
 
             <Border Visibility="{Binding IsLoading,
                                  Converter={StaticResource BoolToVisibilityConverter}}"
                     Padding="12" Margin="8,0,8,12">
                 <TextBlock Text="⏳  Loading sheet store data…" FontSize="13"
-                           HorizontalAlignment="Center" Foreground="#6B7280"/>
+                           HorizontalAlignment="Center"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </Border>
 
             <Border Visibility="{Binding HasError,
                                  Converter={StaticResource BoolToVisibilityConverter}}"
-                    Background="#FEE2E2" CornerRadius="12"
+                    Background="{DynamicResource TintRedBrush}"
+                    CornerRadius="12"
                     Padding="16" Margin="8,0,8,12">
                 <TextBlock Text="{Binding ErrorMessage}"
-                           Foreground="#991B1B" FontSize="13" TextWrapping="Wrap"/>
+                           Foreground="{DynamicResource DangerBrush}"
+                           FontSize="13" TextWrapping="Wrap"/>
             </Border>
 
             <TextBlock Text="Inventory Overview" Style="{StaticResource SectionTitle}"/>
@@ -192,11 +195,13 @@
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
 
-                        <Border Height="1" Margin="0,4,0,0" Background="#E5E7EB"/>
+                        <Border Height="1" Margin="0,4,0,0"
+                                Background="{DynamicResource DividerBrush}"/>
 
                         <TextBlock Text="Values in m² · balance sheets only"
                                    FontSize="11" HorizontalAlignment="Right"
-                                   Margin="0,10,4,0" Foreground="#9CA3AF"/>
+                                   Margin="0,10,4,0"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
                     </StackPanel>
 
                     <StackPanel HorizontalAlignment="Center" Margin="0,50"
@@ -207,17 +212,18 @@
                         <TextBlock Text="No sheet store data yet"
                                    FontSize="16" FontWeight="SemiBold"
                                    HorizontalAlignment="Center"
-                                   Margin="0,12,0,4" Foreground="#0F172A"/>
+                                   Margin="0,12,0,4"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <TextBlock Text="Add glass sheets in the Sheet Store module."
                                    FontSize="12" HorizontalAlignment="Center"
-                                   Foreground="#6B7280"/>
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     </StackPanel>
                 </Grid>
             </Border>
 
             <TextBlock Text="{Binding LastRefreshed}"
                        FontSize="11" Opacity="0.5" Margin="10,14,0,0"
-                       Foreground="#6B7280"/>
+                       Foreground="{DynamicResource MutedForegroundBrush}"/>
 
         </StackPanel>
     </ScrollViewer>

@@ -11,6 +11,9 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     /// KPIs : Sheet Types, Inventory Value, Available SQM, Low/Out-of-Stock count.
     /// Chart: Available SQM per category — vertical bars.
     /// Phase 8.2a: Cards now use TintColor for subtle tinted backgrounds.
+    /// Phase 8.2e: BadgeColor and TintColor use theme brush KEY names.
+    /// Phase 8.2f: Overrides OnThemeChanged() to force re-notify KpiCards
+    ///             so WPF rebuilds card templates instantly on theme swap.
     /// </summary>
     public class SheetStoreDashboardViewModel : DashboardPageBase
     {
@@ -65,7 +68,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             int outOfStock = sheets.Count(s => s.Balance == 0);
             int categories = sheets.Select(s => s.Category).Distinct().Count();
 
-            // ── KPI cards ─────────────────────────────────────────────────
+            // ── KPI cards (theme brush keys) ──────────────────────────────
             KpiCards = new ObservableCollection<KpiCardModel>
             {
                 new KpiCardModel
@@ -73,8 +76,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     Icon         = "🗂️",
                     Title        = "Sheet Types",
                     DisplayValue = sheetTypes.ToString("N0"),
-                    BadgeColor   = "#6366F1",
-                    TintColor    = "#EEF2FF",    // indigo-50
+                    BadgeColor   = "AccentBrush",
+                    TintColor    = "TintIndigoBrush",
                     SubLabel     = $"{categories} categories in store"
                 },
                 new KpiCardModel
@@ -82,8 +85,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     Icon         = "💎",
                     Title        = "Inventory Value",
                     DisplayValue = $"AED {totalValue:N0}",
-                    BadgeColor   = "#10B981",
-                    TintColor    = "#F0FDF4",    // green-50
+                    BadgeColor   = "SuccessBrush",
+                    TintColor    = "TintGreenBrush",
                     SubLabel     = "Balance sheets at sell price"
                 },
                 new KpiCardModel
@@ -91,8 +94,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     Icon         = "📐",
                     Title        = "Available SQM",
                     DisplayValue = $"{totalSqm:N1} m²",
-                    BadgeColor   = "#F59E0B",
-                    TintColor    = "#FFFBEB",    // amber-50
+                    BadgeColor   = "WarningBrush",
+                    TintColor    = "TintAmberBrush",
                     SubLabel     = "Total balance across all types"
                 },
                 new KpiCardModel
@@ -100,8 +103,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     Icon         = lowStockCount > 0 ? "⚠️" : "✅",
                     Title        = "Low / Out of Stock",
                     DisplayValue = $"{lowStockCount} / {outOfStock}",
-                    BadgeColor   = lowStockCount > 0 ? "#EF4444" : "#10B981",
-                    TintColor    = lowStockCount > 0 ? "#FEF2F2" : "#F0FDF4",
+                    BadgeColor   = lowStockCount > 0 ? "DangerBrush" : "SuccessBrush",
+                    TintColor    = lowStockCount > 0 ? "TintRedBrush" : "TintGreenBrush",
                     SubLabel     = lowStockCount > 0
                                        ? $"{outOfStock} out · {lowStockCount} critical"
                                        : "All stock levels healthy",
@@ -137,6 +140,16 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 }));
 
             HasChartData = grouped.Any();
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        // PHASE 8.2f — THEME SWAP HANDLER
+        // ═════════════════════════════════════════════════════════════════
+
+        protected override void OnThemeChanged()
+        {
+            // Force WPF to rebuild KPI card templates with new theme brushes
+            KpiCards = new ObservableCollection<KpiCardModel>(_kpiCards);
         }
     }
 }

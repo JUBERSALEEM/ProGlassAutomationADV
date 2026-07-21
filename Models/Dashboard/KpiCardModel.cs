@@ -3,7 +3,13 @@
     /// <summary>
     /// Plain data object for a single KPI stat card on any dashboard page.
     /// No INotifyPropertyChanged — the parent ViewModel owns reactivity.
+    ///
     /// Phase 8.2a: Added TintColor for subtle card background tinting.
+    /// Phase 8.2e: TintColor and BadgeColor now hold THEME BRUSH KEY names
+    ///             (e.g. "TintIndigoBrush", "AccentBrush") instead of hex
+    ///             strings, so cards adapt automatically to Light/Dark theme
+    ///             swap via BrushKeyConverter. Backward-compat: hex strings
+    ///             starting with '#' still resolve correctly.
     /// </summary>
     public class KpiCardModel
     {
@@ -16,15 +22,26 @@
         /// <summary>Formatted string shown as the big number. e.g. "AED 124,500"</summary>
         public string DisplayValue { get; set; } = string.Empty;
 
-        /// <summary>Hex color string for the icon badge background. e.g. "#6366F1"</summary>
-        public string BadgeColor { get; set; } = "#6366F1";
+        /// <summary>
+        /// Theme brush KEY name for the icon badge background.
+        /// e.g. "AccentBrush", "SuccessBrush", "WarningBrush", "DangerBrush",
+        ///      "InfoBrush", "NeutralBrush".
+        /// Resolved at render time by BrushKeyConverter — swaps with theme.
+        /// Backward-compat: also accepts hex strings like "#6366F1".
+        /// </summary>
+        public string BadgeColor { get; set; } = "AccentBrush";
 
         /// <summary>
-        /// Hex color string for the subtle card background tint.
-        /// Should be a very light version of BadgeColor.
-        /// e.g. BadgeColor="#6366F1" → TintColor="#EEF2FF"
+        /// Theme brush KEY name for the subtle card background tint.
+        /// e.g. "TintIndigoBrush", "TintGreenBrush", "TintAmberBrush",
+        ///      "TintBlueBrush", "TintRedBrush", "TintGrayBrush",
+        ///      "TintPurpleBrush".
+        /// Resolved at render time by BrushKeyConverter — swaps with theme:
+        ///   Light theme → light pastel tint (readable dark text)
+        ///   Dark theme  → dark-tinted surface (readable light text)
+        /// Backward-compat: also accepts hex strings like "#EEF2FF".
         /// </summary>
-        public string TintColor { get; set; } = "#F9FAFB";
+        public string TintColor { get; set; } = "TintGrayBrush";
 
         /// <summary>Optional sub-label shown below title in smaller text.</summary>
         public string SubLabel { get; set; } = string.Empty;

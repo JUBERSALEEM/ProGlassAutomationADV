@@ -11,6 +11,9 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     /// KPIs : Total, Approved, Sent/Pending, Draft counts + values.
     /// Charts: Status distribution bars + Top 5 customers by value.
     /// Phase 8.2a: Cards now use TintColor for subtle tinted backgrounds.
+    /// Phase 8.2e: BadgeColor and TintColor use theme brush KEY names.
+    /// Phase 8.2f: Overrides OnThemeChanged() to force re-notify KpiCards
+    ///             so WPF rebuilds card templates instantly on theme swap.
     /// </summary>
     public class PiDashboardViewModel : DashboardPageBase
     {
@@ -73,7 +76,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 .Where(i => Eq(i.Status, "Sent"))
                 .Sum(i => i.GrandTotalVatInclusive);
 
-            // ── KPI cards ─────────────────────────────────────────────────
+            // ── KPI cards (theme brush keys) ──────────────────────────────
             KpiCards = new ObservableCollection<KpiCardModel>
             {
                 new KpiCardModel
@@ -81,8 +84,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     Icon         = "📋",
                     Title        = "Total Invoices",
                     DisplayValue = total.ToString("N0"),
-                    BadgeColor   = "#6366F1",
-                    TintColor    = "#EEF2FF",    // indigo-50
+                    BadgeColor   = "AccentBrush",
+                    TintColor    = "TintIndigoBrush",
                     SubLabel     = $"Total value AED {totalVal:N0}"
                 },
                 new KpiCardModel
@@ -90,8 +93,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     Icon         = "✅",
                     Title        = "Approved",
                     DisplayValue = approvedCount.ToString("N0"),
-                    BadgeColor   = "#10B981",
-                    TintColor    = "#F0FDF4",    // green-50
+                    BadgeColor   = "SuccessBrush",
+                    TintColor    = "TintGreenBrush",
                     SubLabel     = $"AED {approvedVal:N0} confirmed"
                 },
                 new KpiCardModel
@@ -99,8 +102,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     Icon         = "📨",
                     Title        = "Sent / Pending",
                     DisplayValue = sentCount.ToString("N0"),
-                    BadgeColor   = "#3B82F6",
-                    TintColor    = "#EFF6FF",    // blue-50
+                    BadgeColor   = "InfoBrush",
+                    TintColor    = "TintBlueBrush",
                     SubLabel     = $"AED {pendingVal:N0} awaiting response"
                 },
                 new KpiCardModel
@@ -108,13 +111,13 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     Icon         = "✏️",
                     Title        = "Draft",
                     DisplayValue = draftCount.ToString("N0"),
-                    BadgeColor   = "#6B7280",
-                    TintColor    = "#F9FAFB",    // gray-50
+                    BadgeColor   = "NeutralBrush",
+                    TintColor    = "TintGrayBrush",
                     SubLabel     = $"{rejectedCount} rejected"
                 }
             };
 
-            // ── status distribution bars ──────────────────────────────────
+            // ── status distribution bars (chart hex accents) ──────────────
             var statusData = new[]
             {
                 (Label: "Draft",    Count: draftCount,    Color: "#6B7280"),
@@ -176,6 +179,16 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 }));
 
             HasChartData = invoices.Any();
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        // PHASE 8.2f — THEME SWAP HANDLER
+        // ═════════════════════════════════════════════════════════════════
+
+        protected override void OnThemeChanged()
+        {
+            // Force WPF to rebuild KPI card templates with new theme brushes
+            KpiCards = new ObservableCollection<KpiCardModel>(_kpiCards);
         }
 
         private static bool Eq(string? a, string b) =>

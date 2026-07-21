@@ -5,7 +5,12 @@ namespace ProGlassAutomation.Models.Dashboard
     /// <summary>
     /// Single row in the Recent Activity Feed on the Overview dashboard.
     /// Merges invoice activity and sheet store history into one unified feed.
+    ///
     /// Phase 8.2a: Added TintColor for subtle row background tinting.
+    /// Phase 8.2e: TintColor and StatusColor now hold THEME BRUSH KEY names
+    ///             instead of hex strings, so rows adapt automatically to
+    ///             Light/Dark theme swap via BrushKeyConverter.
+    ///             Backward-compat: hex strings still resolve correctly.
     /// </summary>
     public class ActivityFeedItem
     {
@@ -24,14 +29,23 @@ namespace ProGlassAutomation.Models.Dashboard
         /// <summary>Status/action label. e.g. "Approved", "Bought", "Used"</summary>
         public string StatusLabel { get; set; } = string.Empty;
 
-        /// <summary>Hex color for the status dot / pill / badge. e.g. "#10B981"</summary>
-        public string StatusColor { get; set; } = "#6B7280";
+        /// <summary>
+        /// Theme brush KEY name for the status dot / pill / badge.
+        /// e.g. "SuccessBrush", "InfoBrush", "DangerBrush", "NeutralBrush",
+        ///      "WarningBrush".
+        /// Resolved at render time by BrushKeyConverter.
+        /// Backward-compat: also accepts hex strings like "#10B981".
+        /// </summary>
+        public string StatusColor { get; set; } = "NeutralBrush";
 
         /// <summary>
-        /// Very light version of StatusColor used for row background tint.
-        /// e.g. StatusColor="#10B981" → TintColor="#F0FDF4"
+        /// Theme brush KEY name for the subtle row background tint.
+        /// e.g. "TintGreenBrush", "TintBlueBrush", "TintRedBrush",
+        ///      "TintGrayBrush", "TintAmberBrush", "TintPurpleBrush".
+        /// Resolved at render time by BrushKeyConverter — swaps with theme.
+        /// Backward-compat: also accepts hex strings.
         /// </summary>
-        public string TintColor { get; set; } = "#F9FAFB";
+        public string TintColor { get; set; } = "TintGrayBrush";
 
         /// <summary>
         /// Navigation target string matching MainViewModel Navigate switch.
