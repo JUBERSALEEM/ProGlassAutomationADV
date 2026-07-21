@@ -14,6 +14,8 @@ using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.InvoiceMai
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsAndConditions;
 using ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList;
 using System;
+using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -33,31 +35,50 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
         public DataGridViewModel DataGrid { get; }
         public OtherChargesViewModel OtherCharges { get; }
         public InvoiceMainSummaryViewModel MainSummary { get; }
-
-        /// <summary>Phase 7.14 — Terms &amp; Conditions editor reference (used at render time).</summary>
         public TermsAndConditionsViewModel Terms { get; }
 
-        // ── Editable inline fields ─────────────────────────────────────────
+        // ══════════════════════════════════════════════════════════════════
+        //  PHASE 7.16a — Prepared By fields auto-populate from wizard data
+        //  but remain editable in the A4 preview for per-invoice overrides.
+        //
+        //  When the user has NOT manually edited a field (still null/empty),
+        //  the getter returns the source data from the wizard steps.
+        //  Once the user types anything, the local override kicks in.
+        // ══════════════════════════════════════════════════════════════════
 
-        private string _preparedByName = "Lead Glass Estimator";
+        private string _preparedByNameOverride;
         public string PreparedByName
         {
-            get => _preparedByName;
-            set { if (_preparedByName == value) return; _preparedByName = value; OnPropertyChanged(); }
+            get => string.IsNullOrWhiteSpace(_preparedByNameOverride)
+                ? (Client?.DocumentPreparedBy ?? "")
+                : _preparedByNameOverride;
+            set
+            {
+                if (_preparedByNameOverride == value) return;
+                _preparedByNameOverride = value;
+                OnPropertyChanged();
+            }
         }
 
-        private string _preparedByDept = "ProGlass QA & Estimations Desk";
+        private string _preparedByDept = "";
         public string PreparedByDept
         {
             get => _preparedByDept;
             set { if (_preparedByDept == value) return; _preparedByDept = value; OnPropertyChanged(); }
         }
 
-        private string _preparedByStatus = "APPROVED";
+        private string _preparedByStatusOverride;
         public string PreparedByStatus
         {
-            get => _preparedByStatus;
-            set { if (_preparedByStatus == value) return; _preparedByStatus = value; OnPropertyChanged(); }
+            get => string.IsNullOrWhiteSpace(_preparedByStatusOverride)
+                ? (Company?.ProformaStatus ?? "Draft")
+                : _preparedByStatusOverride;
+            set
+            {
+                if (_preparedByStatusOverride == value) return;
+                _preparedByStatusOverride = value;
+                OnPropertyChanged();
+            }
         }
 
         private string _termsText = "Standard warranties apply to manufactured glass products upon POD signature clearance.";
@@ -79,7 +100,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
         public ICommand PrintCommand { get; }
         public ICommand ExportPdfCommand { get; }
         public ICommand SaveInvoiceCommand { get; }
-        public ICommand LoadInvoiceCommand { get; }   // Phase 7.16
+        public ICommand LoadInvoiceCommand { get; }
         public ICommand SendEmailCommand { get; }
 
         public FrameworkElement PrintTarget { get; set; }
@@ -106,12 +127,33 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             SaveInvoiceCommand = new RelayCommand(_ => ExecuteSaveInvoice());
             LoadInvoiceCommand = new RelayCommand(_ => ExecuteLoadInvoice());
             SendEmailCommand = new RelayCommand(_ => ShowComingSoon("Send Email", "Phase 7.20"));
+
+            // Phase 7.16a: propagate upstream changes so preview reflects live
+            // updates when user edits Step 1 or Step 3
+            Client.PropertyChanged += OnClientChanged;
+            Company.PropertyChanged += OnCompanyChanged;
+        }
+
+        private void OnClientChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(ClientProfileViewModel.DocumentPreparedBy)
+                && string.IsNullOrWhiteSpace(_preparedByNameOverride))
+            {
+                OnPropertyChanged(nameof(PreparedByName));
+            }
+        }
+
+        private void OnCompanyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(CompanySetupViewModel.ProformaStatus)
+                && string.IsNullOrWhiteSpace(_preparedByStatusOverride))
+            {
+                OnPropertyChanged(nameof(PreparedByStatus));
+            }
         }
 
         // ══════════════════════════════════════════════════════════════════
         //  NATIVE PRINT — builds FixedDocument from scratch in code
-        //  Every TextBlock is created new → rendered as native vectors at
-        //  printer DPI. No cloning, no rasterization, no blur.
         // ══════════════════════════════════════════════════════════════════
 
         private void ExecutePrint()
@@ -139,8 +181,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
 
         // ══════════════════════════════════════════════════════════════════
         //  PHASE 7.15 — SAVE INVOICE TO DATABASE
-        //  Serializes the entire wizard state to proformainvoices.db.
-        //  Handles duplicate ProformaId with a 3-button user prompt.
         // ══════════════════════════════════════════════════════════════════
 
         private async void ExecuteSaveInvoice()
@@ -155,7 +195,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                 return;
             }
 
-            // Basic validation
             if (string.IsNullOrWhiteSpace(Company.ProformaId))
             {
                 MessageBox.Show(
@@ -169,12 +208,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
 
             try
             {
-                // Build the entity + snapshot from all wizard VMs
                 var entity = ProformaInvoiceMapper.BuildEntityFromWizard(
                     Company, Project, Client, DataGrid, OtherCharges,
                     MainSummary, Terms, this);
 
-                // Duplicate detection
                 bool alreadyExists = await App.Invoices.ExistsByProformaIdAsync(entity.ProformaId);
 
                 if (alreadyExists)
@@ -194,21 +231,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
 
                     if (result == MessageBoxResult.Yes)
                     {
-                        // Overwrite existing
                         await App.Invoices.UpdateAsync(entity);
                         ShowSaveSuccess(entity.ProformaId, isUpdate: true);
                         return;
                     }
 
-                    // NO → save as new with suggested ID
                     entity.ProformaId = suggestedId;
-                    Company.ProformaId = suggestedId;  // reflect in Step 1
+                    Company.ProformaId = suggestedId;
                     await App.Invoices.InsertAsync(entity);
                     ShowSaveSuccess(entity.ProformaId, isUpdate: false);
                     return;
                 }
 
-                // Fresh save (no duplicate)
                 await App.Invoices.InsertAsync(entity);
                 ShowSaveSuccess(entity.ProformaId, isUpdate: false);
             }
@@ -235,8 +269,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
 
         // ══════════════════════════════════════════════════════════════════
         //  PHASE 7.16 — LOAD SAVED INVOICE
-        //  Opens the SavedInvoicesListDialog, waits for user selection,
-        //  confirms unsaved-changes handling, then rehydrates all wizard VMs.
         // ══════════════════════════════════════════════════════════════════
 
         private async void ExecuteLoadInvoice()
@@ -251,7 +283,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                 return;
             }
 
-            // Warn about unsaved changes (simple heuristic: any data in Company/Client/rows)
             bool hasCurrentData =
                 !string.IsNullOrWhiteSpace(Company.CompanyName) ||
                 !string.IsNullOrWhiteSpace(Client.CustomerName) ||
@@ -273,11 +304,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                 if (choice == MessageBoxResult.Yes)
                 {
                     ExecuteSaveInvoice();
-                    // Continue to load dialog regardless — user just wanted to save first
                 }
             }
 
-            // Open the picker dialog
             var dialog = new SavedInvoicesListDialog
             {
                 Owner = Application.Current.MainWindow
@@ -286,7 +315,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             bool? ok = dialog.ShowDialog();
             if (ok != true || dialog.SelectedInvoiceId <= 0) return;
 
-            // Fetch the full entity and rehydrate the wizard
             try
             {
                 var entity = await App.Invoices.GetByIdAsync(dialog.SelectedInvoiceId);
@@ -324,13 +352,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             }
         }
 
-        // ── Layout constants (all values in DIPs = 1/96 inch) ─────────────
+        // ── Layout constants ────────────────────────────────────────────────
 
         private const double PAGE_MARGIN = 40;
         private const double SECTION_GAP = 10;
         private const string FONT_FAMILY = "Segoe UI";
 
-        // Brand colors
         private static readonly Brush AccentBrush = new SolidColorBrush(Color.FromRgb(0x4F, 0x46, 0xE5));
         private static readonly Brush DarkBrush = new SolidColorBrush(Color.FromRgb(0x0F, 0x17, 0x2A));
         private static readonly Brush MutedBrush = new SolidColorBrush(Color.FromRgb(0x47, 0x55, 0x69));
@@ -349,11 +376,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             var doc = new FixedDocument();
             doc.DocumentPaginator.PageSize = new Size(pageWidth, pageHeight);
 
-            // Build the full document tree once as a StackPanel
             var fullContent = BuildFullContentStack(contentWidth);
             ApplyVectorTextRendering(fullContent);
 
-            // Measure at content width
             fullContent.Measure(new Size(contentWidth, double.PositiveInfinity));
             fullContent.Arrange(new Rect(0, 0, contentWidth, fullContent.DesiredSize.Height));
             fullContent.UpdateLayout();
@@ -363,7 +388,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
 
             int totalPages = Math.Max(1, (int)Math.Ceiling(totalHeight / usableHeight));
 
-            // For multi-page: rebuild fresh content per page (no cloning issues)
+            Debug.WriteLine($"[PRINT] totalHeight={totalHeight}, usableHeight={usableHeight}, totalPages={totalPages}");
+
             for (int i = 0; i < totalPages; i++)
             {
                 double sliceY = i * usableHeight;
@@ -407,10 +433,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             return doc;
         }
 
-        /// <summary>
-        /// Builds the entire invoice as a StackPanel of native WPF elements.
-        /// Called fresh for each page to avoid "already child of another element" errors.
-        /// </summary>
         private StackPanel BuildFullContentStack(double width)
         {
             var root = new StackPanel { Width = width, Background = Brushes.White };
@@ -427,7 +449,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             root.Children.Add(BuildFinancialSummary(width));
             root.Children.Add(BuildDivider(top: 10, bottom: 6));
 
-            // Phase 7.14: Render active T&C clauses
             root.Children.Add(BuildTermsAndConditionsSection());
 
             root.Children.Add(BuildTermsFooter());
@@ -436,15 +457,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             return root;
         }
 
-        // ── Component builders ────────────────────────────────────────────
-
         private Grid BuildCompanyHeader()
         {
             var grid = new Grid();
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(220) });
 
-            // Left: brand block
             var left = new StackPanel();
             left.Children.Add(MakeText(
                 string.IsNullOrWhiteSpace(Company.CompanyName) ? "PROGLASS AUTOMATION ERP" : Company.CompanyName,
@@ -471,7 +489,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             Grid.SetColumn(left, 0);
             grid.Children.Add(left);
 
-            // Right: proforma badge
             var badge = new Border
             {
                 Background = LightGrayBrush,
@@ -522,7 +539,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(16) });
             grid.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-            // Left: Client
             var clientStack = new StackPanel();
             clientStack.Children.Add(MakeText("CLIENT / BILL TO:", 10, FontWeights.Bold, DarkBrush, marginBottom: 4));
             AddLabelValueRow(clientStack, "Customer Name: ", Client.CustomerName);
@@ -535,7 +551,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             Grid.SetColumn(clientStack, 0);
             grid.Children.Add(clientStack);
 
-            // Right: Project
             var projStack = new StackPanel();
             projStack.Children.Add(MakeText("PROJECT ESTIMATE METRIC:", 10, FontWeights.Bold, DarkBrush, marginBottom: 4));
             AddLabelValueRow(projStack, "Project Designation: ", Project.ProjectIdentifierName);
@@ -555,7 +570,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
         {
             var stack = new StackPanel { Margin = new Thickness(0, 0, 0, SECTION_GAP) };
 
-            // Header bar
             var header = new Border
             {
                 Background = AccentBrush,
@@ -566,7 +580,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                 10, FontWeights.Bold, Brushes.White);
             stack.Children.Add(header);
 
-            // Column widths
             var widths = new[] { 28.0, 1.8, 1.0, 1.0, 42.0, 0.85, 0.75, 0.95 };
             var headerLabels = new[]
             {
@@ -579,7 +592,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                 HorizontalAlignment.Center, HorizontalAlignment.Right, HorizontalAlignment.Right, HorizontalAlignment.Right
             };
 
-            // Table column header
             var tblHeader = new Border { Background = TableHeaderBrush };
             var thGrid = MakeGridWithColumns(widths);
             for (int i = 0; i < headerLabels.Length; i++)
@@ -593,7 +605,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             tblHeader.Child = thGrid;
             stack.Children.Add(tblHeader);
 
-            // Data rows
             foreach (var row in group.ItemRows)
             {
                 var rowBorder = new Border
@@ -616,7 +627,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                 stack.Children.Add(rowBorder);
             }
 
-            // Sub-total row
             var subTotal = new Border
             {
                 Background = LightGrayBrush,
@@ -668,7 +678,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             };
             var itemsStack = new StackPanel();
 
-            // Predefined charges
             foreach (var row in OtherCharges.ChargeRows)
             {
                 if (!row.IsActive) continue;
@@ -679,7 +688,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                     $"AED {row.ResultAmount:N2}"));
             }
 
-            // Wastages
             foreach (var row in OtherCharges.WastagesSection.WastageRows)
             {
                 if (!row.IsActive) continue;
@@ -690,7 +698,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                     $"AED {row.ResultAmount:N2}"));
             }
 
-            // Custom charges
             foreach (var row in OtherCharges.CustomChargesSection.AddedCharges)
             {
                 if (!row.IsActive) continue;
@@ -769,7 +776,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                     $"{MainSummary.VatAmount:N2} AED", FontWeights.SemiBold);
             }
 
-            // Grand Total band
             var grandBand = new Border
             {
                 Background = AccentBrush,
@@ -795,30 +801,61 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  PHASE 7.14 — Terms & Conditions section renderer
+        //  PHASE 7.14 + 7.16a — Terms & Conditions section renderer
+        //  Defensive version with try/catch + always-visible header.
         // ══════════════════════════════════════════════════════════════════
 
         private StackPanel BuildTermsAndConditionsSection()
         {
-            var stack = new StackPanel { Margin = new Thickness(0, 4, 0, 8) };
+            var stack = new StackPanel { Margin = new Thickness(0, 10, 0, 8) };
 
-            // Section header bar
             var header = new Border
             {
                 Background = AccentBrush,
                 Padding = new Thickness(8, 5, 8, 5),
-                Margin = new Thickness(0, 0, 0, 6)
+                Margin = new Thickness(0, 0, 0, 8)
             };
             header.Child = MakeText("TERMS & CONDITIONS", 10, FontWeights.Bold, Brushes.White);
             stack.Children.Add(header);
 
-            // Iterate active clauses in display order
-            var activeClauses = Terms.GetActivePrintableClauses().ToList();
+            if (Terms == null)
+            {
+                stack.Children.Add(MakeText(
+                    "[Terms VM not initialized]",
+                    9, FontWeights.Normal, RedBrush,
+                    fontStyle: FontStyles.Italic));
+                return stack;
+            }
+
+            if (Terms.Clauses == null || Terms.Clauses.Count == 0)
+            {
+                stack.Children.Add(MakeText(
+                    "No terms configured. Add clauses in the Terms editor above.",
+                    9, FontWeights.Normal, MutedBrush,
+                    fontStyle: FontStyles.Italic));
+                return stack;
+            }
+
+            System.Collections.Generic.List<Models.ProformaInvoice.Step7PrintPreview.TermsAndConditions.TermClause> activeClauses;
+
+            try
+            {
+                activeClauses = Terms.GetActivePrintableClauses().ToList();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[T&C] GetActivePrintableClauses failed: {ex}");
+                stack.Children.Add(MakeText(
+                    $"[Error loading clauses: {ex.Message}]",
+                    9, FontWeights.Normal, RedBrush,
+                    fontStyle: FontStyles.Italic));
+                return stack;
+            }
 
             if (activeClauses.Count == 0)
             {
                 stack.Children.Add(MakeText(
-                    "No terms specified.",
+                    $"No active clauses. ({Terms.Clauses.Count} total, all inactive — tick checkboxes in the Terms editor above.)",
                     9, FontWeights.Normal, MutedBrush,
                     fontStyle: FontStyles.Italic));
                 return stack;
@@ -826,40 +863,46 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
 
             foreach (var clause in activeClauses)
             {
-                var clauseBox = new StackPanel { Margin = new Thickness(0, 0, 0, 6) };
-
-                // Numbered title: "1. PAYMENT TERMS"
-                clauseBox.Children.Add(MakeText(
-                    $"{clause.Order}. {(clause.Title ?? "").ToUpper()}",
-                    9, FontWeights.Bold, DarkBrush,
-                    marginBottom: 2));
-
-                // Body text (indented from title)
-                if (!string.IsNullOrWhiteSpace(clause.Body))
+                try
                 {
+                    var clauseBox = new StackPanel { Margin = new Thickness(0, 0, 0, 8) };
+
                     clauseBox.Children.Add(MakeText(
-                        clause.Body,
-                        9, FontWeights.Normal, DarkBrush,
-                        marginLeft: 12));
-                }
+                        $"{clause.Order}. {(clause.Title ?? "").ToUpper()}",
+                        9, FontWeights.Bold, DarkBrush,
+                        marginBottom: 2));
 
-                // Sub-lines (Payment Terms bullet list)
-                if (clause.HasSubLines)
-                {
-                    foreach (var line in clause.SubLines)
+                    if (!string.IsNullOrWhiteSpace(clause.Body))
                     {
-                        var bulletRow = new StackPanel
-                        {
-                            Orientation = Orientation.Horizontal,
-                            Margin = new Thickness(24, 1, 0, 0)
-                        };
-                        bulletRow.Children.Add(MakeText("• ", 9, FontWeights.Bold, AccentBrush));
-                        bulletRow.Children.Add(MakeText(line, 9, FontWeights.Normal, DarkBrush));
-                        clauseBox.Children.Add(bulletRow);
+                        clauseBox.Children.Add(MakeText(
+                            clause.Body,
+                            9, FontWeights.Normal, DarkBrush,
+                            marginLeft: 12));
                     }
-                }
 
-                stack.Children.Add(clauseBox);
+                    if (clause.HasSubLines && clause.SubLines != null)
+                    {
+                        foreach (var line in clause.SubLines)
+                        {
+                            if (string.IsNullOrWhiteSpace(line)) continue;
+
+                            var bulletRow = new StackPanel
+                            {
+                                Orientation = Orientation.Horizontal,
+                                Margin = new Thickness(24, 1, 0, 0)
+                            };
+                            bulletRow.Children.Add(MakeText("• ", 9, FontWeights.Bold, AccentBrush));
+                            bulletRow.Children.Add(MakeText(line, 9, FontWeights.Normal, DarkBrush));
+                            clauseBox.Children.Add(bulletRow);
+                        }
+                    }
+
+                    stack.Children.Add(clauseBox);
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[T&C] Failed to render clause {clause?.Order}: {ex}");
+                }
             }
 
             return stack;
@@ -867,7 +910,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
 
         private StackPanel BuildTermsFooter()
         {
-            var s = new StackPanel();
+            var s = new StackPanel { Margin = new Thickness(0, 10, 0, 0) };
             s.Children.Add(MakeText(FooterDisclaimer, 8, FontWeights.Normal, MutedBrush, fontStyle: FontStyles.Italic));
 
             var terms = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 2, 0, 0) };
@@ -885,7 +928,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(16) });
             g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
 
-            // Prepared By
             var pbBox = new Border
             {
                 BorderBrush = LineBrush,
@@ -895,19 +937,27 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             };
             var pbStack = new StackPanel();
             pbStack.Children.Add(MakeText("PREPARED BY (ERP AUTHENTICATED)", 9, FontWeights.Bold, AccentBrush, marginBottom: 4));
-            pbStack.Children.Add(MakeText(PreparedByName ?? "", 10, FontWeights.SemiBold, DarkBrush));
-            pbStack.Children.Add(MakeText(PreparedByDept ?? "", 9, FontWeights.Normal, MutedBrush, marginTop: 2));
+
+            // Phase 7.16a: read live PreparedByName which auto-falls-back to Client.DocumentPreparedBy
+            string nameForPrint = string.IsNullOrWhiteSpace(PreparedByName) ? "—" : PreparedByName;
+            pbStack.Children.Add(MakeText(nameForPrint, 10, FontWeights.SemiBold, DarkBrush));
+
+            if (!string.IsNullOrWhiteSpace(PreparedByDept))
+            {
+                pbStack.Children.Add(MakeText(PreparedByDept, 9, FontWeights.Normal, MutedBrush, marginTop: 2));
+            }
 
             var status = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 3, 0, 0) };
             status.Children.Add(MakeText("Status: ", 9, FontWeights.Normal, MutedBrush));
-            status.Children.Add(MakeText(PreparedByStatus ?? "", 9, FontWeights.Bold, GreenBrush));
+            // Phase 7.16a: read live PreparedByStatus which auto-falls-back to Company.ProformaStatus
+            string statusForPrint = string.IsNullOrWhiteSpace(PreparedByStatus) ? "Draft" : PreparedByStatus;
+            status.Children.Add(MakeText(statusForPrint, 9, FontWeights.Bold, GreenBrush));
             pbStack.Children.Add(status);
 
             pbBox.Child = pbStack;
             Grid.SetColumn(pbBox, 0);
             g.Children.Add(pbBox);
 
-            // Client sign
             var csBox = new Border
             {
                 BorderBrush = LineBrush,
@@ -951,8 +1001,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             return g;
         }
 
-        // ── Layout helpers ────────────────────────────────────────────────
-
         private Border BuildDivider(double top, double bottom) => new Border
         {
             Background = LineBrush,
@@ -989,7 +1037,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             var g = new Grid();
             foreach (var w in widths)
             {
-                // widths > 5 are absolute (pixels), <= 5 are star weights
                 if (w > 5)
                     g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(w) });
                 else

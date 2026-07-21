@@ -55,6 +55,21 @@
             <Setter Property="Padding" Value="6,4"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
+
+        <!-- Phase 7.16a: T&C clause title style for print preview -->
+        <Style x:Key="TncTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="Margin" Value="0,0,0,2"/>
+        </Style>
+
+        <Style x:Key="TncBodyStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Margin" Value="12,0,0,0"/>
+        </Style>
     </UserControl.Resources>
 
     <!-- A4 paper canvas — width 794px at 96 DPI = exact A4 -->
@@ -82,7 +97,7 @@
                     <ColumnDefinition Width="220"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Left: Company branding (uses ACTUAL company from Step 1) -->
+                <!-- Left: Company branding -->
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="{Binding Company.CompanyName, TargetNullValue=PROGLASS AUTOMATION ERP, FallbackValue=PROGLASS AUTOMATION ERP}"
                                FontSize="17" FontWeight="Bold"
@@ -526,7 +541,80 @@
             </Border>
 
             <!-- ══════════════════════════════════════════════════════
-                 TERMS + FOOTER
+                 PHASE 7.16a — TERMS & CONDITIONS SECTION
+                 Renders active clauses from Terms.Clauses with numbered
+                 titles, indented body text, and bullet sub-lines.
+            ══════════════════════════════════════════════════════ -->
+            <Border Background="#4F46E5" Padding="8,5" CornerRadius="2,2,0,0" Margin="0,14,0,0">
+                <TextBlock Text="TERMS &amp; CONDITIONS"
+                           FontSize="10" FontWeight="Bold" Foreground="White"/>
+            </Border>
+
+            <Border Background="#F8FAFC" Padding="10,10,10,8" BorderThickness="1,0,1,1" BorderBrush="#E2E8F0">
+                <StackPanel>
+                    <ItemsControl ItemsSource="{Binding Terms.Clauses}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <!-- Only render active clauses -->
+                                <StackPanel Margin="0,0,0,8">
+                                    <StackPanel.Style>
+                                        <Style TargetType="StackPanel">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </StackPanel.Style>
+
+                                    <!-- Numbered title: "1. PAYMENT TERMS" -->
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="{Binding Order}" Style="{StaticResource TncTitleStyle}"/>
+                                        <TextBlock Text=". " Style="{StaticResource TncTitleStyle}"/>
+                                        <TextBlock Text="{Binding Title}" Style="{StaticResource TncTitleStyle}"/>
+                                    </StackPanel>
+
+                                    <!-- Body text (indented) -->
+                                    <TextBlock Text="{Binding Body}"
+                                               Style="{StaticResource TncBodyStyle}"/>
+
+                                    <!-- Sub-lines (Payment Terms bullets) -->
+                                    <ItemsControl ItemsSource="{Binding SubLines}" Margin="24,2,0,0">
+                                        <ItemsControl.ItemTemplate>
+                                            <DataTemplate>
+                                                <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
+                                                    <TextBlock Text="• " FontSize="9" FontWeight="Bold" Foreground="#4F46E5"/>
+                                                    <TextBlock Text="{Binding}" FontSize="9" Foreground="#0F172A" TextWrapping="Wrap"/>
+                                                </StackPanel>
+                                            </DataTemplate>
+                                        </ItemsControl.ItemTemplate>
+                                    </ItemsControl>
+                                </StackPanel>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- Empty state when Terms.Clauses is empty or all inactive -->
+                    <TextBlock Text="No terms configured. Add clauses in the Terms editor above."
+                               FontSize="9" FontStyle="Italic" Foreground="#94A3B8"
+                               HorizontalAlignment="Center" Margin="0,4,0,0">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Terms.Clauses.Count}" Value="0">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <!-- ══════════════════════════════════════════════════════
+                 FOOTER DISCLAIMER + EDITABLE TERMS TEXT
             ══════════════════════════════════════════════════════ -->
             <Border BorderThickness="0,1,0,0" BorderBrush="#CBD5E1" Padding="0,8,0,0" Margin="0,12,0,0">
                 <StackPanel>
