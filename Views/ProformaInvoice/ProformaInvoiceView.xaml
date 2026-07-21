@@ -144,6 +144,43 @@
                     Padding="10,14">
                 <StackPanel>
 
+                    <!-- Back to List — prominent button at top of sidebar -->
+                    <Button Command="{Binding BackToListCommand}"
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Padding="0"
+                            Cursor="Hand"
+                            Margin="0,0,0,14"
+                            HorizontalContentAlignment="Stretch">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="BackToListBorder"
+                                        Background="{DynamicResource AccentBrush}"
+                                        CornerRadius="10"
+                                        Padding="12,10">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="&#10094;"
+                                                   FontSize="12"
+                                                   FontWeight="Bold"
+                                                   Foreground="White"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,8,0"/>
+                                        <TextBlock Text="Invoice List"
+                                                   FontSize="12"
+                                                   FontWeight="Bold"
+                                                   Foreground="White"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="BackToListBorder" Property="Opacity" Value="0.88"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
                     <TextBlock Text="INVOICE BUILDER"
                                FontSize="10"
                                FontWeight="Bold"
@@ -424,7 +461,7 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Back to List -->
+                        <!-- Back to List (bottom nav duplicate for convenience) -->
                         <Button Grid.Column="0"
                                 Command="{Binding BackToListCommand}"
                                 Background="Transparent"
@@ -435,24 +472,31 @@
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="ListBorder"
-                                            Background="{DynamicResource MenuHoverBrush}"
+                                            Background="White"
+                                            BorderBrush="{DynamicResource AccentBrush}"
+                                            BorderThickness="1.5"
                                             CornerRadius="8"
                                             Padding="14,8">
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="&#128194;"
+                                            <TextBlock Text="&#10094;"
                                                        FontSize="11"
+                                                       FontWeight="Bold"
+                                                       Foreground="{DynamicResource AccentBrush}"
                                                        VerticalAlignment="Center"
-                                                       Margin="0,0,6,0"/>
+                                                       Margin="0,0,7,0"/>
                                             <TextBlock Text="Invoice List"
                                                        FontSize="12"
                                                        FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                       Foreground="{DynamicResource AccentBrush}"
                                                        VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="ListBorder" Property="Opacity" Value="0.85"/>
+                                            <Setter TargetName="ListBorder" Property="Background"
+                                                    Value="{DynamicResource AccentBrush}"/>
+                                            <Setter TargetName="ListBorder" Property="BorderBrush"
+                                                    Value="{DynamicResource AccentBrush}"/>
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
