@@ -123,7 +123,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             Terms = terms ?? throw new ArgumentNullException(nameof(terms));
 
             PrintCommand = new RelayCommand(_ => ExecutePrint());
-            ExportPdfCommand = new RelayCommand(_ => ShowComingSoon("PDF Export", "Phase 7.17"));
+            ExportPdfCommand = new RelayCommand(_ => ExecuteExportPdf());
             SaveInvoiceCommand = new RelayCommand(_ => ExecuteSaveInvoice());
             LoadInvoiceCommand = new RelayCommand(_ => ExecuteLoadInvoice());
             SendEmailCommand = new RelayCommand(_ => ShowComingSoon("Send Email", "Phase 7.20"));
@@ -347,6 +347,96 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                 MessageBox.Show(
                     $"Failed to load invoice:\n\n{ex.Message}",
                     "Load Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  PHASE 7.17 — QUEST PDF BRANDED EXPORT
+        //  Builds a PdfExportContext from wizard VMs, generates the PDF via
+        //  QuestPDF, saves to user-chosen location, and auto-opens the file.
+        // ══════════════════════════════════════════════════════════════════
+
+        private void ExecuteExportPdf()
+        {
+            try
+            {
+                // Validate
+                if (string.IsNullOrWhiteSpace(Company.ProformaId))
+                {
+                    MessageBox.Show(
+                        "Cannot export — Proforma ID is empty.\n\n" +
+                        "Please set a Proforma ID in Step 1 (Company Details) before exporting.",
+                        "Export Failed",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Build safe default filename
+                string safeName = Company.ProformaId.Replace("/", "-").Replace("\\", "-").Replace(":", "-");
+                string defaultFileName = $"{safeName}_{Company.IssueDate:yyyy-MM-dd}.pdf";
+
+                // SaveFileDialog
+                var dialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Title = "Export Proforma Invoice as PDF",
+                    Filter = "PDF Files (*.pdf)|*.pdf",
+                    DefaultExt = ".pdf",
+                    FileName = defaultFileName,
+                    InitialDirectory = System.IO.Path.Combine(
+                        System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
+                        "ProGlassAutomation", "PDFs")
+                };
+
+                // Ensure default directory exists
+                if (!System.IO.Directory.Exists(dialog.InitialDirectory))
+                    System.IO.Directory.CreateDirectory(dialog.InitialDirectory);
+
+                if (dialog.ShowDialog() != true) return;
+
+                string outputPath = dialog.FileName;
+
+                // Build the context from live wizard VMs
+                var ctx = Services.ProformaInvoice.PdfExport.PdfExportContextBuilder.Build(
+                    Company, Project, Client, DataGrid, OtherCharges,
+                    MainSummary, Terms, this);
+
+                // Generate the PDF
+                var pdfService = new Services.ProformaInvoice.PdfExport.ProformaInvoicePdfService();
+                pdfService.GeneratePdf(ctx, outputPath);
+
+                // Success — ask to open
+                var result = MessageBox.Show(
+                    $"PDF exported successfully!\n\n" +
+                    $"File: {outputPath}\n\n" +
+                    "Would you like to open the PDF now?",
+                    "Export Complete",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Information);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    try
+                    {
+                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = outputPath,
+                            UseShellExecute = true
+                        });
+                    }
+                    catch
+                    {
+                        // Silently fail if no PDF viewer is installed
+                    }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show(
+                    $"PDF export failed:\n\n{ex.Message}",
+                    "Export Failed",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
