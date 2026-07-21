@@ -3,6 +3,7 @@ using ProGlassAutomation.Services.AI.AIConnectivity;
 using ProGlassAutomation.Services.AI.AIService;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Database.DatabaseBackup;
+using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
 using ProGlassAutomation.Views.Splash;
 using System.Threading.Tasks;
@@ -20,6 +21,9 @@ namespace ProGlassAutomation
         // Proforma Invoice — spec library (separate SQLite: specifications.db)
         public static ISpecificationsRepository Specs { get; private set; }
 
+        // Proforma Invoice — saved invoices (separate SQLite: proformainvoices.db)
+        public static IProformaInvoiceRepository Invoices { get; private set; }
+
         private async void Application_Startup(object sender, StartupEventArgs e)
         {
             // 1) Load persisted config (%AppData%\ProGlassAutomation\config.json)
@@ -35,23 +39,29 @@ namespace ProGlassAutomation
             Specs = new SpecificationsRepository();
             await Specs.InitializeAsync();
 
-            // 4) Initialize AI + Connectivity services
+            // 4) Initialize Proforma Invoices database (separate proformainvoices.db)
+            //    Stores saved invoices with full wizard-state snapshots
+            //    Located at: %AppData%\ProGlassAutomation\proformainvoices.db
+            Invoices = new ProformaInvoiceRepository();
+            await Invoices.InitializeAsync();
+
+            // 5) Initialize AI + Connectivity services
             Ai = new GeminiAiService(Config.Ai);
             Connectivity = new ConnectivityService();
             Connectivity.StartMonitoring();
 
-            // 5) Show splash
+            // 6) Show splash
             var splash = new SplashView();
             splash.Show();
 
-            // 6) Simulate loading time (allows animations to play)
+            // 7) Simulate loading time (allows animations to play)
             //    Replace this with real init work later (DB connect, config load, etc.)
             await Task.Delay(2800);
 
-            // 7) Create main window (but don't show yet)
+            // 8) Create main window (but don't show yet)
             var mainWindow = new MainWindow();
 
-            // 8) Fade out splash then show main window
+            // 9) Fade out splash then show main window
             splash.FadeOutAndClose(() =>
             {
                 mainWindow.Show();

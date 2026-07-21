@@ -2,6 +2,7 @@
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.CustomCharges;
+using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.ViewModels;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step2ProjectSpecs;
@@ -12,6 +13,7 @@ using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.InvoiceMai
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsAndConditions;
 using System;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -98,7 +100,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
 
             PrintCommand = new RelayCommand(_ => ExecutePrint());
             ExportPdfCommand = new RelayCommand(_ => ShowComingSoon("PDF Export", "Phase 7.16"));
-            SaveInvoiceCommand = new RelayCommand(_ => ShowComingSoon("Save Invoice", "Phase 7.15"));
+            SaveInvoiceCommand = new RelayCommand(_ => ExecuteSaveInvoice());
             SendEmailCommand = new RelayCommand(_ => ShowComingSoon("Send Email", "Phase 7.20"));
         }
 
@@ -129,6 +131,102 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  PHASE 7.15 — SAVE INVOICE TO DATABASE
+        //  Serializes the entire wizard state to proformainvoices.db.
+        //  Handles duplicate ProformaId with a 3-button user prompt.
+        // ══════════════════════════════════════════════════════════════════
+
+        private async void ExecuteSaveInvoice()
+        {
+            if (App.Invoices == null)
+            {
+                MessageBox.Show(
+                    "Invoice database is not initialized. Please restart the app.",
+                    "Save Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return;
+            }
+
+            // Basic validation
+            if (string.IsNullOrWhiteSpace(Company.ProformaId))
+            {
+                MessageBox.Show(
+                    "Cannot save — Proforma ID is empty.\n\n" +
+                    "Please set a Proforma ID in Step 1 (Company Details) before saving.",
+                    "Save Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                // Build the entity + snapshot from all wizard VMs
+                var entity = ProformaInvoiceMapper.BuildEntityFromWizard(
+                    Company, Project, Client, DataGrid, OtherCharges,
+                    MainSummary, Terms, this);
+
+                // Duplicate detection
+                bool alreadyExists = await App.Invoices.ExistsByProformaIdAsync(entity.ProformaId);
+
+                if (alreadyExists)
+                {
+                    string suggestedId = await App.Invoices.SuggestNextIdAsync(entity.ProformaId);
+
+                    var result = MessageBox.Show(
+                        $"An invoice with ID '{entity.ProformaId}' already exists.\n\n" +
+                        $"• YES → Update the existing invoice (overwrite)\n" +
+                        $"• NO → Save as new invoice with ID '{suggestedId}'\n" +
+                        $"• CANCEL → Return to editing without saving",
+                        "Duplicate Proforma ID",
+                        MessageBoxButton.YesNoCancel,
+                        MessageBoxImage.Question);
+
+                    if (result == MessageBoxResult.Cancel) return;
+
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        // Overwrite existing
+                        await App.Invoices.UpdateAsync(entity);
+                        ShowSaveSuccess(entity.ProformaId, isUpdate: true);
+                        return;
+                    }
+
+                    // NO → save as new with suggested ID
+                    entity.ProformaId = suggestedId;
+                    Company.ProformaId = suggestedId;  // reflect in Step 1
+                    await App.Invoices.InsertAsync(entity);
+                    ShowSaveSuccess(entity.ProformaId, isUpdate: false);
+                    return;
+                }
+
+                // Fresh save (no duplicate)
+                await App.Invoices.InsertAsync(entity);
+                ShowSaveSuccess(entity.ProformaId, isUpdate: false);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Failed to save invoice:\n\n{ex.Message}",
+                    "Save Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        private static void ShowSaveSuccess(string proformaId, bool isUpdate)
+        {
+            string verb = isUpdate ? "updated" : "saved";
+            MessageBox.Show(
+                $"Invoice '{proformaId}' was {verb} successfully.\n\n" +
+                "You can load it later from the saved-invoice list (Phase 7.17).",
+                "Save Successful",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
         }
 
         // ── Layout constants (all values in DIPs = 1/96 inch) ─────────────
