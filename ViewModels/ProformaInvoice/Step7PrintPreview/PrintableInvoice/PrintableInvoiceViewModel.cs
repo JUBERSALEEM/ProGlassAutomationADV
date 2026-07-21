@@ -9,7 +9,9 @@ using ProGlassAutomation.ViewModels.ProformaInvoice.Step3ClientProfile;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.InvoiceMainSummary;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsAndConditions;
 using System;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -27,6 +29,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
         public DataGridViewModel DataGrid { get; }
         public OtherChargesViewModel OtherCharges { get; }
         public InvoiceMainSummaryViewModel MainSummary { get; }
+
+        /// <summary>Phase 7.14 — Terms &amp; Conditions editor reference (used at render time).</summary>
+        public TermsAndConditionsViewModel Terms { get; }
 
         // ── Editable inline fields ─────────────────────────────────────────
 
@@ -80,7 +85,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             ClientProfileViewModel client,
             DataGridViewModel dataGrid,
             OtherChargesViewModel otherCharges,
-            InvoiceMainSummaryViewModel mainSummary)
+            InvoiceMainSummaryViewModel mainSummary,
+            TermsAndConditionsViewModel terms)
         {
             Company = company ?? throw new ArgumentNullException(nameof(company));
             Project = project ?? throw new ArgumentNullException(nameof(project));
@@ -88,6 +94,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             DataGrid = dataGrid ?? throw new ArgumentNullException(nameof(dataGrid));
             OtherCharges = otherCharges ?? throw new ArgumentNullException(nameof(otherCharges));
             MainSummary = mainSummary ?? throw new ArgumentNullException(nameof(mainSummary));
+            Terms = terms ?? throw new ArgumentNullException(nameof(terms));
 
             PrintCommand = new RelayCommand(_ => ExecutePrint());
             ExportPdfCommand = new RelayCommand(_ => ShowComingSoon("PDF Export", "Phase 7.16"));
@@ -226,6 +233,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             root.Children.Add(BuildOtherChargesSection());
             root.Children.Add(BuildFinancialSummary(width));
             root.Children.Add(BuildDivider(top: 10, bottom: 6));
+
+            // Phase 7.14: Render active T&C clauses
+            root.Children.Add(BuildTermsAndConditionsSection());
+
             root.Children.Add(BuildTermsFooter());
             root.Children.Add(BuildSignatureBlocks(width));
 
@@ -588,6 +599,77 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
 
             wrap.Child = stack;
             return wrap;
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  PHASE 7.14 — Terms & Conditions section renderer
+        // ══════════════════════════════════════════════════════════════════
+
+        private StackPanel BuildTermsAndConditionsSection()
+        {
+            var stack = new StackPanel { Margin = new Thickness(0, 4, 0, 8) };
+
+            // Section header bar
+            var header = new Border
+            {
+                Background = AccentBrush,
+                Padding = new Thickness(8, 5, 8, 5),
+                Margin = new Thickness(0, 0, 0, 6)
+            };
+            header.Child = MakeText("TERMS & CONDITIONS", 10, FontWeights.Bold, Brushes.White);
+            stack.Children.Add(header);
+
+            // Iterate active clauses in display order
+            var activeClauses = Terms.GetActivePrintableClauses().ToList();
+
+            if (activeClauses.Count == 0)
+            {
+                stack.Children.Add(MakeText(
+                    "No terms specified.",
+                    9, FontWeights.Normal, MutedBrush,
+                    fontStyle: FontStyles.Italic));
+                return stack;
+            }
+
+            foreach (var clause in activeClauses)
+            {
+                var clauseBox = new StackPanel { Margin = new Thickness(0, 0, 0, 6) };
+
+                // Numbered title: "1. PAYMENT TERMS"
+                clauseBox.Children.Add(MakeText(
+                    $"{clause.Order}. {(clause.Title ?? "").ToUpper()}",
+                    9, FontWeights.Bold, DarkBrush,
+                    marginBottom: 2));
+
+                // Body text (indented from title)
+                if (!string.IsNullOrWhiteSpace(clause.Body))
+                {
+                    clauseBox.Children.Add(MakeText(
+                        clause.Body,
+                        9, FontWeights.Normal, DarkBrush,
+                        marginLeft: 12));
+                }
+
+                // Sub-lines (Payment Terms bullet list)
+                if (clause.HasSubLines)
+                {
+                    foreach (var line in clause.SubLines)
+                    {
+                        var bulletRow = new StackPanel
+                        {
+                            Orientation = Orientation.Horizontal,
+                            Margin = new Thickness(24, 1, 0, 0)
+                        };
+                        bulletRow.Children.Add(MakeText("• ", 9, FontWeights.Bold, AccentBrush));
+                        bulletRow.Children.Add(MakeText(line, 9, FontWeights.Normal, DarkBrush));
+                        clauseBox.Children.Add(bulletRow);
+                    }
+                }
+
+                stack.Children.Add(clauseBox);
+            }
+
+            return stack;
         }
 
         private StackPanel BuildTermsFooter()

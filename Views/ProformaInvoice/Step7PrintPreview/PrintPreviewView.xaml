@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:summary="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview.InvoiceMainSummary"
+             xmlns:terms="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview.TermsAndConditions"
              xmlns:printable="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview.PrintableInvoice"
              mc:Ignorable="d"
              d:DesignHeight="900" d:DesignWidth="1200"
@@ -133,6 +134,13 @@
             </Border>
 
             <!-- ============================================================
+                 PHASE 7.14 — TERMS & CONDITIONS EDITOR
+                 Users edit clauses here; changes reflect live in A4 preview below.
+            ============================================================ -->
+            <terms:TermsAndConditionsView DataContext="{Binding Terms}"
+                                          Margin="0,0,0,16"/>
+
+            <!-- ============================================================
                  PHASE 7.12 — INVOICE MAIN SUMMARY (editable card)
             ============================================================ -->
             <summary:InvoiceMainSummaryView DataContext="{Binding InvoiceMainSummary}"/>
@@ -160,8 +168,8 @@
                 <TextBlock FontSize="10"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                            TextWrapping="Wrap">
-                    <Run FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">Phase 7.13 complete.</Run>
-                    <Run>Full A4 printable preview with all wizard data. Editable Terms + Prepared By fields. Print is functional; PDF export, Save, and Email coming in later phases.</Run>
+                    <Run FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">Phase 7.14 complete.</Run>
+                    <Run>Editable Terms &amp; Conditions section with 6 UAE default clauses (Payment / Delivery / Warranty / Validity / Taxes / Installation). Live-synced to printable preview. Save Invoice, PDF export, and Send Email coming in later phases.</Run>
                 </TextBlock>
             </Border>
 
