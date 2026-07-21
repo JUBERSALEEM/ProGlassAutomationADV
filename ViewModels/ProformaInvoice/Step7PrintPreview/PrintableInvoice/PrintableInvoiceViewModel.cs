@@ -102,6 +102,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
         public ICommand SaveInvoiceCommand { get; }
         public ICommand LoadInvoiceCommand { get; }
         public ICommand SendEmailCommand { get; }
+        public ICommand ExportExcelCommand { get; }
+        public ICommand ExportCsvCommand { get; }
 
         public FrameworkElement PrintTarget { get; set; }
 
@@ -127,6 +129,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             SaveInvoiceCommand = new RelayCommand(_ => ExecuteSaveInvoice());
             LoadInvoiceCommand = new RelayCommand(_ => ExecuteLoadInvoice());
             SendEmailCommand = new RelayCommand(_ => ShowComingSoon("Send Email", "Phase 7.20"));
+            ExportExcelCommand = new RelayCommand(_ => ExecuteExportExcel());
+            ExportCsvCommand = new RelayCommand(_ => ExecuteExportCsv());
 
             // Phase 7.16a: propagate upstream changes so preview reflects live
             // updates when user edits Step 1 or Step 3
@@ -439,6 +443,108 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                     "Export Failed",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  PHASE 7.18 — EXCEL EXPORT (.xlsx)
+        // ══════════════════════════════════════════════════════════════════
+
+        private void ExecuteExportExcel()
+        {
+            try
+            {
+                string safeName = (Company.ProformaId ?? "Invoice").Replace("/", "-").Replace("\\", "-").Replace(":", "-");
+                string defaultFileName = $"{safeName}_{Company.IssueDate:yyyy-MM-dd}.xlsx";
+
+                var dialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Title = "Export Invoice as Excel",
+                    Filter = "Excel Files (*.xlsx)|*.xlsx",
+                    DefaultExt = ".xlsx",
+                    FileName = defaultFileName,
+                    InitialDirectory = System.IO.Path.Combine(
+                        System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
+                        "ProGlassAutomation", "Exports")
+                };
+
+                if (!System.IO.Directory.Exists(dialog.InitialDirectory))
+                    System.IO.Directory.CreateDirectory(dialog.InitialDirectory);
+
+                if (dialog.ShowDialog() != true) return;
+
+                var ctx = Services.ProformaInvoice.PdfExport.PdfExportContextBuilder.Build(
+                    Company, Project, Client, DataGrid, OtherCharges, MainSummary, Terms, this);
+
+                var service = new Services.ProformaInvoice.InvoiceExportImport.InvoiceExcelExportService();
+                service.ExportToExcel(ctx, dialog.FileName);
+
+                var result = MessageBox.Show(
+                    $"Excel exported successfully!\n\nFile: {dialog.FileName}\n\nOpen now?",
+                    "Export Complete",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Information);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = dialog.FileName, UseShellExecute = true }); }
+                    catch { }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show($"Excel export failed:\n\n{ex.Message}", "Export Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  PHASE 7.18 — CSV EXPORT (.csv)
+        // ══════════════════════════════════════════════════════════════════
+
+        private void ExecuteExportCsv()
+        {
+            try
+            {
+                string safeName = (Company.ProformaId ?? "Invoice").Replace("/", "-").Replace("\\", "-").Replace(":", "-");
+                string defaultFileName = $"{safeName}_{Company.IssueDate:yyyy-MM-dd}.csv";
+
+                var dialog = new Microsoft.Win32.SaveFileDialog
+                {
+                    Title = "Export Invoice as CSV",
+                    Filter = "CSV Files (*.csv)|*.csv",
+                    DefaultExt = ".csv",
+                    FileName = defaultFileName,
+                    InitialDirectory = System.IO.Path.Combine(
+                        System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
+                        "ProGlassAutomation", "Exports")
+                };
+
+                if (!System.IO.Directory.Exists(dialog.InitialDirectory))
+                    System.IO.Directory.CreateDirectory(dialog.InitialDirectory);
+
+                if (dialog.ShowDialog() != true) return;
+
+                var ctx = Services.ProformaInvoice.PdfExport.PdfExportContextBuilder.Build(
+                    Company, Project, Client, DataGrid, OtherCharges, MainSummary, Terms, this);
+
+                var service = new Services.ProformaInvoice.InvoiceExportImport.InvoiceCsvExportService();
+                service.ExportToCsv(ctx, dialog.FileName);
+
+                var result = MessageBox.Show(
+                    $"CSV exported successfully!\n\nFile: {dialog.FileName}\n\nOpen now?",
+                    "Export Complete",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Information);
+
+                if (result == MessageBoxResult.Yes)
+                {
+                    try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = dialog.FileName, UseShellExecute = true }); }
+                    catch { }
+                }
+            }
+            catch (System.Exception ex)
+            {
+                MessageBox.Show($"CSV export failed:\n\n{ex.Message}", "Export Failed", MessageBoxButton.OK, MessageBoxImage.Error);
             }
         }
 
