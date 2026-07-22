@@ -1,7 +1,6 @@
 ﻿using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Export.Core;
-using ProGlassAutomation.Services.Export.Csv;
 using ProGlassAutomation.Services.Export.Excel;
 using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.ProformaInvoice.Export;
@@ -74,13 +73,25 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         }
 
         private int _totalCount;
-        public int TotalCount { get => _totalCount; private set { _totalCount = value; OnPropertyChanged(); } }
+        public int TotalCount
+        {
+            get => _totalCount;
+            private set { _totalCount = value; OnPropertyChanged(); }
+        }
 
         private int _filteredCount;
-        public int FilteredCount { get => _filteredCount; private set { _filteredCount = value; OnPropertyChanged(); } }
+        public int FilteredCount
+        {
+            get => _filteredCount;
+            private set { _filteredCount = value; OnPropertyChanged(); }
+        }
 
         private decimal _totalValueSum;
-        public decimal TotalValueSum { get => _totalValueSum; private set { _totalValueSum = value; OnPropertyChanged(); } }
+        public decimal TotalValueSum
+        {
+            get => _totalValueSum;
+            private set { _totalValueSum = value; OnPropertyChanged(); }
+        }
 
         private SavedInvoiceListItem _selectedItem;
         public SavedInvoiceListItem SelectedItem
@@ -96,7 +107,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             private set { _isLoading = value; OnPropertyChanged(); }
         }
 
-        // ── Commands ────────────────────────────────────────────────────────
+        // ── Commands ─────────────────────────────────────────────────────────
 
         public ICommand RefreshCommand { get; }
         public ICommand ClearFiltersCommand { get; }
@@ -124,13 +135,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 }
             });
 
-            ExportPdfFromListCommand = new RelayCommand(async p => await ExportPdfFromListAsync(p as SavedInvoiceListItem));
-            ExportExcelFromListCommand = new RelayCommand(async p => await ExportExcelFromListAsync(p as SavedInvoiceListItem));
+            ExportPdfFromListCommand = new RelayCommand(
+                async p => await ExportPdfFromListAsync(p as SavedInvoiceListItem));
+            ExportExcelFromListCommand = new RelayCommand(
+                async p => await ExportExcelFromListAsync(p as SavedInvoiceListItem));
 
             _ = LoadInvoicesAsync();
         }
 
-        // ── Data loading ────────────────────────────────────────────────────
+        // ── Data loading ──────────────────────────────────────────────────────
 
         public async Task LoadInvoicesAsync()
         {
@@ -159,8 +172,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to load saved invoices:\n\n{ex.Message}",
-                    "Load Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(
+                    $"Failed to load saved invoices:\n\n{ex.Message}",
+                    "Load Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
             finally
             {
@@ -182,8 +198,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     || (x.ProjectName ?? "").ToLowerInvariant().Contains(s));
             }
 
-            if (!string.IsNullOrWhiteSpace(_selectedStatusFilter) && _selectedStatusFilter != "All Statuses")
-                query = query.Where(x => string.Equals(x.Status, _selectedStatusFilter, StringComparison.OrdinalIgnoreCase));
+            if (!string.IsNullOrWhiteSpace(_selectedStatusFilter)
+                && _selectedStatusFilter != "All Statuses")
+                query = query.Where(x => string.Equals(
+                    x.Status, _selectedStatusFilter,
+                    StringComparison.OrdinalIgnoreCase));
 
             if (_fromDate.HasValue)
                 query = query.Where(x => x.CreatedAt.Date >= _fromDate.Value.Date);
@@ -225,7 +244,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             ApplyFilters();
         }
 
-        // ── Actions ─────────────────────────────────────────────────────────
+        // ── Actions ───────────────────────────────────────────────────────────
 
         private void RequestLoad(SavedInvoiceListItem item)
         {
@@ -238,8 +257,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             if (item == null || App.Invoices == null) return;
 
             var confirm = MessageBox.Show(
-                $"Duplicate invoice '{item.ProformaId}'?\n\nA new copy will be created with an auto-incremented ID.",
-                "Confirm Duplicate", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                $"Duplicate invoice '{item.ProformaId}'?\n\n" +
+                "A new copy will be created with an auto-incremented ID.",
+                "Confirm Duplicate",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Question);
             if (confirm != MessageBoxResult.Yes) return;
 
             try
@@ -247,7 +269,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 var original = await App.Invoices.GetByIdAsync(item.Id);
                 if (original == null) return;
 
-                string newId = await App.Invoices.SuggestNextIdAsync(original.ProformaId);
+                string newId = await App.Invoices.SuggestNextIdAsync(
+                    original.ProformaId);
 
                 var copy = new SavedProformaInvoice
                 {
@@ -269,11 +292,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 await App.Invoices.InsertAsync(copy);
                 await LoadInvoicesAsync();
 
-                MessageBox.Show($"Duplicated as '{newId}'.", "Duplicate Successful", MessageBoxButton.OK, MessageBoxImage.Information);
+                MessageBox.Show(
+                    $"Duplicated as '{newId}'.",
+                    "Duplicate Successful",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to duplicate: {ex.Message}", "Duplicate Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(
+                    $"Failed to duplicate: {ex.Message}",
+                    "Duplicate Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
 
@@ -282,8 +313,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             if (item == null || App.Invoices == null) return;
 
             var confirm = MessageBox.Show(
-                $"Delete invoice '{item.ProformaId}' permanently?\n\nThis cannot be undone.",
-                "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                $"Delete invoice '{item.ProformaId}' permanently?\n\n" +
+                "This cannot be undone.",
+                "Confirm Delete",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
             if (confirm != MessageBoxResult.Yes) return;
 
             try
@@ -293,13 +327,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to delete: {ex.Message}", "Delete Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(
+                    $"Failed to delete: {ex.Message}",
+                    "Delete Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
 
-        private async Task ChangeStatusAsync(SavedInvoiceListItem item, string newStatus)
+        private async Task ChangeStatusAsync(
+            SavedInvoiceListItem item, string newStatus)
         {
-            if (item == null || string.IsNullOrWhiteSpace(newStatus) || App.Invoices == null) return;
+            if (item == null
+                || string.IsNullOrWhiteSpace(newStatus)
+                || App.Invoices == null) return;
 
             try
             {
@@ -312,13 +353,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to change status: {ex.Message}", "Status Change Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(
+                    $"Failed to change status: {ex.Message}",
+                    "Status Change Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  PHASE 9.5b — Export PDF/Excel from saved list via SHARED ENGINE
-        //  Uses snapshot-based path (gotcha #7: no wizard VMs needed)
+        //  PHASE 9.5b — Export from saved list via SHARED ENGINE
+        //  Snapshot-based path — no wizard VMs needed (gotcha #7)
         // ══════════════════════════════════════════════════════════════════
 
         private async Task ExportPdfFromListAsync(SavedInvoiceListItem item)
@@ -331,7 +376,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 if (entity == null) return;
 
                 var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
-
                 var layout = new ProformaInvoicePdfLayout(entity, snapshot);
                 var engine = new PdfExportEngine();
                 var request = new ExportRequest
@@ -368,7 +412,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 if (entity == null) return;
 
                 var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
-
                 var layout = new ProformaInvoiceExcelLayout(entity, snapshot);
                 var engine = new ExcelExportEngine();
                 var request = new ExportRequest
@@ -393,134 +436,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
-        }
-
-        /// <summary>
-        /// LEGACY — BuildExportContextFromSnapshot is retained for backward
-        /// compatibility during strangler pattern Round 1. It is no longer
-        /// called by any active code path. Will be deleted in Round 2 after
-        /// confirming no remaining references.
-        /// </summary>
-        private static Services.ProformaInvoice.PdfExport.PdfExportContext
-            BuildExportContextFromSnapshot(
-                ProformaInvoiceSnapshot snapshot,
-                SavedProformaInvoice entity)
-        {
-            var ctx = new Services.ProformaInvoice.PdfExport.PdfExportContext
-            {
-                CompanyName = snapshot.Company?.CompanyName ?? "",
-                CompanyTrn = snapshot.Company?.CompanyTrn ?? "",
-                CompanyLocation = snapshot.Company?.CompanyLocation ?? "",
-                ProformaId = snapshot.Company?.ProformaId ?? entity.ProformaId,
-                IssueDate = snapshot.Company?.IssueDate.ToString("yyyy-MM-dd") ?? "",
-                ValidUntil = snapshot.Company?.ValidUntil.ToString("yyyy-MM-dd") ?? "",
-                ProformaStatus = snapshot.Company?.ProformaStatus ?? entity.Status,
-                CustomerName = snapshot.Client?.CustomerName ?? entity.CustomerName,
-                CustomerTrn = snapshot.Client?.CustomerTrn ?? "",
-                AttentionName = snapshot.Client?.AttentionExecutiveName ?? "",
-                ContactPhone = snapshot.Client?.ClientContactPhone ?? "",
-                BillingAddress = snapshot.Client?.BillingAddress ?? "",
-                CustomerReference = snapshot.Client?.CustomerReferenceCode ?? "",
-                SalesRepresentative = snapshot.Client?.SalesRepresentative ?? "",
-                ProjectName = snapshot.Project?.ProjectIdentifierName ?? entity.ProjectName,
-                ProjectContractNo = snapshot.Project?.ProjectContractNo ?? "",
-                SiteDelivery = snapshot.Project?.SiteDeliveryLocation ?? "",
-                LpoNumber = snapshot.Project?.LpoNumber ?? "",
-                GlassMaterialsTotal = entity.GlassMaterialsSubtotal,
-                OtherChargesTotal = entity.OtherChargesSubtotal,
-                NetSubtotal = entity.GlassMaterialsSubtotal + entity.OtherChargesSubtotal - entity.DiscountAmount,
-                DiscountAmount = entity.DiscountAmount,
-                IsVatApplicable = entity.VatAmount > 0,
-                VatPercent = entity.VatAmount > 0 && (entity.GlassMaterialsSubtotal + entity.OtherChargesSubtotal - entity.DiscountAmount) > 0
-                    ? Math.Round(entity.VatAmount / (entity.GlassMaterialsSubtotal + entity.OtherChargesSubtotal - entity.DiscountAmount) * 100, 2)
-                    : 0m,
-                VatAmount = entity.VatAmount,
-                GrandTotal = entity.GrandTotalVatInclusive,
-                FooterDisclaimer = snapshot.PreparedBy?.FooterDisclaimer ?? "Confidential Document generated automatically by ProGlass Automation ERP platform.",
-                TermsText = snapshot.PreparedBy?.TermsText ?? "",
-                PreparedByName = snapshot.PreparedBy?.PreparedByName ?? "",
-                PreparedByDept = snapshot.PreparedBy?.PreparedByDept ?? "",
-                PreparedByStatus = snapshot.PreparedBy?.PreparedByStatus ?? ""
-            };
-
-            if (snapshot.SpecGroups != null)
-            {
-                foreach (var g in snapshot.SpecGroups)
-                {
-                    var pdfGroup = new Services.ProformaInvoice.PdfExport.PdfSpecGroup
-                    {
-                        GroupNumber = g.GroupNumber,
-                        GroupName = !string.IsNullOrWhiteSpace(g.SelectedSpecName)
-                            ? g.SelectedSpecName
-                            : (g.GroupName ?? $"Spec Group {g.GroupNumber}")
-                    };
-
-                    if (g.ItemRows != null)
-                    {
-                        foreach (var r in g.ItemRows)
-                        {
-                            decimal area = Math.Max(Math.Round((decimal)r.W1 * r.H1 / 1_000_000m, 3), 0.5m);
-                            decimal totalArea = Math.Round(area * r.Qty, 3);
-                            decimal value = Math.Round(totalArea * r.Rate, 2);
-
-                            pdfGroup.Rows.Add(new Services.ProformaInvoice.PdfExport.PdfGlassRow
-                            {
-                                Serial = r.SerialNumber,
-                                GlassRef = r.GlassRef ?? "",
-                                W1 = r.W1,
-                                H1 = r.H1,
-                                W2 = r.W2,
-                                H2 = r.H2,
-                                SizeW1H1 = $"{r.W1}×{r.H1}",
-                                SizeW2H2 = $"{r.W2}×{r.H2}",
-                                Qty = r.Qty,
-                                Area = totalArea,
-                                Rate = r.Rate,
-                                Total = value
-                            });
-
-                            pdfGroup.TotalQty += r.Qty;
-                            pdfGroup.TotalSqm += totalArea;
-                            pdfGroup.TotalValue += value;
-                        }
-                    }
-
-                    ctx.SpecGroups.Add(pdfGroup);
-                }
-            }
-
-            if (snapshot.OtherCharges?.PredefinedCharges != null)
-            {
-                foreach (var c in snapshot.OtherCharges.PredefinedCharges.Where(c => c.IsActive))
-                {
-                    ctx.OtherCharges.Add(new Services.ProformaInvoice.PdfExport.PdfChargeLine
-                    {
-                        Name = c.TemplateKey ?? "",
-                        QtyLabel = "",
-                        RateLabel = $"Rate: AED {c.Rate:N2}",
-                        Amount = 0
-                    });
-                }
-            }
-
-            if (snapshot.TermClauses != null)
-            {
-                foreach (var c in snapshot.TermClauses.Where(c => c.IsActive))
-                {
-                    var clause = new Services.ProformaInvoice.PdfExport.PdfTermClause
-                    {
-                        Order = c.Order,
-                        Title = c.Title ?? "",
-                        Body = c.Body ?? ""
-                    };
-                    if (c.SubLines != null)
-                        foreach (var l in c.SubLines)
-                            clause.SubLines.Add(l);
-                    ctx.TermClauses.Add(clause);
-                }
-            }
-
-            return ctx;
         }
     }
 }
