@@ -3,6 +3,7 @@ using ProGlassAutomation.Services.AI.AIConnectivity;
 using ProGlassAutomation.Services.AI.AIService;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Database.DatabaseBackup;
+using ProGlassAutomation.Services.DeliveryNote.Repository;
 using ProGlassAutomation.Services.JobOrder.Repository;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
@@ -29,6 +30,9 @@ namespace ProGlassAutomation
         // Job Order — saved job orders (separate SQLite: joborders.db) — Phase 9
         public static IJobOrderRepository Jobs { get; private set; }
 
+        // Delivery Notes — saved delivery notes (separate SQLite: deliverynotes.db) — Phase 10
+        public static IDeliveryNoteRepository DeliveryNotes { get; private set; }
+
         private async void Application_Startup(object sender, StartupEventArgs e)
         {
             // ══════════════════════════════════════════════════════════════
@@ -49,7 +53,8 @@ namespace ProGlassAutomation
                 if (stack.Length > 600) stack = stack.Substring(0, 600) + "...";
                 msg += $"\n\nStack:\n{stack}";
 
-                MessageBox.Show(msg, "App Crash — Debug", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(msg, "App Crash — Debug",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
                 args.Handled = true;
             };
 
@@ -71,19 +76,23 @@ namespace ProGlassAutomation
             Jobs = new JobOrderRepository();
             await Jobs.InitializeAsync();
 
-            // 6) Initialize AI + Connectivity services
+            // 6) Phase 10 — Initialize Delivery Notes database (deliverynotes.db)
+            DeliveryNotes = new DeliveryNoteRepository();
+            await DeliveryNotes.InitializeAsync();
+
+            // 7) Initialize AI + Connectivity services
             Ai = new GeminiAiService(Config.Ai);
             Connectivity = new ConnectivityService();
             Connectivity.StartMonitoring();
 
-            // 7) Show splash
+            // 8) Show splash
             var splash = new SplashView();
             splash.Show();
 
-            // 8) Loading time for splash animations
+            // 9) Loading time for splash animations
             await Task.Delay(2800);
 
-            // 9) Create main window (not shown yet)
+            // 10) Create main window (not shown yet)
             var mainWindow = new MainWindow();
 
             // ══════════════════════════════════════════════════════════════
