@@ -15,7 +15,8 @@ namespace ProGlassAutomation.Services.Export.Pdf
     ///
     /// Responsibilities:
     /// - QuestPDF page setup (size, orientation, margins)
-    /// - Renders shared letterhead + footer on every page
+    /// - Renders shared letterhead on PAGE 1 ONLY (Phase 9.5a-r4)
+    /// - Renders shared footer on EVERY page with DocumentId + page X of Y
     /// - Delegates body rendering to layout.RenderContent()
     /// - Shows SaveFileDialog when requested
     /// - Writes bytes to disk
@@ -24,6 +25,12 @@ namespace ProGlassAutomation.Services.Export.Pdf
     ///
     /// Modules never call QuestPDF directly for page setup — only for
     /// content rendering inside RenderContent.
+    ///
+    /// Phase 9.5a-r4: Letterhead now uses .ShowOnce() so it appears only
+    /// on page 1. Continuation pages get more vertical space for actual
+    /// content, and self-identify via the DocumentId in the footer.
+    /// This behavior applies automatically to every module — no per-layout
+    /// opt-in needed.
     /// </summary>
     public class PdfExportEngine
     {
@@ -67,6 +74,7 @@ namespace ProGlassAutomation.Services.Export.Pdf
             try
             {
                 var pageLayout = layout.PageLayout ?? PageLayout.A4Portrait;
+                string documentId = layout.DocumentId ?? string.Empty;
 
                 var document = Document.Create(container =>
                 {
@@ -80,10 +88,10 @@ namespace ProGlassAutomation.Services.Export.Pdf
                             .FontSize(DocumentStyle.FontSizeBody)
                             .FontColor(DocumentStyle.ColorText));
 
-                        // Header (letterhead)
+                        // Header (letterhead) — PAGE 1 ONLY via ShowOnce()
                         if (layout.Letterhead != null)
                         {
-                            page.Header().Element(h =>
+                            page.Header().ShowOnce().Element(h =>
                                 LetterheadRenderer.Render(h, layout.Letterhead));
                         }
 
@@ -94,8 +102,10 @@ namespace ProGlassAutomation.Services.Export.Pdf
                             layout.RenderContent(col);
                         });
 
-                        // Footer (shared page number + printed-at)
-                        page.Footer().Element(FooterRenderer.Render);
+                        // Footer (every page) — passes DocumentId so
+                        // continuation pages self-identify
+                        page.Footer().Element(f =>
+                            FooterRenderer.Render(f, documentId));
                     });
                 });
 
