@@ -30,6 +30,7 @@
             <conv:ScaleConverter                    x:Key="ScaleConverter"/>
             <conv:InverseBoolToVisibilityConverter  x:Key="InverseBoolToVisibilityConverter"/>
             <conv:BrushKeyConverter                 x:Key="BrushKeyConverter"/>
+            <conv:PercentToWidthConverter           x:Key="PercentToWidthConverter"/>
 
         </ResourceDictionary>
     </Application.Resources>
