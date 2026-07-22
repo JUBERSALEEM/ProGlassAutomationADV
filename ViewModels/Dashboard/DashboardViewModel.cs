@@ -1,4 +1,5 @@
 ﻿using ProGlassAutomation.Commands;
+using ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard;
 using System;
 using System.Collections.Generic;
 using System.Windows.Input;
@@ -34,6 +35,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         public OverviewDashboardViewModel OverviewVM { get; }
         public SheetStoreDashboardViewModel SheetStoreVM { get; }
         public PiDashboardViewModel ProformaVM { get; }
+        public JoDashboardViewModel JobOrderVM { get; }
 
         // ── commands ──────────────────────────────────────────────────────
         public ICommand SelectTabCommand { get; }
@@ -63,12 +65,14 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             OverviewVM = new OverviewDashboardViewModel();
             SheetStoreVM = new SheetStoreDashboardViewModel();
             ProformaVM = new PiDashboardViewModel();
+            JobOrderVM = new JoDashboardViewModel();
 
             Pages = new List<DashboardPageBase>
             {
                 OverviewVM,
                 SheetStoreVM,
-                ProformaVM
+                ProformaVM,
+                JobOrderVM
             };
 
             SelectTabCommand = new RelayCommand(p =>

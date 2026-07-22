@@ -23,11 +23,13 @@
         </Style>
 
         <!-- tinted KPI card — TintColor is a theme brush key -->
+        <!-- Phase 9.4b: added visible border for definition -->
         <Style x:Key="TintedCardStyle" TargetType="Border">
             <Setter Property="Background"
                     Value="{Binding TintColor,
                             Converter={StaticResource BrushKeyConverter}}"/>
-            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
             <Setter Property="CornerRadius"    Value="16"/>
             <Setter Property="Padding"         Value="22"/>
             <Setter Property="Margin"          Value="8"/>
@@ -137,12 +139,66 @@
             </Setter>
         </Style>
 
+        <!-- ═══════════ KPI DATA TEMPLATE (shared by KpiCards + ProductionCards) ═══════════ -->
+        <DataTemplate x:Key="KpiTemplate">
+            <Border Style="{StaticResource TintedCardStyle}">
+                <StackPanel>
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="42" Height="42" CornerRadius="11"
+                                Background="{Binding BadgeColor,
+                                             Converter={StaticResource BrushKeyConverter}}"
+                                HorizontalAlignment="Left">
+                            <TextBlock Text="{Binding Icon}"
+                                       FontSize="20"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="{Binding Title}"
+                                   FontSize="13" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   VerticalAlignment="Center"
+                                   Margin="12,0,0,0"/>
+                    </StackPanel>
+                    <TextBlock Text="{Binding DisplayValue}"
+                               FontSize="28" FontWeight="Bold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                               Margin="0,14,0,0"/>
+                    <TextBlock Text="{Binding SubLabel}"
+                               FontSize="11" Margin="0,6,0,0"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               TextWrapping="Wrap"/>
+
+                    <!-- Optional sparkline -->
+                    <spark:SparklineControl Height="34"
+                                            Margin="0,12,0,0"
+                                            Values="{Binding SparklineValues}"
+                                            LineBrush="{Binding BadgeColor,
+                                                        Converter={StaticResource BrushKeyConverter}}"
+                                            AreaBrush="{Binding BadgeColor,
+                                                        Converter={StaticResource BrushKeyConverter}}"
+                                            LineThickness="2"
+                                            ShowArea="True">
+                        <spark:SparklineControl.Style>
+                            <Style TargetType="spark:SparklineControl">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SparklineValues}" Value="">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </spark:SparklineControl.Style>
+                    </spark:SparklineControl>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
         <!-- ═══════════ ACTIVITY FEED ROW ═══════════ -->
         <DataTemplate x:Key="ActivityTemplate">
             <Border Padding="14,12" Margin="0,0,0,8"
                     Background="{Binding TintColor,
                                  Converter={StaticResource BrushKeyConverter}}"
-                    BorderBrush="Transparent"
+                    BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="1"
                     CornerRadius="12">
                 <Border.Style>
@@ -279,70 +335,54 @@
 
                 <!-- 3 secondary cards -->
                 <ItemsControl Grid.Column="1" Grid.ColumnSpan="3"
-                              ItemsSource="{Binding KpiCards}">
+                              ItemsSource="{Binding KpiCards}"
+                              ItemTemplate="{StaticResource KpiTemplate}">
                     <ItemsControl.ItemsPanel>
                         <ItemsPanelTemplate>
                             <UniformGrid Rows="1" Columns="3"/>
                         </ItemsPanelTemplate>
                     </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Style="{StaticResource TintedCardStyle}">
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <Border Width="42" Height="42" CornerRadius="11"
-                                                Background="{Binding BadgeColor,
-                                                             Converter={StaticResource BrushKeyConverter}}"
-                                                HorizontalAlignment="Left">
-                                            <TextBlock Text="{Binding Icon}"
-                                                       FontSize="20"
-                                                       HorizontalAlignment="Center"
-                                                       VerticalAlignment="Center"/>
-                                        </Border>
-                                        <TextBlock Text="{Binding Title}"
-                                                   FontSize="13" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   VerticalAlignment="Center"
-                                                   Margin="12,0,0,0"/>
-                                    </StackPanel>
-                                    <TextBlock Text="{Binding DisplayValue}"
-                                               FontSize="28" FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                               Margin="0,14,0,0"/>
-                                    <TextBlock Text="{Binding SubLabel}"
-                                               FontSize="11" Margin="0,6,0,0"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               TextWrapping="Wrap"/>
-
-                                    <!-- Phase 8.3 — Optional sparkline
-                                         Renders only when SparklineValues is non-empty.
-                                         Uses badge color to match card's semantic accent. -->
-                                    <spark:SparklineControl x:Name="Spark"
-                                                            Height="34"
-                                                            Margin="0,12,0,0"
-                                                            Values="{Binding SparklineValues}"
-                                                            LineBrush="{Binding BadgeColor,
-                                                                        Converter={StaticResource BrushKeyConverter}}"
-                                                            AreaBrush="{Binding BadgeColor,
-                                                                        Converter={StaticResource BrushKeyConverter}}"
-                                                            LineThickness="2"
-                                                            ShowArea="True">
-                                        <spark:SparklineControl.Style>
-                                            <Style TargetType="spark:SparklineControl">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding SparklineValues}" Value="">
-                                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </spark:SparklineControl.Style>
-                                    </spark:SparklineControl>
-                                </StackPanel>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
                 </ItemsControl>
+            </Grid>
+
+            <!-- ══ PRODUCTION SNAPSHOT (Phase 9.4a) ══════════════════════ -->
+            <TextBlock Text="Production Snapshot"
+                       Style="{StaticResource SectionTitle}"
+                       Margin="8,28,8,4"/>
+            <TextBlock Text="Job Order activity across the factory floor"
+                       Style="{StaticResource SectionSubtitle}"/>
+
+            <Grid>
+                <!-- Has Job Orders -->
+                <ItemsControl ItemsSource="{Binding ProductionCards}"
+                              ItemTemplate="{StaticResource KpiTemplate}"
+                              Visibility="{Binding HasJobOrders,
+                                           Converter={StaticResource BoolToVisibilityConverter}}">
+                    <ItemsControl.ItemsPanel>
+                        <ItemsPanelTemplate>
+                            <UniformGrid Rows="1" Columns="3"/>
+                        </ItemsPanelTemplate>
+                    </ItemsControl.ItemsPanel>
+                </ItemsControl>
+
+                <!-- Empty state -->
+                <Border Style="{StaticResource CardStyle}"
+                        Visibility="{Binding HasJobOrders,
+                                     Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                    <StackPanel HorizontalAlignment="Center" Margin="0,20">
+                        <TextBlock Text="🏭" FontSize="42"
+                                   HorizontalAlignment="Center" Opacity="0.4"/>
+                        <TextBlock Text="No job orders yet"
+                                   FontSize="15" FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,10,0,4"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                        <TextBlock Text="Convert a Proforma Invoice to a Job Order to see production stats here."
+                                   FontSize="12" HorizontalAlignment="Center"
+                                   TextAlignment="Center"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                    </StackPanel>
+                </Border>
             </Grid>
 
             <!-- ── MONTHLY SALES CHART ────────────────────────────────── -->
@@ -447,7 +487,7 @@
             <TextBlock Text="Recent Activity"
                        Style="{StaticResource SectionTitle}"
                        Margin="8,28,8,4"/>
-            <TextBlock Text="Latest actions across invoices and sheet store"
+            <TextBlock Text="Latest actions across invoices, sheet store, and job orders"
                        Style="{StaticResource SectionSubtitle}"/>
 
             <Border Style="{StaticResource CardStyle}" Padding="16">
@@ -468,7 +508,7 @@
                                    HorizontalAlignment="Center"
                                    Margin="0,12,0,4"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock Text="Activity from invoices and sheet store will appear here."
+                        <TextBlock Text="Activity from invoices, sheet store, and job orders will appear here."
                                    FontSize="12" HorizontalAlignment="Center"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     </StackPanel>

@@ -2,9 +2,11 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:ProGlassAutomation.ViewModels.Dashboard"
+             xmlns:vmJo="clr-namespace:ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard"
              xmlns:ov="clr-namespace:ProGlassAutomation.Views.Dashboard.Overview"
              xmlns:ss="clr-namespace:ProGlassAutomation.Views.Dashboard.SheetStore"
              xmlns:pi="clr-namespace:ProGlassAutomation.Views.Dashboard.ProformaInvoice"
+             xmlns:jo="clr-namespace:ProGlassAutomation.Views.Dashboard.JobOrder.JoDashboard"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -22,6 +24,9 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type vm:PiDashboardViewModel}">
             <pi:PiDashboardView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmJo:JoDashboardViewModel}">
+            <jo:JoDashboardView/>
         </DataTemplate>
 
         <Style x:Key="TabButtonStyle" TargetType="Button">

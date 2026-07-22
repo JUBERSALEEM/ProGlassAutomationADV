@@ -4,6 +4,7 @@ using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.SheetStore;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
@@ -18,19 +19,20 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     /// Hero    : Total Sales — bound to TotalSalesDisplay (Phase 8.2a).
     /// Actions : Quick action buttons (New Invoice, Saved Invoices, View Stock, Export).
     /// Chart   : Monthly Sales vertical bar chart — last 6 months.
-    /// Feed    : Recent Activity — last 10 events merged from invoices + sheet history.
-    /// Phase 8.2a: Cards + rows now use TintColor for subtle tinted backgrounds.
-    /// Phase 8.2e: Card BadgeColor/TintColor and activity StatusColor/TintColor
-    ///             now hold theme brush KEY names for automatic theme adaptation.
-    /// Phase 8.2f: Overrides OnThemeChanged() to force re-notify observable
-    ///             collections so WPF rebuilds card templates on theme swap.
-    /// Phase 8.3 : Adds SparklineValues on Total Invoices card + hero trend
-    ///             badge properties for the reusable GradientHeroCard control.
+    /// Feed    : Recent Activity — last 10 events merged from invoices + sheet history + job orders.
+    /// Phase 9.4a: Production Snapshot section adds 3 Job Order mini-cards
+    ///             (In Production, Overdue, Completed This Month).
+    ///             Recent Activity now merges job order creation events too.
     /// </summary>
     public class OverviewDashboardViewModel : DashboardPageBase
     {
         public override string TabTitle => "Overview";
         public override string TabIcon => "🏠";
+
+        // ── Job Order status constants (mirrors SavedJobOrder.Status storage) ─
+        private const string JobStatusInProduction = "InProduction";
+        private const string JobStatusCompleted = "Completed";
+        private const string JobStatusDelivered = "Delivered";
 
         // ── navigation callbacks (wired by DashboardViewModel via MainViewModel) ──
         public Action<string>? NavigateTo { get; set; }
@@ -50,6 +52,21 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             private set { if (_kpiCards == value) return; _kpiCards = value; OnPropertyChanged(); }
         }
 
+        // ── Production snapshot cards (Phase 9.4a — 3 Job Order mini KPIs) ──
+        private ObservableCollection<KpiCardModel> _productionCards = new();
+        public ObservableCollection<KpiCardModel> ProductionCards
+        {
+            get => _productionCards;
+            private set { if (_productionCards == value) return; _productionCards = value; OnPropertyChanged(); }
+        }
+
+        private bool _hasJobOrders;
+        public bool HasJobOrders
+        {
+            get => _hasJobOrders;
+            private set { if (_hasJobOrders == value) return; _hasJobOrders = value; OnPropertyChanged(); }
+        }
+
         // ── hero card ─────────────────────────────────────────────────────
         private string _totalSalesDisplay = "AED 0";
         public string TotalSalesDisplay
@@ -62,8 +79,6 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 OnPropertyChanged();
             }
         }
-
-        // Phase 8.3 — Hero card additional properties (consumed by GradientHeroCard)
 
         private string _heroSubtitle = "VAT inclusive · all time";
         public string HeroSubtitle
@@ -203,7 +218,59 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             decimal inventory = sheets.Sum(s => s.BalanceValue);
             int lowStock = sheets.Count(s => s.Balance <= 5);
 
-            // ── 3. Hero ───────────────────────────────────────────────────
+            // ── 3. Job Orders (Phase 9.4a) ───────────────────────────────
+            var jobs = await App.Jobs.GetAllAsync();
+            var today = DateTime.Today;
+            var firstOfMonth = new DateTime(today.Year, today.Month, 1);
+
+            int jobInProduction = jobs.Count(j => j.Status == JobStatusInProduction);
+            int jobOverdue = jobs.Count(j => j.DeliveryDate.HasValue
+                                              && j.DeliveryDate.Value.Date < today
+                                              && j.Status != JobStatusCompleted
+                                              && j.Status != JobStatusDelivered);
+            int jobCompletedMtd = jobs.Count(j => (j.Status == JobStatusCompleted
+                                                || j.Status == JobStatusDelivered)
+                                              && j.UpdatedAt >= firstOfMonth);
+
+            HasJobOrders = jobs.Count > 0;
+
+            ProductionCards = new ObservableCollection<KpiCardModel>
+            {
+                new KpiCardModel
+                {
+                    Icon         = "⚙️",
+                    Title        = "In Production",
+                    DisplayValue = jobInProduction.ToString("N0"),
+                    BadgeColor   = "WarningBrush",
+                    TintColor    = "TintAmberBrush",
+                    SubLabel     = jobInProduction > 0
+                                       ? "Active on factory floor"
+                                       : "No jobs in production"
+                },
+                new KpiCardModel
+                {
+                    Icon         = jobOverdue > 0 ? "⚠️" : "✅",
+                    Title        = "Overdue Jobs",
+                    DisplayValue = jobOverdue.ToString("N0"),
+                    BadgeColor   = jobOverdue > 0 ? "DangerBrush" : "SuccessBrush",
+                    TintColor    = jobOverdue > 0 ? "TintRedBrush" : "TintGreenBrush",
+                    SubLabel     = jobOverdue > 0
+                                       ? $"{jobOverdue} past delivery date"
+                                       : "All jobs on schedule",
+                    IsAlert      = jobOverdue > 0
+                },
+                new KpiCardModel
+                {
+                    Icon         = "✅",
+                    Title        = "Completed This Month",
+                    DisplayValue = jobCompletedMtd.ToString("N0"),
+                    BadgeColor   = "SuccessBrush",
+                    TintColor    = "TintGreenBrush",
+                    SubLabel     = $"Since {firstOfMonth:dd MMM yyyy}"
+                }
+            };
+
+            // ── 4. Hero ───────────────────────────────────────────────────
             TotalSalesDisplay = $"AED {totalSales:N0}";
             HeroSubtitle = "VAT inclusive · all time";
             HeroTrendText = totalInvoices > 0
@@ -213,10 +280,10 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 ? Visibility.Visible
                 : Visibility.Collapsed;
 
-            // ── 4. Sparkline for Total Invoices — last 14 days count/day ──
+            // ── 5. Sparkline for Total Invoices — last 14 days count/day ──
             string invoicesSparkline = BuildInvoicesSparkline(invoices);
 
-            // ── 5. KPI cards (3 secondary — theme brush keys) ─────────────
+            // ── 6. KPI cards (3 secondary — theme brush keys) ─────────────
             KpiCards = new ObservableCollection<KpiCardModel>
             {
                 new KpiCardModel
@@ -252,7 +319,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 }
             };
 
-            // ── 6. Monthly sales chart (last 6 months) ────────────────────
+            // ── 7. Monthly sales chart (last 6 months) ────────────────────
             var now = DateTime.Now;
             var months = Enumerable.Range(0, 6)
                 .Select(i => now.AddMonths(-5 + i))
@@ -296,10 +363,10 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             ChartTitle = $"Monthly Sales — " +
                                $"{months.First():MMM yyyy} to {months.Last():MMM yyyy}";
 
-            // ── 7. Recent activity feed ───────────────────────────────────
-            var feedItems = new System.Collections.Generic.List<ActivityFeedItem>();
+            // ── 8. Recent activity feed ───────────────────────────────────
+            var feedItems = new List<ActivityFeedItem>();
 
-            // 7a. Invoice activity
+            // 8a. Invoice activity
             var invoiceActivity = invoices
                 .Select(i =>
                 {
@@ -324,7 +391,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
 
             feedItems.AddRange(invoiceActivity);
 
-            // 7b. Sheet store history
+            // 8b. Sheet store history
             try
             {
                 using var db = new AppDbContext();
@@ -359,6 +426,48 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 // sheet history unavailable — feed shows invoice activity only
             }
 
+            // 8c. Job Order activity (Phase 9.4a)
+            var jobActivity = jobs.Select(j =>
+            {
+                bool isOverdue = j.DeliveryDate.HasValue
+                              && j.DeliveryDate.Value.Date < today
+                              && j.Status != JobStatusCompleted
+                              && j.Status != JobStatusDelivered;
+
+                string statusLabel = isOverdue
+                    ? "OVERDUE"
+                    : (j.Status ?? "Draft").ToUpperInvariant();
+
+                string priorityIcon = j.Priority switch
+                {
+                    "High" => "🔴",
+                    "Medium" => "🟡",
+                    "Low" => "🟢",
+                    _ => "🏭"
+                };
+
+                return new ActivityFeedItem
+                {
+                    Icon = priorityIcon,
+                    Title = $"{j.JobOrderId}" +
+                                   $"{(string.IsNullOrWhiteSpace(j.CustomerName) ? "" : $"  ·  {j.CustomerName}")}",
+                    SubTitle = $"Job Order  ·  " +
+                                   (j.DeliveryDate.HasValue
+                                       ? $"Due {j.DeliveryDate.Value:dd MMM yyyy}"
+                                       : "No delivery date"),
+                    ValueDisplay = j.GrandTotalVatInclusive > 0
+                                       ? $"AED {j.GrandTotalVatInclusive:N0}"
+                                       : "—",
+                    StatusLabel = statusLabel,
+                    StatusColor = ResolveJobStatusColor(j.Status, isOverdue),
+                    TintColor = ResolveJobPriorityTint(j.Priority),
+                    ModuleTag = "JobOrder",
+                    SortDate = j.UpdatedAt
+                };
+            });
+
+            feedItems.AddRange(jobActivity);
+
             var merged = feedItems
                 .OrderByDescending(f => f.SortDate)
                 .Take(10)
@@ -370,27 +479,21 @@ namespace ProGlassAutomation.ViewModels.Dashboard
 
         // ═════════════════════════════════════════════════════════════════
         // PHASE 8.2f — THEME SWAP HANDLER
-        // Forces WPF to rebuild card + activity DataTemplates so the
-        // BrushKeyConverter re-resolves against the new theme brushes.
         // ═════════════════════════════════════════════════════════════════
 
         protected override void OnThemeChanged()
         {
-            // Rebuild observable collections with the same data — this
-            // triggers WPF to teardown+recreate the DataTemplates which
-            // in turn re-runs BrushKeyConverter against the new theme.
             KpiCards = new ObservableCollection<KpiCardModel>(_kpiCards);
+            ProductionCards = new ObservableCollection<KpiCardModel>(_productionCards);
             RecentActivity = new ObservableCollection<ActivityFeedItem>(_recentActivity);
         }
 
         // ══════════════════════════════════════════════════════════════════
         //  PHASE 8.3 — Sparkline builder
-        //  Groups invoices by day for the last 14 days and returns a
-        //  comma-separated string of counts for SparklineControl.
         // ══════════════════════════════════════════════════════════════════
 
         private static string BuildInvoicesSparkline(
-            System.Collections.Generic.IEnumerable<Models.ProformaInvoice.SavedInvoice.SavedProformaInvoice> invoices)
+            IEnumerable<Models.ProformaInvoice.SavedInvoice.SavedProformaInvoice> invoices)
         {
             if (invoices == null) return "";
 
@@ -409,8 +512,6 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 return count;
             }).ToList();
 
-            // If all zeros, return empty (sparkline shows nothing) so we
-            // don't render a flat line.
             if (counts.All(c => c == 0)) return "";
 
             return string.Join(",", counts);
@@ -460,6 +561,29 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 "bought" => "TintBlueBrush",
                 "used" => "TintPurpleBrush",
                 _ => "TintGrayBrush"
+            };
+
+        private static string ResolveJobStatusColor(string? status, bool isOverdue)
+        {
+            if (isOverdue) return "DangerBrush";
+            return status switch
+            {
+                "Draft" => "NeutralBrush",
+                "Released" => "InfoBrush",
+                "InProduction" => "WarningBrush",
+                "Completed" => "SuccessBrush",
+                "Delivered" => "AccentBrush",
+                _ => "NeutralBrush"
+            };
+        }
+
+        private static string ResolveJobPriorityTint(string? priority) =>
+            priority switch
+            {
+                "High" => "TintRedBrush",
+                "Medium" => "TintAmberBrush",
+                "Low" => "TintGreenBrush",
+                _ => "TintIndigoBrush"
             };
 
         private static bool Eq(string? a, string b) =>

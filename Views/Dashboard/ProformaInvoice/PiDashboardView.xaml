@@ -20,9 +20,10 @@
 
         <Style x:Key="TintedCardStyle" TargetType="Border">
             <Setter Property="Background"
-                    Value="{Binding TintColor,
-                            Converter={StaticResource BrushKeyConverter}}"/>
-            <Setter Property="BorderThickness" Value="0"/>
+            Value="{Binding TintColor,
+                    Converter={StaticResource BrushKeyConverter}}"/>
+            <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
             <Setter Property="CornerRadius"    Value="16"/>
             <Setter Property="Padding"         Value="22"/>
             <Setter Property="Margin"          Value="8"/>
