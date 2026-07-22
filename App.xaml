@@ -6,7 +6,18 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <!-- ── Theme (must be first so styles can reference brushes) ── -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/LightTheme.xaml"/>
+
+                <!-- ── Shared style dictionaries (order matters for BasedOn chains) ── -->
+                <!-- Typography has no dependencies — load first -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/TypographyStyles.xaml"/>
+                <!-- Icon badges reference theme brushes only -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/IconBadgeStyles.xaml"/>
+                <!-- Pills reference theme brushes + typography -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/PillStyles.xaml"/>
+                <!-- Cards reference theme brushes + BrushKeyConverter (registered below) -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/CardStyles.xaml"/>
             </ResourceDictionary.MergedDictionaries>
 
             <!-- ── built-in converters ───────────────────────────────── -->

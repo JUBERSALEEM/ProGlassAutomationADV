@@ -1,6 +1,8 @@
 ﻿<UserControl x:Class="ProGlassAutomation.Views.Dashboard.Overview.OverviewDashboardView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:hero="clr-namespace:ProGlassAutomation.Controls.GradientHeroCard"
+             xmlns:spark="clr-namespace:ProGlassAutomation.Controls.Sparkline"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -262,54 +264,18 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- HERO CARD — Total Sales gradient -->
-                <Border Grid.Column="0" CornerRadius="16" Padding="24" Margin="8">
-                    <Border.Background>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                            <GradientStop Color="{Binding Source={StaticResource AccentDarkBrush}, Path=Color}" Offset="0"/>
-                            <GradientStop Color="{Binding Source={StaticResource AccentLightBrush}, Path=Color}" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Border.Background>
-                    <StackPanel>
-                        <StackPanel Orientation="Horizontal">
-                            <Border Width="46" Height="46" CornerRadius="12"
-                                    Background="{DynamicResource AccentLightBrush}"
-                                    HorizontalAlignment="Left">
-                                <TextBlock Text="💰" FontSize="22"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"/>
-                            </Border>
-                            <TextBlock Text="Total Sales"
-                                       FontSize="13" FontWeight="SemiBold"
-                                       Foreground="#A7F3D0"
-                                       VerticalAlignment="Center"
-                                       Margin="14,0,0,0"/>
-                        </StackPanel>
-                        <TextBlock Text="{Binding TotalSalesDisplay}"
-                                   FontSize="38" FontWeight="Bold"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                   Margin="0,16,0,0"/>
-                        <TextBlock Text="VAT inclusive · all time"
-                                   FontSize="12" Foreground="#86EFAC"
-                                   Margin="0,6,0,0"/>
-                        <Border Background="{DynamicResource AccentLightBrush}"
-                                CornerRadius="8"
-                                Padding="10,5" HorizontalAlignment="Left"
-                                Margin="0,14,0,0">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="↗" FontSize="12"
-                                           FontWeight="Bold"
-                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                           VerticalAlignment="Center"/>
-                                <TextBlock Text="Live data"
-                                           FontSize="11" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                           Margin="4,0,0,0"
-                                           VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Border>
-                    </StackPanel>
-                </Border>
+                <!-- HERO CARD — reusable GradientHeroCard control (Phase 8.3) -->
+                <hero:GradientHeroCard Grid.Column="0"
+                                       Icon="💰"
+                                       Value="{Binding TotalSalesDisplay}"
+                                       Label="Total Sales"
+                                       TrendArrow="↗"
+                                       TrendText="{Binding HeroTrendText}"
+                                       TrendVisibility="{Binding HeroTrendVisibility}"
+                                       GradientStartColor="#0F4C3A"
+                                       GradientEndColor="#22C55E"
+                                       Margin="8"
+                                       MinHeight="180"/>
 
                 <!-- 3 secondary cards -->
                 <ItemsControl Grid.Column="1" Grid.ColumnSpan="3"
@@ -347,6 +313,31 @@
                                                FontSize="11" Margin="0,6,0,0"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                TextWrapping="Wrap"/>
+
+                                    <!-- Phase 8.3 — Optional sparkline
+                                         Renders only when SparklineValues is non-empty.
+                                         Uses badge color to match card's semantic accent. -->
+                                    <spark:SparklineControl x:Name="Spark"
+                                                            Height="34"
+                                                            Margin="0,12,0,0"
+                                                            Values="{Binding SparklineValues}"
+                                                            LineBrush="{Binding BadgeColor,
+                                                                        Converter={StaticResource BrushKeyConverter}}"
+                                                            AreaBrush="{Binding BadgeColor,
+                                                                        Converter={StaticResource BrushKeyConverter}}"
+                                                            LineThickness="2"
+                                                            ShowArea="True">
+                                        <spark:SparklineControl.Style>
+                                            <Style TargetType="spark:SparklineControl">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding SparklineValues}" Value="">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </spark:SparklineControl.Style>
+                                    </spark:SparklineControl>
                                 </StackPanel>
                             </Border>
                         </DataTemplate>

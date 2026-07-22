@@ -10,6 +10,8 @@
     ///             strings, so cards adapt automatically to Light/Dark theme
     ///             swap via BrushKeyConverter. Backward-compat: hex strings
     ///             starting with '#' still resolve correctly.
+    /// Phase 8.3 : Added SparklineValues for optional mini-chart under
+    ///             the card value. Empty string = no sparkline shown.
     /// </summary>
     public class KpiCardModel
     {
@@ -48,5 +50,14 @@
 
         /// <summary>When true the card gets a red accent ring (used for alerts).</summary>
         public bool IsAlert { get; set; } = false;
+
+        /// <summary>
+        /// Phase 8.3 — Optional sparkline data as comma-separated numeric
+        /// string (e.g. "12,15,18,14,22,25,20").
+        /// Empty string = no sparkline rendered.
+        /// Consumed by SparklineControl in the card template.
+        /// Recommended: 7-14 data points for weekly/bi-weekly trends.
+        /// </summary>
+        public string SparklineValues { get; set; } = string.Empty;
     }
 }

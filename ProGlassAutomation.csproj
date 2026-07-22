@@ -32,4 +32,34 @@
 		<Resource Include="favicon.ico" />
 	</ItemGroup>
 
+	<!-- ═══════════════════════════════════════════════════════════
+	     Phase 8.3 — Explicit registration for Controls folder
+	     Ensures WPF designer sees the custom UserControls in the
+	     Controls/ subfolders. SDK-style auto-include usually handles
+	     this, but explicit entries prevent XDG0008 design-time errors
+	     in the XAML designer.
+	═══════════════════════════════════════════════════════════ -->
+	<ItemGroup>
+		<Page Update="Controls\**\*.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Controls\**\*.xaml.cs">
+			<DependentUpon>%(Filename)</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+	</ItemGroup>
+
+	<!-- Same treatment for Themes/Styles folder (ResourceDictionaries) -->
+	<ItemGroup>
+		<Page Update="Themes\Styles\**\*.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Themes\Styles\**\*.xaml.cs">
+			<DependentUpon>%(Filename)</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+	</ItemGroup>
+
 </Project>

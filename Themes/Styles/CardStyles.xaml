@@ -1,0 +1,204 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    x:Class="ProGlassAutomation.Themes.Styles.CardStyles">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         CARD STYLES — The primary building block of the UI. Every
+         module uses cards for grouping content.
+
+         Card hierarchy:
+           BaseCardStyle           — plain white card, 16px radius, subtle border
+           ElevatedCardStyle       — white card with soft shadow
+           TintedCardStyle         — colored tint background (from VM TintColor)
+           StatCardStyle           — compact KPI card
+           TaskCardStyle           — list row card (hover-highlighted)
+           PriorityCardStyle       — task card with left accent bar
+           GradientHeroCardStyle   — colored gradient hero card
+
+         All card styles use theme brushes so they adapt to Light/Dark.
+
+         Note: BrushKeyConverter is registered globally in App.xaml.
+         Do NOT register it locally here — causes "incompatible type"
+         resource conflict at design/runtime.
+    ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- Base card (foundation for everything else) -->
+    <Style x:Key="BaseCardStyle" TargetType="Border">
+        <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius"    Value="16"/>
+        <Setter Property="Padding"         Value="24"/>
+        <Setter Property="Margin"          Value="8"/>
+    </Style>
+
+    <!-- Elevated card — same as base but with soft green-tinted shadow -->
+    <Style x:Key="ElevatedCardStyle" TargetType="Border"
+           BasedOn="{StaticResource BaseCardStyle}">
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="24"
+                                  ShadowDepth="0"
+                                  Opacity="0.08"
+                                  Color="#0F4C3A"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Tinted card — background driven by VM's TintColor via BrushKeyConverter
+         (BrushKeyConverter is resolved from App.xaml globally).
+         Usage: <Border Style="{StaticResource TintedCardStyle}">
+                Requires DataContext with TintColor + optional IsAlert -->
+    <Style x:Key="TintedCardStyle" TargetType="Border">
+        <Setter Property="Background"
+                Value="{Binding TintColor,
+                        Converter={StaticResource BrushKeyConverter}}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="CornerRadius"    Value="16"/>
+        <Setter Property="Padding"         Value="22"/>
+        <Setter Property="Margin"          Value="8"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsAlert}" Value="True">
+                <Setter Property="BorderBrush"     Value="{DynamicResource DangerBrush}"/>
+                <Setter Property="BorderThickness" Value="2"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Stat card — compact KPI card, smaller padding, no shadow -->
+    <Style x:Key="StatCardStyle" TargetType="Border"
+           BasedOn="{StaticResource BaseCardStyle}">
+        <Setter Property="Padding" Value="18,16"/>
+        <Setter Property="Margin"  Value="6"/>
+    </Style>
+
+    <!-- Task card — used in vertical lists (like task screenshot #4)
+         Has hover state that highlights border in accent color -->
+    <Style x:Key="TaskCardStyle" TargetType="Border">
+        <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius"    Value="14"/>
+        <Setter Property="Padding"         Value="18,14"/>
+        <Setter Property="Margin"          Value="0,0,0,10"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                <Setter Property="Effect">
+                    <Setter.Value>
+                        <DropShadowEffect BlurRadius="16"
+                                          ShadowDepth="0"
+                                          Opacity="0.10"
+                                          Color="#0F4C3A"/>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Priority card — task card with 4px colored left accent bar
+         Border thick on left, thin on other sides.
+         DataContext expected to have PriorityColor (brush key string). -->
+    <Style x:Key="PriorityCardStyle" TargetType="Border"
+           BasedOn="{StaticResource TaskCardStyle}">
+        <Setter Property="BorderThickness" Value="4,1,1,1"/>
+        <Setter Property="BorderBrush"
+                Value="{Binding PriorityColor,
+                        Converter={StaticResource BrushKeyConverter}}"/>
+    </Style>
+
+    <!-- List row card — used in tables (like PI invoice list rows) -->
+    <Style x:Key="ListRowCardStyle" TargetType="Border">
+        <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius"    Value="12"/>
+        <Setter Property="Padding"         Value="16,12"/>
+        <Setter Property="Margin"          Value="0,0,0,6"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Colored gradient hero card — solid colored background for hero
+         section (like the purple/blue big cards in screenshot #3).
+         Provides the background wrapper — content goes inside. -->
+    <Style x:Key="HeroCardAccentStyle" TargetType="Border">
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Padding"      Value="24"/>
+        <Setter Property="Margin"       Value="8"/>
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="{Binding Source={StaticResource AccentDarkBrush},
+                                          Path=Color}" Offset="0"/>
+                    <GradientStop Color="{Binding Source={StaticResource AccentLightBrush},
+                                          Path=Color}" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Hero card with Info blue gradient (fintech-style) -->
+    <Style x:Key="HeroCardInfoStyle" TargetType="Border">
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Padding"      Value="24"/>
+        <Setter Property="Margin"       Value="8"/>
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#1E40AF" Offset="0"/>
+                    <GradientStop Color="#3B82F6" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Hero card with Warning amber gradient -->
+    <Style x:Key="HeroCardWarningStyle" TargetType="Border">
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Padding"      Value="24"/>
+        <Setter Property="Margin"       Value="8"/>
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#D97706" Offset="0"/>
+                    <GradientStop Color="#F59E0B" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Hero card with Danger red gradient -->
+    <Style x:Key="HeroCardDangerStyle" TargetType="Border">
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Padding"      Value="24"/>
+        <Setter Property="Margin"       Value="8"/>
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#B91C1C" Offset="0"/>
+                    <GradientStop Color="#EF4444" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Hero card with Purple gradient -->
+    <Style x:Key="HeroCardPurpleStyle" TargetType="Border">
+        <Setter Property="CornerRadius" Value="16"/>
+        <Setter Property="Padding"      Value="24"/>
+        <Setter Property="Margin"       Value="8"/>
+        <Setter Property="Background">
+            <Setter.Value>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="#6D28D9" Offset="0"/>
+                    <GradientStop Color="#8B5CF6" Offset="1"/>
+                </LinearGradientBrush>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>

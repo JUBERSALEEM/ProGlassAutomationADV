@@ -7,6 +7,7 @@ using System;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.Dashboard
@@ -23,6 +24,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     ///             now hold theme brush KEY names for automatic theme adaptation.
     /// Phase 8.2f: Overrides OnThemeChanged() to force re-notify observable
     ///             collections so WPF rebuilds card templates on theme swap.
+    /// Phase 8.3 : Adds SparklineValues on Total Invoices card + hero trend
+    ///             badge properties for the reusable GradientHeroCard control.
     /// </summary>
     public class OverviewDashboardViewModel : DashboardPageBase
     {
@@ -56,6 +59,44 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             {
                 if (_totalSalesDisplay == value) return;
                 _totalSalesDisplay = value;
+                OnPropertyChanged();
+            }
+        }
+
+        // Phase 8.3 — Hero card additional properties (consumed by GradientHeroCard)
+
+        private string _heroSubtitle = "VAT inclusive · all time";
+        public string HeroSubtitle
+        {
+            get => _heroSubtitle;
+            private set
+            {
+                if (_heroSubtitle == value) return;
+                _heroSubtitle = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _heroTrendText = "Live data";
+        public string HeroTrendText
+        {
+            get => _heroTrendText;
+            private set
+            {
+                if (_heroTrendText == value) return;
+                _heroTrendText = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private Visibility _heroTrendVisibility = Visibility.Visible;
+        public Visibility HeroTrendVisibility
+        {
+            get => _heroTrendVisibility;
+            private set
+            {
+                if (_heroTrendVisibility == value) return;
+                _heroTrendVisibility = value;
                 OnPropertyChanged();
             }
         }
@@ -164,8 +205,18 @@ namespace ProGlassAutomation.ViewModels.Dashboard
 
             // ── 3. Hero ───────────────────────────────────────────────────
             TotalSalesDisplay = $"AED {totalSales:N0}";
+            HeroSubtitle = "VAT inclusive · all time";
+            HeroTrendText = totalInvoices > 0
+                ? $"{totalInvoices} invoice{(totalInvoices == 1 ? "" : "s")}"
+                : "No data yet";
+            HeroTrendVisibility = totalInvoices > 0
+                ? Visibility.Visible
+                : Visibility.Collapsed;
 
-            // ── 4. KPI cards (3 secondary — theme brush keys) ─────────────
+            // ── 4. Sparkline for Total Invoices — last 14 days count/day ──
+            string invoicesSparkline = BuildInvoicesSparkline(invoices);
+
+            // ── 5. KPI cards (3 secondary — theme brush keys) ─────────────
             KpiCards = new ObservableCollection<KpiCardModel>
             {
                 new KpiCardModel
@@ -175,7 +226,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     DisplayValue = totalInvoices.ToString("N0"),
                     BadgeColor   = "AccentBrush",
                     TintColor    = "TintIndigoBrush",
-                    SubLabel     = $"Draft {draftCount}  ·  Sent {sentCount}  ·  Approved {approvedCount}"
+                    SubLabel     = $"Draft {draftCount}  ·  Sent {sentCount}  ·  Approved {approvedCount}",
+                    SparklineValues = invoicesSparkline
                 },
                 new KpiCardModel
                 {
@@ -200,7 +252,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 }
             };
 
-            // ── 5. Monthly sales chart (last 6 months) ────────────────────
+            // ── 6. Monthly sales chart (last 6 months) ────────────────────
             var now = DateTime.Now;
             var months = Enumerable.Range(0, 6)
                 .Select(i => now.AddMonths(-5 + i))
@@ -244,10 +296,10 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             ChartTitle = $"Monthly Sales — " +
                                $"{months.First():MMM yyyy} to {months.Last():MMM yyyy}";
 
-            // ── 6. Recent activity feed ───────────────────────────────────
+            // ── 7. Recent activity feed ───────────────────────────────────
             var feedItems = new System.Collections.Generic.List<ActivityFeedItem>();
 
-            // 6a. Invoice activity
+            // 7a. Invoice activity
             var invoiceActivity = invoices
                 .Select(i =>
                 {
@@ -272,7 +324,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
 
             feedItems.AddRange(invoiceActivity);
 
-            // 6b. Sheet store history
+            // 7b. Sheet store history
             try
             {
                 using var db = new AppDbContext();
@@ -329,6 +381,39 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             // in turn re-runs BrushKeyConverter against the new theme.
             KpiCards = new ObservableCollection<KpiCardModel>(_kpiCards);
             RecentActivity = new ObservableCollection<ActivityFeedItem>(_recentActivity);
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  PHASE 8.3 — Sparkline builder
+        //  Groups invoices by day for the last 14 days and returns a
+        //  comma-separated string of counts for SparklineControl.
+        // ══════════════════════════════════════════════════════════════════
+
+        private static string BuildInvoicesSparkline(
+            System.Collections.Generic.IEnumerable<Models.ProformaInvoice.SavedInvoice.SavedProformaInvoice> invoices)
+        {
+            if (invoices == null) return "";
+
+            var today = DateTime.Today;
+            var days = Enumerable.Range(0, 14)
+                .Select(i => today.AddDays(-13 + i))
+                .ToList();
+
+            var counts = days.Select(day =>
+            {
+                int count = invoices.Count(inv =>
+                {
+                    var d = inv.UpdatedAt != default ? inv.UpdatedAt.Date : inv.CreatedAt.Date;
+                    return d == day;
+                });
+                return count;
+            }).ToList();
+
+            // If all zeros, return empty (sparkline shows nothing) so we
+            // don't render a flat line.
+            if (counts.All(c => c == 0)) return "";
+
+            return string.Join(",", counts);
         }
 
         // ══════════════════════════════════════════════════════════════════
