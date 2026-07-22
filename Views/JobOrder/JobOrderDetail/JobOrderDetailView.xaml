@@ -1,0 +1,22 @@
+﻿<UserControl x:Class="ProGlassAutomation.Views.JobOrder.JobOrderDetail.JobOrderDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="Segoe UI">
+
+    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+        <StackPanel HorizontalAlignment="Center"
+                    VerticalAlignment="Center">
+            <TextBlock Text="📋" FontSize="48"
+                       HorizontalAlignment="Center" Opacity="0.4"/>
+            <TextBlock Text="Job Order Detail"
+                       FontSize="20" FontWeight="Bold"
+                       HorizontalAlignment="Center"
+                       Margin="0,12,0,4"
+                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+            <TextBlock Text="Full detail view coming in Session 3"
+                       FontSize="13"
+                       HorizontalAlignment="Center"
+                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+        </StackPanel>
+    </Grid>
+</UserControl>

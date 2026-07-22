@@ -1,0 +1,442 @@
+﻿<UserControl x:Class="ProGlassAutomation.Views.JobOrder.SavedJobOrdersList.SavedJobOrdersListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:hero="clr-namespace:ProGlassAutomation.Controls.GradientHeroCard"
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True"
+             Loaded="OnLoaded">
+
+    <UserControl.Resources>
+
+        <!-- Row card — priority colored left accent bar via brush key -->
+        <Style x:Key="JobRowCardStyle" TargetType="Border">
+            <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="BorderBrush"
+                    Value="{Binding PriorityBrushKey,
+                            Converter={StaticResource BrushKeyConverter}}"/>
+            <Setter Property="BorderThickness" Value="4,1,1,1"/>
+            <Setter Property="CornerRadius"    Value="14"/>
+            <Setter Property="Padding"         Value="18,14"/>
+            <Setter Property="Margin"          Value="0,0,0,10"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect BlurRadius="16"
+                                              ShadowDepth="0"
+                                              Opacity="0.10"
+                                              Color="#0F4C3A"/>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Open button accent pill -->
+        <Style x:Key="OpenButtonStyle" TargetType="Button">
+            <Setter Property="Background"      Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Foreground"      Value="{DynamicResource OnAccentForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding"         Value="16,6"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="FontSize"        Value="11"/>
+            <Setter Property="FontWeight"      Value="Bold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <TextBlock Text="OPEN"
+                                       FontSize="{TemplateBinding FontSize}"
+                                       FontWeight="{TemplateBinding FontWeight}"
+                                       Foreground="{TemplateBinding Foreground}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background"
+                                        Value="{DynamicResource AccentHoverBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="20,16,20,30">
+
+            <!-- ── PAGE HEADER ────────────────────────────────────────── -->
+            <StackPanel Margin="8,0,8,20">
+                <TextBlock Text="Job Orders"
+                           FontSize="30" FontWeight="Bold"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                <TextBlock Text="Track production status of approved invoices"
+                           FontSize="13" Margin="0,4,0,0"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+            </StackPanel>
+
+            <!-- ── LOADING / ERROR ────────────────────────────────────── -->
+            <Border Visibility="{Binding IsLoading,
+                                 Converter={StaticResource BoolToVisibilityConverter}}"
+                    Padding="12" Margin="8,0,8,12">
+                <TextBlock Text="⏳  Loading job orders…" FontSize="13"
+                           HorizontalAlignment="Center"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+            </Border>
+
+            <Border Visibility="{Binding HasError,
+                                 Converter={StaticResource BoolToVisibilityConverter}}"
+                    Background="{DynamicResource TintRedBrush}"
+                    CornerRadius="12"
+                    Padding="16" Margin="8,0,8,12">
+                <TextBlock Text="{Binding ErrorMessage}"
+                           Foreground="{DynamicResource DangerBrush}"
+                           FontSize="13" TextWrapping="Wrap"/>
+            </Border>
+
+            <!-- ── KPI CARDS (2 hero + 2 tinted) ──────────────────────── -->
+            <Grid Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Total Job Orders — Purple hero -->
+                <hero:GradientHeroCard Grid.Column="0"
+                                       Icon="📋"
+                                       Value="{Binding TotalCount}"
+                                       Label="Total Job Orders"
+                                       GradientStartColor="#6D28D9"
+                                       GradientEndColor="#8B5CF6"
+                                       Margin="8"
+                                       MinHeight="130"/>
+
+                <!-- In Production — Blue hero -->
+                <hero:GradientHeroCard Grid.Column="1"
+                                       Icon="🔨"
+                                       Value="{Binding InProductionCount}"
+                                       Label="In Production"
+                                       GradientStartColor="#1E40AF"
+                                       GradientEndColor="#3B82F6"
+                                       Margin="8"
+                                       MinHeight="130"/>
+
+                <!-- Completed — Green tinted -->
+                <Border Grid.Column="2"
+                        Background="{DynamicResource TintGreenBrush}"
+                        CornerRadius="16" Padding="22" Margin="8">
+                    <StackPanel>
+                        <Border Width="42" Height="42" CornerRadius="11"
+                                Background="{DynamicResource SuccessBrush}"
+                                HorizontalAlignment="Left">
+                            <TextBlock Text="✅" FontSize="20"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="{Binding CompletedCount}"
+                                   FontSize="28" FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   Margin="0,12,0,0"/>
+                        <TextBlock Text="Completed"
+                                   FontSize="12" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Overdue — Red tinted (alert) -->
+                <Border Grid.Column="3"
+                        CornerRadius="16" Padding="22" Margin="8">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Background" Value="{DynamicResource TintRedBrush}"/>
+                            <Setter Property="BorderThickness" Value="0"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding OverdueCount}" Value="0">
+                                    <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <StackPanel>
+                        <Border Width="42" Height="42" CornerRadius="11"
+                                HorizontalAlignment="Left">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding OverdueCount}" Value="0">
+                                            <Setter Property="Background" Value="{DynamicResource NeutralBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock Text="⚠️" FontSize="20"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="{Binding OverdueCount}"
+                                   FontSize="28" FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   Margin="0,12,0,0"/>
+                        <TextBlock Text="Overdue"
+                                   FontSize="12" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ── FILTER BAR ─────────────────────────────────────────── -->
+            <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="14"
+                    Padding="16,12"
+                    Margin="8,0,8,16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="1.5*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Search -->
+                    <TextBox Grid.Column="0"
+                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="12"
+                             Padding="10,8"
+                             Margin="0,0,8,0"
+                             VerticalContentAlignment="Center"/>
+
+                    <!-- Status filter -->
+                    <ComboBox Grid.Column="1"
+                              ItemsSource="{Binding StatusFilterOptions}"
+                              SelectedItem="{Binding SelectedStatusFilter}"
+                              FontSize="12"
+                              Margin="0,0,8,0"
+                              VerticalContentAlignment="Center"/>
+
+                    <!-- Priority filter -->
+                    <ComboBox Grid.Column="2"
+                              ItemsSource="{Binding PriorityFilterOptions}"
+                              SelectedItem="{Binding SelectedPriorityFilter}"
+                              FontSize="12"
+                              Margin="0,0,8,0"
+                              VerticalContentAlignment="Center"/>
+
+                    <!-- Sort -->
+                    <ComboBox Grid.Column="3"
+                              ItemsSource="{Binding SortOptions}"
+                              SelectedItem="{Binding SelectedSort}"
+                              FontSize="12"
+                              Margin="0,0,8,0"
+                              VerticalContentAlignment="Center"/>
+
+                    <!-- Clear -->
+                    <Button Grid.Column="4"
+                            Content="Clear"
+                            Command="{Binding ClearFiltersCommand}"
+                            FontSize="11" FontWeight="SemiBold"
+                            Padding="14,8"
+                            Margin="0,0,8,0"
+                            Cursor="Hand"
+                            Background="{DynamicResource MenuHoverBrush}"
+                            Foreground="{DynamicResource PrimaryForegroundBrush}"
+                            BorderThickness="0"/>
+
+                    <!-- Refresh -->
+                    <Button Grid.Column="5"
+                            Content="🔄"
+                            Command="{Binding RefreshCommand}"
+                            FontSize="14"
+                            Padding="10,6"
+                            Cursor="Hand"
+                            Background="{DynamicResource MenuHoverBrush}"
+                            Foreground="{DynamicResource PrimaryForegroundBrush}"
+                            BorderThickness="0"
+                            ToolTip="Refresh list"/>
+                </Grid>
+            </Border>
+
+            <!-- ── JOB ORDER ROWS ─────────────────────────────────────── -->
+            <ItemsControl ItemsSource="{Binding DisplayedJobs}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource JobRowCardStyle}"
+                                MouseRightButtonUp="OnRowRightClick">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Left: Job info -->
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                    <!-- Job order ID -->
+                                    <TextBlock Text="{Binding JobOrderId}"
+                                               FontSize="15" FontWeight="Bold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+
+                                    <!-- Customer + Date -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                        <TextBlock Text="🏢" FontSize="11" Margin="0,0,4,0"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding CustomerName}"
+                                                   FontSize="12"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Text="  ·  📅 " FontSize="11" Margin="6,0,0,0"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Text="{Binding DeliveryDisplay}"
+                                                   FontSize="12"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+
+                                    <!-- Tags row: project + source PI + overdue -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                        <!-- Project tag -->
+                                        <Border Background="{DynamicResource TintGrayBrush}"
+                                                BorderBrush="{DynamicResource BorderBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="12"
+                                                Padding="10,3"
+                                                Margin="0,0,6,0">
+                                            <TextBlock Text="{Binding ProjectName}"
+                                                       FontSize="10" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                        </Border>
+
+                                        <!-- Source PI tag -->
+                                        <Border Background="{DynamicResource TintBlueBrush}"
+                                                BorderBrush="{DynamicResource BorderBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="12"
+                                                Padding="10,3"
+                                                Margin="0,0,6,0">
+                                            <TextBlock FontSize="10" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                                <Run Text="From: "/>
+                                                <Run Text="{Binding SourceProformaId, Mode=OneWay}"/>
+                                            </TextBlock>
+                                        </Border>
+
+                                        <!-- Overdue warning (only visible when overdue) -->
+                                        <Border CornerRadius="12"
+                                                Padding="10,3"
+                                                Margin="0,0,6,0">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsOverdue}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock Text="{Binding OverdueDisplay}"
+                                                       FontSize="10" FontWeight="Bold"
+                                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                        </Border>
+                                    </StackPanel>
+                                </StackPanel>
+
+                                <!-- Grand total -->
+                                <TextBlock Grid.Column="1"
+                                           Text="{Binding GrandTotalDisplay}"
+                                           FontSize="14" FontWeight="Bold"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="16,0,16,0"/>
+
+                                <!-- Status pill -->
+                                <Border Grid.Column="2"
+                                        CornerRadius="10"
+                                        Padding="10,4"
+                                        VerticalAlignment="Center"
+                                        Margin="0,0,8,0"
+                                        Background="{Binding StatusBrushKey,
+                                                     Converter={StaticResource BrushKeyConverter}}">
+                                    <TextBlock Text="{Binding StatusLabel}"
+                                               FontSize="10" FontWeight="Bold"
+                                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                </Border>
+
+                                <!-- Priority pill -->
+                                <Border Grid.Column="3"
+                                        CornerRadius="10"
+                                        Padding="10,4"
+                                        VerticalAlignment="Center"
+                                        Margin="0,0,12,0"
+                                        Background="{Binding PriorityBrushKey,
+                                                     Converter={StaticResource BrushKeyConverter}}">
+                                    <TextBlock Text="{Binding PriorityLabel}"
+                                               FontSize="10" FontWeight="Bold"
+                                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                </Border>
+
+                                <!-- Open button -->
+                                <Button Grid.Column="4"
+                                        Style="{StaticResource OpenButtonStyle}"
+                                        Command="{Binding DataContext.OpenJobOrderCommand,
+                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                        CommandParameter="{Binding}"
+                                        VerticalAlignment="Center"/>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+
+            <!-- ── EMPTY STATE ────────────────────────────────────────── -->
+            <StackPanel HorizontalAlignment="Center" Margin="0,50">
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <MultiDataTrigger>
+                                <MultiDataTrigger.Conditions>
+                                    <Condition Binding="{Binding DisplayedJobs.Count}" Value="0"/>
+                                    <Condition Binding="{Binding IsLoading}" Value="False"/>
+                                </MultiDataTrigger.Conditions>
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </MultiDataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+                <TextBlock Text="📋" FontSize="48"
+                           HorizontalAlignment="Center" Opacity="0.4"/>
+                <TextBlock Text="No job orders yet"
+                           FontSize="16" FontWeight="SemiBold"
+                           HorizontalAlignment="Center"
+                           Margin="0,12,0,4"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                <TextBlock Text="Convert an approved Proforma Invoice to create your first job order."
+                           FontSize="12" HorizontalAlignment="Center"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+            </StackPanel>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

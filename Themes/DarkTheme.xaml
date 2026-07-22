@@ -1,5 +1,6 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:conv="clr-namespace:ProGlassAutomation.Converters">
 
     <!-- ═══════════════════════════════════════════════════════════════
          DARK THEME — Green accent (same brand, dark surfaces)
@@ -36,8 +37,6 @@
     <SolidColorBrush x:Key="NeutralBrush" Color="#94A3B8"/>
 
     <!-- ── Tinted card backgrounds (dark-mode tinted surfaces) ─────── -->
-    <!-- Rather than pastel light tints, use slightly-colored dark surfaces
-         so the "colored card" concept still reads without hurting eyes. -->
     <SolidColorBrush x:Key="TintIndigoBrush" Color="#252B48"/>
     <SolidColorBrush x:Key="TintGreenBrush"  Color="#1E3A2F"/>
     <SolidColorBrush x:Key="TintAmberBrush"  Color="#3B2F1E"/>
@@ -49,5 +48,10 @@
     <!-- ── Borders + dividers ──────────────────────────────────────── -->
     <SolidColorBrush x:Key="BorderBrush"  Color="#334155"/>
     <SolidColorBrush x:Key="DividerBrush" Color="#334155"/>
+
+    <!-- ── BrushKeyConverter (registered here so merged style dictionaries
+         can reference it via StaticResource during their load phase.
+         Must be in BOTH themes for seamless swap.) ─────────────────── -->
+    <conv:BrushKeyConverter x:Key="BrushKeyConverter"/>
 
 </ResourceDictionary>
