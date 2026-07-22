@@ -1,6 +1,10 @@
 ﻿using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
-using ProGlassAutomation.Services.ProformaInvoice.PdfExport;
+using ProGlassAutomation.Services.Export.Core;
+using ProGlassAutomation.Services.Export.Csv;
+using ProGlassAutomation.Services.Export.Excel;
+using ProGlassAutomation.Services.Export.Pdf;
+using ProGlassAutomation.Services.ProformaInvoice.Export;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.ViewModels;
 using System;
@@ -313,7 +317,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  PHASE 7.19 — Export PDF/Excel directly from the saved list
+        //  PHASE 9.5b — Export PDF/Excel from saved list via SHARED ENGINE
+        //  Uses snapshot-based path (gotcha #7: no wizard VMs needed)
         // ══════════════════════════════════════════════════════════════════
 
         private async Task ExportPdfFromListAsync(SavedInvoiceListItem item)
@@ -326,40 +331,30 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 if (entity == null) return;
 
                 var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
-                var ctx = BuildExportContextFromSnapshot(snapshot, entity);
 
-                string safeName = (item.ProformaId ?? "Invoice").Replace("/", "-").Replace("\\", "-").Replace(":", "-");
-                var dialog = new Microsoft.Win32.SaveFileDialog
+                var layout = new ProformaInvoicePdfLayout(entity, snapshot);
+                var engine = new PdfExportEngine();
+                var request = new ExportRequest
                 {
-                    Title = "Export PDF",
-                    Filter = "PDF Files (*.pdf)|*.pdf",
-                    FileName = $"{safeName}.pdf",
-                    InitialDirectory = System.IO.Path.Combine(
-                        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                        "ProGlassAutomation", "PDFs")
+                    PromptForLocation = true,
+                    OpenAfterSave = true
                 };
 
-                if (!System.IO.Directory.Exists(dialog.InitialDirectory))
-                    System.IO.Directory.CreateDirectory(dialog.InitialDirectory);
-
-                if (dialog.ShowDialog() != true) return;
-
-                var pdfService = new ProformaInvoicePdfService();
-                pdfService.GeneratePdf(ctx, dialog.FileName);
-
-                var result = MessageBox.Show(
-                    $"PDF exported successfully!\n\nFile: {dialog.FileName}\n\nOpen now?",
-                    "Export Complete", MessageBoxButton.YesNo, MessageBoxImage.Information);
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = dialog.FileName, UseShellExecute = true }); }
-                    catch { }
-                }
+                var result = await engine.ExportAsync(layout, request);
+                if (!result.Success && !result.Cancelled)
+                    MessageBox.Show(
+                        $"PDF export failed: {result.ErrorMessage}",
+                        "Export Failed",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"PDF export failed: {ex.Message}", "Export Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(
+                    $"PDF export failed: {ex.Message}",
+                    "Export Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
 
@@ -373,52 +368,45 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 if (entity == null) return;
 
                 var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
-                var ctx = BuildExportContextFromSnapshot(snapshot, entity);
 
-                string safeName = (item.ProformaId ?? "Invoice").Replace("/", "-").Replace("\\", "-").Replace(":", "-");
-                var dialog = new Microsoft.Win32.SaveFileDialog
+                var layout = new ProformaInvoiceExcelLayout(entity, snapshot);
+                var engine = new ExcelExportEngine();
+                var request = new ExportRequest
                 {
-                    Title = "Export Excel",
-                    Filter = "Excel Files (*.xlsx)|*.xlsx",
-                    FileName = $"{safeName}.xlsx",
-                    InitialDirectory = System.IO.Path.Combine(
-                        Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                        "ProGlassAutomation", "Exports")
+                    PromptForLocation = true,
+                    OpenAfterSave = true
                 };
 
-                if (!System.IO.Directory.Exists(dialog.InitialDirectory))
-                    System.IO.Directory.CreateDirectory(dialog.InitialDirectory);
-
-                if (dialog.ShowDialog() != true) return;
-
-                var service = new Services.ProformaInvoice.InvoiceExportImport.InvoiceExcelExportService();
-                service.ExportToExcel(ctx, dialog.FileName);
-
-                var result = MessageBox.Show(
-                    $"Excel exported successfully!\n\nFile: {dialog.FileName}\n\nOpen now?",
-                    "Export Complete", MessageBoxButton.YesNo, MessageBoxImage.Information);
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = dialog.FileName, UseShellExecute = true }); }
-                    catch { }
-                }
+                var result = await engine.ExportAsync(layout, request);
+                if (!result.Success && !result.Cancelled)
+                    MessageBox.Show(
+                        $"Excel export failed: {result.ErrorMessage}",
+                        "Export Failed",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Excel export failed: {ex.Message}", "Export Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(
+                    $"Excel export failed: {ex.Message}",
+                    "Export Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
 
         /// <summary>
-        /// Builds a PdfExportContext from a deserialized snapshot + entity.
-        /// Used for direct export from the list without loading the wizard.
+        /// LEGACY — BuildExportContextFromSnapshot is retained for backward
+        /// compatibility during strangler pattern Round 1. It is no longer
+        /// called by any active code path. Will be deleted in Round 2 after
+        /// confirming no remaining references.
         /// </summary>
-        private static PdfExportContext BuildExportContextFromSnapshot(
-            ProformaInvoiceSnapshot snapshot,
-            SavedProformaInvoice entity)
+        private static Services.ProformaInvoice.PdfExport.PdfExportContext
+            BuildExportContextFromSnapshot(
+                ProformaInvoiceSnapshot snapshot,
+                SavedProformaInvoice entity)
         {
-            var ctx = new PdfExportContext
+            var ctx = new Services.ProformaInvoice.PdfExport.PdfExportContext
             {
                 CompanyName = snapshot.Company?.CompanyName ?? "",
                 CompanyTrn = snapshot.Company?.CompanyTrn ?? "",
@@ -455,12 +443,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 PreparedByStatus = snapshot.PreparedBy?.PreparedByStatus ?? ""
             };
 
-            // Spec groups
             if (snapshot.SpecGroups != null)
             {
                 foreach (var g in snapshot.SpecGroups)
                 {
-                    var pdfGroup = new PdfSpecGroup
+                    var pdfGroup = new Services.ProformaInvoice.PdfExport.PdfSpecGroup
                     {
                         GroupNumber = g.GroupNumber,
                         GroupName = !string.IsNullOrWhiteSpace(g.SelectedSpecName)
@@ -474,12 +461,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                         {
                             decimal area = Math.Max(Math.Round((decimal)r.W1 * r.H1 / 1_000_000m, 3), 0.5m);
                             decimal totalArea = Math.Round(area * r.Qty, 3);
-                            decimal value = Math.Round(area * r.Qty * r.Rate, 2);
+                            decimal value = Math.Round(totalArea * r.Rate, 2);
 
-                            pdfGroup.Rows.Add(new PdfGlassRow
+                            pdfGroup.Rows.Add(new Services.ProformaInvoice.PdfExport.PdfGlassRow
                             {
                                 Serial = r.SerialNumber,
                                 GlassRef = r.GlassRef ?? "",
+                                W1 = r.W1,
+                                H1 = r.H1,
+                                W2 = r.W2,
+                                H2 = r.H2,
                                 SizeW1H1 = $"{r.W1}×{r.H1}",
                                 SizeW2H2 = $"{r.W2}×{r.H2}",
                                 Qty = r.Qty,
@@ -498,12 +489,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 }
             }
 
-            // Other charges
             if (snapshot.OtherCharges?.PredefinedCharges != null)
             {
                 foreach (var c in snapshot.OtherCharges.PredefinedCharges.Where(c => c.IsActive))
                 {
-                    ctx.OtherCharges.Add(new PdfChargeLine
+                    ctx.OtherCharges.Add(new Services.ProformaInvoice.PdfExport.PdfChargeLine
                     {
                         Name = c.TemplateKey ?? "",
                         QtyLabel = "",
@@ -513,12 +503,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 }
             }
 
-            // Terms
             if (snapshot.TermClauses != null)
             {
                 foreach (var c in snapshot.TermClauses.Where(c => c.IsActive))
                 {
-                    var clause = new PdfTermClause
+                    var clause = new Services.ProformaInvoice.PdfExport.PdfTermClause
                     {
                         Order = c.Order,
                         Title = c.Title ?? "",

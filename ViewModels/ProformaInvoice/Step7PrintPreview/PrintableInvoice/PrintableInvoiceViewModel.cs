@@ -2,6 +2,11 @@
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.CustomCharges;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages;
+using ProGlassAutomation.Services.Export.Core;
+using ProGlassAutomation.Services.Export.Csv;
+using ProGlassAutomation.Services.Export.Excel;
+using ProGlassAutomation.Services.Export.Pdf;
+using ProGlassAutomation.Services.ProformaInvoice.Export;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.ViewModels;
 using ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList;
@@ -40,10 +45,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
         // ══════════════════════════════════════════════════════════════════
         //  PHASE 7.16a — Prepared By fields auto-populate from wizard data
         //  but remain editable in the A4 preview for per-invoice overrides.
-        //
-        //  When the user has NOT manually edited a field (still null/empty),
-        //  the getter returns the source data from the wizard steps.
-        //  Once the user types anything, the local override kicks in.
         // ══════════════════════════════════════════════════════════════════
 
         private string _preparedByNameOverride;
@@ -125,15 +126,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             Terms = terms ?? throw new ArgumentNullException(nameof(terms));
 
             PrintCommand = new RelayCommand(_ => ExecutePrint());
-            ExportPdfCommand = new RelayCommand(_ => ExecuteExportPdf());
+            ExportPdfCommand = new RelayCommand(async _ => await ExecuteExportPdfAsync());
             SaveInvoiceCommand = new RelayCommand(_ => ExecuteSaveInvoice());
             LoadInvoiceCommand = new RelayCommand(_ => ExecuteLoadInvoice());
             SendEmailCommand = new RelayCommand(_ => ShowComingSoon("Send Email", "Phase 7.20"));
-            ExportExcelCommand = new RelayCommand(_ => ExecuteExportExcel());
-            ExportCsvCommand = new RelayCommand(_ => ExecuteExportCsv());
+            ExportExcelCommand = new RelayCommand(async _ => await ExecuteExportExcelAsync());
+            ExportCsvCommand = new RelayCommand(async _ => await ExecuteExportCsvAsync());
 
-            // Phase 7.16a: propagate upstream changes so preview reflects live
-            // updates when user edits Step 1 or Step 3
             Client.PropertyChanged += OnClientChanged;
             Company.PropertyChanged += OnCompanyChanged;
         }
@@ -158,6 +157,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
 
         // ══════════════════════════════════════════════════════════════════
         //  NATIVE PRINT — builds FixedDocument from scratch in code
+        //  (XAML preview path — stays as-is per Q1)
         // ══════════════════════════════════════════════════════════════════
 
         private void ExecutePrint()
@@ -379,16 +379,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  PHASE 7.17 — QUEST PDF BRANDED EXPORT
-        //  Builds a PdfExportContext from wizard VMs, generates the PDF via
-        //  QuestPDF, saves to user-chosen location, and auto-opens the file.
+        //  PHASE 9.5b — SHARED ENGINE PDF EXPORT
+        //  Replaces legacy ProformaInvoicePdfService call.
+        //  Builds entity + snapshot from live wizard VMs, hands to layout.
         // ══════════════════════════════════════════════════════════════════
 
-        private void ExecuteExportPdf()
+        private async Task ExecuteExportPdfAsync()
         {
             try
             {
-                // Validate
                 if (string.IsNullOrWhiteSpace(Company.ProformaId))
                 {
                     MessageBox.Show(
@@ -400,65 +399,28 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                     return;
                 }
 
-                // Build safe default filename
-                string safeName = Company.ProformaId.Replace("/", "-").Replace("\\", "-").Replace(":", "-");
-                string defaultFileName = $"{safeName}_{Company.IssueDate:yyyy-MM-dd}.pdf";
-
-                // SaveFileDialog
-                var dialog = new Microsoft.Win32.SaveFileDialog
-                {
-                    Title = "Export Proforma Invoice as PDF",
-                    Filter = "PDF Files (*.pdf)|*.pdf",
-                    DefaultExt = ".pdf",
-                    FileName = defaultFileName,
-                    InitialDirectory = System.IO.Path.Combine(
-                        System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
-                        "ProGlassAutomation", "PDFs")
-                };
-
-                // Ensure default directory exists
-                if (!System.IO.Directory.Exists(dialog.InitialDirectory))
-                    System.IO.Directory.CreateDirectory(dialog.InitialDirectory);
-
-                if (dialog.ShowDialog() != true) return;
-
-                string outputPath = dialog.FileName;
-
-                // Build the context from live wizard VMs
-                var ctx = Services.ProformaInvoice.PdfExport.PdfExportContextBuilder.Build(
+                var entity = ProformaInvoiceMapper.BuildEntityFromWizard(
                     Company, Project, Client, DataGrid, OtherCharges,
                     MainSummary, Terms, this);
+                var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
 
-                // Generate the PDF
-                var pdfService = new Services.ProformaInvoice.PdfExport.ProformaInvoicePdfService();
-                pdfService.GeneratePdf(ctx, outputPath);
-
-                // Success — ask to open
-                var result = MessageBox.Show(
-                    $"PDF exported successfully!\n\n" +
-                    $"File: {outputPath}\n\n" +
-                    "Would you like to open the PDF now?",
-                    "Export Complete",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Information);
-
-                if (result == MessageBoxResult.Yes)
+                var layout = new ProformaInvoicePdfLayout(entity, snapshot);
+                var engine = new PdfExportEngine();
+                var request = new ExportRequest
                 {
-                    try
-                    {
-                        System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo
-                        {
-                            FileName = outputPath,
-                            UseShellExecute = true
-                        });
-                    }
-                    catch
-                    {
-                        // Silently fail if no PDF viewer is installed
-                    }
-                }
+                    PromptForLocation = true,
+                    OpenAfterSave = true
+                };
+
+                var result = await engine.ExportAsync(layout, request);
+                if (!result.Success && !result.Cancelled)
+                    MessageBox.Show(
+                        $"PDF export failed:\n\n{result.ErrorMessage}",
+                        "Export Failed",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(
                     $"PDF export failed:\n\n{ex.Message}",
@@ -469,104 +431,100 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  PHASE 7.18 — EXCEL EXPORT (.xlsx)
+        //  PHASE 9.5b — SHARED ENGINE EXCEL EXPORT
         // ══════════════════════════════════════════════════════════════════
 
-        private void ExecuteExportExcel()
+        private async Task ExecuteExportExcelAsync()
         {
             try
             {
-                string safeName = (Company.ProformaId ?? "Invoice").Replace("/", "-").Replace("\\", "-").Replace(":", "-");
-                string defaultFileName = $"{safeName}_{Company.IssueDate:yyyy-MM-dd}.xlsx";
-
-                var dialog = new Microsoft.Win32.SaveFileDialog
+                if (string.IsNullOrWhiteSpace(Company.ProformaId))
                 {
-                    Title = "Export Invoice as Excel",
-                    Filter = "Excel Files (*.xlsx)|*.xlsx",
-                    DefaultExt = ".xlsx",
-                    FileName = defaultFileName,
-                    InitialDirectory = System.IO.Path.Combine(
-                        System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
-                        "ProGlassAutomation", "Exports")
+                    MessageBox.Show(
+                        "Cannot export — Proforma ID is empty.",
+                        "Export Failed",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+
+                var entity = ProformaInvoiceMapper.BuildEntityFromWizard(
+                    Company, Project, Client, DataGrid, OtherCharges,
+                    MainSummary, Terms, this);
+                var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
+
+                var layout = new ProformaInvoiceExcelLayout(entity, snapshot);
+                var engine = new ExcelExportEngine();
+                var request = new ExportRequest
+                {
+                    PromptForLocation = true,
+                    OpenAfterSave = true
                 };
 
-                if (!System.IO.Directory.Exists(dialog.InitialDirectory))
-                    System.IO.Directory.CreateDirectory(dialog.InitialDirectory);
-
-                if (dialog.ShowDialog() != true) return;
-
-                var ctx = Services.ProformaInvoice.PdfExport.PdfExportContextBuilder.Build(
-                    Company, Project, Client, DataGrid, OtherCharges, MainSummary, Terms, this);
-
-                var service = new Services.ProformaInvoice.InvoiceExportImport.InvoiceExcelExportService();
-                service.ExportToExcel(ctx, dialog.FileName);
-
-                var result = MessageBox.Show(
-                    $"Excel exported successfully!\n\nFile: {dialog.FileName}\n\nOpen now?",
-                    "Export Complete",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Information);
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = dialog.FileName, UseShellExecute = true }); }
-                    catch { }
-                }
+                var result = await engine.ExportAsync(layout, request);
+                if (!result.Success && !result.Cancelled)
+                    MessageBox.Show(
+                        $"Excel export failed:\n\n{result.ErrorMessage}",
+                        "Export Failed",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                MessageBox.Show($"Excel export failed:\n\n{ex.Message}", "Export Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(
+                    $"Excel export failed:\n\n{ex.Message}",
+                    "Export Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  PHASE 7.18 — CSV EXPORT (.csv)
+        //  PHASE 9.5b — SHARED ENGINE CSV EXPORT
         // ══════════════════════════════════════════════════════════════════
 
-        private void ExecuteExportCsv()
+        private async Task ExecuteExportCsvAsync()
         {
             try
             {
-                string safeName = (Company.ProformaId ?? "Invoice").Replace("/", "-").Replace("\\", "-").Replace(":", "-");
-                string defaultFileName = $"{safeName}_{Company.IssueDate:yyyy-MM-dd}.csv";
-
-                var dialog = new Microsoft.Win32.SaveFileDialog
+                if (string.IsNullOrWhiteSpace(Company.ProformaId))
                 {
-                    Title = "Export Invoice as CSV",
-                    Filter = "CSV Files (*.csv)|*.csv",
-                    DefaultExt = ".csv",
-                    FileName = defaultFileName,
-                    InitialDirectory = System.IO.Path.Combine(
-                        System.Environment.GetFolderPath(System.Environment.SpecialFolder.ApplicationData),
-                        "ProGlassAutomation", "Exports")
+                    MessageBox.Show(
+                        "Cannot export — Proforma ID is empty.",
+                        "Export Failed",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+
+                var entity = ProformaInvoiceMapper.BuildEntityFromWizard(
+                    Company, Project, Client, DataGrid, OtherCharges,
+                    MainSummary, Terms, this);
+                var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
+
+                var layout = new ProformaInvoiceCsvLayout(entity, snapshot);
+                var engine = new CsvExportEngine();
+                var request = new ExportRequest
+                {
+                    PromptForLocation = true,
+                    OpenAfterSave = true
                 };
 
-                if (!System.IO.Directory.Exists(dialog.InitialDirectory))
-                    System.IO.Directory.CreateDirectory(dialog.InitialDirectory);
-
-                if (dialog.ShowDialog() != true) return;
-
-                var ctx = Services.ProformaInvoice.PdfExport.PdfExportContextBuilder.Build(
-                    Company, Project, Client, DataGrid, OtherCharges, MainSummary, Terms, this);
-
-                var service = new Services.ProformaInvoice.InvoiceExportImport.InvoiceCsvExportService();
-                service.ExportToCsv(ctx, dialog.FileName);
-
-                var result = MessageBox.Show(
-                    $"CSV exported successfully!\n\nFile: {dialog.FileName}\n\nOpen now?",
-                    "Export Complete",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Information);
-
-                if (result == MessageBoxResult.Yes)
-                {
-                    try { System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo { FileName = dialog.FileName, UseShellExecute = true }); }
-                    catch { }
-                }
+                var result = await engine.ExportAsync(layout, request);
+                if (!result.Success && !result.Cancelled)
+                    MessageBox.Show(
+                        $"CSV export failed:\n\n{result.ErrorMessage}",
+                        "Export Failed",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
-                MessageBox.Show($"CSV export failed:\n\n{ex.Message}", "Export Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(
+                    $"CSV export failed:\n\n{ex.Message}",
+                    "Export Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
 
@@ -662,6 +620,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
 
             foreach (var group in DataGrid.SpecGroups)
                 root.Children.Add(BuildSpecTable(group));
+
+            // Phase 9.5b — Grand spec summary bar (Option A)
+            if (DataGrid.SpecGroups.Count > 0)
+                root.Children.Add(BuildGrandSpecSummary());
 
             root.Children.Add(BuildOtherChargesSection());
             root.Children.Add(BuildFinancialSummary(width));
@@ -784,6 +746,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             return grid;
         }
 
+        // ══════════════════════════════════════════════════════════════════
+        //  Phase 9.5b — 11-column spec table:
+        //  # | GLASS REF | W1 | H1 | W2 | H2 | QTY | AREA | TOTAL AREA | RATE | TOTAL
+        // ══════════════════════════════════════════════════════════════════
+
         private StackPanel BuildSpecTable(SpecGroup group)
         {
             var stack = new StackPanel { Margin = new Thickness(0, 0, 0, SECTION_GAP) };
@@ -801,13 +768,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                 10, FontWeights.Bold, Brushes.White);
             stack.Children.Add(header);
 
-            // Phase 7.19d — 10 columns: # | GLASS REF | W1 | H1 | W2 | H2 | QTY | AREA | RATE | TOTAL
-            var widths = new[] { 28.0, 1.6, 35.0, 35.0, 35.0, 35.0, 40.0, 0.85, 0.75, 0.95 };
+            // 11 columns
+            var widths = new[] { 24.0, 1.4, 32.0, 32.0, 32.0, 32.0, 32.0, 0.70, 0.75, 0.65, 0.80 };
             var headerLabels = new[]
             {
                 "#", "GLASS REF / DESCRIPTION",
                 "W1", "H1", "W2", "H2",
-                "QTY", "AREA (sqm)", "RATE (AED)", "TOTAL (AED)"
+                "QTY", "AREA (sqm)", "TOTAL AREA", "RATE (AED)", "TOTAL (AED)"
             };
             var alignments = new[]
             {
@@ -815,16 +782,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                 HorizontalAlignment.Right, HorizontalAlignment.Right,
                 HorizontalAlignment.Right, HorizontalAlignment.Right,
                 HorizontalAlignment.Center, HorizontalAlignment.Right,
-                HorizontalAlignment.Right,  HorizontalAlignment.Right
+                HorizontalAlignment.Right, HorizontalAlignment.Right,
+                HorizontalAlignment.Right
             };
 
             var tblHeader = new Border { Background = TableHeaderBrush };
             var thGrid = MakeGridWithColumns(widths);
             for (int i = 0; i < headerLabels.Length; i++)
             {
-                var cell = MakeText(headerLabels[i], 9, FontWeights.Bold, Brushes.White,
+                var cell = MakeText(headerLabels[i], 8, FontWeights.Bold, Brushes.White,
                     horizontalAlignment: alignments[i]);
-                cell.Padding = new Thickness(6, 5, 6, 5);
+                cell.Padding = new Thickness(4, 4, 4, 4);
                 Grid.SetColumn(cell, i);
                 thGrid.Children.Add(cell);
             }
@@ -840,6 +808,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                 };
                 var rowGrid = MakeGridWithColumns(widths);
 
+                // AREA = per piece unit area
+                decimal unitArea = Math.Max(
+                    Math.Round((decimal)row.W1 * row.H1 / 1_000_000m, 3),
+                    0.5m);
+                // TOTAL AREA = AREA × QTY
+                decimal totalArea = Math.Round(unitArea * row.Qty, 3);
+
                 AddTableCell(rowGrid, 0, row.SerialNumber.ToString(), FontWeights.Normal, HorizontalAlignment.Center);
                 AddTableCell(rowGrid, 1, row.GlassRef ?? "", FontWeights.Normal, HorizontalAlignment.Left);
                 AddTableCell(rowGrid, 2, row.W1.ToString(), FontWeights.Normal, HorizontalAlignment.Right);
@@ -847,14 +822,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                 AddTableCell(rowGrid, 4, row.W2.ToString(), FontWeights.Normal, HorizontalAlignment.Right);
                 AddTableCell(rowGrid, 5, row.H2.ToString(), FontWeights.Normal, HorizontalAlignment.Right);
                 AddTableCell(rowGrid, 6, row.Qty.ToString(), FontWeights.Normal, HorizontalAlignment.Center);
-                AddTableCell(rowGrid, 7, row.TotalSqm.ToString("0.000"), FontWeights.Normal, HorizontalAlignment.Right);
-                AddTableCell(rowGrid, 8, row.Rate.ToString("N2"), FontWeights.Normal, HorizontalAlignment.Right);
-                AddTableCell(rowGrid, 9, row.Value.ToString("N2"), FontWeights.Bold, HorizontalAlignment.Right);
+                AddTableCell(rowGrid, 7, unitArea.ToString("0.000"), FontWeights.Normal, HorizontalAlignment.Right);
+                AddTableCell(rowGrid, 8, totalArea.ToString("0.000"), FontWeights.Normal, HorizontalAlignment.Right);
+                AddTableCell(rowGrid, 9, row.Rate.ToString("N2"), FontWeights.Normal, HorizontalAlignment.Right);
+                AddTableCell(rowGrid, 10, row.Value.ToString("N2"), FontWeights.Bold, HorizontalAlignment.Right);
 
                 rowBorder.Child = rowGrid;
                 stack.Children.Add(rowBorder);
             }
 
+            // Sub-total bar
             var subTotal = new Border
             {
                 Background = LightGrayBrush,
@@ -883,6 +860,46 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             stack.Children.Add(subTotal);
 
             return stack;
+        }
+
+        /// <summary>
+        /// Phase 9.5b — Grand spec summary bar (Option A).
+        /// Totals across all spec groups: QTY, AREA, VALUE.
+        /// </summary>
+        private Border BuildGrandSpecSummary()
+        {
+            int specCount = DataGrid.SpecGroups.Count;
+            int totalQty = DataGrid.SpecGroups.Sum(g => g.FooterTotalQty);
+            decimal totalArea = DataGrid.SpecGroups.Sum(g => g.FooterTotalSqm);
+            decimal totalValue = DataGrid.SpecGroups.Sum(g => g.FooterTotalValue);
+
+            var border = new Border
+            {
+                Background = AccentBrush,
+                CornerRadius = new CornerRadius(2),
+                Padding = new Thickness(8, 6, 8, 6),
+                Margin = new Thickness(0, 0, 0, SECTION_GAP)
+            };
+
+            var g = new Grid();
+            g.ColumnDefinitions.Add(new ColumnDefinition { Width = new GridLength(1, GridUnitType.Star) });
+            g.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Auto });
+
+            var left = MakeText(
+                $"GRAND TOTAL:  {specCount} Spec{(specCount != 1 ? "s" : "")}  •  " +
+                $"QTY: {totalQty}  •  AREA: {totalArea:0.000} sqm",
+                10, FontWeights.Bold, Brushes.White);
+            Grid.SetColumn(left, 0);
+            g.Children.Add(left);
+
+            var right = MakeText(
+                $"VALUE: AED {totalValue:N2}",
+                11, FontWeights.Bold, Brushes.White);
+            Grid.SetColumn(right, 1);
+            g.Children.Add(right);
+
+            border.Child = g;
+            return border;
         }
 
         private StackPanel BuildOtherChargesSection()
@@ -1030,7 +1047,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
 
         // ══════════════════════════════════════════════════════════════════
         //  PHASE 7.14 + 7.16a — Terms & Conditions section renderer
-        //  Defensive version with try/catch + always-visible header.
         // ══════════════════════════════════════════════════════════════════
 
         private StackPanel BuildTermsAndConditionsSection()
@@ -1166,7 +1182,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             var pbStack = new StackPanel();
             pbStack.Children.Add(MakeText("PREPARED BY (ERP AUTHENTICATED)", 9, FontWeights.Bold, AccentBrush, marginBottom: 4));
 
-            // Phase 7.16a: read live PreparedByName which auto-falls-back to Client.DocumentPreparedBy
             string nameForPrint = string.IsNullOrWhiteSpace(PreparedByName) ? "—" : PreparedByName;
             pbStack.Children.Add(MakeText(nameForPrint, 10, FontWeights.SemiBold, DarkBrush));
 
@@ -1177,7 +1192,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
 
             var status = new StackPanel { Orientation = Orientation.Horizontal, Margin = new Thickness(0, 3, 0, 0) };
             status.Children.Add(MakeText("Status: ", 9, FontWeights.Normal, MutedBrush));
-            // Phase 7.16a: read live PreparedByStatus which auto-falls-back to Company.ProformaStatus
             string statusForPrint = string.IsNullOrWhiteSpace(PreparedByStatus) ? "Draft" : PreparedByStatus;
             status.Children.Add(MakeText(statusForPrint, 9, FontWeights.Bold, GreenBrush));
             pbStack.Children.Add(status);
@@ -1275,8 +1289,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
 
         private void AddTableCell(Grid grid, int col, string text, FontWeight weight, HorizontalAlignment align)
         {
-            var cell = MakeText(text, 9, weight, DarkBrush, horizontalAlignment: align);
-            cell.Padding = new Thickness(6, 4, 6, 4);
+            var cell = MakeText(text, 8, weight, DarkBrush, horizontalAlignment: align);
+            cell.Padding = new Thickness(4, 3, 4, 3);
             cell.VerticalAlignment = VerticalAlignment.Center;
             cell.TextTrimming = TextTrimming.CharacterEllipsis;
             Grid.SetColumn(cell, col);
