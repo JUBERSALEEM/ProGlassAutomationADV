@@ -1,5 +1,7 @@
 ﻿using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Services.JobOrder.Mapper;
 using ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -49,13 +51,21 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
 
             menu.Items.Add(new Separator());
 
+            // ══════════════════════════════════════════════════════════════
+            //  Phase 9.3 — Convert to Job Order (now functional)
+            //  Creates a new Job Order from this PI's snapshot + saves
+            //  to joborders.db. Shows success message with the new JOB ID.
+            // ══════════════════════════════════════════════════════════════
             var jobOrderItem = new MenuItem
             {
                 Header = "📦  Convert to Job Order",
-                IsEnabled = false,
-                FontStyle = FontStyles.Italic
+                Padding = new Thickness(4, 6, 20, 6),
+                FontWeight = FontWeights.SemiBold
             };
-            jobOrderItem.ToolTip = "Coming in Job Order module";
+            jobOrderItem.Click += async (_, __) =>
+            {
+                await ConvertToJobOrderAsync(item, vm);
+            };
             menu.Items.Add(jobOrderItem);
 
             menu.Items.Add(new Separator());
@@ -68,6 +78,105 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
             element.ContextMenu = menu;
             menu.IsOpen = true;
             e.Handled = true;
+        }
+
+        /// <summary>
+        /// Phase 9.3 — Converts a Proforma Invoice to a Job Order.
+        /// 1. Fetches the full PI entity from proformainvoices.db
+        /// 2. Uses JobOrderMapper to deep-clone the PI snapshot into a
+        ///    new JobOrderSnapshot with default production fields
+        /// 3. Checks for duplicate JOB IDs (auto-increments if needed)
+        /// 4. Saves to joborders.db via App.Jobs
+        /// 5. Shows success message with the new JOB-YYYY-NNN ID
+        /// </summary>
+        private async System.Threading.Tasks.Task ConvertToJobOrderAsync(
+            SavedInvoiceListItem item,
+            SavedInvoicesListViewModel vm)
+        {
+            if (item == null || App.Invoices == null || App.Jobs == null) return;
+
+            try
+            {
+                // 1. Check if already converted
+                var existing = await App.Jobs.GetBySourceProformaIdAsync(item.ProformaId ?? "");
+                if (existing != null && existing.Count > 0)
+                {
+                    var existingId = existing[0].JobOrderId;
+                    var overwrite = MessageBox.Show(
+                        $"A Job Order '{existingId}' already exists for invoice '{item.ProformaId}'.\n\n" +
+                        $"• YES → Create another Job Order anyway\n" +
+                        $"• NO → Cancel",
+                        "Job Order Already Exists",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Question);
+
+                    if (overwrite != MessageBoxResult.Yes) return;
+                }
+
+                // 2. Fetch the full PI entity
+                var piEntity = await App.Invoices.GetByIdAsync(item.Id);
+                if (piEntity == null)
+                {
+                    MessageBox.Show(
+                        "Source invoice not found.",
+                        "Conversion Failed",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+
+                // 3. Build the Job Order snapshot (deep-clones the PI snapshot)
+                var jobSnapshot = JobOrderMapper.BuildFromProformaInvoice(piEntity);
+
+                // 4. Check for duplicate JOB ID and auto-increment if needed
+                if (await App.Jobs.ExistsByJobOrderIdAsync(jobSnapshot.JobOrderId))
+                {
+                    jobSnapshot.JobOrderId = await App.Jobs.SuggestNextIdAsync(jobSnapshot.JobOrderId);
+                }
+
+                // 5. Build the EF entity from the snapshot
+                //    Pass the PI's GrandTotalVatInclusive as override since
+                //    the snapshot POCO doesn't store computed grand total
+                var jobEntity = JobOrderMapper.BuildEntityFromSnapshot(
+                    jobSnapshot,
+                    piEntity.GrandTotalVatInclusive);
+
+                // 6. Save to joborders.db
+                await App.Jobs.InsertAsync(jobEntity);
+
+                // 7. Success message
+                var result = MessageBox.Show(
+                    $"Job Order '{jobEntity.JobOrderId}' created successfully!\n\n" +
+                    $"Source: {item.ProformaId}\n" +
+                    $"Customer: {item.CustomerName}\n" +
+                    $"Value: AED {piEntity.GrandTotalVatInclusive:N0}\n" +
+                    $"Status: Draft · Priority: Medium\n\n" +
+                    $"Navigate to Job Orders module now?",
+                    "Conversion Successful",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Information);
+
+                // Optional: navigate to Job Order module
+                // (We can't directly navigate from here — would need a callback
+                //  wired through MainViewModel. For now just refresh the list.)
+                if (result == MessageBoxResult.Yes)
+                {
+                    MessageBox.Show(
+                        "Open the Job Orders module from the sidebar menu " +
+                        "to view and manage your new job order.",
+                        "Navigation",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Failed to convert to Job Order:\n\n{ex.Message}",
+                    "Conversion Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
         }
 
         private static MenuItem CreateMenuItem(string header, ICommand command, object parameter, bool bold = false)
