@@ -1,0 +1,72 @@
+﻿using Microsoft.EntityFrameworkCore;
+using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
+using System;
+using System.IO;
+
+namespace ProGlassAutomation.Services.JobOrder.Database
+{
+    /// <summary>
+    /// EF Core DbContext for the joborders.db SQLite database.
+    /// Isolated from proglass.db and proformainvoices.db per project
+    /// architecture (one database per domain).
+    ///
+    /// Location: %AppData%\ProGlassAutomation\joborders.db
+    ///
+    /// Following project rule: new DbContext per operation via `using`,
+    /// never held as a field. See JobOrderRepository.
+    /// </summary>
+    public class JobOrdersDbContext : DbContext
+    {
+        public DbSet<SavedJobOrder> JobOrders { get; set; }
+
+        private static readonly string DbFolder = Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "ProGlassAutomation");
+
+        private static readonly string DbPath = Path.Combine(DbFolder, "joborders.db");
+
+        public static string DatabaseFilePath => DbPath;
+
+        protected override void OnConfiguring(DbContextOptionsBuilder options)
+        {
+            if (!Directory.Exists(DbFolder))
+                Directory.CreateDirectory(DbFolder);
+
+            options.UseSqlite($"Data Source={DbPath}");
+        }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            var entity = modelBuilder.Entity<SavedJobOrder>();
+
+            // UNIQUE index on user-facing ID for duplicate detection
+            entity.HasIndex(j => j.JobOrderId)
+                  .IsUnique()
+                  .HasDatabaseName("IX_JobOrder_JobOrderId_Unique");
+
+            // Indexes for search + filter + sort performance
+            entity.HasIndex(j => j.SourceProformaId)
+                  .HasDatabaseName("IX_JobOrder_SourceProformaId");
+
+            entity.HasIndex(j => j.CustomerName)
+                  .HasDatabaseName("IX_JobOrder_CustomerName");
+
+            entity.HasIndex(j => j.Status)
+                  .HasDatabaseName("IX_JobOrder_Status");
+
+            entity.HasIndex(j => j.Priority)
+                  .HasDatabaseName("IX_JobOrder_Priority");
+
+            entity.HasIndex(j => j.DeliveryDate)
+                  .HasDatabaseName("IX_JobOrder_DeliveryDate");
+
+            entity.HasIndex(j => j.CreatedAt)
+                  .HasDatabaseName("IX_JobOrder_CreatedAt");
+
+            entity.HasIndex(j => j.UpdatedAt)
+                  .HasDatabaseName("IX_JobOrder_UpdatedAt");
+        }
+    }
+}
