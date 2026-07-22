@@ -58,6 +58,46 @@
             <Setter Property="Padding"           Value="6,4"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
+
+        <!-- Phase 9.5a-r3: Export button style — small pill with icon -->
+        <Style x:Key="ExportButtonStyle" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="4,0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg"
+                                Background="{DynamicResource MenuHoverBrush}"
+                                BorderBrush="{DynamicResource BorderBrush}"
+                                BorderThickness="1"
+                                CornerRadius="10"
+                                Padding="14,10">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{TemplateBinding Tag}"
+                                           FontSize="14"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,7,0"/>
+                                <TextBlock Text="{TemplateBinding Content}"
+                                           FontSize="12" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="BorderBrush"
+                                        Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -482,11 +522,18 @@
                                Foreground="{DynamicResource MutedForegroundBrush}"
                                Margin="0,10,0,16"/>
 
-                    <!-- Action buttons -->
+                    <!-- ════════════════════════════════════════════════
+                         ACTION BUTTONS ROW
+                         [Back]  [PDF] [Excel] [CSV]  [Save]
+                    ════════════════════════════════════════════════ -->
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="12"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
@@ -498,14 +545,14 @@
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Bg"
                                             Background="{DynamicResource MenuHoverBrush}"
-                                            CornerRadius="10" Padding="18,10">
+                                            CornerRadius="10" Padding="14,10">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="←" FontSize="14" FontWeight="Bold"
                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                        VerticalAlignment="Center"
-                                                       Margin="0,0,8,0"/>
-                                            <TextBlock Text="Back to List"
-                                                       FontSize="13" FontWeight="SemiBold"
+                                                       Margin="0,0,7,0"/>
+                                            <TextBlock Text="Back"
+                                                       FontSize="12" FontWeight="SemiBold"
                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                        VerticalAlignment="Center"/>
                                         </StackPanel>
@@ -519,16 +566,33 @@
                             </Button.Template>
                         </Button>
 
-                        <!-- Save Changes -->
+                        <!-- Export cluster -->
                         <Button Grid.Column="2"
+                                Style="{StaticResource ExportButtonStyle}"
+                                Command="{Binding ExportPdfCommand}"
+                                Content="PDF" Tag="📄"
+                                ToolTip="Export production sheet as PDF"/>
+                        <Button Grid.Column="3"
+                                Style="{StaticResource ExportButtonStyle}"
+                                Command="{Binding ExportExcelCommand}"
+                                Content="Excel" Tag="📊"
+                                ToolTip="Export as Excel workbook (multi-sheet)"/>
+                        <Button Grid.Column="4"
+                                Style="{StaticResource ExportButtonStyle}"
+                                Command="{Binding ExportCsvCommand}"
+                                Content="CSV" Tag="📋"
+                                ToolTip="Export cut list as CSV"/>
+
+                        <!-- Save Changes -->
+                        <Button Grid.Column="6"
                                 Command="{Binding SaveCommand}"
                                 Cursor="Hand" BorderThickness="0" Padding="0">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Bg"
                                             Background="{DynamicResource AccentBrush}"
-                                            CornerRadius="10" Padding="24,10">
-                                        <TextBlock Text="💾  Save Changes"
+                                            CornerRadius="10" Padding="20,10">
+                                        <TextBlock Text="💾  Save"
                                                    FontSize="13" FontWeight="Bold"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    VerticalAlignment="Center"/>

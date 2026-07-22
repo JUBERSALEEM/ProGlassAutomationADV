@@ -2,6 +2,11 @@
 using ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus;
 using ProGlassAutomation.Models.JobOrder.Common.JobPriority;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
+using ProGlassAutomation.Services.Export.Core;
+using ProGlassAutomation.Services.Export.Excel;
+using ProGlassAutomation.Services.Export.Pdf;
+using ProGlassAutomation.Services.JobOrder.Export;
+using ProGlassAutomation.Services.JobOrder.Mapper;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -18,6 +23,9 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
     /// Loads all saved job orders from App.Jobs and provides search,
     /// filter, sort, and delete operations.
     ///
+    /// Phase 9.5a-r3: adds ExportPdfAsync(row) and ExportExcelAsync(row)
+    /// public methods invoked by the right-click menu in code-behind.
+    ///
     /// Callback OnJobOrderOpenRequested is fired when user clicks OPEN
     /// on a row — the shell VM (JobOrderViewModel) handles the actual
     /// view switch.
@@ -28,11 +36,6 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         private int _loadingFlag = 0;
 
         // ── callback wired by shell VM ────────────────────────────────────
-        /// <summary>
-        /// Called when user clicks OPEN on a job order row.
-        /// Parameter = SavedJobOrder.Id (int).
-        /// Wired by JobOrderViewModel constructor.
-        /// </summary>
         public Action<int>? OnJobOrderOpenRequested { get; set; }
 
         // ── data: full list + filtered display list ───────────────────────
@@ -209,7 +212,6 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 
             ChangeStatusCommand = new RelayCommand(async param =>
             {
-                // param = Tuple<JobOrderRowViewModel, string newStatus>
                 if (param is (JobOrderRowViewModel row, string newStatus))
                     await ChangeStatusAsync(row, newStatus);
             });
@@ -292,7 +294,6 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         {
             IEnumerable<JobOrderRowViewModel> query = _allJobs;
 
-            // Search
             if (!string.IsNullOrWhiteSpace(_searchText))
             {
                 string q = _searchText.Trim().ToLowerInvariant();
@@ -303,20 +304,17 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                     (j.SourceProformaId?.ToLowerInvariant().Contains(q) ?? false));
             }
 
-            // Status filter
             if (_selectedStatusFilter != "All Statuses")
             {
                 string statusKey = _selectedStatusFilter.Replace(" ", "");
                 query = query.Where(j => Eq(j.StatusRaw, statusKey));
             }
 
-            // Priority filter
             if (_selectedPriorityFilter != "All Priorities")
             {
                 query = query.Where(j => Eq(j.PriorityRaw, _selectedPriorityFilter));
             }
 
-            // Sort
             query = _selectedSort switch
             {
                 "Newest first" => query.OrderByDescending(j => j.UpdatedAt),
@@ -426,6 +424,108 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         }
 
         // ═════════════════════════════════════════════════════════════════
+        //  EXPORT (Phase 9.5a-r3 — called from right-click menu)
+        // ═════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Loads the full entity + snapshot for the given row and exports
+        /// a PDF via the shared export engine. Wired to the "Export PDF"
+        /// menu item in SavedJobOrdersListView.xaml.cs OnRowRightClick.
+        /// </summary>
+        public async Task ExportPdfAsync(JobOrderRowViewModel row)
+        {
+            var (entity, snapshot) = await LoadEntityAndSnapshotAsync(row);
+            if (entity == null || snapshot == null) return;
+
+            var layout = new JobOrderPdfLayout(entity, snapshot);
+            var engine = new PdfExportEngine();
+            var request = new ExportRequest
+            {
+                PromptForLocation = true,
+                OpenAfterSave = true
+            };
+
+            var result = await engine.ExportAsync(layout, request);
+            ShowExportResult(result, "PDF");
+        }
+
+        /// <summary>
+        /// Loads the full entity + snapshot for the given row and exports
+        /// an Excel workbook via the shared export engine. Wired to the
+        /// "Export Excel" menu item in SavedJobOrdersListView.xaml.cs.
+        /// </summary>
+        public async Task ExportExcelAsync(JobOrderRowViewModel row)
+        {
+            var (entity, snapshot) = await LoadEntityAndSnapshotAsync(row);
+            if (entity == null || snapshot == null) return;
+
+            var layout = new JobOrderExcelLayout(entity, snapshot);
+            var engine = new ExcelExportEngine();
+            var request = new ExportRequest
+            {
+                PromptForLocation = true,
+                OpenAfterSave = true
+            };
+
+            var result = await engine.ExportAsync(layout, request);
+            ShowExportResult(result, "Excel");
+        }
+
+        private async Task<(SavedJobOrder? entity, Models.JobOrder.SavedJobOrder.JobOrderSnapshot? snapshot)>
+            LoadEntityAndSnapshotAsync(JobOrderRowViewModel row)
+        {
+            if (row == null) return (null, null);
+
+            try
+            {
+                var entity = await App.Jobs.GetByIdAsync(row.Id);
+                if (entity == null)
+                {
+                    MessageBox.Show(
+                        $"Job order '{row.JobOrderId}' no longer exists.",
+                        "Not Found",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return (null, null);
+                }
+
+                var snapshot = JobOrderMapper.DeserializeSnapshot(entity);
+                if (snapshot == null)
+                {
+                    MessageBox.Show(
+                        $"Job order '{row.JobOrderId}' has corrupt snapshot data.",
+                        "Corrupt Data",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                    return (entity, null);
+                }
+
+                return (entity, snapshot);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Failed to load job order:\n\n{ex.Message}",
+                    "Load Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return (null, null);
+            }
+        }
+
+        private static void ShowExportResult(ExportResult result, string formatLabel)
+        {
+            if (result.Success || result.Cancelled)
+                return;
+
+            MessageBox.Show(
+                $"{formatLabel} export failed:\n\n{result.ErrorMessage}",
+                "Export Failed",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+
+        // ═════════════════════════════════════════════════════════════════
         //  HELPERS
         // ═════════════════════════════════════════════════════════════════
 
@@ -444,13 +544,9 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 
     // ═════════════════════════════════════════════════════════════════════
     //  ROW VIEWMODEL — Display wrapper for SavedJobOrder entity
+    //  (unchanged from previous version)
     // ═════════════════════════════════════════════════════════════════════
 
-    /// <summary>
-    /// Display-friendly row for the job order list.
-    /// Wraps SavedJobOrder entity with pre-formatted display strings
-    /// and resolved brush keys for XAML binding.
-    /// </summary>
     public class JobOrderRowViewModel
     {
         public int Id { get; }
@@ -464,8 +560,6 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         public DateTime? DeliveryDate { get; }
         public DateTime CreatedAt { get; }
         public DateTime UpdatedAt { get; }
-
-        // ── computed display fields ───────────────────────────────────────
 
         public string GrandTotalDisplay { get; }
         public string DeliveryDisplay { get; }
@@ -504,7 +598,6 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                                     ? DeliveryDate.Value.ToString("dd MMM yyyy")
                                     : "No date set";
 
-            // Status meta
             if (Enum.TryParse<JobOrderStatus>(StatusRaw, ignoreCase: true, out var statusEnum))
             {
                 StatusLabel = JobOrderStatusMeta.GetLabel(statusEnum);
@@ -518,7 +611,6 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 StatusTintKey = "TintGrayBrush";
             }
 
-            // Priority meta
             if (Enum.TryParse<JobPriority>(PriorityRaw, ignoreCase: true, out var priorityEnum))
             {
                 PriorityLabel = JobPriorityMeta.GetLabel(priorityEnum);
@@ -532,7 +624,6 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 PriorityPillStyleKey = "PriorityPillLowStyle";
             }
 
-            // Overdue check
             var today = DateTime.Today;
             IsOverdue = DeliveryDate.HasValue
                         && DeliveryDate.Value.Date < today

@@ -23,6 +23,9 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
         /// Builds the right-click context menu in code-behind because
         /// XAML ContextMenu bindings are unreliable in WPF DataTemplates.
         /// Same pattern used in SavedInvoicesListView.xaml.cs.
+        ///
+        /// Phase 9.5a-r3: adds "Export PDF" and "Export Excel" items
+        /// that call SavedJobOrdersListViewModel.ExportPdfAsync/ExcelAsync.
         /// </summary>
         private void OnRowRightClick(object sender, MouseButtonEventArgs e)
         {
@@ -45,6 +48,55 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
             };
             openItem.Click += (_, __) => vm.OpenJobOrderCommand.Execute(row);
             menu.Items.Add(openItem);
+
+            menu.Items.Add(new Separator());
+
+            // ── Export sub-menu (Phase 9.5a-r3) ─────────────────────
+            var exportMenu = new MenuItem
+            {
+                Header = "📤  Export",
+                Padding = new Thickness(4, 6, 20, 6)
+            };
+
+            var exportPdfItem = new MenuItem
+            {
+                Header = "📄  PDF — Production Sheet",
+                Padding = new Thickness(4, 4, 16, 4)
+            };
+            exportPdfItem.Click += async (_, __) =>
+            {
+                try
+                {
+                    await vm.ExportPdfAsync(row);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed:\n{ex.Message}", "Export Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            };
+            exportMenu.Items.Add(exportPdfItem);
+
+            var exportExcelItem = new MenuItem
+            {
+                Header = "📊  Excel — Multi-Sheet Workbook",
+                Padding = new Thickness(4, 4, 16, 4)
+            };
+            exportExcelItem.Click += async (_, __) =>
+            {
+                try
+                {
+                    await vm.ExportExcelAsync(row);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show($"Failed:\n{ex.Message}", "Export Error",
+                        MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+            };
+            exportMenu.Items.Add(exportExcelItem);
+
+            menu.Items.Add(exportMenu);
 
             menu.Items.Add(new Separator());
 

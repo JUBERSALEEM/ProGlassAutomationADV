@@ -4,6 +4,11 @@ using ProGlassAutomation.Models.JobOrder.Common.JobPriority;
 using ProGlassAutomation.Models.JobOrder.ProductionDetails;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Services.Export.Core;
+using ProGlassAutomation.Services.Export.Csv;
+using ProGlassAutomation.Services.Export.Excel;
+using ProGlassAutomation.Services.Export.Pdf;
+using ProGlassAutomation.Services.JobOrder.Export;
 using ProGlassAutomation.Services.JobOrder.Mapper;
 using System;
 using System.Collections.Generic;
@@ -24,6 +29,9 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
     ///
     /// SaveCommand persists changes to production fields without touching
     /// the embedded invoice (it's immutable historical record).
+    ///
+    /// Phase 9.5a-r3: adds ExportPdfCommand, ExportExcelCommand,
+    /// ExportCsvCommand that route through the shared export engine.
     /// </summary>
     public class JobOrderDetailViewModel : ViewModelBase
     {
@@ -245,6 +253,11 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
         public ICommand SaveCommand { get; }
         public ICommand BackToListCommand { get; }
 
+        // Phase 9.5a-r3
+        public ICommand ExportPdfCommand { get; }
+        public ICommand ExportExcelCommand { get; }
+        public ICommand ExportCsvCommand { get; }
+
         // ═════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
         // ═════════════════════════════════════════════════════════════════
@@ -253,6 +266,10 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
         {
             SaveCommand = new RelayCommand(async _ => await SaveAsync());
             BackToListCommand = new RelayCommand(_ => OnRequestBackToList?.Invoke());
+
+            ExportPdfCommand = new RelayCommand(async _ => await ExportPdfAsync());
+            ExportExcelCommand = new RelayCommand(async _ => await ExportExcelAsync());
+            ExportCsvCommand = new RelayCommand(async _ => await ExportCsvAsync());
         }
 
         // ═════════════════════════════════════════════════════════════════
@@ -412,6 +429,90 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  EXPORT (Phase 9.5a-r3 — shared engine consumer)
+        // ═════════════════════════════════════════════════════════════════
+
+        private async Task ExportPdfAsync()
+        {
+            if (!EnsureLoaded()) return;
+
+            var layout = new JobOrderPdfLayout(_entity!, _snapshot!);
+            var engine = new PdfExportEngine();
+            var request = new ExportRequest
+            {
+                PromptForLocation = true,
+                OpenAfterSave = true
+            };
+
+            var result = await engine.ExportAsync(layout, request);
+            ShowExportResult(result, "PDF");
+        }
+
+        private async Task ExportExcelAsync()
+        {
+            if (!EnsureLoaded()) return;
+
+            var layout = new JobOrderExcelLayout(_entity!, _snapshot!);
+            var engine = new ExcelExportEngine();
+            var request = new ExportRequest
+            {
+                PromptForLocation = true,
+                OpenAfterSave = true
+            };
+
+            var result = await engine.ExportAsync(layout, request);
+            ShowExportResult(result, "Excel");
+        }
+
+        private async Task ExportCsvAsync()
+        {
+            if (!EnsureLoaded()) return;
+
+            var layout = new JobOrderCsvLayout(_entity!, _snapshot!);
+            var engine = new CsvExportEngine();
+            var request = new ExportRequest
+            {
+                PromptForLocation = true,
+                OpenAfterSave = true
+            };
+
+            var result = await engine.ExportAsync(layout, request);
+            ShowExportResult(result, "CSV");
+        }
+
+        private bool EnsureLoaded()
+        {
+            if (_entity != null && _snapshot != null) return true;
+
+            MessageBox.Show(
+                "Load a job order before exporting.",
+                "Nothing to export",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return false;
+        }
+
+        private static void ShowExportResult(ExportResult result, string formatLabel)
+        {
+            if (result.Success)
+            {
+                // Silent success — file will be launched automatically by the
+                // engine (OpenAfterSave = true). Skip MessageBox to avoid
+                // interrupting workflow.
+                return;
+            }
+
+            if (result.Cancelled)
+                return;
+
+            MessageBox.Show(
+                $"{formatLabel} export failed:\n\n{result.ErrorMessage}",
+                "Export Failed",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
         }
 
         // ═════════════════════════════════════════════════════════════════
