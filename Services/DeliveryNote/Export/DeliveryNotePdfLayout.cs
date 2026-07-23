@@ -1,0 +1,498 @@
+﻿using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
+using ProGlassAutomation.Services.Export.Core;
+using ProGlassAutomation.Services.Export.Pdf;
+using ProGlassAutomation.Services.Export.Pdf.Renderers;
+using QuestPDF.Fluent;
+using QuestPDF.Infrastructure;
+using System;
+using System.Linq;
+
+namespace ProGlassAutomation.Services.DeliveryNote.Export
+{
+    /// <summary>
+    /// PDF layout for a Delivery Note.
+    ///
+    /// Renders:
+    /// - Letterhead (company from JO ref snapshot · DN ID · "Delivery Note")
+    /// - Delivery logistics block (Customer · Driver · Vehicle · Date · Time)
+    /// - Items table grouped by SpecGroupName
+    ///   Columns: # · Glass Ref · Ordered · Prev · This DN · Balance
+    /// - Totals strip (Ordered · Prev Delivered · This DN · Balance · Sequence)
+    /// - Signature block (Dispatched By · Received By · Date)
+    ///
+    /// Phase 10.8a: Added Prev Delivered to totals strip so printed
+    /// document is self-verifiable: Ordered − Prev − This DN = Balance.
+    ///
+    /// No pricing — delivery document only.
+    /// </summary>
+    public class DeliveryNotePdfLayout : IPdfLayout
+    {
+        private readonly SavedDeliveryNote _entity;
+        private readonly DeliveryNoteSnapshot _snapshot;
+        private readonly DnJobOrderRefSnapshot _joRef;
+
+        public DeliveryNotePdfLayout(
+            SavedDeliveryNote entity,
+            DeliveryNoteSnapshot snapshot)
+        {
+            _entity = entity ?? throw new ArgumentNullException(nameof(entity));
+            _snapshot = snapshot ?? throw new ArgumentNullException(nameof(snapshot));
+            _joRef = snapshot.JobOrderRef ?? new DnJobOrderRefSnapshot();
+        }
+
+        // ── IDocumentLayout ──────────────────────────────────────────────
+        public string DocumentPrefix => "DN";
+        public string DocumentId => _entity.DeliveryNoteId;
+        public string DocumentTitle => "Delivery Note";
+        public string CompanyName => _joRef.CustomerName;
+        public string Reference => _joRef.ProjectName;
+        public DateTime DocumentDate => _entity.DeliveryDate != default
+                                            ? _entity.DeliveryDate
+                                            : _entity.CreatedAt;
+
+        // ── IPdfLayout ───────────────────────────────────────────────────
+        public PageLayout PageLayout => PageLayout.A4Portrait;
+
+        public LetterheadInfo? Letterhead => new LetterheadInfo
+        {
+            CompanyName = _joRef.CompanyName,
+            CompanyLocation = _joRef.CompanyLocation,
+            CompanyTrn = _joRef.CompanyTrn,
+            DocumentTitle = DocumentTitle,
+            DocumentId = DocumentId,
+            SubtitleLine = BuildSubtitle()
+        };
+
+        public void RenderContent(ColumnDescriptor content)
+        {
+            // ── Delivery logistics ────────────────────────────────────────
+            content.Item().Element(c =>
+                SectionHeaderRenderer.Render(c, "DELIVERY DETAILS"));
+            content.Item().Element(RenderDeliveryDetails);
+
+            // ── Items table ───────────────────────────────────────────────
+            content.Item().Element(c =>
+                SectionHeaderRenderer.Render(c, "GLASS ITEMS"));
+
+            var groups = _entity.Items
+                .GroupBy(i => new { i.SpecGroupNumber, i.SpecGroupName })
+                .OrderBy(g => g.Key.SpecGroupNumber)
+                .ToList();
+
+            if (groups.Count == 0)
+            {
+                content.Item()
+                    .Text("No items on this delivery note.")
+                    .Italic()
+                    .FontColor(DocumentStyle.ColorMuted);
+            }
+            else
+            {
+                foreach (var group in groups)
+                    content.Item().Element(c =>
+                        RenderSpecGroupTable(c,
+                            group.Key.SpecGroupName,
+                            group.ToList()));
+
+                content.Item().Element(RenderTotalsStrip);
+            }
+
+            // ── Signature block ───────────────────────────────────────────
+            content.Item().Element(c =>
+                SectionHeaderRenderer.Render(c, "SIGN-OFF"));
+            content.Item().Element(RenderSignatureBlock);
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  SECTION RENDERERS
+        // ═════════════════════════════════════════════════════════════════
+
+        private void RenderDeliveryDetails(IContainer container)
+        {
+            container.Row(row =>
+            {
+                // Left column — customer + project
+                row.RelativeItem()
+                    .Border(0.5f).BorderColor(DocumentStyle.ColorBorder)
+                    .Padding(8)
+                    .Column(col =>
+                    {
+                        col.Item().Text("CUSTOMER")
+                            .FontSize(DocumentStyle.FontSizeCaption)
+                            .SemiBold()
+                            .FontColor(DocumentStyle.ColorAccent);
+
+                        col.Item().PaddingTop(4)
+                            .Text(_joRef.CustomerName)
+                            .FontSize(DocumentStyle.FontSizeH2).Bold();
+
+                        if (!string.IsNullOrWhiteSpace(_joRef.ProjectName))
+                            col.Item().Text($"Project: {_joRef.ProjectName}")
+                                .FontSize(DocumentStyle.FontSizeSmall)
+                                .FontColor(DocumentStyle.ColorMuted);
+
+                        if (!string.IsNullOrWhiteSpace(_joRef.CompanyTrn))
+                            col.Item().Text($"TRN: {_joRef.CompanyTrn}")
+                                .FontSize(DocumentStyle.FontSizeSmall)
+                                .FontColor(DocumentStyle.ColorMuted);
+
+                        col.Item().PaddingTop(6).Text("JOB ORDER")
+                            .FontSize(DocumentStyle.FontSizeCaption)
+                            .SemiBold()
+                            .FontColor(DocumentStyle.ColorAccent);
+
+                        col.Item().PaddingTop(2)
+                            .Text(_entity.JobOrderId)
+                            .FontSize(DocumentStyle.FontSizeBody).SemiBold();
+
+                        if (!string.IsNullOrWhiteSpace(_entity.ProformaId))
+                            col.Item().Text($"PI Ref: {_entity.ProformaId}")
+                                .FontSize(DocumentStyle.FontSizeSmall)
+                                .FontColor(DocumentStyle.ColorMuted);
+                    });
+
+                row.ConstantItem(10);
+
+                // Right column — logistics
+                row.RelativeItem()
+                    .Border(0.5f).BorderColor(DocumentStyle.ColorBorder)
+                    .Padding(8)
+                    .Column(col =>
+                    {
+                        col.Item().Text("LOGISTICS")
+                            .FontSize(DocumentStyle.FontSizeCaption)
+                            .SemiBold()
+                            .FontColor(DocumentStyle.ColorAccent);
+
+                        col.Item().PaddingTop(4).Row(r =>
+                        {
+                            r.ConstantItem(80).Text("Date:")
+                                .FontSize(DocumentStyle.FontSizeSmall)
+                                .FontColor(DocumentStyle.ColorMuted);
+                            r.RelativeItem()
+                                .Text(_entity.DeliveryDate.ToString("dd MMM yyyy"))
+                                .FontSize(DocumentStyle.FontSizeSmall).SemiBold();
+                        });
+
+                        col.Item().Row(r =>
+                        {
+                            r.ConstantItem(80).Text("Time:")
+                                .FontSize(DocumentStyle.FontSizeSmall)
+                                .FontColor(DocumentStyle.ColorMuted);
+                            r.RelativeItem()
+                                .Text(_entity.DeliveryTime)
+                                .FontSize(DocumentStyle.FontSizeSmall).SemiBold();
+                        });
+
+                        col.Item().Row(r =>
+                        {
+                            r.ConstantItem(80).Text("Driver:")
+                                .FontSize(DocumentStyle.FontSizeSmall)
+                                .FontColor(DocumentStyle.ColorMuted);
+                            r.RelativeItem()
+                                .Text(string.IsNullOrWhiteSpace(_entity.DriverName)
+                                    ? "—" : _entity.DriverName)
+                                .FontSize(DocumentStyle.FontSizeSmall).SemiBold();
+                        });
+
+                        col.Item().Row(r =>
+                        {
+                            r.ConstantItem(80).Text("Vehicle:")
+                                .FontSize(DocumentStyle.FontSizeSmall)
+                                .FontColor(DocumentStyle.ColorMuted);
+                            r.RelativeItem()
+                                .Text(string.IsNullOrWhiteSpace(_entity.VehicleNumber)
+                                    ? "—" : _entity.VehicleNumber)
+                                .FontSize(DocumentStyle.FontSizeSmall).SemiBold();
+                        });
+
+                        col.Item().Row(r =>
+                        {
+                            r.ConstantItem(80).Text("Receiver:")
+                                .FontSize(DocumentStyle.FontSizeSmall)
+                                .FontColor(DocumentStyle.ColorMuted);
+                            r.RelativeItem()
+                                .Text(string.IsNullOrWhiteSpace(_entity.ReceiverName)
+                                    ? "—" : _entity.ReceiverName)
+                                .FontSize(DocumentStyle.FontSizeSmall).SemiBold();
+                        });
+
+                        col.Item().Row(r =>
+                        {
+                            r.ConstantItem(80).Text("Status:")
+                                .FontSize(DocumentStyle.FontSizeSmall)
+                                .FontColor(DocumentStyle.ColorMuted);
+                            r.RelativeItem()
+                                .Text(_entity.Status)
+                                .FontSize(DocumentStyle.FontSizeSmall).SemiBold();
+                        });
+
+                        col.Item().Row(r =>
+                        {
+                            r.ConstantItem(80).Text("Type:")
+                                .FontSize(DocumentStyle.FontSizeSmall)
+                                .FontColor(DocumentStyle.ColorMuted);
+                            r.RelativeItem()
+                                .Text(_entity.DeliveryType)
+                                .FontSize(DocumentStyle.FontSizeSmall).SemiBold();
+                        });
+
+                        if (_entity.IsFoc)
+                        {
+                            col.Item().PaddingTop(4)
+                                .Background(DocumentStyle.ColorWarning)
+                                .PaddingHorizontal(6).PaddingVertical(3)
+                                .Text("FREE OF CHARGE (FOC)")
+                                .FontSize(DocumentStyle.FontSizeSmall)
+                                .Bold()
+                                .FontColor(DocumentStyle.ColorWhite);
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(_entity.Notes))
+                        {
+                            col.Item().PaddingTop(6).Text("NOTES")
+                                .FontSize(DocumentStyle.FontSizeCaption)
+                                .SemiBold()
+                                .FontColor(DocumentStyle.ColorAccent);
+                            col.Item().Text(_entity.Notes)
+                                .FontSize(DocumentStyle.FontSizeSmall)
+                                .FontColor(DocumentStyle.ColorMuted);
+                        }
+                    });
+            });
+        }
+
+        private void RenderSpecGroupTable(
+            IContainer container,
+            string specGroupName,
+            System.Collections.Generic.List<DeliveryNoteItem> items)
+        {
+            container.PaddingBottom(6).Column(col =>
+            {
+                // Group header bar
+                col.Item()
+                    .Background(DocumentStyle.ColorAccentLight)
+                    .PaddingHorizontal(6).PaddingVertical(3)
+                    .Text(specGroupName)
+                    .FontSize(DocumentStyle.FontSizeBody)
+                    .Bold()
+                    .FontColor(DocumentStyle.ColorAccent);
+
+                // Table
+                col.Item().Table(t =>
+                {
+                    t.ColumnsDefinition(cols =>
+                    {
+                        cols.ConstantColumn(28);   // #
+                        cols.RelativeColumn(2);    // Glass Ref
+                        cols.ConstantColumn(52);   // Ordered
+                        cols.ConstantColumn(46);   // Prev
+                        cols.ConstantColumn(52);   // This DN
+                        cols.ConstantColumn(52);   // Balance
+                    });
+
+                    // Header
+                    t.Header(h =>
+                    {
+                        HeaderCell(h.Cell(), "#");
+                        HeaderCell(h.Cell(), "GLASS REF");
+                        HeaderCell(h.Cell(), "ORDERED");
+                        HeaderCell(h.Cell(), "PREV");
+                        HeaderCell(h.Cell(), "THIS DN");
+                        HeaderCell(h.Cell(), "BALANCE");
+                    });
+
+                    // Data rows
+                    bool alt = false;
+                    foreach (var item in items.OrderBy(i => i.SerialNumber))
+                    {
+                        string bg = alt
+                            ? DocumentStyle.ColorTableAlt
+                            : DocumentStyle.ColorWhite;
+
+                        DataCell(t.Cell(), item.SerialNumber.ToString(), bg);
+                        DataCell(t.Cell(), item.GlassRef ?? "—", bg, align: false);
+                        DataCell(t.Cell(), item.OrderedQty.ToString(), bg);
+                        DataCell(t.Cell(), item.PreviouslyDeliveredQty.ToString(), bg);
+                        DataCell(t.Cell(), item.DeliveredQty.ToString(), bg,
+                            highlight: item.DeliveredQty > 0);
+                        DataCell(t.Cell(), item.BalanceQty.ToString(), bg,
+                            highlight: item.BalanceQty > 0,
+                            highlightColor: DocumentStyle.ColorDanger);
+
+                        alt = !alt;
+                    }
+                });
+
+                // Group subtotal
+                int groupDelivered = items.Sum(i => i.DeliveredQty);
+                int groupBalance = items.Sum(i => i.BalanceQty);
+                col.Item().AlignRight().PaddingTop(2)
+                    .Text($"Group: {groupDelivered} delivered · " +
+                          $"{groupBalance} balance")
+                    .FontSize(DocumentStyle.FontSizeCaption)
+                    .FontColor(DocumentStyle.ColorMuted);
+            });
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  TOTALS STRIP — Phase 10.8a: added Prev Delivered column
+        //  Full formula visible: Ordered − Prev − This DN = Balance
+        // ═════════════════════════════════════════════════════════════════
+
+        private void RenderTotalsStrip(IContainer container)
+        {
+            container
+                .Background(DocumentStyle.ColorTableHeader)
+                .Padding(8)
+                .Row(row =>
+                {
+                    // 1 — Total Ordered
+                    row.RelativeItem().Column(col =>
+                    {
+                        col.Item().Text("TOTAL ORDERED")
+                            .FontSize(DocumentStyle.FontSizeCaption)
+                            .FontColor(DocumentStyle.ColorMuted);
+                        col.Item().Text(_entity.TotalOrderedQty.ToString())
+                            .FontSize(DocumentStyle.FontSizeH1).Bold()
+                            .FontColor(DocumentStyle.ColorText);
+                    });
+
+                    // 2 — Previously Delivered (NEW — Phase 10.8a)
+                    row.RelativeItem().Column(col =>
+                    {
+                        col.Item().Text("PREV DELIVERED")
+                            .FontSize(DocumentStyle.FontSizeCaption)
+                            .FontColor(DocumentStyle.ColorMuted);
+                        col.Item()
+                            .Text(_entity.TotalPreviouslyDeliveredQty.ToString())
+                            .FontSize(DocumentStyle.FontSizeH1).Bold()
+                            .FontColor(DocumentStyle.ColorMuted);
+                    });
+
+                    // 3 — This DN Delivered
+                    row.RelativeItem().Column(col =>
+                    {
+                        col.Item().Text("THIS DN")
+                            .FontSize(DocumentStyle.FontSizeCaption)
+                            .FontColor(DocumentStyle.ColorMuted);
+                        col.Item().Text(_entity.TotalDeliveredQty.ToString())
+                            .FontSize(DocumentStyle.FontSizeH1).Bold()
+                            .FontColor(DocumentStyle.ColorAccent);
+                    });
+
+                    // 4 — Balance Remaining
+                    row.RelativeItem().Column(col =>
+                    {
+                        col.Item().Text("BALANCE")
+                            .FontSize(DocumentStyle.FontSizeCaption)
+                            .FontColor(DocumentStyle.ColorMuted);
+                        col.Item().Text(_entity.TotalBalanceQty.ToString())
+                            .FontSize(DocumentStyle.FontSizeH1).Bold()
+                            .FontColor(_entity.TotalBalanceQty > 0
+                                ? DocumentStyle.ColorDanger
+                                : DocumentStyle.ColorSuccess);
+                    });
+
+                    // 5 — DN Sequence
+                    row.RelativeItem().Column(col =>
+                    {
+                        col.Item().Text("DN SEQUENCE")
+                            .FontSize(DocumentStyle.FontSizeCaption)
+                            .FontColor(DocumentStyle.ColorMuted);
+                        col.Item().Text($"#{_entity.SequenceNumber} of job")
+                            .FontSize(DocumentStyle.FontSizeH1).Bold()
+                            .FontColor(DocumentStyle.ColorText);
+                    });
+                });
+        }
+
+        private static void RenderSignatureBlock(IContainer container)
+        {
+            container.Row(row =>
+            {
+                SignatureCell(row, "Dispatched By");
+                row.ConstantItem(8);
+                SignatureCell(row, "Received By");
+                row.ConstantItem(8);
+                SignatureCell(row, "Date");
+            });
+        }
+
+        private static void SignatureCell(RowDescriptor row, string label)
+        {
+            row.RelativeItem().Column(col =>
+            {
+                col.Item().PaddingTop(30)
+                    .BorderBottom(0.75f)
+                    .BorderColor(DocumentStyle.ColorText);
+                col.Item().PaddingTop(3).Text(label)
+                    .FontSize(DocumentStyle.FontSizeCaption)
+                    .FontColor(DocumentStyle.ColorMuted);
+                col.Item().Text("Name: _____________________")
+                    .FontSize(DocumentStyle.FontSizeCaption)
+                    .FontColor(DocumentStyle.ColorMuted);
+                col.Item().Text("Date: _______________________")
+                    .FontSize(DocumentStyle.FontSizeCaption)
+                    .FontColor(DocumentStyle.ColorMuted);
+            });
+        }
+
+        // ── Table cell helpers ───────────────────────────────────────────
+
+        private static void HeaderCell(IContainer cell, string text)
+        {
+            cell.Background(DocumentStyle.ColorAccent)
+                .PaddingHorizontal(DocumentStyle.TableCellPaddingH)
+                .PaddingVertical(DocumentStyle.TableCellPaddingV)
+                .AlignCenter()
+                .Text(text)
+                .FontSize(DocumentStyle.FontSizeSmall)
+                .Bold()
+                .FontColor(DocumentStyle.ColorWhite);
+        }
+
+        private static void DataCell(
+            IContainer cell,
+            string text,
+            string bg,
+            bool align = true,
+            bool highlight = false,
+            string? highlightColor = null)
+        {
+            var bordered = cell
+                .Border(0.5f)
+                .BorderColor(DocumentStyle.ColorBorder)
+                .Background(bg)
+                .PaddingHorizontal(DocumentStyle.TableCellPaddingH)
+                .PaddingVertical(DocumentStyle.TableCellPaddingV);
+
+            var textEl = align
+                ? bordered.AlignCenter().Text(text)
+                : bordered.Text(text);
+
+            textEl.FontSize(DocumentStyle.FontSizeSmall);
+
+            if (highlight)
+                textEl.Bold().FontColor(
+                    highlightColor ?? DocumentStyle.ColorAccent);
+        }
+
+        // ── Helpers ──────────────────────────────────────────────────────
+
+        private string BuildSubtitle()
+        {
+            var parts = new System.Collections.Generic.List<string>();
+
+            if (!string.IsNullOrWhiteSpace(_entity.JobOrderId))
+                parts.Add($"JO: {_entity.JobOrderId}");
+
+            parts.Add(_entity.DeliveryDate.ToString("dd MMM yyyy"));
+
+            if (!string.IsNullOrWhiteSpace(_entity.Status))
+                parts.Add(_entity.Status.ToUpperInvariant());
+
+            return string.Join("  ·  ", parts);
+        }
+    }
+}

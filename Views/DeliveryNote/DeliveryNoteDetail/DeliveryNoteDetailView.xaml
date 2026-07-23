@@ -66,6 +66,40 @@
             </Setter>
         </Style>
 
+        <!-- Export button — smaller, outlined style -->
+        <Style x:Key="ExportButtonStyle" TargetType="Button">
+            <Setter Property="Padding"         Value="12,8"/>
+            <Setter Property="FontSize"        Value="11"/>
+            <Setter Property="FontWeight"      Value="Bold"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg"
+                                        Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bg"
+                                        Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="GridHeaderCell" TargetType="TextBlock">
             <Setter Property="FontSize"          Value="10"/>
             <Setter Property="FontWeight"        Value="Bold"/>
@@ -229,7 +263,6 @@
                         Style="{StaticResource ActionButtonStyle}"
                         Margin="0,0,8,0"/>
 
-                <!-- Phase 10.7a — Delete DN -->
                 <Button Grid.Column="4"
                         Content="🗑️  Delete"
                         Command="{Binding DeleteDnCommand}"
@@ -239,20 +272,36 @@
                         Margin="0,0,8,0"
                         ToolTip="Permanently delete this delivery note"/>
 
-                <StackPanel Grid.Column="5" Orientation="Horizontal">
-                    <Button Content="PDF"
-                            Style="{StaticResource ActionButtonStyle}"
-                            Background="{DynamicResource MenuHoverBrush}"
-                            Foreground="{DynamicResource PrimaryForegroundBrush}"
-                            Margin="0,0,4,0"
-                            IsEnabled="False"
-                            ToolTip="Export PDF — Phase 10.8"/>
-                    <Button Content="Excel"
-                            Style="{StaticResource ActionButtonStyle}"
-                            Background="{DynamicResource MenuHoverBrush}"
-                            Foreground="{DynamicResource PrimaryForegroundBrush}"
-                            IsEnabled="False"
-                            ToolTip="Export Excel — Phase 10.8"/>
+                <!-- Phase 10.8 — Export buttons -->
+                <StackPanel Grid.Column="5"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+
+                    <Button Content="📄  PDF"
+                            Command="{Binding ExportPdfCommand}"
+                            Style="{StaticResource ExportButtonStyle}"
+                            Background="{DynamicResource TintRedBrush}"
+                            BorderBrush="{DynamicResource DangerBrush}"
+                            Foreground="{DynamicResource DangerBrush}"
+                            Margin="0,0,6,0"
+                            ToolTip="Export delivery note as PDF"/>
+
+                    <Button Content="📊  Excel"
+                            Command="{Binding ExportExcelCommand}"
+                            Style="{StaticResource ExportButtonStyle}"
+                            Background="{DynamicResource TintGreenBrush}"
+                            BorderBrush="{DynamicResource SuccessBrush}"
+                            Foreground="{DynamicResource SuccessBrush}"
+                            Margin="0,0,6,0"
+                            ToolTip="Export delivery note as Excel workbook"/>
+
+                    <Button Content="📋  CSV"
+                            Command="{Binding ExportCsvCommand}"
+                            Style="{StaticResource ExportButtonStyle}"
+                            Background="{DynamicResource TintIndigoBrush}"
+                            BorderBrush="{DynamicResource AccentBrush}"
+                            Foreground="{DynamicResource AccentBrush}"
+                            ToolTip="Export delivery note as CSV"/>
                 </StackPanel>
             </Grid>
 
@@ -341,7 +390,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0"
-                                               Text="DELIVERY HISTORY (CLICK TO VIEW ATTACHMENTS)"
+                                               Text="DELIVERY HISTORY (CLICK TO NAVIGATE)"
                                                FontSize="11" FontWeight="Bold"
                                                Foreground="White"
                                                VerticalAlignment="Center"/>
@@ -428,7 +477,7 @@
                                                                          Converter={StaticResource BrushKeyConverter}}">
                                                         <TextBlock Text="{Binding Status}"
                                                                    FontSize="9" FontWeight="Bold"
-                                                                   Foreground="White"/>
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                                     </Border>
                                                 </StackPanel>
                                             </Grid>
@@ -583,8 +632,12 @@
                                                FontSize="11" FontWeight="Bold"
                                                Foreground="White"
                                                VerticalAlignment="Center"/>
+
+                                    <!-- Phase 10.8a — 4 chips: Ordered · Prev · This DN · Balance -->
                                     <StackPanel Grid.Column="1"
                                                 Orientation="Horizontal">
+
+                                        <!-- Ordered -->
                                         <Border CornerRadius="6" Padding="8,2"
                                                 Margin="0,0,4,0"
                                                 Background="#22FFFFFF">
@@ -594,6 +647,20 @@
                                                      FontWeight="Bold"/>
                                             </TextBlock>
                                         </Border>
+
+                                        <!-- Prev Delivered — NEW Phase 10.8a -->
+                                        <Border CornerRadius="6" Padding="8,2"
+                                                Margin="0,0,4,0"
+                                                Background="#22FFFFFF">
+                                            <TextBlock FontSize="10" Foreground="White">
+                                                <Run Text="Prev: "/>
+                                                <Run Text="{Binding TotalPreviouslyDeliveredQty,
+                                                            Mode=OneWay}"
+                                                     FontWeight="Bold"/>
+                                            </TextBlock>
+                                        </Border>
+
+                                        <!-- This DN -->
                                         <Border CornerRadius="6" Padding="8,2"
                                                 Margin="0,0,4,0"
                                                 Background="#22FFFFFF">
@@ -603,6 +670,8 @@
                                                      FontWeight="Bold"/>
                                             </TextBlock>
                                         </Border>
+
+                                        <!-- Balance -->
                                         <Border CornerRadius="6" Padding="8,2"
                                                 Background="#22FFFFFF">
                                             <TextBlock FontSize="10" Foreground="White">
@@ -611,11 +680,12 @@
                                                      FontWeight="Bold"/>
                                             </TextBlock>
                                         </Border>
+
                                     </StackPanel>
                                 </Grid>
                             </Border>
 
-                            <!-- Table header — Phase 10.7 wider columns -->
+                            <!-- Table header -->
                             <Border Background="{DynamicResource MenuHoverBrush}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -650,7 +720,7 @@
                                 </Grid>
                             </Border>
 
-                            <!-- Items rows — Phase 10.7 grouped by SpecGroupName -->
+                            <!-- Items rows — grouped by SpecGroupName -->
                             <ItemsControl ItemsSource="{Binding GroupedItemsView}">
                                 <ItemsControl.GroupStyle>
                                     <GroupStyle>
@@ -784,7 +854,7 @@
                                             Background="#22FFFFFF"
                                             Foreground="White"
                                             BorderThickness="0"
-                                            ToolTip="Upload an image to the selected DN (max 10 MB)"/>
+                                            ToolTip="Upload an image (max 10 MB)"/>
 
                                     <Button Grid.Column="2"
                                             Content="+ PDF"
@@ -795,7 +865,7 @@
                                             Background="#22FFFFFF"
                                             Foreground="White"
                                             BorderThickness="0"
-                                            ToolTip="Upload a PDF to the selected DN (max 10 MB)"/>
+                                            ToolTip="Upload a PDF (max 10 MB)"/>
                                 </Grid>
                             </Border>
 

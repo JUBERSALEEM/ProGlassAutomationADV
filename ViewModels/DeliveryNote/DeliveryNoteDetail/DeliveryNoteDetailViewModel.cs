@@ -2,8 +2,13 @@
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Services.DeliveryNote.Attachments;
+using ProGlassAutomation.Services.DeliveryNote.Export;
 using ProGlassAutomation.Services.DeliveryNote.Mapper;
 using ProGlassAutomation.Services.DeliveryNote.Repository;
+using ProGlassAutomation.Services.Export.Core;
+using ProGlassAutomation.Services.Export.Csv;
+using ProGlassAutomation.Services.Export.Excel;
+using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.ViewModels;
 using ProGlassAutomation.Views.DeliveryNote.DeliveryNoteDetail.Attachments.Rename;
 using System;
@@ -30,6 +35,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
     ///              (full page reload) — so Status, Save, Make DN, Delete
     ///              always operate on the currently-viewed DN.
     ///              No more confusion between "open DN" and "selected DN".
+    /// Phase 10.8 : Export commands — PDF, Excel, CSV via shared engine.
+    /// Phase 10.8a: TotalPreviouslyDeliveredQty exposed for XAML binding.
+    ///              Prev chip added to items grid header.
+    ///              PDF totals strip now shows all 5 values.
     /// </summary>
     public class DeliveryNoteDetailViewModel : ViewModelBase
     {
@@ -248,6 +257,14 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             private set { if (_totalOrderedQty == value) return; _totalOrderedQty = value; OnPropertyChanged(); }
         }
 
+        // Phase 10.8a — exposed for XAML binding (Prev chip in items header)
+        private int _totalPreviouslyDeliveredQty;
+        public int TotalPreviouslyDeliveredQty
+        {
+            get => _totalPreviouslyDeliveredQty;
+            private set { if (_totalPreviouslyDeliveredQty == value) return; _totalPreviouslyDeliveredQty = value; OnPropertyChanged(); }
+        }
+
         private int _totalDeliveredQty;
         public int TotalDeliveredQty
         {
@@ -292,12 +309,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             private set { if (_historyTotalBalance == value) return; _historyTotalBalance = value; OnPropertyChanged(); }
         }
 
-        // ══════════════════════════════════════════════════════════════════
-        //  Phase 10.7a — CLICKING HISTORY ROW NAVIGATES TO THAT DN
-        //  SelectedHistoryEntry no longer just changes attachments panel —
-        //  it triggers a full page reload for the clicked DN via LoadAsync.
-        //  This eliminates the confusion between "open DN" vs "selected DN".
-        // ══════════════════════════════════════════════════════════════════
+        // ── Selected history entry ────────────────────────────────────────
 
         private DnHistoryEntryViewModel? _selectedHistoryEntry;
         public DnHistoryEntryViewModel? SelectedHistoryEntry
@@ -321,11 +333,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             }
         }
 
-        /// <summary>
-        /// Always true now that clicking a history row navigates to that DN.
-        /// Kept for XAML back-compat — the "viewing different DN" banner
-        /// will simply stay hidden since Selected == Current after navigate.
-        /// </summary>
         public bool IsSelectedDnCurrent =>
             _selectedHistoryEntry == null ||
             string.Equals(_selectedHistoryEntry.DeliveryNoteId, _deliveryNoteId,
@@ -334,7 +341,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public string SelectedDnHeaderText =>
             $"ATTACHMENTS ({AttachmentsCount})";
 
-        // Phase 10.7a — click a history row → NAVIGATE to that DN
         public ICommand SelectHistoryEntryCommand { get; }
 
         // ── Attachments ───────────────────────────────────────────────────
@@ -370,6 +376,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public ICommand UploadPdfCommand { get; }
         public ICommand OpenAttachmentCommand { get; }
         public ICommand DeleteAttachmentCommand { get; }
+
+        // Phase 10.8 — export commands
+        public ICommand ExportPdfCommand { get; }
+        public ICommand ExportExcelCommand { get; }
+        public ICommand ExportCsvCommand { get; }
 
         // ═════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
@@ -412,16 +423,28 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     await DeleteAttachmentAsync(row);
             });
 
-            // Phase 10.7a — click a history DN row → navigate to that DN
             SelectHistoryEntryCommand = new RelayCommand(async param =>
             {
                 if (param is DnHistoryEntryViewModel entry)
                     await NavigateToDnAsync(entry.DeliveryNoteId);
             });
+
+            // Phase 10.8 — export
+            ExportPdfCommand = new RelayCommand(
+                async _ => await ExportPdfAsync(),
+                _ => _entity != null && !IsSaving && !IsLoading);
+
+            ExportExcelCommand = new RelayCommand(
+                async _ => await ExportExcelAsync(),
+                _ => _entity != null && !IsSaving && !IsLoading);
+
+            ExportCsvCommand = new RelayCommand(
+                async _ => await ExportCsvAsync(),
+                _ => _entity != null && !IsSaving && !IsLoading);
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  Phase 10.7a — NAVIGATE to another DN from history
+        //  NAVIGATE TO SIBLING DN
         // ═════════════════════════════════════════════════════════════════
 
         private async Task NavigateToDnAsync(string targetDeliveryNoteId)
@@ -429,7 +452,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             if (App.DeliveryNotes == null) return;
             if (_isNavigatingHistory) return;
 
-            // Already on this DN? do nothing
             if (string.Equals(targetDeliveryNoteId, _deliveryNoteId,
                               StringComparison.OrdinalIgnoreCase))
                 return;
@@ -502,7 +524,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 CompanyName = joRef?.CompanyName ?? "";
                 CompanyTrn = joRef?.CompanyTrn ?? "";
 
-                // ── Reset ALL editable fields from entity ─────────────────
+                // Reset ALL editable fields from entity
                 Status = _entity.Status;
                 IsFoc = _entity.IsFoc;
                 DriverName = _entity.DriverName;
@@ -527,7 +549,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
                 await LoadHistoryAsync();
 
-                // ── Auto-select current DN in history for highlight ───────
                 var currentInHistory = HistoryEntries
                     .FirstOrDefault(h => string.Equals(
                         h.DeliveryNoteId, DeliveryNoteId,
@@ -538,10 +559,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 OnPropertyChanged(nameof(SelectedHistoryEntry));
                 OnPropertyChanged(nameof(IsSelectedDnCurrent));
 
-                // ── Load attachments for THIS DN ──────────────────────────
                 await LoadAttachmentsDirectlyAsync(DeliveryNoteId);
 
-                // Refresh commands (Status may have changed → MakeDn CanExecute)
                 CommandManager.InvalidateRequerySuggested();
             }
             catch (Exception ex)
@@ -574,8 +593,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         private async Task LoadHistoryAsync()
         {
-            if (App.DeliveryNotes == null || string.IsNullOrWhiteSpace(JobOrderId))
-                return;
+            if (App.DeliveryNotes == null ||
+                string.IsNullOrWhiteSpace(JobOrderId)) return;
 
             var history = await App.DeliveryNotes
                 .GetDeliveryHistoryAsync(JobOrderId);
@@ -584,14 +603,16 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             HistoryTotalDelivered = history.TotalDelivered;
             HistoryTotalBalance = history.TotalBalance;
 
-            var siblingIds = history.Entries.Select(e => e.DeliveryNoteId).ToList();
+            var siblingIds = history.Entries
+                .Select(e => e.DeliveryNoteId).ToList();
             var counts = await App.DeliveryNotes
                 .GetAttachmentCountsAsync(siblingIds);
 
             var entries = history.Entries.Select(e =>
             {
                 var vm = new DnHistoryEntryViewModel(e);
-                vm.AttachmentCount = counts.TryGetValue(e.DeliveryNoteId, out var c) ? c : 0;
+                vm.AttachmentCount = counts.TryGetValue(
+                    e.DeliveryNoteId, out var c) ? c : 0;
                 vm.IsCurrentDn = string.Equals(
                     e.DeliveryNoteId, DeliveryNoteId,
                     StringComparison.OrdinalIgnoreCase);
@@ -599,7 +620,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 return vm;
             }).ToList();
 
-            HistoryEntries = new ObservableCollection<DnHistoryEntryViewModel>(entries);
+            HistoryEntries =
+                new ObservableCollection<DnHistoryEntryViewModel>(entries);
         }
 
         // ═════════════════════════════════════════════════════════════════
@@ -659,7 +681,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
                 await App.DeliveryNotes.UpdateAsync(_entity);
 
-                // Full page reload from DB — safest way to sync all fields
                 await LoadAsync(_entity.Id);
 
                 MessageBox.Show(
@@ -824,20 +845,98 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  ATTACHMENTS — always for the currently-viewed DN
+        //  PHASE 10.8 — EXPORT
+        // ═════════════════════════════════════════════════════════════════
+
+        private async Task ExportPdfAsync()
+        {
+            if (!EnsureLoaded()) return;
+
+            var layout = new DeliveryNotePdfLayout(_entity!, _snapshot!);
+            var engine = new PdfExportEngine();
+            var request = new ExportRequest
+            {
+                PromptForLocation = true,
+                OpenAfterSave = true
+            };
+
+            var result = await engine.ExportAsync(layout, request);
+            ShowExportResult(result, "PDF");
+        }
+
+        private async Task ExportExcelAsync()
+        {
+            if (!EnsureLoaded()) return;
+
+            var layout = new DeliveryNoteExcelLayout(_entity!, _snapshot!);
+            var engine = new ExcelExportEngine();
+            var request = new ExportRequest
+            {
+                PromptForLocation = true,
+                OpenAfterSave = true
+            };
+
+            var result = await engine.ExportAsync(layout, request);
+            ShowExportResult(result, "Excel");
+        }
+
+        private async Task ExportCsvAsync()
+        {
+            if (!EnsureLoaded()) return;
+
+            var layout = new DeliveryNoteCsvLayout(_entity!, _snapshot!);
+            var engine = new CsvExportEngine();
+            var request = new ExportRequest
+            {
+                PromptForLocation = true,
+                OpenAfterSave = true
+            };
+
+            var result = await engine.ExportAsync(layout, request);
+            ShowExportResult(result, "CSV");
+        }
+
+        private bool EnsureLoaded()
+        {
+            if (_entity != null && _snapshot != null) return true;
+
+            MessageBox.Show(
+                "Load a delivery note before exporting.",
+                "Nothing to export",
+                MessageBoxButton.OK,
+                MessageBoxImage.Warning);
+            return false;
+        }
+
+        private static void ShowExportResult(ExportResult result, string formatLabel)
+        {
+            if (result.Success) return;
+            if (result.Cancelled) return;
+
+            MessageBox.Show(
+                $"{formatLabel} export failed:\n\n{result.ErrorMessage}",
+                "Export Failed",
+                MessageBoxButton.OK,
+                MessageBoxImage.Error);
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  ATTACHMENTS
         // ═════════════════════════════════════════════════════════════════
 
         private async Task LoadAttachmentsDirectlyAsync(string deliveryNoteId)
         {
-            if (App.DeliveryNotes == null || string.IsNullOrWhiteSpace(deliveryNoteId))
-                return;
+            if (App.DeliveryNotes == null ||
+                string.IsNullOrWhiteSpace(deliveryNoteId)) return;
 
-            var list = await App.DeliveryNotes.GetAttachmentsAsync(deliveryNoteId);
+            var list = await App.DeliveryNotes
+                .GetAttachmentsAsync(deliveryNoteId);
             var rows = list.Select(a => new DnAttachmentRowViewModel(a)).ToList();
             Attachments = new ObservableCollection<DnAttachmentRowViewModel>(rows);
 
             var historyRow = HistoryEntries.FirstOrDefault(h => string.Equals(
-                h.DeliveryNoteId, deliveryNoteId, StringComparison.OrdinalIgnoreCase));
+                h.DeliveryNoteId, deliveryNoteId,
+                StringComparison.OrdinalIgnoreCase));
             if (historyRow != null)
                 historyRow.AttachmentCount = rows.Count;
         }
@@ -861,7 +960,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 {
                     MessageBox.Show(
                         "Unsupported image format.\n\nAllowed: JPG, PNG, BMP, GIF, WEBP.",
-                        "Invalid File", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        "Invalid File",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
                     return;
                 }
 
@@ -869,7 +970,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 {
                     MessageBox.Show(
                         $"File is too large.\n\nMaximum size: {AttachmentLimits.MaxFileSizeDisplay}",
-                        "File Too Large", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        "File Too Large",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
                     return;
                 }
 
@@ -889,8 +992,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to upload image:\n\n{ex.Message}",
-                    "Upload Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(
+                    $"Failed to upload image:\n\n{ex.Message}",
+                    "Upload Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
             finally { IsSaving = false; }
         }
@@ -912,8 +1018,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             {
                 if (!_attachmentService.IsValidPdfExtension(dlg.FileName))
                 {
-                    MessageBox.Show("Only PDF files are allowed in this slot.",
-                        "Invalid File", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show(
+                        "Only PDF files are allowed in this slot.",
+                        "Invalid File",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
                     return;
                 }
 
@@ -921,7 +1030,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 {
                     MessageBox.Show(
                         $"File is too large.\n\nMaximum size: {AttachmentLimits.MaxFileSizeDisplay}",
-                        "File Too Large", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        "File Too Large",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
                     return;
                 }
 
@@ -941,8 +1052,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to upload PDF:\n\n{ex.Message}",
-                    "Upload Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(
+                    $"Failed to upload PDF:\n\n{ex.Message}",
+                    "Upload Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
             finally { IsSaving = false; }
         }
@@ -952,8 +1066,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             try { _attachmentService.OpenInDefaultApp(row.FilePath); }
             catch (Exception ex)
             {
-                MessageBox.Show($"Could not open file:\n\n{ex.Message}",
-                    "Open Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(
+                    $"Could not open file:\n\n{ex.Message}",
+                    "Open Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
 
@@ -964,7 +1081,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             var result = MessageBox.Show(
                 $"Delete attachment '{row.FileName}'?\n\n" +
                 "This will remove the file from disk and cannot be undone.",
-                "Confirm Delete", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                "Confirm Delete",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
 
             if (result != MessageBoxResult.Yes) return;
 
@@ -976,8 +1095,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             }
             catch (Exception ex)
             {
-                MessageBox.Show($"Failed to delete attachment:\n\n{ex.Message}",
-                    "Delete Failed", MessageBoxButton.OK, MessageBoxImage.Error);
+                MessageBox.Show(
+                    $"Failed to delete attachment:\n\n{ex.Message}",
+                    "Delete Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
             }
         }
 
@@ -985,9 +1107,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         private void OnItemDeliveredQtyChanged() => RecalculateTotals();
 
+        // Phase 10.8a — added TotalPreviouslyDeliveredQty
         private void RecalculateTotals()
         {
             TotalOrderedQty = ItemRows.Sum(r => r.OrderedQty);
+            TotalPreviouslyDeliveredQty = ItemRows.Sum(r => r.PreviouslyDeliveredQty);
             TotalDeliveredQty = ItemRows.Sum(r => r.DeliveredQty);
             TotalBalanceQty = ItemRows.Sum(r => r.BalanceQty);
         }
