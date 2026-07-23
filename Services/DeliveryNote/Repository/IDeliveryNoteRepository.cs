@@ -12,6 +12,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
     /// List methods return lightweight DeliveryNoteListItem (no JSON parse).
     ///
     /// Phase 10.5c: Added GetReturnedAsync() for the Returned tab.
+    /// Phase 10.6 : Added attachment CRUD (independent of parent DN save).
     /// </summary>
     public interface IDeliveryNoteRepository
     {
@@ -101,6 +102,19 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
         Task<bool> ExistsByDeliveryNoteIdAsync(string deliveryNoteId);
         Task<bool> HasAnyDeliveryAsync(string jobOrderId);
+
+        // ── Attachments (Phase 10.6) ─────────────────────────────────────
+
+        /// <summary>Load all attachments for a given DN (newest first).</summary>
+        Task<List<DeliveryNoteAttachment>> GetAttachmentsAsync(string deliveryNoteId);
+
+        /// <summary>
+        /// Persist a new attachment record. Returns entity with Id populated.
+        /// </summary>
+        Task<DeliveryNoteAttachment> AddAttachmentAsync(DeliveryNoteAttachment entity);
+
+        /// <summary>Delete an attachment record by Id.</summary>
+        Task DeleteAttachmentAsync(int attachmentId);
     }
 
     // ── Supporting DTOs ──────────────────────────────────────────────────

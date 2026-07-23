@@ -13,6 +13,9 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
     /// Each method creates a fresh DbContext (same pattern as JO + PI repos).
     ///
     /// Phase 10.5c: Added GetReturnedAsync() for the Returned tab.
+    /// Phase 10.6 : Attachments are now managed independently of parent DN
+    ///              save. UpdateAsync no longer wipes attachments — that
+    ///              would delete Phase 10.6 uploaded files on every Save.
     /// </summary>
     public class DeliveryNoteRepository : IDeliveryNoteRepository
     {
@@ -93,7 +96,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         {
             using var ctx = new DeliveryNotesDbContext();
 
-            // Group items by JO, sum quantities, filter where balance > 0
             var groups = await ctx.DeliveryNoteItems
                 .GroupBy(i => i.JobOrderId)
                 .Select(g => new
@@ -110,7 +112,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
             foreach (var g in groups)
             {
-                // Get customer + project from latest DN for this JO
                 var latestDn = await ctx.DeliveryNotes
                     .Where(x => x.JobOrderId == g.JobOrderId)
                     .OrderByDescending(x => x.SequenceNumber)
@@ -140,8 +141,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 .ToListAsync();
             return entities.Select(ToListItem).ToList();
         }
-
-        // ── NEW (Phase 10.5c) — Returned DNs ─────────────────────────────
 
         public async Task<List<DeliveryNoteListItem>> GetReturnedAsync()
         {
@@ -205,8 +204,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         {
             using var ctx = new DeliveryNotesDbContext();
 
-            // Only count confirmed DNs (not Draft/Dummy) to get accurate
-            // previously-delivered count for new DN creation
             var confirmedDnIds = await ctx.DeliveryNotes
                 .Where(x => x.JobOrderId == jobOrderId
                          && x.Status != "Draft")
@@ -235,9 +232,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         public async Task<string> BuildDeliveryNoteIdAsync(
             string jobOrderId, int sequence)
         {
-            // JOB-2026-001 → extract "2026-001" → DN-2026-001-02
             string core = jobOrderId.StartsWith("JOB-", StringComparison.OrdinalIgnoreCase)
-                ? jobOrderId.Substring(4)   // removes "JOB-"
+                ? jobOrderId.Substring(4)
                 : jobOrderId;
 
             return $"DN-{core}-{sequence:D2}";
@@ -260,17 +256,19 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             using var ctx = new DeliveryNotesDbContext();
             entity.UpdatedAt = DateTime.Now;
 
-            // Remove + re-add items and attachments (simplest update strategy
-            // matching JO repo pattern — avoids EF tracking conflicts)
+            // Items: wipe + re-add strategy (matches JO repo pattern —
+            // avoids EF tracking conflicts on child collection).
             var existingItems = await ctx.DeliveryNoteItems
                 .Where(i => i.DeliveryNoteId == entity.DeliveryNoteId)
                 .ToListAsync();
             ctx.DeliveryNoteItems.RemoveRange(existingItems);
 
-            var existingAttachments = await ctx.DeliveryNoteAttachments
-                .Where(a => a.DeliveryNoteId == entity.DeliveryNoteId)
-                .ToListAsync();
-            ctx.DeliveryNoteAttachments.RemoveRange(existingAttachments);
+            // Phase 10.6 — Attachments are managed independently via
+            // AddAttachmentAsync / DeleteAttachmentAsync. Do NOT wipe them
+            // on regular Save — that would delete uploaded files on every
+            // Save click. Detach the entity's Attachments navigation from
+            // tracking so EF doesn't try to persist stale rows.
+            entity.Attachments.Clear();
 
             ctx.DeliveryNotes.Update(entity);
             await ctx.SaveChangesAsync();
@@ -305,6 +303,39 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             using var ctx = new DeliveryNotesDbContext();
             return await ctx.DeliveryNotes
                 .AnyAsync(x => x.JobOrderId == jobOrderId);
+        }
+
+        // ── Attachments (Phase 10.6) ─────────────────────────────────────
+
+        public async Task<List<DeliveryNoteAttachment>> GetAttachmentsAsync(
+            string deliveryNoteId)
+        {
+            using var ctx = new DeliveryNotesDbContext();
+            return await ctx.DeliveryNoteAttachments
+                .Where(a => a.DeliveryNoteId == deliveryNoteId)
+                .OrderByDescending(a => a.UploadedAt)
+                .ToListAsync();
+        }
+
+        public async Task<DeliveryNoteAttachment> AddAttachmentAsync(
+            DeliveryNoteAttachment entity)
+        {
+            using var ctx = new DeliveryNotesDbContext();
+            entity.UploadedAt = DateTime.Now;
+            ctx.DeliveryNoteAttachments.Add(entity);
+            await ctx.SaveChangesAsync();
+            return entity;
+        }
+
+        public async Task DeleteAttachmentAsync(int attachmentId)
+        {
+            using var ctx = new DeliveryNotesDbContext();
+            var entity = await ctx.DeliveryNoteAttachments
+                .FirstOrDefaultAsync(a => a.Id == attachmentId);
+            if (entity == null) return;
+
+            ctx.DeliveryNoteAttachments.Remove(entity);
+            await ctx.SaveChangesAsync();
         }
 
         // ── Private helpers ──────────────────────────────────────────────

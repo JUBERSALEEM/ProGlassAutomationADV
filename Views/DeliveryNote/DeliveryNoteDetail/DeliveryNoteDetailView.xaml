@@ -661,26 +661,167 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- ATTACHMENTS PLACEHOLDER -->
+                    <!-- ══════════════════════════════════════════════════════
+                         ATTACHMENTS (Phase 10.6)
+                         Upload buttons in header + list of files below.
+                         Each row: thumbnail/icon + filename + size + date
+                                   + Open button + Delete button.
+                    ══════════════════════════════════════════════════════ -->
                     <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
+
+                            <!-- Header row: title + upload buttons -->
                             <Border Style="{StaticResource SectionHeaderStyle}">
-                                <TextBlock Text="ATTACHMENTS (PHOTOS &amp; PDFs)"
-                                           FontSize="11" FontWeight="Bold"
-                                           Foreground="White"/>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock Grid.Column="0"
+                                               VerticalAlignment="Center"
+                                               FontSize="11" FontWeight="Bold"
+                                               Foreground="White">
+                                        <Run Text="ATTACHMENTS"/>
+                                        <Run Text="  ("/>
+                                        <Run Text="{Binding AttachmentsCount, Mode=OneWay}"/>
+                                        <Run Text=")"/>
+                                    </TextBlock>
+
+                                    <Button Grid.Column="1"
+                                            Content="+ Image"
+                                            Command="{Binding UploadImageCommand}"
+                                            FontSize="10" FontWeight="Bold"
+                                            Padding="10,4" Margin="0,0,6,0"
+                                            Cursor="Hand"
+                                            Background="#22FFFFFF"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            ToolTip="Upload an image (JPG, PNG, BMP, GIF, WEBP — max 10 MB)"/>
+
+                                    <Button Grid.Column="2"
+                                            Content="+ PDF"
+                                            Command="{Binding UploadPdfCommand}"
+                                            FontSize="10" FontWeight="Bold"
+                                            Padding="10,4"
+                                            Cursor="Hand"
+                                            Background="#22FFFFFF"
+                                            Foreground="White"
+                                            BorderThickness="0"
+                                            ToolTip="Upload a PDF (max 10 MB)"/>
+                                </Grid>
                             </Border>
-                            <Border Padding="16,20">
+
+                            <!-- Empty state -->
+                            <Border Padding="16,20"
+                                    Visibility="{Binding HasNoAttachments,
+                                                 Converter={StaticResource BoolToVisibilityConverter}}">
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="📎" FontSize="32"
                                                HorizontalAlignment="Center"
                                                Opacity="0.4"/>
-                                    <TextBlock Text="Attachment upload coming in Phase 10.6"
-                                               FontSize="12"
+                                    <TextBlock Text="No attachments yet"
+                                               FontSize="13" FontWeight="SemiBold"
                                                HorizontalAlignment="Center"
-                                               Margin="0,8,0,0"
+                                               Margin="0,8,0,4"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text="Click + Image or + PDF above to upload proof of delivery."
+                                               FontSize="11" HorizontalAlignment="Center"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 </StackPanel>
                             </Border>
+
+                            <!-- Attachments list -->
+                            <ItemsControl ItemsSource="{Binding Attachments}"
+                                          Margin="10,6,10,10">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Margin="0,3"
+                                                Padding="10,8"
+                                                CornerRadius="8"
+                                                Background="{DynamicResource MenuHoverBrush}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="48"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- Thumbnail / icon -->
+                                                <Border Grid.Column="0"
+                                                        Width="40" Height="40"
+                                                        CornerRadius="6"
+                                                        Background="{DynamicResource ModuleBackgroundBrush}"
+                                                        ClipToBounds="True"
+                                                        VerticalAlignment="Center">
+                                                    <Grid>
+                                                        <!-- Image preview (only for image type) -->
+                                                        <Image Source="{Binding Preview}"
+                                                               Stretch="UniformToFill"
+                                                               Visibility="{Binding IsImage,
+                                                                   Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                        <!-- PDF icon (only for pdf type) -->
+                                                        <TextBlock Text="{Binding TypeIcon}"
+                                                                   FontSize="22"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"
+                                                                   Visibility="{Binding IsPdf,
+                                                                       Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                    </Grid>
+                                                </Border>
+
+                                                <!-- Filename + metadata -->
+                                                <StackPanel Grid.Column="1"
+                                                            VerticalAlignment="Center"
+                                                            Margin="10,0,10,0">
+                                                    <TextBlock Text="{Binding FileName}"
+                                                               FontSize="12" FontWeight="SemiBold"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                    <TextBlock FontSize="10"
+                                                               Margin="0,2,0,0"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                                        <Run Text="{Binding FileSizeDisplay, Mode=OneWay}"/>
+                                                        <Run Text="  ·  "/>
+                                                        <Run Text="{Binding UploadedAtDisplay, Mode=OneWay}"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+
+                                                <!-- Open button -->
+                                                <Button Grid.Column="2"
+                                                        Content="Open"
+                                                        Command="{Binding DataContext.OpenAttachmentCommand,
+                                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding}"
+                                                        FontSize="10" FontWeight="Bold"
+                                                        Padding="10,4" Margin="0,0,6,0"
+                                                        Cursor="Hand"
+                                                        Background="{DynamicResource AccentBrush}"
+                                                        Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                        BorderThickness="0"
+                                                        ToolTip="Open in default application"/>
+
+                                                <!-- Delete button -->
+                                                <Button Grid.Column="3"
+                                                        Content="✕"
+                                                        Command="{Binding DataContext.DeleteAttachmentCommand,
+                                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding}"
+                                                        FontSize="12" FontWeight="Bold"
+                                                        Padding="8,4"
+                                                        Cursor="Hand"
+                                                        Background="{DynamicResource DangerBrush}"
+                                                        Foreground="White"
+                                                        BorderThickness="0"
+                                                        ToolTip="Delete attachment"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
                         </StackPanel>
                     </Border>
 

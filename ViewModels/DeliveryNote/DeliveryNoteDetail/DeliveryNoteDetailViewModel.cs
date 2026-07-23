@@ -1,10 +1,14 @@
-﻿using ProGlassAutomation.Commands;
+﻿using Microsoft.Win32;
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
+using ProGlassAutomation.Services.DeliveryNote.Attachments;
 using ProGlassAutomation.Services.DeliveryNote.Mapper;
 using ProGlassAutomation.Services.DeliveryNote.Repository;
 using ProGlassAutomation.ViewModels;
+using ProGlassAutomation.Views.DeliveryNote.DeliveryNoteDetail.Attachments.Rename;
 using System;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -22,9 +26,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
     ///           + delivery history timeline (all DNs for this JO)
     ///           + attachments section (Phase 10.6)
     ///
-    /// LoadAsync(id) fetches entity + deserializes snapshot.
-    /// SaveAsync() updates entity + refreshes snapshot JSON.
-    /// OnRequestBackToList callback wired by shell VM.
+    /// Phase 10.6 : Attachments managed independently — upload/delete
+    ///              commits immediately, does NOT depend on Save button.
+    /// Phase 10.6a: Rename dialog appears on upload — user can choose a
+    ///              custom filename before the file is saved to disk.
+    ///              Dialog lives under Views/.../Attachments/Rename/.
     /// </summary>
     public class DeliveryNoteDetailViewModel : ViewModelBase
     {
@@ -34,6 +40,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         // ── loaded entity + snapshot ──────────────────────────────────────
         private SavedDeliveryNote? _entity;
         private DeliveryNoteSnapshot? _snapshot;
+
+        // Phase 10.6 — Attachments file-I/O service
+        private readonly AttachmentService _attachmentService = new();
 
         // ── loading state ─────────────────────────────────────────────────
 
@@ -259,11 +268,38 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             private set { if (_historyTotalBalance == value) return; _historyTotalBalance = value; OnPropertyChanged(); }
         }
 
+        // ── Attachments (Phase 10.6) ─────────────────────────────────────
+
+        private ObservableCollection<DnAttachmentRowViewModel> _attachments = new();
+        public ObservableCollection<DnAttachmentRowViewModel> Attachments
+        {
+            get => _attachments;
+            private set
+            {
+                if (_attachments == value) return;
+                _attachments = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(AttachmentsCount));
+                OnPropertyChanged(nameof(HasNoAttachments));
+                OnPropertyChanged(nameof(HasAttachments));
+            }
+        }
+
+        public int AttachmentsCount => Attachments?.Count ?? 0;
+        public bool HasNoAttachments => AttachmentsCount == 0;
+        public bool HasAttachments => AttachmentsCount > 0;
+
         // ── Commands ──────────────────────────────────────────────────────
 
         public ICommand SaveCommand { get; }
         public ICommand BackCommand { get; }
         public ICommand ConfirmDispatchCommand { get; }
+
+        // Phase 10.6 attachment commands
+        public ICommand UploadImageCommand { get; }
+        public ICommand UploadPdfCommand { get; }
+        public ICommand OpenAttachmentCommand { get; }
+        public ICommand DeleteAttachmentCommand { get; }
 
         // ═════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
@@ -281,6 +317,27 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             ConfirmDispatchCommand = new RelayCommand(
                 async _ => await ConfirmDispatchAsync(),
                 _ => Status == "Draft" && !IsSaving);
+
+            // Phase 10.6 — Attachment commands
+            UploadImageCommand = new RelayCommand(
+                async _ => await UploadImageAsync(),
+                _ => _entity != null && !IsSaving);
+
+            UploadPdfCommand = new RelayCommand(
+                async _ => await UploadPdfAsync(),
+                _ => _entity != null && !IsSaving);
+
+            OpenAttachmentCommand = new RelayCommand(param =>
+            {
+                if (param is DnAttachmentRowViewModel row)
+                    OpenAttachment(row);
+            });
+
+            DeleteAttachmentCommand = new RelayCommand(async param =>
+            {
+                if (param is DnAttachmentRowViewModel row)
+                    await DeleteAttachmentAsync(row);
+            });
         }
 
         // ═════════════════════════════════════════════════════════════════
@@ -312,7 +369,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
                 _snapshot = DeliveryNoteMapper.DeserializeSnapshot(_entity);
 
-                // ── Populate header display fields ────────────────────────
                 DeliveryNoteId = _entity.DeliveryNoteId;
                 JobOrderId = _entity.JobOrderId;
                 ProformaId = _entity.ProformaId;
@@ -321,14 +377,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 DeliveryDateDisplay = _entity.DeliveryDate.ToString("dd MMM yyyy");
                 DeliveryTime = _entity.DeliveryTime;
 
-                // ── JO context from snapshot ──────────────────────────────
                 var joRef = _snapshot?.JobOrderRef;
                 CustomerName = joRef?.CustomerName ?? _entity.CustomerName;
                 ProjectName = joRef?.ProjectName ?? _entity.ProjectName;
                 CompanyName = joRef?.CompanyName ?? "";
                 CompanyTrn = joRef?.CompanyTrn ?? "";
 
-                // ── Editable fields ───────────────────────────────────────
                 Status = _entity.Status;
                 IsFoc = _entity.IsFoc;
                 DriverName = _entity.DriverName;
@@ -336,7 +390,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 ReceiverName = _entity.ReceiverName;
                 Notes = _entity.Notes;
 
-                // ── Items grid ────────────────────────────────────────────
                 var rows = _entity.Items
                     .OrderBy(i => i.SpecGroupNumber)
                     .ThenBy(i => i.SerialNumber)
@@ -345,14 +398,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
                 ItemRows = new ObservableCollection<DnItemRowViewModel>(rows);
 
-                // Wire DeliveredQty change → recalculate totals
                 foreach (var row in ItemRows)
                     row.DeliveredQtyChanged += OnItemDeliveredQtyChanged;
 
                 RecalculateTotals();
 
-                // ── Delivery history ──────────────────────────────────────
                 await LoadHistoryAsync();
+                await LoadAttachmentsAsync();
             }
             catch (Exception ex)
             {
@@ -396,7 +448,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             {
                 IsSaving = true;
 
-                // Update entity from editable fields
                 _entity.Status = Status;
                 _entity.IsFoc = IsFoc;
                 _entity.DriverName = DriverName;
@@ -404,7 +455,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 _entity.ReceiverName = ReceiverName;
                 _entity.Notes = Notes;
 
-                // Update items from VM rows
                 foreach (var row in ItemRows)
                 {
                     var item = _entity.Items.FirstOrDefault(i =>
@@ -420,11 +470,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     item.Notes = row.Notes;
                 }
 
-                // Update qty summary on entity
                 _entity.TotalDeliveredQty = _entity.Items.Sum(i => i.DeliveredQty);
                 _entity.TotalBalanceQty = _entity.Items.Sum(i => i.BalanceQty);
 
-                // Refresh snapshot JSON
                 var joRef = _snapshot?.JobOrderRef;
                 DeliveryNoteMapper.RefreshSnapshot(_entity, joRef);
 
@@ -436,7 +484,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
 
-                // Reload history after save
                 await LoadHistoryAsync();
             }
             catch (Exception ex)
@@ -455,15 +502,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         // ═════════════════════════════════════════════════════════════════
         //  CONFIRM DISPATCH
-        //  Saves + changes status to Dispatched + auto-creates Dummy DN
-        //  if balance qty remains.
         // ═════════════════════════════════════════════════════════════════
 
         private async Task ConfirmDispatchAsync()
         {
             if (_entity == null || App.DeliveryNotes == null) return;
 
-            // Validate at least 1 item has DeliveredQty > 0
             bool hasDelivery = ItemRows.Any(r => r.DeliveredQty > 0);
             if (!hasDelivery)
             {
@@ -490,11 +534,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             {
                 IsSaving = true;
 
-                // Set status to dispatched and save
                 Status = "Dispatched";
                 await SaveAsync();
 
-                // Check if balance remains → create Dummy DN
                 int totalBalance = _entity.Items.Sum(i => i.BalanceQty);
                 if (totalBalance > 0)
                 {
@@ -541,6 +583,199 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             }
         }
 
+        // ═════════════════════════════════════════════════════════════════
+        //  ATTACHMENTS (Phase 10.6 + Phase 10.6a rename dialog)
+        // ═════════════════════════════════════════════════════════════════
+
+        private async Task LoadAttachmentsAsync()
+        {
+            if (_entity == null || App.DeliveryNotes == null) return;
+
+            var list = await App.DeliveryNotes
+                .GetAttachmentsAsync(_entity.DeliveryNoteId);
+
+            var rows = list.Select(a => new DnAttachmentRowViewModel(a)).ToList();
+            Attachments = new ObservableCollection<DnAttachmentRowViewModel>(rows);
+        }
+
+        private async Task UploadImageAsync()
+        {
+            if (_entity == null || App.DeliveryNotes == null) return;
+
+            var dlg = new OpenFileDialog
+            {
+                Title = "Select image to attach",
+                Filter = AttachmentLimits.ImageDialogFilter,
+                Multiselect = false
+            };
+
+            if (dlg.ShowDialog() != true) return;
+
+            try
+            {
+                if (!_attachmentService.IsValidImageExtension(dlg.FileName))
+                {
+                    MessageBox.Show(
+                        "Unsupported image format.\n\n" +
+                        "Allowed: JPG, PNG, BMP, GIF, WEBP.",
+                        "Invalid File",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (!_attachmentService.IsUnderSizeLimit(dlg.FileName))
+                {
+                    MessageBox.Show(
+                        $"File is too large.\n\nMaximum size: {AttachmentLimits.MaxFileSizeDisplay}",
+                        "File Too Large",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Phase 10.6a — show rename dialog
+                var origName = Path.GetFileName(dlg.FileName);
+                var renameDlg = new RenameAttachmentDialog(origName)
+                {
+                    Owner = Application.Current.MainWindow
+                };
+                if (renameDlg.ShowDialog() != true) return;
+                var finalName = renameDlg.ResultFileName;
+
+                IsSaving = true;
+
+                var entity = await _attachmentService
+                    .CopyImageAsync(dlg.FileName, _entity.DeliveryNoteId, finalName);
+
+                await App.DeliveryNotes.AddAttachmentAsync(entity);
+                await LoadAttachmentsAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Failed to upload image:\n\n{ex.Message}",
+                    "Upload Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+            finally
+            {
+                IsSaving = false;
+            }
+        }
+
+        private async Task UploadPdfAsync()
+        {
+            if (_entity == null || App.DeliveryNotes == null) return;
+
+            var dlg = new OpenFileDialog
+            {
+                Title = "Select PDF to attach",
+                Filter = AttachmentLimits.PdfDialogFilter,
+                Multiselect = false
+            };
+
+            if (dlg.ShowDialog() != true) return;
+
+            try
+            {
+                if (!_attachmentService.IsValidPdfExtension(dlg.FileName))
+                {
+                    MessageBox.Show(
+                        "Only PDF files are allowed in this slot.",
+                        "Invalid File",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+
+                if (!_attachmentService.IsUnderSizeLimit(dlg.FileName))
+                {
+                    MessageBox.Show(
+                        $"File is too large.\n\nMaximum size: {AttachmentLimits.MaxFileSizeDisplay}",
+                        "File Too Large",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+
+                // Phase 10.6a — show rename dialog
+                var origName = Path.GetFileName(dlg.FileName);
+                var renameDlg = new RenameAttachmentDialog(origName)
+                {
+                    Owner = Application.Current.MainWindow
+                };
+                if (renameDlg.ShowDialog() != true) return;
+                var finalName = renameDlg.ResultFileName;
+
+                IsSaving = true;
+
+                var entity = await _attachmentService
+                    .CopyPdfAsync(dlg.FileName, _entity.DeliveryNoteId, finalName);
+
+                await App.DeliveryNotes.AddAttachmentAsync(entity);
+                await LoadAttachmentsAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Failed to upload PDF:\n\n{ex.Message}",
+                    "Upload Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+            finally
+            {
+                IsSaving = false;
+            }
+        }
+
+        private void OpenAttachment(DnAttachmentRowViewModel row)
+        {
+            try
+            {
+                _attachmentService.OpenInDefaultApp(row.FilePath);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Could not open file:\n\n{ex.Message}",
+                    "Open Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        private async Task DeleteAttachmentAsync(DnAttachmentRowViewModel row)
+        {
+            if (App.DeliveryNotes == null) return;
+
+            var result = MessageBox.Show(
+                $"Delete attachment '{row.FileName}'?\n\n" +
+                "This will remove the file from disk and cannot be undone.",
+                "Confirm Delete",
+                MessageBoxButton.YesNo,
+                MessageBoxImage.Warning);
+
+            if (result != MessageBoxResult.Yes) return;
+
+            try
+            {
+                await App.DeliveryNotes.DeleteAttachmentAsync(row.Id);
+                _attachmentService.DeleteFile(row.FilePath);
+                await LoadAttachmentsAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Failed to delete attachment:\n\n{ex.Message}",
+                    "Delete Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
         // ─────────────────────────────────────────────────────────────────
 
         private void OnItemDeliveredQtyChanged()
@@ -580,7 +815,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             set
             {
                 if (_deliveredQty == value) return;
-                // Clamp: 0 ≤ DeliveredQty ≤ (Ordered - Previously delivered)
                 int max = Math.Max(0, OrderedQty - PreviouslyDeliveredQty);
                 _deliveredQty = Math.Max(0, Math.Min(value, max));
                 OnPropertyChanged();
@@ -599,7 +833,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             set { if (_notes == value) return; _notes = value; OnPropertyChanged(); }
         }
 
-        // ── Display helpers ───────────────────────────────────────────────
         public string DimensionDisplay =>
             W2 > 0 || H2 > 0
                 ? $"{W1}×{H1}  /  {W2}×{H2}"
