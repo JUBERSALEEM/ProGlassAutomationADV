@@ -14,6 +14,10 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
     ///
     /// Status and DeliveryType stored as strings (same pattern as JO — gotcha #24).
     /// Compare with string constants, not enum values.
+    ///
+    /// Phase 10.7: Added TotalPreviouslyDeliveredQty (Improvement 7).
+    ///             Added TaxInvoiceId + HasTaxInvoice (Improvement 6 — Phase 19 prep).
+    ///             ⚠️ DB schema change — delete deliverynotes.db before first run.
     /// </summary>
     [Table("DeliveryNotes")]
     public class SavedDeliveryNote
@@ -81,6 +85,31 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
         public int TotalOrderedQty { get; set; }
         public int TotalDeliveredQty { get; set; }
         public int TotalBalanceQty { get; set; }
+
+        /// <summary>
+        /// Phase 10.7 (Improvement 7) — sum of PreviouslyDeliveredQty across
+        /// all items on this DN at the time it was saved. Used for list display
+        /// and export without re-querying sibling DNs.
+        /// Self-healed on load/save by DeliveryNoteDetailViewModel.
+        /// </summary>
+        public int TotalPreviouslyDeliveredQty { get; set; }
+
+        // ── Tax Invoice link (Phase 19 prep — Improvement 6) ─────────────
+
+        /// <summary>
+        /// Phase 10.7 placeholder — wired up in Phase 19 (Tax Invoice module).
+        /// Stores the Tax Invoice reference once generated from this DN.
+        /// e.g. "TAX-2026-001". Empty string = no invoice yet.
+        /// </summary>
+        [MaxLength(50)]
+        public string TaxInvoiceId { get; set; } = "";
+
+        /// <summary>
+        /// True when a Tax Invoice has been generated from this DN.
+        /// Computed from TaxInvoiceId but stored for fast list queries.
+        /// Phase 19 will set this when converting DN → Tax Invoice.
+        /// </summary>
+        public bool HasTaxInvoice { get; set; }
 
         // ── Full snapshot ────────────────────────────────────────────────
 

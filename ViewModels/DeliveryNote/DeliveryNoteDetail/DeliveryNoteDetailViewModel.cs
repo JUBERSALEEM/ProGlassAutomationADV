@@ -8,10 +8,12 @@ using ProGlassAutomation.ViewModels;
 using ProGlassAutomation.Views.DeliveryNote.DeliveryNoteDetail.Attachments.Rename;
 using System;
 using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
@@ -34,6 +36,14 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
     ///              attachments panel on the right. Selected sibling DN's
     ///              attachments are shown/managed. Current DN highlighted.
     ///              Each history row shows its own attachment count badge.
+    /// Phase 10.7 : Self-healing PREV column — GetPreviouslyDeliveredMapAsync
+    ///              called on load AND after save to overwrite stale DB
+    ///              snapshots with fresh confirmed-sibling totals (Gotcha #41).
+    ///              Save now re-fetches entity + re-heals + rebuilds rows
+    ///              so both panels stay in sync (Gotcha #42).
+    ///              Renamed ConfirmDispatchCommand → MakeDnCommand.
+    ///              GroupedItemsView groups items by SpecGroupName
+    ///              for display in the items grid (Improvement 3).
     /// </summary>
     public class DeliveryNoteDetailViewModel : ViewModelBase
     {
@@ -215,7 +225,49 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public ObservableCollection<DnItemRowViewModel> ItemRows
         {
             get => _itemRows;
-            private set { if (_itemRows == value) return; _itemRows = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_itemRows == value) return;
+                _itemRows = value;
+                OnPropertyChanged();
+                // Phase 10.7 (Improvement 3) — rebuild grouped view
+                // every time the rows collection is replaced
+                RebuildGroupedView();
+            }
+        }
+
+        // ── Phase 10.7 Improvement 3 — Grouped items view ────────────────
+
+        private ICollectionView? _groupedItemsView;
+        /// <summary>
+        /// ICollectionView over ItemRows, grouped by SpecGroupName.
+        /// Bound in XAML instead of ItemRows so the grid shows
+        /// a spec-group header row before each group of items.
+        /// Rebuilt automatically whenever ItemRows is replaced.
+        /// </summary>
+        public ICollectionView? GroupedItemsView
+        {
+            get => _groupedItemsView;
+            private set
+            {
+                if (_groupedItemsView == value) return;
+                _groupedItemsView = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Recreates the grouped view from the current _itemRows collection.
+        /// Called from the ItemRows setter so it's always in sync.
+        /// </summary>
+        private void RebuildGroupedView()
+        {
+            var view = CollectionViewSource.GetDefaultView(_itemRows);
+            view.GroupDescriptions.Clear();
+            view.GroupDescriptions.Add(
+                new PropertyGroupDescription(
+                    nameof(DnItemRowViewModel.SpecGroupName)));
+            GroupedItemsView = view;
         }
 
         // ── Qty summary ───────────────────────────────────────────────────
@@ -354,7 +406,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         public ICommand SaveCommand { get; }
         public ICommand BackCommand { get; }
-        public ICommand ConfirmDispatchCommand { get; }
+
+        // Phase 10.7: renamed from ConfirmDispatchCommand → MakeDnCommand
+        public ICommand MakeDnCommand { get; }
 
         public ICommand UploadImageCommand { get; }
         public ICommand UploadPdfCommand { get; }
@@ -374,7 +428,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             BackCommand = new RelayCommand(
                 _ => OnRequestBackToList?.Invoke());
 
-            ConfirmDispatchCommand = new RelayCommand(
+            // Phase 10.7: renamed from ConfirmDispatchCommand → MakeDnCommand
+            MakeDnCommand = new RelayCommand(
                 async _ => await ConfirmDispatchAsync(),
                 _ => Status == "Draft" && !IsSaving);
 
@@ -456,12 +511,18 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 ReceiverName = _entity.ReceiverName;
                 Notes = _entity.Notes;
 
+                // ── Phase 10.7 — Self-heal PREV column (Gotcha #41) ─────
+                // Fetch fresh totals from confirmed siblings BEFORE building
+                // row VMs, so stale DB snapshots are never shown to the user.
+                await HealItemPrevQtyAsync(_entity);
+
                 var rows = _entity.Items
                     .OrderBy(i => i.SpecGroupNumber)
                     .ThenBy(i => i.SerialNumber)
                     .Select(i => new DnItemRowViewModel(i))
                     .ToList();
 
+                // Setter triggers RebuildGroupedView() automatically
                 ItemRows = new ObservableCollection<DnItemRowViewModel>(rows);
 
                 foreach (var row in ItemRows)
@@ -499,6 +560,30 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             finally
             {
                 IsLoading = false;
+            }
+        }
+
+        /// <summary>
+        /// Phase 10.7 — Self-healing PREV column (Gotcha #41).
+        /// Overwrites each item's PreviouslyDeliveredQty with a fresh
+        /// total from confirmed sibling DNs (excluding this DN itself).
+        /// Operates directly on the entity's Items collection in memory —
+        /// does NOT write back to the DB.
+        /// </summary>
+        private async Task HealItemPrevQtyAsync(SavedDeliveryNote entity)
+        {
+            if (App.DeliveryNotes == null) return;
+
+            var prevMap = await App.DeliveryNotes
+                .GetPreviouslyDeliveredMapAsync(
+                    entity.JobOrderId,
+                    entity.DeliveryNoteId);
+
+            foreach (var item in entity.Items)
+            {
+                var key = $"{item.SpecGroupNumber}|{item.SerialNumber}";
+                item.PreviouslyDeliveredQty =
+                    prevMap.TryGetValue(key, out var prev) ? prev : 0;
             }
         }
 
@@ -574,6 +659,33 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
                 await App.DeliveryNotes.UpdateAsync(_entity);
 
+                // ── Phase 10.7 — Re-fetch + re-heal + rebuild (Gotcha #42) ──
+                var refreshed = await App.DeliveryNotes.GetByIdAsync(_entity.Id);
+
+                if (refreshed != null)
+                {
+                    _entity = refreshed;
+
+                    await HealItemPrevQtyAsync(_entity);
+
+                    foreach (var old in ItemRows)
+                        old.DeliveredQtyChanged -= OnItemDeliveredQtyChanged;
+
+                    var rows = _entity.Items
+                        .OrderBy(i => i.SpecGroupNumber)
+                        .ThenBy(i => i.SerialNumber)
+                        .Select(i => new DnItemRowViewModel(i))
+                        .ToList();
+
+                    // Setter triggers RebuildGroupedView() automatically
+                    ItemRows = new ObservableCollection<DnItemRowViewModel>(rows);
+
+                    foreach (var row in ItemRows)
+                        row.DeliveredQtyChanged += OnItemDeliveredQtyChanged;
+
+                    RecalculateTotals();
+                }
+
                 MessageBox.Show(
                     $"Delivery note '{DeliveryNoteId}' saved successfully.",
                     "Saved",
@@ -581,6 +693,14 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     MessageBoxImage.Information);
 
                 await LoadHistoryAsync();
+
+                // Re-select current DN in history so attachments panel stays correct
+                var currentInHistory = HistoryEntries
+                    .FirstOrDefault(h => string.Equals(
+                        h.DeliveryNoteId, DeliveryNoteId,
+                        StringComparison.OrdinalIgnoreCase));
+                if (currentInHistory != null)
+                    SelectedHistoryEntry = currentInHistory;
             }
             catch (Exception ex)
             {
@@ -597,7 +717,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  CONFIRM DISPATCH
+        //  MAKE DN (was: Confirm Dispatch) — Phase 10.7 rename
         // ═════════════════════════════════════════════════════════════════
 
         private async Task ConfirmDispatchAsync()
@@ -683,10 +803,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         //  ATTACHMENTS (Phase 10.6 + Phase 10.6b per-selected-DN loading)
         // ═════════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Loads attachments for the currently-selected sibling DN.
-        /// Called by SelectedHistoryEntry setter.
-        /// </summary>
         private async Task LoadAttachmentsForSelectedAsync()
         {
             if (_selectedHistoryEntry == null)
@@ -698,10 +814,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             await LoadAttachmentsDirectlyAsync(_selectedHistoryEntry.DeliveryNoteId);
         }
 
-        /// <summary>
-        /// Direct load by DN string ID (used by both selected-refresh and
-        /// fallback path when history load fails).
-        /// </summary>
         private async Task LoadAttachmentsDirectlyAsync(string deliveryNoteId)
         {
             if (App.DeliveryNotes == null || string.IsNullOrWhiteSpace(deliveryNoteId))
@@ -766,7 +878,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
                 IsSaving = true;
 
-                // Phase 10.6b — attach to SELECTED DN, not necessarily current
                 var targetDnId = _selectedHistoryEntry.DeliveryNoteId;
                 var entity = await _attachmentService
                     .CopyImageAsync(dlg.FileName, targetDnId, finalName);
@@ -929,6 +1040,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public int W2 { get; }
         public int H2 { get; }
         public int OrderedQty { get; }
+
+        // Phase 10.7: mutable so HealItemPrevQtyAsync can overwrite
+        // stale DB snapshot before row VM is constructed. The entity's
+        // item is mutated in memory; the row VM reads it fresh each time.
         public int PreviouslyDeliveredQty { get; }
 
         private int _deliveredQty;
@@ -1026,7 +1141,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         }
 
         public bool HasAttachments => _attachmentCount > 0;
-
         public bool HasBalance => BalanceQty > 0;
 
         public DnHistoryEntryViewModel(DeliveryHistoryEntry e)

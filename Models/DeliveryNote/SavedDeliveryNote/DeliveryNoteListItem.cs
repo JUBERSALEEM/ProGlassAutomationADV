@@ -7,6 +7,9 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
     /// Row model for the Delivery Note list UI. Only surfaces indexed
     /// columns (fast to load, no JSON deserialization for browsing).
     /// Full snapshot loaded only when user opens detail view.
+    ///
+    /// Phase 10.7: Added TotalPreviouslyDeliveredQty (Improvement 7).
+    ///             Added TaxInvoiceId + HasTaxInvoice (Improvement 6 — Phase 19 prep).
     /// </summary>
     public class DeliveryNoteListItem : ViewModelBase
     {
@@ -103,6 +106,17 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
             set { if (_totalBalanceQty == value) return; _totalBalanceQty = value; OnPropertyChanged(); }
         }
 
+        /// <summary>
+        /// Phase 10.7 (Improvement 7) — mirrors SavedDeliveryNote.TotalPreviouslyDeliveredQty.
+        /// Populated by ToListItem() in the repository.
+        /// </summary>
+        private int _totalPreviouslyDeliveredQty;
+        public int TotalPreviouslyDeliveredQty
+        {
+            get => _totalPreviouslyDeliveredQty;
+            set { if (_totalPreviouslyDeliveredQty == value) return; _totalPreviouslyDeliveredQty = value; OnPropertyChanged(); }
+        }
+
         private int _sequenceNumber;
         public int SequenceNumber
         {
@@ -136,6 +150,30 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
         {
             get => _updatedAt;
             set { if (_updatedAt == value) return; _updatedAt = value; OnPropertyChanged(); }
+        }
+
+        // ── Tax Invoice link (Phase 19 prep — Improvement 6) ─────────────
+
+        /// <summary>
+        /// Phase 10.7 placeholder — wired up in Phase 19.
+        /// Empty string = no Tax Invoice generated yet.
+        /// </summary>
+        private string _taxInvoiceId = "";
+        public string TaxInvoiceId
+        {
+            get => _taxInvoiceId;
+            set { if (_taxInvoiceId == value) return; _taxInvoiceId = value; OnPropertyChanged(); }
+        }
+
+        /// <summary>
+        /// True when a Tax Invoice has been generated from this DN.
+        /// Phase 19 will set this when converting DN → Tax Invoice.
+        /// </summary>
+        private bool _hasTaxInvoice;
+        public bool HasTaxInvoice
+        {
+            get => _hasTaxInvoice;
+            set { if (_hasTaxInvoice == value) return; _hasTaxInvoice = value; OnPropertyChanged(); }
         }
     }
 }

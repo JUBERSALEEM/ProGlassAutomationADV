@@ -99,11 +99,6 @@
             </Style.Triggers>
         </Style>
 
-        <!-- ══════════════════════════════════════════════════════════════
-             Phase 10.6b — History row button
-             Clickable row card. Highlights when IsSelected. Extra badge
-             when IsCurrentDn (this row = the DN currently open).
-        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="HistoryRowButtonStyle" TargetType="Button">
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -221,8 +216,8 @@
                 </StackPanel>
 
                 <Button Grid.Column="2"
-                        Content="🚚  Confirm Dispatch"
-                        Command="{Binding ConfirmDispatchCommand}"
+                        Content="🚚  Make DN"
+                        Command="{Binding MakeDnCommand}"
                         Style="{StaticResource ActionButtonStyle}"
                         Background="{DynamicResource SuccessBrush}"
                         Margin="0,0,8,0"/>
@@ -240,13 +235,13 @@
                             Foreground="{DynamicResource PrimaryForegroundBrush}"
                             Margin="0,0,4,0"
                             IsEnabled="False"
-                            ToolTip="Export PDF — Phase 10.7"/>
+                            ToolTip="Export PDF — Phase 10.8"/>
                     <Button Content="Excel"
                             Style="{StaticResource ActionButtonStyle}"
                             Background="{DynamicResource MenuHoverBrush}"
                             Foreground="{DynamicResource PrimaryForegroundBrush}"
                             IsEnabled="False"
-                            ToolTip="Export Excel — Phase 10.7"/>
+                            ToolTip="Export Excel — Phase 10.8"/>
                 </StackPanel>
             </Grid>
 
@@ -325,11 +320,7 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- ══════════════════════════════════════════════════
-                         DELIVERY HISTORY (Phase 10.6b clickable rows)
-                         Each row selects the DN whose attachments show
-                         on the right panel. Current DN gets HERE badge.
-                    ══════════════════════════════════════════════════ -->
+                    <!-- DELIVERY HISTORY -->
                     <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
                             <Border Style="{StaticResource SectionHeaderStyle}">
@@ -359,7 +350,6 @@
                                           Margin="0,8,0,8">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <!-- Whole row is a button — click to select -->
                                         <Button Style="{StaticResource HistoryRowButtonStyle}"
                                                 Command="{Binding DataContext.SelectHistoryEntryCommand,
                                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -383,7 +373,6 @@
                                                         <TextBlock Text="{Binding DeliveryNoteId}"
                                                                    FontSize="12" FontWeight="Bold"
                                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                        <!-- Phase 10.6b — CURRENT badge -->
                                                         <Border CornerRadius="4" Padding="5,1"
                                                                 Margin="6,0,0,0"
                                                                 Background="{DynamicResource SuccessBrush}"
@@ -393,7 +382,6 @@
                                                                        FontSize="8" FontWeight="Bold"
                                                                        Foreground="White"/>
                                                         </Border>
-                                                        <!-- Phase 10.6b — attachment count badge -->
                                                         <Border CornerRadius="4" Padding="5,1"
                                                                 Margin="6,0,0,0"
                                                                 Background="{DynamicResource TintIndigoBrush}"
@@ -616,17 +604,17 @@
                                 </Grid>
                             </Border>
 
-                            <!-- Table header -->
+                            <!-- Table header — Phase 10.7 wider columns -->
                             <Border Background="{DynamicResource MenuHoverBrush}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="34"/>
                                         <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="110"/>
-                                        <ColumnDefinition Width="55"/>
-                                        <ColumnDefinition Width="55"/>
+                                        <ColumnDefinition Width="120"/>
+                                        <ColumnDefinition Width="78"/>
                                         <ColumnDefinition Width="70"/>
-                                        <ColumnDefinition Width="70"/>
+                                        <ColumnDefinition Width="90"/>
+                                        <ColumnDefinition Width="82"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="#"
                                                Style="{StaticResource GridHeaderCell}"/>
@@ -651,8 +639,25 @@
                                 </Grid>
                             </Border>
 
-                            <!-- Items rows -->
-                            <ItemsControl ItemsSource="{Binding ItemRows}">
+                            <!-- Items rows — Phase 10.7 grouped by SpecGroupName -->
+                            <ItemsControl ItemsSource="{Binding GroupedItemsView}">
+                                <ItemsControl.GroupStyle>
+                                    <GroupStyle>
+                                        <GroupStyle.HeaderTemplate>
+                                            <DataTemplate>
+                                                <Border Background="{DynamicResource TintIndigoBrush}"
+                                                        Padding="8,6"
+                                                        Margin="0,6,0,0"
+                                                        CornerRadius="6">
+                                                    <TextBlock Text="{Binding Name}"
+                                                               FontSize="11"
+                                                               FontWeight="Bold"
+                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                </Border>
+                                            </DataTemplate>
+                                        </GroupStyle.HeaderTemplate>
+                                    </GroupStyle>
+                                </ItemsControl.GroupStyle>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border BorderBrush="{DynamicResource BorderBrush}"
@@ -671,13 +676,13 @@
                                             </Border.Style>
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="30"/>
+                                                    <ColumnDefinition Width="34"/>
                                                     <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="110"/>
-                                                    <ColumnDefinition Width="55"/>
-                                                    <ColumnDefinition Width="55"/>
+                                                    <ColumnDefinition Width="120"/>
+                                                    <ColumnDefinition Width="78"/>
                                                     <ColumnDefinition Width="70"/>
-                                                    <ColumnDefinition Width="70"/>
+                                                    <ColumnDefinition Width="90"/>
+                                                    <ColumnDefinition Width="82"/>
                                                 </Grid.ColumnDefinitions>
 
                                                 <TextBlock Grid.Column="0"
@@ -689,7 +694,8 @@
                                                             VerticalAlignment="Center"
                                                             Margin="8,4,8,4">
                                                     <TextBlock Text="{Binding GlassRef}"
-                                                               FontSize="12" FontWeight="SemiBold"
+                                                               FontSize="12"
+                                                               FontWeight="SemiBold"
                                                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                                     <TextBlock Text="{Binding DimensionDisplay}"
                                                                FontSize="10"
@@ -716,7 +722,8 @@
                                                 <TextBox Grid.Column="5"
                                                          Text="{Binding DeliveredQty,
                                                                 UpdateSourceTrigger=PropertyChanged}"
-                                                         FontSize="13" FontWeight="Bold"
+                                                         FontSize="13"
+                                                         FontWeight="Bold"
                                                          TextAlignment="Center"
                                                          VerticalContentAlignment="Center"
                                                          Padding="4,4"
@@ -734,20 +741,14 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
+
                         </StackPanel>
                     </Border>
 
-                    <!-- ══════════════════════════════════════════════════════
-                         ATTACHMENTS (Phase 10.6 + 10.6b)
-                         Header shows which DN's attachments are being viewed:
-                             "ATTACHMENTS FOR DN-2026-337-01 (3)"
-                         Panel switches based on SelectedHistoryEntry.
-                         Upload/delete works on the SELECTED DN.
-                    ══════════════════════════════════════════════════════ -->
+                    <!-- ATTACHMENTS -->
                     <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
 
-                            <!-- Header row: dynamic title + upload buttons -->
                             <Border Style="{StaticResource SectionHeaderStyle}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -787,7 +788,7 @@
                                 </Grid>
                             </Border>
 
-                            <!-- Phase 10.6b — "viewing another DN" hint banner -->
+                            <!-- "viewing another DN" hint banner -->
                             <Border Padding="12,8" Margin="10,10,10,0"
                                     CornerRadius="8"
                                     Background="{DynamicResource TintAmberBrush}">
@@ -846,7 +847,6 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
 
-                                                <!-- Thumbnail / icon -->
                                                 <Border Grid.Column="0"
                                                         Width="40" Height="40"
                                                         CornerRadius="6"

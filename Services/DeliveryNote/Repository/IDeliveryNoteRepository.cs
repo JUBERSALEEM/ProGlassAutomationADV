@@ -14,6 +14,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
     /// Phase 10.5c: Added GetReturnedAsync() for the Returned tab.
     /// Phase 10.6 : Added attachment CRUD (independent of parent DN save).
     /// Phase 10.6b: Added GetAttachmentCountAsync for per-sibling counts.
+    /// Phase 10.7 : Added GetPreviouslyDeliveredMapAsync for self-healing
+    ///              PREV column — always fresh from confirmed sibling DNs.
     /// </summary>
     public interface IDeliveryNoteRepository
     {
@@ -40,6 +42,21 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
         Task<int> GetPreviouslyDeliveredQtyAsync(
             string jobOrderId, int specGroupNumber, int serialNumber);
+
+        // ── Phase 10.7 — Self-healing PREV map ──────────────────────────
+        /// <summary>
+        /// Returns a dictionary keyed by "specGroupNumber|serialNumber"
+        /// whose value is the total DeliveredQty across all CONFIRMED
+        /// (non-Draft) sibling DNs for this job order, EXCLUDING the
+        /// DN identified by <paramref name="excludeDnId"/>.
+        ///
+        /// Used to self-heal PreviouslyDeliveredQty on load and after save,
+        /// so stale DB snapshots don't cause wrong PREV/Balance values.
+        ///
+        /// Key format: $"{specGroupNumber}|{serialNumber}"
+        /// </summary>
+        Task<Dictionary<string, int>> GetPreviouslyDeliveredMapAsync(
+            string jobOrderId, string excludeDnId);
 
         // ── Numbering ────────────────────────────────────────────────────
 

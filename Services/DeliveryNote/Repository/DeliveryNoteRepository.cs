@@ -15,6 +15,12 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
     /// Phase 10.5c: Added GetReturnedAsync() for the Returned tab.
     /// Phase 10.6 : Attachments managed independently of parent DN save.
     /// Phase 10.6b: Added GetAttachmentCountAsync + batch variant.
+    /// Phase 10.7 : Fixed Balance double-count bug (Gotcha #40).
+    ///              Balance = Math.Max(0, TotalOrdered − TotalDelivered).
+    ///              Never sum per-DN BalanceQty snapshots across siblings.
+    ///              Added GetPreviouslyDeliveredMapAsync for self-healing PREV.
+    ///              ToListItem now maps TotalPreviouslyDeliveredQty,
+    ///              TaxInvoiceId, HasTaxInvoice (Improvements 6 + 7).
     /// </summary>
     public class DeliveryNoteRepository : IDeliveryNoteRepository
     {
@@ -93,35 +99,48 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         {
             using var ctx = new DeliveryNotesDbContext();
 
-            var groups = await ctx.DeliveryNoteItems
-                .GroupBy(i => i.JobOrderId)
-                .Select(g => new
-                {
-                    JobOrderId = g.Key,
-                    TotalOrdered = g.Max(i => i.OrderedQty),
-                    TotalDelivered = g.Sum(i => i.DeliveredQty),
-                    TotalBalance = g.Sum(i => i.BalanceQty)
-                })
-                .Where(g => g.TotalBalance > 0)
+            // Phase 10.7 fix (Gotcha #40): compute balance per unique item,
+            // not by summing BalanceQty snapshots across sibling DNs.
+            // TotalOrdered   = max OrderedQty per unique (SpecGroup, Serial).
+            // TotalDelivered = sum of DeliveredQty across all DNs for that item.
+            // TotalBalance   = Math.Max(0, TotalOrdered − TotalDelivered).
+
+            var allItems = await ctx.DeliveryNoteItems
+                .Where(i => i.JobOrderId != null)
                 .ToListAsync();
+
+            var grouped = allItems
+                .GroupBy(i => i.JobOrderId)
+                .ToList();
 
             var result = new List<PendingQtySummary>();
 
-            foreach (var g in groups)
+            foreach (var joGroup in grouped)
             {
+                string joId = joGroup.Key;
+
+                var itemGroups = joGroup
+                    .GroupBy(i => new { i.SpecGroupNumber, i.SerialNumber });
+
+                int totalOrdered = itemGroups.Sum(g => g.Max(i => i.OrderedQty));
+                int totalDelivered = itemGroups.Sum(g => g.Sum(i => i.DeliveredQty));
+                int totalBalance = Math.Max(0, totalOrdered - totalDelivered);
+
+                if (totalBalance == 0) continue;
+
                 var latestDn = await ctx.DeliveryNotes
-                    .Where(x => x.JobOrderId == g.JobOrderId)
+                    .Where(x => x.JobOrderId == joId)
                     .OrderByDescending(x => x.SequenceNumber)
                     .FirstOrDefaultAsync();
 
                 result.Add(new PendingQtySummary
                 {
-                    JobOrderId = g.JobOrderId,
+                    JobOrderId = joId,
                     CustomerName = latestDn?.CustomerName ?? "",
                     ProjectName = latestDn?.ProjectName ?? "",
-                    TotalOrdered = g.TotalOrdered,
-                    TotalDelivered = g.TotalDelivered,
-                    TotalBalance = g.TotalBalance,
+                    TotalOrdered = totalOrdered,
+                    TotalDelivered = totalDelivered,
+                    TotalBalance = totalBalance,
                     LastDnId = latestDn?.DeliveryNoteId ?? ""
                 });
             }
@@ -165,13 +184,26 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 .OrderBy(x => x.SequenceNumber)
                 .ToListAsync();
 
+            // Phase 10.7 fix (Gotcha #40):
+            // TotalOrdered   = sum of max OrderedQty per unique (SpecGroup, Serial).
+            // TotalDelivered = sum of all DeliveredQty across every sibling DN.
+            // TotalBalance   = Math.Max(0, TotalOrdered − TotalDelivered).
+            // NEVER sum per-DN BalanceQty — those are snapshots and double-count.
+
+            var itemGroups = items
+                .GroupBy(i => new { i.SpecGroupNumber, i.SerialNumber })
+                .ToList();
+
+            int totalOrdered = itemGroups.Sum(g => g.Max(i => i.OrderedQty));
+            int totalDelivered = itemGroups.Sum(g => g.Sum(i => i.DeliveredQty));
+            int totalBalance = Math.Max(0, totalOrdered - totalDelivered);
+
             var summary = new DeliveryHistorySummary
             {
                 JobOrderId = jobOrderId,
-                TotalOrdered = items.GroupBy(i => new { i.SpecGroupNumber, i.SerialNumber })
-                                      .Sum(g => g.Max(i => i.OrderedQty)),
-                TotalDelivered = items.Sum(i => i.DeliveredQty),
-                TotalBalance = items.Sum(i => i.BalanceQty),
+                TotalOrdered = totalOrdered,
+                TotalDelivered = totalDelivered,
+                TotalBalance = totalBalance,
                 TotalRework = items.Sum(i => i.ReworkQty),
                 TotalReturned = items.Sum(i => i.ReturnedQty)
             };
@@ -185,7 +217,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                     DeliveryType = dn.DeliveryType,
                     Status = dn.Status,
                     DeliveredQty = dnItems.Sum(i => i.DeliveredQty),
-                    BalanceQty = dn.TotalBalanceQty,
+                    BalanceQty = dn.TotalBalanceQty, // per-DN snapshot (display only)
                     DeliveryDate = dn.DeliveryDate,
                     DriverName = dn.DriverName
                 });
@@ -199,6 +231,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             int specGroupNumber,
             int serialNumber)
         {
+            // Kept for backward compatibility — JobOrderDetailViewModel calls this.
             using var ctx = new DeliveryNotesDbContext();
 
             var confirmedDnIds = await ctx.DeliveryNotes
@@ -213,6 +246,40 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                          && i.SpecGroupNumber == specGroupNumber
                          && i.SerialNumber == serialNumber)
                 .SumAsync(i => i.DeliveredQty);
+        }
+
+        // ── Phase 10.7 — Self-healing PREV map ──────────────────────────
+
+        public async Task<Dictionary<string, int>> GetPreviouslyDeliveredMapAsync(
+            string jobOrderId, string excludeDnId)
+        {
+            using var ctx = new DeliveryNotesDbContext();
+
+            // Get IDs of all confirmed sibling DNs, excluding current DN
+            var confirmedDnIds = await ctx.DeliveryNotes
+                .Where(x => x.JobOrderId == jobOrderId
+                         && x.Status != "Draft"
+                         && x.DeliveryNoteId != excludeDnId)
+                .Select(x => x.DeliveryNoteId)
+                .ToListAsync();
+
+            if (confirmedDnIds.Count == 0)
+                return new Dictionary<string, int>();
+
+            // Load all items from those confirmed siblings
+            var items = await ctx.DeliveryNoteItems
+                .Where(i => confirmedDnIds.Contains(i.DeliveryNoteId)
+                         && i.JobOrderId == jobOrderId)
+                .ToListAsync();
+
+            // Group by item key and sum delivered qty
+            var map = items
+                .GroupBy(i => $"{i.SpecGroupNumber}|{i.SerialNumber}")
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Sum(i => i.DeliveredQty));
+
+            return map;
         }
 
         // ── Numbering ────────────────────────────────────────────────────
@@ -381,11 +448,16 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 TotalOrderedQty = e.TotalOrderedQty,
                 TotalDeliveredQty = e.TotalDeliveredQty,
                 TotalBalanceQty = e.TotalBalanceQty,
+                // Phase 10.7 Improvement 7 — map new qty field
+                TotalPreviouslyDeliveredQty = e.TotalPreviouslyDeliveredQty,
                 SequenceNumber = e.SequenceNumber,
                 DeliveryDate = e.DeliveryDate,
                 DeliveryTime = e.DeliveryTime,
                 CreatedAt = e.CreatedAt,
-                UpdatedAt = e.UpdatedAt
+                UpdatedAt = e.UpdatedAt,
+                // Phase 10.7 Improvement 6 — map Tax Invoice fields
+                TaxInvoiceId = e.TaxInvoiceId,
+                HasTaxInvoice = e.HasTaxInvoice
             };
     }
 }
