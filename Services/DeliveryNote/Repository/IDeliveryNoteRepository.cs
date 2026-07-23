@@ -10,6 +10,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
     /// All methods are async. Items and Attachments are cascade-loaded
     /// with their parent DN via GetByIdAsync and GetByJobOrderIdAsync.
     /// List methods return lightweight DeliveryNoteListItem (no JSON parse).
+    ///
+    /// Phase 10.5c: Added GetReturnedAsync() for the Returned tab.
     /// </summary>
     public interface IDeliveryNoteRepository
     {
@@ -53,6 +55,9 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
         /// <summary>All DNs with DeliveryType = Rework (Rework tab).</summary>
         Task<List<DeliveryNoteListItem>> GetReworkAsync();
+
+        /// <summary>All DNs with DeliveryType = Return (Returned tab).</summary>
+        Task<List<DeliveryNoteListItem>> GetReturnedAsync();
 
         // ── Delivery history ─────────────────────────────────────────────
 

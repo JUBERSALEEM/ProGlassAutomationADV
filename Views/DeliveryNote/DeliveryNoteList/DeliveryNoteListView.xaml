@@ -11,7 +11,11 @@
 
     <UserControl.Resources>
 
-        <!-- ── DN row card — type colored left accent bar ────────────── -->
+        <!-- ══════════════════════════════════════════════════════════════
+             DN ROW CARD — type-colored left accent bar
+             Phase 10.5c: added IsSelected DataTrigger → indigo border +
+             glow when a row is single-clicked (SelectRowCommand).
+        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="DnRowCardStyle" TargetType="Border">
             <Setter Property="Background"
                     Value="{DynamicResource ModuleBackgroundBrush}"/>
@@ -22,6 +26,7 @@
             <Setter Property="CornerRadius"    Value="14"/>
             <Setter Property="Padding"         Value="18,14"/>
             <Setter Property="Margin"          Value="0,0,0,10"/>
+            <Setter Property="Cursor"          Value="Hand"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Effect">
@@ -31,6 +36,24 @@
                         </Setter.Value>
                     </Setter>
                 </Trigger>
+                <!-- Phase 10.5c — SELECTED highlight -->
+                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                    <Setter Property="BorderBrush">
+                        <Setter.Value>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#4338CA" Offset="0"/>
+                                <GradientStop Color="#6366F1" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Setter.Value>
+                    </Setter>
+                    <Setter Property="BorderThickness" Value="2"/>
+                    <Setter Property="Effect">
+                        <Setter.Value>
+                            <DropShadowEffect BlurRadius="20" ShadowDepth="0"
+                                              Opacity="0.30" Color="#4338CA"/>
+                        </Setter.Value>
+                    </Setter>
+                </DataTrigger>
             </Style.Triggers>
         </Style>
 
@@ -228,89 +251,185 @@
                            FontSize="13" TextWrapping="Wrap"/>
             </Border>
 
-            <!-- ── KPI CARDS ───────────────────────────────────────────── -->
-            <Grid Margin="0,0,0,20">
+            <!-- ══════════════════════════════════════════════════════════
+                 KPI HERO CARDS — Phase 10.5c dynamic
+                 When NO row selected → shows overall dataset stats
+                 When a row IS selected → shows that DN's stats
+                    Card 1 = Ordered Qty (this DN)
+                    Card 2 = Delivered Qty (this DN)
+                    Card 3 = Balance Qty (this DN)
+                    Card 4 = Driver name (this DN)
+                 Labels and values driven by HeroCard{N}Value / HeroCard{N}Label
+                 computed properties on the VM.
+            ══════════════════════════════════════════════════════════ -->
+            <!-- ══════════════════════════════════════════════════════════
+     KPI HERO CARDS — Phase 10.5c (5 cards, dynamic content)
+     When NO row selected → shows overall dataset stats
+     When a row IS selected → shows that DN's stats:
+        Card 1 = Ordered Qty (this DN)
+        Card 2 = Delivered Qty (this DN)
+        Card 3 = Balance Qty (this DN)
+        Card 4 = Driver name (this DN)
+        Card 5 = Sequence number ("Delivery #N")
+     Labels + values driven by HeroCard{N}Value / HeroCard{N}Label
+     computed properties on the VM.
+══════════════════════════════════════════════════════════ -->
+            <Grid Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Total DNs — Indigo hero -->
+                <!-- Card 1 — Total DNs / Selected Ordered — Indigo hero -->
                 <hero:GradientHeroCard Grid.Column="0"
-                                       Icon="📦"
-                                       Value="{Binding TotalCount}"
-                                       Label="Total Delivery Notes"
-                                       GradientStartColor="#4338CA"
-                                       GradientEndColor="#6366F1"
-                                       Margin="8" MinHeight="130"/>
+                           Icon="📦"
+                           Value="{Binding HeroCard1Value}"
+                           Label="{Binding HeroCard1Label}"
+                           GradientStartColor="#4338CA"
+                           GradientEndColor="#6366F1"
+                           Margin="6" MinHeight="130"/>
 
-                <!-- Pending Jobs — Amber hero -->
+                <!-- Card 2 — Pending Jobs / Selected Delivered — Amber hero -->
                 <hero:GradientHeroCard Grid.Column="1"
-                                       Icon="⏳"
-                                       Value="{Binding PendingJobsCount}"
-                                       Label="Jobs with Pending Qty"
-                                       GradientStartColor="#B45309"
-                                       GradientEndColor="#F59E0B"
-                                       Margin="8" MinHeight="130"/>
+                           Icon="⏳"
+                           Value="{Binding HeroCard2Value}"
+                           Label="{Binding HeroCard2Label}"
+                           GradientStartColor="#B45309"
+                           GradientEndColor="#F59E0B"
+                           Margin="6" MinHeight="130"/>
 
-                <!-- Rework — Amber tinted -->
+                <!-- Card 3 — Rework DNs / Selected Balance — Amber tinted -->
                 <Border Grid.Column="2"
-                        Background="{DynamicResource TintAmberBrush}"
-                        CornerRadius="16" Padding="22" Margin="8">
+            Background="{DynamicResource TintAmberBrush}"
+            CornerRadius="16" Padding="18" Margin="6">
                     <StackPanel>
                         <Border Width="42" Height="42" CornerRadius="11"
-                                Background="{DynamicResource WarningBrush}"
-                                HorizontalAlignment="Left">
+                    Background="{DynamicResource WarningBrush}"
+                    HorizontalAlignment="Left">
                             <TextBlock Text="🔧" FontSize="20"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
                         </Border>
-                        <TextBlock Text="{Binding ReworkCount}"
-                                   FontSize="28" FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   Margin="0,12,0,0"/>
-                        <TextBlock Text="Rework DNs"
-                                   FontSize="12" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding HeroCard3Value}"
+                       FontSize="24" FontWeight="Bold"
+                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                       Margin="0,12,0,0"
+                       TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding HeroCard3Label}"
+                       FontSize="11" FontWeight="SemiBold"
+                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       Margin="0,4,0,0"
+                       TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
                 </Border>
 
-                <!-- Delivered Today — Green tinted -->
+                <!-- Card 4 — Returned DNs / Selected Driver — Red tinted (NEW) -->
                 <Border Grid.Column="3"
-                        Background="{DynamicResource TintGreenBrush}"
-                        CornerRadius="16" Padding="22" Margin="8">
+            Background="{DynamicResource TintRedBrush}"
+            CornerRadius="16" Padding="18" Margin="6">
                     <StackPanel>
                         <Border Width="42" Height="42" CornerRadius="11"
-                                Background="{DynamicResource SuccessBrush}"
-                                HorizontalAlignment="Left">
-                            <TextBlock Text="✅" FontSize="20"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
+                    Background="{DynamicResource DangerBrush}"
+                    HorizontalAlignment="Left">
+                            <TextBlock Text="↩️" FontSize="20"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
                         </Border>
-                        <TextBlock Text="{Binding DeliveredTodayCount}"
-                                   FontSize="28" FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   Margin="0,12,0,0"/>
-                        <TextBlock Text="Delivered Today"
-                                   FontSize="12" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   Margin="0,4,0,0"/>
+                        <TextBlock Text="{Binding HeroCard4Value}"
+                       FontSize="24" FontWeight="Bold"
+                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                       Margin="0,12,0,0"
+                       TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding HeroCard4Label}"
+                       FontSize="11" FontWeight="SemiBold"
+                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       Margin="0,4,0,0"
+                       TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- Card 5 — Delivered Today / Selected Sequence — Green tinted -->
+                <Border Grid.Column="4"
+            Background="{DynamicResource TintGreenBrush}"
+            CornerRadius="16" Padding="18" Margin="6">
+                    <StackPanel>
+                        <Border Width="42" Height="42" CornerRadius="11"
+                    Background="{DynamicResource SuccessBrush}"
+                    HorizontalAlignment="Left">
+                            <TextBlock Text="{Binding HeroCard5Icon}"
+                           FontSize="20"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="{Binding HeroCard5Value}"
+                       FontSize="24" FontWeight="Bold"
+                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                       Margin="0,12,0,0"
+                       TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding HeroCard5Label}"
+                       FontSize="11" FontWeight="SemiBold"
+                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       Margin="0,4,0,0"
+                       TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
                 </Border>
             </Grid>
 
             <!-- ══════════════════════════════════════════════════════════
-                 CARD TAB HEADERS — Option C (icon + count + label cards)
-                 No WPF TabControl chrome — pure Button cards wired to
-                 SelectedTabIndex in VM. Active = gradient border + tint.
-                 Inactive = module bg + subtle border.
+                 SELECTED DN META LINE (Phase 10.5c)
+                 Shows when HasSelection = True. Contains DN-ID, vehicle,
+                 date, time. Also has "Clear" button.
+            ══════════════════════════════════════════════════════════ -->
+            <Border Margin="8,0,8,16"
+                    Padding="14,10"
+                    CornerRadius="10"
+                    Background="{DynamicResource TintIndigoBrush}"
+                    Visibility="{Binding HasSelection,
+                                 Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0"
+                               Text="🔍  Selected:"
+                               FontSize="12" FontWeight="Bold"
+                               VerticalAlignment="Center"
+                               Margin="0,0,10,0"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+
+                    <TextBlock Grid.Column="1"
+                               Text="{Binding SelectedDnMetaLine}"
+                               FontSize="12" FontWeight="SemiBold"
+                               VerticalAlignment="Center"
+                               TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+
+                    <Button Grid.Column="2"
+                            Content="✕ Clear"
+                            Command="{Binding ClearSelectionCommand}"
+                            FontSize="10" FontWeight="Bold"
+                            Padding="10,4"
+                            Cursor="Hand"
+                            Background="{DynamicResource ModuleBackgroundBrush}"
+                            Foreground="{DynamicResource PrimaryForegroundBrush}"
+                            BorderThickness="0"/>
+                </Grid>
+            </Border>
+
+            <!-- ══════════════════════════════════════════════════════════
+                 CARD TAB HEADERS — Phase 10.5c
+                 6 tabs: All / Prepared / Delivered / Pending / Rework / Returned
                  CommandParameter carries the count display value.
             ══════════════════════════════════════════════════════════ -->
             <Grid Margin="8,0,8,16">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="*"/>
@@ -323,7 +442,7 @@
                         Tag="📦"
                         Content="ALL"
                         CommandParameter="{Binding TotalCount}"
-                        Margin="0,0,6,0"
+                        Margin="0,0,3,0"
                         Click="OnTabCardClick"
                         x:Name="TabAll">
                     <Button.Style>
@@ -367,9 +486,19 @@
                         Tag="🔧"
                         Content="REWORK"
                         CommandParameter="{Binding ReworkItems.Count}"
-                        Margin="6,0,0,0"
+                        Margin="3,0,3,0"
                         Click="OnTabCardClick"
                         x:Name="TabRework"
+                        Style="{StaticResource TabCardInactiveStyle}"/>
+
+                <!-- Tab 5: RETURNED — NEW Phase 10.5c -->
+                <Button Grid.Column="5"
+                        Tag="↩️"
+                        Content="RETURNED"
+                        CommandParameter="{Binding ReturnedItems.Count}"
+                        Margin="3,0,0,0"
+                        Click="OnTabCardClick"
+                        x:Name="TabReturned"
                         Style="{StaticResource TabCardInactiveStyle}"/>
 
             </Grid>
@@ -453,7 +582,8 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border Style="{StaticResource DnRowCardStyle}"
-                                    MouseRightButtonUp="OnRowRightClick">
+                                    MouseRightButtonUp="OnRowRightClick"
+                                    MouseLeftButtonUp="OnRowLeftClick">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -649,7 +779,8 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border Style="{StaticResource DnRowCardStyle}"
-                                    MouseRightButtonUp="OnRowRightClick">
+                                    MouseRightButtonUp="OnRowRightClick"
+                                    MouseLeftButtonUp="OnRowLeftClick">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -744,7 +875,8 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border Style="{StaticResource DnRowCardStyle}"
-                                    MouseRightButtonUp="OnRowRightClick">
+                                    MouseRightButtonUp="OnRowRightClick"
+                                    MouseLeftButtonUp="OnRowLeftClick">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -921,7 +1053,8 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border Style="{StaticResource DnRowCardStyle}"
-                                    MouseRightButtonUp="OnRowRightClick">
+                                    MouseRightButtonUp="OnRowRightClick"
+                                    MouseLeftButtonUp="OnRowLeftClick">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -975,6 +1108,84 @@
                     </StackPanel.Style>
                     <TextBlock Text="🔧" FontSize="40" HorizontalAlignment="Center" Opacity="0.4"/>
                     <TextBlock Text="No rework delivery notes"
+                               FontSize="14" FontWeight="SemiBold"
+                               HorizontalAlignment="Center" Margin="0,8,0,0"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- ── TAB 5: RETURNED (Phase 10.5c) ────────────────────────── -->
+            <StackPanel Margin="0,4,0,0">
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding SelectedTabIndex}" Value="5">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+
+                <ItemsControl ItemsSource="{Binding ReturnedItems}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Style="{StaticResource DnRowCardStyle}"
+                                    MouseRightButtonUp="OnRowRightClick"
+                                    MouseLeftButtonUp="OnRowLeftClick">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding DeliveryNoteId}"
+                                                   FontSize="15" FontWeight="Bold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                        <TextBlock FontSize="12" Margin="0,4,0,0"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                            <Run Text="{Binding JobOrderId, Mode=OneWay}"/>
+                                            <Run Text="  ·  "/>
+                                            <Run Text="{Binding CustomerName, Mode=OneWay}"/>
+                                            <Run Text="  ·  "/>
+                                            <Run Text="{Binding QtySummary, Mode=OneWay}"/>
+                                        </TextBlock>
+                                    </StackPanel>
+                                    <Border Grid.Column="1"
+                                            CornerRadius="10" Padding="10,4"
+                                            VerticalAlignment="Center" Margin="0,0,12,0"
+                                            Background="{Binding StatusBrushKey,
+                                                         Converter={StaticResource BrushKeyConverter}}">
+                                        <TextBlock Text="{Binding StatusLabel}"
+                                                   FontSize="10" FontWeight="Bold"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                    </Border>
+                                    <Button Grid.Column="2"
+                                            Style="{StaticResource OpenButtonStyle}"
+                                            Command="{Binding DataContext.OpenCommand,
+                                                      RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            VerticalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <StackPanel HorizontalAlignment="Center" Margin="0,40">
+                    <StackPanel.Style>
+                        <Style TargetType="StackPanel">
+                            <Setter Property="Visibility" Value="Collapsed"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding ReturnedItems.Count}" Value="0">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </StackPanel.Style>
+                    <TextBlock Text="↩️" FontSize="40" HorizontalAlignment="Center" Opacity="0.4"/>
+                    <TextBlock Text="No returned delivery notes"
                                FontSize="14" FontWeight="SemiBold"
                                HorizontalAlignment="Center" Margin="0,8,0,0"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>

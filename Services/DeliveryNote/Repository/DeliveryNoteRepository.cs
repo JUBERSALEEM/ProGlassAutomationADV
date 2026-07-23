@@ -11,6 +11,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
     /// <summary>
     /// EF Core implementation of IDeliveryNoteRepository.
     /// Each method creates a fresh DbContext (same pattern as JO + PI repos).
+    ///
+    /// Phase 10.5c: Added GetReturnedAsync() for the Returned tab.
     /// </summary>
     public class DeliveryNoteRepository : IDeliveryNoteRepository
     {
@@ -134,6 +136,18 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             using var ctx = new DeliveryNotesDbContext();
             var entities = await ctx.DeliveryNotes
                 .Where(x => x.DeliveryType == "Rework")
+                .OrderByDescending(x => x.CreatedAt)
+                .ToListAsync();
+            return entities.Select(ToListItem).ToList();
+        }
+
+        // ── NEW (Phase 10.5c) — Returned DNs ─────────────────────────────
+
+        public async Task<List<DeliveryNoteListItem>> GetReturnedAsync()
+        {
+            using var ctx = new DeliveryNotesDbContext();
+            var entities = await ctx.DeliveryNotes
+                .Where(x => x.DeliveryType == "Return")
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync();
             return entities.Select(ToListItem).ToList();

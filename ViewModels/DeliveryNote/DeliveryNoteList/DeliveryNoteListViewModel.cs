@@ -14,7 +14,22 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 {
     /// <summary>
     /// ViewModel for the Delivery Note list landing page.
-    /// 5 tabs: All | Prepared | Delivered | Pending Qty | Rework
+    ///
+    /// 6 tabs: All | Prepared | Delivered | Pending Qty | Rework | Returned
+    /// 5 hero cards: Total | Pending Jobs | Rework | Returned | Delivered Today
+    ///
+    /// Phase 10.5c:
+    ///   - Added Returned tab (DeliveryType = Return)
+    ///   - Added 5th hero card for Returned DNs (red tint + ↩️)
+    ///   - Single-click row → SelectedRow set → top 5 hero cards
+    ///     swap to show selected DN's stats:
+    ///       Card 1: Ordered Qty
+    ///       Card 2: Delivered Qty
+    ///       Card 3: Balance Qty
+    ///       Card 4: Driver name
+    ///       Card 5: Sequence number ("Delivery #N")
+    ///   - Selection clears on tab switch, filter change, refresh
+    ///   - Tab counts always reflect full dataset (not affected by selection)
     /// </summary>
     public class DeliveryNoteListViewModel : ViewModelBase
     {
@@ -22,7 +37,114 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
         public Action<int>? OnDeliveryNoteOpenRequested { get; set; }
 
-        // ── Tab index ─────────────────────────────────────────────────────
+        // ══════════════════════════════════════════════════════════════════
+        //  SELECTION (Phase 10.5c)
+        // ══════════════════════════════════════════════════════════════════
+
+        private DeliveryNoteRowViewModel? _selectedRow;
+        public DeliveryNoteRowViewModel? SelectedRow
+        {
+            get => _selectedRow;
+            set
+            {
+                if (_selectedRow == value) return;
+
+                if (_selectedRow != null) _selectedRow.IsSelected = false;
+                _selectedRow = value;
+                if (_selectedRow != null) _selectedRow.IsSelected = true;
+
+                OnPropertyChanged();
+
+                // Refresh all hero card computed props
+                OnPropertyChanged(nameof(HasSelection));
+                OnPropertyChanged(nameof(HeroCard1Value));
+                OnPropertyChanged(nameof(HeroCard1Label));
+                OnPropertyChanged(nameof(HeroCard2Value));
+                OnPropertyChanged(nameof(HeroCard2Label));
+                OnPropertyChanged(nameof(HeroCard3Value));
+                OnPropertyChanged(nameof(HeroCard3Label));
+                OnPropertyChanged(nameof(HeroCard4Value));
+                OnPropertyChanged(nameof(HeroCard4Label));
+                OnPropertyChanged(nameof(HeroCard5Value));
+                OnPropertyChanged(nameof(HeroCard5Label));
+                OnPropertyChanged(nameof(HeroCard5Icon));
+                OnPropertyChanged(nameof(SelectedDnMetaLine));
+            }
+        }
+
+        public bool HasSelection => _selectedRow != null;
+
+        // ── Hero card 1 — Total DNs / Selected Ordered Qty ────────────────
+        public string HeroCard1Value =>
+            _selectedRow != null
+                ? _selectedRow.TotalOrderedQty.ToString()
+                : TotalCount.ToString();
+
+        public string HeroCard1Label =>
+            _selectedRow != null ? "Ordered Qty (this DN)" : "Total Delivery Notes";
+
+        // ── Hero card 2 — Pending Jobs / Selected Delivered Qty ───────────
+        public string HeroCard2Value =>
+            _selectedRow != null
+                ? _selectedRow.TotalDeliveredQty.ToString()
+                : PendingJobsCount.ToString();
+
+        public string HeroCard2Label =>
+            _selectedRow != null ? "Delivered Qty (this DN)" : "Jobs with Pending Qty";
+
+        // ── Hero card 3 — Rework DNs / Selected Balance Qty ───────────────
+        public string HeroCard3Value =>
+            _selectedRow != null
+                ? _selectedRow.TotalBalanceQty.ToString()
+                : ReworkCount.ToString();
+
+        public string HeroCard3Label =>
+            _selectedRow != null ? "Balance Qty (this DN)" : "Rework DNs";
+
+        // ── Hero card 4 — Returned DNs / Selected Driver (Phase 10.5c) ────
+        //    When idle: shows returned count
+        //    When selected: shows driver name
+        public string HeroCard4Value =>
+            _selectedRow != null
+                ? (string.IsNullOrWhiteSpace(_selectedRow.DriverName)
+                    ? "—"
+                    : _selectedRow.DriverName)
+                : ReturnedCount.ToString();
+
+        public string HeroCard4Label =>
+            _selectedRow != null ? "Driver" : "Returned DNs";
+
+        // ── Hero card 5 — Delivered Today / Selected Sequence ─────────────
+        //    When idle: shows Delivered Today count with ✅
+        //    When selected: shows "Delivery #N" with 🔢
+        public string HeroCard5Value =>
+            _selectedRow != null
+                ? $"Delivery #{_selectedRow.SequenceNumber}"
+                : DeliveredTodayCount.ToString();
+
+        public string HeroCard5Label =>
+            _selectedRow != null ? "Sequence Number" : "Delivered Today";
+
+        public string HeroCard5Icon =>
+            _selectedRow != null ? "🔢" : "✅";
+
+        // ── Selected DN meta line (shown under hero cards when selected) ──
+        public string SelectedDnMetaLine =>
+            _selectedRow == null
+                ? ""
+                : $"{_selectedRow.DeliveryNoteId}  ·  🚚 {NullIfBlank(_selectedRow.VehicleNumber, "—")}  ·  📅 {_selectedRow.DeliveryDateDisplay}  ·  🕐 {NullIfBlank(_selectedRow.DeliveryTime, "—")}";
+
+        private static string NullIfBlank(string? s, string fallback)
+            => string.IsNullOrWhiteSpace(s) ? fallback : s!;
+
+        // ── Selection commands ────────────────────────────────────────────
+
+        public ICommand SelectRowCommand { get; }
+        public ICommand ClearSelectionCommand { get; }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  TAB INDEX  (0=All, 1=Prepared, 2=Delivered, 3=Pending, 4=Rework, 5=Returned)
+        // ══════════════════════════════════════════════════════════════════
 
         private int _selectedTabIndex;
         public int SelectedTabIndex
@@ -33,11 +155,15 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 if (_selectedTabIndex == value) return;
                 _selectedTabIndex = value;
                 OnPropertyChanged();
+
+                SelectedRow = null;   // clear selection on tab switch
                 _ = LoadTabAsync(value);
             }
         }
 
-        // ── Tab collections ───────────────────────────────────────────────
+        // ══════════════════════════════════════════════════════════════════
+        //  TAB COLLECTIONS
+        // ══════════════════════════════════════════════════════════════════
 
         private ObservableCollection<DeliveryNoteRowViewModel> _allItems = new();
         public ObservableCollection<DeliveryNoteRowViewModel> AllItems
@@ -74,37 +200,85 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             private set { if (_reworkItems == value) return; _reworkItems = value; OnPropertyChanged(); }
         }
 
-        // ── KPI ───────────────────────────────────────────────────────────
+        private ObservableCollection<DeliveryNoteRowViewModel> _returnedItems = new();
+        public ObservableCollection<DeliveryNoteRowViewModel> ReturnedItems
+        {
+            get => _returnedItems;
+            private set { if (_returnedItems == value) return; _returnedItems = value; OnPropertyChanged(); }
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  KPI  (dataset-wide — used when no row selected)
+        // ══════════════════════════════════════════════════════════════════
 
         private int _totalCount;
         public int TotalCount
         {
             get => _totalCount;
-            private set { if (_totalCount == value) return; _totalCount = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_totalCount == value) return;
+                _totalCount = value;
+                OnPropertyChanged();
+                if (_selectedRow == null) OnPropertyChanged(nameof(HeroCard1Value));
+            }
         }
 
         private int _pendingJobsCount;
         public int PendingJobsCount
         {
             get => _pendingJobsCount;
-            private set { if (_pendingJobsCount == value) return; _pendingJobsCount = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_pendingJobsCount == value) return;
+                _pendingJobsCount = value;
+                OnPropertyChanged();
+                if (_selectedRow == null) OnPropertyChanged(nameof(HeroCard2Value));
+            }
         }
 
         private int _reworkCount;
         public int ReworkCount
         {
             get => _reworkCount;
-            private set { if (_reworkCount == value) return; _reworkCount = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_reworkCount == value) return;
+                _reworkCount = value;
+                OnPropertyChanged();
+                if (_selectedRow == null) OnPropertyChanged(nameof(HeroCard3Value));
+            }
+        }
+
+        private int _returnedCount;
+        public int ReturnedCount
+        {
+            get => _returnedCount;
+            private set
+            {
+                if (_returnedCount == value) return;
+                _returnedCount = value;
+                OnPropertyChanged();
+                if (_selectedRow == null) OnPropertyChanged(nameof(HeroCard4Value));
+            }
         }
 
         private int _deliveredTodayCount;
         public int DeliveredTodayCount
         {
             get => _deliveredTodayCount;
-            private set { if (_deliveredTodayCount == value) return; _deliveredTodayCount = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_deliveredTodayCount == value) return;
+                _deliveredTodayCount = value;
+                OnPropertyChanged();
+                if (_selectedRow == null) OnPropertyChanged(nameof(HeroCard5Value));
+            }
         }
 
-        // ── Loading ───────────────────────────────────────────────────────
+        // ══════════════════════════════════════════════════════════════════
+        //  LOADING / ERROR STATE
+        // ══════════════════════════════════════════════════════════════════
 
         private bool _isLoading;
         public bool IsLoading
@@ -127,7 +301,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             private set { if (_errorMessage == value) return; _errorMessage = value; OnPropertyChanged(); }
         }
 
-        // ── Filters ───────────────────────────────────────────────────────
+        // ══════════════════════════════════════════════════════════════════
+        //  FILTERS
+        // ══════════════════════════════════════════════════════════════════
 
         private string _searchText = "";
         public string SearchText
@@ -138,6 +314,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 if (_searchText == value) return;
                 _searchText = value;
                 OnPropertyChanged();
+                SelectedRow = null;
                 ApplyAllTabFilter();
             }
         }
@@ -151,6 +328,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 if (_selectedStatusFilter == value) return;
                 _selectedStatusFilter = value;
                 OnPropertyChanged();
+                SelectedRow = null;
                 ApplyAllTabFilter();
             }
         }
@@ -164,6 +342,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 if (_selectedTypeFilter == value) return;
                 _selectedTypeFilter = value;
                 OnPropertyChanged();
+                SelectedRow = null;
                 ApplyAllTabFilter();
             }
         }
@@ -180,7 +359,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
         private List<DeliveryNoteRowViewModel> _rawAll = new();
 
-        // ── Commands ──────────────────────────────────────────────────────
+        // ══════════════════════════════════════════════════════════════════
+        //  COMMANDS
+        // ══════════════════════════════════════════════════════════════════
 
         public ICommand RefreshCommand { get; }
         public ICommand ClearFiltersCommand { get; }
@@ -188,13 +369,18 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public ICommand DeleteCommand { get; }
         public ICommand ChangeStatusCommand { get; }
 
-        // ═════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
-        // ═════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════════
 
         public DeliveryNoteListViewModel()
         {
-            RefreshCommand = new RelayCommand(async _ => await LoadAsync());
+            RefreshCommand = new RelayCommand(async _ =>
+            {
+                SelectedRow = null;
+                await LoadAsync();
+            });
+
             ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
 
             OpenCommand = new RelayCommand(param =>
@@ -202,6 +388,17 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 if (param is DeliveryNoteRowViewModel row)
                     OnDeliveryNoteOpenRequested?.Invoke(row.Id);
             });
+
+            SelectRowCommand = new RelayCommand(param =>
+            {
+                if (param is DeliveryNoteRowViewModel row)
+                {
+                    // Toggle: click same row → deselect
+                    SelectedRow = (SelectedRow == row) ? null : row;
+                }
+            });
+
+            ClearSelectionCommand = new RelayCommand(_ => SelectedRow = null);
 
             DeleteCommand = new RelayCommand(async param =>
             {
@@ -218,9 +415,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             _ = LoadAsync();
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        //  LOAD
-        // ═════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════════
+        //  LOAD (all tabs at once)
+        // ══════════════════════════════════════════════════════════════════
 
         public async Task LoadAsync()
         {
@@ -245,14 +442,18 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 var delTask = App.DeliveryNotes.GetDeliveredAsync();
                 var pendingTask = App.DeliveryNotes.GetPendingQtyJobsAsync();
                 var reworkTask = App.DeliveryNotes.GetReworkAsync();
+                var returnedTask = App.DeliveryNotes.GetReturnedAsync();
 
-                await Task.WhenAll(allTask, prepTask, delTask, pendingTask, reworkTask);
+                await Task.WhenAll(
+                    allTask, prepTask, delTask,
+                    pendingTask, reworkTask, returnedTask);
 
                 var allItems = allTask.Result.Select(x => new DeliveryNoteRowViewModel(x)).ToList();
                 var prepItems = prepTask.Result.Select(x => new DeliveryNoteRowViewModel(x)).ToList();
                 var delItems = delTask.Result.Select(x => new DeliveryNoteRowViewModel(x)).ToList();
                 var pendingItems = pendingTask.Result.Select(x => new PendingQtyRowViewModel(x)).ToList();
                 var reworkItems = reworkTask.Result.Select(x => new DeliveryNoteRowViewModel(x)).ToList();
+                var returnedItems = returnedTask.Result.Select(x => new DeliveryNoteRowViewModel(x)).ToList();
 
                 _rawAll = allItems;
 
@@ -261,10 +462,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 DeliveredItems = new ObservableCollection<DeliveryNoteRowViewModel>(delItems);
                 PendingItems = new ObservableCollection<PendingQtyRowViewModel>(pendingItems);
                 ReworkItems = new ObservableCollection<DeliveryNoteRowViewModel>(reworkItems);
+                ReturnedItems = new ObservableCollection<DeliveryNoteRowViewModel>(returnedItems);
 
                 TotalCount = allItems.Count;
                 PendingJobsCount = pendingItems.Count;
                 ReworkCount = reworkItems.Count;
+                ReturnedCount = returnedItems.Count;
                 DeliveredTodayCount = delItems.Count(x =>
                     x.DeliveryDate.Date == DateTime.Today);
             }
@@ -313,6 +516,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                             rework.Select(x => new DeliveryNoteRowViewModel(x)));
                         ReworkCount = ReworkItems.Count;
                         break;
+
+                    case 5:
+                        var returned = await App.DeliveryNotes.GetReturnedAsync();
+                        ReturnedItems = new ObservableCollection<DeliveryNoteRowViewModel>(
+                            returned.Select(x => new DeliveryNoteRowViewModel(x)));
+                        ReturnedCount = ReturnedItems.Count;
+                        break;
                 }
             }
             catch (Exception ex)
@@ -325,9 +535,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             }
         }
 
-        // ═════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════════
         //  FILTER
-        // ═════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════════
 
         private void ApplyAllTabFilter()
         {
@@ -362,6 +572,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             _searchText = "";
             _selectedStatusFilter = "All Statuses";
             _selectedTypeFilter = "All Types";
+            SelectedRow = null;
 
             OnPropertyChanged(nameof(SearchText));
             OnPropertyChanged(nameof(SelectedStatusFilter));
@@ -370,9 +581,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             ApplyAllTabFilter();
         }
 
-        // ═════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════════
         //  MUTATIONS
-        // ═════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════════
 
         private async Task DeleteAsync(DeliveryNoteRowViewModel row)
         {
@@ -388,6 +599,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
             try
             {
+                if (SelectedRow == row) SelectedRow = null;
                 await App.DeliveryNotes!.DeleteAsync(row.Id);
                 await LoadAsync();
             }
@@ -426,10 +638,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
     }
 
     // ═════════════════════════════════════════════════════════════════════
-    //  ROW VIEWMODEL
+    //  ROW VIEWMODEL — extended with IsSelected for highlight
     // ═════════════════════════════════════════════════════════════════════
 
-    public class DeliveryNoteRowViewModel
+    public class DeliveryNoteRowViewModel : ViewModelBase
     {
         public int Id { get; }
         public string DeliveryNoteId { get; }
@@ -458,6 +670,14 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public string QtySummary { get; }
         public bool HasBalance { get; }
         public bool IsDummy { get; }
+
+        // ── Selection highlight (Phase 10.5c) ─────────────────────────────
+        private bool _isSelected;
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set { if (_isSelected == value) return; _isSelected = value; OnPropertyChanged(); }
+        }
 
         public DeliveryNoteRowViewModel(DeliveryNoteListItem e)
         {
