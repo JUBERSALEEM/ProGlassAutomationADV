@@ -13,8 +13,6 @@
 
         <!-- ══════════════════════════════════════════════════════════════
              DN ROW CARD — type-colored left accent bar
-             Phase 10.5c: added IsSelected DataTrigger → indigo border +
-             glow when a row is single-clicked (SelectRowCommand).
         ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="DnRowCardStyle" TargetType="Border">
             <Setter Property="Background"
@@ -36,7 +34,6 @@
                         </Setter.Value>
                     </Setter>
                 </Trigger>
-                <!-- Phase 10.5c — SELECTED highlight -->
                 <DataTrigger Binding="{Binding IsSelected}" Value="True">
                     <Setter Property="BorderBrush">
                         <Setter.Value>
@@ -218,20 +215,68 @@
             </Setter>
         </Style>
 
+        <!-- ── Header action button — Phase 10.7a Create DN ──────────── -->
+        <Style x:Key="HeaderActionButtonStyle" TargetType="Button">
+            <Setter Property="Background"
+                    Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource OnAccentForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding"         Value="18,10"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="FontSize"        Value="12"/>
+            <Setter Property="FontWeight"      Value="Bold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="10"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg"
+                                        Property="Background"
+                                        Value="{DynamicResource AccentHoverBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel Margin="20,16,20,30">
 
             <!-- ── PAGE HEADER ─────────────────────────────────────────── -->
-            <StackPanel Margin="8,0,8,20">
-                <TextBlock Text="Delivery Notes"
-                           FontSize="30" FontWeight="Bold"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                <TextBlock Text="Track glass deliveries, partial shipments and balance quantities"
-                           FontSize="13" Margin="0,4,0,0"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-            </StackPanel>
+            <Grid Margin="8,0,8,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Delivery Notes"
+                               FontSize="30" FontWeight="Bold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    <TextBlock Text="Track glass deliveries, partial shipments and balance quantities"
+                               FontSize="13" Margin="0,4,0,0"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                </StackPanel>
+
+                <Button Grid.Column="1"
+                        Content="🚚  Create DN"
+                        Command="{Binding CreateDnCommand}"
+                        Style="{StaticResource HeaderActionButtonStyle}"
+                        VerticalAlignment="Center"
+                        Margin="16,0,0,0"
+                        ToolTip="Pick a Job Order and create a Draft Delivery Note"/>
+            </Grid>
 
             <!-- ── LOADING / ERROR ─────────────────────────────────────── -->
             <Border Visibility="{Binding IsLoading,
@@ -252,28 +297,8 @@
             </Border>
 
             <!-- ══════════════════════════════════════════════════════════
-                 KPI HERO CARDS — Phase 10.5c dynamic
-                 When NO row selected → shows overall dataset stats
-                 When a row IS selected → shows that DN's stats
-                    Card 1 = Ordered Qty (this DN)
-                    Card 2 = Delivered Qty (this DN)
-                    Card 3 = Balance Qty (this DN)
-                    Card 4 = Driver name (this DN)
-                 Labels and values driven by HeroCard{N}Value / HeroCard{N}Label
-                 computed properties on the VM.
+                 KPI HERO CARDS
             ══════════════════════════════════════════════════════════ -->
-            <!-- ══════════════════════════════════════════════════════════
-     KPI HERO CARDS — Phase 10.5c (5 cards, dynamic content)
-     When NO row selected → shows overall dataset stats
-     When a row IS selected → shows that DN's stats:
-        Card 1 = Ordered Qty (this DN)
-        Card 2 = Delivered Qty (this DN)
-        Card 3 = Balance Qty (this DN)
-        Card 4 = Driver name (this DN)
-        Card 5 = Sequence number ("Delivery #N")
-     Labels + values driven by HeroCard{N}Value / HeroCard{N}Label
-     computed properties on the VM.
-══════════════════════════════════════════════════════════ -->
             <Grid Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -283,7 +308,6 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Card 1 — Total DNs / Selected Ordered — Indigo hero -->
                 <hero:GradientHeroCard Grid.Column="0"
                            Icon="📦"
                            Value="{Binding HeroCard1Value}"
@@ -292,7 +316,6 @@
                            GradientEndColor="#6366F1"
                            Margin="6" MinHeight="130"/>
 
-                <!-- Card 2 — Pending Jobs / Selected Delivered — Amber hero -->
                 <hero:GradientHeroCard Grid.Column="1"
                            Icon="⏳"
                            Value="{Binding HeroCard2Value}"
@@ -301,7 +324,6 @@
                            GradientEndColor="#F59E0B"
                            Margin="6" MinHeight="130"/>
 
-                <!-- Card 3 — Rework DNs / Selected Balance — Amber tinted -->
                 <Border Grid.Column="2"
             Background="{DynamicResource TintAmberBrush}"
             CornerRadius="16" Padding="18" Margin="6">
@@ -326,7 +348,6 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Card 4 — Returned DNs / Selected Driver — Red tinted (NEW) -->
                 <Border Grid.Column="3"
             Background="{DynamicResource TintRedBrush}"
             CornerRadius="16" Padding="18" Margin="6">
@@ -351,7 +372,6 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Card 5 — Delivered Today / Selected Sequence — Green tinted -->
                 <Border Grid.Column="4"
             Background="{DynamicResource TintGreenBrush}"
             CornerRadius="16" Padding="18" Margin="6">
@@ -378,11 +398,7 @@
                 </Border>
             </Grid>
 
-            <!-- ══════════════════════════════════════════════════════════
-                 SELECTED DN META LINE (Phase 10.5c)
-                 Shows when HasSelection = True. Contains DN-ID, vehicle,
-                 date, time. Also has "Clear" button.
-            ══════════════════════════════════════════════════════════ -->
+            <!-- ── SELECTED DN META LINE ──────────────────────────────── -->
             <Border Margin="8,0,8,16"
                     Padding="14,10"
                     CornerRadius="10"
@@ -423,9 +439,7 @@
             </Border>
 
             <!-- ══════════════════════════════════════════════════════════
-                 CARD TAB HEADERS — Phase 10.5c
-                 6 tabs: All / Prepared / Delivered / Pending / Rework / Returned
-                 CommandParameter carries the count display value.
+                 CARD TAB HEADERS
             ══════════════════════════════════════════════════════════ -->
             <Grid Margin="8,0,8,16">
                 <Grid.ColumnDefinitions>
@@ -437,7 +451,6 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Tab 0: ALL -->
                 <Button Grid.Column="0"
                         Tag="📦"
                         Content="ALL"
@@ -451,7 +464,6 @@
                     </Button.Style>
                 </Button>
 
-                <!-- Tab 1: PREPARED -->
                 <Button Grid.Column="1"
                         Tag="📝"
                         Content="PREPARED"
@@ -461,7 +473,6 @@
                         x:Name="TabPrepared"
                         Style="{StaticResource TabCardInactiveStyle}"/>
 
-                <!-- Tab 2: DELIVERED -->
                 <Button Grid.Column="2"
                         Tag="✅"
                         Content="DELIVERED"
@@ -471,7 +482,6 @@
                         x:Name="TabDelivered"
                         Style="{StaticResource TabCardInactiveStyle}"/>
 
-                <!-- Tab 3: PENDING QTY -->
                 <Button Grid.Column="3"
                         Tag="⏳"
                         Content="PENDING QTY"
@@ -481,7 +491,6 @@
                         x:Name="TabPending"
                         Style="{StaticResource TabCardInactiveStyle}"/>
 
-                <!-- Tab 4: REWORK -->
                 <Button Grid.Column="4"
                         Tag="🔧"
                         Content="REWORK"
@@ -491,7 +500,6 @@
                         x:Name="TabRework"
                         Style="{StaticResource TabCardInactiveStyle}"/>
 
-                <!-- Tab 5: RETURNED — NEW Phase 10.5c -->
                 <Button Grid.Column="5"
                         Tag="↩️"
                         Content="RETURNED"
@@ -505,8 +513,6 @@
 
             <!-- ══════════════════════════════════════════════════════════
                  TAB CONTENT PANELS
-                 Visibility driven by SelectedTabIndex from VM.
-                 Each panel is a standalone StackPanel — no TabControl.
             ══════════════════════════════════════════════════════════ -->
 
             <!-- ── TAB 0: ALL ───────────────────────────────────────────── -->
@@ -595,12 +601,10 @@
                                     <!-- Left info -->
                                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
 
-                                        <!-- DN ID + badges -->
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{Binding DeliveryNoteId}"
                                                        FontSize="15" FontWeight="Bold"
                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                            <!-- FOC badge -->
                                             <Border CornerRadius="6" Padding="6,2"
                                                     Margin="8,0,0,0"
                                                     Background="{DynamicResource TintAmberBrush}">
@@ -617,7 +621,6 @@
                                                 <TextBlock Text="FOC" FontSize="9" FontWeight="Bold"
                                                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                             </Border>
-                                            <!-- DUMMY badge -->
                                             <Border CornerRadius="6" Padding="6,2"
                                                     Margin="6,0,0,0"
                                                     Background="{DynamicResource TintGrayBrush}">
@@ -636,7 +639,6 @@
                                             </Border>
                                         </StackPanel>
 
-                                        <!-- JO ref + Date + Time -->
                                         <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                                             <TextBlock Text="📋" FontSize="11"
                                                        Margin="0,0,4,0" VerticalAlignment="Center"/>
@@ -662,7 +664,6 @@
                                                        VerticalAlignment="Center"/>
                                         </StackPanel>
 
-                                        <!-- Tags row -->
                                         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                                             <Border Background="{DynamicResource TintGrayBrush}"
                                                     BorderBrush="{DynamicResource BorderBrush}"
@@ -698,7 +699,7 @@
                                         </StackPanel>
                                     </StackPanel>
 
-                                    <!-- Status pill -->
+                                    <!-- Status pill — Phase 10.7a: dark text on light tint -->
                                     <Border Grid.Column="1"
                                             CornerRadius="10" Padding="10,4"
                                             VerticalAlignment="Center" Margin="0,0,8,0"
@@ -706,10 +707,10 @@
                                                          Converter={StaticResource BrushKeyConverter}}">
                                         <TextBlock Text="{Binding StatusLabel}"
                                                    FontSize="10" FontWeight="Bold"
-                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                     </Border>
 
-                                    <!-- Type pill -->
+                                    <!-- Type pill — Phase 10.7a: dark text on light tint -->
                                     <Border Grid.Column="2"
                                             CornerRadius="10" Padding="10,4"
                                             VerticalAlignment="Center" Margin="0,0,12,0"
@@ -717,10 +718,9 @@
                                                          Converter={StaticResource BrushKeyConverter}}">
                                         <TextBlock Text="{Binding TypeLabel}"
                                                    FontSize="10" FontWeight="Bold"
-                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                     </Border>
 
-                                    <!-- Open button -->
                                     <Button Grid.Column="3"
                                             Style="{StaticResource OpenButtonStyle}"
                                             Command="{Binding DataContext.OpenCommand,
@@ -733,7 +733,6 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
 
-                <!-- Empty state -->
                 <StackPanel HorizontalAlignment="Center" Margin="0,50">
                     <StackPanel.Style>
                         <Style TargetType="StackPanel">
@@ -818,6 +817,7 @@
                                             <Run Text="{Binding QtySummary, Mode=OneWay}"/>
                                         </TextBlock>
                                     </StackPanel>
+                                    <!-- Type pill — Phase 10.7a: dark text -->
                                     <Border Grid.Column="1"
                                             CornerRadius="10" Padding="10,4"
                                             VerticalAlignment="Center" Margin="0,0,12,0"
@@ -825,7 +825,7 @@
                                                          Converter={StaticResource BrushKeyConverter}}">
                                         <TextBlock Text="{Binding TypeLabel}"
                                                    FontSize="10" FontWeight="Bold"
-                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                     </Border>
                                     <Button Grid.Column="2"
                                             Style="{StaticResource OpenButtonStyle}"
@@ -898,6 +898,7 @@
                                             <Run Text="{Binding DriverName, Mode=OneWay}"/>
                                         </TextBlock>
                                     </StackPanel>
+                                    <!-- Status pill — Phase 10.7a: dark text -->
                                     <Border Grid.Column="1"
                                             CornerRadius="10" Padding="10,4"
                                             VerticalAlignment="Center" Margin="0,0,12,0"
@@ -905,7 +906,7 @@
                                                          Converter={StaticResource BrushKeyConverter}}">
                                         <TextBlock Text="{Binding StatusLabel}"
                                                    FontSize="10" FontWeight="Bold"
-                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                     </Border>
                                     <Button Grid.Column="2"
                                             Style="{StaticResource OpenButtonStyle}"
@@ -982,7 +983,6 @@
                                         </TextBlock>
                                     </StackPanel>
 
-                                    <!-- Progress bar -->
                                     <StackPanel Grid.Column="1"
                                                 VerticalAlignment="Center"
                                                 Margin="16,0,0,0">
@@ -1074,6 +1074,7 @@
                                             <Run Text="{Binding QtySummary, Mode=OneWay}"/>
                                         </TextBlock>
                                     </StackPanel>
+                                    <!-- Status pill — Phase 10.7a: dark text -->
                                     <Border Grid.Column="1"
                                             CornerRadius="10" Padding="10,4"
                                             VerticalAlignment="Center" Margin="0,0,12,0"
@@ -1081,7 +1082,7 @@
                                                          Converter={StaticResource BrushKeyConverter}}">
                                         <TextBlock Text="{Binding StatusLabel}"
                                                    FontSize="10" FontWeight="Bold"
-                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                     </Border>
                                     <Button Grid.Column="2"
                                             Style="{StaticResource OpenButtonStyle}"
@@ -1114,7 +1115,7 @@
                 </StackPanel>
             </StackPanel>
 
-            <!-- ── TAB 5: RETURNED (Phase 10.5c) ────────────────────────── -->
+            <!-- ── TAB 5: RETURNED ──────────────────────────────────────── -->
             <StackPanel Margin="0,4,0,0">
                 <StackPanel.Style>
                     <Style TargetType="StackPanel">
@@ -1152,6 +1153,7 @@
                                             <Run Text="{Binding QtySummary, Mode=OneWay}"/>
                                         </TextBlock>
                                     </StackPanel>
+                                    <!-- Status pill — Phase 10.7a: dark text -->
                                     <Border Grid.Column="1"
                                             CornerRadius="10" Padding="10,4"
                                             VerticalAlignment="Center" Margin="0,0,12,0"
@@ -1159,7 +1161,7 @@
                                                          Converter={StaticResource BrushKeyConverter}}">
                                         <TextBlock Text="{Binding StatusLabel}"
                                                    FontSize="10" FontWeight="Bold"
-                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                     </Border>
                                     <Button Grid.Column="2"
                                             Style="{StaticResource OpenButtonStyle}"

@@ -173,6 +173,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
                 <Button Grid.Column="0"
@@ -228,7 +229,17 @@
                         Style="{StaticResource ActionButtonStyle}"
                         Margin="0,0,8,0"/>
 
-                <StackPanel Grid.Column="4" Orientation="Horizontal">
+                <!-- Phase 10.7a — Delete DN -->
+                <Button Grid.Column="4"
+                        Content="🗑️  Delete"
+                        Command="{Binding DeleteDnCommand}"
+                        Style="{StaticResource ActionButtonStyle}"
+                        Background="{DynamicResource DangerBrush}"
+                        Foreground="White"
+                        Margin="0,0,8,0"
+                        ToolTip="Permanently delete this delivery note"/>
+
+                <StackPanel Grid.Column="5" Orientation="Horizontal">
                     <Button Content="PDF"
                             Style="{StaticResource ActionButtonStyle}"
                             Background="{DynamicResource MenuHoverBrush}"

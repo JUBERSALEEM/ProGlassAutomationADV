@@ -1,6 +1,8 @@
 ﻿using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
+using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Services.DeliveryNote.Repository;
+using ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.JobOrderPicker;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -16,20 +18,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
     /// ViewModel for the Delivery Note list landing page.
     ///
     /// 6 tabs: All | Prepared | Delivered | Pending Qty | Rework | Returned
-    /// 5 hero cards: Total | Pending Jobs | Rework | Returned | Delivered Today
+    /// 5 hero cards: dynamic — dataset stats or selected DN stats.
     ///
-    /// Phase 10.5c:
-    ///   - Added Returned tab (DeliveryType = Return)
-    ///   - Added 5th hero card for Returned DNs (red tint + ↩️)
-    ///   - Single-click row → SelectedRow set → top 5 hero cards
-    ///     swap to show selected DN's stats:
-    ///       Card 1: Ordered Qty
-    ///       Card 2: Delivered Qty
-    ///       Card 3: Balance Qty
-    ///       Card 4: Driver name
-    ///       Card 5: Sequence number ("Delivery #N")
-    ///   - Selection clears on tab switch, filter change, refresh
-    ///   - Tab counts always reflect full dataset (not affected by selection)
+    /// Phase 10.5c : Selection, 6 tabs, 5 hero cards.
+    /// Phase 10.7a : CreateDnCommand (JO picker).
+    /// Phase 10.7a : GenerateInvoiceCommand placeholder — visible per row
+    ///               when Status ∈ {Delivered, Signed, Received}.
+    ///               Actual wiring in Phase 19 (Tax Invoice module).
     /// </summary>
     public class DeliveryNoteListViewModel : ViewModelBase
     {
@@ -37,8 +32,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
         public Action<int>? OnDeliveryNoteOpenRequested { get; set; }
 
+        // Phase 10.7a — callback to shell VM to create DN from picked JO
+        public Action<SavedJobOrder>? OnCreateDnFromJobOrder { get; set; }
+
         // ══════════════════════════════════════════════════════════════════
-        //  SELECTION (Phase 10.5c)
+        //  SELECTION
         // ══════════════════════════════════════════════════════════════════
 
         private DeliveryNoteRowViewModel? _selectedRow;
@@ -55,7 +53,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
                 OnPropertyChanged();
 
-                // Refresh all hero card computed props
                 OnPropertyChanged(nameof(HasSelection));
                 OnPropertyChanged(nameof(HeroCard1Value));
                 OnPropertyChanged(nameof(HeroCard1Label));
@@ -74,7 +71,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
         public bool HasSelection => _selectedRow != null;
 
-        // ── Hero card 1 — Total DNs / Selected Ordered Qty ────────────────
         public string HeroCard1Value =>
             _selectedRow != null
                 ? _selectedRow.TotalOrderedQty.ToString()
@@ -83,7 +79,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public string HeroCard1Label =>
             _selectedRow != null ? "Ordered Qty (this DN)" : "Total Delivery Notes";
 
-        // ── Hero card 2 — Pending Jobs / Selected Delivered Qty ───────────
         public string HeroCard2Value =>
             _selectedRow != null
                 ? _selectedRow.TotalDeliveredQty.ToString()
@@ -92,7 +87,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public string HeroCard2Label =>
             _selectedRow != null ? "Delivered Qty (this DN)" : "Jobs with Pending Qty";
 
-        // ── Hero card 3 — Rework DNs / Selected Balance Qty ───────────────
         public string HeroCard3Value =>
             _selectedRow != null
                 ? _selectedRow.TotalBalanceQty.ToString()
@@ -101,9 +95,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public string HeroCard3Label =>
             _selectedRow != null ? "Balance Qty (this DN)" : "Rework DNs";
 
-        // ── Hero card 4 — Returned DNs / Selected Driver (Phase 10.5c) ────
-        //    When idle: shows returned count
-        //    When selected: shows driver name
         public string HeroCard4Value =>
             _selectedRow != null
                 ? (string.IsNullOrWhiteSpace(_selectedRow.DriverName)
@@ -114,9 +105,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public string HeroCard4Label =>
             _selectedRow != null ? "Driver" : "Returned DNs";
 
-        // ── Hero card 5 — Delivered Today / Selected Sequence ─────────────
-        //    When idle: shows Delivered Today count with ✅
-        //    When selected: shows "Delivery #N" with 🔢
         public string HeroCard5Value =>
             _selectedRow != null
                 ? $"Delivery #{_selectedRow.SequenceNumber}"
@@ -128,7 +116,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public string HeroCard5Icon =>
             _selectedRow != null ? "🔢" : "✅";
 
-        // ── Selected DN meta line (shown under hero cards when selected) ──
         public string SelectedDnMetaLine =>
             _selectedRow == null
                 ? ""
@@ -137,13 +124,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         private static string NullIfBlank(string? s, string fallback)
             => string.IsNullOrWhiteSpace(s) ? fallback : s!;
 
-        // ── Selection commands ────────────────────────────────────────────
-
         public ICommand SelectRowCommand { get; }
         public ICommand ClearSelectionCommand { get; }
 
         // ══════════════════════════════════════════════════════════════════
-        //  TAB INDEX  (0=All, 1=Prepared, 2=Delivered, 3=Pending, 4=Rework, 5=Returned)
+        //  TAB INDEX
         // ══════════════════════════════════════════════════════════════════
 
         private int _selectedTabIndex;
@@ -155,8 +140,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 if (_selectedTabIndex == value) return;
                 _selectedTabIndex = value;
                 OnPropertyChanged();
-
-                SelectedRow = null;   // clear selection on tab switch
+                SelectedRow = null;
                 _ = LoadTabAsync(value);
             }
         }
@@ -208,7 +192,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  KPI  (dataset-wide — used when no row selected)
+        //  KPI
         // ══════════════════════════════════════════════════════════════════
 
         private int _totalCount;
@@ -369,6 +353,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public ICommand DeleteCommand { get; }
         public ICommand ChangeStatusCommand { get; }
 
+        public ICommand CreateDnCommand { get; }
+
+        // Phase 10.7a — Tax Invoice placeholder (wired in Phase 19)
+        public ICommand GenerateInvoiceCommand { get; }
+
         // ══════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
         // ══════════════════════════════════════════════════════════════════
@@ -392,10 +381,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             SelectRowCommand = new RelayCommand(param =>
             {
                 if (param is DeliveryNoteRowViewModel row)
-                {
-                    // Toggle: click same row → deselect
                     SelectedRow = (SelectedRow == row) ? null : row;
-                }
             });
 
             ClearSelectionCommand = new RelayCommand(_ => SelectedRow = null);
@@ -412,11 +398,84 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                     await ChangeStatusAsync(row, newStatus);
             });
 
+            CreateDnCommand = new RelayCommand(
+                async _ => await OpenJobOrderPickerAsync());
+
+            // Phase 10.7a — Tax Invoice placeholder
+            GenerateInvoiceCommand = new RelayCommand(param =>
+            {
+                if (param is DeliveryNoteRowViewModel row)
+                {
+                    MessageBox.Show(
+                        $"Tax Invoice generation for '{row.DeliveryNoteId}'\n\n" +
+                        "This feature is coming in Phase 19 — Tax Invoice module.\n\n" +
+                        "The button is placed here now so the flow is ready\n" +
+                        "when Phase 19 wires up the actual generation logic.",
+                        "Coming in Phase 19",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                }
+            });
+
             _ = LoadAsync();
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  LOAD (all tabs at once)
+        //  JO PICKER
+        // ══════════════════════════════════════════════════════════════════
+
+        private async Task OpenJobOrderPickerAsync()
+        {
+            if (App.Jobs == null)
+            {
+                MessageBox.Show(
+                    "Job Orders database not initialized.",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return;
+            }
+
+            List<SavedJobOrder> jobOrders;
+
+            try
+            {
+                jobOrders = await App.Jobs.GetAllAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Failed to load job orders:\n\n{ex.Message}",
+                    "Load Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return;
+            }
+
+            if (jobOrders.Count == 0)
+            {
+                MessageBox.Show(
+                    "No job orders found.\n\n" +
+                    "Create a Job Order from a Proforma Invoice first.",
+                    "No Job Orders",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
+            }
+
+            var dialog = new JobOrderPickerDialog(jobOrders)
+            {
+                Owner = Application.Current.MainWindow
+            };
+
+            if (dialog.ShowDialog() != true) return;
+            if (dialog.SelectedJobOrder == null) return;
+
+            OnCreateDnFromJobOrder?.Invoke(dialog.SelectedJobOrder);
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  LOAD
         // ══════════════════════════════════════════════════════════════════
 
         public async Task LoadAsync()
@@ -638,7 +697,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
     }
 
     // ═════════════════════════════════════════════════════════════════════
-    //  ROW VIEWMODEL — extended with IsSelected for highlight
+    //  ROW VIEWMODEL
     // ═════════════════════════════════════════════════════════════════════
 
     public class DeliveryNoteRowViewModel : ViewModelBase
@@ -671,7 +730,14 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public bool HasBalance { get; }
         public bool IsDummy { get; }
 
-        // ── Selection highlight (Phase 10.5c) ─────────────────────────────
+        /// <summary>
+        /// Phase 10.7a — true when this DN is eligible for Tax Invoice
+        /// generation (i.e. Status is Delivered / Signed / Received).
+        /// Used by XAML to show/hide the "🧾 Generate Invoice" button.
+        /// Actual invoice generation wired in Phase 19.
+        /// </summary>
+        public bool CanGenerateInvoice { get; }
+
         private bool _isSelected;
         public bool IsSelected
         {
@@ -714,7 +780,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             QtySummary = $"{TotalDeliveredQty} delivered  •  {TotalBalanceQty} balance";
             HasBalance = TotalBalanceQty > 0;
             IsDummy = string.Equals(DeliveryType, "Dummy",
-                                  StringComparison.OrdinalIgnoreCase);
+                              StringComparison.OrdinalIgnoreCase);
+
+            // Phase 10.7a — Tax Invoice eligibility
+            CanGenerateInvoice =
+                string.Equals(Status, "Delivered", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(Status, "Signed", StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(Status, "Received", StringComparison.OrdinalIgnoreCase);
         }
     }
 
