@@ -13,6 +13,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
     ///
     /// Phase 10.5c: Added GetReturnedAsync() for the Returned tab.
     /// Phase 10.6 : Added attachment CRUD (independent of parent DN save).
+    /// Phase 10.6b: Added GetAttachmentCountAsync for per-sibling counts.
     /// </summary>
     public interface IDeliveryNoteRepository
     {
@@ -20,76 +21,29 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
         // ── Single DN retrieval ──────────────────────────────────────────
 
-        /// <summary>
-        /// Returns full entity with Items + Attachments navigation loaded.
-        /// Returns null if not found.
-        /// </summary>
         Task<SavedDeliveryNote?> GetByIdAsync(int id);
-
-        /// <summary>
-        /// Returns full entity by DN string ID (e.g. "DN-2026-001-01").
-        /// Returns null if not found.
-        /// </summary>
         Task<SavedDeliveryNote?> GetByDeliveryNoteIdAsync(string deliveryNoteId);
 
         // ── List retrieval ───────────────────────────────────────────────
 
-        /// <summary>All DNs as lightweight list items (newest first).</summary>
         Task<List<DeliveryNoteListItem>> GetAllAsync();
-
-        /// <summary>All DNs for a specific Job Order (ordered by sequence).</summary>
         Task<List<DeliveryNoteListItem>> GetByJobOrderIdAsync(string jobOrderId);
-
-        /// <summary>All DNs with Status = Draft (Prepared tab).</summary>
         Task<List<DeliveryNoteListItem>> GetPreparedAsync();
-
-        /// <summary>
-        /// All DNs with Status in Delivered|Signed|Received (Delivered tab).
-        /// </summary>
         Task<List<DeliveryNoteListItem>> GetDeliveredAsync();
-
-        /// <summary>
-        /// Job Orders that still have balance qty > 0.
-        /// Returns distinct JO references with pending qty summary.
-        /// </summary>
         Task<List<PendingQtySummary>> GetPendingQtyJobsAsync();
-
-        /// <summary>All DNs with DeliveryType = Rework (Rework tab).</summary>
         Task<List<DeliveryNoteListItem>> GetReworkAsync();
-
-        /// <summary>All DNs with DeliveryType = Return (Returned tab).</summary>
         Task<List<DeliveryNoteListItem>> GetReturnedAsync();
 
         // ── Delivery history ─────────────────────────────────────────────
 
-        /// <summary>
-        /// Per-JO delivery summary: total ordered, delivered, balance,
-        /// rework, returned. Computed from DeliveryNoteItems table.
-        /// </summary>
         Task<DeliveryHistorySummary> GetDeliveryHistoryAsync(string jobOrderId);
 
-        /// <summary>
-        /// Previously delivered qty for a specific item row across all
-        /// confirmed DNs for this JO. Used when creating new DN from balance.
-        /// Only counts DNs with Status != Draft (excludes dummy DNs).
-        /// </summary>
         Task<int> GetPreviouslyDeliveredQtyAsync(
-            string jobOrderId,
-            int specGroupNumber,
-            int serialNumber);
+            string jobOrderId, int specGroupNumber, int serialNumber);
 
         // ── Numbering ────────────────────────────────────────────────────
 
-        /// <summary>
-        /// Returns next sequence number for a JO's deliveries.
-        /// e.g. JOB-2026-001 has DN-2026-001-01 → returns 2
-        /// </summary>
         Task<int> GetNextSequenceAsync(string jobOrderId);
-
-        /// <summary>
-        /// Builds the full DN ID string from JO ID + sequence.
-        /// e.g. ("JOB-2026-001", 2) → "DN-2026-001-02"
-        /// </summary>
         Task<string> BuildDeliveryNoteIdAsync(string jobOrderId, int sequence);
 
         // ── CRUD ─────────────────────────────────────────────────────────
@@ -105,24 +59,26 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
         // ── Attachments (Phase 10.6) ─────────────────────────────────────
 
-        /// <summary>Load all attachments for a given DN (newest first).</summary>
         Task<List<DeliveryNoteAttachment>> GetAttachmentsAsync(string deliveryNoteId);
+        Task<DeliveryNoteAttachment> AddAttachmentAsync(DeliveryNoteAttachment entity);
+        Task DeleteAttachmentAsync(int attachmentId);
+
+        // ── Attachment counts (Phase 10.6b) ──────────────────────────────
+
+        /// <summary>Count of attachments for a specific DN.</summary>
+        Task<int> GetAttachmentCountAsync(string deliveryNoteId);
 
         /// <summary>
-        /// Persist a new attachment record. Returns entity with Id populated.
+        /// Batch: attachment counts for a list of DN IDs.
+        /// Returns dictionary keyed by DeliveryNoteId. IDs with zero
+        /// attachments still present in the dictionary (value = 0).
         /// </summary>
-        Task<DeliveryNoteAttachment> AddAttachmentAsync(DeliveryNoteAttachment entity);
-
-        /// <summary>Delete an attachment record by Id.</summary>
-        Task DeleteAttachmentAsync(int attachmentId);
+        Task<Dictionary<string, int>> GetAttachmentCountsAsync(
+            IEnumerable<string> deliveryNoteIds);
     }
 
     // ── Supporting DTOs ──────────────────────────────────────────────────
 
-    /// <summary>
-    /// Summary of pending (undelivered) qty for one Job Order.
-    /// Used in the Pending Qty tab.
-    /// </summary>
     public class PendingQtySummary
     {
         public string JobOrderId { get; set; } = "";
@@ -134,9 +90,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         public string LastDnId { get; set; } = "";
     }
 
-    /// <summary>
-    /// Full delivery history for one Job Order across all DNs.
-    /// </summary>
     public class DeliveryHistorySummary
     {
         public string JobOrderId { get; set; } = "";
@@ -148,7 +101,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         public System.Collections.Generic.List<DeliveryHistoryEntry> Entries { get; set; } = new();
     }
 
-    /// <summary>One DN's contribution to the delivery history timeline.</summary>
     public class DeliveryHistoryEntry
     {
         public string DeliveryNoteId { get; set; } = "";

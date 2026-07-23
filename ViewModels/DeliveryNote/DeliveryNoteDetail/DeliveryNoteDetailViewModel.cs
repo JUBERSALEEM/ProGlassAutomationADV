@@ -21,16 +21,19 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
     ///
     /// Two-column layout:
     ///   Left  — read-only JO snapshot context (customer, project, spec summary)
+    ///          + delivery history timeline (clickable sibling DN list)
     ///   Right — editable DN fields (driver, vehicle, receiver, status, notes)
-    ///           + delivery items grid (ordered/prev/this DN/balance per row)
-    ///           + delivery history timeline (all DNs for this JO)
-    ///           + attachments section (Phase 10.6)
+    ///          + delivery items grid (ordered/prev/this DN/balance per row)
+    ///          + attachments section (per selected history DN)
     ///
     /// Phase 10.6 : Attachments managed independently — upload/delete
     ///              commits immediately, does NOT depend on Save button.
     /// Phase 10.6a: Rename dialog appears on upload — user can choose a
     ///              custom filename before the file is saved to disk.
-    ///              Dialog lives under Views/.../Attachments/Rename/.
+    /// Phase 10.6b: Delivery history rows are clickable and drive the
+    ///              attachments panel on the right. Selected sibling DN's
+    ///              attachments are shown/managed. Current DN highlighted.
+    ///              Each history row shows its own attachment count badge.
     /// </summary>
     public class DeliveryNoteDetailViewModel : ViewModelBase
     {
@@ -268,7 +271,64 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             private set { if (_historyTotalBalance == value) return; _historyTotalBalance = value; OnPropertyChanged(); }
         }
 
-        // ── Attachments (Phase 10.6) ─────────────────────────────────────
+        // ══════════════════════════════════════════════════════════════════
+        //  Phase 10.6b — SELECTED SIBLING DN (drives Attachments panel)
+        // ══════════════════════════════════════════════════════════════════
+
+        private DnHistoryEntryViewModel? _selectedHistoryEntry;
+        public DnHistoryEntryViewModel? SelectedHistoryEntry
+        {
+            get => _selectedHistoryEntry;
+            set
+            {
+                if (_selectedHistoryEntry == value) return;
+
+                // Deselect previous
+                if (_selectedHistoryEntry != null)
+                    _selectedHistoryEntry.IsSelected = false;
+
+                _selectedHistoryEntry = value;
+
+                if (_selectedHistoryEntry != null)
+                    _selectedHistoryEntry.IsSelected = true;
+
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(SelectedDnHeaderText));
+                OnPropertyChanged(nameof(IsSelectedDnCurrent));
+
+                // Reload attachments for the newly-selected DN
+                _ = LoadAttachmentsForSelectedAsync();
+            }
+        }
+
+        /// <summary>
+        /// True when the selected history DN is the current DN (default state).
+        /// Used by the view to show/hide "you are viewing another DN's attachments" hint.
+        /// </summary>
+        public bool IsSelectedDnCurrent =>
+            _selectedHistoryEntry != null &&
+            string.Equals(_selectedHistoryEntry.DeliveryNoteId, _deliveryNoteId,
+                          StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Dynamic attachments panel header:
+        ///   "ATTACHMENTS FOR DN-2026-337-01 (3)"
+        /// or "ATTACHMENTS (3)" when a DN isn't selected (initial state).
+        /// </summary>
+        public string SelectedDnHeaderText
+        {
+            get
+            {
+                if (_selectedHistoryEntry == null)
+                    return $"ATTACHMENTS ({AttachmentsCount})";
+                return $"ATTACHMENTS FOR {_selectedHistoryEntry.DeliveryNoteId} ({AttachmentsCount})";
+            }
+        }
+
+        // Click a history row → select it (drives attachments panel)
+        public ICommand SelectHistoryEntryCommand { get; }
+
+        // ── Attachments (Phase 10.6 + 10.6b) ─────────────────────────────
 
         private ObservableCollection<DnAttachmentRowViewModel> _attachments = new();
         public ObservableCollection<DnAttachmentRowViewModel> Attachments
@@ -282,6 +342,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 OnPropertyChanged(nameof(AttachmentsCount));
                 OnPropertyChanged(nameof(HasNoAttachments));
                 OnPropertyChanged(nameof(HasAttachments));
+                OnPropertyChanged(nameof(SelectedDnHeaderText));
             }
         }
 
@@ -295,7 +356,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public ICommand BackCommand { get; }
         public ICommand ConfirmDispatchCommand { get; }
 
-        // Phase 10.6 attachment commands
         public ICommand UploadImageCommand { get; }
         public ICommand UploadPdfCommand { get; }
         public ICommand OpenAttachmentCommand { get; }
@@ -318,14 +378,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 async _ => await ConfirmDispatchAsync(),
                 _ => Status == "Draft" && !IsSaving);
 
-            // Phase 10.6 — Attachment commands
             UploadImageCommand = new RelayCommand(
                 async _ => await UploadImageAsync(),
-                _ => _entity != null && !IsSaving);
+                _ => _selectedHistoryEntry != null && !IsSaving);
 
             UploadPdfCommand = new RelayCommand(
                 async _ => await UploadPdfAsync(),
-                _ => _entity != null && !IsSaving);
+                _ => _selectedHistoryEntry != null && !IsSaving);
 
             OpenAttachmentCommand = new RelayCommand(param =>
             {
@@ -337,6 +396,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             {
                 if (param is DnAttachmentRowViewModel row)
                     await DeleteAttachmentAsync(row);
+            });
+
+            // Phase 10.6b — click a history DN row → select it
+            SelectHistoryEntryCommand = new RelayCommand(param =>
+            {
+                if (param is DnHistoryEntryViewModel entry)
+                    SelectedHistoryEntry = entry;
             });
         }
 
@@ -403,8 +469,27 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
                 RecalculateTotals();
 
+                // ── Load history (populates HistoryEntries) ─────────────
                 await LoadHistoryAsync();
-                await LoadAttachmentsAsync();
+
+                // ── Phase 10.6b — auto-select CURRENT DN in the history
+                //    list so attachments panel loads for THIS DN by default
+                var currentInHistory = HistoryEntries
+                    .FirstOrDefault(h => string.Equals(
+                        h.DeliveryNoteId, DeliveryNoteId,
+                        StringComparison.OrdinalIgnoreCase));
+
+                if (currentInHistory != null)
+                {
+                    // Setter triggers LoadAttachmentsForSelectedAsync()
+                    SelectedHistoryEntry = currentInHistory;
+                }
+                else
+                {
+                    // Fallback (shouldn't happen, but handle gracefully):
+                    // load attachments directly for current DN
+                    await LoadAttachmentsDirectlyAsync(DeliveryNoteId);
+                }
             }
             catch (Exception ex)
             {
@@ -429,9 +514,20 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             HistoryTotalDelivered = history.TotalDelivered;
             HistoryTotalBalance = history.TotalBalance;
 
-            var entries = history.Entries
-                .Select(e => new DnHistoryEntryViewModel(e))
-                .ToList();
+            // Phase 10.6b — batch-fetch attachment counts per sibling DN
+            var siblingIds = history.Entries.Select(e => e.DeliveryNoteId).ToList();
+            var counts = await App.DeliveryNotes
+                .GetAttachmentCountsAsync(siblingIds);
+
+            var entries = history.Entries.Select(e =>
+            {
+                var vm = new DnHistoryEntryViewModel(e);
+                vm.AttachmentCount = counts.TryGetValue(e.DeliveryNoteId, out var c) ? c : 0;
+                vm.IsCurrentDn = string.Equals(
+                    e.DeliveryNoteId, DeliveryNoteId,
+                    StringComparison.OrdinalIgnoreCase);
+                return vm;
+            }).ToList();
 
             HistoryEntries = new ObservableCollection<DnHistoryEntryViewModel>(entries);
         }
@@ -584,23 +680,49 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  ATTACHMENTS (Phase 10.6 + Phase 10.6a rename dialog)
+        //  ATTACHMENTS (Phase 10.6 + Phase 10.6b per-selected-DN loading)
         // ═════════════════════════════════════════════════════════════════
 
-        private async Task LoadAttachmentsAsync()
+        /// <summary>
+        /// Loads attachments for the currently-selected sibling DN.
+        /// Called by SelectedHistoryEntry setter.
+        /// </summary>
+        private async Task LoadAttachmentsForSelectedAsync()
         {
-            if (_entity == null || App.DeliveryNotes == null) return;
+            if (_selectedHistoryEntry == null)
+            {
+                Attachments = new ObservableCollection<DnAttachmentRowViewModel>();
+                return;
+            }
+
+            await LoadAttachmentsDirectlyAsync(_selectedHistoryEntry.DeliveryNoteId);
+        }
+
+        /// <summary>
+        /// Direct load by DN string ID (used by both selected-refresh and
+        /// fallback path when history load fails).
+        /// </summary>
+        private async Task LoadAttachmentsDirectlyAsync(string deliveryNoteId)
+        {
+            if (App.DeliveryNotes == null || string.IsNullOrWhiteSpace(deliveryNoteId))
+                return;
 
             var list = await App.DeliveryNotes
-                .GetAttachmentsAsync(_entity.DeliveryNoteId);
+                .GetAttachmentsAsync(deliveryNoteId);
 
             var rows = list.Select(a => new DnAttachmentRowViewModel(a)).ToList();
             Attachments = new ObservableCollection<DnAttachmentRowViewModel>(rows);
+
+            // Also refresh the count badge on the corresponding history row
+            var historyRow = HistoryEntries.FirstOrDefault(h => string.Equals(
+                h.DeliveryNoteId, deliveryNoteId, StringComparison.OrdinalIgnoreCase));
+            if (historyRow != null)
+                historyRow.AttachmentCount = rows.Count;
         }
 
         private async Task UploadImageAsync()
         {
-            if (_entity == null || App.DeliveryNotes == null) return;
+            if (_selectedHistoryEntry == null || App.DeliveryNotes == null) return;
 
             var dlg = new OpenFileDialog
             {
@@ -634,7 +756,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     return;
                 }
 
-                // Phase 10.6a — show rename dialog
                 var origName = Path.GetFileName(dlg.FileName);
                 var renameDlg = new RenameAttachmentDialog(origName)
                 {
@@ -645,11 +766,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
                 IsSaving = true;
 
+                // Phase 10.6b — attach to SELECTED DN, not necessarily current
+                var targetDnId = _selectedHistoryEntry.DeliveryNoteId;
                 var entity = await _attachmentService
-                    .CopyImageAsync(dlg.FileName, _entity.DeliveryNoteId, finalName);
+                    .CopyImageAsync(dlg.FileName, targetDnId, finalName);
 
                 await App.DeliveryNotes.AddAttachmentAsync(entity);
-                await LoadAttachmentsAsync();
+                await LoadAttachmentsForSelectedAsync();
             }
             catch (Exception ex)
             {
@@ -667,7 +790,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         private async Task UploadPdfAsync()
         {
-            if (_entity == null || App.DeliveryNotes == null) return;
+            if (_selectedHistoryEntry == null || App.DeliveryNotes == null) return;
 
             var dlg = new OpenFileDialog
             {
@@ -700,7 +823,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     return;
                 }
 
-                // Phase 10.6a — show rename dialog
                 var origName = Path.GetFileName(dlg.FileName);
                 var renameDlg = new RenameAttachmentDialog(origName)
                 {
@@ -711,11 +833,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
                 IsSaving = true;
 
+                var targetDnId = _selectedHistoryEntry.DeliveryNoteId;
                 var entity = await _attachmentService
-                    .CopyPdfAsync(dlg.FileName, _entity.DeliveryNoteId, finalName);
+                    .CopyPdfAsync(dlg.FileName, targetDnId, finalName);
 
                 await App.DeliveryNotes.AddAttachmentAsync(entity);
-                await LoadAttachmentsAsync();
+                await LoadAttachmentsForSelectedAsync();
             }
             catch (Exception ex)
             {
@@ -764,7 +887,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             {
                 await App.DeliveryNotes.DeleteAttachmentAsync(row.Id);
                 _attachmentService.DeleteFile(row.FilePath);
-                await LoadAttachmentsAsync();
+                await LoadAttachmentsForSelectedAsync();
             }
             catch (Exception ex)
             {
@@ -858,10 +981,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
     }
 
     // ═════════════════════════════════════════════════════════════════════
-    //  DN HISTORY ENTRY VIEWMODEL — one row in history timeline
+    //  DN HISTORY ENTRY VIEWMODEL — one clickable sibling DN row
+    //  Phase 10.6b: added IsSelected + IsCurrentDn + AttachmentCount
     // ═════════════════════════════════════════════════════════════════════
 
-    public class DnHistoryEntryViewModel
+    public class DnHistoryEntryViewModel : ViewModelBase
     {
         public string DeliveryNoteId { get; }
         public string DeliveryType { get; }
@@ -872,7 +996,38 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public string DriverName { get; }
         public string TypeIcon { get; }
         public string StatusBrushKey { get; }
-        public bool IsCurrentDn { get; }
+
+        // Phase 10.6b — reactive flags
+        private bool _isSelected;
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set { if (_isSelected == value) return; _isSelected = value; OnPropertyChanged(); }
+        }
+
+        private bool _isCurrentDn;
+        public bool IsCurrentDn
+        {
+            get => _isCurrentDn;
+            set { if (_isCurrentDn == value) return; _isCurrentDn = value; OnPropertyChanged(); }
+        }
+
+        private int _attachmentCount;
+        public int AttachmentCount
+        {
+            get => _attachmentCount;
+            set
+            {
+                if (_attachmentCount == value) return;
+                _attachmentCount = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasAttachments));
+            }
+        }
+
+        public bool HasAttachments => _attachmentCount > 0;
+
+        public bool HasBalance => BalanceQty > 0;
 
         public DnHistoryEntryViewModel(DeliveryHistoryEntry e)
         {

@@ -13,14 +13,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
     /// Each method creates a fresh DbContext (same pattern as JO + PI repos).
     ///
     /// Phase 10.5c: Added GetReturnedAsync() for the Returned tab.
-    /// Phase 10.6 : Attachments are now managed independently of parent DN
-    ///              save. UpdateAsync no longer wipes attachments — that
-    ///              would delete Phase 10.6 uploaded files on every Save.
+    /// Phase 10.6 : Attachments managed independently of parent DN save.
+    /// Phase 10.6b: Added GetAttachmentCountAsync + batch variant.
     /// </summary>
     public class DeliveryNoteRepository : IDeliveryNoteRepository
     {
-        // ── Initialize (create DB + tables if not exist) ─────────────────
-
         public async Task InitializeAsync()
         {
             using var ctx = new DeliveryNotesDbContext();
@@ -256,18 +253,13 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             using var ctx = new DeliveryNotesDbContext();
             entity.UpdatedAt = DateTime.Now;
 
-            // Items: wipe + re-add strategy (matches JO repo pattern —
-            // avoids EF tracking conflicts on child collection).
             var existingItems = await ctx.DeliveryNoteItems
                 .Where(i => i.DeliveryNoteId == entity.DeliveryNoteId)
                 .ToListAsync();
             ctx.DeliveryNoteItems.RemoveRange(existingItems);
 
-            // Phase 10.6 — Attachments are managed independently via
-            // AddAttachmentAsync / DeleteAttachmentAsync. Do NOT wipe them
-            // on regular Save — that would delete uploaded files on every
-            // Save click. Detach the entity's Attachments navigation from
-            // tracking so EF doesn't try to persist stale rows.
+            // Phase 10.6 — Attachments are managed independently.
+            // Do NOT wipe them on regular Save.
             entity.Attachments.Clear();
 
             ctx.DeliveryNotes.Update(entity);
@@ -284,7 +276,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
             if (entity == null) return;
 
-            // EF cascade handles Items + Attachments deletion
             ctx.DeliveryNotes.Remove(entity);
             await ctx.SaveChangesAsync();
         }
@@ -336,6 +327,39 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
             ctx.DeliveryNoteAttachments.Remove(entity);
             await ctx.SaveChangesAsync();
+        }
+
+        // ── Attachment counts (Phase 10.6b) ──────────────────────────────
+
+        public async Task<int> GetAttachmentCountAsync(string deliveryNoteId)
+        {
+            using var ctx = new DeliveryNotesDbContext();
+            return await ctx.DeliveryNoteAttachments
+                .CountAsync(a => a.DeliveryNoteId == deliveryNoteId);
+        }
+
+        public async Task<Dictionary<string, int>> GetAttachmentCountsAsync(
+            IEnumerable<string> deliveryNoteIds)
+        {
+            var idList = deliveryNoteIds.ToList();
+            if (idList.Count == 0) return new Dictionary<string, int>();
+
+            using var ctx = new DeliveryNotesDbContext();
+
+            var raw = await ctx.DeliveryNoteAttachments
+                .Where(a => idList.Contains(a.DeliveryNoteId))
+                .GroupBy(a => a.DeliveryNoteId)
+                .Select(g => new { Id = g.Key, Count = g.Count() })
+                .ToListAsync();
+
+            var dict = raw.ToDictionary(x => x.Id, x => x.Count);
+
+            // Ensure zero-count DN IDs are present in the result too
+            foreach (var id in idList)
+                if (!dict.ContainsKey(id))
+                    dict[id] = 0;
+
+            return dict;
         }
 
         // ── Private helpers ──────────────────────────────────────────────

@@ -99,6 +99,53 @@
             </Style.Triggers>
         </Style>
 
+        <!-- ══════════════════════════════════════════════════════════════
+             Phase 10.6b — History row button
+             Clickable row card. Highlights when IsSelected. Extra badge
+             when IsCurrentDn (this row = the DN currently open).
+        ══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="HistoryRowButtonStyle" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Row"
+                                Margin="12,2,12,2"
+                                Padding="12,8"
+                                CornerRadius="8"
+                                BorderThickness="1"
+                                BorderBrush="Transparent"
+                                Background="{DynamicResource MenuHoverBrush}">
+                            <ContentPresenter/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Row" Property="BorderBrush"
+                                        Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                <Setter TargetName="Row" Property="BorderBrush">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <GradientStop Color="#4338CA" Offset="0"/>
+                                            <GradientStop Color="#6366F1" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter TargetName="Row" Property="BorderThickness" Value="2"/>
+                                <Setter TargetName="Row" Property="Background"
+                                        Value="{DynamicResource TintIndigoBrush}"/>
+                            </DataTrigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto">
@@ -278,7 +325,11 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- DELIVERY HISTORY -->
+                    <!-- ══════════════════════════════════════════════════
+                         DELIVERY HISTORY (Phase 10.6b clickable rows)
+                         Each row selects the DN whose attachments show
+                         on the right panel. Current DN gets HERE badge.
+                    ══════════════════════════════════════════════════ -->
                     <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
                             <Border Style="{StaticResource SectionHeaderStyle}">
@@ -288,7 +339,7 @@
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0"
-                                               Text="DELIVERY HISTORY (THIS JO)"
+                                               Text="DELIVERY HISTORY (CLICK TO VIEW ATTACHMENTS)"
                                                FontSize="11" FontWeight="Bold"
                                                Foreground="White"
                                                VerticalAlignment="Center"/>
@@ -308,10 +359,11 @@
                                           Margin="0,8,0,8">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Margin="12,2,12,2"
-                                                Padding="12,8"
-                                                CornerRadius="8"
-                                                Background="{DynamicResource MenuHoverBrush}">
+                                        <!-- Whole row is a button — click to select -->
+                                        <Button Style="{StaticResource HistoryRowButtonStyle}"
+                                                Command="{Binding DataContext.SelectHistoryEntryCommand,
+                                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="Auto"/>
@@ -327,10 +379,34 @@
 
                                                 <StackPanel Grid.Column="1"
                                                             VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding DeliveryNoteId}"
-                                                               FontSize="12" FontWeight="Bold"
-                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                    <TextBlock FontSize="10"
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <TextBlock Text="{Binding DeliveryNoteId}"
+                                                                   FontSize="12" FontWeight="Bold"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                        <!-- Phase 10.6b — CURRENT badge -->
+                                                        <Border CornerRadius="4" Padding="5,1"
+                                                                Margin="6,0,0,0"
+                                                                Background="{DynamicResource SuccessBrush}"
+                                                                Visibility="{Binding IsCurrentDn,
+                                                                    Converter={StaticResource BoolToVisibilityConverter}}">
+                                                            <TextBlock Text="HERE"
+                                                                       FontSize="8" FontWeight="Bold"
+                                                                       Foreground="White"/>
+                                                        </Border>
+                                                        <!-- Phase 10.6b — attachment count badge -->
+                                                        <Border CornerRadius="4" Padding="5,1"
+                                                                Margin="6,0,0,0"
+                                                                Background="{DynamicResource TintIndigoBrush}"
+                                                                Visibility="{Binding HasAttachments,
+                                                                    Converter={StaticResource BoolToVisibilityConverter}}">
+                                                            <TextBlock FontSize="9" FontWeight="Bold"
+                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                                                <Run Text="📎 "/>
+                                                                <Run Text="{Binding AttachmentCount, Mode=OneWay}"/>
+                                                            </TextBlock>
+                                                        </Border>
+                                                    </StackPanel>
+                                                    <TextBlock FontSize="10" Margin="0,3,0,0"
                                                                Foreground="{DynamicResource SecondaryForegroundBrush}">
                                                         <Run Text="{Binding DeliveryDate, Mode=OneWay}"/>
                                                         <Run Text="  ·  🚚 "/>
@@ -357,7 +433,7 @@
                                                     </Border>
                                                 </StackPanel>
                                             </Grid>
-                                        </Border>
+                                        </Button>
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
@@ -662,15 +738,16 @@
                     </Border>
 
                     <!-- ══════════════════════════════════════════════════════
-                         ATTACHMENTS (Phase 10.6)
-                         Upload buttons in header + list of files below.
-                         Each row: thumbnail/icon + filename + size + date
-                                   + Open button + Delete button.
+                         ATTACHMENTS (Phase 10.6 + 10.6b)
+                         Header shows which DN's attachments are being viewed:
+                             "ATTACHMENTS FOR DN-2026-337-01 (3)"
+                         Panel switches based on SelectedHistoryEntry.
+                         Upload/delete works on the SELECTED DN.
                     ══════════════════════════════════════════════════════ -->
                     <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
 
-                            <!-- Header row: title + upload buttons -->
+                            <!-- Header row: dynamic title + upload buttons -->
                             <Border Style="{StaticResource SectionHeaderStyle}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
@@ -680,14 +757,11 @@
                                     </Grid.ColumnDefinitions>
 
                                     <TextBlock Grid.Column="0"
+                                               Text="{Binding SelectedDnHeaderText}"
                                                VerticalAlignment="Center"
                                                FontSize="11" FontWeight="Bold"
-                                               Foreground="White">
-                                        <Run Text="ATTACHMENTS"/>
-                                        <Run Text="  ("/>
-                                        <Run Text="{Binding AttachmentsCount, Mode=OneWay}"/>
-                                        <Run Text=")"/>
-                                    </TextBlock>
+                                               Foreground="White"
+                                               TextTrimming="CharacterEllipsis"/>
 
                                     <Button Grid.Column="1"
                                             Content="+ Image"
@@ -698,7 +772,7 @@
                                             Background="#22FFFFFF"
                                             Foreground="White"
                                             BorderThickness="0"
-                                            ToolTip="Upload an image (JPG, PNG, BMP, GIF, WEBP — max 10 MB)"/>
+                                            ToolTip="Upload an image to the selected DN (max 10 MB)"/>
 
                                     <Button Grid.Column="2"
                                             Content="+ PDF"
@@ -709,8 +783,31 @@
                                             Background="#22FFFFFF"
                                             Foreground="White"
                                             BorderThickness="0"
-                                            ToolTip="Upload a PDF (max 10 MB)"/>
+                                            ToolTip="Upload a PDF to the selected DN (max 10 MB)"/>
                                 </Grid>
+                            </Border>
+
+                            <!-- Phase 10.6b — "viewing another DN" hint banner -->
+                            <Border Padding="12,8" Margin="10,10,10,0"
+                                    CornerRadius="8"
+                                    Background="{DynamicResource TintAmberBrush}">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsSelectedDnCurrent}"
+                                                         Value="False">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                           TextWrapping="Wrap">
+                                    <Run Text="👁"/>
+                                    <Run Text="  Viewing attachments for a different delivery note. Uploads and deletes will apply to that DN, not the one currently open."/>
+                                </TextBlock>
                             </Border>
 
                             <!-- Empty state -->
@@ -757,12 +854,10 @@
                                                         ClipToBounds="True"
                                                         VerticalAlignment="Center">
                                                     <Grid>
-                                                        <!-- Image preview (only for image type) -->
                                                         <Image Source="{Binding Preview}"
                                                                Stretch="UniformToFill"
                                                                Visibility="{Binding IsImage,
                                                                    Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                                        <!-- PDF icon (only for pdf type) -->
                                                         <TextBlock Text="{Binding TypeIcon}"
                                                                    FontSize="22"
                                                                    HorizontalAlignment="Center"
@@ -772,7 +867,6 @@
                                                     </Grid>
                                                 </Border>
 
-                                                <!-- Filename + metadata -->
                                                 <StackPanel Grid.Column="1"
                                                             VerticalAlignment="Center"
                                                             Margin="10,0,10,0">
@@ -789,7 +883,6 @@
                                                     </TextBlock>
                                                 </StackPanel>
 
-                                                <!-- Open button -->
                                                 <Button Grid.Column="2"
                                                         Content="Open"
                                                         Command="{Binding DataContext.OpenAttachmentCommand,
@@ -803,7 +896,6 @@
                                                         BorderThickness="0"
                                                         ToolTip="Open in default application"/>
 
-                                                <!-- Delete button -->
                                                 <Button Grid.Column="3"
                                                         Content="✕"
                                                         Command="{Binding DataContext.DeleteAttachmentCommand,
