@@ -289,11 +289,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         public async Task LoadAsync(int deliveryNoteId)
         {
-            MessageBox.Show($"LoadAsync called with id={deliveryNoteId}");
-
             if (App.DeliveryNotes == null)
             {
-                MessageBox.Show("App.DeliveryNotes is NULL");
+                HasError = true;
+                ErrorMessage = "Delivery Notes database not initialized.";
                 return;
             }
 
@@ -357,9 +356,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    $"LOAD FAILED:\n\n{ex.GetType().Name}\n{ex.Message}\n\n{ex.StackTrace}",
-                    "Load Error");
                 HasError = true;
                 ErrorMessage = $"Failed to load delivery note: {ex.Message}";
             }
