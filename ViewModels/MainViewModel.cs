@@ -128,18 +128,23 @@ namespace ProGlassAutomation.ViewModels
             AiChatVM = new AiChatViewModel(App.Ai);
 
             // ── wire dashboard navigation callbacks ───────────────────────
-            // NavigateTo: tells the dashboard quick actions how to navigate
-            // the main shell — same Navigate() method used by the hamburger menu.
             DashboardVM.NavigateTo = target =>
             {
                 Navigate(target);
             };
 
-            // TriggerNewInvoice: after navigating to PI module,
-            // auto-opens the new invoice wizard.
             DashboardVM.TriggerNewInvoice = () =>
             {
                 ProformaInvoiceVM.TriggerNewInvoice();
+            };
+
+            // ── Phase 10.5: Wire JO → DN navigation ───────────────────────
+            // When user clicks "Create Delivery Note" on a Job Order,
+            // navigate to DN module and open the new DN in detail view.
+            JobOrderVM.OnRequestOpenDeliveryNote = async dnId =>
+            {
+                Navigate("DeliveryNote");
+                await DeliveryNoteVM.OpenDeliveryNoteAsync(dnId);
             };
 
             // ── commands ──────────────────────────────────────────────────

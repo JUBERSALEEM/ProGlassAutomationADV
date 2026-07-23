@@ -59,7 +59,6 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
-        <!-- Phase 9.5a-r3: Export button style — small pill with icon -->
         <Style x:Key="ExportButtonStyle" TargetType="Button">
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -92,6 +91,51 @@
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="Bg" Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Phase 10.5: Create Delivery Note button — indigo accent -->
+        <Style x:Key="CreateDnButtonStyle" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg"
+                                CornerRadius="10"
+                                Padding="18,10">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#4338CA" Offset="0"/>
+                                    <GradientStop Color="#6366F1" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="10" ShadowDepth="0"
+                                                  Opacity="0.25" Color="#4338CA"/>
+                            </Border.Effect>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="🚚"
+                                           FontSize="14"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,8,0"/>
+                                <TextBlock Text="Create Delivery Note"
+                                           FontSize="12" FontWeight="Bold"
+                                           Foreground="White"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.75"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -155,7 +199,6 @@
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                Margin="8,0,0,16"/>
 
-                    <!-- Company + Client cards side by side -->
                     <Grid Margin="0,0,0,14">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -163,7 +206,6 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Company card -->
                         <Border Grid.Column="0"
                                 Background="{DynamicResource ModuleBackgroundBrush}"
                                 BorderBrush="{DynamicResource BorderBrush}"
@@ -186,7 +228,6 @@
                             </StackPanel>
                         </Border>
 
-                        <!-- Client card -->
                         <Border Grid.Column="2"
                                 Background="{DynamicResource ModuleBackgroundBrush}"
                                 BorderBrush="{DynamicResource BorderBrush}"
@@ -211,7 +252,6 @@
                         </Border>
                     </Grid>
 
-                    <!-- Project card -->
                     <Border Background="{DynamicResource ModuleBackgroundBrush}"
                             BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="1" CornerRadius="14"
@@ -240,9 +280,6 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- ════════════════════════════════════════════════
-                         GLASS ITEMS — Spec Group Tables (read-only)
-                    ════════════════════════════════════════════════ -->
                     <TextBlock Text="GLASS SPECIFICATIONS"
                                FontSize="14" FontWeight="Bold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -253,7 +290,6 @@
                             <DataTemplate>
                                 <StackPanel Margin="0,0,0,16">
 
-                                    <!-- Spec group header bar -->
                                     <Border Background="{DynamicResource AccentBrush}"
                                             Padding="10,7"
                                             CornerRadius="8,8,0,0">
@@ -274,7 +310,6 @@
                                         </StackPanel>
                                     </Border>
 
-                                    <!-- Column headers -->
                                     <Border Background="{DynamicResource MenuHoverBrush}"
                                             Padding="0,2">
                                         <Grid>
@@ -322,7 +357,6 @@
                                         </Grid>
                                     </Border>
 
-                                    <!-- Data rows -->
                                     <ItemsControl ItemsSource="{Binding ItemRows}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
@@ -379,7 +413,6 @@
                                         </ItemsControl.ItemTemplate>
                                     </ItemsControl>
 
-                                    <!-- Spec group footer -->
                                     <Border Background="{DynamicResource TintGrayBrush}"
                                             Padding="10,7"
                                             CornerRadius="0,0,8,8">
@@ -412,7 +445,6 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
-                    <!-- Summary card -->
                     <Border Background="{DynamicResource TintGreenBrush}"
                             CornerRadius="14" Padding="18,16"
                             Margin="0,14,0,12">
@@ -442,7 +474,6 @@
                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                Margin="0,0,0,16"/>
 
-                    <!-- Status + Priority row -->
                     <Grid Margin="0,0,0,14">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
@@ -467,13 +498,11 @@
                         </StackPanel>
                     </Grid>
 
-                    <!-- Delivery date -->
                     <TextBlock Text="Delivery Date" Style="{StaticResource FieldLabelStyle}"/>
                     <DatePicker SelectedDate="{Binding DeliveryDate}"
                                 FontSize="13" Padding="6,4"
                                 Margin="0,0,0,14"/>
 
-                    <!-- Site delivery section -->
                     <TextBlock Text="── Site Delivery ──" FontSize="11" FontWeight="Bold"
                                Foreground="{DynamicResource AccentBrush}"
                                Margin="0,0,0,10"/>
@@ -490,7 +519,6 @@
                     <TextBox Text="{Binding SiteDeliveryAddress, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource MultiLineInputStyle}"/>
 
-                    <!-- Assignment section -->
                     <TextBlock Text="── Assignment ──" FontSize="11" FontWeight="Bold"
                                Foreground="{DynamicResource AccentBrush}"
                                Margin="0,6,0,10"/>
@@ -499,7 +527,6 @@
                     <TextBox Text="{Binding AssignedTo, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource FieldInputStyle}"/>
 
-                    <!-- Factory floor section -->
                     <TextBlock Text="── Factory Floor ──" FontSize="11" FontWeight="Bold"
                                Foreground="{DynamicResource AccentBrush}"
                                Margin="0,6,0,10"/>
@@ -516,11 +543,19 @@
                     <TextBox Text="{Binding InternalNotes, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource MultiLineInputStyle}"/>
 
-                    <!-- Audit line -->
                     <TextBlock Text="{Binding LastEditedDisplay}"
                                FontSize="10" FontStyle="Italic"
                                Foreground="{DynamicResource MutedForegroundBrush}"
                                Margin="0,10,0,16"/>
+
+                    <!-- ══════════════════════════════════════════════════
+                         PHASE 10.5: Create DN button — full width, prominent
+                    ══════════════════════════════════════════════════ -->
+                    <Button Command="{Binding CreateDeliveryNoteCommand}"
+                            Style="{StaticResource CreateDnButtonStyle}"
+                            HorizontalAlignment="Stretch"
+                            Margin="0,0,0,16"
+                            ToolTip="Create a new Delivery Note for this Job Order"/>
 
                     <!-- ════════════════════════════════════════════════
                          ACTION BUTTONS ROW
@@ -537,7 +572,6 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Back to List -->
                         <Button Grid.Column="0"
                                 Command="{Binding BackToListCommand}"
                                 Cursor="Hand" BorderThickness="0" Padding="0">
@@ -566,7 +600,6 @@
                             </Button.Template>
                         </Button>
 
-                        <!-- Export cluster -->
                         <Button Grid.Column="2"
                                 Style="{StaticResource ExportButtonStyle}"
                                 Command="{Binding ExportPdfCommand}"
@@ -583,7 +616,6 @@
                                 Content="CSV" Tag="📋"
                                 ToolTip="Export cut list as CSV"/>
 
-                        <!-- Save Changes -->
                         <Button Grid.Column="6"
                                 Command="{Binding SaveCommand}"
                                 Cursor="Hand" BorderThickness="0" Padding="0">

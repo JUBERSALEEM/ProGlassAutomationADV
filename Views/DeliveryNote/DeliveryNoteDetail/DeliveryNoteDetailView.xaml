@@ -1,0 +1,692 @@
+﻿<UserControl x:Class="ProGlassAutomation.Views.DeliveryNote.DeliveryNoteDetail.DeliveryNoteDetailView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+
+        <Style x:Key="SectionHeaderStyle" TargetType="Border">
+            <Setter Property="Background"   Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="CornerRadius" Value="10,10,0,0"/>
+            <Setter Property="Padding"      Value="14,8"/>
+        </Style>
+
+        <Style x:Key="SectionCardStyle" TargetType="Border">
+            <Setter Property="Background"
+                    Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius"    Value="10"/>
+            <Setter Property="Margin"          Value="0,0,0,16"/>
+        </Style>
+
+        <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize"   Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Margin"     Value="0,0,0,2"/>
+        </Style>
+
+        <Style x:Key="FieldValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize"     Value="13"/>
+            <Setter Property="FontWeight"   Value="SemiBold"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Margin"       Value="0,0,0,10"/>
+            <Setter Property="TextWrapping" Value="Wrap"/>
+        </Style>
+
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Padding"         Value="18,8"/>
+            <Setter Property="FontSize"        Value="12"/>
+            <Setter Property="FontWeight"      Value="Bold"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background"
+                    Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource OnAccentForegroundBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="GridHeaderCell" TargetType="TextBlock">
+            <Setter Property="FontSize"          Value="10"/>
+            <Setter Property="FontWeight"        Value="Bold"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Margin"            Value="8,6"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="GridDataCell" TargetType="TextBlock">
+            <Setter Property="FontSize"          Value="12"/>
+            <Setter Property="Margin"            Value="8,6"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource PrimaryForegroundBrush}"/>
+        </Style>
+
+        <Style x:Key="BalanceCellStyle" TargetType="TextBlock">
+            <Setter Property="FontSize"            Value="12"/>
+            <Setter Property="FontWeight"          Value="Bold"/>
+            <Setter Property="Margin"              Value="8,6"/>
+            <Setter Property="VerticalAlignment"   Value="Center"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding HasBalance}" Value="True">
+                    <Setter Property="Foreground"
+                            Value="{DynamicResource WarningBrush}"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto">
+        <StackPanel Margin="20,16,20,30">
+
+            <!-- ── LOADING ──────────────────────────────────────────────── -->
+            <Border Visibility="{Binding IsLoading,
+                                 Converter={StaticResource BoolToVisibilityConverter}}"
+                    Padding="20">
+                <TextBlock Text="⏳  Loading delivery note…"
+                           FontSize="14" HorizontalAlignment="Center"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+            </Border>
+
+            <!-- ── ERROR ────────────────────────────────────────────────── -->
+            <Border Visibility="{Binding HasError,
+                                 Converter={StaticResource BoolToVisibilityConverter}}"
+                    Background="{DynamicResource TintRedBrush}"
+                    CornerRadius="12" Padding="16" Margin="0,0,0,16">
+                <TextBlock Text="{Binding ErrorMessage}"
+                           Foreground="{DynamicResource DangerBrush}"
+                           FontSize="13" TextWrapping="Wrap"/>
+            </Border>
+
+            <!-- ── TOP ACTION BAR ────────────────────────────────────────── -->
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0"
+                        Content="← Back"
+                        Command="{Binding BackCommand}"
+                        Style="{StaticResource ActionButtonStyle}"
+                        Background="{DynamicResource MenuHoverBrush}"
+                        Foreground="{DynamicResource PrimaryForegroundBrush}"
+                        Margin="0,0,12,0"/>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="{Binding DeliveryNoteId}"
+                               FontSize="22" FontWeight="Bold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    <Border CornerRadius="8" Padding="10,3"
+                            Margin="12,0,0,0"
+                            Background="{DynamicResource TintIndigoBrush}">
+                        <TextBlock Text="{Binding DeliveryType}"
+                                   FontSize="10" FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    </Border>
+                    <Border CornerRadius="8" Padding="10,3"
+                            Margin="6,0,0,0"
+                            Background="{DynamicResource TintAmberBrush}">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsFoc}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Text="FREE OF CHARGE"
+                                   FontSize="10" FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    </Border>
+                </StackPanel>
+
+                <Button Grid.Column="2"
+                        Content="🚚  Confirm Dispatch"
+                        Command="{Binding ConfirmDispatchCommand}"
+                        Style="{StaticResource ActionButtonStyle}"
+                        Background="{DynamicResource SuccessBrush}"
+                        Margin="0,0,8,0"/>
+
+                <Button Grid.Column="3"
+                        Content="💾  Save"
+                        Command="{Binding SaveCommand}"
+                        Style="{StaticResource ActionButtonStyle}"
+                        Margin="0,0,8,0"/>
+
+                <StackPanel Grid.Column="4" Orientation="Horizontal">
+                    <Button Content="PDF"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Background="{DynamicResource MenuHoverBrush}"
+                            Foreground="{DynamicResource PrimaryForegroundBrush}"
+                            Margin="0,0,4,0"
+                            IsEnabled="False"
+                            ToolTip="Export PDF — Phase 10.7"/>
+                    <Button Content="Excel"
+                            Style="{StaticResource ActionButtonStyle}"
+                            Background="{DynamicResource MenuHoverBrush}"
+                            Foreground="{DynamicResource PrimaryForegroundBrush}"
+                            IsEnabled="False"
+                            ToolTip="Export Excel — Phase 10.7"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ── TWO COLUMN LAYOUT ─────────────────────────────────────── -->
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- ══ LEFT COLUMN ════════════════════════════════════════ -->
+                <StackPanel Grid.Column="0">
+
+                    <!-- JO SNAPSHOT -->
+                    <Border Style="{StaticResource SectionCardStyle}">
+                        <StackPanel>
+                            <Border Style="{StaticResource SectionHeaderStyle}">
+                                <TextBlock Text="JOB ORDER CONTEXT"
+                                           FontSize="11" FontWeight="Bold"
+                                           Foreground="White"/>
+                            </Border>
+                            <Border Padding="16,14">
+                                <StackPanel>
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="Job Order"/>
+                                    <TextBlock Style="{StaticResource FieldValueStyle}"
+                                               Text="{Binding JobOrderId}"/>
+
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="Proforma Invoice"/>
+                                    <TextBlock Style="{StaticResource FieldValueStyle}"
+                                               Text="{Binding ProformaId}"/>
+
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="Customer"/>
+                                    <TextBlock Style="{StaticResource FieldValueStyle}"
+                                               Text="{Binding CustomerName}"/>
+
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="Project"/>
+                                    <TextBlock Style="{StaticResource FieldValueStyle}"
+                                               Text="{Binding ProjectName}"/>
+
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="Company"/>
+                                    <TextBlock Style="{StaticResource FieldValueStyle}"
+                                               Text="{Binding CompanyName}"/>
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                                       Text="Delivery Date"/>
+                                            <TextBlock Style="{StaticResource FieldValueStyle}"
+                                                       Text="{Binding DeliveryDateDisplay}"/>
+                                        </StackPanel>
+                                        <StackPanel Grid.Column="1">
+                                            <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                                       Text="Time"/>
+                                            <TextBlock Style="{StaticResource FieldValueStyle}"
+                                                       Text="{Binding DeliveryTime}"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="Delivery Sequence"/>
+                                    <TextBlock Style="{StaticResource FieldValueStyle}"
+                                               Text="{Binding SequenceNumber,
+                                                      StringFormat='Delivery {0} for this JO'}"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- DELIVERY HISTORY -->
+                    <Border Style="{StaticResource SectionCardStyle}">
+                        <StackPanel>
+                            <Border Style="{StaticResource SectionHeaderStyle}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0"
+                                               Text="DELIVERY HISTORY (THIS JO)"
+                                               FontSize="11" FontWeight="Bold"
+                                               Foreground="White"
+                                               VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1"
+                                               FontSize="10" Foreground="White"
+                                               VerticalAlignment="Center"
+                                               Opacity="0.85">
+                                        <Run Text="{Binding HistoryTotalDelivered, Mode=OneWay}"/>
+                                        <Run Text=" / "/>
+                                        <Run Text="{Binding HistoryTotalOrdered, Mode=OneWay}"/>
+                                        <Run Text=" pcs"/>
+                                    </TextBlock>
+                                </Grid>
+                            </Border>
+
+                            <ItemsControl ItemsSource="{Binding HistoryEntries}"
+                                          Margin="0,8,0,8">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Margin="12,2,12,2"
+                                                Padding="12,8"
+                                                CornerRadius="8"
+                                                Background="{DynamicResource MenuHoverBrush}">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock Grid.Column="0"
+                                                           Text="{Binding TypeIcon}"
+                                                           FontSize="16"
+                                                           VerticalAlignment="Center"
+                                                           Margin="0,0,10,0"/>
+
+                                                <StackPanel Grid.Column="1"
+                                                            VerticalAlignment="Center">
+                                                    <TextBlock Text="{Binding DeliveryNoteId}"
+                                                               FontSize="12" FontWeight="Bold"
+                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                    <TextBlock FontSize="10"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                                        <Run Text="{Binding DeliveryDate, Mode=OneWay}"/>
+                                                        <Run Text="  ·  🚚 "/>
+                                                        <Run Text="{Binding DriverName, Mode=OneWay}"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+
+                                                <StackPanel Grid.Column="2"
+                                                            VerticalAlignment="Center"
+                                                            HorizontalAlignment="Right">
+                                                    <TextBlock HorizontalAlignment="Right"
+                                                               FontSize="12" FontWeight="Bold"
+                                                               Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                                        <Run Text="{Binding DeliveredQty, Mode=OneWay}"/>
+                                                        <Run Text=" pcs"/>
+                                                    </TextBlock>
+                                                    <Border CornerRadius="6" Padding="6,2"
+                                                            HorizontalAlignment="Right"
+                                                            Background="{Binding StatusBrushKey,
+                                                                         Converter={StaticResource BrushKeyConverter}}">
+                                                        <TextBlock Text="{Binding Status}"
+                                                                   FontSize="9" FontWeight="Bold"
+                                                                   Foreground="White"/>
+                                                    </Border>
+                                                </StackPanel>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- History totals -->
+                            <Border Margin="12,0,12,12"
+                                    Padding="12,8"
+                                    CornerRadius="8"
+                                    Background="{DynamicResource TintIndigoBrush}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+                                    <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                                        <TextBlock Text="{Binding HistoryTotalOrdered}"
+                                                   FontSize="18" FontWeight="Bold"
+                                                   HorizontalAlignment="Center"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                        <TextBlock Text="Ordered" FontSize="10"
+                                                   HorizontalAlignment="Center"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                        <TextBlock Text="{Binding HistoryTotalDelivered}"
+                                                   FontSize="18" FontWeight="Bold"
+                                                   HorizontalAlignment="Center"
+                                                   Foreground="{DynamicResource SuccessBrush}"/>
+                                        <TextBlock Text="Delivered" FontSize="10"
+                                                   HorizontalAlignment="Center"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                    </StackPanel>
+                                    <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                                        <TextBlock Text="{Binding HistoryTotalBalance}"
+                                                   FontSize="18" FontWeight="Bold"
+                                                   HorizontalAlignment="Center"
+                                                   Foreground="{DynamicResource WarningBrush}"/>
+                                        <TextBlock Text="Balance" FontSize="10"
+                                                   HorizontalAlignment="Center"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+
+                <!-- ══ RIGHT COLUMN ═══════════════════════════════════════ -->
+                <StackPanel Grid.Column="2">
+
+                    <!-- DELIVERY DETAILS -->
+                    <Border Style="{StaticResource SectionCardStyle}">
+                        <StackPanel>
+                            <Border Style="{StaticResource SectionHeaderStyle}">
+                                <TextBlock Text="DELIVERY DETAILS"
+                                           FontSize="11" FontWeight="Bold"
+                                           Foreground="White"/>
+                            </Border>
+                            <Border Padding="16,14">
+                                <StackPanel>
+
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="16"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                                       Text="Status"/>
+                                            <ComboBox ItemsSource="{Binding StatusOptions}"
+                                                      SelectedItem="{Binding Status}"
+                                                      FontSize="12"
+                                                      VerticalContentAlignment="Center"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="2"
+                                                    VerticalAlignment="Bottom">
+                                            <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                                       Text="Free of Charge"/>
+                                            <CheckBox IsChecked="{Binding IsFoc}"
+                                                      Content="FOC" FontSize="12"
+                                                      Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                      VerticalAlignment="Center"
+                                                      Height="32"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <Grid Margin="0,0,0,10">
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="16"/>
+                                            <ColumnDefinition Width="*"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <StackPanel Grid.Column="0">
+                                            <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                                       Text="Driver Name"/>
+                                            <TextBox Text="{Binding DriverName,
+                                                            UpdateSourceTrigger=PropertyChanged}"
+                                                     FontSize="12" Padding="8,6"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="2">
+                                            <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                                       Text="Vehicle Number"/>
+                                            <TextBox Text="{Binding VehicleNumber,
+                                                            UpdateSourceTrigger=PropertyChanged}"
+                                                     FontSize="12" Padding="8,6"/>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="Receiver Name"/>
+                                    <TextBox Text="{Binding ReceiverName,
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="12" Padding="8,6"
+                                             Margin="0,0,0,10"/>
+
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="Notes"/>
+                                    <TextBox Text="{Binding Notes,
+                                                    UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="12" Padding="8,6"
+                                             MinHeight="60"
+                                             TextWrapping="Wrap"
+                                             AcceptsReturn="True"
+                                             VerticalScrollBarVisibility="Auto"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- DELIVERY ITEMS GRID -->
+                    <Border Style="{StaticResource SectionCardStyle}">
+                        <StackPanel>
+                            <Border Style="{StaticResource SectionHeaderStyle}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0"
+                                               Text="DELIVERY ITEMS"
+                                               FontSize="11" FontWeight="Bold"
+                                               Foreground="White"
+                                               VerticalAlignment="Center"/>
+                                    <StackPanel Grid.Column="1"
+                                                Orientation="Horizontal">
+                                        <Border CornerRadius="6" Padding="8,2"
+                                                Margin="0,0,4,0"
+                                                Background="#22FFFFFF">
+                                            <TextBlock FontSize="10" Foreground="White">
+                                                <Run Text="Ordered: "/>
+                                                <Run Text="{Binding TotalOrderedQty, Mode=OneWay}"
+                                                     FontWeight="Bold"/>
+                                            </TextBlock>
+                                        </Border>
+                                        <Border CornerRadius="6" Padding="8,2"
+                                                Margin="0,0,4,0"
+                                                Background="#22FFFFFF">
+                                            <TextBlock FontSize="10" Foreground="White">
+                                                <Run Text="This DN: "/>
+                                                <Run Text="{Binding TotalDeliveredQty, Mode=OneWay}"
+                                                     FontWeight="Bold"/>
+                                            </TextBlock>
+                                        </Border>
+                                        <Border CornerRadius="6" Padding="8,2"
+                                                Background="#22FFFFFF">
+                                            <TextBlock FontSize="10" Foreground="White">
+                                                <Run Text="Balance: "/>
+                                                <Run Text="{Binding TotalBalanceQty, Mode=OneWay}"
+                                                     FontWeight="Bold"/>
+                                            </TextBlock>
+                                        </Border>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+
+                            <!-- Table header -->
+                            <Border Background="{DynamicResource MenuHoverBrush}">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="55"/>
+                                        <ColumnDefinition Width="55"/>
+                                        <ColumnDefinition Width="70"/>
+                                        <ColumnDefinition Width="70"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Grid.Column="0" Text="#"
+                                               Style="{StaticResource GridHeaderCell}"/>
+                                    <TextBlock Grid.Column="1"
+                                               Text="GLASS REF / DIMENSIONS"
+                                               Style="{StaticResource GridHeaderCell}"/>
+                                    <TextBlock Grid.Column="2" Text="SPEC GROUP"
+                                               Style="{StaticResource GridHeaderCell}"/>
+                                    <TextBlock Grid.Column="3" Text="ORDERED"
+                                               Style="{StaticResource GridHeaderCell}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="4" Text="PREV"
+                                               Style="{StaticResource GridHeaderCell}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="5" Text="THIS DN"
+                                               Style="{StaticResource GridHeaderCell}"
+                                               Foreground="{DynamicResource AccentBrush}"
+                                               HorizontalAlignment="Center"/>
+                                    <TextBlock Grid.Column="6" Text="BALANCE"
+                                               Style="{StaticResource GridHeaderCell}"
+                                               HorizontalAlignment="Center"/>
+                                </Grid>
+                            </Border>
+
+                            <!-- Items rows -->
+                            <ItemsControl ItemsSource="{Binding ItemRows}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="{DynamicResource BorderBrush}"
+                                                BorderThickness="0,0,0,1"
+                                                Padding="0,2">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding HasBalance}"
+                                                                     Value="True">
+                                                            <Setter Property="Background"
+                                                                    Value="{DynamicResource TintAmberBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="30"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="110"/>
+                                                    <ColumnDefinition Width="55"/>
+                                                    <ColumnDefinition Width="55"/>
+                                                    <ColumnDefinition Width="70"/>
+                                                    <ColumnDefinition Width="70"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock Grid.Column="0"
+                                                           Text="{Binding SerialNumber}"
+                                                           Style="{StaticResource GridDataCell}"
+                                                           HorizontalAlignment="Center"/>
+
+                                                <StackPanel Grid.Column="1"
+                                                            VerticalAlignment="Center"
+                                                            Margin="8,4,8,4">
+                                                    <TextBlock Text="{Binding GlassRef}"
+                                                               FontSize="12" FontWeight="SemiBold"
+                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                    <TextBlock Text="{Binding DimensionDisplay}"
+                                                               FontSize="10"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                </StackPanel>
+
+                                                <TextBlock Grid.Column="2"
+                                                           Text="{Binding SpecGroupName}"
+                                                           Style="{StaticResource GridDataCell}"
+                                                           FontSize="10"
+                                                           TextTrimming="CharacterEllipsis"/>
+
+                                                <TextBlock Grid.Column="3"
+                                                           Text="{Binding OrderedQty}"
+                                                           Style="{StaticResource GridDataCell}"
+                                                           HorizontalAlignment="Center"/>
+
+                                                <TextBlock Grid.Column="4"
+                                                           Text="{Binding PreviouslyDeliveredQty}"
+                                                           Style="{StaticResource GridDataCell}"
+                                                           HorizontalAlignment="Center"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+
+                                                <TextBox Grid.Column="5"
+                                                         Text="{Binding DeliveredQty,
+                                                                UpdateSourceTrigger=PropertyChanged}"
+                                                         FontSize="13" FontWeight="Bold"
+                                                         TextAlignment="Center"
+                                                         VerticalContentAlignment="Center"
+                                                         Padding="4,4"
+                                                         Margin="4,3"
+                                                         BorderThickness="1"
+                                                         BorderBrush="{DynamicResource AccentBrush}"
+                                                         Background="{DynamicResource ModuleBackgroundBrush}"
+                                                         Foreground="{DynamicResource AccentBrush}"/>
+
+                                                <TextBlock Grid.Column="6"
+                                                           Text="{Binding BalanceQty}"
+                                                           Style="{StaticResource BalanceCellStyle}"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- ATTACHMENTS PLACEHOLDER -->
+                    <Border Style="{StaticResource SectionCardStyle}">
+                        <StackPanel>
+                            <Border Style="{StaticResource SectionHeaderStyle}">
+                                <TextBlock Text="ATTACHMENTS (PHOTOS &amp; PDFs)"
+                                           FontSize="11" FontWeight="Bold"
+                                           Foreground="White"/>
+                            </Border>
+                            <Border Padding="16,20">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="📎" FontSize="32"
+                                               HorizontalAlignment="Center"
+                                               Opacity="0.4"/>
+                                    <TextBlock Text="Attachment upload coming in Phase 10.6"
+                                               FontSize="12"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,8,0,0"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
+                </StackPanel>
+            </Grid>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

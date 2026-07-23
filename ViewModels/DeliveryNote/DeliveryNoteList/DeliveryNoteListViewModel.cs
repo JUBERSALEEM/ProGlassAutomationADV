@@ -14,28 +14,15 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 {
     /// <summary>
     /// ViewModel for the Delivery Note list landing page.
-    ///
-    /// 5 tabs:
-    ///   All         — every DN newest first
-    ///   Prepared    — Draft DNs (includes Dummy DNs)
-    ///   Delivered   — Delivered | Signed | Received
-    ///   Pending Qty — JOs with balance qty > 0
-    ///   Rework      — DeliveryType = Rework
-    ///
-    /// KPI cards: Total DNs | Pending Jobs | Rework Count | Delivered Today
-    ///
-    /// Right-click menu (code-behind): Open | Delete | Change Status |
-    ///   Export PDF | Export Excel
+    /// 5 tabs: All | Prepared | Delivered | Pending Qty | Rework
     /// </summary>
     public class DeliveryNoteListViewModel : ViewModelBase
     {
-        // ── reentrancy guard ──────────────────────────────────────────────
         private int _loadingFlag = 0;
 
-        // ── callback wired by shell VM ────────────────────────────────────
         public Action<int>? OnDeliveryNoteOpenRequested { get; set; }
 
-        // ── tab index ─────────────────────────────────────────────────────
+        // ── Tab index ─────────────────────────────────────────────────────
 
         private int _selectedTabIndex;
         public int SelectedTabIndex
@@ -50,7 +37,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             }
         }
 
-        // ── ALL tab data ──────────────────────────────────────────────────
+        // ── Tab collections ───────────────────────────────────────────────
 
         private ObservableCollection<DeliveryNoteRowViewModel> _allItems = new();
         public ObservableCollection<DeliveryNoteRowViewModel> AllItems
@@ -59,16 +46,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             private set { if (_allItems == value) return; _allItems = value; OnPropertyChanged(); }
         }
 
-        // ── PREPARED tab ──────────────────────────────────────────────────
-
         private ObservableCollection<DeliveryNoteRowViewModel> _preparedItems = new();
         public ObservableCollection<DeliveryNoteRowViewModel> PreparedItems
         {
             get => _preparedItems;
             private set { if (_preparedItems == value) return; _preparedItems = value; OnPropertyChanged(); }
         }
-
-        // ── DELIVERED tab ─────────────────────────────────────────────────
 
         private ObservableCollection<DeliveryNoteRowViewModel> _deliveredItems = new();
         public ObservableCollection<DeliveryNoteRowViewModel> DeliveredItems
@@ -77,16 +60,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             private set { if (_deliveredItems == value) return; _deliveredItems = value; OnPropertyChanged(); }
         }
 
-        // ── PENDING QTY tab ───────────────────────────────────────────────
-
         private ObservableCollection<PendingQtyRowViewModel> _pendingItems = new();
         public ObservableCollection<PendingQtyRowViewModel> PendingItems
         {
             get => _pendingItems;
             private set { if (_pendingItems == value) return; _pendingItems = value; OnPropertyChanged(); }
         }
-
-        // ── REWORK tab ────────────────────────────────────────────────────
 
         private ObservableCollection<DeliveryNoteRowViewModel> _reworkItems = new();
         public ObservableCollection<DeliveryNoteRowViewModel> ReworkItems
@@ -95,7 +74,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             private set { if (_reworkItems == value) return; _reworkItems = value; OnPropertyChanged(); }
         }
 
-        // ── KPI cards ─────────────────────────────────────────────────────
+        // ── KPI ───────────────────────────────────────────────────────────
 
         private int _totalCount;
         public int TotalCount
@@ -125,7 +104,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             private set { if (_deliveredTodayCount == value) return; _deliveredTodayCount = value; OnPropertyChanged(); }
         }
 
-        // ── loading + error ───────────────────────────────────────────────
+        // ── Loading ───────────────────────────────────────────────────────
 
         private bool _isLoading;
         public bool IsLoading
@@ -148,7 +127,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             private set { if (_errorMessage == value) return; _errorMessage = value; OnPropertyChanged(); }
         }
 
-        // ── search + filter (All tab) ─────────────────────────────────────
+        // ── Filters ───────────────────────────────────────────────────────
 
         private string _searchText = "";
         public string SearchText
@@ -199,10 +178,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             "All Types", "Original", "Dummy", "Rework", "Return"
         };
 
-        // ── raw data (all DNs for filter) ─────────────────────────────────
         private List<DeliveryNoteRowViewModel> _rawAll = new();
 
-        // ── commands ──────────────────────────────────────────────────────
+        // ── Commands ──────────────────────────────────────────────────────
 
         public ICommand RefreshCommand { get; }
         public ICommand ClearFiltersCommand { get; }
@@ -241,7 +219,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  LOAD — full reload (called on init + refresh + return from detail)
+        //  LOAD
         // ═════════════════════════════════════════════════════════════════
 
         public async Task LoadAsync()
@@ -262,7 +240,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                     return;
                 }
 
-                // Load all tabs in parallel for fast initial render
                 var allTask = App.DeliveryNotes.GetAllAsync();
                 var prepTask = App.DeliveryNotes.GetPreparedAsync();
                 var delTask = App.DeliveryNotes.GetDeliveredAsync();
@@ -285,7 +262,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 PendingItems = new ObservableCollection<PendingQtyRowViewModel>(pendingItems);
                 ReworkItems = new ObservableCollection<DeliveryNoteRowViewModel>(reworkItems);
 
-                // KPI cards
                 TotalCount = allItems.Count;
                 PendingJobsCount = pendingItems.Count;
                 ReworkCount = reworkItems.Count;
@@ -304,7 +280,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             }
         }
 
-        // Tab switch reload — only reloads the tab that was switched to
         private async Task LoadTabAsync(int tabIndex)
         {
             if (App.DeliveryNotes == null) return;
@@ -313,26 +288,26 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             {
                 switch (tabIndex)
                 {
-                    case 1: // Prepared
+                    case 1:
                         var prep = await App.DeliveryNotes.GetPreparedAsync();
                         PreparedItems = new ObservableCollection<DeliveryNoteRowViewModel>(
                             prep.Select(x => new DeliveryNoteRowViewModel(x)));
                         break;
 
-                    case 2: // Delivered
+                    case 2:
                         var del = await App.DeliveryNotes.GetDeliveredAsync();
                         DeliveredItems = new ObservableCollection<DeliveryNoteRowViewModel>(
                             del.Select(x => new DeliveryNoteRowViewModel(x)));
                         break;
 
-                    case 3: // Pending Qty
+                    case 3:
                         var pending = await App.DeliveryNotes.GetPendingQtyJobsAsync();
                         PendingItems = new ObservableCollection<PendingQtyRowViewModel>(
                             pending.Select(x => new PendingQtyRowViewModel(x)));
                         PendingJobsCount = PendingItems.Count;
                         break;
 
-                    case 4: // Rework
+                    case 4:
                         var rework = await App.DeliveryNotes.GetReworkAsync();
                         ReworkItems = new ObservableCollection<DeliveryNoteRowViewModel>(
                             rework.Select(x => new DeliveryNoteRowViewModel(x)));
@@ -351,7 +326,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  FILTER (All tab only)
+        //  FILTER
         // ═════════════════════════════════════════════════════════════════
 
         private void ApplyAllTabFilter()
@@ -413,13 +388,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
             try
             {
-                await App.DeliveryNotes.DeleteAsync(row.Id);
+                await App.DeliveryNotes!.DeleteAsync(row.Id);
                 await LoadAsync();
             }
             catch (Exception ex)
             {
                 MessageBox.Show(
-                    $"Failed to delete delivery note:\n\n{ex.Message}",
+                    $"Failed to delete:\n\n{ex.Message}",
                     "Delete Failed",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -431,7 +406,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         {
             try
             {
-                var entity = await App.DeliveryNotes.GetByIdAsync(row.Id);
+                var entity = await App.DeliveryNotes!.GetByIdAsync(row.Id);
                 if (entity == null) return;
 
                 entity.Status = newStatus;
@@ -451,7 +426,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
     }
 
     // ═════════════════════════════════════════════════════════════════════
-    //  ROW VIEWMODEL — display wrapper for DeliveryNoteListItem
+    //  ROW VIEWMODEL
     // ═════════════════════════════════════════════════════════════════════
 
     public class DeliveryNoteRowViewModel
@@ -475,7 +450,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public string DeliveryTime { get; }
         public DateTime CreatedAt { get; }
 
-        // ── Derived display ───────────────────────────────────────────────
         public string StatusLabel { get; }
         public string StatusBrushKey { get; }
         public string TypeLabel { get; }
@@ -484,7 +458,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public string QtySummary { get; }
         public bool HasBalance { get; }
         public bool IsDummy { get; }
-        public string FocBadge { get; }
 
         public DeliveryNoteRowViewModel(DeliveryNoteListItem e)
         {
@@ -507,13 +480,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             DeliveryTime = e.DeliveryTime;
             CreatedAt = e.CreatedAt;
 
-            // Status meta
             var statusInfo = Models.DeliveryNote.Common.DeliveryNoteStatus
                 .DeliveryNoteStatusMeta.Get(Status);
             StatusLabel = $"{statusInfo.Icon} {statusInfo.DisplayName}";
             StatusBrushKey = statusInfo.BrushKey;
 
-            // Type meta
             var typeInfo = Models.DeliveryNote.Common.DeliveryType
                 .DeliveryTypeMeta.Get(DeliveryType);
             TypeLabel = $"{typeInfo.Icon} {typeInfo.DisplayName}";
@@ -524,12 +495,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             HasBalance = TotalBalanceQty > 0;
             IsDummy = string.Equals(DeliveryType, "Dummy",
                                   StringComparison.OrdinalIgnoreCase);
-            FocBadge = IsFoc ? "FOC" : "";
         }
     }
 
     // ═════════════════════════════════════════════════════════════════════
-    //  PENDING QTY ROW — display wrapper for PendingQtySummary
+    //  PENDING QTY ROW
     // ═════════════════════════════════════════════════════════════════════
 
     public class PendingQtyRowViewModel

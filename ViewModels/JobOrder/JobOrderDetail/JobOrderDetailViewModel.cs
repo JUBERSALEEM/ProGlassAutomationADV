@@ -4,6 +4,7 @@ using ProGlassAutomation.Models.JobOrder.Common.JobPriority;
 using ProGlassAutomation.Models.JobOrder.ProductionDetails;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Services.DeliveryNote.Mapper;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Csv;
 using ProGlassAutomation.Services.Export.Excel;
@@ -12,6 +13,7 @@ using ProGlassAutomation.Services.JobOrder.Export;
 using ProGlassAutomation.Services.JobOrder.Mapper;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -24,22 +26,24 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
     /// Left column shows the embedded (read-only) Proforma Invoice snapshot.
     /// Right column shows the editable ProductionDetails.
     ///
-    /// LoadAsync(jobOrderId) fetches the entity, deserialises the snapshot,
-    /// and populates all display + editable properties.
-    ///
-    /// SaveCommand persists changes to production fields without touching
-    /// the embedded invoice (it's immutable historical record).
-    ///
-    /// Phase 9.5a-r3: adds ExportPdfCommand, ExportExcelCommand,
-    /// ExportCsvCommand that route through the shared export engine.
+    /// Phase 10.5: Added CreateDeliveryNoteCommand — creates a new Draft DN
+    /// from this JO and fires OnRequestOpenDeliveryNote callback so the
+    /// shell VM can navigate to the DN module and open the new DN.
     /// </summary>
     public class JobOrderDetailViewModel : ViewModelBase
     {
         // ── reentrancy guard ──────────────────────────────────────────────
         private int _loadingFlag = 0;
 
-        // ── callback wired by shell VM ────────────────────────────────────
+        // ── callbacks wired by shell VM ───────────────────────────────────
         public Action? OnRequestBackToList { get; set; }
+
+        /// <summary>
+        /// Phase 10.5: Fired when user creates a new DN from this JO.
+        /// Parameter = the new DN's database Id. Shell VM should navigate
+        /// to Delivery Note module and load this DN in detail view.
+        /// </summary>
+        public Action<int>? OnRequestOpenDeliveryNote { get; set; }
 
         // ── loaded snapshot + entity reference ────────────────────────────
         private SavedJobOrder? _entity;
@@ -253,10 +257,13 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
         public ICommand SaveCommand { get; }
         public ICommand BackToListCommand { get; }
 
-        // Phase 9.5a-r3
+        // Phase 9.5a-r3 — export
         public ICommand ExportPdfCommand { get; }
         public ICommand ExportExcelCommand { get; }
         public ICommand ExportCsvCommand { get; }
+
+        // Phase 10.5 — create DN from this JO
+        public ICommand CreateDeliveryNoteCommand { get; }
 
         // ═════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
@@ -270,6 +277,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
             ExportPdfCommand = new RelayCommand(async _ => await ExportPdfAsync());
             ExportExcelCommand = new RelayCommand(async _ => await ExportExcelAsync());
             ExportCsvCommand = new RelayCommand(async _ => await ExportCsvAsync());
+
+            CreateDeliveryNoteCommand = new RelayCommand(async _ => await CreateDeliveryNoteAsync());
         }
 
         // ═════════════════════════════════════════════════════════════════
@@ -417,7 +426,6 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
                     MessageBoxButton.OK,
                     MessageBoxImage.Information);
 
-                // Refresh audit line
                 LastEditedDisplay = $"Last edited {_snapshot.Production.LastEditedAt:dd MMM yyyy HH:mm} " +
                                     $"by {_snapshot.Production.LastEditedBy}";
             }
@@ -426,6 +434,118 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
                 MessageBox.Show(
                     $"Failed to save:\n\n{ex.Message}",
                     "Save Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  PHASE 10.5 — CREATE DELIVERY NOTE FROM THIS JO
+        // ═════════════════════════════════════════════════════════════════
+
+        private async Task CreateDeliveryNoteAsync()
+        {
+            if (_entity == null || _snapshot == null)
+            {
+                MessageBox.Show(
+                    "Load a job order first.",
+                    "Cannot Create DN",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            if (App.DeliveryNotes == null)
+            {
+                MessageBox.Show(
+                    "Delivery Notes database not initialized.",
+                    "Cannot Create DN",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return;
+            }
+
+            try
+            {
+                // ── Check if all items already fully delivered ────────────
+                var history = await App.DeliveryNotes
+                    .GetDeliveryHistoryAsync(_entity.JobOrderId);
+
+                if (history.TotalOrdered > 0 && history.TotalBalance == 0)
+                {
+                    MessageBox.Show(
+                        $"All items for job order '{_entity.JobOrderId}' " +
+                        "are already fully delivered.\n\n" +
+                        "No new delivery note needed.",
+                        "Already Delivered",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                    return;
+                }
+
+                // ── Confirm creation ──────────────────────────────────────
+                var confirm = MessageBox.Show(
+                    $"Create a new Delivery Note for job order '{_entity.JobOrderId}'?\n\n" +
+                    "A Draft DN will be created with all pending quantities.\n" +
+                    "You can then edit delivered qty per item before dispatching.",
+                    "Create Delivery Note",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (confirm != MessageBoxResult.Yes) return;
+
+                // ── Generate next DN ID + sequence ────────────────────────
+                int nextSeq = await App.DeliveryNotes
+                    .GetNextSequenceAsync(_entity.JobOrderId);
+                string newDnId = await App.DeliveryNotes
+                    .BuildDeliveryNoteIdAsync(_entity.JobOrderId, nextSeq);
+
+                // ── Build DN entity from JO ───────────────────────────────
+                var newDn = DeliveryNoteMapper.FromJobOrder(
+                    _entity, _snapshot, newDnId, nextSeq);
+
+                // ── If prior DNs exist, adjust PreviouslyDeliveredQty ─────
+                //     so BalanceQty reflects true remaining amount
+                if (nextSeq > 1)
+                {
+                    foreach (var item in newDn.Items)
+                    {
+                        int previouslyDelivered = await App.DeliveryNotes
+                            .GetPreviouslyDeliveredQtyAsync(
+                                _entity.JobOrderId,
+                                item.SpecGroupNumber,
+                                item.SerialNumber);
+
+                        item.PreviouslyDeliveredQty = previouslyDelivered;
+                        item.BalanceQty = Math.Max(0,
+                            item.OrderedQty - previouslyDelivered - item.DeliveredQty);
+                    }
+
+                    // Recalculate DN-level totals after adjustment
+                    newDn.TotalBalanceQty = newDn.Items.Sum(i => i.BalanceQty);
+
+                    // Remove items with zero balance (already fully delivered)
+                    newDn.Items = newDn.Items.Where(i => i.BalanceQty > 0).ToList();
+                }
+
+                // ── Save to DB ────────────────────────────────────────────
+                await App.DeliveryNotes.InsertAsync(newDn);
+
+                MessageBox.Show(
+                    $"Delivery note '{newDnId}' created successfully.\n\n" +
+                    "Opening in Delivery Note module…",
+                    "DN Created",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+
+                // ── Fire callback to shell VMs → navigate to DN detail ───
+                OnRequestOpenDeliveryNote?.Invoke(newDn.Id);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Failed to create delivery note:\n\n{ex.Message}",
+                    "Create Failed",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
@@ -497,16 +617,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
 
         private static void ShowExportResult(ExportResult result, string formatLabel)
         {
-            if (result.Success)
-            {
-                // Silent success — file will be launched automatically by the
-                // engine (OpenAfterSave = true). Skip MessageBox to avoid
-                // interrupting workflow.
-                return;
-            }
-
-            if (result.Cancelled)
-                return;
+            if (result.Success) return;
+            if (result.Cancelled) return;
 
             MessageBox.Show(
                 $"{formatLabel} export failed:\n\n{result.ErrorMessage}",
