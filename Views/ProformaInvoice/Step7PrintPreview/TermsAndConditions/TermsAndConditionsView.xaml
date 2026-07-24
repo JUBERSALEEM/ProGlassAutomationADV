@@ -6,42 +6,115 @@
              xmlns:models="clr-namespace:ProGlassAutomation.Models.ProformaInvoice.Step7PrintPreview.TermsAndConditions"
              mc:Ignorable="d"
              d:DesignHeight="600" d:DesignWidth="1100"
-             FontFamily="Segoe UI">
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
 
     <UserControl.Resources>
 
+        <!-- ══════════════════════════════════════════════════════════════
+             INPUT BOX — theme-aware with indigo focus
+        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="InputBoxStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource MenuHoverBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="8,5"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="MinHeight" Value="30"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background"                 Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground"                 Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderBrush"                Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness"            Value="1"/>
+            <Setter Property="Padding"                    Value="10,6"/>
+            <Setter Property="FontSize"                   Value="12"/>
+            <Setter Property="MinHeight"                  Value="32"/>
+            <Setter Property="VerticalContentAlignment"   Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="B"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6"
+                                SnapsToDevicePixels="True">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Focusable="False"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          VerticalScrollBarVisibility="Hidden"
+                                          Margin="{TemplateBinding Padding}"
+                                          Background="Transparent"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="B" Property="BorderBrush" Value="#6366F1"/>
+                            </Trigger>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="B" Property="BorderBrush"     Value="#4338CA"/>
+                                <Setter TargetName="B" Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                            <Trigger Property="IsReadOnly" Value="True">
+                                <Setter TargetName="B" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
+        <!-- Title editor (bold clause title) -->
         <Style x:Key="TitleBoxStyle" TargetType="TextBox" BasedOn="{StaticResource InputBoxStyle}">
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontSize"   Value="13"/>
         </Style>
 
+        <!-- Combobox for validity days -->
+        <Style x:Key="ValidityComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background"                 Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground"                 Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness"            Value="1"/>
+            <Setter Property="BorderBrush"                Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="FontSize"                   Value="12"/>
+            <Setter Property="Padding"                    Value="10,0"/>
+            <Setter Property="Height"                     Value="32"/>
+            <Setter Property="MinWidth"                   Value="88"/>
+            <Setter Property="VerticalContentAlignment"   Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#6366F1"/>
+                </Trigger>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                    <Setter Property="BorderBrush"     Value="#4338CA"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- ══════════════════════════════════════════════════════════════
+             SMALL ICON BUTTON — for move/delete row actions
+        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="SmallIconButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Background"      Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Padding" Value="4"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="Padding"         Value="6,5"/>
+            <Setter Property="FontSize"        Value="11"/>
+            <Setter Property="FontWeight"      Value="Bold"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg" Background="Transparent" CornerRadius="3" Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Border x:Name="Bg"
+                                Background="Transparent"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.35"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -51,95 +124,176 @@
 
     </UserControl.Resources>
 
+    <!-- ══════════════════════════════════════════════════════════════════
+         TERMS & CONDITIONS CARD
+    ══════════════════════════════════════════════════════════════════ -->
     <Border Background="{DynamicResource ModuleBackgroundBrush}"
-            CornerRadius="10" Padding="16"
-            BorderThickness="1.5" BorderBrush="{DynamicResource AccentBrush}">
+            CornerRadius="16"
+            Padding="20"
+            BorderThickness="1"
+            BorderBrush="{DynamicResource BorderBrush}">
 
         <StackPanel>
 
-            <!-- ── HEADER + Global actions ── -->
-            <Grid Margin="0,0,0,10">
+            <!-- ── Section header ── -->
+            <Grid Margin="0,0,0,14">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
+                <!-- Left: icon badge + title -->
                 <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <TextBlock Text="📜" FontSize="16" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <StackPanel>
-                        <TextBlock Text="{Binding Title}" FontSize="13" FontWeight="Bold"
-                                   Foreground="{DynamicResource AccentBrush}"/>
-                        <TextBlock Text="{Binding Subtitle}" FontSize="10"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                    <Border Background="#EEF2FF"
+                            Width="34" Height="34"
+                            CornerRadius="10"
+                            VerticalAlignment="Center"
+                            Margin="0,0,12,0">
+                        <!-- Segoe MDL2 document / legal icon -->
+                        <TextBlock Text="&#xE7BE;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="14"
+                                   Foreground="#4338CA"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Title}"
+                                   FontSize="14"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                        <TextBlock Text="{Binding Subtitle}"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Margin="0,2,0,0"/>
                     </StackPanel>
                 </StackPanel>
 
-                <StackPanel Grid.Column="1" Orientation="Horizontal">
+                <!-- Right: global actions -->
+                <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
+
+                    <!-- ADD CUSTOM CLAUSE — filled indigo pill -->
                     <Button Command="{Binding AddCustomClauseCommand}"
-                            Background="{DynamicResource AccentBrush}"
-                            Foreground="White" FontWeight="Bold" FontSize="10"
-                            Padding="12,6" Margin="0,0,8,0" Cursor="Hand" BorderThickness="0">
+                            Background="Transparent"
+                            BorderThickness="0"
+                            Padding="0"
+                            Margin="0,0,8,0"
+                            Cursor="Hand">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
-                                <Border Background="{TemplateBinding Background}" CornerRadius="4">
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                                <Border x:Name="B"
+                                        Background="#4338CA"
+                                        CornerRadius="8"
+                                        Padding="14,8"
+                                        SnapsToDevicePixels="True">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="&#xE710;"
+                                                   FontFamily="Segoe MDL2 Assets"
+                                                   FontSize="11"
+                                                   FontWeight="Bold"
+                                                   Foreground="White"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,8,0"/>
+                                        <TextBlock Text="ADD CUSTOM CLAUSE"
+                                                   FontSize="10"
+                                                   FontWeight="Bold"
+                                                   Foreground="White"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
                                 </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="B" Property="Background" Value="#6366F1"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="B" Property="Background" Value="#3730A3"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Button.Template>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="+" FontSize="14" FontWeight="Bold" Margin="0,-2,6,0"/>
-                            <TextBlock Text="ADD CUSTOM CLAUSE" VerticalAlignment="Center"/>
-                        </StackPanel>
                     </Button>
 
+                    <!-- RESET TO DEFAULTS — outlined ghost pill -->
                     <Button Command="{Binding ResetToDefaultsCommand}"
                             Background="Transparent"
-                            BorderBrush="{DynamicResource MenuHoverBrush}" BorderThickness="1"
-                            Foreground="{DynamicResource PrimaryForegroundBrush}" FontWeight="SemiBold" FontSize="10"
-                            Padding="12,6" Cursor="Hand">
+                            BorderThickness="0"
+                            Padding="0"
+                            Cursor="Hand">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
-                                <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="4">
-                                    <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                                <Border x:Name="B"
+                                        Background="{DynamicResource ModuleBackgroundBrush}"
+                                        BorderBrush="{DynamicResource BorderBrush}"
+                                        BorderThickness="1.5"
+                                        CornerRadius="8"
+                                        Padding="14,8"
+                                        SnapsToDevicePixels="True">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="&#xE72C;"
+                                                   FontFamily="Segoe MDL2 Assets"
+                                                   FontSize="11"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,8,0"/>
+                                        <TextBlock Text="RESET TO DEFAULTS"
+                                                   FontSize="10"
+                                                   FontWeight="Bold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
                                 </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="B" Property="BorderBrush" Value="#4338CA"/>
+                                        <Setter TargetName="B" Property="Background"  Value="#EEF2FF"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Button.Template>
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="⟲" FontSize="12" Margin="0,0,6,0"/>
-                            <TextBlock Text="RESET TO DEFAULTS" VerticalAlignment="Center"/>
-                        </StackPanel>
                     </Button>
                 </StackPanel>
             </Grid>
 
-            <Border Background="{DynamicResource MenuHoverBrush}" Height="1" Margin="0,0,0,12"/>
+            <!-- Divider -->
+            <Border Background="{DynamicResource BorderBrush}"
+                    Height="1"
+                    Margin="0,0,0,14"/>
 
-            <!-- ── LIST OF CLAUSES ── -->
+            <!-- ══════════════════════════════════════════════════════════
+                 CLAUSE LIST
+            ══════════════════════════════════════════════════════════ -->
             <ItemsControl ItemsSource="{Binding Clauses}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type models:TermClause}">
                         <Border Background="{DynamicResource WindowBackgroundBrush}"
-                                CornerRadius="8" Padding="12" Margin="0,0,0,10"
-                                BorderThickness="1" BorderBrush="{DynamicResource MenuHoverBrush}">
+                                CornerRadius="12"
+                                Padding="16"
+                                Margin="0,0,0,12"
+                                BorderThickness="1"
+                                BorderBrush="{DynamicResource BorderBrush}">
                             <StackPanel>
 
-                                <!-- ── Clause header row: order badge + active toggle + title editor + actions -->
-                                <Grid Margin="0,0,0,8">
+                                <!-- ── Clause header row: order badge + active + title + row actions ── -->
+                                <Grid Margin="0,0,0,10">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="30"/>
-                                        <ColumnDefinition Width="30"/>
+                                        <ColumnDefinition Width="34"/>
+                                        <ColumnDefinition Width="32"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="Auto"/>
                                     </Grid.ColumnDefinitions>
 
                                     <!-- Order badge -->
                                     <Border Grid.Column="0"
-                                            Background="{DynamicResource AccentBrush}"
-                                            Width="26" Height="26" CornerRadius="4"
+                                            Background="#4338CA"
+                                            Width="28" Height="28"
+                                            CornerRadius="8"
                                             VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding Order}" FontSize="11" FontWeight="Bold"
+                                        <TextBlock Text="{Binding Order}"
+                                                   FontSize="12"
+                                                   FontWeight="Bold"
                                                    Foreground="White"
-                                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
                                     </Border>
 
                                     <!-- Active checkbox -->
@@ -147,51 +301,61 @@
                                               IsChecked="{Binding IsActive}"
                                               VerticalAlignment="Center"
                                               HorizontalAlignment="Center"
+                                              Cursor="Hand"
                                               ToolTip="Include this clause on printed invoice"/>
 
                                     <!-- Title editor -->
                                     <TextBox Grid.Column="2"
                                              Text="{Binding Title, UpdateSourceTrigger=PropertyChanged}"
                                              Style="{StaticResource TitleBoxStyle}"
-                                             Margin="0,0,8,0"/>
+                                             Margin="0,0,10,0"/>
 
                                     <!-- Row actions -->
                                     <StackPanel Grid.Column="3" Orientation="Horizontal">
                                         <Button Command="{Binding DataContext.MoveUpCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 Style="{StaticResource SmallIconButtonStyle}"
-                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                 ToolTip="Move up">
-                                            <TextBlock Text="▲"/>
+                                            <TextBlock Text="&#xE70E;"
+                                                       FontFamily="Segoe MDL2 Assets"
+                                                       FontSize="10"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                         </Button>
                                         <Button Command="{Binding DataContext.MoveDownCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 Style="{StaticResource SmallIconButtonStyle}"
-                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                 ToolTip="Move down">
-                                            <TextBlock Text="▼"/>
+                                            <TextBlock Text="&#xE70D;"
+                                                       FontFamily="Segoe MDL2 Assets"
+                                                       FontSize="10"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                         </Button>
                                         <Button Command="{Binding DataContext.RemoveClauseCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 Style="{StaticResource SmallIconButtonStyle}"
-                                                Foreground="#EF4444"
                                                 ToolTip="Delete clause">
-                                            <TextBlock Text="✕"/>
+                                            <TextBlock Text="&#xE711;"
+                                                       FontFamily="Segoe MDL2 Assets"
+                                                       FontSize="11"
+                                                       FontWeight="Bold"
+                                                       Foreground="#B91C1C"/>
                                         </Button>
                                     </StackPanel>
                                 </Grid>
 
-                                <!-- ── Body text editor -->
+                                <!-- ── Body text editor ── -->
                                 <TextBox Text="{Binding Body, UpdateSourceTrigger=PropertyChanged}"
                                          Style="{StaticResource InputBoxStyle}"
                                          AcceptsReturn="True"
                                          TextWrapping="Wrap"
-                                         MinHeight="40"
-                                         Margin="30,0,0,0"
+                                         MinHeight="48"
+                                         Margin="34,0,0,0"
                                          VerticalContentAlignment="Top"/>
 
-                                <!-- ── Validity days picker (only for Validity clause) -->
-                                <StackPanel Orientation="Horizontal" Margin="30,8,0,0">
+                                <!-- ══════════════════════════════════════
+                                     VALIDITY DAYS PICKER — Validity clauses only
+                                ══════════════════════════════════════ -->
+                                <StackPanel Orientation="Horizontal" Margin="34,10,0,0">
                                     <StackPanel.Style>
                                         <Style TargetType="StackPanel">
                                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -202,20 +366,27 @@
                                             </Style.Triggers>
                                         </Style>
                                     </StackPanel.Style>
-                                    <TextBlock Text="Validity Days:" FontSize="10" FontWeight="Bold"
+                                    <TextBlock Text="Validity Days:"
+                                               FontSize="11"
+                                               FontWeight="SemiBold"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,10,0"/>
                                     <ComboBox ItemsSource="{Binding DataContext.ValidityDayOptions, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                               SelectedItem="{Binding ValidityDays}"
-                                              MinWidth="80" Height="30" VerticalContentAlignment="Center"/>
+                                              Style="{StaticResource ValidityComboBoxStyle}"/>
                                     <TextBlock Text=" (2-7 days depending on current market conditions)"
-                                               FontSize="9" FontStyle="Italic"
+                                               FontSize="10"
+                                               FontStyle="Italic"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               VerticalAlignment="Center" Margin="8,0,0,0"/>
+                                               VerticalAlignment="Center"
+                                               Margin="10,0,0,0"/>
                                 </StackPanel>
 
-                                <!-- ── Payment Terms sub-lines (only for PaymentTerms clause) -->
-                                <StackPanel Margin="30,8,0,0">
+                                <!-- ══════════════════════════════════════
+                                     PAYMENT SUB-LINES — PaymentTerms clauses only
+                                ══════════════════════════════════════ -->
+                                <StackPanel Margin="34,12,0,0">
                                     <StackPanel.Style>
                                         <Style TargetType="StackPanel">
                                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -227,41 +398,70 @@
                                         </Style>
                                     </StackPanel.Style>
 
-                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                                        <TextBlock Text="PAYMENT SUB-CONDITIONS:" FontSize="9" FontWeight="Bold"
-                                                   Foreground="{DynamicResource AccentBrush}"
+                                    <!-- Sub-section header + add line button -->
+                                    <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                                        <TextBlock Text="PAYMENT SUB-CONDITIONS"
+                                                   FontSize="10"
+                                                   FontWeight="Bold"
+                                                   Foreground="#4338CA"
                                                    VerticalAlignment="Center"/>
                                         <Button Command="{Binding DataContext.AddPaymentSubLineCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
-                                                Background="Transparent" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1"
-                                                Padding="6,2" Margin="10,0,0,0" Cursor="Hand"
-                                                Foreground="{DynamicResource AccentBrush}" FontSize="9" FontWeight="Bold">
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                Padding="0"
+                                                Margin="12,0,0,0"
+                                                Cursor="Hand">
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
-                                                    <Border Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="3">
-                                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
+                                                    <Border x:Name="B"
+                                                            Background="Transparent"
+                                                            BorderBrush="#4338CA"
+                                                            BorderThickness="1"
+                                                            CornerRadius="6"
+                                                            Padding="8,3">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="+"
+                                                                       FontSize="12"
+                                                                       FontWeight="Bold"
+                                                                       Foreground="#4338CA"
+                                                                       Margin="0,-1,4,0"/>
+                                                            <TextBlock Text="ADD LINE"
+                                                                       FontSize="9"
+                                                                       FontWeight="Bold"
+                                                                       Foreground="#4338CA"/>
+                                                        </StackPanel>
                                                     </Border>
+                                                    <ControlTemplate.Triggers>
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter TargetName="B" Property="Background" Value="#EEF2FF"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsPressed" Value="True">
+                                                            <Setter TargetName="B" Property="Background" Value="#4338CA"/>
+                                                        </Trigger>
+                                                    </ControlTemplate.Triggers>
                                                 </ControlTemplate>
                                             </Button.Template>
-                                            <StackPanel Orientation="Horizontal">
-                                                <TextBlock Text="+" Margin="0,-2,4,0"/>
-                                                <TextBlock Text="ADD LINE"/>
-                                            </StackPanel>
                                         </Button>
                                     </StackPanel>
 
+                                    <!-- Sub-lines list -->
                                     <ItemsControl ItemsSource="{Binding SubLines}">
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
-                                                <Grid Margin="0,0,0,4">
+                                                <Grid Margin="0,0,0,5">
                                                     <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="20"/>
+                                                        <ColumnDefinition Width="22"/>
                                                         <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="30"/>
+                                                        <ColumnDefinition Width="34"/>
                                                     </Grid.ColumnDefinitions>
-                                                    <TextBlock Grid.Column="0" Text="•" FontSize="14" FontWeight="Bold"
-                                                               Foreground="{DynamicResource AccentBrush}"
-                                                               VerticalAlignment="Center" HorizontalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="0"
+                                                               Text="&#xE915;"
+                                                               FontFamily="Segoe MDL2 Assets"
+                                                               FontSize="10"
+                                                               Foreground="#4338CA"
+                                                               VerticalAlignment="Center"
+                                                               HorizontalAlignment="Center"/>
                                                     <TextBox Grid.Column="1"
                                                              Text="{Binding Mode=OneWay}"
                                                              Style="{StaticResource InputBoxStyle}"
@@ -270,11 +470,14 @@
                                                              ToolTip="To edit, remove this line and add a new one"/>
                                                     <Button Grid.Column="2"
                                                             Style="{StaticResource SmallIconButtonStyle}"
-                                                            Foreground="#EF4444"
                                                             Command="{Binding DataContext.RemovePaymentSubLineCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                             CommandParameter="{Binding}"
                                                             ToolTip="Remove line">
-                                                        <TextBlock Text="✕"/>
+                                                        <TextBlock Text="&#xE711;"
+                                                                   FontFamily="Segoe MDL2 Assets"
+                                                                   FontSize="10"
+                                                                   FontWeight="Bold"
+                                                                   Foreground="#B91C1C"/>
                                                     </Button>
                                                 </Grid>
                                             </DataTemplate>
@@ -288,13 +491,12 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <!-- Empty state -->
-            <TextBlock Text="No terms configured. Click '+ ADD CUSTOM CLAUSE' or 'RESET TO DEFAULTS' to begin."
-                       FontSize="11" FontStyle="Italic"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                       HorizontalAlignment="Center" Margin="0,10">
-                <TextBlock.Style>
-                    <Style TargetType="TextBlock">
+            <!-- ══════════════════════════════════════════════════════════
+                 EMPTY STATE
+            ══════════════════════════════════════════════════════════ -->
+            <StackPanel HorizontalAlignment="Center" Margin="0,20,0,10">
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
                         <Setter Property="Visibility" Value="Collapsed"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding Clauses.Count}" Value="0">
@@ -302,8 +504,30 @@
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
-                </TextBlock.Style>
-            </TextBlock>
+                </StackPanel.Style>
+                <Border Background="#EEF2FF"
+                        Width="44" Height="44"
+                        CornerRadius="22"
+                        HorizontalAlignment="Center"
+                        Margin="0,0,0,10">
+                    <TextBlock Text="&#xE7BE;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="18"
+                               Foreground="#4338CA"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+                <TextBlock Text="No terms configured yet"
+                           FontSize="12"
+                           FontWeight="SemiBold"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           HorizontalAlignment="Center"/>
+                <TextBlock Text="Click 'Add Custom Clause' or 'Reset to Defaults' to begin."
+                           FontSize="11"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           HorizontalAlignment="Center"
+                           Margin="0,4,0,0"/>
+            </StackPanel>
 
         </StackPanel>
     </Border>

@@ -6,43 +6,49 @@
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
              d:DesignHeight="720" d:DesignWidth="900"
-             FontFamily="Segoe UI">
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
 
     <UserControl.Resources>
 
+        <!-- ══════════════════════════════════════════════════════════════
+             LAM LABEL — deep forest green accent (glass type identity)
+        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="LamLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="10"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#22C55E"/>
-            <Setter Property="Margin" Value="0,0,0,4"/>
+            <Setter Property="FontSize"   Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#047857"/>
+            <Setter Property="Margin"     Value="0,0,0,6"/>
         </Style>
 
-        <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#22C55E"/>
-            <Setter Property="Margin" Value="0,0,0,10"/>
-        </Style>
-
-        <Style x:Key="DarkInputStyle" TargetType="TextBox">
+        <!-- ══════════════════════════════════════════════════════════════
+             LAM TEXTBOX — green focus (preserves glass type identity)
+        ══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="LamInputStyle" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="10,0"/>
-            <Setter Property="Height" Value="36"/>
+            <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness"          Value="1"/>
+            <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="FontSize"                 Value="13"/>
+            <Setter Property="Padding"                  Value="12,0"/>
+            <Setter Property="Height"                   Value="38"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="CaretBrush" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="SelectionBrush" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="CaretBrush"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="SelectionBrush"           Value="#047857"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
                         <Border x:Name="InputBorder"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="6"
-                                BorderThickness="1.5"
-                                BorderBrush="{DynamicResource MenuHoverBrush}">
+                                CornerRadius="8"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                SnapsToDevicePixels="True">
                             <ScrollViewer x:Name="PART_ContentHost"
                                           Focusable="False"
                                           HorizontalScrollBarVisibility="Hidden"
@@ -53,11 +59,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="InputBorder" Property="BorderBrush"
-                                        Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                <Setter TargetName="InputBorder" Property="BorderBrush" Value="#10B981"/>
                             </Trigger>
                             <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="InputBorder" Property="BorderBrush" Value="#22C55E"/>
+                                <Setter TargetName="InputBorder" Property="BorderBrush"     Value="#047857"/>
                                 <Setter TargetName="InputBorder" Property="BorderThickness" Value="2"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -66,75 +71,113 @@
             </Setter>
         </Style>
 
-        <Style x:Key="DarkComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="1.5"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource MenuHoverBrush}"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="8,0"/>
-            <Setter Property="Height" Value="36"/>
+        <!-- ══════════════════════════════════════════════════════════════
+             LAM COMBOBOX — green focus, matches input rendering
+        ══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="LamComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness"          Value="1"/>
+            <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="FontSize"                 Value="13"/>
+            <Setter Property="Padding"                  Value="10,0"/>
+            <Setter Property="Height"                   Value="38"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                    <Setter Property="BorderBrush" Value="#10B981"/>
                 </Trigger>
                 <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                    <Setter Property="BorderBrush" Value="#22C55E"/>
+                    <Setter Property="BorderBrush"     Value="#047857"/>
                     <Setter Property="BorderThickness" Value="2"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="DarkEditableComboBoxStyle"
+        <!-- Editable variant -->
+        <Style x:Key="LamEditableComboBoxStyle"
                TargetType="ComboBox"
-               BasedOn="{StaticResource DarkComboBoxStyle}">
-            <Setter Property="IsEditable" Value="True"/>
+               BasedOn="{StaticResource LamComboBoxStyle}">
+            <Setter Property="IsEditable"          Value="True"/>
             <Setter Property="IsTextSearchEnabled" Value="True"/>
         </Style>
 
     </UserControl.Resources>
 
+    <!-- ══════════════════════════════════════════════════════════════════
+         LAM CARD
+    ══════════════════════════════════════════════════════════════════ -->
     <Border Background="{DynamicResource ModuleBackgroundBrush}"
-            CornerRadius="10"
-            Padding="14"
+            CornerRadius="16"
+            Padding="20"
             Margin="0,10,0,0"
-            BorderThickness="1.5"
-            BorderBrush="{DynamicResource MenuHoverBrush}">
+            BorderThickness="1"
+            BorderBrush="{DynamicResource BorderBrush}">
         <StackPanel>
 
-            <TextBlock Text="LAMINATION ASSEMBLY (LAM) PARAMETERS"
-                       Style="{StaticResource SectionTitleStyle}"/>
+            <!-- ── Section header — green icon + title ── -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                <Border Background="#ECFDF5"
+                        Width="26" Height="26"
+                        CornerRadius="8"
+                        VerticalAlignment="Center"
+                        Margin="0,0,10,0">
+                    <!-- Segoe MDL2 stack / layers icon -->
+                    <TextBlock Text="&#xE81E;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="12"
+                               Foreground="#047857"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+                <TextBlock Text="Lamination Assembly (LAM) Parameters"
+                           FontSize="13"
+                           FontWeight="Bold"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
 
-            <!-- Live Spec Name Preview -->
-            <Border Background="#1622C55E"
-                    CornerRadius="6"
-                    Padding="10,6"
-                    Margin="0,0,0,12"
+            <!-- ── Live spec name preview — green tint chip ── -->
+            <Border Background="#ECFDF5"
+                    BorderBrush="#A7F3D0"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="14,10"
+                    Margin="0,0,0,16"
                     HorizontalAlignment="Left">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Generated Spec: "
-                               FontSize="10"
+                    <TextBlock Text="&#xE7C1;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="12"
+                               Foreground="#047857"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0"/>
+                    <TextBlock Text="Generated Spec:"
+                               FontSize="11"
+                               FontWeight="SemiBold"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                VerticalAlignment="Center"
-                               Margin="0,0,6,0"/>
+                               Margin="0,0,8,0"/>
                     <TextBlock Text="{Binding GeneratedSpecName}"
-                               FontSize="11"
+                               FontSize="12"
                                FontWeight="Bold"
-                               Foreground="#22C55E"
-                               TextWrapping="Wrap"/>
+                               Foreground="#047857"
+                               TextWrapping="Wrap"
+                               VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>
 
-            <!-- ROW 1: Outer Glass -->
-            <Grid Margin="0,0,0,12">
+            <!-- ══════════════════════════════════════════════════════════
+                 ROW 1 — OUTER GLASS
+            ══════════════════════════════════════════════════════════ -->
+            <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
@@ -142,39 +185,41 @@
                     <TextBlock Text="OUTER GLASS THK" Style="{StaticResource LamLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding ThicknessOptions}"
                               SelectedItem="{Binding OuterThickness}"
-                              Style="{StaticResource DarkComboBoxStyle}"/>
+                              Style="{StaticResource LamComboBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="OUTER GLASS COLOR" Style="{StaticResource LamLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding ColorOptions}"
                               Text="{Binding OuterGlassColor, UpdateSourceTrigger=PropertyChanged}"
-                              Style="{StaticResource DarkEditableComboBoxStyle}"/>
+                              Style="{StaticResource LamEditableComboBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="4">
                     <TextBlock Text="OUTER GLASS TREATMENT" Style="{StaticResource LamLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding TreatmentOptions}"
                               SelectedItem="{Binding OuterTreatment}"
-                              Style="{StaticResource DarkComboBoxStyle}"/>
+                              Style="{StaticResource LamComboBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="6">
                     <TextBlock Text="OUTER BASE PRICE" Style="{StaticResource LamLabelStyle}"/>
                     <TextBox Text="{Binding OuterBasePrice, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                             Style="{StaticResource LamInputStyle}"/>
                 </StackPanel>
             </Grid>
 
-            <!-- ROW 2: Inner Glass -->
-            <Grid Margin="0,0,0,12">
+            <!-- ══════════════════════════════════════════════════════════
+                 ROW 2 — INNER GLASS
+            ══════════════════════════════════════════════════════════ -->
+            <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
@@ -182,39 +227,41 @@
                     <TextBlock Text="INNER GLASS THK" Style="{StaticResource LamLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding ThicknessOptions}"
                               SelectedItem="{Binding InnerThickness}"
-                              Style="{StaticResource DarkComboBoxStyle}"/>
+                              Style="{StaticResource LamComboBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="INNER GLASS COLOR" Style="{StaticResource LamLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding ColorOptions}"
                               Text="{Binding InnerGlassColor, UpdateSourceTrigger=PropertyChanged}"
-                              Style="{StaticResource DarkEditableComboBoxStyle}"/>
+                              Style="{StaticResource LamEditableComboBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="4">
                     <TextBlock Text="INNER GLASS TREATMENT" Style="{StaticResource LamLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding TreatmentOptions}"
                               SelectedItem="{Binding InnerTreatment}"
-                              Style="{StaticResource DarkComboBoxStyle}"/>
+                              Style="{StaticResource LamComboBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="6">
                     <TextBlock Text="INNER BASE PRICE" Style="{StaticResource LamLabelStyle}"/>
                     <TextBox Text="{Binding InnerBasePrice, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                             Style="{StaticResource LamInputStyle}"/>
                 </StackPanel>
             </Grid>
 
-            <!-- ROW 3: PVB Interlayer -->
-            <Grid Margin="0,0,0,12">
+            <!-- ══════════════════════════════════════════════════════════
+                 ROW 3 — PVB INTERLAYER
+            ══════════════════════════════════════════════════════════ -->
+            <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
@@ -222,89 +269,106 @@
                     <TextBlock Text="PVB THICKNESS" Style="{StaticResource LamLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding PvbThicknessOptions}"
                               SelectedItem="{Binding PvbThickness}"
-                              Style="{StaticResource DarkComboBoxStyle}"/>
+                              Style="{StaticResource LamComboBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="PVB COLOR" Style="{StaticResource LamLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding PvbColorOptions}"
                               Text="{Binding PvbColor, UpdateSourceTrigger=PropertyChanged}"
-                              Style="{StaticResource DarkEditableComboBoxStyle}"/>
+                              Style="{StaticResource LamEditableComboBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="4">
                     <TextBlock Text="PVB MATERIAL RATE" Style="{StaticResource LamLabelStyle}"/>
                     <TextBox Text="{Binding PvbMaterialRate, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                             Style="{StaticResource LamInputStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="6">
                     <TextBlock Text="LAMINATION POLISH" Style="{StaticResource LamLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding LaminationPolishOptions}"
                               SelectedItem="{Binding LaminationPolish}"
-                              Style="{StaticResource DarkComboBoxStyle}"/>
+                              Style="{StaticResource LamComboBoxStyle}"/>
                 </StackPanel>
             </Grid>
 
-            <!-- ROW 4: Per-Pane Cutting & Tempering Costs -->
-            <Grid Margin="0,0,0,12">
+            <!-- ══════════════════════════════════════════════════════════
+                 ROW 4 — PER-PANE CUTTING & TEMPERING COSTS
+            ══════════════════════════════════════════════════════════ -->
+            <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="OUTER CUTTING COST" Style="{StaticResource LamLabelStyle}"/>
                     <TextBox Text="{Binding OuterCuttingCost, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                             Style="{StaticResource LamInputStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="INNER CUTTING COST" Style="{StaticResource LamLabelStyle}"/>
                     <TextBox Text="{Binding InnerCuttingCost, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                             Style="{StaticResource LamInputStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="4">
                     <TextBlock Text="OUTER TEMPERING COST" Style="{StaticResource LamLabelStyle}"/>
                     <TextBox Text="{Binding OuterTemperingCost, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                             Style="{StaticResource LamInputStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="6">
                     <TextBlock Text="INNER TEMPERING COST" Style="{StaticResource LamLabelStyle}"/>
                     <TextBox Text="{Binding InnerTemperingCost, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                             Style="{StaticResource LamInputStyle}"/>
                 </StackPanel>
             </Grid>
 
-            <!-- ROW 5: Yield + Margin -->
+            <!-- ══════════════════════════════════════════════════════════
+                 ROW 5 — YIELD + MARGIN
+            ══════════════════════════════════════════════════════════ -->
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="YIELD FACTOR" Style="{StaticResource LamLabelStyle}"/>
                     <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                             Style="{StaticResource LamInputStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="MARGIN PROFIT %" Style="{StaticResource LamLabelStyle}"/>
                     <TextBox Text="{Binding MarginProfitPercent, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                             Style="{StaticResource LamInputStyle}"/>
+                </StackPanel>
+
+                <!-- Helper text spans remaining columns -->
+                <StackPanel Grid.Column="4"
+                            Grid.ColumnSpan="3"
+                            VerticalAlignment="Bottom"
+                            Margin="0,0,0,10">
+                    <TextBlock FontSize="11"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               TextWrapping="Wrap">
+                        <Run Text="&#xE946;" FontFamily="Segoe MDL2 Assets" Foreground="#047857"/>
+                        <Run Text="  LAM total = outer + inner + PVB + tempering. Typical yield 0.90 for lamination."/>
+                    </TextBlock>
                 </StackPanel>
             </Grid>
 

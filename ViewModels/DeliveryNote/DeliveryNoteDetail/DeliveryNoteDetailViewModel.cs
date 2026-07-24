@@ -9,6 +9,7 @@ using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Csv;
 using ProGlassAutomation.Services.Export.Excel;
 using ProGlassAutomation.Services.Export.Pdf;
+using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels;
 using ProGlassAutomation.Views.DeliveryNote.DeliveryNoteDetail.Attachments.Rename;
 using System;
@@ -31,14 +32,22 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
     /// Phase 10.6b: Clickable history rows drive attachments panel.
     /// Phase 10.7 : Self-healing PREV, GroupedItemsView, MakeDnCommand.
     /// Phase 10.7a: DeleteDnCommand, zero-qty save warning, status refresh.
-    ///              Clicking a history row now NAVIGATES to that DN
-    ///              (full page reload) — so Status, Save, Make DN, Delete
-    ///              always operate on the currently-viewed DN.
-    ///              No more confusion between "open DN" and "selected DN".
-    /// Phase 10.8 : Export commands — PDF, Excel, CSV via shared engine.
+    /// Phase 10.8 : Export commands — PDF, Excel, CSV.
     /// Phase 10.8a: TotalPreviouslyDeliveredQty exposed for XAML binding.
-    ///              Prev chip added to items grid header.
-    ///              PDF totals strip now shows all 5 values.
+    /// Phase 10.8b: DnItemRowViewModel exposes Sqm + TotalSqm (computed).
+    ///              DnHistoryEntryViewModel exposes cumulative timeline
+    ///              (OrderedQty, CumulativePrevQty, CumulativeBalanceQty).
+    ///              Added ConvertToTaxInvoiceCommand as placeholder (Phase 19).
+    /// Phase 10.8c: ConvertToTaxInvoiceCommand now accepts optional
+    ///              DnHistoryEntryViewModel parameter — enables per-row
+    ///              Tax Invoice buttons in history feed.
+    ///              CanExecute checks the target entry's Status (not current).
+    /// Phase 10.8d: LoadHistoryAsync orders entries by SequenceNumber
+    ///              descending — newest DN at top of history feed.
+    /// Ship 8c-2  : DnItemRowViewModel.Sqm + TotalSqm now delegate to
+    ///              SqmCalculator (shared 0.5 m² min rule). Single source
+    ///              of truth used by DN List repo, DN Detail, and future
+    ///              PI / JO / Tax Invoice modules.
     /// </summary>
     public class DeliveryNoteDetailViewModel : ViewModelBase
     {
@@ -171,7 +180,14 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public string Status
         {
             get => _status;
-            set { if (_status == value) return; _status = value; OnPropertyChanged(); }
+            set
+            {
+                if (_status == value) return;
+                _status = value;
+                OnPropertyChanged();
+                // CanConvertToTaxInvoice depends on Status
+                CommandManager.InvalidateRequerySuggested();
+            }
         }
 
         private bool _isFoc;
@@ -257,7 +273,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             private set { if (_totalOrderedQty == value) return; _totalOrderedQty = value; OnPropertyChanged(); }
         }
 
-        // Phase 10.8a — exposed for XAML binding (Prev chip in items header)
         private int _totalPreviouslyDeliveredQty;
         public int TotalPreviouslyDeliveredQty
         {
@@ -382,6 +397,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public ICommand ExportExcelCommand { get; }
         public ICommand ExportCsvCommand { get; }
 
+        // Phase 10.8b/c — Tax Invoice conversion (placeholder until Phase 19)
+        public ICommand ConvertToTaxInvoiceCommand { get; }
+
         // ═════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
         // ═════════════════════════════════════════════════════════════════
@@ -441,6 +459,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             ExportCsvCommand = new RelayCommand(
                 async _ => await ExportCsvAsync(),
                 _ => _entity != null && !IsSaving && !IsLoading);
+
+            ConvertToTaxInvoiceCommand = new RelayCommand(
+                execute: param => ConvertToTaxInvoicePlaceholder(
+                    param as DnHistoryEntryViewModel),
+                canExecute: param => CanConvertToTaxInvoice(
+                    param as DnHistoryEntryViewModel));
         }
 
         // ═════════════════════════════════════════════════════════════════
@@ -524,7 +548,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 CompanyName = joRef?.CompanyName ?? "";
                 CompanyTrn = joRef?.CompanyTrn ?? "";
 
-                // Reset ALL editable fields from entity
                 Status = _entity.Status;
                 IsFoc = _entity.IsFoc;
                 DriverName = _entity.DriverName;
@@ -591,6 +614,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             }
         }
 
+        // ═════════════════════════════════════════════════════════════════
+        //  LOAD HISTORY (Phase 10.8d — newest first)
+        // ═════════════════════════════════════════════════════════════════
+
         private async Task LoadHistoryAsync()
         {
             if (App.DeliveryNotes == null ||
@@ -618,7 +645,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     StringComparison.OrdinalIgnoreCase);
                 if (vm.IsCurrentDn) vm.IsSelected = true;
                 return vm;
-            }).ToList();
+            })
+            // Phase 10.8d — newest DN first (reverse chronological by sequence)
+            .OrderByDescending(vm => vm.SequenceNumber)
+            .ToList();
 
             HistoryEntries =
                 new ObservableCollection<DnHistoryEntryViewModel>(entries);
@@ -842,6 +872,43 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             {
                 IsSaving = false;
             }
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  PHASE 10.8b/c — CONVERT TO TAX INVOICE (Placeholder)
+        // ═════════════════════════════════════════════════════════════════
+
+        private bool CanConvertToTaxInvoice(DnHistoryEntryViewModel? entry)
+        {
+            if (_entity == null || IsSaving) return false;
+            var targetStatus = entry?.Status ?? Status;
+            return targetStatus == "Delivered"
+                || targetStatus == "Signed"
+                || targetStatus == "Received";
+        }
+
+        private void ConvertToTaxInvoicePlaceholder(DnHistoryEntryViewModel? entry)
+        {
+            var targetDnId = entry?.DeliveryNoteId ?? DeliveryNoteId;
+            var targetStatus = entry?.Status ?? Status;
+            var targetQty = entry?.DeliveredQty ?? TotalDeliveredQty;
+
+            MessageBox.Show(
+                $"Convert '{targetDnId}' to Tax Invoice\n\n" +
+                $"Target DN  : {targetDnId}\n" +
+                $"Status     : {targetStatus}\n" +
+                $"Qty        : {targetQty} pcs\n\n" +
+                "Tax Invoice module is coming in Phase 19.\n\n" +
+                "When ready, this button will:\n" +
+                "  • Create a Tax Invoice entity from this DN\n" +
+                "  • Copy customer, items, quantities, prices\n" +
+                "  • Auto-calculate UAE 5% VAT\n" +
+                "  • Link back to this DN (TaxInvoiceId)\n" +
+                "  • Mark this DN as HasTaxInvoice = true\n\n" +
+                "For now the feature is not yet available.",
+                "Tax Invoice — Coming in Phase 19",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
         }
 
         // ═════════════════════════════════════════════════════════════════
@@ -1107,7 +1174,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         private void OnItemDeliveredQtyChanged() => RecalculateTotals();
 
-        // Phase 10.8a — added TotalPreviouslyDeliveredQty
         private void RecalculateTotals()
         {
             TotalOrderedQty = ItemRows.Sum(r => r.OrderedQty);
@@ -1119,6 +1185,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
     // ═════════════════════════════════════════════════════════════════════
     //  DN ITEM ROW VIEWMODEL
+    //  Ship 8c-2: Sqm + TotalSqm now use shared SqmCalculator.
     // ═════════════════════════════════════════════════════════════════════
 
     public class DnItemRowViewModel : ViewModelBase
@@ -1166,6 +1233,18 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         public bool HasBalance => BalanceQty > 0;
 
+        // ══════════════════════════════════════════════════════════════
+        // Ship 8c-2 — Delegates to SqmCalculator (single source of truth)
+        //
+        // Formula preserved (identical result):
+        //   Panel SQM = (W1 × H1) / 1,000,000, floored to 0.5 m² minimum
+        //   Total SQM = Panel SQM × OrderedQty
+        // ══════════════════════════════════════════════════════════════
+
+        public decimal Sqm => SqmCalculator.CalculatePanel(W1, H1);
+
+        public decimal TotalSqm => SqmCalculator.CalculateTotal(W1, H1, OrderedQty);
+
         public DnItemRowViewModel(DeliveryNoteItem item)
         {
             SpecGroupNumber = item.SpecGroupNumber;
@@ -1185,6 +1264,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
     // ═════════════════════════════════════════════════════════════════════
     //  DN HISTORY ENTRY VIEWMODEL
+    //  Phase 10.8b — exposes cumulative timeline fields for master-DN pattern
     // ═════════════════════════════════════════════════════════════════════
 
     public class DnHistoryEntryViewModel : ViewModelBase
@@ -1198,6 +1278,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public string DriverName { get; }
         public string TypeIcon { get; }
         public string StatusBrushKey { get; }
+
+        // Phase 10.8b — cumulative timeline fields
+        public int OrderedQty { get; }
+        public int CumulativePrevQty { get; }
+        public int CumulativeBalanceQty { get; }
+        public int SequenceNumber { get; }
 
         private bool _isSelected;
         public bool IsSelected
@@ -1238,6 +1324,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             BalanceQty = e.BalanceQty;
             DeliveryDate = e.DeliveryDate.ToString("dd MMM yyyy");
             DriverName = e.DriverName;
+
+            OrderedQty = e.OrderedQty;
+            CumulativePrevQty = e.CumulativePrevQty;
+            CumulativeBalanceQty = e.CumulativeBalanceQty;
+            SequenceNumber = e.SequenceNumber;
 
             TypeIcon = e.DeliveryType switch
             {

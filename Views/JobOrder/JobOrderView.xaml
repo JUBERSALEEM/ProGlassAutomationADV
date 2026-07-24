@@ -9,12 +9,14 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <Grid Background="{DynamicResource WindowBackgroundBrush}"
-          Margin="0,60,0,0">
+    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
 
-        <Border Margin="14,8,14,14">
-            <Border.Style>
-                <Style TargetType="Border">
+        <!-- ═══════════════════════════════════════════════════════════
+             LIST VIEW — shown when IsListView = True
+        ═══════════════════════════════════════════════════════════ -->
+        <ContentControl Content="{Binding ListVM}">
+            <ContentControl.Style>
+                <Style TargetType="ContentControl">
                     <Setter Property="Visibility" Value="Collapsed"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding IsListView}" Value="True">
@@ -22,20 +24,20 @@
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
-            </Border.Style>
+            </ContentControl.Style>
+            <ContentControl.ContentTemplate>
+                <DataTemplate>
+                    <list:SavedJobOrdersListView/>
+                </DataTemplate>
+            </ContentControl.ContentTemplate>
+        </ContentControl>
 
-            <ContentControl Content="{Binding ListVM}">
-                <ContentControl.ContentTemplate>
-                    <DataTemplate>
-                        <list:SavedJobOrdersListView/>
-                    </DataTemplate>
-                </ContentControl.ContentTemplate>
-            </ContentControl>
-        </Border>
-
-        <Border Margin="14,8,14,14">
-            <Border.Style>
-                <Style TargetType="Border">
+        <!-- ═══════════════════════════════════════════════════════════
+             DETAIL VIEW — shown when IsDetailView = True
+        ═══════════════════════════════════════════════════════════ -->
+        <ContentControl Content="{Binding DetailVM}">
+            <ContentControl.Style>
+                <Style TargetType="ContentControl">
                     <Setter Property="Visibility" Value="Collapsed"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding IsDetailView}" Value="True">
@@ -43,16 +45,13 @@
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
-            </Border.Style>
-
-            <ContentControl Content="{Binding DetailVM}">
-                <ContentControl.ContentTemplate>
-                    <DataTemplate>
-                        <detail:JobOrderDetailView/>
-                    </DataTemplate>
-                </ContentControl.ContentTemplate>
-            </ContentControl>
-        </Border>
+            </ContentControl.Style>
+            <ContentControl.ContentTemplate>
+                <DataTemplate>
+                    <detail:JobOrderDetailView/>
+                </DataTemplate>
+            </ContentControl.ContentTemplate>
+        </ContentControl>
 
     </Grid>
 </UserControl>

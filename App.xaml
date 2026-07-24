@@ -29,7 +29,7 @@
             <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
 
             <!-- ══════════════════════════════════════════════════════════
-                 CUSTOM CONVERTERS (preserved — all 7 unchanged)
+                 CUSTOM CONVERTERS (preserved — all 7 unchanged + 1 NEW)
             ══════════════════════════════════════════════════════════ -->
             <conv:ColorStringConverter              x:Key="ColorStringConverter"/>
             <conv:DecimalIsPositiveConverter        x:Key="DecimalIsPositiveConverter"/>
@@ -38,6 +38,7 @@
             <conv:InverseBoolToVisibilityConverter  x:Key="InverseBoolToVisibilityConverter"/>
             <conv:BrushKeyConverter                 x:Key="BrushKeyConverter"/>
             <conv:PercentToWidthConverter           x:Key="PercentToWidthConverter"/>
+            <conv:EqualityToVisibilityConverter     x:Key="EqualityToVisibilityConverter"/>
 
             <!-- ══════════════════════════════════════════════════════════
                  GLOBAL TEXTBOX STYLE — Bug 2 + Bug 5

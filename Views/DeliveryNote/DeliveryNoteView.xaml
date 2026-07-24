@@ -24,27 +24,27 @@
 
     </UserControl.Resources>
 
-    <Grid Background="{DynamicResource WindowBackgroundBrush}"
-          Margin="0,60,0,0">
+    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
 
         <!-- ══ LIST VIEW ════════════════════════════════════════════════
              Shown when IsListView = True.
              DataContext explicitly set to ListVM (always non-null).
         ═══════════════════════════════════════════════════════════════ -->
-        <Border Margin="14,8,14,14">
-            <Border.Style>
-                <Style TargetType="Border">
+        <list:DeliveryNoteListView DataContext="{Binding ListVM}">
+            <list:DeliveryNoteListView.Style>
+                <Style TargetType="list:DeliveryNoteListView">
                     <Setter Property="Visibility" Value="Collapsed"/>
                     <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsListView}" Value="True">
+                        <DataTrigger Binding="{Binding DataContext.IsListView,
+                                                       RelativeSource={RelativeSource
+                                                           AncestorType=UserControl}}"
+                                     Value="True">
                             <Setter Property="Visibility" Value="Visible"/>
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
-            </Border.Style>
-
-            <list:DeliveryNoteListView DataContext="{Binding ListVM}"/>
-        </Border>
+            </list:DeliveryNoteListView.Style>
+        </list:DeliveryNoteListView>
 
         <!-- ══ DETAIL VIEW ═══════════════════════════════════════════════
              ContentControl pattern — identical to JobOrderView.xaml.
@@ -65,9 +65,9 @@
              because direct child UserControls do not re-evaluate DataContext
              bindings the same way ContentControl.Content does.
         ═══════════════════════════════════════════════════════════════ -->
-        <Border Margin="14,8,14,14">
-            <Border.Style>
-                <Style TargetType="Border">
+        <ContentControl Content="{Binding DetailVM}">
+            <ContentControl.Style>
+                <Style TargetType="ContentControl">
                     <Setter Property="Visibility" Value="Collapsed"/>
                     <Style.Triggers>
                         <DataTrigger Binding="{Binding IsDetailView}" Value="True">
@@ -75,10 +75,8 @@
                         </DataTrigger>
                     </Style.Triggers>
                 </Style>
-            </Border.Style>
-
-            <ContentControl Content="{Binding DetailVM}"/>
-        </Border>
+            </ContentControl.Style>
+        </ContentControl>
 
     </Grid>
 </UserControl>

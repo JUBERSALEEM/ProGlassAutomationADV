@@ -4,116 +4,201 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
-             d:DesignHeight="400" d:DesignWidth="900"
-             FontFamily="Segoe UI">
+             d:DesignHeight="500" d:DesignWidth="900"
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
 
-    <!-- ============ DGU+LAM PLACEHOLDER PANEL ============ -->
+    <UserControl.Resources>
+
+        <!-- Bullet-item row style -->
+        <Style x:Key="BulletRowStyle" TargetType="StackPanel">
+            <Setter Property="Orientation" Value="Horizontal"/>
+            <Setter Property="Margin"      Value="0,4"/>
+        </Style>
+
+    </UserControl.Resources>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+         PLACEHOLDER CARD — DGU + LAM (Hybrid) coming soon
+    ══════════════════════════════════════════════════════════════════ -->
     <Border Background="{DynamicResource ModuleBackgroundBrush}"
-            CornerRadius="10"
-            Padding="30"
+            CornerRadius="16"
+            Padding="32"
             Margin="0,10,0,0"
-            BorderThickness="1.5"
-            BorderBrush="{DynamicResource MenuHoverBrush}">
-        <StackPanel HorizontalAlignment="Center"
-                    VerticalAlignment="Center">
+            BorderThickness="1"
+            BorderBrush="{DynamicResource BorderBrush}">
 
-            <!-- Icon -->
-            <Border Background="#F97316"
-                    Width="48" Height="48"
-                    CornerRadius="10"
+        <StackPanel HorizontalAlignment="Center"
+                    VerticalAlignment="Center"
+                    MaxWidth="620">
+
+            <!-- ── Hero icon — 64×64 amber tinted with glow ── -->
+            <Border Background="#FEF3C7"
+                    Width="72" Height="72"
+                    CornerRadius="18"
                     HorizontalAlignment="Center"
-                    Margin="0,0,0,16">
-                <TextBlock Text="&#128119;"
-                           FontSize="24"
-                           Foreground="White"
+                    Margin="0,0,0,20">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="16"
+                                      ShadowDepth="3"
+                                      Direction="270"
+                                      Color="#B45309"
+                                      Opacity="0.25"/>
+                </Border.Effect>
+                <!-- Segoe MDL2 construction / hardhat icon -->
+                <TextBlock Text="&#xE7C1;"
+                           FontFamily="Segoe MDL2 Assets"
+                           FontSize="30"
+                           Foreground="#B45309"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"/>
             </Border>
 
-            <!-- Title -->
-            <TextBlock Text="DGU + LAMINATED (HYBRID)"
-                       FontSize="14"
-                       FontWeight="Bold"
-                       Foreground="#F97316"
-                       HorizontalAlignment="Center"
-                       Margin="0,0,0,8"/>
-
-            <!-- Subtitle -->
-            <TextBlock Text="Coming in a future release"
-                       FontSize="12"
-                       FontWeight="SemiBold"
-                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                       HorizontalAlignment="Center"
-                       Margin="0,0,0,14"/>
-
-            <!-- Description -->
-            <TextBlock TextAlignment="Center"
-                       TextWrapping="Wrap"
-                       MaxWidth="500"
-                       FontSize="12"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                       Margin="0,0,0,18">
-                <Run Text="DGU+LAM combines an insulated glass unit with one laminated pane, delivering both thermal insulation and safety/security performance. Common uses:"/>
-            </TextBlock>
-
-            <!-- Use Cases -->
-            <StackPanel HorizontalAlignment="Center" Margin="0,0,0,18">
-                <StackPanel Orientation="Horizontal" Margin="0,2">
-                    <TextBlock Text="•" FontSize="12" Foreground="#F97316" Margin="0,0,8,0"/>
-                    <TextBlock Text="High-end architectural facades"
-                               FontSize="12"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,2">
-                    <TextBlock Text="•" FontSize="12" Foreground="#F97316" Margin="0,0,8,0"/>
-                    <TextBlock Text="Hurricane / impact resistant glazing"
-                               FontSize="12"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,2">
-                    <TextBlock Text="•" FontSize="12" Foreground="#F97316" Margin="0,0,8,0"/>
-                    <TextBlock Text="Sound insulation for premium interiors"
-                               FontSize="12"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                </StackPanel>
-                <StackPanel Orientation="Horizontal" Margin="0,2">
-                    <TextBlock Text="•" FontSize="12" Foreground="#F97316" Margin="0,0,8,0"/>
-                    <TextBlock Text="Bullet-resistant glass assemblies"
-                               FontSize="12"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                </StackPanel>
-            </StackPanel>
-
-            <!-- Status Badge -->
-            <Border Background="#F97316"
-                    CornerRadius="16"
+            <!-- ── "COMING SOON" pill above title ── -->
+            <Border Background="#FEF3C7"
+                    BorderBrush="#FDE68A"
+                    BorderThickness="1"
+                    CornerRadius="14"
                     Padding="14,6"
-                    HorizontalAlignment="Center">
+                    HorizontalAlignment="Center"
+                    Margin="0,0,0,14">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#9881;"
-                               FontSize="11"
-                               Foreground="White"
+                    <TextBlock Text="&#xE787;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="10"
+                               Foreground="#B45309"
                                VerticalAlignment="Center"
                                Margin="0,0,6,0"/>
-                    <TextBlock Text="PLANNED FOR PHASE 2 RELEASE"
+                    <TextBlock Text="COMING SOON"
                                FontSize="10"
                                FontWeight="Bold"
-                               Foreground="White"
+                               Foreground="#B45309"
                                VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>
 
-            <!-- Tip -->
-            <TextBlock Text="For now, use DGU or LAM separately based on which property matters more for your project."
-                       TextAlignment="Center"
-                       TextWrapping="Wrap"
-                       MaxWidth="450"
-                       FontSize="11"
-                       FontStyle="Italic"
+            <!-- ── Title ── -->
+            <TextBlock Text="DGU + Laminated (Hybrid)"
+                       FontSize="20"
+                       FontWeight="Bold"
+                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,8"/>
+
+            <!-- ── Subtitle ── -->
+            <TextBlock Text="Planned for the Phase 2 release"
+                       FontSize="12"
+                       FontWeight="SemiBold"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"
-                       Margin="0,20,0,0"/>
+                       HorizontalAlignment="Center"
+                       Margin="0,0,0,20"/>
+
+            <!-- ── Description ── -->
+            <TextBlock TextAlignment="Center"
+                       TextWrapping="Wrap"
+                       FontSize="12"
+                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                       LineHeight="20"
+                       Margin="0,0,0,24">
+                <Run Text="DGU+LAM combines an insulated glass unit with one laminated pane, delivering both thermal insulation and safety/security performance."/>
+            </TextBlock>
+
+            <!-- ── Use cases card ── -->
+            <Border Background="{DynamicResource WindowBackgroundBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Padding="20,16"
+                    Margin="0,0,0,20">
+                <StackPanel>
+
+                    <TextBlock Text="COMMON APPLICATIONS"
+                               FontSize="10"
+                               FontWeight="Bold"
+                               Foreground="#B45309"
+                               Margin="0,0,0,10"/>
+
+                    <StackPanel Style="{StaticResource BulletRowStyle}">
+                        <TextBlock Text="&#xE915;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="10"
+                                   Foreground="#B45309"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,10,0"/>
+                        <TextBlock Text="High-end architectural facades"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Style="{StaticResource BulletRowStyle}">
+                        <TextBlock Text="&#xE915;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="10"
+                                   Foreground="#B45309"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,10,0"/>
+                        <TextBlock Text="Hurricane / impact-resistant glazing"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Style="{StaticResource BulletRowStyle}">
+                        <TextBlock Text="&#xE915;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="10"
+                                   Foreground="#B45309"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,10,0"/>
+                        <TextBlock Text="Sound insulation for premium interiors"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <StackPanel Style="{StaticResource BulletRowStyle}">
+                        <TextBlock Text="&#xE915;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="10"
+                                   Foreground="#B45309"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,10,0"/>
+                        <TextBlock Text="Bullet-resistant glass assemblies"
+                                   FontSize="12"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                </StackPanel>
+            </Border>
+
+            <!-- ── Tip footer ── -->
+            <Border Background="#EEF2FF"
+                    BorderBrush="#C7D2FE"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="14,10">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE946;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="12"
+                               Foreground="#4338CA"
+                               VerticalAlignment="Center"
+                               Margin="0,0,10,0"/>
+                    <TextBlock Text="For now, use DGU or LAM separately based on which property matters more for your project."
+                               FontSize="11"
+                               FontWeight="SemiBold"
+                               Foreground="#4338CA"
+                               TextWrapping="Wrap"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+            </Border>
 
         </StackPanel>
     </Border>
-
 </UserControl>

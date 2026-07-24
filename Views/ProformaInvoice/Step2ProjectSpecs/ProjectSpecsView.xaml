@@ -5,129 +5,103 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
              d:DesignHeight="500" d:DesignWidth="900"
-             FontFamily="Segoe UI">
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
 
-    <!-- ============ SHARED STYLES ============ -->
     <UserControl.Resources>
 
-        <!-- Field Label Style -->
+        <!-- ══════════════════════════════════════════════════════════════
+             FIELD LABEL — matches Step 1 (11px SemiBold UPPERCASE muted)
+        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize"   Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-            <Setter Property="Margin" Value="0,0,0,6"/>
+            <Setter Property="Margin"     Value="0,0,0,8"/>
         </Style>
 
-        <!-- Input TextBox Style — matches Step 1 -->
-        <Style x:Key="DarkInputStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Padding" Value="14,0"/>
-            <Setter Property="Height" Value="44"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="CaretBrush" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="SelectionBrush" Value="{DynamicResource AccentBrush}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="InputBorder"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="8"
-                                BorderThickness="1.5"
-                                BorderBrush="{DynamicResource MenuHoverBrush}">
-                            <ScrollViewer x:Name="PART_ContentHost"
-                                          Focusable="False"
-                                          HorizontalScrollBarVisibility="Hidden"
-                                          VerticalScrollBarVisibility="Hidden"
-                                          Margin="{TemplateBinding Padding}"
-                                          VerticalAlignment="Center"
-                                          Background="Transparent"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="InputBorder" Property="BorderBrush"
-                                        Value="{DynamicResource SecondaryForegroundBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="InputBorder" Property="BorderBrush"
-                                        Value="{DynamicResource AccentBrush}"/>
-                                <Setter TargetName="InputBorder" Property="BorderThickness"
-                                        Value="2"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <!-- ══════════════════════════════════════════════════════════════
+             NOTE: TextBoxes inherit the GLOBAL App.xaml style
+             (Height=38, CornerRadius=8, focus glow, hover indigo tint).
+             Custom DarkInputStyle removed for consistency across all steps.
+        ══════════════════════════════════════════════════════════════ -->
 
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled"
-                  Padding="0,0,10,0">
+                  Padding="24,20,32,20">
         <StackPanel>
 
-            <!-- ============ HEADER ============ -->
-            <StackPanel Orientation="Horizontal"
-                        Margin="0,0,0,8">
-
-                <!-- Icon -->
-                <Border Background="{DynamicResource AccentBrush}"
-                        Width="36" Height="36"
-                        CornerRadius="8"
+            <!-- ══════════════════════════════════════════════════════════
+                 STEP HEADER
+            ══════════════════════════════════════════════════════════ -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <!-- Icon badge — 44×44 indigo with subtle glow -->
+                <Border Background="#4338CA"
+                        Width="44" Height="44"
+                        CornerRadius="12"
                         VerticalAlignment="Center">
-                    <TextBlock Text="&#127959;"
-                               FontSize="18"
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="12"
+                                          ShadowDepth="2"
+                                          Direction="270"
+                                          Color="#4338CA"
+                                          Opacity="0.30"/>
+                    </Border.Effect>
+                    <!-- Segoe MDL2 construction / project icon -->
+                    <TextBlock Text="&#xE8A5;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="20"
                                Foreground="White"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
                 </Border>
 
-                <!-- Title -->
-                <TextBlock Text="PROJECT SPECIFICATIONS"
-                           FontSize="18"
-                           FontWeight="Bold"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                           VerticalAlignment="Center"
-                           Margin="14,0,0,0"/>
+                <StackPanel VerticalAlignment="Center" Margin="16,0,0,0">
+                    <TextBlock Text="Project Specifications"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    <TextBlock Text="Specify details about the building project, glazing site and local procurement numbers."
+                               FontSize="12"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Margin="0,4,0,0"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
             </StackPanel>
 
-            <!-- Subtitle -->
-            <TextBlock Text="Specify details about the building project, glazing site, and local procurement numbers."
-                       FontSize="13"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                       Margin="0,0,0,20"
-                       TextWrapping="Wrap"/>
-
             <!-- Divider -->
-            <Border Background="{DynamicResource MenuHoverBrush}"
+            <Border Background="{DynamicResource BorderBrush}"
                     Height="1"
-                    Margin="0,0,0,24"/>
+                    Margin="0,20,0,24"/>
 
-            <!-- ============ PROJECT FIELDS (2x2 grid) ============ -->
+            <!-- ══════════════════════════════════════════════════════════
+                 PROJECT FIELDS — 2×2 grid
+            ══════════════════════════════════════════════════════════ -->
 
             <!-- Row 1: Project Identifier Name + Project / Contract No -->
             <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="PROJECT IDENTIFIER NAME"
                                Style="{StaticResource FieldLabelStyle}"/>
-                    <TextBox Text="{Binding ProjectIdentifierName, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                    <TextBox Text="{Binding ProjectIdentifierName, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="PROJECT / CONTRACT NO"
                                Style="{StaticResource FieldLabelStyle}"/>
-                    <TextBox Text="{Binding ProjectContractNo, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                    <TextBox Text="{Binding ProjectContractNo, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
             </Grid>
 
@@ -135,22 +109,20 @@
             <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="SITE / DELIVERY LOCATION"
                                Style="{StaticResource FieldLabelStyle}"/>
-                    <TextBox Text="{Binding SiteDeliveryLocation, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                    <TextBox Text="{Binding SiteDeliveryLocation, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="LPO / PURCHASE ORDER NO"
                                Style="{StaticResource FieldLabelStyle}"/>
-                    <TextBox Text="{Binding LpoNumber, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                    <TextBox Text="{Binding LpoNumber, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
             </Grid>
 

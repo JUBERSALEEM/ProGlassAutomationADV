@@ -3,156 +3,238 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="1400"
-             FontFamily="Segoe UI">
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
 
     <UserControl.Resources>
 
-        <!-- Stat cards with shadow + rounded corners -->
+        <!-- ══════════════════════════════════════════════════════════════
+             STAT CARD
+        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="StatCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource MenuHoverBrush}"/>
-            <Setter Property="BorderThickness" Value="1.5"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Padding" Value="18,14"/>
-            <Setter Property="Margin" Value="0,0,12,0"/>
-            <Setter Property="MinWidth" Value="160"/>
-            <Setter Property="Effect">
-                <Setter.Value>
-                    <DropShadowEffect BlurRadius="8" ShadowDepth="1" Opacity="0.08" Color="Black"/>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Filter text input -->
-        <Style x:Key="FilterInputStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Padding" Value="10,6"/>
-            <Setter Property="Height" Value="32"/>
+            <Setter Property="CornerRadius"    Value="12"/>
+            <Setter Property="Padding"         Value="20,16"/>
+            <Setter Property="Margin"          Value="0,0,16,0"/>
+            <Setter Property="MinWidth"        Value="170"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <!-- ══════════════════════════════════════════════════════════════
+             FILTER TEXT INPUT
+        ══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="FilterInputStyle" TargetType="TextBox">
+            <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness"          Value="1"/>
+            <Setter Property="Padding"                  Value="12,0"/>
+            <Setter Property="Height"                   Value="38"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
         </Style>
 
-        <!-- Filter combo -->
+        <!-- ══════════════════════════════════════════════════════════════
+             FILTER COMBO
+        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="FilterComboStyle" TargetType="ComboBox">
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="MinWidth" Value="140"/>
+            <Setter Property="Height"                   Value="38"/>
+            <Setter Property="MinWidth"                 Value="140"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding"                  Value="10,0"/>
         </Style>
 
-        <!-- Status pill with color per status -->
+        <!-- ══════════════════════════════════════════════════════════════
+             STATUS PILL — saturated professional palette
+        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="StatusPillStyle" TargetType="Border">
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="10,4"/>
+            <Setter Property="CornerRadius"        Value="10"/>
+            <Setter Property="Padding"             Value="12,5"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="Background" Value="#94A3B8"/>
+            <Setter Property="MinWidth"            Value="76"/>
+            <Setter Property="Background"          Value="#64748B"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Status}" Value="Draft">
-                    <Setter Property="Background" Value="#94A3B8"/>
+                    <Setter Property="Background" Value="#64748B"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Status}" Value="Sent">
-                    <Setter Property="Background" Value="#3B82F6"/>
+                    <Setter Property="Background" Value="#1E40AF"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Status}" Value="Approved">
-                    <Setter Property="Background" Value="#22C55E"/>
+                    <Setter Property="Background" Value="#047857"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Status}" Value="Rejected">
-                    <Setter Property="Background" Value="#EF4444"/>
+                    <Setter Property="Background" Value="#B91C1C"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Status}" Value="Expired">
-                    <Setter Property="Background" Value="#F59E0B"/>
+                    <Setter Property="Background" Value="#B45309"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
 
-        <!-- Empty state -->
+        <!-- ══════════════════════════════════════════════════════════════
+             EMPTY STATE
+        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="EmptyStateStyle" TargetType="StackPanel">
             <Setter Property="Visibility" Value="Collapsed"/>
             <Style.Triggers>
-                <DataTrigger Binding="{Binding FilteredCount}" Value="0">
+                <MultiDataTrigger>
+                    <MultiDataTrigger.Conditions>
+                        <Condition Binding="{Binding FilteredCount}" Value="0"/>
+                        <Condition Binding="{Binding IsLoading}"     Value="False"/>
+                    </MultiDataTrigger.Conditions>
                     <Setter Property="Visibility" Value="Visible"/>
-                </DataTrigger>
+                </MultiDataTrigger>
             </Style.Triggers>
         </Style>
 
-        <!-- Card-style row with hover border -->
+        <!-- ══════════════════════════════════════════════════════════════
+             ROW CARD — hover accent (no drop shadow for perf at scale)
+        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="RowCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="CornerRadius" Value="8"/>
-            <Setter Property="Margin" Value="4,2"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Background"      Value="Transparent"/>
+            <Setter Property="CornerRadius"    Value="8"/>
+            <Setter Property="Margin"          Value="0,3"/>
+            <Setter Property="Padding"         Value="0"/>
+            <Setter Property="BorderThickness" Value="3,0,0,0"/>
+            <Setter Property="BorderBrush"     Value="Transparent"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
-                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                    <Setter Property="Background"  Value="{DynamicResource MenuHoverBrush}"/>
+                    <Setter Property="BorderBrush" Value="#4338CA"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
+        <!-- ═══════════ ListBoxItem style — strips selection padding ═══════════ -->
+        <Style x:Key="InvoiceListBoxItemStyle" TargetType="ListBoxItem">
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="Margin" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Focusable" Value="False"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ListBoxItem">
+                        <ContentPresenter/>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </UserControl.Resources>
 
-    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  Background="{DynamicResource WindowBackgroundBrush}"
-                  Padding="20">
-        <StackPanel>
+    <!-- ═══════════════════════════════════════════════════════════════
+         ROOT LAYOUT — Sticky header + virtualized table
+    ═══════════════════════════════════════════════════════════════ -->
+    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Sticky header -->
+            <RowDefinition Height="*"/>
+            <!-- Virtualized table -->
+        </Grid.RowDefinitions>
 
-            <!-- ═══════════════════ STAT CARDS ═══════════════════ -->
+        <!-- ═══════════════════════════════════════════════════════════
+             STICKY HEADER
+        ═══════════════════════════════════════════════════════════════ -->
+        <StackPanel Grid.Row="0" Margin="24,20,24,0">
+
+            <!-- ── STAT CARDS ROW ─────────────────────────────────────── -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
+
+                <!-- Card 1 — TOTAL INVOICES -->
                 <Border Style="{StaticResource StatCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="TOTAL INVOICES" FontSize="9" FontWeight="Bold"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   Margin="0,0,0,6"/>
+                        <TextBlock Text="TOTAL INVOICES"
+                                   FontSize="11"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   Margin="0,0,0,10"/>
                         <TextBlock Text="{Binding TotalCount}"
-                                   FontSize="26" FontWeight="Bold"
-                                   Foreground="{DynamicResource AccentBrush}"/>
+                                   FontSize="28"
+                                   FontWeight="Bold"
+                                   Foreground="#4338CA"/>
                     </StackPanel>
                 </Border>
 
+                <!-- Card 2 — SHOWING -->
                 <Border Style="{StaticResource StatCardStyle}">
                     <StackPanel>
-                        <TextBlock Text="SHOWING" FontSize="9" FontWeight="Bold"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   Margin="0,0,0,6"/>
+                        <TextBlock Text="SHOWING"
+                                   FontSize="11"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   Margin="0,0,0,10"/>
                         <TextBlock Text="{Binding FilteredCount}"
-                                   FontSize="26" FontWeight="Bold"
+                                   FontSize="28"
+                                   FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource StatCardStyle}" MinWidth="200">
+                <!-- Card 3 — TOTAL VALUE -->
+                <Border Style="{StaticResource StatCardStyle}" MinWidth="220">
                     <StackPanel>
-                        <TextBlock Text="TOTAL VALUE" FontSize="9" FontWeight="Bold"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   Margin="0,0,0,6"/>
+                        <TextBlock Text="TOTAL VALUE"
+                                   FontSize="11"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   Margin="0,0,0,10"/>
                         <TextBlock Text="{Binding TotalValueSum, StringFormat=AED {0:N2}}"
-                                   FontSize="22" FontWeight="Bold" Foreground="#22C55E"/>
+                                   FontSize="24"
+                                   FontWeight="Bold"
+                                   Foreground="#047857"/>
                     </StackPanel>
                 </Border>
 
-                <!-- Refresh button -->
+                <!-- Refresh hero pill button -->
                 <Button Command="{Binding RefreshCommand}"
-                        Margin="20,0,0,0" VerticalAlignment="Center"
-                        Background="Transparent" BorderThickness="0" Cursor="Hand">
+                        Margin="16,0,0,0"
+                        VerticalAlignment="Center"
+                        Background="Transparent"
+                        BorderThickness="0"
+                        Cursor="Hand">
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="RefreshBg"
-                                    Background="{DynamicResource AccentBrush}"
-                                    CornerRadius="10"
-                                    Padding="18,12">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="⟳" FontSize="16" Foreground="White" Margin="0,-2,8,0" VerticalAlignment="Center"/>
-                                    <TextBlock Text="REFRESH" FontSize="11" FontWeight="Bold" Foreground="White" VerticalAlignment="Center"/>
+                                    Background="#4338CA"
+                                    CornerRadius="20"
+                                    Padding="22,0"
+                                    Height="40"
+                                    SnapsToDevicePixels="True">
+                                <StackPanel Orientation="Horizontal"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="&#xE72C;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="13"
+                                               Foreground="White"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,10,0"/>
+                                    <TextBlock Text="REFRESH"
+                                               FontSize="12"
+                                               FontWeight="Bold"
+                                               Foreground="White"
+                                               VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="RefreshBg" Property="Opacity" Value="0.85"/>
+                                    <Setter TargetName="RefreshBg" Property="Background" Value="#6366F1"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="RefreshBg" Property="Background" Value="#3730A3"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -160,60 +242,99 @@
                 </Button>
             </StackPanel>
 
-            <!-- ═══════════════════ FILTERS ═══════════════════ -->
+            <!-- ── SEARCH & FILTER SECTION ────────────────────────────── -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    CornerRadius="12" Padding="16" BorderThickness="1.5"
-                    BorderBrush="{DynamicResource MenuHoverBrush}"
-                    Margin="0,0,0,16">
+                    CornerRadius="12"
+                    Padding="24,20"
+                    BorderThickness="1"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    Margin="0,0,0,16"
+                    SnapsToDevicePixels="True">
                 <StackPanel>
-                    <TextBlock Text="🔍 SEARCH &amp; FILTER" FontSize="11" FontWeight="Bold"
-                               Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,12"/>
+
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                        <TextBlock Text="&#xE721;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="14"
+                                   Foreground="#4338CA"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,8,0"/>
+                        <TextBlock Text="Search &amp; Filter"
+                                   FontSize="15"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
 
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="12"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="12"/>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="12"/>
                             <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="12"/>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
+                            <ColumnDefinition Width="12"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
+                        <!-- Search input -->
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="SEARCH" FontSize="9" FontWeight="Bold"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,4"/>
+                            <TextBlock Text="SEARCH"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Margin="0,0,0,6"/>
                             <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                                      Style="{StaticResource FilterInputStyle}"/>
                         </StackPanel>
 
+                        <!-- Status filter -->
                         <StackPanel Grid.Column="2">
-                            <TextBlock Text="STATUS" FontSize="9" FontWeight="Bold"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,4"/>
+                            <TextBlock Text="STATUS"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Margin="0,0,0,6"/>
                             <ComboBox ItemsSource="{Binding StatusFilterOptions}"
                                       SelectedItem="{Binding SelectedStatusFilter}"
                                       Style="{StaticResource FilterComboStyle}"/>
                         </StackPanel>
 
+                        <!-- From date -->
                         <StackPanel Grid.Column="4">
-                            <TextBlock Text="FROM" FontSize="9" FontWeight="Bold"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,4"/>
-                            <DatePicker SelectedDate="{Binding FromDate}" Height="32" VerticalContentAlignment="Center"/>
+                            <TextBlock Text="FROM"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Margin="0,0,0,6"/>
+                            <DatePicker SelectedDate="{Binding FromDate}"
+                                        Height="38"
+                                        VerticalContentAlignment="Center"/>
                         </StackPanel>
 
+                        <!-- To date -->
                         <StackPanel Grid.Column="6">
-                            <TextBlock Text="TO" FontSize="9" FontWeight="Bold"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,4"/>
-                            <DatePicker SelectedDate="{Binding ToDate}" Height="32" VerticalContentAlignment="Center"/>
+                            <TextBlock Text="TO"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Margin="0,0,0,6"/>
+                            <DatePicker SelectedDate="{Binding ToDate}"
+                                        Height="38"
+                                        VerticalContentAlignment="Center"/>
                         </StackPanel>
 
+                        <!-- Sort -->
                         <StackPanel Grid.Column="8">
-                            <TextBlock Text="SORT BY" FontSize="9" FontWeight="Bold"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,4"/>
+                            <TextBlock Text="SORT BY"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Margin="0,0,0,6"/>
                             <ComboBox ItemsSource="{Binding SortPresetOptions}"
                                       SelectedItem="{Binding SelectedSortPreset}"
                                       Style="{StaticResource FilterComboStyle}"/>
@@ -222,29 +343,45 @@
                         <!-- Clear button -->
                         <Button Grid.Column="10"
                                 Command="{Binding ClearFiltersCommand}"
-                                Margin="0,18,0,0" Cursor="Hand"
-                                Background="Transparent" BorderThickness="0">
+                                Margin="0,22,0,0"
+                                Cursor="Hand"
+                                Background="Transparent"
+                                BorderThickness="0">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="ClearBg"
                                             Background="Transparent"
-                                            BorderBrush="{DynamicResource MenuHoverBrush}"
+                                            BorderBrush="{DynamicResource BorderBrush}"
                                             BorderThickness="1.5"
                                             CornerRadius="8"
-                                            Padding="14,6"
-                                            Height="32">
-                                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                            <TextBlock Text="✕" FontSize="11" FontWeight="Bold"
+                                            Padding="16,0"
+                                            Height="38"
+                                            SnapsToDevicePixels="True">
+                                        <StackPanel Orientation="Horizontal"
+                                                    VerticalAlignment="Center">
+                                            <TextBlock x:Name="ClearIcon"
+                                                       Text="&#xE711;"
+                                                       FontFamily="Segoe MDL2 Assets"
+                                                       FontSize="11"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       Margin="0,0,6,0"/>
-                                            <TextBlock Text="CLEAR" FontSize="10" FontWeight="Bold"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,0,8,0"/>
+                                            <TextBlock x:Name="ClearText"
+                                                       Text="CLEAR"
+                                                       FontSize="11"
+                                                       FontWeight="Bold"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="ClearBg" Property="BorderBrush" Value="#EF4444"/>
-                                            <Setter TargetName="ClearBg" Property="Background" Value="#15EF4444"/>
+                                            <Setter TargetName="ClearBg"   Property="BorderBrush" Value="#B91C1C"/>
+                                            <Setter TargetName="ClearIcon" Property="Foreground"  Value="#B91C1C"/>
+                                            <Setter TargetName="ClearText" Property="Foreground"  Value="#B91C1C"/>
+                                        </Trigger>
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="ClearBg" Property="Background" Value="#FEE2E2"/>
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -254,54 +391,167 @@
                 </StackPanel>
             </Border>
 
-            <!-- ═══════════════════ TABLE HEADER ═══════════════════ -->
-            <Border Background="#1E293B" Padding="0" CornerRadius="10,10,0,0">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="1.2*"/>
-                        <ColumnDefinition Width="1.8*"/>
-                        <ColumnDefinition Width="1.5*"/>
-                        <ColumnDefinition Width="1.5*"/>
-                        <ColumnDefinition Width="90"/>
-                        <ColumnDefinition Width="1.4*"/>
-                        <ColumnDefinition Width="110"/>
-                        <ColumnDefinition Width="100"/>
-                    </Grid.ColumnDefinitions>
-
-                    <TextBlock Grid.Column="0" Text="REF #" FontSize="10" FontWeight="Bold" Foreground="White" Padding="12,10"/>
-                    <TextBlock Grid.Column="1" Text="COMPANY" FontSize="10" FontWeight="Bold" Foreground="White" Padding="10,10"/>
-                    <TextBlock Grid.Column="2" Text="CUSTOMER" FontSize="10" FontWeight="Bold" Foreground="White" Padding="10,10"/>
-                    <TextBlock Grid.Column="3" Text="PROJECT" FontSize="10" FontWeight="Bold" Foreground="White" Padding="10,10"/>
-                    <TextBlock Grid.Column="4" Text="STATUS" FontSize="10" FontWeight="Bold" Foreground="White" Padding="10,10" HorizontalAlignment="Center"/>
-                    <TextBlock Grid.Column="5" Text="GRAND TOTAL" FontSize="10" FontWeight="Bold" Foreground="White" Padding="10,10" HorizontalAlignment="Center"/>
-                    <TextBlock Grid.Column="6" Text="DATE" FontSize="10" FontWeight="Bold" Foreground="White" Padding="10,10"/>
-                    <TextBlock Grid.Column="7" Text="ACTION" FontSize="10" FontWeight="Bold" Foreground="White" Padding="10,10" HorizontalAlignment="Center"/>
-                </Grid>
+            <!-- ── HINT CARD — moved above table for visibility ───────── -->
+            <Border Background="#EEF2FF"
+                    CornerRadius="10"
+                    Padding="14,10"
+                    Margin="0,0,0,16"
+                    BorderThickness="1"
+                    BorderBrush="#C7D2FE"
+                    SnapsToDevicePixels="True">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE946;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="14"
+                               Foreground="#4338CA"
+                               VerticalAlignment="Center"
+                               Margin="0,0,10,0"/>
+                    <TextBlock Text="Right-click any row for more options: Duplicate, Export PDF/Excel, Change Status, Convert to Job Order, Delete"
+                               FontSize="12"
+                               FontWeight="SemiBold"
+                               Foreground="#4338CA"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
             </Border>
+        </StackPanel>
 
-            <!-- ═══════════════════ TABLE ROWS ═══════════════════ -->
-            <Border Background="{DynamicResource ModuleBackgroundBrush}" BorderThickness="1,0,1,1"
-                    BorderBrush="{DynamicResource MenuHoverBrush}" CornerRadius="0,0,10,10"
-                    Padding="4,4,4,8">
-                <StackPanel>
+        <!-- ═══════════════════════════════════════════════════════════
+             VIRTUALIZED TABLE — sticky column header + scrollable rows
+        ═══════════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="1"
+                Background="{DynamicResource ModuleBackgroundBrush}"
+                BorderThickness="1"
+                BorderBrush="{DynamicResource BorderBrush}"
+                CornerRadius="12"
+                Margin="24,0,24,16"
+                SnapsToDevicePixels="True">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-                    <!-- Empty state -->
-                    <StackPanel HorizontalAlignment="Center" Margin="0,50" Style="{StaticResource EmptyStateStyle}">
-                        <TextBlock Text="&#128203;" FontSize="48" HorizontalAlignment="Center"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}" Opacity="0.4"/>
+                <!-- ─── Sticky table column header ─── -->
+                <Border Grid.Row="0"
+                        Background="#4338CA"
+                        CornerRadius="12,12,0,0"
+                        SnapsToDevicePixels="True">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="1.2*"/>
+                            <ColumnDefinition Width="1.8*"/>
+                            <ColumnDefinition Width="1.5*"/>
+                            <ColumnDefinition Width="1.5*"/>
+                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="1.4*"/>
+                            <ColumnDefinition Width="120"/>
+                            <ColumnDefinition Width="110"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" Text="REF #"
+                                   FontSize="11" FontWeight="Bold"
+                                   Foreground="White" Padding="14,14"/>
+                        <TextBlock Grid.Column="1" Text="COMPANY"
+                                   FontSize="11" FontWeight="Bold"
+                                   Foreground="White" Padding="14,14"/>
+                        <TextBlock Grid.Column="2" Text="CUSTOMER"
+                                   FontSize="11" FontWeight="Bold"
+                                   Foreground="White" Padding="14,14"/>
+                        <TextBlock Grid.Column="3" Text="PROJECT"
+                                   FontSize="11" FontWeight="Bold"
+                                   Foreground="White" Padding="14,14"/>
+                        <TextBlock Grid.Column="4" Text="STATUS"
+                                   FontSize="11" FontWeight="Bold"
+                                   Foreground="White" Padding="14,14"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="5" Text="GRAND TOTAL"
+                                   FontSize="11" FontWeight="Bold"
+                                   Foreground="White" Padding="14,14"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="6" Text="DATE"
+                                   FontSize="11" FontWeight="Bold"
+                                   Foreground="White" Padding="14,14"/>
+                        <TextBlock Grid.Column="7" Text="ACTION"
+                                   FontSize="11" FontWeight="Bold"
+                                   Foreground="White" Padding="14,14"
+                                   HorizontalAlignment="Center"/>
+                    </Grid>
+                </Border>
+
+                <!-- ─── Table body ─── -->
+                <Grid Grid.Row="1">
+
+                    <!-- Loading overlay -->
+                    <StackPanel HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Margin="0,60"
+                                Visibility="{Binding IsLoading,
+                                             Converter={StaticResource BoolToVisibilityConverter}}">
+                        <TextBlock Text="&#xE895;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="36"
+                                   Foreground="#4338CA"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="Loading invoices..."
+                                   FontSize="12"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,12,0,0"/>
+                    </StackPanel>
+
+                    <!-- Empty state — overlaid on list -->
+                    <StackPanel HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Margin="0,40"
+                                IsHitTestVisible="False"
+                                Style="{StaticResource EmptyStateStyle}">
+                        <Border Width="72" Height="72"
+                                CornerRadius="36"
+                                Background="#EEF2FF"
+                                HorizontalAlignment="Center">
+                            <TextBlock Text="&#xE7C3;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="32"
+                                       Foreground="#4338CA"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
                         <TextBlock Text="No saved invoices found"
-                                   FontSize="16" FontWeight="Bold"
+                                   FontSize="16"
+                                   FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   HorizontalAlignment="Center" Margin="0,12,0,4"/>
-                        <TextBlock Text="Click '+ NEW INVOICE' above to create your first proforma invoice."
-                                   FontSize="11"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,16,0,6"/>
+                        <TextBlock Text="Click 'Add Invoice' above to create your first proforma invoice."
+                                   FontSize="12"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    HorizontalAlignment="Center"/>
                     </StackPanel>
 
-                    <!-- Rows -->
-                    <ItemsControl ItemsSource="{Binding FilteredItems}">
-                        <ItemsControl.ItemTemplate>
+                    <!-- Virtualized rows list -->
+                    <ListBox ItemsSource="{Binding FilteredItems}"
+                             ItemContainerStyle="{StaticResource InvoiceListBoxItemStyle}"
+                             BorderThickness="0"
+                             Background="Transparent"
+                             Focusable="False"
+                             Margin="4,4,4,8"
+                             ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                             ScrollViewer.VerticalScrollBarVisibility="Auto"
+                             ScrollViewer.CanContentScroll="True"
+                             ScrollViewer.IsDeferredScrollingEnabled="False"
+                             ScrollViewer.PanningMode="None"
+                             VirtualizingStackPanel.IsVirtualizing="True"
+                             VirtualizingStackPanel.VirtualizationMode="Recycling"
+                             VirtualizingStackPanel.ScrollUnit="Item"
+                             VirtualizingStackPanel.CacheLength="1,2"
+                             VirtualizingStackPanel.CacheLengthUnit="Page"
+                             behaviors:SmoothScrollBehavior.IsEnabled="True">
+                        <ListBox.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <VirtualizingStackPanel/>
+                            </ItemsPanelTemplate>
+                        </ListBox.ItemsPanel>
+                        <ListBox.ItemTemplate>
                             <DataTemplate>
                                 <Border Style="{StaticResource RowCardStyle}"
                                         MouseRightButtonUp="OnRowRightClick">
@@ -312,79 +562,116 @@
                                             <ColumnDefinition Width="1.8*"/>
                                             <ColumnDefinition Width="1.5*"/>
                                             <ColumnDefinition Width="1.5*"/>
-                                            <ColumnDefinition Width="90"/>
-                                            <ColumnDefinition Width="1.4*"/>
-                                            <ColumnDefinition Width="110"/>
                                             <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="1.4*"/>
+                                            <ColumnDefinition Width="120"/>
+                                            <ColumnDefinition Width="110"/>
                                         </Grid.ColumnDefinitions>
 
                                         <!-- REF # -->
-                                        <TextBlock Grid.Column="0" Text="{Binding ProformaId}"
-                                                   FontSize="12" FontWeight="Bold"
-                                                   Foreground="{DynamicResource AccentBrush}"
-                                                   Padding="12,10" VerticalAlignment="Center"/>
+                                        <TextBlock Grid.Column="0"
+                                                   Text="{Binding ProformaId}"
+                                                   FontSize="14"
+                                                   FontWeight="Bold"
+                                                   Foreground="#4338CA"
+                                                   Padding="14,14"
+                                                   VerticalAlignment="Center"/>
 
                                         <!-- COMPANY -->
-                                        <TextBlock Grid.Column="1" Text="{Binding CompanyName}"
-                                                   FontSize="11" TextTrimming="CharacterEllipsis"
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding CompanyName}"
+                                                   FontSize="12"
+                                                   TextTrimming="CharacterEllipsis"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                   Padding="10,10" VerticalAlignment="Center"/>
+                                                   Padding="14,14"
+                                                   VerticalAlignment="Center"/>
 
                                         <!-- CUSTOMER -->
-                                        <TextBlock Grid.Column="2" Text="{Binding CustomerName}"
-                                                   FontSize="11" TextTrimming="CharacterEllipsis"
+                                        <TextBlock Grid.Column="2"
+                                                   Text="{Binding CustomerName}"
+                                                   FontSize="12"
+                                                   TextTrimming="CharacterEllipsis"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                   Padding="10,10" VerticalAlignment="Center"/>
+                                                   Padding="14,14"
+                                                   VerticalAlignment="Center"/>
 
                                         <!-- PROJECT -->
-                                        <TextBlock Grid.Column="3" Text="{Binding ProjectName}"
-                                                   FontSize="11" TextTrimming="CharacterEllipsis"
+                                        <TextBlock Grid.Column="3"
+                                                   Text="{Binding ProjectName}"
+                                                   FontSize="12"
+                                                   TextTrimming="CharacterEllipsis"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   Padding="10,10" VerticalAlignment="Center"/>
+                                                   Padding="14,14"
+                                                   VerticalAlignment="Center"/>
 
                                         <!-- STATUS pill -->
                                         <Border Grid.Column="4"
                                                 Style="{StaticResource StatusPillStyle}"
                                                 VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding Status}" FontSize="9" FontWeight="Bold" Foreground="White"
+                                            <TextBlock Text="{Binding Status}"
+                                                       FontSize="10"
+                                                       FontWeight="Bold"
+                                                       Foreground="White"
                                                        HorizontalAlignment="Center"/>
                                         </Border>
 
-                                        <!-- GRAND TOTAL (centered, vibrant green) -->
-                                        <TextBlock Grid.Column="5" Text="{Binding GrandTotal, StringFormat=AED {0:N2}}"
-                                                   FontSize="12" FontWeight="Bold" Foreground="#22C55E"
-                                                   Padding="10,10" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        <!-- GRAND TOTAL -->
+                                        <TextBlock Grid.Column="5"
+                                                   Text="{Binding GrandTotal, StringFormat=AED {0:N2}}"
+                                                   FontSize="14"
+                                                   FontWeight="Bold"
+                                                   Foreground="#047857"
+                                                   Padding="14,14"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
 
                                         <!-- DATE -->
-                                        <TextBlock Grid.Column="6" Text="{Binding CreatedAt, StringFormat=yyyy-MM-dd}"
-                                                   FontSize="10"
+                                        <TextBlock Grid.Column="6"
+                                                   Text="{Binding CreatedAt, StringFormat=yyyy-MM-dd}"
+                                                   FontSize="12"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   Padding="10,10" VerticalAlignment="Center"/>
+                                                   Padding="14,14"
+                                                   VerticalAlignment="Center"/>
 
-                                        <!-- OPEN button (accent filled pill) -->
+                                        <!-- OPEN button -->
                                         <Button Grid.Column="7"
-                                                Command="{Binding DataContext.LoadInvoiceCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                Command="{Binding DataContext.LoadInvoiceCommand,
+                                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 ToolTip="Open &amp; Edit (right-click for more options)"
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
                                                 Cursor="Hand"
                                                 Background="Transparent"
-                                                BorderThickness="0">
+                                                BorderThickness="0"
+                                                Margin="8,0">
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="OpenBtnBg"
-                                                            Background="{DynamicResource AccentBrush}"
-                                                            CornerRadius="6"
-                                                            Padding="12,5">
+                                                            Background="#4338CA"
+                                                            CornerRadius="8"
+                                                            Padding="14,8"
+                                                            SnapsToDevicePixels="True">
                                                         <StackPanel Orientation="Horizontal">
-                                                            <TextBlock Text="📂" FontSize="11" Foreground="White" VerticalAlignment="Center" Margin="0,0,4,0"/>
-                                                            <TextBlock Text="OPEN" FontWeight="Bold" FontSize="10" Foreground="White" VerticalAlignment="Center"/>
+                                                            <TextBlock Text="&#xE8E5;"
+                                                                       FontFamily="Segoe MDL2 Assets"
+                                                                       FontSize="11"
+                                                                       Foreground="White"
+                                                                       VerticalAlignment="Center"
+                                                                       Margin="0,0,6,0"/>
+                                                            <TextBlock Text="OPEN"
+                                                                       FontWeight="Bold"
+                                                                       FontSize="11"
+                                                                       Foreground="White"
+                                                                       VerticalAlignment="Center"/>
                                                         </StackPanel>
                                                     </Border>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="OpenBtnBg" Property="Opacity" Value="0.85"/>
+                                                            <Setter TargetName="OpenBtnBg" Property="Background" Value="#6366F1"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsPressed" Value="True">
+                                                            <Setter TargetName="OpenBtnBg" Property="Background" Value="#3730A3"/>
                                                         </Trigger>
                                                     </ControlTemplate.Triggers>
                                                 </ControlTemplate>
@@ -393,25 +680,12 @@
                                     </Grid>
                                 </Border>
                             </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
+                        </ListBox.ItemTemplate>
+                    </ListBox>
 
-                </StackPanel>
-            </Border>
+                </Grid>
+            </Grid>
+        </Border>
 
-            <!-- Hint card -->
-            <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    CornerRadius="10" Padding="14,10" Margin="0,12,0,0"
-                    BorderThickness="1" BorderBrush="{DynamicResource MenuHoverBrush}">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="💡" FontSize="16" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <TextBlock Text="Right-click any row for more options: Duplicate, Export PDF/Excel, Change Status, Delete"
-                               FontSize="10"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               VerticalAlignment="Center"/>
-                </StackPanel>
-            </Border>
-
-        </StackPanel>
-    </ScrollViewer>
+    </Grid>
 </UserControl>

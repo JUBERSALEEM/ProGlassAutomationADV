@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Threading;
 
 namespace ProGlassAutomation.Behaviors
 {
@@ -138,13 +139,30 @@ namespace ProGlassAutomation.Behaviors
             int currentCol = idx % colsPerRow;
             int currentRow = idx / colsPerRow;
 
+            // ═══════════════════════════════════════════════════════════════
+            // VIRTUALIZATION-SAFE NAVIGATION (Chat 10 senior fix)
+            //
+            // When ListView virtualizes rows beyond viewport,
+            // FindAllTextBoxes returns only rendered rows. Nav to virtualized
+            // rows fails silently. Fix: if target is out of rendered range,
+            // ScrollIntoView + dispatcher tick + re-query + focus.
+            // ═══════════════════════════════════════════════════════════════
+
             switch (e.Key)
             {
                 case Key.Tab:
                     e.Handled = true;
                     int tabTarget = Keyboard.Modifiers == ModifierKeys.Shift ? idx - 1 : idx + 1;
                     if (tabTarget >= 0 && tabTarget < allBoxes.Count)
+                    {
                         FocusAndSelect(allBoxes[tabTarget]);
+                    }
+                    else
+                    {
+                        int targetRow = tabTarget / colsPerRow;
+                        int targetCol = tabTarget % colsPerRow;
+                        ScrollRowIntoViewAndFocus(container, targetRow, targetCol);
+                    }
                     break;
 
                 case Key.Enter:
@@ -155,6 +173,11 @@ namespace ProGlassAutomation.Behaviors
                     {
                         _anchorRow = currentRow + 1;
                         FocusAndSelect(allBoxes[enterIdx]);
+                    }
+                    else
+                    {
+                        _anchorRow = currentRow + 1;
+                        ScrollRowIntoViewAndFocus(container, currentRow + 1, anchorCol);
                     }
                     break;
 
@@ -170,14 +193,116 @@ namespace ProGlassAutomation.Behaviors
 
                 case Key.Down:
                     e.Handled = true;
-                    if (idx + colsPerRow < allBoxes.Count) FocusAndSelect(allBoxes[idx + colsPerRow]);
+                    if (idx + colsPerRow < allBoxes.Count)
+                    {
+                        FocusAndSelect(allBoxes[idx + colsPerRow]);
+                    }
+                    else
+                    {
+                        ScrollRowIntoViewAndFocus(container, currentRow + 1, currentCol);
+                    }
                     break;
 
                 case Key.Up:
                     e.Handled = true;
-                    if (idx - colsPerRow >= 0) FocusAndSelect(allBoxes[idx - colsPerRow]);
+                    if (idx - colsPerRow >= 0)
+                    {
+                        FocusAndSelect(allBoxes[idx - colsPerRow]);
+                    }
+                    else if (currentRow > 0)
+                    {
+                        ScrollRowIntoViewAndFocus(container, currentRow - 1, currentCol);
+                    }
                     break;
             }
+        }
+
+        /// <summary>
+        /// Virtualization-safe row navigation.
+        /// 
+        /// Handles both ListView (via ListView.ScrollIntoView) and ListBox
+        /// (via ListBox.ScrollIntoView). ItemsControl base class does NOT
+        /// have ScrollIntoView — must cast to concrete subclass.
+        /// 
+        /// STEPS:
+        ///   1. Find the ListView/ListBox containing the rows
+        ///   2. Get target item by index
+        ///   3. Call ScrollIntoView (concrete subclass method)
+        ///   4. Wait ONE dispatcher tick for container generation
+        ///   5. Find newly-created ListViewItem
+        ///   6. Query TextBoxes inside and focus target column
+        /// </summary>
+        private static void ScrollRowIntoViewAndFocus(
+            FrameworkElement container, int targetRow, int targetColumn)
+        {
+            var itemsControl = FindItemsControl(container);
+            if (itemsControl == null) return;
+
+            var items = itemsControl.Items;
+            if (targetRow < 0 || targetRow >= items.Count) return;
+
+            var targetItem = items[targetRow];
+
+            // Concrete subclass check — only ListBox/ListView have ScrollIntoView
+            if (itemsControl is ListBox listBox)
+            {
+                listBox.ScrollIntoView(targetItem);
+            }
+            else if (itemsControl is DataGrid dataGrid)
+            {
+                dataGrid.ScrollIntoView(targetItem);
+            }
+            else
+            {
+                // Fallback: use container generator's bring into view
+                if (itemsControl.ItemContainerGenerator
+                        .ContainerFromItem(targetItem) is FrameworkElement fe)
+                {
+                    fe.BringIntoView();
+                }
+                else
+                {
+                    // Container not yet generated — force via ScrollViewer manually
+                    // (rare edge case for pure ItemsControl with virtualization)
+                    return;
+                }
+            }
+
+            // Wait one dispatcher tick for container to materialize,
+            // then find and focus target TextBox
+            container.Dispatcher.BeginInvoke(new System.Action(() =>
+            {
+                var container2 = itemsControl.ItemContainerGenerator
+                    .ContainerFromItem(targetItem) as FrameworkElement;
+
+                if (container2 == null) return;
+
+                var textBoxes = FindAllTextBoxes(container2);
+                if (targetColumn >= 0 && targetColumn < textBoxes.Count)
+                    FocusAndSelect(textBoxes[targetColumn]);
+                else if (textBoxes.Count > 0)
+                    FocusAndSelect(textBoxes[0]);
+
+            }), DispatcherPriority.Loaded);
+        }
+
+        /// <summary>
+        /// Walks DOWN the visual tree to find the nearest ItemsControl
+        /// (ListView / ListBox / DataGrid / ItemsControl).
+        /// </summary>
+        private static ItemsControl FindItemsControl(DependencyObject parent)
+        {
+            if (parent is ItemsControl ic) return ic;
+
+            int count = VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < count; i++)
+            {
+                var child = VisualTreeHelper.GetChild(parent, i);
+                if (child is ItemsControl found) return found;
+                var deeper = FindItemsControl(child);
+                if (deeper != null) return deeper;
+            }
+            return null;
         }
 
         private static void FocusAndSelect(TextBox tb) { tb.Focus(); tb.SelectAll(); }

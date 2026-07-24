@@ -16,6 +16,9 @@
 
     <UserControl.Resources>
 
+        <!-- ═══════════════════════════════════════════════════════════════
+             VM → View mappings for the 4 sub-dashboards
+        ═══════════════════════════════════════════════════════════════ -->
         <DataTemplate DataType="{x:Type vm:OverviewDashboardViewModel}">
             <ov:OverviewDashboardView/>
         </DataTemplate>
@@ -29,10 +32,13 @@
             <jo:JoDashboardView/>
         </DataTemplate>
 
+        <!-- ═══════════════════════════════════════════════════════════════
+             TAB BUTTON — icon + label, hover + press + active states
+        ═══════════════════════════════════════════════════════════════ -->
         <Style x:Key="TabButtonStyle" TargetType="Button">
             <Setter Property="Background"      Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding"         Value="22,16"/>
+            <Setter Property="Padding"         Value="24,16"/>
             <Setter Property="Cursor"          Value="Hand"/>
             <Setter Property="FontSize"        Value="14"/>
             <Setter Property="FontFamily"      Value="Segoe UI"/>
@@ -41,7 +47,8 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="Transparent"
+                        <Border x:Name="Bg"
+                                Background="Transparent"
                                 Padding="{TemplateBinding Padding}">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{TemplateBinding Tag}"
@@ -58,8 +65,13 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background"
+                                        Value="{DynamicResource MenuHoverBrush}"/>
                                 <Setter TargetName="Label" Property="Foreground"
                                         Value="{DynamicResource PrimaryForegroundBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.75"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -69,17 +81,22 @@
 
     </UserControl.Resources>
 
-    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
         <Grid.RowDefinitions>
-            <RowDefinition Height="60"/>
             <RowDefinition Height="Auto"/>
+            <!-- Tab strip -->
             <RowDefinition Height="1"/>
+            <!-- Divider -->
             <RowDefinition Height="*"/>
+            <!-- Active sub-view -->
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="1"
+        <!-- ═══════════════════════════════════════════════════════════════
+             TAB STRIP
+        ═══════════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="0"
                 Background="{DynamicResource ModuleBackgroundBrush}"
-                Padding="20,0">
+                Padding="16,0">
             <ItemsControl ItemsSource="{Binding Pages}">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
@@ -94,6 +111,7 @@
                                 <RowDefinition Height="3"/>
                             </Grid.RowDefinitions>
 
+                            <!-- Tab button -->
                             <Button Grid.Row="0"
                                     Content="{Binding TabTitle}"
                                     Tag="{Binding TabIcon}"
@@ -124,6 +142,7 @@
                                 </Button.Style>
                             </Button>
 
+                            <!-- Active indicator bar -->
                             <Border Grid.Row="1" CornerRadius="2,2,0,0">
                                 <Border.Style>
                                     <Style TargetType="Border">
@@ -152,8 +171,10 @@
             </ItemsControl>
         </Border>
 
-        <Border Grid.Row="2" Background="{DynamicResource DividerBrush}"/>
+        <!-- Divider under tabs -->
+        <Border Grid.Row="1" Background="{DynamicResource BorderBrush}"/>
 
-        <ContentPresenter Grid.Row="3" Content="{Binding ActivePage}"/>
+        <!-- Active sub-dashboard -->
+        <ContentPresenter Grid.Row="2" Content="{Binding ActivePage}"/>
     </Grid>
 </UserControl>

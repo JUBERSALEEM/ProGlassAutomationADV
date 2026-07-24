@@ -30,8 +30,8 @@
             <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Padding" Value="8,4"/>
-            <Setter Property="Height" Value="28"/>
+            <Setter Property="Padding" Value="8,6"/>
+            <Setter Property="Height" Value="38"/>
             <Setter Property="MinWidth" Value="70"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
@@ -42,22 +42,23 @@
     <Border Background="{DynamicResource ModuleBackgroundBrush}"
             CornerRadius="12"
             Padding="24"
-            BorderThickness="2"
-            BorderBrush="{DynamicResource AccentBrush}">
+            BorderThickness="1"
+            BorderBrush="{DynamicResource BorderBrush}">
         <StackPanel>
 
-            <!-- Header -->
+            <!-- ═══ HEADER ═══ -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                 <Border Background="{DynamicResource AccentBrush}"
-                        Width="32" Height="32" CornerRadius="8"
+                        Width="40" Height="40" CornerRadius="8"
                         VerticalAlignment="Center">
                     <TextBlock Text="&#128176;"
-                               FontSize="16" Foreground="White"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                               FontSize="18" Foreground="White"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
                 </Border>
                 <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
                     <TextBlock Text="{Binding Title}"
-                               FontSize="14" FontWeight="Bold"
+                               FontSize="15" FontWeight="Bold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     <TextBlock Text="{Binding Subtitle}"
                                FontSize="10"
@@ -66,20 +67,25 @@
                 </StackPanel>
             </StackPanel>
 
-            <Border Background="{DynamicResource MenuHoverBrush}" Height="1" Margin="0,0,0,14"/>
+            <Border Background="{DynamicResource MenuHoverBrush}" Height="1" Margin="0,0,0,16"/>
 
             <!-- ═══ INCOMING FROM PREVIOUS STEPS ═══ -->
 
             <!-- Glass Materials Subtotal -->
-            <Grid Margin="0,0,0,10">
+            <Grid Margin="0,0,0,12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <TextBlock Text="&#128220;" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <TextBlock Text="Glass Materials Total (Ex VAT)" Style="{StaticResource LineLabelStyle}"/>
-                    <TextBlock Text=" — from Step 5 DataGrid" FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                    <TextBlock Text="&#128220;" FontSize="14"
+                               VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock Text="Glass Materials Total (Ex VAT)"
+                               Style="{StaticResource LineLabelStyle}"/>
+                    <TextBlock Text=" — from Step 5 DataGrid"
+                               FontSize="10"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               VerticalAlignment="Center" Margin="6,0,0,0"/>
                 </StackPanel>
                 <TextBlock Grid.Column="1"
                            Text="{Binding GlassMaterialsSubtotal, StringFormat=AED {0:N2}}"
@@ -87,22 +93,27 @@
             </Grid>
 
             <!-- Other Charges Subtotal -->
-            <Grid Margin="0,0,0,10">
+            <Grid Margin="0,0,0,12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0" Orientation="Horizontal">
-                    <TextBlock Text="&#128295;" FontSize="14" VerticalAlignment="Center" Margin="0,0,8,0"/>
-                    <TextBlock Text="Other Processing / Delivery Total" Style="{StaticResource LineLabelStyle}"/>
-                    <TextBlock Text=" — from Step 6 Other Charges" FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center" Margin="6,0,0,0"/>
+                    <TextBlock Text="&#128295;" FontSize="14"
+                               VerticalAlignment="Center" Margin="0,0,8,0"/>
+                    <TextBlock Text="Other Processing / Delivery Total"
+                               Style="{StaticResource LineLabelStyle}"/>
+                    <TextBlock Text=" — from Step 6 Other Charges"
+                               FontSize="10"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               VerticalAlignment="Center" Margin="6,0,0,0"/>
                 </StackPanel>
                 <TextBlock Grid.Column="1"
                            Text="{Binding OtherChargesSubtotal, StringFormat=AED {0:N2}}"
                            Style="{StaticResource LineValueStyle}"/>
             </Grid>
 
-            <Border Background="{DynamicResource MenuHoverBrush}" Height="1" Margin="0,4,0,10"/>
+            <Border Background="{DynamicResource MenuHoverBrush}" Height="1" Margin="0,4,0,12"/>
 
             <!-- Net Subtotal -->
             <Grid Margin="0,0,0,16">
@@ -110,21 +121,27 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Estimated Net Subtotal"
-                           FontSize="13" FontWeight="Bold"
+                <TextBlock Grid.Column="0"
+                           Text="Estimated Net Subtotal"
+                           FontSize="14" FontWeight="Bold"
                            Foreground="{DynamicResource AccentBrush}"
                            VerticalAlignment="Center"/>
                 <TextBlock Grid.Column="1"
                            Text="{Binding NetSubtotal, StringFormat=AED {0:N2}}"
-                           FontSize="13" FontWeight="Bold"
+                           FontSize="14" FontWeight="Bold"
                            Foreground="{DynamicResource AccentBrush}"
-                           HorizontalAlignment="Right"/>
+                           HorizontalAlignment="Right"
+                           VerticalAlignment="Center"/>
             </Grid>
 
             <!-- ═══ DISCOUNT INPUT ═══ -->
 
-            <Border Background="#151E2C" CornerRadius="8" Padding="14,10" Margin="0,0,0,12"
-                    BorderThickness="1" BorderBrush="{DynamicResource MenuHoverBrush}">
+            <Border Background="{DynamicResource MenuHoverBrush}"
+                    CornerRadius="8"
+                    Padding="14,10"
+                    Margin="0,0,0,12"
+                    BorderThickness="1"
+                    BorderBrush="{DynamicResource BorderBrush}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -144,7 +161,7 @@
                     <ComboBox Grid.Column="1"
                               ItemsSource="{Binding DiscountTypeOptions}"
                               SelectedItem="{Binding SelectedDiscountType}"
-                              Height="30"
+                              Height="38"
                               MaxWidth="140"
                               HorizontalAlignment="Left"
                               VerticalContentAlignment="Center"
@@ -159,17 +176,17 @@
                                FontSize="11" FontWeight="Bold"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                VerticalAlignment="Center"
-                               Margin="6,0,20,0"/>
+                               Margin="6,0,16,0"/>
 
                     <TextBlock Grid.Column="4"
                                Text="{Binding DiscountAmount, StringFormat=- AED {0:N2}}"
                                FontSize="12" FontWeight="Bold"
-                               Foreground="#EF4444"
+                               Foreground="#B91C1C"
                                VerticalAlignment="Center"/>
                 </Grid>
             </Border>
 
-            <Border Background="{DynamicResource MenuHoverBrush}" Height="1" Margin="0,4,0,10"/>
+            <Border Background="{DynamicResource MenuHoverBrush}" Height="1" Margin="0,4,0,12"/>
 
             <!-- Subtotal Before VAT -->
             <Grid Margin="0,0,0,16">
@@ -177,8 +194,10 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="Subtotal Before VAT"
-                           Style="{StaticResource LineLabelStyle}" FontWeight="SemiBold"/>
+                <TextBlock Grid.Column="0"
+                           Text="Subtotal Before VAT"
+                           Style="{StaticResource LineLabelStyle}"
+                           FontWeight="SemiBold"/>
                 <TextBlock Grid.Column="1"
                            Text="{Binding SubtotalBeforeVat, StringFormat=AED {0:N2}}"
                            Style="{StaticResource LineValueStyle}"/>
@@ -186,8 +205,12 @@
 
             <!-- ═══ VAT INPUT ═══ -->
 
-            <Border Background="#151E2C" CornerRadius="8" Padding="14,10" Margin="0,0,0,12"
-                    BorderThickness="1" BorderBrush="{DynamicResource MenuHoverBrush}">
+            <Border Background="{DynamicResource MenuHoverBrush}"
+                    CornerRadius="8"
+                    Padding="14,10"
+                    Margin="0,0,0,12"
+                    BorderThickness="1"
+                    BorderBrush="{DynamicResource BorderBrush}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -211,7 +234,7 @@
                                VerticalAlignment="Center"
                                Margin="0,0,10,0"/>
 
-                    <TextBlock Grid.Column="2" Text=""/>
+                    <!-- Spacer column — no TextBlock needed -->
 
                     <TextBox Grid.Column="3"
                              Text="{Binding VatPercent, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"
@@ -223,12 +246,12 @@
                                FontSize="11" FontWeight="Bold"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                VerticalAlignment="Center"
-                               Margin="6,0,20,0"/>
+                               Margin="6,0,16,0"/>
 
                     <TextBlock Grid.Column="5"
                                Text="{Binding VatAmount, StringFormat=+ AED {0:N2}}"
                                FontSize="12" FontWeight="Bold"
-                               Foreground="#22C55E"
+                               Foreground="#047857"
                                VerticalAlignment="Center"/>
                 </Grid>
             </Border>
@@ -236,30 +259,33 @@
             <!-- ═══ GRAND TOTAL BAND ═══ -->
 
             <Border Background="{DynamicResource AccentBrush}"
-                    CornerRadius="10"
+                    CornerRadius="12"
                     Padding="20,16"
-                    Margin="0,8,0,0">
+                    Margin="0,12,0,0">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
+
                     <TextBlock Grid.Column="0"
                                Text="&#128142;"
                                FontSize="22"
                                Foreground="White"
                                VerticalAlignment="Center"
                                Margin="0,0,12,0"/>
+
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="TOTAL EST VALUE"
-                                   FontSize="12" FontWeight="Bold"
+                                   FontSize="13" FontWeight="Bold"
                                    Foreground="White" Opacity="0.9"/>
                         <TextBlock Text="(VAT Inclusive)"
                                    FontSize="10"
                                    Foreground="White" Opacity="0.7"
                                    Margin="0,2,0,0"/>
                     </StackPanel>
+
                     <TextBlock Grid.Column="2"
                                Text="{Binding GrandTotalVatInclusive, StringFormat=AED {0:N2}}"
                                FontSize="20" FontWeight="Bold"

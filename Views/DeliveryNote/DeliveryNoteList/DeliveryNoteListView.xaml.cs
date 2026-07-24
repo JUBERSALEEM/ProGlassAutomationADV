@@ -50,13 +50,77 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
                 _tabButtons[i].Style = i == newIndex ? activeStyle : inactiveStyle;
         }
 
-        // ─────────────────────────────────────────────────────────────────
-        //  Phase 10.5c — Single left-click on a DN row selects it.
-        //  Selection updates VM.SelectedRow → hero cards swap to that
-        //  DN's stats (Ordered/Delivered/Balance/Driver+Vehicle+Date+Time).
-        //  Clicking the OPEN button still opens detail view (button
-        //  handles its own click and marks event handled).
-        // ─────────────────────────────────────────────────────────────────
+        // ═════════════════════════════════════════════════════════════════
+        //  Ship 8b — JO GROUP ROW HANDLERS (new)
+        //
+        //  The 5 main tabs (All / Prepared / Delivered / Rework / Returned)
+        //  now show per-JO group rows instead of per-DN rows. Left click
+        //  opens the LATEST split DN in the family via OpenGroupCommand.
+        //  Right click shows a JO-level context menu.
+        //
+        //  The Pending Qty tab (index 3) is unchanged — it's already
+        //  per-JO by design and uses its own template with its own row VM.
+        // ═════════════════════════════════════════════════════════════════
+
+        private void OnGroupRowLeftClick(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is not FrameworkElement element) return;
+            if (element.DataContext is not JobOrderGroupRowViewModel group) return;
+            if (DataContext is not DeliveryNoteListViewModel vm) return;
+
+            // Ignore clicks that originated on a Button inside the row
+            if (e.OriginalSource is DependencyObject dep)
+            {
+                if (FindAncestor<Button>(dep) != null) return;
+            }
+
+            vm.OpenGroupCommand.Execute(group);
+            e.Handled = true;
+        }
+
+        private void OnGroupRowRightClick(object sender, MouseButtonEventArgs e)
+        {
+            if (sender is not FrameworkElement element) return;
+            if (element.DataContext is not JobOrderGroupRowViewModel group) return;
+            if (DataContext is not DeliveryNoteListViewModel vm) return;
+
+            var menu = new ContextMenu();
+
+            var openItem = new MenuItem
+            {
+                Header = $"📂  Open latest DN ({group.LatestDnId})"
+            };
+            openItem.Click += (_, __) => vm.OpenGroupCommand.Execute(group);
+            menu.Items.Add(openItem);
+
+            menu.Items.Add(new Separator());
+
+            var masterInvItem = new MenuItem
+            {
+                Header = "🧾  Generate Master Tax Invoice",
+                IsEnabled = group.AllDelivered
+            };
+            masterInvItem.Click += (_, __) =>
+                vm.GenerateMasterInvoiceCommand.Execute(group);
+            if (!group.AllDelivered)
+            {
+                masterInvItem.ToolTip =
+                    "Available only when every split DN is Delivered / Signed / Received.";
+            }
+            menu.Items.Add(masterInvItem);
+
+            menu.IsOpen = true;
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  DEPRECATED — per-DN row handlers (Ship 8b transition)
+        //
+        //  These were used by DnRowTemplate before Ship 8b moved the 5
+        //  main tabs to per-JO grouping. Kept for now in case any code
+        //  path still references them via XAML, and as a safety fallback.
+        //
+        //  Safe to delete AFTER confirming no XAML uses DnRowTemplate.
+        // ═════════════════════════════════════════════════════════════════
 
         private void OnRowLeftClick(object sender, MouseButtonEventArgs e)
         {
@@ -64,8 +128,6 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             if (element.DataContext is not DeliveryNoteRowViewModel row) return;
             if (DataContext is not DeliveryNoteListViewModel vm) return;
 
-            // Ignore clicks that originated on the OPEN button (bubbling)
-            // — if the source is inside a Button, let the button handle it.
             if (e.OriginalSource is DependencyObject dep)
             {
                 if (FindAncestor<Button>(dep) != null) return;
@@ -73,17 +135,6 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
 
             vm.SelectRowCommand.Execute(row);
             e.Handled = true;
-        }
-
-        private static T? FindAncestor<T>(DependencyObject current)
-            where T : DependencyObject
-        {
-            while (current != null)
-            {
-                if (current is T t) return t;
-                current = System.Windows.Media.VisualTreeHelper.GetParent(current);
-            }
-            return null;
         }
 
         private void OnRowRightClick(object sender, MouseButtonEventArgs e)
@@ -121,6 +172,17 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             menu.Items.Add(deleteItem);
 
             menu.IsOpen = true;
+        }
+
+        private static T? FindAncestor<T>(DependencyObject current)
+            where T : DependencyObject
+        {
+            while (current != null)
+            {
+                if (current is T t) return t;
+                current = System.Windows.Media.VisualTreeHelper.GetParent(current);
+            }
+            return null;
         }
     }
 }

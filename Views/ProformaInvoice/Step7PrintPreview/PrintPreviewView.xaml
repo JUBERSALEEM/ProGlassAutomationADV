@@ -3,24 +3,35 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:summary="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview.InvoiceMainSummary"
              xmlns:terms="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview.TermsAndConditions"
              xmlns:printable="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview.PrintableInvoice"
              mc:Ignorable="d"
              d:DesignHeight="900" d:DesignWidth="1200"
-             FontFamily="Segoe UI">
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
 
     <UserControl.Resources>
+
+        <!-- ══════════════════════════════════════════════════════════════
+             GHOST TOOLBAR BUTTON — outlined, indigo on hover
+        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="ToolbarButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource MenuHoverBrush}"/>
-            <Setter Property="Padding" Value="14,7"/>
-            <Setter Property="Margin" Value="0,0,8,0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground"      Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="Padding"         Value="16,0"/>
+            <Setter Property="Margin"          Value="0,0,8,0"/>
+            <Setter Property="Height"          Value="38"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="FontSize"        Value="11"/>
+            <Setter Property="FontWeight"      Value="Bold"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -28,13 +39,22 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="#4338CA"/>
+                                <Setter TargetName="Bg" Property="Background"  Value="#EEF2FF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="#E0E7FF"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.4"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -42,153 +62,349 @@
             </Setter>
         </Style>
 
-        <Style x:Key="PrimaryToolbarButtonStyle" TargetType="Button" BasedOn="{StaticResource ToolbarButtonStyle}">
-            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+        <!-- ══════════════════════════════════════════════════════════════
+             PRIMARY TOOLBAR BUTTON — deep indigo fill (Print action)
+        ══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="PrimaryToolbarButtonStyle" TargetType="Button">
+            <Setter Property="Background"      Value="#4338CA"/>
+            <Setter Property="Foreground"      Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding"         Value="18,0"/>
+            <Setter Property="Margin"          Value="0,0,8,0"/>
+            <Setter Property="Height"          Value="38"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="FontSize"        Value="11"/>
+            <Setter Property="FontWeight"      Value="Bold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="#6366F1"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="#3730A3"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
+
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Auto"
-                  Padding="0,0,8,0">
+                  HorizontalScrollBarVisibility="Disabled"
+                  Padding="24,20,24,20"
+                  Background="Transparent"
+                  Focusable="True"
+                  FocusVisualStyle="{x:Null}"
+                  PanningMode="None"
+                  CanContentScroll="False"
+                  IsDeferredScrollingEnabled="False"
+                  behaviors:SmoothScrollBehavior.IsEnabled="True">
         <StackPanel>
 
-            <!-- Header -->
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
-                <Border Background="{DynamicResource AccentBrush}"
-                        Width="30" Height="30" CornerRadius="6"
+            <!-- ══════════════════════════════════════════════════════════
+                 STEP HEADER
+            ══════════════════════════════════════════════════════════ -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <Border Background="#4338CA"
+                        Width="44" Height="44"
+                        CornerRadius="12"
                         VerticalAlignment="Center">
-                    <TextBlock Text="&#128220;" FontSize="15" Foreground="White"
-                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="12"
+                                          ShadowDepth="2"
+                                          Direction="270"
+                                          Color="#4338CA"
+                                          Opacity="0.30"/>
+                    </Border.Effect>
+                    <!-- Segoe MDL2 document / preview icon -->
+                    <TextBlock Text="&#xE8A5;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="20"
+                               Foreground="White"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
                 </Border>
-                <TextBlock Text="{Binding Title}"
-                           FontSize="15" FontWeight="Bold"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                           VerticalAlignment="Center" Margin="10,0,0,0"/>
-            </StackPanel>
-            <TextBlock Text="{Binding Subtitle}"
-                       FontSize="11"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                       Margin="0,0,0,12" TextWrapping="Wrap"/>
-            <Border Background="{DynamicResource MenuHoverBrush}" Height="1" Margin="0,0,0,14"/>
 
-            <!-- ============================================================
-                 TOOLBAR — Print / Save / PDF / Excel / CSV / Email
-            ============================================================ -->
+                <StackPanel VerticalAlignment="Center" Margin="16,0,0,0">
+                    <TextBlock Text="{Binding Title}"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    <TextBlock Text="{Binding Subtitle}"
+                               FontSize="12"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Margin="0,4,0,0"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+            </StackPanel>
+
+            <!-- Divider -->
+            <Border Background="{DynamicResource BorderBrush}"
+                    Height="1"
+                    Margin="0,16,0,20"/>
+
+            <!-- ══════════════════════════════════════════════════════════
+                 INVOICE ACTIONS TOOLBAR
+            ══════════════════════════════════════════════════════════ -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    CornerRadius="8" Padding="14,10" Margin="0,0,0,16"
-                    BorderThickness="1" BorderBrush="{DynamicResource MenuHoverBrush}">
+                    CornerRadius="12"
+                    Padding="20"
+                    Margin="0,0,0,16"
+                    BorderThickness="1"
+                    BorderBrush="{DynamicResource BorderBrush}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                        <TextBlock Text="INVOICE ACTIONS" FontSize="10" FontWeight="Bold"
-                                   Foreground="{DynamicResource AccentBrush}"/>
-                        <TextBlock Text="Print, save, and export invoice in multiple formats"
-                                   FontSize="10" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,2,0,0"/>
+                    <!-- Left: title with icon badge -->
+                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                        <Border Background="#EEF2FF"
+                                Width="34" Height="34"
+                                CornerRadius="10"
+                                VerticalAlignment="Center"
+                                Margin="0,0,12,0">
+                            <TextBlock Text="&#xE945;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="14"
+                                       Foreground="#4338CA"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Invoice Actions"
+                                       FontSize="14"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            <TextBlock Text="Print, save and export invoice in multiple formats"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       Margin="0,2,0,0"/>
+                        </StackPanel>
                     </StackPanel>
 
-                    <WrapPanel Grid.Column="1">
+                    <!-- Right: action buttons -->
+                    <WrapPanel Grid.Column="1" VerticalAlignment="Center">
 
+                        <!-- PRINT — primary indigo pill -->
                         <Button Style="{StaticResource PrimaryToolbarButtonStyle}"
                                 Command="{Binding PrintableInvoice.PrintCommand}"
                                 ToolTip="Print the invoice preview (also usable as Print to PDF)">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="&#128424;" FontSize="14" Margin="0,0,6,0"/>
-                                <TextBlock Text="PRINT"/>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE749;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="13"
+                                           Foreground="White"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,8,0"/>
+                                <TextBlock Text="PRINT"
+                                           VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
+                        <!-- SAVE -->
                         <Button Style="{StaticResource ToolbarButtonStyle}"
                                 Command="{Binding PrintableInvoice.SaveInvoiceCommand}"
                                 ToolTip="Save invoice to database">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="&#128190;" FontSize="14" Margin="0,0,6,0"/>
-                                <TextBlock Text="SAVE"/>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE74E;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="13"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,8,0"/>
+                                <TextBlock Text="SAVE"
+                                           VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
+                        <!-- PDF -->
                         <Button Style="{StaticResource ToolbarButtonStyle}"
                                 Command="{Binding PrintableInvoice.ExportPdfCommand}"
                                 ToolTip="Export invoice as branded PDF file">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="&#128196;" FontSize="14" Margin="0,0,6,0"/>
-                                <TextBlock Text="PDF"/>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="&#xEA90;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="13"
+                                           Foreground="#B91C1C"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,8,0"/>
+                                <TextBlock Text="PDF"
+                                           VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
+                        <!-- EXCEL -->
                         <Button Style="{StaticResource ToolbarButtonStyle}"
                                 Command="{Binding PrintableInvoice.ExportExcelCommand}"
                                 ToolTip="Export invoice data as Excel spreadsheet (.xlsx)">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="&#128202;" FontSize="14" Margin="0,0,6,0"/>
-                                <TextBlock Text="EXCEL"/>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE9F9;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="13"
+                                           Foreground="#047857"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,8,0"/>
+                                <TextBlock Text="EXCEL"
+                                           VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
+                        <!-- CSV -->
                         <Button Style="{StaticResource ToolbarButtonStyle}"
                                 Command="{Binding PrintableInvoice.ExportCsvCommand}"
                                 ToolTip="Export glass panel data as CSV file (.csv)">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="&#128203;" FontSize="14" Margin="0,0,6,0"/>
-                                <TextBlock Text="CSV"/>
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE8A5;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="13"
+                                           Foreground="#1E40AF"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,8,0"/>
+                                <TextBlock Text="CSV"
+                                           VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
+                        <!-- EMAIL — coming soon indication -->
                         <Button Style="{StaticResource ToolbarButtonStyle}"
                                 Command="{Binding PrintableInvoice.SendEmailCommand}"
                                 ToolTip="Coming in Phase 7.20"
-                                Margin="0">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="&#9993;" FontSize="14" Margin="0,0,6,0"/>
-                                <TextBlock Text="EMAIL"/>
+                                Margin="0"
+                                Opacity="0.55">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <TextBlock Text="&#xE715;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="13"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,8,0"/>
+                                <TextBlock Text="EMAIL"
+                                           VerticalAlignment="Center"/>
+                                <Border Background="#FEF3C7"
+                                        CornerRadius="8"
+                                        Padding="6,2"
+                                        Margin="8,0,0,0"
+                                        VerticalAlignment="Center">
+                                    <TextBlock Text="SOON"
+                                               FontSize="9"
+                                               FontWeight="Bold"
+                                               Foreground="#B45309"/>
+                                </Border>
                             </StackPanel>
                         </Button>
                     </WrapPanel>
                 </Grid>
             </Border>
 
-            <!-- ============================================================
+            <!-- ══════════════════════════════════════════════════════════
                  PHASE 7.14 — TERMS & CONDITIONS EDITOR
-            ============================================================ -->
+            ══════════════════════════════════════════════════════════ -->
             <terms:TermsAndConditionsView DataContext="{Binding Terms}"
                                           Margin="0,0,0,16"/>
 
-            <!-- ============================================================
+            <!-- ══════════════════════════════════════════════════════════
                  PHASE 7.12 — INVOICE MAIN SUMMARY (editable card)
-            ============================================================ -->
+            ══════════════════════════════════════════════════════════ -->
             <summary:InvoiceMainSummaryView DataContext="{Binding InvoiceMainSummary}"/>
 
-            <!-- ============================================================
+            <!-- ══════════════════════════════════════════════════════════
                  PHASE 7.13 — PRINTABLE A4 PAPER PREVIEW
-            ============================================================ -->
-            <Border Background="#374151" CornerRadius="8" Padding="30,20" Margin="0,20,0,0">
+                 Dark gray backdrop simulates "paper on desk" feel
+                 Works in both themes as neutral surface
+            ══════════════════════════════════════════════════════════ -->
+            <Border Background="#374151"
+                    CornerRadius="12"
+                    Padding="40,32"
+                    Margin="0,16,0,0">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="20"
+                                      ShadowDepth="4"
+                                      Direction="270"
+                                      Color="Black"
+                                      Opacity="0.20"/>
+                </Border.Effect>
+
                 <StackPanel>
-                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,0,0,20">
-                        <TextBlock Text="&#128196;" FontSize="16" Foreground="White" Margin="0,0,8,0"/>
-                        <TextBlock Text="A4 INVOICE PREVIEW" FontSize="11" FontWeight="Bold" Foreground="White"/>
-                        <TextBlock Text=" • Live from all wizard steps" FontSize="10" Foreground="#9CA3AF" Margin="6,1,0,0"/>
+
+                    <!-- A4 preview header — white text on dark backdrop -->
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                Margin="0,0,0,24">
+                        <Border Background="#4B5563"
+                                Width="30" Height="30"
+                                CornerRadius="8"
+                                VerticalAlignment="Center"
+                                Margin="0,0,10,0">
+                            <TextBlock Text="&#xE8A5;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="14"
+                                       Foreground="White"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="A4 Invoice Preview"
+                                   FontSize="13"
+                                   FontWeight="Bold"
+                                   Foreground="White"
+                                   VerticalAlignment="Center"/>
+                        <Border Background="#4B5563"
+                                CornerRadius="10"
+                                Padding="8,3"
+                                Margin="12,0,0,0"
+                                VerticalAlignment="Center">
+                            <TextBlock Text="LIVE FROM ALL WIZARD STEPS"
+                                       FontSize="9"
+                                       FontWeight="Bold"
+                                       Foreground="#D1D5DB"/>
+                        </Border>
                     </StackPanel>
 
+                    <!-- Actual A4 printable preview -->
                     <printable:PrintableInvoiceView DataContext="{Binding PrintableInvoice}"
                                                     HorizontalAlignment="Center"/>
                 </StackPanel>
             </Border>
 
-            <!-- Phase status note -->
-            <Border Background="{DynamicResource MenuHoverBrush}"
-                    CornerRadius="6" Padding="12,8"
-                    Margin="0,20,0,20" HorizontalAlignment="Left">
-                <TextBlock FontSize="10"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                           TextWrapping="Wrap">
-                    <Run FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">Phase 7.19 complete.</Run>
-                    <Run>All invoice actions functional: Print, Save, Export PDF, Export Excel, Export CSV. Loading handled from the Invoice List page.</Run>
-                </TextBlock>
+            <!-- ══════════════════════════════════════════════════════════
+                 PHASE STATUS NOTE
+            ══════════════════════════════════════════════════════════ -->
+            <Border Background="#EEF2FF"
+                    BorderBrush="#C7D2FE"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="14,10"
+                    Margin="0,16,0,20"
+                    HorizontalAlignment="Left">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE930;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="14"
+                               Foreground="#4338CA"
+                               VerticalAlignment="Center"
+                               Margin="0,0,10,0"/>
+                    <TextBlock FontSize="11"
+                               Foreground="#4338CA"
+                               TextWrapping="Wrap"
+                               VerticalAlignment="Center">
+                        <Run FontWeight="Bold">Phase 7.19 complete.</Run>
+                        <Run>All invoice actions functional: Print, Save, Export PDF, Export Excel, Export CSV. Loading handled from the Invoice List page.</Run>
+                    </TextBlock>
+                </StackPanel>
             </Border>
 
         </StackPanel>

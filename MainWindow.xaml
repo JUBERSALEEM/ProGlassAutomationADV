@@ -30,7 +30,12 @@
         WindowStartupLocation="CenterScreen"
         FontFamily="Segoe UI"
         Icon="pack://application:,,,/favicon.ico"
-        Background="{DynamicResource WindowBackgroundBrush}">
+        Background="{DynamicResource WindowBackgroundBrush}"
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextRenderingMode="ClearType"
+        TextOptions.TextHintingMode="Fixed"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True">
 
     <Window.DataContext>
         <vm:MainViewModel/>
@@ -90,28 +95,32 @@
             <viewsReports:SalesReportView/>
         </DataTemplate>
 
-        <!-- ============ FLOATING BUTTON ============ -->
-        <Style x:Key="FloatingButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="50"/>
-            <Setter Property="Height" Value="50"/>
-            <Setter Property="Background" Value="{DynamicResource OverlayButtonBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource OverlayButtonForegroundBrush}"/>
-            <Setter Property="FontSize" Value="22"/>
+        <!-- ============ TOP BAR ICON BUTTON ============ -->
+        <Style x:Key="TopBarIconButtonStyle" TargetType="Button">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="FontSize" Value="18"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="25">
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.35" Color="Black"/>
-                            </Border.Effect>
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="8">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Opacity" Value="0.9"/>
+                                <Setter TargetName="border" Property="Background"
+                                        Value="{DynamicResource MenuHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.75"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -123,33 +132,38 @@
         <Style x:Key="SidebarGroupHeaderStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="10"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-            <Setter Property="Margin" Value="22,18,0,8"/>
-            <Setter Property="Opacity" Value="0.8"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Margin" Value="22,20,0,8"/>
         </Style>
 
         <ControlTemplate x:Key="SidebarItemTemplate" TargetType="Button">
-            <Border x:Name="border" Background="{TemplateBinding Background}" CornerRadius="10" Padding="18,0">
+            <Border x:Name="border"
+                    Background="{TemplateBinding Background}"
+                    CornerRadius="8"
+                    Padding="16,0">
                 <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="{TemplateBinding Tag}" FontSize="15"
+                    <TextBlock Text="{TemplateBinding Tag}"
+                               FontSize="15"
                                VerticalAlignment="Center"
                                Foreground="{DynamicResource AccentBrush}"/>
-                    <TextBlock Text="{TemplateBinding Content}" Margin="14,0,0,0"
-                               FontSize="13" FontWeight="Medium"
+                    <TextBlock Text="{TemplateBinding Content}"
+                               Margin="14,0,0,0"
+                               FontSize="13" FontWeight="SemiBold"
                                VerticalAlignment="Center"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                 </StackPanel>
             </Border>
             <ControlTemplate.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter TargetName="border" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                    <Setter TargetName="border" Property="Background"
+                            Value="{DynamicResource MenuHoverBrush}"/>
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
 
         <Style x:Key="SidebarItemStyle" TargetType="Button">
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Margin" Value="10,2,10,2"/>
+            <Setter Property="Margin" Value="10,3,10,3"/>
             <Setter Property="Height" Value="40"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
@@ -357,235 +371,487 @@
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- ============ SETTINGS SECTION HEADER ============ -->
+        <Style x:Key="SettingsSectionHeaderStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+        </Style>
+
+        <!-- ============ SETTINGS SECONDARY BUTTON ============ -->
+        <Style x:Key="SettingsSecondaryButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                CornerRadius="8"
+                                Padding="16,0">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="BorderBrush"
+                                        Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ============ SETTINGS PRIMARY BUTTON ============ -->
+        <Style x:Key="SettingsPrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="border"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="16,0">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </Window.Resources>
 
     <Grid>
-        <!-- Current module -->
-        <ContentControl Content="{Binding CurrentViewModel}"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="56"/>
+            <!-- Top Bar -->
+            <RowDefinition Height="*"/>
+            <!-- Module Content -->
+        </Grid.RowDefinitions>
 
-        <!-- Dim overlay -->
-        <Rectangle Fill="Black" Opacity="0.4"
-                   MouseLeftButtonDown="DimOverlay_MouseLeftButtonDown">
-            <Rectangle.Style>
-                <Style TargetType="Rectangle">
-                    <Setter Property="Visibility" Value="Collapsed"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsMenuOpen}" Value="True">
-                            <Setter Property="Visibility" Value="Visible"/>
-                        </DataTrigger>
-                        <DataTrigger Binding="{Binding IsSettingsOpen}" Value="True">
-                            <Setter Property="Visibility" Value="Visible"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Rectangle.Style>
-        </Rectangle>
-
-        <!-- ============ LEFT DRAWER (GROUPED MENU) ============ -->
-        <Border Width="290"
-                HorizontalAlignment="Left"
+        <!-- ══════════════════════════════════════════════════════
+             TOP BAR
+        ══════════════════════════════════════════════════════ -->
+        <Border Grid.Row="0"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
-                CornerRadius="0,18,18,0"
-                Panel.ZIndex="10">
-            <Border.Style>
-                <Style TargetType="Border">
-                    <Setter Property="Visibility" Value="Collapsed"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsMenuOpen}" Value="True">
-                            <Setter Property="Visibility" Value="Visible"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Border.Style>
+                BorderThickness="0,0,0,1"
+                BorderBrush="{DynamicResource BorderBrush}"
+                Panel.ZIndex="50">
+            <Border.Effect>
+                <DropShadowEffect BlurRadius="8" ShadowDepth="2"
+                                  Opacity="0.15" Color="Black" Direction="270"/>
+            </Border.Effect>
 
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
+                    <!-- Hamburger -->
+                    <ColumnDefinition Width="Auto"/>
+                    <!-- Logo + Brand -->
+                    <ColumnDefinition Width="Auto"/>
+                    <!-- Module Badge -->
+                    <ColumnDefinition Width="*"/>
+                    <!-- Spacer -->
+                    <ColumnDefinition Width="Auto"/>
+                    <!-- Settings + Info -->
                 </Grid.ColumnDefinitions>
 
-                <ScrollViewer x:Name="MenuScrollViewer"
-                              Grid.Column="0"
-                              VerticalScrollBarVisibility="Hidden"
-                              HorizontalScrollBarVisibility="Disabled"
-                              CanContentScroll="False"
-                              ScrollChanged="MenuScrollViewer_ScrollChanged">
-                    <StackPanel Margin="0,80,0,20">
+                <!-- Hamburger -->
+                <Button Grid.Column="0"
+                        Style="{StaticResource TopBarIconButtonStyle}"
+                        Content="&#9776;"
+                        Command="{Binding ToggleMenuCommand}"
+                        ToolTip="Menu"
+                        Margin="12,0,4,0"/>
 
-                        <!-- MAIN -->
-                        <TextBlock Text="MAIN" Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                        <Button Style="{StaticResource SidebarItemStyle}" Content="Dashboard" Tag="&#128200;"
-                                Command="{Binding NavigateCommand}" CommandParameter="Dashboard"/>
+                <!-- Custom Logo + Brand Wordmark -->
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            Margin="8,0,0,0">
 
-                        <!-- INVENTORY -->
-                        <TextBlock Text="INVENTORY" Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                        <Button Style="{StaticResource SidebarItemStyle}" Content="Sheet Store" Tag="&#128230;"
-                                Command="{Binding NavigateCommand}" CommandParameter="SheetStore"/>
+                    <!-- Custom Vector Logo: Glass Diamond with Automation Spark -->
+                    <Grid Width="36" Height="36" VerticalAlignment="Center">
+                        <Grid.Effect>
+                            <DropShadowEffect BlurRadius="8" ShadowDepth="0"
+                                              Opacity="0.35" Color="#4338CA"/>
+                        </Grid.Effect>
 
-                        <!-- SALES & REPORTS -->
-                        <TextBlock Text="SALES &amp; REPORTS" Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                        <Button Style="{StaticResource SidebarItemStyle}" Content="Proforma Invoice" Tag="&#128221;"
-                                Command="{Binding NavigateCommand}" CommandParameter="ProformaInvoice"/>
-                        <Button Style="{StaticResource SidebarItemStyle}" Content="Job Order" Tag="&#128203;"
-                                Command="{Binding NavigateCommand}" CommandParameter="JobOrder"/>
-                        <Button Style="{StaticResource SidebarItemStyle}" Content="Optimization" Tag="&#9881;"
-                                Command="{Binding NavigateCommand}" CommandParameter="Optimization"/>
-                        <Button Style="{StaticResource SidebarItemStyle}" Content="Sales Report" Tag="&#128202;"
-                                Command="{Binding NavigateCommand}" CommandParameter="SalesReport"/>
+                        <!-- Rounded gradient background tile -->
+                        <Border CornerRadius="8">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#4338CA" Offset="0"/>
+                                    <GradientStop Color="#6366F1" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                        </Border>
 
-                        <!-- PRODUCTION -->
-                        <TextBlock Text="PRODUCTION" Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                        <Button Style="{StaticResource SidebarItemStyle}" Content="Cutting" Tag="&#9986;"
-                                Command="{Binding NavigateCommand}" CommandParameter="Cutting"/>
-                        <Button Style="{StaticResource SidebarItemStyle}" Content="Holes &amp; Cutouts" Tag="&#128371;"
-                                Command="{Binding NavigateCommand}" CommandParameter="HolesCutouts"/>
-                        <Button Style="{StaticResource SidebarItemStyle}" Content="Polish" Tag="&#10024;"
-                                Command="{Binding NavigateCommand}" CommandParameter="Polish"/>
-                        <Button Style="{StaticResource SidebarItemStyle}" Content="Edge Deletion" Tag="&#128208;"
-                                Command="{Binding NavigateCommand}" CommandParameter="EdgeDeletion"/>
-                        <Button Style="{StaticResource SidebarItemStyle}" Content="Mitring" Tag="&#128314;"
-                                Command="{Binding NavigateCommand}" CommandParameter="Mitring"/>
-                        <Button Style="{StaticResource SidebarItemStyle}" Content="Tempering" Tag="&#128293;"
-                                Command="{Binding NavigateCommand}" CommandParameter="Tempering"/>
+                        <!-- Diamond/glass shape (rotated square) -->
+                        <Path Stroke="White"
+                              StrokeThickness="1.8"
+                              Fill="#33FFFFFF"
+                              Data="M 18,7 L 27,18 L 18,29 L 9,18 Z"
+                              StrokeLineJoin="Round"/>
 
-                        <!-- DISPATCH -->
-                        <TextBlock Text="DISPATCH" Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                        <Button Style="{StaticResource SidebarItemStyle}" Content="Pairing" Tag="&#128279;"
-                                Command="{Binding NavigateCommand}" CommandParameter="Pairing"/>
-                        <Button Style="{StaticResource SidebarItemStyle}" Content="Doubling / Lamination" Tag="&#128218;"
-                                Command="{Binding NavigateCommand}" CommandParameter="DoublingLamination"/>
-                        <Button Style="{StaticResource SidebarItemStyle}" Content="Delivery Note" Tag="&#128666;"
-                                Command="{Binding NavigateCommand}" CommandParameter="DeliveryNote"/>
-                        <Button Style="{StaticResource SidebarItemStyle}" Content="Tax Invoice" Tag="&#129534;"
-                                Command="{Binding NavigateCommand}" CommandParameter="TaxInvoice"/>
+                        <!-- Inner facet lines for glass effect -->
+                        <Path Stroke="White"
+                              StrokeThickness="1"
+                              Opacity="0.8"
+                              Data="M 18,7 L 18,29 M 9,18 L 27,18"
+                              StrokeLineJoin="Round"/>
 
+                        <!-- Automation spark (top-right accent dot) -->
+                        <Ellipse Width="5" Height="5"
+                                 Fill="#10B981"
+                                 HorizontalAlignment="Right"
+                                 VerticalAlignment="Top"
+                                 Margin="0,3,3,0">
+                            <Ellipse.Effect>
+                                <DropShadowEffect BlurRadius="4" ShadowDepth="0"
+                                                  Opacity="0.9" Color="#10B981"/>
+                            </Ellipse.Effect>
+                        </Ellipse>
+                    </Grid>
+
+                    <!-- Brand Wordmark -->
+                    <StackPanel VerticalAlignment="Center" Margin="10,0,0,0">
+                        <TextBlock Text="PROGLASS"
+                                   FontSize="15"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text="AUTOMATION"
+                                   FontSize="9"
+                                   FontWeight="SemiBold"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   VerticalAlignment="Center"
+                                   Margin="0,-2,0,0"/>
                     </StackPanel>
-                </ScrollViewer>
+                </StackPanel>
 
-                <Slider x:Name="ScrollSlider"
-                        Grid.Column="1"
-                        Style="{StaticResource GlassyVerticalSliderStyle}"
-                        Margin="4,80,10,20"
-                        Minimum="0"
-                        Maximum="1"
-                        SmallChange="0.05"
-                        LargeChange="0.15"
-                        ValueChanged="ScrollSlider_ValueChanged"/>
+                <!-- Module Badge -->
+                <Border Grid.Column="2"
+                        Background="#047857"
+                        CornerRadius="12"
+                        Padding="12,4"
+                        VerticalAlignment="Center"
+                        Margin="20,0,0,0">
+                    <TextBlock Text="MODULE"
+                               FontSize="11"
+                               FontWeight="Bold"
+                               Foreground="White"
+                               VerticalAlignment="Center"/>
+                </Border>
+
+                <!-- Right side: Settings gear + Info -->
+                <StackPanel Grid.Column="4"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center"
+                            Margin="0,0,8,0">
+                    <Button Style="{StaticResource TopBarIconButtonStyle}"
+                            Content="&#9881;"
+                            FontSize="20"
+                            Command="{Binding ToggleSettingsCommand}"
+                            ToolTip="Settings"
+                            Margin="0,0,4,0"/>
+                    <Button Style="{StaticResource TopBarIconButtonStyle}"
+                            Content="&#8505;"
+                            FontSize="20"
+                            Command="{Binding ShowAboutCommand}"
+                            ToolTip="About"
+                            Margin="0,0,4,0"/>
+                </StackPanel>
             </Grid>
         </Border>
 
-        <!-- ============ RIGHT DRAWER (SETTINGS) ============ -->
-        <Border Width="300"
-                HorizontalAlignment="Right"
-                Background="{DynamicResource SideMenuBackgroundBrush}"
-                Panel.ZIndex="10">
-            <Border.Style>
-                <Style TargetType="Border">
-                    <Setter Property="Visibility" Value="Collapsed"/>
-                    <Style.Triggers>
-                        <DataTrigger Binding="{Binding IsSettingsOpen}" Value="True">
-                            <Setter Property="Visibility" Value="Visible"/>
-                        </DataTrigger>
-                    </Style.Triggers>
-                </Style>
-            </Border.Style>
+        <!-- ══════════════════════════════════════════════════════
+             MAIN CONTENT AREA (below top bar)
+        ══════════════════════════════════════════════════════ -->
+        <Grid Grid.Row="1">
 
-            <ScrollViewer VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled">
-                <StackPanel Margin="20,80,20,20">
-                    <TextBlock Text="SETTINGS" FontSize="12" FontWeight="Bold"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               Margin="0,0,0,20"/>
+            <!-- Current module -->
+            <Border Background="{DynamicResource ModuleBackgroundBrush}">
+                <ContentControl Content="{Binding CurrentViewModel}"/>
+            </Border>
 
-                    <!-- ============ APPEARANCE ============ -->
-                    <TextBlock Text="APPEARANCE" FontSize="10" FontWeight="Bold"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               Opacity="0.7" Margin="0,0,0,10"/>
-                    <DockPanel Margin="0,0,0,16">
-                        <TextBlock Text="Dark Mode" FontSize="14" VerticalAlignment="Center"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <ToggleButton HorizontalAlignment="Right"
-                                      IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
-                                      Style="{StaticResource ModernToggleSwitch}"/>
-                    </DockPanel>
+            <!-- Dim overlay -->
+            <Rectangle Fill="Black" Opacity="0.45"
+                       MouseLeftButtonDown="DimOverlay_MouseLeftButtonDown">
+                <Rectangle.Style>
+                    <Style TargetType="Rectangle">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsMenuOpen}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                            <DataTrigger Binding="{Binding IsSettingsOpen}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Rectangle.Style>
+            </Rectangle>
 
-                    <Separator Margin="0,4,0,16" Opacity="0.3"/>
+            <!-- ============ LEFT DRAWER (GROUPED MENU) ============ -->
+            <Border Width="290"
+                    HorizontalAlignment="Left"
+                    Background="{DynamicResource SideMenuBackgroundBrush}"
+                    CornerRadius="0,16,16,0"
+                    Panel.ZIndex="10">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="24" ShadowDepth="4"
+                                      Opacity="0.2" Color="Black" Direction="0"/>
+                </Border.Effect>
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsMenuOpen}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
 
-                    <!-- ============ AI ASSISTANT ============ -->
-                    <TextBlock Text="AI ASSISTANT" FontSize="10" FontWeight="Bold"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               Opacity="0.7" Margin="0,0,0,10"/>
-                    <DockPanel Margin="0,0,0,14">
-                        <TextBlock Text="Enable AI" FontSize="14" VerticalAlignment="Center"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <ToggleButton HorizontalAlignment="Right"
-                                      IsChecked="{Binding IsAiEnabled, Mode=TwoWay}"
-                                      Style="{StaticResource ModernToggleSwitch}"/>
-                    </DockPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-                    <TextBlock Text="Gemini API Key" FontSize="12"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               Margin="0,0,0,4"/>
-                    <PasswordBox x:Name="ApiKeyBox"
-                                 Height="32" FontSize="12" Padding="8,6"
-                                 PasswordChanged="ApiKeyBox_PasswordChanged"
-                                 Background="{DynamicResource MenuHoverBrush}"
-                                 Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                 BorderThickness="1"
-                                 BorderBrush="{DynamicResource MenuHoverBrush}"/>
+                    <ScrollViewer x:Name="MenuScrollViewer"
+                                  Grid.Column="0"
+                                  VerticalScrollBarVisibility="Hidden"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  CanContentScroll="False"
+                                  ScrollChanged="MenuScrollViewer_ScrollChanged">
+                        <StackPanel Margin="0,20,0,20">
 
-                    <TextBlock Text="Get free key at aistudio.google.com"
-                               FontSize="10" FontStyle="Italic"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               Margin="0,4,0,10"/>
+                            <!-- ─── MAIN ─── -->
+                            <TextBlock Text="MAIN" Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                            <Button Style="{StaticResource SidebarItemStyle}" Content="Dashboard" Tag="&#128200;"
+                                    Command="{Binding NavigateCommand}" CommandParameter="Dashboard"/>
 
-                    <Button Content="Test Connection"
-                            Height="32" FontSize="12"
-                            Background="{DynamicResource MenuHoverBrush}"
-                            Foreground="{DynamicResource PrimaryForegroundBrush}"
-                            BorderThickness="0" Cursor="Hand"
-                            Command="{Binding TestAiConnectionCommand}"/>
+                            <!-- ─── INVENTORY ─── -->
+                            <TextBlock Text="INVENTORY" Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                            <Button Style="{StaticResource SidebarItemStyle}" Content="Sheet Store" Tag="&#128230;"
+                                    Command="{Binding NavigateCommand}" CommandParameter="SheetStore"/>
 
-                    <TextBlock Text="{Binding AiTestStatus}"
-                               FontSize="11"
-                               TextWrapping="Wrap"
-                               Foreground="{DynamicResource AccentBrush}"
-                               Margin="0,8,0,0"/>
+                            <!-- ─── SALES & REPORTS ─── -->
+                            <TextBlock Text="SALES &amp; REPORTS" Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                            <Button Style="{StaticResource SidebarItemStyle}" Content="Proforma Invoice" Tag="&#128221;"
+                                    Command="{Binding NavigateCommand}" CommandParameter="ProformaInvoice"/>
+                            <Button Style="{StaticResource SidebarItemStyle}" Content="Job Order" Tag="&#128203;"
+                                    Command="{Binding NavigateCommand}" CommandParameter="JobOrder"/>
+                            <Button Style="{StaticResource SidebarItemStyle}" Content="Optimization" Tag="&#9881;"
+                                    Command="{Binding NavigateCommand}" CommandParameter="Optimization"/>
+                            <Button Style="{StaticResource SidebarItemStyle}" Content="Sales Report" Tag="&#128202;"
+                                    Command="{Binding NavigateCommand}" CommandParameter="SalesReport"/>
 
-                    <Separator Margin="0,20" Opacity="0.3"/>
+                            <!-- ─── PRODUCTION ─── -->
+                            <TextBlock Text="PRODUCTION" Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                            <Button Style="{StaticResource SidebarItemStyle}" Content="Cutting" Tag="&#9986;"
+                                    Command="{Binding NavigateCommand}" CommandParameter="Cutting"/>
+                            <Button Style="{StaticResource SidebarItemStyle}" Content="Holes &amp; Cutouts" Tag="&#128371;"
+                                    Command="{Binding NavigateCommand}" CommandParameter="HolesCutouts"/>
+                            <Button Style="{StaticResource SidebarItemStyle}" Content="Polish" Tag="&#10024;"
+                                    Command="{Binding NavigateCommand}" CommandParameter="Polish"/>
+                            <Button Style="{StaticResource SidebarItemStyle}" Content="Edge Deletion" Tag="&#128208;"
+                                    Command="{Binding NavigateCommand}" CommandParameter="EdgeDeletion"/>
+                            <Button Style="{StaticResource SidebarItemStyle}" Content="Mitring" Tag="&#128314;"
+                                    Command="{Binding NavigateCommand}" CommandParameter="Mitring"/>
+                            <Button Style="{StaticResource SidebarItemStyle}" Content="Tempering" Tag="&#128293;"
+                                    Command="{Binding NavigateCommand}" CommandParameter="Tempering"/>
 
-                    <Button Content="Close Settings" Height="40"
-                            Background="{DynamicResource AccentBrush}" Foreground="White"
-                            BorderThickness="0" Cursor="Hand"
-                            Command="{Binding ToggleSettingsCommand}"/>
-                </StackPanel>
-            </ScrollViewer>
-        </Border>
+                            <!-- ─── DISPATCH ─── -->
+                            <TextBlock Text="DISPATCH" Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                            <Button Style="{StaticResource SidebarItemStyle}" Content="Pairing" Tag="&#128279;"
+                                    Command="{Binding NavigateCommand}" CommandParameter="Pairing"/>
+                            <Button Style="{StaticResource SidebarItemStyle}" Content="Doubling / Lamination" Tag="&#128218;"
+                                    Command="{Binding NavigateCommand}" CommandParameter="DoublingLamination"/>
+                            <Button Style="{StaticResource SidebarItemStyle}" Content="Delivery Note" Tag="&#128666;"
+                                    Command="{Binding NavigateCommand}" CommandParameter="DeliveryNote"/>
+                            <Button Style="{StaticResource SidebarItemStyle}" Content="Tax Invoice" Tag="&#129534;"
+                                    Command="{Binding NavigateCommand}" CommandParameter="TaxInvoice"/>
 
-        <!-- Hamburger -->
-        <Button Style="{StaticResource FloatingButtonStyle}"
-                HorizontalAlignment="Left" VerticalAlignment="Top"
-                Margin="15" Content="&#9776;"
-                Command="{Binding ToggleMenuCommand}"
-                ToolTip="Menu" Panel.ZIndex="100"/>
+                        </StackPanel>
+                    </ScrollViewer>
 
-        <!-- Logo + Info -->
-        <StackPanel Orientation="Horizontal"
-                    HorizontalAlignment="Right" VerticalAlignment="Top"
-                    Margin="15" Panel.ZIndex="100">
-            <Button Style="{StaticResource FloatingButtonStyle}"
-                    Width="90" Content="ProGlass" FontSize="13"
-                    Command="{Binding ToggleSettingsCommand}"
-                    ToolTip="Settings" Margin="0,0,10,0"/>
-            <Button Style="{StaticResource FloatingButtonStyle}"
-                    Content="&#8505;" FontSize="24"
-                    Command="{Binding ShowAboutCommand}"
-                    ToolTip="About"/>
-        </StackPanel>
+                    <Slider x:Name="ScrollSlider"
+                            Grid.Column="1"
+                            Style="{StaticResource GlassyVerticalSliderStyle}"
+                            Margin="4,20,10,20"
+                            Minimum="0"
+                            Maximum="1"
+                            SmallChange="0.05"
+                            LargeChange="0.15"
+                            ValueChanged="ScrollSlider_ValueChanged"/>
+                </Grid>
+            </Border>
 
-        <!-- ============ AI CHAT (floating button + panel) — TOP-MOST ============ -->
-        <viewsAi:AiChatView DataContext="{Binding AiChatVM}"
-                            Panel.ZIndex="200"/>
+            <!-- ============ RIGHT DRAWER (SETTINGS) ============ -->
+            <Border Width="320"
+                    HorizontalAlignment="Right"
+                    Background="{DynamicResource SideMenuBackgroundBrush}"
+                    CornerRadius="16,0,0,16"
+                    Panel.ZIndex="10">
+                <Border.Effect>
+                    <DropShadowEffect BlurRadius="24" ShadowDepth="4"
+                                      Opacity="0.2" Color="Black" Direction="180"/>
+                </Border.Effect>
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsSettingsOpen}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="24,24,24,24">
+
+                        <!-- Settings Title -->
+                        <TextBlock Text="SETTINGS"
+                                   FontSize="14" FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   Margin="0,0,0,24"/>
+
+                        <!-- ═══ APPEARANCE SECTION ═══ -->
+                        <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                                CornerRadius="12"
+                                Padding="16"
+                                Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="APPEARANCE"
+                                           Style="{StaticResource SettingsSectionHeaderStyle}"/>
+                                <DockPanel>
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="☀" FontSize="16"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Dark Mode"
+                                                   FontSize="14"
+                                                   FontWeight="SemiBold"
+                                                   VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    </StackPanel>
+                                    <ToggleButton HorizontalAlignment="Right"
+                                                  IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
+                                                  Style="{StaticResource ModernToggleSwitch}"/>
+                                </DockPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- ═══ AI ASSISTANT SECTION ═══ -->
+                        <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                                CornerRadius="12"
+                                Padding="16"
+                                Margin="0,0,0,16">
+                            <StackPanel>
+                                <TextBlock Text="AI ASSISTANT"
+                                           Style="{StaticResource SettingsSectionHeaderStyle}"/>
+
+                                <!-- Enable AI toggle -->
+                                <DockPanel Margin="0,0,0,16">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <TextBlock Text="🤖" FontSize="16"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                        <TextBlock Text="Enable AI"
+                                                   FontSize="14"
+                                                   FontWeight="SemiBold"
+                                                   VerticalAlignment="Center"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    </StackPanel>
+                                    <ToggleButton HorizontalAlignment="Right"
+                                                  IsChecked="{Binding IsAiEnabled, Mode=TwoWay}"
+                                                  Style="{StaticResource ModernToggleSwitch}"/>
+                                </DockPanel>
+
+                                <!-- API Key -->
+                                <TextBlock Text="GEMINI API KEY"
+                                           FontSize="11" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                           Margin="0,0,0,6"/>
+                                <PasswordBox x:Name="ApiKeyBox"
+                                             Height="38"
+                                             FontSize="12"
+                                             Padding="10,8"
+                                             PasswordChanged="ApiKeyBox_PasswordChanged"
+                                             Background="{DynamicResource MenuHoverBrush}"
+                                             Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                             BorderThickness="1"
+                                             BorderBrush="{DynamicResource BorderBrush}"/>
+
+                                <TextBlock Text="Get free key at aistudio.google.com"
+                                           FontSize="10" FontStyle="Italic"
+                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                           Margin="0,6,0,12"/>
+
+                                <!-- Test Connection -->
+                                <Button Content="TEST CONNECTION"
+                                        Style="{StaticResource SettingsSecondaryButtonStyle}"
+                                        Command="{Binding TestAiConnectionCommand}"
+                                        Margin="0,0,0,8"/>
+
+                                <TextBlock Text="{Binding AiTestStatus}"
+                                           FontSize="11"
+                                           FontWeight="SemiBold"
+                                           TextWrapping="Wrap"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           Margin="0,4,0,0"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- ═══ CLOSE SETTINGS ═══ -->
+                        <Button Content="CLOSE SETTINGS"
+                                Style="{StaticResource SettingsPrimaryButtonStyle}"
+                                Command="{Binding ToggleSettingsCommand}"
+                                Margin="0,8,0,0"/>
+
+                    </StackPanel>
+                </ScrollViewer>
+            </Border>
+
+            <!-- ============ AI CHAT (floating button + panel) — TOP-MOST ============ -->
+            <viewsAi:AiChatView DataContext="{Binding AiChatVM}"
+                                 Panel.ZIndex="200"/>
+
+        </Grid>
 
     </Grid>
 </Window>

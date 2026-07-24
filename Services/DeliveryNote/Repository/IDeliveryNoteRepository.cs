@@ -16,6 +16,14 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
     /// Phase 10.6b: Added GetAttachmentCountAsync for per-sibling counts.
     /// Phase 10.7 : Added GetPreviouslyDeliveredMapAsync for self-healing
     ///              PREV column — always fresh from confirmed sibling DNs.
+    /// Phase 10.8b: DeliveryHistoryEntry now carries cumulative timeline
+    ///              (OrderedQty, CumulativePrevQty, CumulativeBalanceQty)
+    ///              so DN detail history feed can show master-DN pattern:
+    ///                DN-05: Ordered:500  Prev:60  This DN:20  Balance:420
+    /// Ship 8c-2  : Added GetSqmSummariesByJobOrderAsync — batch SQM
+    ///              aggregation per JO for the list view. Uses SqmCalculator
+    ///              (0.5 m² min per panel). Enables per-JO group rows to
+    ///              show TotalOrderedSqm / TotalDeliveredSqm / TotalBalanceSqm.
     /// </summary>
     public interface IDeliveryNoteRepository
     {
@@ -57,6 +65,25 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         /// </summary>
         Task<Dictionary<string, int>> GetPreviouslyDeliveredMapAsync(
             string jobOrderId, string excludeDnId);
+
+        // ── Ship 8c-2 — SQM aggregation ─────────────────────────────────
+
+        /// <summary>
+        /// Batch-computes SQM aggregates per Job Order.
+        /// Uses SqmCalculator (0.5 m² minimum per panel).
+        ///
+        /// Math (matches GetPendingQtyJobsAsync qty pattern):
+        ///   OrderedSqm   = Σ (Max(OrderedQty)   × panelSqm) per unique item
+        ///   DeliveredSqm = Σ (Sum(DeliveredQty) × panelSqm) per unique item
+        ///   BalanceSqm   = Max(0, OrderedSqm − DeliveredSqm)
+        ///
+        /// Returns dictionary keyed by JobOrderId. JO IDs not present in
+        /// the input list are absent from the result (empty dict for empty input).
+        ///
+        /// Ship 8c-2 (Chat 11).
+        /// </summary>
+        Task<Dictionary<string, JobOrderSqmSummary>> GetSqmSummariesByJobOrderAsync(
+            IEnumerable<string> jobOrderIds);
 
         // ── Numbering ────────────────────────────────────────────────────
 
@@ -118,6 +145,27 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         public System.Collections.Generic.List<DeliveryHistoryEntry> Entries { get; set; } = new();
     }
 
+    /// <summary>
+    /// One row in the DN detail history feed.
+    ///
+    /// LEGACY FIELDS (kept for backward compat):
+    ///   DeliveredQty   — pcs delivered by THIS DN
+    ///   BalanceQty     — per-DN snapshot from SavedDeliveryNote (unreliable
+    ///                    across siblings due to Gotcha #40; display only)
+    ///
+    /// PHASE 10.8b — CUMULATIVE TIMELINE FIELDS:
+    ///   OrderedQty           — total JO ordered (same across all rows)
+    ///   CumulativePrevQty    — sum of DeliveredQty from all DNs with
+    ///                          sequence < this DN's sequence
+    ///   CumulativeBalanceQty — OrderedQty − CumulativePrevQty − DeliveredQty
+    ///                          (balance remaining AFTER this DN)
+    ///   SequenceNumber       — this DN's position in the delivery chain
+    ///
+    /// This lets the DN detail history feed show the master-DN pattern:
+    ///   DN-01: Ordered:500  Prev:0    This DN:12  Balance:488
+    ///   DN-02: Ordered:500  Prev:12   This DN:16  Balance:472
+    ///   DN-03: Ordered:500  Prev:28   This DN:25  Balance:447
+    /// </summary>
     public class DeliveryHistoryEntry
     {
         public string DeliveryNoteId { get; set; } = "";
@@ -127,5 +175,30 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         public int BalanceQty { get; set; }
         public System.DateTime DeliveryDate { get; set; }
         public string DriverName { get; set; } = "";
+
+        // Phase 10.8b — cumulative timeline
+        public int OrderedQty { get; set; }
+        public int CumulativePrevQty { get; set; }
+        public int CumulativeBalanceQty { get; set; }
+        public int SequenceNumber { get; set; }
+    }
+
+    // ═════════════════════════════════════════════════════════════════════
+    //  SHIP 8c-2 — Aggregated SQM per Job Order
+    //
+    //  Returned by DeliveryNoteRepository.GetSqmSummariesByJobOrderAsync,
+    //  consumed by DeliveryNoteListViewModel to populate SQM columns on
+    //  per-JO group rows in the delivery notes list view.
+    //
+    //  All values are in m² (square meters), rounded to 3 decimal places.
+    //  Panel-level SQM uses SqmCalculator with a 0.5 m² minimum floor
+    //  (UAE glass industry standard).
+    // ═════════════════════════════════════════════════════════════════════
+
+    public class JobOrderSqmSummary
+    {
+        public decimal OrderedSqm { get; set; }
+        public decimal DeliveredSqm { get; set; }
+        public decimal BalanceSqm { get; set; }
     }
 }

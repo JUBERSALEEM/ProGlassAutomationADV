@@ -1,6 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Services.DeliveryNote.Database;
+using ProGlassAutomation.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -21,6 +22,14 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
     ///              Added GetPreviouslyDeliveredMapAsync for self-healing PREV.
     ///              ToListItem now maps TotalPreviouslyDeliveredQty,
     ///              TaxInvoiceId, HasTaxInvoice (Improvements 6 + 7).
+    /// Phase 10.8b: GetDeliveryHistoryAsync now builds cumulative timeline
+    ///              (OrderedQty, CumulativePrevQty, CumulativeBalanceQty)
+    ///              per entry so DN detail history feed shows master-DN
+    ///              pattern instead of just per-DN qty.
+    /// Ship 8c-2  : GetSqmSummariesByJobOrderAsync — batch SQM aggregation
+    ///              per Job Order for the list view. Uses SqmCalculator
+    ///              (0.5 m² minimum per panel). Correct MAX/SUM math
+    ///              matching GetPendingQtyJobsAsync pattern.
     /// </summary>
     public class DeliveryNoteRepository : IDeliveryNoteRepository
     {
@@ -188,7 +197,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             // TotalOrdered   = sum of max OrderedQty per unique (SpecGroup, Serial).
             // TotalDelivered = sum of all DeliveredQty across every sibling DN.
             // TotalBalance   = Math.Max(0, TotalOrdered − TotalDelivered).
-            // NEVER sum per-DN BalanceQty — those are snapshots and double-count.
 
             var itemGroups = items
                 .GroupBy(i => new { i.SpecGroupNumber, i.SerialNumber })
@@ -208,19 +216,34 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 TotalReturned = items.Sum(i => i.ReturnedQty)
             };
 
+            // Phase 10.8b — cumulative timeline
+            int runningPrevTotal = 0;
+
             foreach (var dn in dns)
             {
                 var dnItems = items.Where(i => i.DeliveryNoteId == dn.DeliveryNoteId);
+                int thisDnDelivered = dnItems.Sum(i => i.DeliveredQty);
+
+                int cumulativePrev = runningPrevTotal;
+                int cumulativeBalanceAfter = Math.Max(0,
+                    totalOrdered - cumulativePrev - thisDnDelivered);
+
                 summary.Entries.Add(new DeliveryHistoryEntry
                 {
                     DeliveryNoteId = dn.DeliveryNoteId,
                     DeliveryType = dn.DeliveryType,
                     Status = dn.Status,
-                    DeliveredQty = dnItems.Sum(i => i.DeliveredQty),
-                    BalanceQty = dn.TotalBalanceQty, // per-DN snapshot (display only)
+                    DeliveredQty = thisDnDelivered,
+                    BalanceQty = dn.TotalBalanceQty,
                     DeliveryDate = dn.DeliveryDate,
-                    DriverName = dn.DriverName
+                    DriverName = dn.DriverName,
+                    SequenceNumber = dn.SequenceNumber,
+                    OrderedQty = totalOrdered,
+                    CumulativePrevQty = cumulativePrev,
+                    CumulativeBalanceQty = cumulativeBalanceAfter
                 });
+
+                runningPrevTotal += thisDnDelivered;
             }
 
             return summary;
@@ -231,7 +254,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             int specGroupNumber,
             int serialNumber)
         {
-            // Kept for backward compatibility — JobOrderDetailViewModel calls this.
             using var ctx = new DeliveryNotesDbContext();
 
             var confirmedDnIds = await ctx.DeliveryNotes
@@ -255,7 +277,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         {
             using var ctx = new DeliveryNotesDbContext();
 
-            // Get IDs of all confirmed sibling DNs, excluding current DN
             var confirmedDnIds = await ctx.DeliveryNotes
                 .Where(x => x.JobOrderId == jobOrderId
                          && x.Status != "Draft"
@@ -266,13 +287,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             if (confirmedDnIds.Count == 0)
                 return new Dictionary<string, int>();
 
-            // Load all items from those confirmed siblings
             var items = await ctx.DeliveryNoteItems
                 .Where(i => confirmedDnIds.Contains(i.DeliveryNoteId)
                          && i.JobOrderId == jobOrderId)
                 .ToListAsync();
 
-            // Group by item key and sum delivered qty
             var map = items
                 .GroupBy(i => $"{i.SpecGroupNumber}|{i.SerialNumber}")
                 .ToDictionary(
@@ -280,6 +299,75 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                     g => g.Sum(i => i.DeliveredQty));
 
             return map;
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  SHIP 8c-2 — SQM aggregation per Job Order (batch)
+        //
+        //  Called by DeliveryNoteListViewModel once per list load.
+        //  Returns aggregated SQM for every JO in the input list.
+        //
+        //  Math (matches GetPendingQtyJobsAsync pattern):
+        //    OrderedSqm   = Σ (Max(OrderedQty)  × panelSqm) per unique item
+        //    DeliveredSqm = Σ (Sum(DeliveredQty) × panelSqm) per unique item
+        //    BalanceSqm   = Max(0, OrderedSqm − DeliveredSqm)
+        //
+        //  panelSqm uses SqmCalculator (0.5 m² floor per panel).
+        //
+        //  "Unique item" = (SpecGroupNumber, SerialNumber) — same panel
+        //  can appear in multiple split DNs; we group them per JO.
+        // ══════════════════════════════════════════════════════════════════
+        public async Task<Dictionary<string, JobOrderSqmSummary>>
+            GetSqmSummariesByJobOrderAsync(IEnumerable<string> jobOrderIds)
+        {
+            var idList = jobOrderIds.ToList();
+            if (idList.Count == 0)
+                return new Dictionary<string, JobOrderSqmSummary>();
+
+            using var ctx = new DeliveryNotesDbContext();
+
+            var items = await ctx.DeliveryNoteItems
+                .Where(i => i.JobOrderId != null
+                         && idList.Contains(i.JobOrderId))
+                .ToListAsync();
+
+            var result = new Dictionary<string, JobOrderSqmSummary>();
+
+            var joGroups = items.GroupBy(i => i.JobOrderId!);
+
+            foreach (var joGroup in joGroups)
+            {
+                var uniqueItems = joGroup
+                    .GroupBy(i => new { i.SpecGroupNumber, i.SerialNumber });
+
+                decimal orderedSqm = 0m;
+                decimal deliveredSqm = 0m;
+
+                foreach (var itemGroup in uniqueItems)
+                {
+                    // All rows in this group are the same panel (W1/H1 identical).
+                    var first = itemGroup.First();
+                    decimal panelSqm = SqmCalculator.CalculatePanel(first.W1, first.H1);
+
+                    // OrderedQty replicated across splits → MAX
+                    int maxOrdered = itemGroup.Max(i => i.OrderedQty);
+                    // DeliveredQty is per-split partial → SUM
+                    int totalDelivered = itemGroup.Sum(i => i.DeliveredQty);
+
+                    orderedSqm += panelSqm * maxOrdered;
+                    deliveredSqm += panelSqm * totalDelivered;
+                }
+
+                result[joGroup.Key!] = new JobOrderSqmSummary
+                {
+                    OrderedSqm = Math.Round(orderedSqm, 3),
+                    DeliveredSqm = Math.Round(deliveredSqm, 3),
+                    BalanceSqm = Math.Round(
+                        Math.Max(0m, orderedSqm - deliveredSqm), 3)
+                };
+            }
+
+            return result;
         }
 
         // ── Numbering ────────────────────────────────────────────────────
@@ -325,8 +413,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 .ToListAsync();
             ctx.DeliveryNoteItems.RemoveRange(existingItems);
 
-            // Phase 10.6 — Attachments are managed independently.
-            // Do NOT wipe them on regular Save.
             entity.Attachments.Clear();
 
             ctx.DeliveryNotes.Update(entity);
@@ -421,7 +507,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
             var dict = raw.ToDictionary(x => x.Id, x => x.Count);
 
-            // Ensure zero-count DN IDs are present in the result too
             foreach (var id in idList)
                 if (!dict.ContainsKey(id))
                     dict[id] = 0;
@@ -448,14 +533,12 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 TotalOrderedQty = e.TotalOrderedQty,
                 TotalDeliveredQty = e.TotalDeliveredQty,
                 TotalBalanceQty = e.TotalBalanceQty,
-                // Phase 10.7 Improvement 7 — map new qty field
                 TotalPreviouslyDeliveredQty = e.TotalPreviouslyDeliveredQty,
                 SequenceNumber = e.SequenceNumber,
                 DeliveryDate = e.DeliveryDate,
                 DeliveryTime = e.DeliveryTime,
                 CreatedAt = e.CreatedAt,
                 UpdatedAt = e.UpdatedAt,
-                // Phase 10.7 Improvement 6 — map Tax Invoice fields
                 TaxInvoiceId = e.TaxInvoiceId,
                 HasTaxInvoice = e.HasTaxInvoice
             };

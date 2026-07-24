@@ -5,101 +5,92 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              mc:Ignorable="d"
              d:DesignHeight="900" d:DesignWidth="900"
-             FontFamily="Segoe UI">
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
 
-    <!-- ============ SHARED STYLES ============ -->
     <UserControl.Resources>
 
-        <!-- Field Label Style -->
+        <!-- ══════════════════════════════════════════════════════════════
+             FIELD LABEL — 11px SemiBold UPPERCASE muted
+        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontSize"   Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-            <Setter Property="Margin" Value="0,0,0,6"/>
+            <Setter Property="Margin"     Value="0,0,0,8"/>
         </Style>
 
-        <!-- Input TextBox Style — FIXED: text rendering + ScrollViewer settings -->
-        <Style x:Key="DarkInputStyle" TargetType="TextBox">
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Padding" Value="14,0"/>
-            <Setter Property="Height" Value="44"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="CaretBrush" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="SelectionBrush" Value="{DynamicResource AccentBrush}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="InputBorder"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="8"
-                                BorderThickness="1.5"
-                                BorderBrush="{DynamicResource MenuHoverBrush}">
-                            <ScrollViewer x:Name="PART_ContentHost"
-                                          Focusable="False"
-                                          HorizontalScrollBarVisibility="Hidden"
-                                          VerticalScrollBarVisibility="Hidden"
-                                          Margin="{TemplateBinding Padding}"
-                                          VerticalAlignment="Center"
-                                          Background="Transparent"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="InputBorder" Property="BorderBrush"
-                                        Value="{DynamicResource SecondaryForegroundBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="InputBorder" Property="BorderBrush"
-                                        Value="{DynamicResource AccentBrush}"/>
-                                <Setter TargetName="InputBorder" Property="BorderThickness"
-                                        Value="2"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <!-- ══════════════════════════════════════════════════════════════
+             NOTE: TextBox uses the GLOBAL App.xaml style
+             (Height=38, CornerRadius=8, focus glow, hover indigo tint).
+             This gives every wizard step identical input rendering.
+             Custom DarkInputStyle removed for consistency.
+        ══════════════════════════════════════════════════════════════ -->
 
-        <!-- DatePicker Style -->
-        <Style x:Key="DarkDatePickerStyle" TargetType="DatePicker">
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="1.5"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource MenuHoverBrush}"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Padding" Value="10,8"/>
-            <Setter Property="Height" Value="44"/>
+        <!-- ══════════════════════════════════════════════════════════════
+             DATEPICKER STYLE — matches global TextBox height/rendering
+        ══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="StepDatePickerStyle" TargetType="DatePicker">
+            <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness"          Value="1"/>
+            <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="FontSize"                 Value="13"/>
+            <Setter Property="Padding"                  Value="10,0"/>
+            <Setter Property="Height"                   Value="38"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                    <Setter Property="BorderBrush" Value="#6366F1"/>
                 </Trigger>
                 <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                    <Setter Property="BorderBrush"     Value="#4338CA"/>
                     <Setter Property="BorderThickness" Value="2"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
-        <!-- ComboBox Style -->
-        <Style x:Key="DarkComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="1.5"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource MenuHoverBrush}"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Padding" Value="12,8"/>
-            <Setter Property="Height" Value="44"/>
+        <!-- ══════════════════════════════════════════════════════════════
+             COMBOBOX STYLE — matches global input rendering
+        ══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="StepComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness"          Value="1"/>
+            <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="FontSize"                 Value="13"/>
+            <Setter Property="Padding"                  Value="12,0"/>
+            <Setter Property="Height"                   Value="38"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                    <Setter Property="BorderBrush" Value="#6366F1"/>
                 </Trigger>
                 <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                    <Setter Property="BorderBrush"     Value="#4338CA"/>
                     <Setter Property="BorderThickness" Value="2"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- ══════════════════════════════════════════════════════════════
+             PROFILE CARD — hover feedback (border indigo + subtle tint)
+        ══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="ProfileCardStyle" TargetType="Border">
+            <Setter Property="Background"      Value="{DynamicResource WindowBackgroundBrush}"/>
+            <Setter Property="CornerRadius"    Value="14"/>
+            <Setter Property="Padding"         Value="18,16"/>
+            <Setter Property="Margin"          Value="8"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#4338CA"/>
+                    <Setter Property="Background"  Value="{DynamicResource ModuleBackgroundBrush}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -108,64 +99,91 @@
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled"
-                  Padding="0,0,10,0">
+                  Padding="24,20,32,20">
         <StackPanel>
 
-            <!-- ============ HEADER ============ -->
-            <StackPanel Orientation="Horizontal"
-                        Margin="0,0,0,8">
-                <Border Background="{DynamicResource AccentBrush}"
-                        Width="36" Height="36"
-                        CornerRadius="8"
+            <!-- ══════════════════════════════════════════════════════════
+                 STEP HEADER — icon badge + title + subtitle
+            ══════════════════════════════════════════════════════════ -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <!-- Icon badge — 44×44 indigo with subtle glow -->
+                <Border Background="#4338CA"
+                        Width="44" Height="44"
+                        CornerRadius="12"
                         VerticalAlignment="Center">
-                    <TextBlock Text="&#127970;"
-                               FontSize="18"
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="12"
+                                          ShadowDepth="2"
+                                          Direction="270"
+                                          Color="#4338CA"
+                                          Opacity="0.30"/>
+                    </Border.Effect>
+                    <!-- Segoe MDL2 corporate icon -->
+                    <TextBlock Text="&#xE821;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="20"
                                Foreground="White"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
                 </Border>
-                <TextBlock Text="COMPANY &amp; IDENTIFICATION SETUP"
-                           FontSize="18"
-                           FontWeight="Bold"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                           VerticalAlignment="Center"
-                           Margin="14,0,0,0"/>
+
+                <StackPanel VerticalAlignment="Center" Margin="16,0,0,0">
+                    <TextBlock Text="Company &amp; Identification Setup"
+                               FontSize="22"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    <TextBlock Text="Configure your company identity, tax registration and record numbers."
+                               FontSize="12"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Margin="0,4,0,0"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
             </StackPanel>
 
-            <TextBlock Text="Configure your company identity, tax registration, and record numbers."
-                       FontSize="13"
-                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                       Margin="0,0,0,20"
-                       TextWrapping="Wrap"/>
-
-            <Border Background="{DynamicResource MenuHoverBrush}"
+            <!-- Divider -->
+            <Border Background="{DynamicResource BorderBrush}"
                     Height="1"
-                    Margin="0,0,0,24"/>
+                    Margin="0,20,0,24"/>
 
-            <!-- ============ FAST SETUP SECTION ============ -->
+            <!-- ══════════════════════════════════════════════════════════
+                 FAST SETUP CARD — profile presets grid + go-to-grid CTA
+            ══════════════════════════════════════════════════════════ -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    CornerRadius="12"
-                    Padding="20"
+                    CornerRadius="16"
+                    Padding="24"
                     Margin="0,0,0,24"
-                    BorderThickness="1.5"
-                    BorderBrush="{DynamicResource MenuHoverBrush}">
+                    BorderThickness="1"
+                    BorderBrush="{DynamicResource BorderBrush}">
                 <StackPanel>
 
-                    <!-- Section Title -->
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
-                        <TextBlock Text="&#10024;"
-                                   FontSize="14"
-                                   Foreground="{DynamicResource AccentBrush}"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,8,0"/>
-                        <TextBlock Text="FAST SETUP: USE PRE-SAVED COMPANY &amp; PROJECT PROFILES"
-                                   FontSize="12"
-                                   FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   VerticalAlignment="Center"/>
+                    <!-- Section title -->
+                    <StackPanel Orientation="Horizontal" Margin="0,0,0,18">
+                        <!-- Segoe MDL2 lightning bolt icon -->
+                        <Border Background="#EEF2FF"
+                                Width="28" Height="28"
+                                CornerRadius="8"
+                                VerticalAlignment="Center"
+                                Margin="0,0,10,0">
+                            <TextBlock Text="&#xE945;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="13"
+                                       Foreground="#4338CA"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Fast Setup"
+                                       FontSize="14"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            <TextBlock Text="Use pre-saved company &amp; project profiles"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       Margin="0,2,0,0"/>
+                        </StackPanel>
                     </StackPanel>
 
-                    <!-- Profile Cards Grid -->
+                    <!-- Profile cards grid -->
                     <ItemsControl ItemsSource="{Binding SavedProfiles}">
                         <ItemsControl.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -175,23 +193,18 @@
 
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border Background="{DynamicResource WindowBackgroundBrush}"
-                                        CornerRadius="10"
-                                        Padding="16,14"
-                                        Margin="6"
-                                        BorderThickness="1"
-                                        BorderBrush="{DynamicResource MenuHoverBrush}">
+                                <Border Style="{StaticResource ProfileCardStyle}">
                                     <StackPanel>
 
-                                        <!-- Company Name -->
+                                        <!-- Company name -->
                                         <TextBlock Text="{Binding CompanyName}"
-                                                   FontSize="14"
-                                                   FontWeight="Bold"
+                                                   FontSize="15"
+                                                   FontWeight="SemiBold"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                    TextWrapping="Wrap"
                                                    Margin="0,0,0,6"/>
 
-                                        <!-- Project Info -->
+                                        <!-- Project info -->
                                         <TextBlock FontSize="11"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    TextWrapping="Wrap"
@@ -200,7 +213,7 @@
                                             <Run Text="{Binding ProjectName}"/>
                                         </TextBlock>
 
-                                        <!-- Load Profile Button -->
+                                        <!-- Load profile button — amber accent -->
                                         <Button Background="Transparent"
                                                 BorderThickness="0"
                                                 Padding="0"
@@ -211,22 +224,36 @@
                                                 CommandParameter="{Binding}">
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
-                                                    <StackPanel Orientation="Horizontal">
-                                                        <TextBlock Text="&#9889;"
-                                                                   FontSize="12"
-                                                                   Foreground="#F97316"
-                                                                   VerticalAlignment="Center"
-                                                                   Margin="0,0,6,0"/>
-                                                        <TextBlock x:Name="LoadText"
-                                                                   Text="LOAD PROFILE"
-                                                                   FontSize="11"
-                                                                   FontWeight="Bold"
-                                                                   Foreground="#F97316"
-                                                                   VerticalAlignment="Center"/>
-                                                    </StackPanel>
+                                                    <Border x:Name="LoadBg"
+                                                            Background="#FEF3C7"
+                                                            CornerRadius="8"
+                                                            Padding="12,7"
+                                                            SnapsToDevicePixels="True">
+                                                        <StackPanel Orientation="Horizontal"
+                                                                    VerticalAlignment="Center">
+                                                            <TextBlock x:Name="LoadIcon"
+                                                                       Text="&#xE945;"
+                                                                       FontFamily="Segoe MDL2 Assets"
+                                                                       FontSize="11"
+                                                                       Foreground="#B45309"
+                                                                       VerticalAlignment="Center"
+                                                                       Margin="0,0,6,0"/>
+                                                            <TextBlock x:Name="LoadText"
+                                                                       Text="LOAD PROFILE"
+                                                                       FontSize="10"
+                                                                       FontWeight="Bold"
+                                                                       Foreground="#B45309"
+                                                                       VerticalAlignment="Center"/>
+                                                        </StackPanel>
+                                                    </Border>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="LoadText" Property="Opacity" Value="0.7"/>
+                                                            <Setter TargetName="LoadBg"   Property="Background" Value="#B45309"/>
+                                                            <Setter TargetName="LoadIcon" Property="Foreground" Value="White"/>
+                                                            <Setter TargetName="LoadText" Property="Foreground" Value="White"/>
+                                                        </Trigger>
+                                                        <Trigger Property="IsPressed" Value="True">
+                                                            <Setter TargetName="LoadBg" Property="Background" Value="#92400E"/>
                                                         </Trigger>
                                                     </ControlTemplate.Triggers>
                                                 </ControlTemplate>
@@ -239,36 +266,43 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
-                    <!-- Go Directly to Grid Button -->
+                    <!-- Go directly to grid CTA — hero pill -->
                     <Button HorizontalAlignment="Right"
                             Background="Transparent"
                             BorderThickness="0"
                             Padding="0"
                             Cursor="Hand"
-                            Margin="0,16,0,0"
+                            Margin="0,20,0,0"
                             Command="{Binding GoToGridCommand}">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="GoBorder"
-                                        Background="{DynamicResource AccentBrush}"
-                                        CornerRadius="10"
-                                        Padding="20,12">
-                                    <StackPanel Orientation="Horizontal">
+                                        Background="#4338CA"
+                                        CornerRadius="22"
+                                        Padding="24,0"
+                                        Height="44"
+                                        SnapsToDevicePixels="True">
+                                    <StackPanel Orientation="Horizontal"
+                                                VerticalAlignment="Center">
                                         <TextBlock Text="GO DIRECTLY TO GRID (STEP 5)"
                                                    FontSize="12"
                                                    FontWeight="Bold"
                                                    Foreground="White"
                                                    VerticalAlignment="Center"/>
-                                        <TextBlock Text="&#10095;"
-                                                   FontSize="12"
+                                        <TextBlock Text="&#xE76C;"
+                                                   FontFamily="Segoe MDL2 Assets"
+                                                   FontSize="11"
                                                    Foreground="White"
                                                    VerticalAlignment="Center"
-                                                   Margin="8,0,0,0"/>
+                                                   Margin="10,0,0,0"/>
                                     </StackPanel>
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="GoBorder" Property="Opacity" Value="0.9"/>
+                                        <Setter TargetName="GoBorder" Property="Background" Value="#6366F1"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="GoBorder" Property="Background" Value="#3730A3"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -278,48 +312,51 @@
                 </StackPanel>
             </Border>
 
-            <!-- ============ COMPANY FIELDS ============ -->
+            <!-- ══════════════════════════════════════════════════════════
+                 COMPANY FIELDS
+            ══════════════════════════════════════════════════════════ -->
 
             <!-- Row 1: Company Name + TRN -->
             <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="COMPANY REGISTERED NAME"
                                Style="{StaticResource FieldLabelStyle}"/>
-                    <TextBox Text="{Binding CompanyName, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                    <TextBox Text="{Binding CompanyName, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="COMPANY FEDERAL TRN"
                                Style="{StaticResource FieldLabelStyle}"/>
-                    <TextBox Text="{Binding CompanyTrn, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                    <TextBox Text="{Binding CompanyTrn, UpdateSourceTrigger=PropertyChanged}"/>
                 </StackPanel>
             </Grid>
 
             <!-- Row 2: HQ Location -->
-            <StackPanel Margin="0,0,0,20">
+            <StackPanel Margin="0,0,0,16">
                 <TextBlock Text="COMPANY HEADQUARTERS LOCATION"
                            Style="{StaticResource FieldLabelStyle}"/>
-                <TextBox Text="{Binding CompanyLocation, UpdateSourceTrigger=PropertyChanged}"
-                         Style="{StaticResource DarkInputStyle}"/>
+                <TextBox Text="{Binding CompanyLocation, UpdateSourceTrigger=PropertyChanged}"/>
             </StackPanel>
 
-            <!-- ============ LOADED PROFILE SUCCESS INDICATOR ============ -->
-            <Border CornerRadius="8"
+            <!-- ══════════════════════════════════════════════════════════
+                 LOADED PROFILE SUCCESS INDICATOR — deep forest green
+            ══════════════════════════════════════════════════════════ -->
+            <Border CornerRadius="10"
                     Padding="14,10"
-                    Margin="0,0,0,16"
+                    Margin="0,0,0,20"
                     HorizontalAlignment="Left">
                 <Border.Style>
                     <Style TargetType="Border">
                         <Setter Property="Visibility" Value="Collapsed"/>
-                        <Setter Property="Background" Value="#1622C55E"/>
+                        <Setter Property="Background" Value="#D1FAE5"/>
+                        <Setter Property="BorderBrush" Value="#047857"/>
+                        <Setter Property="BorderThickness" Value="1"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding HasLoadedProfile}" Value="True">
                                 <Setter Property="Visibility" Value="Visible"/>
@@ -328,14 +365,21 @@
                     </Style>
                 </Border.Style>
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="✓"
-                               FontSize="14"
-                               FontWeight="Bold"
-                               Foreground="#22C55E"
-                               VerticalAlignment="Center"
-                               Margin="0,0,8,0"/>
+                    <!-- Segoe MDL2 checkmark -->
+                    <Border Background="#047857"
+                            Width="20" Height="20"
+                            CornerRadius="10"
+                            VerticalAlignment="Center"
+                            Margin="0,0,10,0">
+                        <TextBlock Text="&#xE73E;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="10"
+                                   Foreground="White"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
                     <TextBlock FontSize="12"
-                               Foreground="#22C55E"
+                               Foreground="#047857"
                                VerticalAlignment="Center">
                         <Run Text="Profile loaded: "/>
                         <Run Text="{Binding LoadedProfileName}" FontWeight="Bold"/>
@@ -343,7 +387,9 @@
                 </StackPanel>
             </Border>
 
-            <!-- ============ PROFORMA FIELDS (4 columns) ============ -->
+            <!-- ══════════════════════════════════════════════════════════
+                 PROFORMA FIELDS — 4 columns
+            ══════════════════════════════════════════════════════════ -->
             <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -359,7 +405,6 @@
                     <TextBlock Text="PROFORMA ID"
                                Style="{StaticResource FieldLabelStyle}"/>
                     <TextBox Text="{Binding ProformaId, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource DarkInputStyle}"
                              FontFamily="Consolas"/>
                 </StackPanel>
 
@@ -367,14 +412,14 @@
                     <TextBlock Text="ISSUE DATE"
                                Style="{StaticResource FieldLabelStyle}"/>
                     <DatePicker SelectedDate="{Binding IssueDate}"
-                                Style="{StaticResource DarkDatePickerStyle}"/>
+                                Style="{StaticResource StepDatePickerStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="4">
                     <TextBlock Text="VALID UNTIL"
                                Style="{StaticResource FieldLabelStyle}"/>
                     <DatePicker SelectedDate="{Binding ValidUntil}"
-                                Style="{StaticResource DarkDatePickerStyle}"/>
+                                Style="{StaticResource StepDatePickerStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="6">
@@ -382,7 +427,7 @@
                                Style="{StaticResource FieldLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding StatusOptions}"
                               SelectedItem="{Binding ProformaStatus}"
-                              Style="{StaticResource DarkComboBoxStyle}"/>
+                              Style="{StaticResource StepComboBoxStyle}"/>
                 </StackPanel>
             </Grid>
 

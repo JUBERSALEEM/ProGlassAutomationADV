@@ -26,7 +26,7 @@ namespace ProGlassAutomation.Views.About
                 }
                 catch
                 {
-                    // Silently ignore
+                    // mailto handler unavailable — silent fail (Rule E01 with reason)
                 }
             }
         }

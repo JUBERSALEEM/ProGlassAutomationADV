@@ -6,133 +6,139 @@
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
              d:DesignHeight="500" d:DesignWidth="900"
-             FontFamily="Segoe UI">
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
 
     <UserControl.Resources>
 
+        <!-- ══════════════════════════════════════════════════════════════
+             FIELD LABEL — 11px SemiBold indigo (this section's accent color)
+        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="SguLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="10"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#6366F1"/>
-            <Setter Property="Margin" Value="0,0,0,4"/>
+            <Setter Property="FontSize"   Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#4338CA"/>
+            <Setter Property="Margin"     Value="0,0,0,6"/>
         </Style>
 
-        <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#6366F1"/>
-            <Setter Property="Margin" Value="0,0,0,10"/>
-        </Style>
+        <!-- ══════════════════════════════════════════════════════════════
+             NOTE: TextBoxes inherit GLOBAL App.xaml style
+             (Height=38, CornerRadius=8, focus glow, indigo hover).
+             behaviors:TextBoxBehaviors.SelectAllOnFocus=True already
+             applied globally in App.xaml.
+        ══════════════════════════════════════════════════════════════ -->
 
-        <Style x:Key="DarkInputStyle" TargetType="TextBox">
-            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="10,0"/>
-            <Setter Property="Height" Value="36"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="CaretBrush" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="SelectionBrush" Value="{DynamicResource AccentBrush}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="InputBorder"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="6"
-                                BorderThickness="1.5"
-                                BorderBrush="{DynamicResource MenuHoverBrush}">
-                            <ScrollViewer x:Name="PART_ContentHost"
-                                          Focusable="False"
-                                          HorizontalScrollBarVisibility="Hidden"
-                                          VerticalScrollBarVisibility="Hidden"
-                                          Margin="{TemplateBinding Padding}"
-                                          VerticalAlignment="Center"
-                                          Background="Transparent"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="InputBorder" Property="BorderBrush"
-                                        Value="{DynamicResource SecondaryForegroundBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="InputBorder" Property="BorderBrush" Value="#6366F1"/>
-                                <Setter TargetName="InputBorder" Property="BorderThickness" Value="2"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="DarkComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="1.5"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource MenuHoverBrush}"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="8,0"/>
-            <Setter Property="Height" Value="36"/>
+        <!-- ══════════════════════════════════════════════════════════════
+             COMBOBOX — matches global input rendering (Height=38, indigo focus)
+        ══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="StepComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness"          Value="1"/>
+            <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="FontSize"                 Value="13"/>
+            <Setter Property="Padding"                  Value="10,0"/>
+            <Setter Property="Height"                   Value="38"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                    <Setter Property="BorderBrush" Value="#6366F1"/>
                 </Trigger>
                 <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                    <Setter Property="BorderBrush" Value="#6366F1"/>
+                    <Setter Property="BorderBrush"     Value="#4338CA"/>
                     <Setter Property="BorderThickness" Value="2"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="DarkEditableComboBoxStyle" TargetType="ComboBox" BasedOn="{StaticResource DarkComboBoxStyle}">
-            <Setter Property="IsEditable" Value="True"/>
+        <!-- Editable ComboBox — inherits above, adds text search -->
+        <Style x:Key="StepEditableComboBoxStyle"
+               TargetType="ComboBox"
+               BasedOn="{StaticResource StepComboBoxStyle}">
+            <Setter Property="IsEditable"         Value="True"/>
             <Setter Property="IsTextSearchEnabled" Value="True"/>
         </Style>
 
     </UserControl.Resources>
 
+    <!-- ══════════════════════════════════════════════════════════════════
+         SGU PARAMETERS CARD
+    ══════════════════════════════════════════════════════════════════ -->
     <Border Background="{DynamicResource ModuleBackgroundBrush}"
-            CornerRadius="12"
-            Padding="16"
+            CornerRadius="16"
+            Padding="20"
             Margin="0,10,0,0"
-            BorderThickness="1.5"
-            BorderBrush="{DynamicResource MenuHoverBrush}">
+            BorderThickness="1"
+            BorderBrush="{DynamicResource BorderBrush}">
         <StackPanel>
 
-            <TextBlock Text="SINGLE GLASS (SGU) PARAMETERS"
-                       Style="{StaticResource SectionTitleStyle}"/>
+            <!-- ── Section header — icon badge + title ── -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                <Border Background="#EEF2FF"
+                        Width="26" Height="26"
+                        CornerRadius="8"
+                        VerticalAlignment="Center"
+                        Margin="0,0,10,0">
+                    <!-- Segoe MDL2 layers icon -->
+                    <TextBlock Text="&#xE81E;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="12"
+                               Foreground="#4338CA"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+                <TextBlock Text="Single Glass (SGU) Parameters"
+                           FontSize="13"
+                           FontWeight="Bold"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
 
-            <!-- Live Spec Name Preview -->
-            <Border Background="#166366F1"
-                    CornerRadius="6"
-                    Padding="10,6"
-                    Margin="0,0,0,12"
+            <!-- ── Live spec name preview — indigo tint chip ── -->
+            <Border Background="#EEF2FF"
+                    BorderBrush="#C7D2FE"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="14,10"
+                    Margin="0,0,0,16"
                     HorizontalAlignment="Left">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Generated Spec: "
-                               FontSize="10"
+                    <TextBlock Text="&#xE7C1;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="12"
+                               Foreground="#4338CA"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0"/>
+                    <TextBlock Text="Generated Spec:"
+                               FontSize="11"
+                               FontWeight="SemiBold"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                VerticalAlignment="Center"
-                               Margin="0,0,6,0"/>
+                               Margin="0,0,8,0"/>
                     <TextBlock Text="{Binding GeneratedSpecName}"
-                               FontSize="11"
+                               FontSize="12"
                                FontWeight="Bold"
-                               Foreground="#6366F1"
-                               TextWrapping="Wrap"/>
+                               Foreground="#4338CA"
+                               TextWrapping="Wrap"
+                               VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>
 
-            <!-- ROW 1: Thickness | Color | Treatment | Base Price -->
-            <Grid Margin="0,0,0,12">
+            <!-- ══════════════════════════════════════════════════════════
+                 ROW 1: Thickness · Color · Treatment · Base Price
+            ══════════════════════════════════════════════════════════ -->
+            <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
@@ -140,76 +146,75 @@
                     <TextBlock Text="THICKNESS" Style="{StaticResource SguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding ThicknessOptions}"
                               SelectedItem="{Binding SelectedThickness}"
-                              Style="{StaticResource DarkComboBoxStyle}"/>
+                              Style="{StaticResource StepComboBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="GLASS COLOR" Style="{StaticResource SguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding ColorOptions}"
                               Text="{Binding GlassColor, UpdateSourceTrigger=PropertyChanged}"
-                              Style="{StaticResource DarkEditableComboBoxStyle}"/>
+                              Style="{StaticResource StepEditableComboBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="4">
                     <TextBlock Text="TREATMENT TYPE" Style="{StaticResource SguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding TreatmentOptions}"
                               SelectedItem="{Binding SelectedTreatment}"
-                              Style="{StaticResource DarkComboBoxStyle}"/>
+                              Style="{StaticResource StepComboBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="6">
                     <TextBlock Text="BASE PRICE / SQM (AED)" Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding BasePricePerSqm, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                    <TextBox Text="{Binding BasePricePerSqm, StringFormat={}{0:0.##}}"/>
                 </StackPanel>
             </Grid>
 
-            <!-- ROW 2: Cutting | Tempering | Yield | Margin -->
-            <Grid Margin="0,0,0,12">
+            <!-- ══════════════════════════════════════════════════════════
+                 ROW 2: Cutting · Tempering · Yield · Margin
+            ══════════════════════════════════════════════════════════ -->
+            <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="CUTTING COST / SQM" Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding CuttingCostPerSqm, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                    <TextBox Text="{Binding CuttingCostPerSqm, StringFormat={}{0:0.##}}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="TEMPERING COST / SQM" Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding TemperingCostPerSqm, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                    <TextBox Text="{Binding TemperingCostPerSqm, StringFormat={}{0:0.##}}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="4">
                     <TextBlock Text="YIELD FACTOR (CLEARING)" Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                    <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="6">
                     <TextBlock Text="TARGET MARGIN %" Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding TargetMarginPercent, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                    <TextBox Text="{Binding TargetMarginPercent, StringFormat={}{0:0.##}}"/>
                 </StackPanel>
             </Grid>
 
-            <!-- ROW 3: Polish / Detail Option -->
+            <!-- ══════════════════════════════════════════════════════════
+                 ROW 3: Polish option (single field — half width for balance)
+            ══════════════════════════════════════════════════════════ -->
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
@@ -217,7 +222,20 @@
                     <TextBlock Text="POLISH / DETAIL OPTION" Style="{StaticResource SguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding PolishOptions}"
                               SelectedItem="{Binding SelectedPolishOption}"
-                              Style="{StaticResource DarkComboBoxStyle}"/>
+                              Style="{StaticResource StepComboBoxStyle}"/>
+                </StackPanel>
+
+                <!-- Helper text spans remaining columns -->
+                <StackPanel Grid.Column="2"
+                            Grid.ColumnSpan="5"
+                            VerticalAlignment="Bottom"
+                            Margin="0,0,0,10">
+                    <TextBlock FontSize="11"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               TextWrapping="Wrap">
+                        <Run Text="&#xE946;" FontFamily="Segoe MDL2 Assets" Foreground="#4338CA"/>
+                        <Run Text="  Polishing adds surface finish cost — flat edge is most common for interior use."/>
+                    </TextBlock>
                 </StackPanel>
             </Grid>
 

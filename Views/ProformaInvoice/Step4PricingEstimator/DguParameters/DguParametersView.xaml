@@ -6,43 +6,50 @@
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
              d:DesignHeight="720" d:DesignWidth="900"
-             FontFamily="Segoe UI">
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
 
     <UserControl.Resources>
 
+        <!-- ══════════════════════════════════════════════════════════════
+             DGU LABEL — purple accent (glass type identity)
+        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="DguLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="10"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#A855F7"/>
-            <Setter Property="Margin" Value="0,0,0,4"/>
+            <Setter Property="FontSize"   Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#7C3AED"/>
+            <Setter Property="Margin"     Value="0,0,0,6"/>
         </Style>
 
-        <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#A855F7"/>
-            <Setter Property="Margin" Value="0,0,0,10"/>
-        </Style>
-
-        <Style x:Key="DarkInputStyle" TargetType="TextBox">
+        <!-- ══════════════════════════════════════════════════════════════
+             DGU TEXTBOX — minimal override just for purple focus
+             (matches global height/radius, changes only focus color)
+        ══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="DguInputStyle" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="10,0"/>
-            <Setter Property="Height" Value="36"/>
+            <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness"          Value="1"/>
+            <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="FontSize"                 Value="13"/>
+            <Setter Property="Padding"                  Value="12,0"/>
+            <Setter Property="Height"                   Value="38"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="CaretBrush" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="SelectionBrush" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="CaretBrush"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="SelectionBrush"           Value="#7C3AED"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
                         <Border x:Name="InputBorder"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="6"
-                                BorderThickness="1.5"
-                                BorderBrush="{DynamicResource MenuHoverBrush}">
+                                CornerRadius="8"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                SnapsToDevicePixels="True">
                             <ScrollViewer x:Name="PART_ContentHost"
                                           Focusable="False"
                                           HorizontalScrollBarVisibility="Hidden"
@@ -53,11 +60,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="InputBorder" Property="BorderBrush"
-                                        Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                <Setter TargetName="InputBorder" Property="BorderBrush" Value="#A855F7"/>
                             </Trigger>
                             <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="InputBorder" Property="BorderBrush" Value="#A855F7"/>
+                                <Setter TargetName="InputBorder" Property="BorderBrush"     Value="#7C3AED"/>
                                 <Setter TargetName="InputBorder" Property="BorderThickness" Value="2"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -66,75 +72,126 @@
             </Setter>
         </Style>
 
-        <Style x:Key="DarkComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="1.5"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource MenuHoverBrush}"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="8,0"/>
-            <Setter Property="Height" Value="36"/>
+        <!-- ══════════════════════════════════════════════════════════════
+             DGU COMBOBOX — matches input rendering, purple focus
+        ══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="DguComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness"          Value="1"/>
+            <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="FontSize"                 Value="13"/>
+            <Setter Property="Padding"                  Value="10,0"/>
+            <Setter Property="Height"                   Value="38"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                    <Setter Property="BorderBrush" Value="#A855F7"/>
                 </Trigger>
                 <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                    <Setter Property="BorderBrush" Value="#A855F7"/>
+                    <Setter Property="BorderBrush"     Value="#7C3AED"/>
                     <Setter Property="BorderThickness" Value="2"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
-        <Style x:Key="DarkEditableComboBoxStyle"
+        <!-- Editable variant -->
+        <Style x:Key="DguEditableComboBoxStyle"
                TargetType="ComboBox"
-               BasedOn="{StaticResource DarkComboBoxStyle}">
-            <Setter Property="IsEditable" Value="True"/>
+               BasedOn="{StaticResource DguComboBoxStyle}">
+            <Setter Property="IsEditable"          Value="True"/>
             <Setter Property="IsTextSearchEnabled" Value="True"/>
+        </Style>
+
+        <!-- ══════════════════════════════════════════════════════════════
+             DGU CHECKBOX — purple checked state
+        ══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="DguCheckBoxStyle" TargetType="CheckBox">
+            <Setter Property="Foreground"                Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="FontSize"                  Value="12"/>
+            <Setter Property="FontWeight"                Value="SemiBold"/>
+            <Setter Property="VerticalContentAlignment"  Value="Center"/>
+            <Setter Property="Cursor"                    Value="Hand"/>
+            <Setter Property="Padding"                   Value="8,0,0,0"/>
+            <Setter Property="Height"                    Value="38"/>
         </Style>
 
     </UserControl.Resources>
 
+    <!-- ══════════════════════════════════════════════════════════════════
+         DGU CARD
+    ══════════════════════════════════════════════════════════════════ -->
     <Border Background="{DynamicResource ModuleBackgroundBrush}"
-            CornerRadius="10"
-            Padding="14"
+            CornerRadius="16"
+            Padding="20"
             Margin="0,10,0,0"
-            BorderThickness="1.5"
-            BorderBrush="{DynamicResource MenuHoverBrush}">
+            BorderThickness="1"
+            BorderBrush="{DynamicResource BorderBrush}">
         <StackPanel>
 
-            <TextBlock Text="DOUBLE INSULATED (DGU) PARAMETERS"
-                       Style="{StaticResource SectionTitleStyle}"/>
+            <!-- ── Section header — purple icon + title ── -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                <Border Background="#FAF5FF"
+                        Width="26" Height="26"
+                        CornerRadius="8"
+                        VerticalAlignment="Center"
+                        Margin="0,0,10,0">
+                    <!-- Segoe MDL2 stacked layers icon -->
+                    <TextBlock Text="&#xE81E;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="12"
+                               Foreground="#7C3AED"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+                <TextBlock Text="Double Insulated (DGU) Parameters"
+                           FontSize="13"
+                           FontWeight="Bold"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
 
-            <!-- Live Spec Name Preview -->
-            <Border Background="#16A855F7"
-                    CornerRadius="6"
-                    Padding="10,6"
-                    Margin="0,0,0,12"
+            <!-- ── Live spec name preview — purple tint chip ── -->
+            <Border Background="#FAF5FF"
+                    BorderBrush="#E9D5FF"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="14,10"
+                    Margin="0,0,0,16"
                     HorizontalAlignment="Left">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="Generated Spec: "
-                               FontSize="10"
+                    <TextBlock Text="&#xE7C1;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="12"
+                               Foreground="#7C3AED"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0"/>
+                    <TextBlock Text="Generated Spec:"
+                               FontSize="11"
+                               FontWeight="SemiBold"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                VerticalAlignment="Center"
-                               Margin="0,0,6,0"/>
+                               Margin="0,0,8,0"/>
                     <TextBlock Text="{Binding GeneratedSpecName}"
-                               FontSize="11"
+                               FontSize="12"
                                FontWeight="Bold"
-                               Foreground="#A855F7"
-                               TextWrapping="Wrap"/>
+                               Foreground="#7C3AED"
+                               TextWrapping="Wrap"
+                               VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>
 
-            <!-- ROW 1: Outer Glass -->
-            <Grid Margin="0,0,0,12">
+            <!-- ══════════════════════════════════════════════════════════
+                 ROW 1 — OUTER GLASS
+            ══════════════════════════════════════════════════════════ -->
+            <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
@@ -142,39 +199,41 @@
                     <TextBlock Text="OUTER GLASS THK" Style="{StaticResource DguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding ThicknessOptions}"
                               SelectedItem="{Binding OuterThickness}"
-                              Style="{StaticResource DarkComboBoxStyle}"/>
+                              Style="{StaticResource DguComboBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="OUTER GLASS COLOR" Style="{StaticResource DguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding ColorOptions}"
                               Text="{Binding OuterGlassColor, UpdateSourceTrigger=PropertyChanged}"
-                              Style="{StaticResource DarkEditableComboBoxStyle}"/>
+                              Style="{StaticResource DguEditableComboBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="4">
                     <TextBlock Text="OUTER GLASS TREATMENT" Style="{StaticResource DguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding TreatmentOptions}"
                               SelectedItem="{Binding OuterTreatment}"
-                              Style="{StaticResource DarkComboBoxStyle}"/>
+                              Style="{StaticResource DguComboBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="6">
                     <TextBlock Text="OUTER BASE PRICE" Style="{StaticResource DguLabelStyle}"/>
                     <TextBox Text="{Binding OuterBasePrice, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                             Style="{StaticResource DguInputStyle}"/>
                 </StackPanel>
             </Grid>
 
-            <!-- ROW 2: Spacer Width + Material + Price -->
-            <Grid Margin="0,0,0,12">
+            <!-- ══════════════════════════════════════════════════════════
+                 ROW 2 — SPACER
+            ══════════════════════════════════════════════════════════ -->
+            <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
@@ -182,30 +241,34 @@
                     <TextBlock Text="SPACER WIDTH (MM)" Style="{StaticResource DguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding SpacerWidthOptions}"
                               SelectedItem="{Binding SpacerWidth}"
-                              Style="{StaticResource DarkComboBoxStyle}"/>
+                              Style="{StaticResource DguComboBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="SPACER MATERIAL" Style="{StaticResource DguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding SpacerMaterialOptions}"
                               SelectedItem="{Binding SpacerMaterial}"
-                              Style="{StaticResource DarkComboBoxStyle}"/>
+                              Style="{StaticResource DguComboBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="4">
                     <TextBlock Text="SPACER PRICE (AED)" Style="{StaticResource DguLabelStyle}"/>
                     <TextBox Text="{Binding SpacerPrice, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                             Style="{StaticResource DguInputStyle}"/>
                 </StackPanel>
+
+                <!-- Empty col 6 for balance -->
             </Grid>
 
-            <!-- ROW 3: U-Insert + Overlap + Inner As Per DWG -->
-            <Grid Margin="0,0,0,12">
+            <!-- ══════════════════════════════════════════════════════════
+                 ROW 3 — U-INSERT + OVERLAP + INNER AS PER DWG
+            ══════════════════════════════════════════════════════════ -->
+            <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
@@ -213,39 +276,35 @@
                     <TextBlock Text="U-INSERT OPTION" Style="{StaticResource DguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding UInsertOptions}"
                               SelectedItem="{Binding UInsertOption}"
-                              Style="{StaticResource DarkComboBoxStyle}"/>
+                              Style="{StaticResource DguComboBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="OVERLAP OPTION" Style="{StaticResource DguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding OverlapOptions}"
                               SelectedItem="{Binding OverlapOption}"
-                              Style="{StaticResource DarkComboBoxStyle}"/>
+                              Style="{StaticResource DguComboBoxStyle}"/>
                 </StackPanel>
 
-                <!-- NEW: Inner Glass As Per DWG checkbox -->
                 <StackPanel Grid.Column="4" VerticalAlignment="Center">
                     <TextBlock Text="INNER SUFFIX" Style="{StaticResource DguLabelStyle}"/>
                     <CheckBox Content="Inner Glass As Per DWG"
                               IsChecked="{Binding InnerAsPerDwg}"
-                              Foreground="{DynamicResource PrimaryForegroundBrush}"
-                              FontSize="12"
-                              VerticalContentAlignment="Center"
-                              Cursor="Hand"
-                              Padding="6,0,0,0"
-                              Height="36"/>
+                              Style="{StaticResource DguCheckBoxStyle}"/>
                 </StackPanel>
             </Grid>
 
-            <!-- ROW 4: Inner Glass -->
-            <Grid Margin="0,0,0,12">
+            <!-- ══════════════════════════════════════════════════════════
+                 ROW 4 — INNER GLASS
+            ══════════════════════════════════════════════════════════ -->
+            <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
@@ -253,52 +312,67 @@
                     <TextBlock Text="INNER GLASS THK" Style="{StaticResource DguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding ThicknessOptions}"
                               SelectedItem="{Binding InnerThickness}"
-                              Style="{StaticResource DarkComboBoxStyle}"/>
+                              Style="{StaticResource DguComboBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="INNER GLASS COLOR" Style="{StaticResource DguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding ColorOptions}"
                               Text="{Binding InnerGlassColor, UpdateSourceTrigger=PropertyChanged}"
-                              Style="{StaticResource DarkEditableComboBoxStyle}"/>
+                              Style="{StaticResource DguEditableComboBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="4">
                     <TextBlock Text="INNER GLASS TREATMENT" Style="{StaticResource DguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding TreatmentOptions}"
                               SelectedItem="{Binding InnerTreatment}"
-                              Style="{StaticResource DarkComboBoxStyle}"/>
+                              Style="{StaticResource DguComboBoxStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="6">
                     <TextBlock Text="INNER BASE PRICE" Style="{StaticResource DguLabelStyle}"/>
                     <TextBox Text="{Binding InnerBasePrice, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                             Style="{StaticResource DguInputStyle}"/>
                 </StackPanel>
             </Grid>
 
-            <!-- ROW 5: Yield Factor + Profit Margin -->
+            <!-- ══════════════════════════════════════════════════════════
+                 ROW 5 — YIELD + MARGIN
+            ══════════════════════════════════════════════════════════ -->
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="YIELD FACTOR" Style="{StaticResource DguLabelStyle}"/>
                     <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                             Style="{StaticResource DguInputStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="MARGIN PROFIT %" Style="{StaticResource DguLabelStyle}"/>
                     <TextBox Text="{Binding MarginProfitPercent, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource DarkInputStyle}"/>
+                             Style="{StaticResource DguInputStyle}"/>
+                </StackPanel>
+
+                <!-- Helper text spans remaining columns -->
+                <StackPanel Grid.Column="4"
+                            Grid.ColumnSpan="3"
+                            VerticalAlignment="Bottom"
+                            Margin="0,0,0,10">
+                    <TextBlock FontSize="11"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               TextWrapping="Wrap">
+                        <Run Text="&#xE946;" FontFamily="Segoe MDL2 Assets" Foreground="#7C3AED"/>
+                        <Run Text="  DGU pricing sums outer + spacer + inner. Typical yield is 0.92 for double-glazed units."/>
+                    </TextBlock>
                 </StackPanel>
             </Grid>
 

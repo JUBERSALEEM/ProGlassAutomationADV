@@ -6,7 +6,16 @@
         WindowStartupLocation="CenterOwner"
         ResizeMode="NoResize"
         FontFamily="Segoe UI"
-        Background="{DynamicResource WindowBackgroundBrush}">
+        Background="{DynamicResource ModuleBackgroundBrush}"
+        TextOptions.TextFormattingMode="Display"
+        TextOptions.TextRenderingMode="ClearType"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True">
+
+    <!-- Standard dialog: Esc → Cancel Import (destructive escape) -->
+    <Window.InputBindings>
+        <KeyBinding Key="Escape" Command="{Binding CancelImportCommand}"/>
+    </Window.InputBindings>
 
     <Window.Resources>
         <Style x:Key="ColumnHeader" TargetType="TextBlock">
@@ -17,24 +26,22 @@
         </Style>
         <Style x:Key="RowLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Padding" Value="12,10"/>
         </Style>
         <Style x:Key="RowValue" TargetType="TextBlock">
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Padding" Value="10,8"/>
+            <Setter Property="Padding" Value="12,10"/>
         </Style>
-        <Style x:Key="DiffValue" TargetType="TextBlock" BasedOn="{StaticResource RowValue}">
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#EF4444"/>
-        </Style>
+
+        <!-- Action button with hover + press states — critical for destructive dialog -->
         <Style x:Key="ActionBtn" TargetType="Button">
-            <Setter Property="Height" Value="42"/>
+            <Setter Property="Height" Value="40"/>
             <Setter Property="Padding" Value="16,0"/>
             <Setter Property="Margin" Value="4,0"/>
             <Setter Property="FontSize" Value="12"/>
@@ -45,14 +52,31 @@
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
+                        <Border x:Name="Bg"
+                                Background="{TemplateBinding Background}"
                                 CornerRadius="8"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
                         </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.88"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.72"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+
+        <!-- Cancel Import button — extra emphasis (Bold + slightly darker press) -->
+        <Style x:Key="CancelImportBtn" TargetType="Button"
+               BasedOn="{StaticResource ActionBtn}">
+            <Setter Property="FontWeight" Value="Bold"/>
         </Style>
     </Window.Resources>
 
@@ -66,7 +90,7 @@
         </Grid.RowDefinitions>
 
         <!-- Header -->
-        <StackPanel Grid.Row="0" Margin="0,0,0,14">
+        <StackPanel Grid.Row="0" Margin="0,0,0,16">
             <StackPanel Orientation="Horizontal">
                 <TextBlock Text="⚠️" FontSize="24" VerticalAlignment="Center"/>
                 <StackPanel Margin="12,0,0,0">
@@ -75,7 +99,7 @@
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     <TextBlock Text="{Binding HeaderText}"
                                FontSize="11" FontWeight="Bold"
-                               Foreground="{DynamicResource AccentBrush}" Margin="0,2,0,0"/>
+                               Foreground="#4338CA" Margin="0,2,0,0"/>
                 </StackPanel>
             </StackPanel>
             <TextBlock Text="This sheet already exists. Choose how to handle it:"
@@ -86,7 +110,10 @@
         <!-- Sheet identity -->
         <Border Grid.Row="1"
                 Background="{DynamicResource MenuHoverBrush}"
-                CornerRadius="8" Padding="14,10" Margin="0,0,0,14">
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="10" Padding="14,10" Margin="0,0,0,16"
+                SnapsToDevicePixels="True">
             <TextBlock Text="{Binding SheetLabel}"
                        FontSize="13" FontWeight="SemiBold"
                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
@@ -95,7 +122,10 @@
         <!-- Comparison grid -->
         <Border Grid.Row="2"
                 Background="{DynamicResource ModuleBackgroundBrush}"
-                CornerRadius="10" Padding="0">
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="12" Padding="0"
+                SnapsToDevicePixels="True">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -112,17 +142,18 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Headers -->
-                <Border Grid.Row="0" Grid.Column="0" Background="{DynamicResource MenuHoverBrush}"
-                        Padding="10,10" CornerRadius="10,0,0,0">
-                    <TextBlock Text="FIELD" FontSize="11" FontWeight="Bold"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                <Border Grid.Row="0" Grid.Column="0"
+                        Background="{DynamicResource MenuHoverBrush}"
+                        Padding="10,10" CornerRadius="12,0,0,0">
+                    <TextBlock Text="FIELD" FontSize="11" FontWeight="SemiBold"
+                               Foreground="{DynamicResource MutedForegroundBrush}"
                                HorizontalAlignment="Center"/>
                 </Border>
-                <Border Grid.Row="0" Grid.Column="1" Background="#3B82F6" Padding="10,10">
+                <Border Grid.Row="0" Grid.Column="1" Background="#1E40AF" Padding="10,10">
                     <TextBlock Text="📀 EXISTING (in DB)" Style="{StaticResource ColumnHeader}"/>
                 </Border>
-                <Border Grid.Row="0" Grid.Column="2" Background="#F59E0B" Padding="10,10"
-                        CornerRadius="0,10,0,0">
+                <Border Grid.Row="0" Grid.Column="2" Background="#B45309" Padding="10,10"
+                        CornerRadius="0,12,0,0">
                     <TextBlock Text="📥 INCOMING (from CSV)" Style="{StaticResource ColumnHeader}"/>
                 </Border>
 
@@ -137,7 +168,7 @@
                         <Style TargetType="TextBlock" BasedOn="{StaticResource RowValue}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding BuyPriceDifferent}" Value="True">
-                                    <Setter Property="Foreground" Value="#EF4444"/>
+                                    <Setter Property="Foreground" Value="#B91C1C"/>
                                     <Setter Property="FontWeight" Value="Bold"/>
                                 </DataTrigger>
                             </Style.Triggers>
@@ -156,7 +187,7 @@
                         <Style TargetType="TextBlock" BasedOn="{StaticResource RowValue}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding SellPriceDifferent}" Value="True">
-                                    <Setter Property="Foreground" Value="#EF4444"/>
+                                    <Setter Property="Foreground" Value="#B91C1C"/>
                                     <Setter Property="FontWeight" Value="Bold"/>
                                 </DataTrigger>
                             </Style.Triggers>
@@ -175,7 +206,7 @@
                         <Style TargetType="TextBlock" BasedOn="{StaticResource RowValue}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding StockDifferent}" Value="True">
-                                    <Setter Property="Foreground" Value="#EF4444"/>
+                                    <Setter Property="Foreground" Value="#B91C1C"/>
                                     <Setter Property="FontWeight" Value="Bold"/>
                                 </DataTrigger>
                             </Style.Triggers>
@@ -209,10 +240,10 @@
                   IsChecked="{Binding ApplyToRemaining, Mode=TwoWay}"
                   FontSize="12"
                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                  Margin="0,14,0,10"
+                  Margin="0,16,0,12"
                   Cursor="Hand"/>
 
-        <!-- Action buttons -->
+        <!-- Action buttons — palette-aligned + hover/press states -->
         <Grid Grid.Row="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -223,23 +254,24 @@
 
             <Button Grid.Column="0" Style="{StaticResource ActionBtn}"
                     Background="#64748B" Content="Skip"
-                    ToolTip="Ignore this row, keep existing sheet unchanged"
+                    ToolTip="Ignore this row, keep existing sheet unchanged (Esc = Cancel Import)"
                     Command="{Binding SkipCommand}"/>
 
             <Button Grid.Column="1" Style="{StaticResource ActionBtn}"
-                    Background="#10B981" Content="+ Add to Stock"
+                    Background="#047857" Content="+ Add to Stock"
                     ToolTip="Add incoming stock to existing (keeps prices)"
                     Command="{Binding AddToStockCommand}"/>
 
             <Button Grid.Column="2" Style="{StaticResource ActionBtn}"
-                    Background="#F59E0B" Content="Update All"
+                    Background="#B45309" Content="Update All"
                     ToolTip="Overwrite all fields with incoming values"
                     Command="{Binding UpdateAllCommand}"/>
 
-            <Button Grid.Column="3" Style="{StaticResource ActionBtn}"
-                    Background="#EF4444" Content="✕ Cancel Import"
-                    ToolTip="Stop the entire import"
-                    Command="{Binding CancelImportCommand}"/>
+            <Button Grid.Column="3" Style="{StaticResource CancelImportBtn}"
+                    Background="#B91C1C" Content="✕ Cancel Import"
+                    ToolTip="Stop the entire import (or press Esc)"
+                    Command="{Binding CancelImportCommand}"
+                    IsCancel="True"/>
         </Grid>
     </Grid>
 </Window>
