@@ -7,10 +7,18 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
     /// <summary>
     /// One row in the Other Charges worksheet.
     /// Bound to UI checkbox + dropdown + rate input + formula display.
+    ///
     /// Special behaviour for TemplateKey == "POLISH":
     ///   - Uses PolishSubType instead of AvailableSources
     ///   - MetricQty is calculated from raw spec-group row dimensions per sub-type
     ///   - Custom sub-type shows extra description + manual qty inputs
+    ///
+    /// Special behaviour for TemplateKey == "DELIVERY" (Chat 7 Bug 4c hack):
+    ///   - Always renders as 1 TRIP × Rate (per-invoice pricing)
+    ///   - Ignores SelectedSource dropdown value
+    ///   - Matches PDF/Excel export behavior
+    ///   - For multi-trip billing: use Custom Charges section instead
+    ///   - Proper fix (PER_ROUND source + editable qty) planned for Chat 8
     /// </summary>
     public class OtherChargeRow : ViewModelBase
     {
@@ -28,6 +36,13 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
 
         /// <summary>True if this is a Polish row (activates sub-type UI).</summary>
         public bool IsPolishRow => TemplateKey == "POLISH";
+
+        /// <summary>
+        /// True if this is a Delivery row (Chat 7 Bug 4c hack).
+        /// When true, MetricQty is hardcoded to 1 (per-trip pricing).
+        /// User's SelectedSource dropdown value is ignored.
+        /// </summary>
+        public bool IsDeliveryRow => TemplateKey == "DELIVERY";
 
         // ── Active state ────────────────────────────────────────────────────
 
@@ -149,6 +164,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
 
         /// <summary>
         /// Live quantity read from either:
+        ///   - 1m                    (DELIVERY — Chat 7 Bug 4c hack)
         ///   - SelectedSource.Value  (normal rows)
         ///   - CustomPolishQty       (Polish + Custom)
         ///   - CalculatedPolishQty   (Polish + predefined sub-type)
@@ -157,6 +173,15 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
         {
             get
             {
+                // ═══════════════ Bug 4c (Chat 7) — QUICK HACK ═══════════════
+                // DELIVERY is per-invoice, not per-piece — always = 1 trip.
+                // Ignore SelectedSource dropdown value.
+                // Matches PDF/Excel export behavior.
+                // For multi-trip billing: user should use Custom Charges section.
+                // Proper fix (PER_ROUND source + editable qty) planned for Chat 8.
+                // ══════════════════════════════════════════════════════════════
+                if (IsDeliveryRow) return 1m;
+
                 if (IsPolishRow)
                 {
                     return IsCustomPolish ? _customPolishQty : _calculatedPolishQty;
@@ -192,12 +217,21 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
         /// <summary>
         /// Full formula display, e.g. "303.33 LM × 6.00 AED = 1,819.98 AED (W1 H1 PERIMETER (LM1))"
         /// For Polish + Custom: uses CustomPolishDescription as hint.
+        /// For Delivery: shows "1 TRIP × Rate = Amount (PER TRIP - FIXED)"
         /// </summary>
         public string FormulaDisplay
         {
             get
             {
                 if (!IsActive) return "DISABLED";
+
+                // ═══════════════ Bug 4c (Chat 7) — Delivery display ═══════════
+                // Shows fixed 1 TRIP × Rate formula with hint explaining behavior
+                // ══════════════════════════════════════════════════════════════
+                if (IsDeliveryRow)
+                {
+                    return $"1 TRIP × {Rate:0.##} AED = {ResultAmount:N2} AED (PER TRIP - FIXED)";
+                }
 
                 string unitLabel = Unit.ToString().ToUpper();
                 string hint;

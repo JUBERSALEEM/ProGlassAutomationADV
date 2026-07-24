@@ -1,5 +1,6 @@
 ﻿using ClosedXML.Excel;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;   // ← ADDED for template lookup
 using ProGlassAutomation.Services.Export.Excel;
 using System;
 using System.Collections.Generic;
@@ -15,13 +16,18 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
     ///   Spec # | Spec Name | # | Glass Ref | W1 | H1 | W2 | H2 |
     ///   Qty | Area (sqm) | Total Area (sqm) | Rate (AED) | Total (AED)
     ///
+    /// CHAT 7 CHANGES:
+    ///   Bug 4:  BuildChargesSheet() header "Quantity" → "QTY/SQM"
+    ///
+    /// CHAT 7 FOLLOW-UP FIX:
+    ///   Bug 4b: BuildOtherChargeLines() — proper qty + amount calculation
+    ///           for predefined charges (was showing empty qty + 0 amount)
+    ///           Now looks up template friendly name + unit + computes
+    ///           metric qty from SelectedSourceKey (with fallback to
+    ///           template default) — same pattern as PDF layout
+    ///
     /// STRANGLER PATTERN Round 1 — legacy InvoiceExcelExportService
     /// still compiles alongside this.
-    ///
-    /// CHAT 7 CHANGE (Bug 4):
-    ///   BuildChargesSheet(): "Quantity" column header → "QTY/SQM"
-    ///   WHY: Other Charges items can be Qty/Sqm/Lm — header reflects all
-    ///   NOT CHANGED: Glass Panels sheet "Qty" column (genuine panel qty)
     /// </summary>
     public class ProformaInvoiceExcelLayout : IExcelLayout
     {
@@ -55,10 +61,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
         // ── IExcelLayout ─────────────────────────────────────────────────────
 
-        /// <summary>
-        /// Engine calls this with a fresh IXLWorkbook after font defaults
-        /// are set. Layout adds worksheets and fills content.
-        /// </summary>
         public void RenderWorkbook(IXLWorkbook workbook)
         {
             BuildSummarySheet(workbook.Worksheets.Add("Invoice Summary"));
@@ -136,7 +138,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 _snapshot.Project?.LpoNumber ?? "");
             row++;
 
-            // Financial — from entity indexed columns (gotcha #20)
             AddSection(ws, ref row, "FINANCIAL SUMMARY");
             AddField(ws, ref row, "Glass Materials Total",
                 $"AED {_entity.GlassMaterialsSubtotal:N2}");
@@ -177,8 +178,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         }
 
         // ════════════════════════════════════════════════════════════════════
-        //  SHEET 2 — Glass Panels (preserved exactly)
-        //  ⚠️ "Qty" column here = genuine glass panel quantity — NOT changed
+        //  SHEET 2 — Glass Panels (preserved exactly — "Qty" = panel qty)
         // ════════════════════════════════════════════════════════════════════
 
         private void BuildGlassSheet(IXLWorksheet ws)
@@ -187,10 +187,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             {
                 "Spec #", "Spec Name", "#", "Glass Ref",
                 "W1", "H1", "W2", "H2",
-                "Qty", "Area (sqm)", "Total Area (sqm)",     // ← "Qty" = panel qty, NOT changed
+                "Qty", "Area (sqm)", "Total Area (sqm)",
                 "Rate (AED)", "Total (AED)"
             };
-            int totalCols = headers.Length; // 13
+            int totalCols = headers.Length;
 
             for (int i = 0; i < headers.Length; i++)
             {
@@ -275,7 +275,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                     }
                 }
 
-                // Per-spec subtotal row (preserved)
                 ws.Cell(dataRow, 2).Value = $"SPEC {g.GroupNumber} SUBTOTAL";
                 ws.Cell(dataRow, 2).Style.Font.Bold = true;
                 ws.Cell(dataRow, 2).Style.Font.FontColor =
@@ -301,7 +300,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 allValue += groupValue;
             }
 
-            // Grand total row (preserved)
             ws.Cell(dataRow, 2).Value = "GRAND TOTAL";
             ws.Cell(dataRow, 2).Style.Font.Bold = true;
             ws.Cell(dataRow, 2).Style.Font.FontSize = 12;
@@ -327,9 +325,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
         // ════════════════════════════════════════════════════════════════════
         //  SHEET 3 — Other Charges
-        //  BUG 4 FIX: "Quantity" column header → "QTY/SQM"
-        //  WHY: charges can be Qty (Holes), Sqm (Sandblasting), Lm (Edge Grinding)
-        //  NOT CHANGED: Glass Panels "Qty" column (that's genuine panel quantity)
+        //  Chat 7 Bug 4: "Quantity" → "QTY/SQM" header
         // ════════════════════════════════════════════════════════════════════
 
         private void BuildChargesSheet(
@@ -339,7 +335,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             var headers = new[]
             {
                 "Charge Name",
-                "QTY/SQM",       // ← Bug 4 fix: was "Quantity"
+                "QTY/SQM",       // ← Bug 4 (Chat 7): was "Quantity"
                 "Rate (AED)",
                 "Amount (AED)"
             };
@@ -351,7 +347,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 cell.Style.Font.Bold = true;
                 cell.Style.Font.FontColor = XLColor.White;
                 cell.Style.Fill.BackgroundColor =
-                    XLColor.FromHtml(TABLE_HEADER);  // dark header, matches PDF
+                    XLColor.FromHtml(TABLE_HEADER);
             }
 
             int row = 2;
@@ -370,7 +366,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 row++;
             }
 
-            // Total row (preserved exactly)
             ws.Cell(row, 1).Value = "TOTAL OTHER CHARGES";
             ws.Cell(row, 1).Style.Font.Bold = true;
             ws.Cell(row, 4).Value = _entity.OtherChargesSubtotal;
@@ -419,7 +414,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         }
 
         // ════════════════════════════════════════════════════════════════════
-        //  HELPERS (preserved exactly)
+        //  HELPERS
+        //  Bug 4b FIX: BuildOtherChargeLines now computes real qty + amount
+        //              using same pattern as PDF layout
         // ════════════════════════════════════════════════════════════════════
 
         private List<(string Name, string Qty, string Rate, decimal Amount)>
@@ -429,22 +426,96 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
             if (_snapshot.OtherCharges == null) return lines;
 
-            foreach (var c in _snapshot.OtherCharges.PredefinedCharges
-                .Where(c => c.IsActive))
-                lines.Add((c.TemplateKey ?? "", "",
-                    $"AED {c.Rate:N2}", 0m));
+            // Pre-load templates for name/unit lookup by TemplateKey
+            var templatesByKey = PredefinedChargeTemplates.GetAll()
+                .ToDictionary(t => t.Key, t => t);
 
+            // Aggregate metrics from all spec groups (for source key lookup)
+            var metrics = ComputeSpecMetrics(_snapshot.SpecGroups);
+
+            // ── Predefined charges (Argon, Silicon, U-Insert, etc.) ──────────
+            foreach (var c in _snapshot.OtherCharges.PredefinedCharges
+    .Where(c => c.IsActive))
+            {
+                templatesByKey.TryGetValue(c.TemplateKey ?? "", out var template);
+                string friendlyName = template?.ChargeName ?? c.TemplateKey ?? "";
+                string unitLabel = template?.Unit.ToString().ToUpper() ?? "QTY";
+
+                decimal metricQty;
+
+                // ═══════════════ Bug 4c (Chat 7) — QUICK HACK ═══════════════
+                // DELIVERY is per-invoice, not per-piece — always render 1 × Rate.
+                // Proper fix (PER_ROUND source) planned for Chat 8.
+                // ══════════════════════════════════════════════════════════════
+                if (c.TemplateKey == "DELIVERY")
+                {
+                    metricQty = 1m;
+                    unitLabel = "TRIP";
+                }
+                else if (c.TemplateKey == "POLISH")
+                {
+                    if (c.PolishSubType == "Custom")
+                    {
+                        metricQty = c.CustomPolishQty;
+                        if (!string.IsNullOrWhiteSpace(c.CustomPolishDescription))
+                            friendlyName = $"Polish — {c.CustomPolishDescription}";
+                    }
+                    else
+                    {
+                        metricQty = ComputePolishLm(_snapshot.SpecGroups, c.PolishSubType);
+                        if (!string.IsNullOrWhiteSpace(c.PolishSubType))
+                            friendlyName = $"Polish — {c.PolishSubType}";
+                    }
+                }
+                else
+                {
+                    string sourceKey = !string.IsNullOrWhiteSpace(c.SelectedSourceKey)
+                        ? c.SelectedSourceKey
+                        : (template?.DefaultSourceKey ?? "");
+                    metricQty = LookupMetric(metrics, sourceKey);
+                }
+
+                decimal amount = Math.Round(metricQty * c.Rate, 2);
+                string qtyStr = metricQty > 0
+                    ? $"{metricQty:0.###} {unitLabel}"
+                    : "—";
+
+                lines.Add((
+                    friendlyName,
+                    qtyStr,
+                    $"AED {c.Rate:N2}",
+                    amount));
+            }
+
+            // ── Wastage rows (color-aggregated) ──────────────────────────────
             foreach (var w in _snapshot.OtherCharges.Wastages
                 .Where(w => w.IsActive))
-                lines.Add(($"Wastage — {w.ColorName}", "",
-                    $"AED {w.Rate:N2}", 0m));
+            {
+                decimal wastageQty = ComputeWastageQty(
+                    _snapshot.SpecGroups, w.CheckedSourceKeys);
+                decimal wastageAmount = Math.Round(wastageQty * w.Rate, 2);
 
+                lines.Add((
+                    $"Wastage — {w.ColorName}",
+                    wastageQty > 0 ? $"{wastageQty:0.###} SQM" : "—",
+                    $"AED {w.Rate:N2}",
+                    wastageAmount));
+            }
+
+            // ── Custom charges (user manual entries) ─────────────────────────
             foreach (var c in _snapshot.OtherCharges.CustomCharges
                 .Where(c => c.IsActive))
-                lines.Add((c.ChargeName ?? "",
-                    $"{c.Qty:0.##} {c.Unit}",
+            {
+                decimal amount = Math.Round(c.Qty * c.Rate, 2);
+                string unitStr = string.IsNullOrWhiteSpace(c.Unit)
+                    ? "QTY" : c.Unit.ToUpper();
+
+                lines.Add((
+                    c.ChargeName ?? "",
+                    c.Qty > 0 ? $"{c.Qty:0.###} {unitStr}" : "—",
                     $"AED {c.Rate:N2}",
-                    Math.Round(c.Qty * c.Rate, 2)));
+                    amount));
+            }
 
             return lines;
         }
@@ -483,6 +554,192 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 string.IsNullOrWhiteSpace(value) ? "—" : value;
             ws.Cell(row, 2).Style.Font.Bold = true;
             row++;
+        }
+
+        // ════════════════════════════════════════════════════════════════════
+        //  METRIC COMPUTATION HELPERS (Bug 4b — shared logic with PDF layout)
+        //  Replicates OtherChargesViewModel + MetricDiscoveryHubViewModel
+        // ════════════════════════════════════════════════════════════════════
+
+        private static SpecMetrics ComputeSpecMetrics(List<SpecGroupSnapshot> specGroups)
+        {
+            var m = new SpecMetrics();
+            if (specGroups == null) return m;
+
+            foreach (var g in specGroups)
+            {
+                if (g.ItemRows == null) continue;
+
+                bool isDoubleGlass = g.SelectedGlassType == "DGU"
+                                     || g.SelectedGlassType == "LAM"
+                                     || g.SelectedGlassType == "DGU+LAM";
+                int factor = g.SelectedGlassType == "LAM" ? 4 : 2;
+
+                foreach (var r in g.ItemRows)
+                {
+                    if (r.Qty <= 0) continue;
+
+                    if (r.W1 > 0 && r.H1 > 0)
+                    {
+                        decimal sqm1 = Math.Max(
+                            Math.Round((decimal)r.W1 * r.H1 / 1_000_000m, 3), 0.5m);
+                        m.TotalSqm1 += Math.Round(sqm1 * r.Qty, 3);
+
+                        m.TotalLm1 += Math.Round(
+                            ((decimal)r.W1 + r.H1) / 1000m * factor * r.Qty, 3);
+                    }
+
+                    if (r.W2 > 0 && r.H2 > 0)
+                    {
+                        decimal sqm2 = Math.Max(
+                            Math.Round((decimal)r.W2 * r.H2 / 1_000_000m, 3), 0.5m);
+                        m.TotalSqm2 += Math.Round(sqm2 * r.Qty, 3);
+
+                        m.TotalLm2 += Math.Round(
+                            ((decimal)r.W2 + r.H2) / 1000m * factor * r.Qty, 3);
+                    }
+
+                    m.TotalPieces += r.Qty;
+
+                    if (isDoubleGlass)
+                    {
+                        m.DoubleGlassPieces += r.Qty * 2;
+                        if (r.W1 > 0 && r.H1 > 0)
+                        {
+                            decimal sqm1 = Math.Max(
+                                Math.Round((decimal)r.W1 * r.H1 / 1_000_000m, 3), 0.5m);
+                            m.DguCavityArea += Math.Round(sqm1 * r.Qty, 3);
+                        }
+                    }
+                    else
+                    {
+                        m.DoubleGlassPieces += r.Qty;
+                    }
+                }
+            }
+
+            m.CombinedLm = Math.Round(m.TotalLm1 + m.TotalLm2, 3);
+            m.CombinedSqm = Math.Round(m.TotalSqm1 + m.TotalSqm2, 3);
+            return m;
+        }
+
+        private static decimal LookupMetric(SpecMetrics m, string sourceKey)
+        {
+            return sourceKey switch
+            {
+                "LM1" => m.TotalLm1,
+                "LM2" => m.TotalLm2,
+                "LM_COMBINED" => m.CombinedLm,
+                "SQM1" => m.TotalSqm1,
+                "SQM2" => m.TotalSqm2,
+                "SQM_COMBINED" => m.CombinedSqm,
+                "DGU_CAVITY" => m.DguCavityArea,
+                "TOTAL_PIECES" => m.TotalPieces,
+                "DOUBLE_GLASS" => m.DoubleGlassPieces,
+                _ => 0m
+            };
+        }
+
+        private static decimal ComputePolishLm(
+            List<SpecGroupSnapshot> specGroups, string polishSubType)
+        {
+            if (specGroups == null || string.IsNullOrWhiteSpace(polishSubType))
+                return 0m;
+
+            decimal totalLm = 0m;
+
+            foreach (var g in specGroups)
+            {
+                if (g.ItemRows == null) continue;
+
+                // Bug 4b typo FIX: was "SelelectedGlassType" — now correct
+                bool isDoubleGlass = g.SelectedGlassType == "DGU"
+                                     || g.SelectedGlassType == "LAM"
+                                     || g.SelectedGlassType == "DGU+LAM";
+
+                foreach (var r in g.ItemRows)
+                {
+                    if (r.Qty <= 0) continue;
+
+                    decimal lm = 0m;
+                    if (r.W1 > 0 && r.H1 > 0)
+                        lm += CalcPolishSingle(r.W1, r.H1, polishSubType);
+                    if (isDoubleGlass && r.W2 > 0 && r.H2 > 0)
+                        lm += CalcPolishSingle(r.W2, r.H2, polishSubType);
+
+                    totalLm += lm * r.Qty;
+                }
+            }
+
+            return Math.Round(totalLm, 3);
+        }
+
+        private static decimal CalcPolishSingle(int w, int h, string subType)
+        {
+            return subType switch
+            {
+                "AllSidePolish" => ((decimal)w + h) / 1000m * 2m,
+                "AllSidePolishAsPerDwg" => ((decimal)w + h) / 1000m * 2m,
+                "BothHeightSide" => (decimal)h / 1000m * 2m,
+                "BothWidthSide" => (decimal)w / 1000m * 2m,
+                _ => 0m
+            };
+        }
+
+        private static decimal ComputeWastageQty(
+            List<SpecGroupSnapshot> specGroups, List<string> checkedKeys)
+        {
+            if (specGroups == null || checkedKeys == null || checkedKeys.Count == 0)
+                return 0m;
+
+            decimal total = 0m;
+
+            foreach (var key in checkedKeys)
+            {
+                if (string.IsNullOrWhiteSpace(key)) continue;
+
+                var parts = key.Split('-', 2);
+                if (parts.Length < 2) continue;
+                if (!int.TryParse(parts[0], out int specNumber)) continue;
+
+                var group = specGroups.FirstOrDefault(g => g.GroupNumber == specNumber);
+                if (group?.ItemRows == null) continue;
+
+                bool isOuter = parts[1].Contains("Outer", StringComparison.OrdinalIgnoreCase)
+                            || parts[1].Contains("W1", StringComparison.OrdinalIgnoreCase);
+
+                foreach (var r in group.ItemRows)
+                {
+                    if (r.Qty <= 0) continue;
+                    int w = isOuter ? r.W1 : r.W2;
+                    int h = isOuter ? r.H1 : r.H2;
+                    if (w > 0 && h > 0)
+                    {
+                        decimal sqm = Math.Max(
+                            Math.Round((decimal)w * h / 1_000_000m, 3), 0.5m);
+                        total += Math.Round(sqm * r.Qty, 3);
+                    }
+                }
+            }
+
+            return Math.Round(total, 3);
+        }
+
+        // ════════════════════════════════════════════════════════════════════
+        //  SpecMetrics DTO (Bug 4b — same as PDF layout)
+        // ════════════════════════════════════════════════════════════════════
+
+        private sealed class SpecMetrics
+        {
+            public decimal TotalLm1 { get; set; }
+            public decimal TotalLm2 { get; set; }
+            public decimal CombinedLm { get; set; }
+            public decimal TotalSqm1 { get; set; }
+            public decimal TotalSqm2 { get; set; }
+            public decimal CombinedSqm { get; set; }
+            public decimal DguCavityArea { get; set; }
+            public int TotalPieces { get; set; }
+            public int DoubleGlassPieces { get; set; }
         }
     }
 }
