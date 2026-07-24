@@ -17,6 +17,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
     ///
     /// STRANGLER PATTERN Round 1 — legacy InvoiceExcelExportService
     /// still compiles alongside this.
+    ///
+    /// CHAT 7 CHANGE (Bug 4):
+    ///   BuildChargesSheet(): "Quantity" column header → "QTY/SQM"
+    ///   WHY: Other Charges items can be Qty/Sqm/Lm — header reflects all
+    ///   NOT CHANGED: Glass Panels sheet "Qty" column (genuine panel qty)
     /// </summary>
     public class ProformaInvoiceExcelLayout : IExcelLayout
     {
@@ -73,7 +78,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         }
 
         // ════════════════════════════════════════════════════════════════════
-        //  SHEET 1 — Invoice Summary
+        //  SHEET 1 — Invoice Summary (preserved exactly)
         // ════════════════════════════════════════════════════════════════════
 
         private void BuildSummarySheet(IXLWorksheet ws)
@@ -172,9 +177,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         }
 
         // ════════════════════════════════════════════════════════════════════
-        //  SHEET 2 — Glass Panels (13 columns)
-        //  Spec # | Spec Name | # | Glass Ref | W1 | H1 | W2 | H2 |
-        //  Qty | Area (sqm) | Total Area (sqm) | Rate (AED) | Total (AED)
+        //  SHEET 2 — Glass Panels (preserved exactly)
+        //  ⚠️ "Qty" column here = genuine glass panel quantity — NOT changed
         // ════════════════════════════════════════════════════════════════════
 
         private void BuildGlassSheet(IXLWorksheet ws)
@@ -183,7 +187,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             {
                 "Spec #", "Spec Name", "#", "Glass Ref",
                 "W1", "H1", "W2", "H2",
-                "Qty", "Area (sqm)", "Total Area (sqm)",
+                "Qty", "Area (sqm)", "Total Area (sqm)",     // ← "Qty" = panel qty, NOT changed
                 "Rate (AED)", "Total (AED)"
             };
             int totalCols = headers.Length; // 13
@@ -271,7 +275,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                     }
                 }
 
-                // Per-spec subtotal row
+                // Per-spec subtotal row (preserved)
                 ws.Cell(dataRow, 2).Value = $"SPEC {g.GroupNumber} SUBTOTAL";
                 ws.Cell(dataRow, 2).Style.Font.Bold = true;
                 ws.Cell(dataRow, 2).Style.Font.FontColor =
@@ -297,7 +301,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 allValue += groupValue;
             }
 
-            // Grand total row
+            // Grand total row (preserved)
             ws.Cell(dataRow, 2).Value = "GRAND TOTAL";
             ws.Cell(dataRow, 2).Style.Font.Bold = true;
             ws.Cell(dataRow, 2).Style.Font.FontSize = 12;
@@ -323,6 +327,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
         // ════════════════════════════════════════════════════════════════════
         //  SHEET 3 — Other Charges
+        //  BUG 4 FIX: "Quantity" column header → "QTY/SQM"
+        //  WHY: charges can be Qty (Holes), Sqm (Sandblasting), Lm (Edge Grinding)
+        //  NOT CHANGED: Glass Panels "Qty" column (that's genuine panel quantity)
         // ════════════════════════════════════════════════════════════════════
 
         private void BuildChargesSheet(
@@ -331,7 +338,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         {
             var headers = new[]
             {
-                "Charge Name", "Quantity", "Rate (AED)", "Amount (AED)"
+                "Charge Name",
+                "QTY/SQM",       // ← Bug 4 fix: was "Quantity"
+                "Rate (AED)",
+                "Amount (AED)"
             };
 
             for (int i = 0; i < headers.Length; i++)
@@ -340,7 +350,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 cell.Value = headers[i];
                 cell.Style.Font.Bold = true;
                 cell.Style.Font.FontColor = XLColor.White;
-                cell.Style.Fill.BackgroundColor = XLColor.FromHtml(ACCENT);
+                cell.Style.Fill.BackgroundColor =
+                    XLColor.FromHtml(TABLE_HEADER);  // dark header, matches PDF
             }
 
             int row = 2;
@@ -359,7 +370,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 row++;
             }
 
-            // Total row
+            // Total row (preserved exactly)
             ws.Cell(row, 1).Value = "TOTAL OTHER CHARGES";
             ws.Cell(row, 1).Style.Font.Bold = true;
             ws.Cell(row, 4).Value = _entity.OtherChargesSubtotal;
@@ -371,7 +382,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         }
 
         // ════════════════════════════════════════════════════════════════════
-        //  SHEET 4 — Terms & Conditions
+        //  SHEET 4 — Terms & Conditions (preserved exactly)
         // ════════════════════════════════════════════════════════════════════
 
         private void BuildTermsSheet(
@@ -408,14 +419,13 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         }
 
         // ════════════════════════════════════════════════════════════════════
-        //  HELPERS
+        //  HELPERS (preserved exactly)
         // ════════════════════════════════════════════════════════════════════
 
         private List<(string Name, string Qty, string Rate, decimal Amount)>
             BuildOtherChargeLines()
         {
-            var lines =
-                new List<(string, string, string, decimal)>();
+            var lines = new List<(string, string, string, decimal)>();
 
             if (_snapshot.OtherCharges == null) return lines;
 

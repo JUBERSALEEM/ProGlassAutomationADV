@@ -3,6 +3,7 @@
                  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                  xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
                  xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+                 xmlns:beh="clr-namespace:ProGlassAutomation.Behaviors"
                  xmlns:wastages="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges.Wastages"
                  xmlns:custom="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges.CustomCharges"
                  mc:Ignorable="d"
@@ -177,11 +178,7 @@
                                 </StackPanel>
                             </StackPanel>
                         </Border>
-                        <!-- Phase 7.19e: Primary Glass Refs card expanded so full glass
-                             ref names are visible on first render. Card grows up to
-                             500px if the WrapPanel row still has space, pills grow to
-                             their natural content width, and each pill gets a tooltip
-                             as a safety net for exceptionally long names. -->
+                        <!-- Phase 7.19e: Primary Glass Refs card -->
                         <Border Style="{StaticResource MetricCardStyle}" MinWidth="320" MaxWidth="500">
                             <StackPanel>
                                 <TextBlock Text="PRIMARY GLASS REFS" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -233,6 +230,7 @@
 
             <!-- ============================================================
                      TABLE HEADER
+                     BUG 4: "METRIC QTY" → "QTY / SQM"
                 ============================================================ -->
             <Border Background="{DynamicResource MenuHoverBrush}" CornerRadius="4" Padding="10,8" Margin="0,0,0,4">
                 <Grid>
@@ -247,14 +245,15 @@
                     <TextBlock Grid.Column="0" Text="ACTIVE" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
                     <TextBlock Grid.Column="1" Text="CHARGE ITEM &amp; DESCRIPTION" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     <TextBlock Grid.Column="2" Text="TARGET GRID SOURCE / POLISH TYPE" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                    <TextBlock Grid.Column="3" Text="METRIC QTY" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
+                    <!-- Bug 4: was "METRIC QTY" — now shows QTY / SQM for unit clarity -->
+                    <TextBlock Grid.Column="3" Text="QTY / SQM" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
                     <TextBlock Grid.Column="4" Text="RATE (AED)" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
                     <TextBlock Grid.Column="5" Text="FORMULA &amp; RESULT (AED)" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Right"/>
                 </Grid>
             </Border>
 
             <!-- ============================================================
-                     CHARGE ROWS (Predefined: Argon, Silicon, Overlap, Shutter, Mitring, Polish, Cutout, Holes)
+                     CHARGE ROWS (Predefined)
                 ============================================================ -->
             <ItemsControl ItemsSource="{Binding ChargeRows}">
                 <ItemsControl.ItemTemplate>
@@ -342,16 +341,17 @@
                                     <!-- Metric qty badge -->
                                     <Border Grid.Column="3" Background="{DynamicResource MenuHoverBrush}" CornerRadius="4" Padding="6,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="{Binding MetricQty, StringFormat={}{0:0.##}}" FontSize="11" FontWeight="Bold" Foreground="#3B82F6"/>
+                                            <TextBlock Text="{Binding MetricQty, StringFormat={}{0:0.###}}" FontSize="11" FontWeight="Bold" Foreground="#3B82F6"/>
                                             <TextBlock Text=" "/>
                                             <TextBlock Text="{Binding Unit}" FontSize="9" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Bottom" Margin="0,0,0,1"/>
                                         </StackPanel>
                                     </Border>
 
-                                    <!-- Rate input -->
+                                    <!-- Rate input (Bug 5: AcceptDecimals) -->
                                     <TextBox Grid.Column="4"
                                                  Text="{Binding Rate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"
                                                  Style="{StaticResource RateInputStyle}"
+                                                 beh:TextBoxBehaviors.AcceptDecimals="True"
                                                  IsEnabled="{Binding IsActive}"
                                                  HorizontalAlignment="Center"
                                                  VerticalAlignment="Center"/>
@@ -379,7 +379,7 @@
                                     </TextBlock>
                                 </Grid>
 
-                                <!-- Custom Polish inline inputs (only when Polish + Custom selected) -->
+                                <!-- Custom Polish inline inputs -->
                                 <Border Background="#151E2C" CornerRadius="6" Padding="10,8" Margin="60,8,0,0"
                                             BorderThickness="1" BorderBrush="{DynamicResource AccentBrush}">
                                     <Border.Style>
@@ -410,9 +410,11 @@
                                                      Style="{StaticResource CustomInputStyle}"
                                                      Margin="0,0,12,0"/>
                                         <TextBlock Grid.Column="2" Text="MANUAL QTY (lm):" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                        <!-- Bug 5: AcceptDecimals on manual polish qty -->
                                         <TextBox Grid.Column="3"
-                                                     Text="{Binding CustomPolishQty, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"
+                                                     Text="{Binding CustomPolishQty, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.###}}"
                                                      Style="{StaticResource CustomInputStyle}"
+                                                     beh:TextBoxBehaviors.AcceptDecimals="True"
                                                      MinWidth="80"/>
                                     </Grid>
                                 </Border>
@@ -425,13 +427,13 @@
 
             <!-- ============================================================
                      PHASE 7.11c: GLASS WASTAGES SECTION
-                     (Multi-spec color aggregation with popup source picker)
                 ============================================================ -->
             <wastages:WastagesSectionView DataContext="{Binding WastagesSection}"/>
 
             <!-- ============================================================
                      PHASE 7.11d: CUSTOM MANUAL CHARGES SECTION
-                     (Free-form line items: delivery, packaging, design fees, etc.)
+                     (Screenshot in Chat 7 shows this section — needs QTY/SQM
+                      header + AcceptDecimals — fix in CustomChargesSectionView.xaml)
                 ============================================================ -->
             <custom:CustomChargesSectionView DataContext="{Binding CustomChargesSection}"/>
 

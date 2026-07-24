@@ -94,6 +94,66 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
                 Unit = OtherChargeUnit.Qty,
                 DefaultRate = 15m,
                 DefaultSourceKey = "TOTAL_PIECES"
+            },
+
+            // ═══════════════ Phase 7.1 (Chat 7) — 5 additional templates ═══════════════
+
+            new Template
+            {
+                Key = "SANDBLASTING",
+                ChargeName = "Sandblasting (Sqm)",
+                Description = "Surface abrasive frosting via silica sand blasting for decorative privacy.",
+                Unit = OtherChargeUnit.Sqm,
+                DefaultRate = 45m,
+                DefaultSourceKey = "SQM1"
+            },
+            new Template
+            {
+                Key = "EDGE_GRINDING",
+                ChargeName = "Edge Grinding (lm)",
+                Description = "Rough edge grinding before polish — smooths raw glass cut edges.",
+                Unit = OtherChargeUnit.Lm,
+                DefaultRate = 4m,
+                DefaultSourceKey = "LM1"
+            },
+            new Template
+            {
+                Key = "COUNTERSUNK_HOLES",
+                ChargeName = "Countersunk Holes (Qty)",
+                Description = "Countersunk hole drilling for flush-mounted screws (bathroom/shower fittings).",
+                Unit = OtherChargeUnit.Qty,
+                DefaultRate = 25m,
+                DefaultSourceKey = "TOTAL_PIECES"
+            },
+            new Template
+            {
+                Key = "FAN_HOLES",
+                ChargeName = "Fan Holes (Qty)",
+                Description = "Large-diameter fan/vent holes for exhaust and ventilation.",
+                Unit = OtherChargeUnit.Qty,
+                DefaultRate = 35m,
+                DefaultSourceKey = "TOTAL_PIECES"
+            },
+            new Template
+            {
+                Key = "DELIVERY",
+                ChargeName = "Delivery (per trip)",
+                Description = "Site delivery charge — flat rate per trip.",
+                Unit = OtherChargeUnit.Qty,
+                DefaultRate = 150m,
+                DefaultSourceKey = "TOTAL_PIECES"
+            },
+
+            // ═══════════════ Phase 7.1 (Chat 7) — U-Insert added per developer request ═══════════════
+
+            new Template
+            {
+                Key = "U_INSERT",
+                ChargeName = "U-Insert (Sqm)",
+                Description = "U-channel gasket/rubber insertion for structural glazing edge sealing. Rate editable per invoice.",
+                Unit = OtherChargeUnit.Sqm,
+                DefaultRate = 10m,
+                DefaultSourceKey = "SQM1"
             }
 
             // Phase 7.11c will add: Wastages (color-aggregated)

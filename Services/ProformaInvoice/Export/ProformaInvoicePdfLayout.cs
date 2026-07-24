@@ -23,6 +23,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
     ///   GRAND TOTAL: N Specs • QTY: X • AREA: X.XXX sqm    VALUE: AED X,XXX.XX
     ///
     /// STRANGLER PATTERN Round 1: old services still compile alongside this.
+    ///
+    /// CHAT 7 CHANGE (Bug 4):
+    ///   RenderOtherCharges() — added column header row with "QTY/SQM"
+    ///   WHY: Other Charges items can be Qty/Sqm/Lm — header reflects all units
+    ///   NOT CHANGED: Spec table "QTY" column (genuine glass panel quantity)
+    ///   NOT CHANGED: BuildRenderContext() — snapshot properties preserved exactly
     /// </summary>
     public class ProformaInvoicePdfLayout : IPdfLayout
     {
@@ -198,7 +204,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         }
 
         // ────────────────────────────────────────────────────────────────────
-        //  11-column spec table:
+        //  11-column spec table — PRESERVED EXACTLY
+        //  ⚠️ "QTY" header here = genuine glass panel quantity — DO NOT change
         //  # | GLASS REF | W1 | H1 | W2 | H2 | QTY | AREA | TOTAL AREA | RATE | TOTAL
         // ────────────────────────────────────────────────────────────────────
         private void RenderSpecTable(IContainer container, PiSpecGroup group)
@@ -225,7 +232,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                         c.ConstantColumn(32);        // H1
                         c.ConstantColumn(32);        // W2
                         c.ConstantColumn(32);        // H2
-                        c.ConstantColumn(32);        // Qty
+                        c.ConstantColumn(32);        // Qty ← glass panel qty, not charges qty
                         c.RelativeColumn(0.75f);     // Area (unit)
                         c.RelativeColumn(0.80f);     // Total Area
                         c.RelativeColumn(0.70f);     // Rate
@@ -234,6 +241,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
                     table.Header(header =>
                     {
+                        // ⚠️ "QTY" = glass panel quantity — preserved, not changed to QTY/SQM
                         var headers = new[]
                         {
                             "#", "GLASS REF", "W1", "H1", "W2", "H2",
@@ -306,18 +314,56 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 });
         }
 
+        // ════════════════════════════════════════════════════════════════════
+        //  OTHER CHARGES — BUG 4 FIX
+        //
+        //  ONLY CHANGE in this file vs original:
+        //    + Added TABLE_HEADER column header row before the charge rows
+        //    + "QTY/SQM" label — accommodates Qty, Sqm, and Lm charge units
+        //
+        //  Data rows (Name/QtyLabel/RateLabel/Amount) = PRESERVED EXACTLY
+        //  Spec table "QTY" column = NOT TOUCHED
+        // ════════════════════════════════════════════════════════════════════
         private void RenderOtherCharges(IContainer container)
         {
             if (!_ctx.OtherCharges.Any()) return;
 
             container.PaddingTop(4).Column(col =>
             {
+                // Section title bar (preserved)
                 col.Item()
                     .Background(ACCENT)
                     .PaddingHorizontal(8).PaddingVertical(5)
                     .Text("SUPPLEMENTARY / FABRICATION OTHER CHARGES")
                     .FontSize(10).Bold().FontColor(Colors.White);
 
+                // ── Bug 4: Column header row ─────────────────────────────────
+                // Added in Chat 7. QTY/SQM instead of QTY because Other Charges
+                // can be Qty (Holes), Sqm (Sandblasting), or Lm (Edge Grinding).
+                // The data rows below are preserved exactly — only header added.
+                col.Item()
+                    .Background(TABLE_HEADER)
+                    .PaddingHorizontal(8).PaddingVertical(4)
+                    .Row(hdr =>
+                    {
+                        hdr.RelativeItem(2f)
+                            .Text("DESCRIPTION")
+                            .FontSize(8).Bold().FontColor(Colors.White);
+
+                        hdr.RelativeItem(1.2f)
+                            .Text("QTY/SQM")
+                            .FontSize(8).Bold().FontColor(Colors.White);
+
+                        hdr.RelativeItem(1f)
+                            .Text("RATE")
+                            .FontSize(8).Bold().FontColor(Colors.White);
+
+                        hdr.RelativeItem(1f).AlignRight()
+                            .Text("AMOUNT")
+                            .FontSize(8).Bold().FontColor(Colors.White);
+                    });
+
+                // Charge data rows — PRESERVED EXACTLY from original
                 col.Item()
                     .Background(LIGHT_BG)
                     .Border(1).BorderColor(LINE)
@@ -349,6 +395,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             });
         }
 
+        // ════════════════════════════════════════════════════════════════════
+        //  FINANCIAL SUMMARY — PRESERVED EXACTLY
+        // ════════════════════════════════════════════════════════════════════
         private void RenderFinancialSummary(IContainer container)
         {
             container
@@ -402,6 +451,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 });
         }
 
+        // ════════════════════════════════════════════════════════════════════
+        //  TERMS & CONDITIONS — PRESERVED EXACTLY
+        // ════════════════════════════════════════════════════════════════════
         private void RenderTermsAndConditions(IContainer container)
         {
             container.PaddingTop(14).Column(col =>
@@ -455,6 +507,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             });
         }
 
+        // ════════════════════════════════════════════════════════════════════
+        //  SIGNATURE BLOCKS — PRESERVED EXACTLY
+        // ════════════════════════════════════════════════════════════════════
         private void RenderSignatureBlocks(IContainer container)
         {
             container.PaddingTop(12).Row(row =>
@@ -532,9 +587,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         }
 
         // ════════════════════════════════════════════════════════════════════
-        //  SNAPSHOT → RENDER CONTEXT BUILDER
+        //  SNAPSHOT → RENDER CONTEXT BUILDER — PRESERVED EXACTLY
+        //  No changes here — snapshot property names kept as original
         // ════════════════════════════════════════════════════════════════════
-
         private static PiRenderContext BuildRenderContext(
             SavedProformaInvoice entity,
             ProformaInvoiceSnapshot snapshot)
@@ -565,8 +620,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 GlassMaterialsTotal = entity.GlassMaterialsSubtotal,
                 OtherChargesTotal = entity.OtherChargesSubtotal,
                 NetSubtotal = entity.GlassMaterialsSubtotal
-                                      + entity.OtherChargesSubtotal
-                                      - entity.DiscountAmount,
+                                        + entity.OtherChargesSubtotal
+                                        - entity.DiscountAmount,
                 DiscountAmount = entity.DiscountAmount,
                 IsVatApplicable = entity.VatAmount > 0,
                 VatAmount = entity.VatAmount,
@@ -578,9 +633,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 PreparedByStatus = snapshot.PreparedBy?.PreparedByStatus ?? "",
                 TermsText = snapshot.PreparedBy?.TermsText ?? "",
                 FooterDisclaimer = snapshot.PreparedBy?.FooterDisclaimer
-                                      ?? "Confidential Document generated automatically by ProGlass Automation ERP platform."
+                                        ?? "Confidential Document generated automatically by ProGlass Automation ERP platform."
             };
 
+            // ── Spec groups (preserved exactly) ─────────────────────────────
             if (snapshot.SpecGroups != null)
             {
                 foreach (var g in snapshot.SpecGroups)
@@ -630,6 +686,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 }
             }
 
+            // ── Other charges (preserved exactly — snapshot props unchanged) ──
             if (snapshot.OtherCharges != null)
             {
                 foreach (var c in snapshot.OtherCharges.PredefinedCharges
@@ -669,6 +726,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 }
             }
 
+            // ── Terms & conditions (preserved exactly) ───────────────────────
             if (snapshot.TermClauses != null)
             {
                 foreach (var c in snapshot.TermClauses
@@ -695,7 +753,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         }
 
         // ════════════════════════════════════════════════════════════════════
-        //  TABLE CELL HELPERS
+        //  TABLE CELL HELPERS — PRESERVED EXACTLY
         // ════════════════════════════════════════════════════════════════════
 
         private static void AddLabelValue(
@@ -765,7 +823,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         }
 
         // ════════════════════════════════════════════════════════════════════
-        //  PRIVATE RENDER CONTEXT DTOs
+        //  PRIVATE RENDER CONTEXT DTOs — PRESERVED EXACTLY
         // ════════════════════════════════════════════════════════════════════
 
         private sealed class PiRenderContext
@@ -801,6 +859,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             public string PreparedByStatus { get; set; } = "";
             public string TermsText { get; set; } = "";
             public string FooterDisclaimer { get; set; } = "";
+
             public List<PiSpecGroup> SpecGroups { get; } = new();
             public List<PiChargeLine> OtherCharges { get; } = new();
             public List<PiTermClause> TermClauses { get; } = new();
