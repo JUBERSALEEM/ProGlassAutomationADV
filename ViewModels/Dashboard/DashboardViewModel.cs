@@ -1,4 +1,5 @@
 ﻿using ProGlassAutomation.Commands;
+using ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard;
 using ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard;
 using System;
 using System.Collections.Generic;
@@ -12,6 +13,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     /// Lazy-loads each sub-page on first tab selection via ActivePage setter.
     /// NavigateTo and TriggerNewInvoice are wired by MainViewModel after
     /// construction and passed down to OverviewVM.
+    ///
+    /// Phase 10.9: Added DnDashboardVM (Deliveries tab).
     /// </summary>
     public class DashboardViewModel : ViewModelBase
     {
@@ -36,6 +39,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         public SheetStoreDashboardViewModel SheetStoreVM { get; }
         public PiDashboardViewModel ProformaVM { get; }
         public JoDashboardViewModel JobOrderVM { get; }
+        public DnDashboardViewModel DeliveryNoteVM { get; }   // ← Phase 10.9 NEW
 
         // ── commands ──────────────────────────────────────────────────────
         public ICommand SelectTabCommand { get; }
@@ -66,13 +70,15 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             SheetStoreVM = new SheetStoreDashboardViewModel();
             ProformaVM = new PiDashboardViewModel();
             JobOrderVM = new JoDashboardViewModel();
+            DeliveryNoteVM = new DnDashboardViewModel();   // ← Phase 10.9 NEW
 
             Pages = new List<DashboardPageBase>
             {
                 OverviewVM,
                 SheetStoreVM,
                 ProformaVM,
-                JobOrderVM
+                JobOrderVM,
+                DeliveryNoteVM   // ← Phase 10.9 NEW (appears as tab)
             };
 
             SelectTabCommand = new RelayCommand(p =>

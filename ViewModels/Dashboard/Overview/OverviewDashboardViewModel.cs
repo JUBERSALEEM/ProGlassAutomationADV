@@ -21,8 +21,12 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     ///   🚚 Delivery     | 💬 Recent Activity (chat style, scrolls)
     ///   📦 Inventory    | 📈 Sales Chart
     ///
-    /// Recent Activity is now INSIDE the grid, not below.
-    /// Each parent card has 2–4 nested tiles arranged 2x2.
+    /// FIXES APPLIED:
+    ///   FIX-1 (Currency): Money values use N2 (2 decimals) not N0 (rounded).
+    ///   FIX-2 (Pending Balance): Shows actual PIECES not JOB count (Gotcha #40).
+    ///   FIX-3 (Dispatched): Includes Delivered/Signed/Received (all sent-out).
+    ///   FIX-4 (4 tiles): Added Delivered Today tile.
+    ///   FIX-5 (5 tiles): Added Total Delivered (pcs) — comprehensive delivery view.
     /// </summary>
     public class OverviewDashboardViewModel : DashboardPageBase
     {
@@ -46,10 +50,9 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         public ICommand ExportReportCommand { get; }
 
         // ═════════════════════════════════════════════════════════════════
-        //  4 PARENT CARDS — each has a collection of nested tiles
+        //  PARENT CARDS
         // ═════════════════════════════════════════════════════════════════
 
-        // 💰 SALES parent card — 4 tiles
         private ObservableCollection<KpiTileModel> _salesTiles = new();
         public ObservableCollection<KpiTileModel> SalesTiles
         {
@@ -57,7 +60,6 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             private set { if (_salesTiles == value) return; _salesTiles = value; OnPropertyChanged(); }
         }
 
-        // 🏭 PRODUCTION parent card — 4 tiles
         private ObservableCollection<KpiTileModel> _productionTiles = new();
         public ObservableCollection<KpiTileModel> ProductionTiles
         {
@@ -65,7 +67,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             private set { if (_productionTiles == value) return; _productionTiles = value; OnPropertyChanged(); }
         }
 
-        // 🚚 DELIVERY parent card — 3 tiles
+        // 🚚 DELIVERY parent card — 5 tiles (FIX-5: was 4)
         private ObservableCollection<KpiTileModel> _deliveryTiles = new();
         public ObservableCollection<KpiTileModel> DeliveryTiles
         {
@@ -73,7 +75,6 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             private set { if (_deliveryTiles == value) return; _deliveryTiles = value; OnPropertyChanged(); }
         }
 
-        // 📦 INVENTORY parent card — 4 tiles
         private ObservableCollection<KpiTileModel> _inventoryTiles = new();
         public ObservableCollection<KpiTileModel> InventoryTiles
         {
@@ -82,7 +83,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  RECENT ACTIVITY — inside the grid (chat style)
+        //  RECENT ACTIVITY
         // ═════════════════════════════════════════════════════════════════
 
         private ObservableCollection<ActivityFeedItem> _recentActivity = new();
@@ -100,7 +101,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  MONTHLY SALES CHART — inside the grid
+        //  MONTHLY SALES CHART
         // ═════════════════════════════════════════════════════════════════
 
         private ObservableCollection<ChartBarModel> _monthlySalesBars = new();
@@ -124,7 +125,6 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             private set { if (_hasChartData == value) return; _hasChartData = value; OnPropertyChanged(); }
         }
 
-        // ── sheet repo ────────────────────────────────────────────────────
         private readonly ISheetStoreRepository _sheetRepo = new SheetStoreRepository();
 
         // ═════════════════════════════════════════════════════════════════
@@ -183,9 +183,40 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                                      && j.UpdatedAt >= firstOfMonth);
             int totalJobs = jobs.Count;
 
+            // ─────────────────────────────────────────────────────────────
+            //  DELIVERY calculations — ALL FIXES + NEW METRICS
+            // ─────────────────────────────────────────────────────────────
+
+            // Preparing = Draft DNs (not yet dispatched)
             int dnDraft = allDns.Count(d => Eq(d.Status, "Draft"));
-            int dnDispatched = allDns.Count(d => Eq(d.Status, "Dispatched"));
-            int dnPending = pendingJobs.Count;
+
+            // FIX-3: Dispatched includes ALL sent-out states
+            int dnDispatched = allDns.Count(d =>
+                Eq(d.Status, "Dispatched") ||
+                Eq(d.Status, "Delivered") ||
+                Eq(d.Status, "Signed") ||
+                Eq(d.Status, "Received"));
+
+            // FIX-4: Delivered Today = pieces delivered today (SUM, not COUNT)
+            //        Better metric than DN count — shows actual pieces moving today
+            int dnDeliveredTodayPcs = allDns
+                .Where(d => d.DeliveryDate.Date == today &&
+                            (Eq(d.Status, "Dispatched") ||
+                             Eq(d.Status, "Delivered") ||
+                             Eq(d.Status, "Signed") ||
+                             Eq(d.Status, "Received")))
+                .Sum(d => d.TotalDeliveredQty);
+
+            // FIX-5 (NEW): Total Delivered = all pieces ever delivered
+            //              Cumulative metric showing lifetime volume
+            int dnTotalDeliveredPcs = allDns
+                .Where(d => !Eq(d.Status, "Draft"))
+                .Sum(d => d.TotalDeliveredQty);
+
+            // FIX-2 (CRITICAL — Gotcha #40): Pending pieces from correct aggregation
+            int dnPendingPcs = pendingJobs.Sum(p => p.TotalBalance);
+
+            // ─────────────────────────────────────────────────────────────
 
             decimal inventoryValue = sheets.Sum(s => s.BalanceValue);
             int lowStock = sheets.Count(s => s.Balance <= 5);
@@ -201,7 +232,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 {
                     Icon         = "💰",
                     Label        = "Total Sales",
-                    DisplayValue = $"AED {totalSales:N0}",
+                    DisplayValue = $"AED {totalSales:N2}",
                     Accent       = "Green"
                 },
                 new KpiTileModel
@@ -215,7 +246,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 {
                     Icon         = "📅",
                     Label        = "This Month",
-                    DisplayValue = $"AED {salesMtd:N0}",
+                    DisplayValue = $"AED {salesMtd:N2}",
                     Accent       = "Green"
                 },
                 new KpiTileModel
@@ -264,7 +295,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             };
 
             // ═════════════════════════════════════════════════════════════
-            //  🚚 DELIVERY CARD — 3 tiles
+            //  🚚 DELIVERY CARD — 5 tiles (comprehensive)
+            //  Preparing | Dispatched | Delivered Today | Total Delivered | Pending Balance
             // ═════════════════════════════════════════════════════════════
             DeliveryTiles = new ObservableCollection<KpiTileModel>
             {
@@ -284,11 +316,25 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 },
                 new KpiTileModel
                 {
-                    Icon         = dnPending > 0 ? "⚖️" : "✅",
-                    Label        = "Pending Balance",
-                    DisplayValue = dnPending.ToString("N0"),
-                    Accent       = dnPending > 0 ? "Red" : "Amber",
-                    IsAlert      = dnPending > 0
+                    Icon         = "📅",
+                    Label        = "Delivered Today (pcs)",
+                    DisplayValue = dnDeliveredTodayPcs.ToString("N0"),
+                    Accent       = "Green"
+                },
+                new KpiTileModel
+                {
+                    Icon         = "✅",
+                    Label        = "Total Delivered (pcs)",   // FIX-5: NEW comprehensive tile
+                    DisplayValue = dnTotalDeliveredPcs.ToString("N0"),
+                    Accent       = "Green"
+                },
+                new KpiTileModel
+                {
+                    Icon         = dnPendingPcs > 0 ? "⚖️" : "✅",
+                    Label        = "Pending Balance (pcs)",
+                    DisplayValue = dnPendingPcs.ToString("N0"),
+                    Accent       = dnPendingPcs > 0 ? "Red" : "Amber",
+                    IsAlert      = dnPendingPcs > 0
                 }
             };
 
@@ -301,7 +347,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 {
                     Icon         = "💵",
                     Label        = "Stock Value",
-                    DisplayValue = $"AED {inventoryValue:N0}",
+                    DisplayValue = $"AED {inventoryValue:N2}",
                     Accent       = "Red"
                 },
                 new KpiTileModel
@@ -350,7 +396,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 {
                     Label = m.ToString("MMM"),
                     RawValue = total,
-                    ValueDisplay = total > 0 ? $"AED {total:N0}" : "—",
+                    ValueDisplay = total > 0 ? $"AED {total:N2}" : "—",
                     BarColor = "#6366F1"
                 };
             }).ToList();
@@ -387,7 +433,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     Title = $"{(string.IsNullOrWhiteSpace(i.ProformaId) ? "Invoice" : i.ProformaId)}" +
                                    $"{(string.IsNullOrWhiteSpace(i.CustomerName) ? "" : $"  ·  {i.CustomerName}")}",
                     SubTitle = $"Proforma  ·  {(isUpdated ? "Updated" : "Created")} {date:dd MMM}",
-                    ValueDisplay = $"AED {i.GrandTotalVatInclusive:N0}",
+                    ValueDisplay = $"AED {i.GrandTotalVatInclusive:N2}",
                     StatusLabel = i.Status ?? "Draft",
                     StatusColor = ResolveStatusColor(i.Status),
                     TintColor = ResolveStatusTint(i.Status),
@@ -415,7 +461,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     ValueDisplay = h.QuantityChanged > 0
                                        ? $"{h.QuantityChanged} sheet{(h.QuantityChanged == 1 ? "" : "s")}"
                                        : h.ValueChanged.HasValue
-                                           ? $"AED {h.ValueChanged:N0}" : "—",
+                                           ? $"AED {h.ValueChanged:N2}" : "—",
                     StatusLabel = h.Action,
                     StatusColor = ResolveActionColor(h.Action),
                     TintColor = ResolveActionTint(h.Action),
@@ -454,7 +500,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                                        ? $"Due {j.DeliveryDate.Value:dd MMM}"
                                        : "No due date"),
                     ValueDisplay = j.GrandTotalVatInclusive > 0
-                                       ? $"AED {j.GrandTotalVatInclusive:N0}" : "—",
+                                       ? $"AED {j.GrandTotalVatInclusive:N2}" : "—",
                     StatusLabel = statusLabel,
                     StatusColor = ResolveJobStatusColor(j.Status, isOverdue),
                     TintColor = ResolveJobPriorityTint(j.Priority),
@@ -500,7 +546,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
 
             var merged = feedItems
                 .OrderByDescending(f => f.SortDate)
-                .Take(20)   // more visible in scrollable card
+                .Take(20)
                 .ToList();
 
             RecentActivity = new ObservableCollection<ActivityFeedItem>(merged);
@@ -614,7 +660,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     }
 
     // ═════════════════════════════════════════════════════════════════════
-    //  KPI TILE MODEL — used for nested tiles inside parent cards
+    //  KPI TILE MODEL
     // ═════════════════════════════════════════════════════════════════════
 
     public class KpiTileModel : ViewModelBase

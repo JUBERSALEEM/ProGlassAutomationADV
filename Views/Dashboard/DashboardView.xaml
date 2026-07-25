@@ -3,10 +3,12 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:ProGlassAutomation.ViewModels.Dashboard"
              xmlns:vmJo="clr-namespace:ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard"
+             xmlns:vmDn="clr-namespace:ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard"
              xmlns:ov="clr-namespace:ProGlassAutomation.Views.Dashboard.Overview"
              xmlns:ss="clr-namespace:ProGlassAutomation.Views.Dashboard.SheetStore"
              xmlns:pi="clr-namespace:ProGlassAutomation.Views.Dashboard.ProformaInvoice"
              xmlns:jo="clr-namespace:ProGlassAutomation.Views.Dashboard.JobOrder.JoDashboard"
+             xmlns:dn="clr-namespace:ProGlassAutomation.Views.Dashboard.DeliveryNote.DnDashboard"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -17,7 +19,8 @@
     <UserControl.Resources>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             VM → View mappings for the 4 sub-dashboards
+             VM → View mappings for the 5 sub-dashboards
+             Phase 10.9: Added DnDashboard mapping
         ═══════════════════════════════════════════════════════════════ -->
         <DataTemplate DataType="{x:Type vm:OverviewDashboardViewModel}">
             <ov:OverviewDashboardView/>
@@ -30,6 +33,9 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type vmJo:JoDashboardViewModel}">
             <jo:JoDashboardView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmDn:DnDashboardViewModel}">
+            <dn:DnDashboardView/>
         </DataTemplate>
 
         <!-- ═══════════════════════════════════════════════════════════════
