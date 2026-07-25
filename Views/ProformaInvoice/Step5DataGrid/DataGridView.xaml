@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:controls="clr-namespace:ProGlassAutomation.Controls.AutoCompleteTextBox"
              xmlns:summary="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step5DataGrid.GrandTotalSummary"
              mc:Ignorable="d"
              d:DesignHeight="800" d:DesignWidth="900"
@@ -328,7 +329,11 @@
             </Setter>
         </Style>
 
-        <!-- Editable ComboBox (spec name search) -->
+        <!-- Editable ComboBox (kept for backward-compat with any other view
+             that may still use it — no longer used by the Specification field,
+             which now uses the custom AutoCompleteTextBox control.
+             IsTextSearchEnabled=False was HOTFIX-4 to prevent StartsWith
+             conflict with our custom filter). -->
         <Style x:Key="EditableComboBoxStyle" TargetType="ComboBox">
             <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
@@ -339,7 +344,7 @@
             <Setter Property="Height"                   Value="38"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="IsEditable"               Value="True"/>
-            <Setter Property="IsTextSearchEnabled"      Value="True"/>
+            <Setter Property="IsTextSearchEnabled"      Value="False"/>
             <Setter Property="ItemContainerStyle"       Value="{StaticResource ThemedComboBoxItemStyle}"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -747,7 +752,16 @@
                                     </StackPanel>
                                 </Border>
 
-                                <!-- ── Glass type + specification dropdowns ── -->
+                                <!-- ── Glass type + specification dropdowns ──
+                                     HOTFIX-5 (final): Specification field is now the
+                                     custom AutoCompleteTextBox control instead of
+                                     WPF's editable ComboBox. Bindings:
+                                       ItemsSource     → FilteredSpecs (ICollectionView)
+                                       Text            → SpecTypedText  (typing filter)
+                                       SelectedItem    → SelectedSpecItem (popup pick)
+                                       IsDropDownOpen  → IsSpecDropdownOpen (VM control)
+                                       DisplayMemberPath = "SpecName"
+                                -->
                                 <Grid Margin="0,0,0,14">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="200"/>
@@ -763,10 +777,12 @@
                                     <StackPanel Grid.Column="2">
                                         <TextBlock Text="SPECIFICATION (pick saved or type custom)"
                                                    Style="{StaticResource FieldLabelStyle}"/>
-                                        <ComboBox ItemsSource="{Binding FilteredSpecs}"
-                                                  DisplayMemberPath="SpecName"
-                                                  Text="{Binding SelectedSpecName, UpdateSourceTrigger=PropertyChanged}"
-                                                  Style="{StaticResource EditableComboBoxStyle}"/>
+                                        <controls:AutoCompleteTextBox
+                                            ItemsSource="{Binding FilteredSpecs}"
+                                            Text="{Binding SpecTypedText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                                            SelectedItem="{Binding SelectedSpecItem, Mode=TwoWay}"
+                                            IsDropDownOpen="{Binding IsSpecDropdownOpen, Mode=TwoWay}"
+                                            DisplayMemberPath="SpecName"/>
                                     </StackPanel>
                                 </Grid>
 
@@ -1235,4 +1251,5 @@
 
         </StackPanel>
     </ScrollViewer>
+
 </UserControl>

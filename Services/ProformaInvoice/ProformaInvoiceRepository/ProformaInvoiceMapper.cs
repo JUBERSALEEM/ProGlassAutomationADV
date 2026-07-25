@@ -1,4 +1,5 @@
 ﻿using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Models.ProformaInvoice.Specifications;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.CustomCharges;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages;
@@ -31,9 +32,18 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
     ///         the printable preview.
     /// BUG-16: Wastages restore no longer calls UI command from mapper —
     ///         creates rows directly in the collection.
-    /// BUG-17: Spec name mismatch logged (silent data gap fixed).
+    /// BUG-17: Spec name mismatch check removed — FilteredSpecs is now
+    ///         an ICollectionView populated asynchronously, so a
+    ///         synchronous check at restore time is unreliable and
+    ///         produced false-positive warnings. Value is preserved
+    ///         verbatim regardless.
     /// BUG-18: DeserializeSnapshot catches only JsonException.
     /// BUG-20: Shared static JsonSerializerOptions — no per-call alloc.
+    ///
+    /// HOTFIX-5 (compile fix): Removed .Any() call on FilteredSpecs
+    ///         which is now ICollectionView (non-generic) instead of
+    ///         ObservableCollection<SavedSpecification>. LINQ's generic
+    ///         Any<T> could not infer the type parameter.
     /// </summary>
     public static class ProformaInvoiceMapper
     {
@@ -388,21 +398,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     SurchargePercent = gSnap.SurchargePercent
                 };
 
-                // BUG-17: warn if SelectedSpecName won't resolve in current DB
-                if (!string.IsNullOrWhiteSpace(gSnap.SelectedSpecName))
-                {
-                    var found = group.FilteredSpecs?.Any(s =>
-                        string.Equals(s.SpecName, gSnap.SelectedSpecName,
-                            StringComparison.OrdinalIgnoreCase)) ?? false;
-                    if (!found)
-                    {
-                        Debug.WriteLine(
-                            $"[ProformaInvoiceMapper] SelectedSpecName " +
-                            $"'{gSnap.SelectedSpecName}' not found in FilteredSpecs " +
-                            $"for group #{gSnap.GroupNumber} at restore time. " +
-                            $"Value preserved but dropdown may show empty.");
-                    }
-                }
+                // BUG-17 note: We no longer verify the spec name against
+                // FilteredSpecs at restore time — FilteredSpecs is now an
+                // ICollectionView populated asynchronously by LoadSpecsAsync,
+                // so a synchronous check here would fire spurious warnings
+                // even for valid specs. The name is preserved verbatim; the
+                // dropdown resolves it once the async load completes.
 
                 if (gSnap.ItemRows != null && gSnap.ItemRows.Count > 0)
                 {

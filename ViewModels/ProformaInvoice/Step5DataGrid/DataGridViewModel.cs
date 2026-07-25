@@ -1,22 +1,22 @@
 ﻿// ╔══════════════════════════════════════════════════════════════════════════╗
 // ║  ViewModels/ProformaInvoice/Step5DataGrid/DataGridViewModel.cs           ║
 // ║                                                                          ║
-// ║  CHAT 13 HOTFIX:                                                         ║
-// ║    BUG-HOTFIX-1 [CRITICAL]: BaseRate change did not propagate to rows    ║
-// ║      Cause: UpdateAllRowRates() skipped rows whose Rate != BaseRate      ║
-// ║             (old value never matches NEW BaseRate → all rows skipped)    ║
-// ║      Fix : UpdateAllRowRates() now always updates unless the row is      ║
-// ║             flagged SuppressRateAutoAdjust (user typed custom rate).     ║
-// ║             The "managed rate" check is only used in OnRowChanged when   ║
-// ║             Sqm1 crosses the 4 m² threshold (Rule 2).                    ║
+// ║  CHAT 13 HOTFIX-5 (proper fix): CollectionView.Filter                    ║
 // ║                                                                          ║
-// ║  SESSION 2 FIXES (Chat 12) — PRESERVED:                                  ║
-// ║    BUG-46 [CRITICAL]: Clipboard.GetText() wrapped in try/catch           ║
-// ║    BUG-47 [HIGH]: SqmCalculator.CalculatePanel() replaces inline formula ║
-// ║    BUG-48 [HIGH]: LoadFilteredSpecs — async Task + SafeFire wrapper      ║
-// ║    BUG-49 [HIGH]: Rate auto-adjust respects SuppressRateAutoAdjust       ║
-// ║    BUG-50 [MEDIUM]: DispatcherTimer disposed properly                    ║
-// ║    BUG-51 [MEDIUM]: FireAllChanged batched via single dispatcher call    ║
+// ║    ROOT CAUSE OF TYPING BUG:                                             ║
+// ║    Previously, FilteredSpecs was an ObservableCollection that got        ║
+// ║    Cleared and re-Add()ed on every keystroke. WPF's editable ComboBox    ║
+// ║    reacted to ItemsSource churn by resynchronizing Text ⇄ SelectedItem, ║
+// ║    which wiped user input and selection state mid-typing.                ║
+// ║                                                                          ║
+// ║    FIX:                                                                  ║
+// ║    FilteredSpecs is now an ICollectionView with a Filter predicate.     ║
+// ║    Typing triggers view.Refresh() — items are HIDDEN/SHOWN in place,    ║
+// ║    the source collection is never mutated. WPF's ComboBox stays quiet.  ║
+// ║                                                                          ║
+// ║  HOTFIX-4 (preserved): Autocomplete + glass type auto-switch             ║
+// ║  HOTFIX-1 (preserved): BaseRate propagates to all rows                   ║
+// ║  Chat 12 Session 2 (preserved): BUG-46/47/48/49/50/51                    ║
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
 using ProGlassAutomation.Behaviors;
@@ -33,6 +33,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -165,11 +166,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             set { if (_perimeterFactor == value) return; _perimeterFactor = value; OnPropertyChanged(); RecalculateAll(); }
         }
 
-        /// <summary>
-        /// BUG-49: When true, Rate is NOT auto-adjusted by
-        /// SpecGroup.OnRowChanged() when Sqm1 crosses the 4 m² threshold.
-        /// Set to true after user manually edits Rate to preserve their value.
-        /// </summary>
         internal bool SuppressRateAutoAdjust { get; set; } = false;
 
         public bool IsEmpty =>
@@ -276,6 +272,26 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
     public class SpecGroup : ViewModelBase, IExcelPasteable
     {
+        // ══════════════════════════════════════════════════════════════════
+        //  SPEC SOURCE STORAGE
+        //
+        //  _specSource is the master ObservableCollection that ALL loaded
+        //  specs live in (current glass type + fallback all-types union).
+        //  FilteredSpecs is an ICollectionView over this source with a
+        //  live Filter predicate — items are HIDDEN, not removed, so WPF's
+        //  editable ComboBox doesn't wipe user input.
+        // ══════════════════════════════════════════════════════════════════
+        private readonly ObservableCollection<SavedSpecification> _specSource = new();
+        private ICollectionView _filteredSpecsView;
+        private HashSet<string> _sourceKeys = new(StringComparer.OrdinalIgnoreCase);
+
+        // Track whether we've already loaded all-glass-types (fallback set)
+        private bool _allTypeSpecsMerged = false;
+
+        // Guards
+        private bool _isAutoSwitchingGlassType = false;
+        private bool _isProgrammaticSpecChange = false;
+
         private int _groupNumber;
         public int GroupNumber
         {
@@ -331,28 +347,201 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             get => _selectedGlassType;
             set
             {
+                if (_selectedGlassType == value) return;
                 _selectedGlassType = value;
                 OnPropertyChanged();
                 UpdatePerimeterFactors();
-                _ = LoadFilteredSpecsAsync();
+                _ = LoadSpecsAsync();
             }
         }
 
+        // ══════════════════════════════════════════════════════════════════
+        //  SelectedSpecName — the COMMITTED spec name (used for rate lookup,
+        //  display, invoice output).
+        // ══════════════════════════════════════════════════════════════════
         private string _selectedSpecName = "";
         public string SelectedSpecName
         {
             get => _selectedSpecName;
             set
             {
-                _selectedSpecName = value;
+                var newValue = value ?? "";
+                if (string.Equals(_selectedSpecName, newValue, StringComparison.Ordinal)) return;
+
+                _selectedSpecName = newValue;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(SpecDisplayName));
+
+                // Sync from EXTERNAL sets (e.g., loading a saved invoice)
+                if (!_isProgrammaticSpecChange)
+                {
+                    _isProgrammaticSpecChange = true;
+                    try
+                    {
+                        if (!string.Equals(_specTypedText, newValue, StringComparison.Ordinal))
+                        {
+                            _specTypedText = newValue;
+                            OnPropertyChanged(nameof(SpecTypedText));
+                        }
+
+                        var match = _specSource.FirstOrDefault(s =>
+                            string.Equals(s.SpecName, newValue, StringComparison.OrdinalIgnoreCase));
+
+                        if (!ReferenceEquals(_selectedSpecItem, match))
+                        {
+                            _selectedSpecItem = match;
+                            OnPropertyChanged(nameof(SelectedSpecItem));
+                        }
+                    }
+                    finally
+                    {
+                        _isProgrammaticSpecChange = false;
+                    }
+                }
+
                 TryAutoFillRate();
             }
         }
 
-        public ObservableCollection<SavedSpecification> FilteredSpecs { get; } = new();
+        // ══════════════════════════════════════════════════════════════════
+        //  SpecTypedText — text user is currently typing in the ComboBox.
+        //  Drives the Filter predicate. Distinct from SelectedSpecName.
+        // ══════════════════════════════════════════════════════════════════
+        private string _specTypedText = "";
+        public string SpecTypedText
+        {
+            get => _specTypedText;
+            set
+            {
+                var newValue = value ?? "";
+                if (string.Equals(_specTypedText, newValue, StringComparison.Ordinal)) return;
+
+                _specTypedText = newValue;
+                OnPropertyChanged();
+
+                if (_isProgrammaticSpecChange) return;
+
+                // Refresh the filter — items get hidden/shown, source not mutated
+                _filteredSpecsView?.Refresh();
+
+                // Auto-open dropdown when user has typed something meaningful
+                // and the filter has matches available.
+                IsSpecDropdownOpen = !string.IsNullOrEmpty(_specTypedText)
+                                     && ViewHasAnyItems();
+
+                // If current-type filter shows zero results, load all-types
+                // and refresh again. Only triggers ONCE per session.
+                if (!string.IsNullOrEmpty(_specTypedText) &&
+                    !_allTypeSpecsMerged &&
+                    !ViewHasAnyItems())
+                {
+                    _ = LoadAllTypesFallbackAsync();
+                }
+
+                // Commit path — exact match of typed text to a spec in source
+                var exact = _specSource.FirstOrDefault(s =>
+                    string.Equals(s.SpecName, _specTypedText,
+                        StringComparison.OrdinalIgnoreCase));
+
+                _isProgrammaticSpecChange = true;
+                try
+                {
+                    if (exact != null)
+                    {
+                        _selectedSpecName = exact.SpecName;
+                        OnPropertyChanged(nameof(SelectedSpecName));
+                        OnPropertyChanged(nameof(SpecDisplayName));
+
+                        _selectedSpecItem = exact;
+                        OnPropertyChanged(nameof(SelectedSpecItem));
+
+                        TryAutoFillRate();
+                        HandleSpecCommit(exact.SpecName);
+                    }
+                    else
+                    {
+                        // Free-text mode: commit typed text as selected name
+                        _selectedSpecName = _specTypedText;
+                        OnPropertyChanged(nameof(SelectedSpecName));
+                        OnPropertyChanged(nameof(SpecDisplayName));
+
+                        if (_selectedSpecItem != null)
+                        {
+                            _selectedSpecItem = null;
+                            OnPropertyChanged(nameof(SelectedSpecItem));
+                        }
+                    }
+                }
+                finally
+                {
+                    _isProgrammaticSpecChange = false;
+                }
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  SelectedSpecItem — bound to ComboBox.SelectedItem
+        // ══════════════════════════════════════════════════════════════════
+        private SavedSpecification _selectedSpecItem;
+        public SavedSpecification SelectedSpecItem
+        {
+            get => _selectedSpecItem;
+            set
+            {
+                if (ReferenceEquals(_selectedSpecItem, value)) return;
+                _selectedSpecItem = value;
+                OnPropertyChanged();
+
+                if (value == null || _isProgrammaticSpecChange) return;
+
+                _isProgrammaticSpecChange = true;
+                try
+                {
+                    _specTypedText = value.SpecName;
+                    OnPropertyChanged(nameof(SpecTypedText));
+
+                    _selectedSpecName = value.SpecName;
+                    OnPropertyChanged(nameof(SelectedSpecName));
+                    OnPropertyChanged(nameof(SpecDisplayName));
+
+                    IsSpecDropdownOpen = false;
+
+                    TryAutoFillRate();
+                    HandleSpecCommit(value.SpecName);
+                }
+                finally
+                {
+                    _isProgrammaticSpecChange = false;
+                }
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  IsSpecDropdownOpen — VM-controlled dropdown visibility
+        // ══════════════════════════════════════════════════════════════════
+        private bool _isSpecDropdownOpen;
+        public bool IsSpecDropdownOpen
+        {
+            get => _isSpecDropdownOpen;
+            set
+            {
+                if (_isSpecDropdownOpen == value) return;
+                _isSpecDropdownOpen = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// ICollectionView bound to the ComboBox ItemsSource.
+        /// Filter runs against _specTypedText via SpecFilterPredicate.
+        /// The underlying _specSource is stable — filtering hides items
+        /// rather than removing them, so WPF ComboBox stays quiet.
+        /// </summary>
+        public ICollectionView FilteredSpecs => _filteredSpecsView;
+
         public ObservableCollection<GlassItemRow> ItemRows { get; } = new();
+
+        // ── Paste progress ─────────────────────────────────────────────
 
         private bool _isPasting;
         public bool IsPasting
@@ -375,6 +564,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             private set { if (_pasteStatusText == value) return; _pasteStatusText = value; OnPropertyChanged(); }
         }
 
+        // ── Toast ──────────────────────────────────────────────────────
+
         private bool _isToastVisible;
         public bool IsToastVisible
         {
@@ -395,6 +586,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             get => _toastIsError;
             private set { if (_toastIsError == value) return; _toastIsError = value; OnPropertyChanged(); }
         }
+
+        // ── Footer totals ──────────────────────────────────────────────
 
         private int _totalRows;
         public int TotalRows
@@ -445,6 +638,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             private set { if (_footerTotalValue == value) return; _footerTotalValue = value; OnPropertyChanged(); }
         }
 
+        // ── Commands ────────────────────────────────────────────────────
+
         public ICommand AddRowCommand { get; }
         public ICommand RemoveRowCommand { get; }
         public ICommand PasteExcelCommand { get; }
@@ -453,6 +648,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
         public SpecGroup()
         {
+            // Build the CollectionView over the stable source collection
+            _filteredSpecsView = CollectionViewSource.GetDefaultView(_specSource);
+            _filteredSpecsView.Filter = SpecFilterPredicate;
+            OnPropertyChanged(nameof(FilteredSpecs));
+
             ItemRows.CollectionChanged += OnItemRowsChanged;
 
             AddRowCommand = new RelayCommand(_ => AddNewRow());
@@ -468,6 +668,180 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
             PasteExcelCommand = new RelayCommand(_ => _ = PasteFromClipboardAsync());
         }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  Filter predicate — case-insensitive Contains match on SpecName
+        //  against the current SpecTypedText.
+        //  Empty typed text → show everything.
+        // ══════════════════════════════════════════════════════════════════
+        private bool SpecFilterPredicate(object item)
+        {
+            if (item is not SavedSpecification spec) return false;
+
+            var typed = _specTypedText?.Trim() ?? "";
+            if (string.IsNullOrEmpty(typed)) return true;
+
+            if (string.IsNullOrEmpty(spec.SpecName)) return false;
+
+            return spec.SpecName.IndexOf(typed, StringComparison.OrdinalIgnoreCase) >= 0;
+        }
+
+        private bool ViewHasAnyItems()
+        {
+            if (_filteredSpecsView == null) return false;
+            var e = _filteredSpecsView.GetEnumerator();
+            return e.MoveNext();
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  LOAD SPECS — populates _specSource for the CURRENT glass type.
+        //  Called on Glass Type change. Preserves user's typed text when
+        //  the load is a side-effect of auto-switching (not a manual change).
+        // ══════════════════════════════════════════════════════════════════
+        public async Task LoadSpecsAsync()
+        {
+            // Clear source + reset fallback flag
+            _specSource.Clear();
+            _sourceKeys.Clear();
+            _allTypeSpecsMerged = false;
+
+            // Reset typed text ONLY when this is a manual glass type change
+            if (!_isAutoSwitchingGlassType && !string.IsNullOrEmpty(_specTypedText))
+            {
+                _isProgrammaticSpecChange = true;
+                try
+                {
+                    _specTypedText = "";
+                    OnPropertyChanged(nameof(SpecTypedText));
+                }
+                finally
+                {
+                    _isProgrammaticSpecChange = false;
+                }
+            }
+
+            if (string.IsNullOrWhiteSpace(_selectedGlassType) || App.Specs == null)
+            {
+                _filteredSpecsView?.Refresh();
+                return;
+            }
+
+            try
+            {
+                var specs = await App.Specs.GetAllAsync(_selectedGlassType);
+                if (specs != null)
+                {
+                    foreach (var s in specs)
+                    {
+                        if (s?.SpecName == null) continue;
+                        if (_sourceKeys.Add(s.SpecName))
+                            _specSource.Add(s);
+                    }
+                }
+                _filteredSpecsView?.Refresh();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[SpecGroup.LoadSpecs] {ex.Message}");
+            }
+        }
+
+        // Back-compat shim for callers using the old sync name
+        public async Task LoadFilteredSpecsAsync() => await LoadSpecsAsync();
+        internal void LoadFilteredSpecs() => _ = LoadSpecsAsync();
+
+        // ══════════════════════════════════════════════════════════════════
+        //  FALLBACK — merge specs from all other glass types into _specSource
+        //  when current-type search returns zero. One-time per session.
+        // ══════════════════════════════════════════════════════════════════
+        private async Task LoadAllTypesFallbackAsync()
+        {
+            if (_allTypeSpecsMerged || App.Specs == null) return;
+            _allTypeSpecsMerged = true;
+
+            try
+            {
+                foreach (var type in new[] { "SGU", "DGU", "LAM", "DGU+LAM" })
+                {
+                    if (string.Equals(type, _selectedGlassType, StringComparison.OrdinalIgnoreCase))
+                        continue;   // already loaded
+
+                    var specs = await App.Specs.GetAllAsync(type);
+                    if (specs == null) continue;
+
+                    foreach (var s in specs)
+                    {
+                        if (s?.SpecName == null) continue;
+                        if (_sourceKeys.Add(s.SpecName))
+                            _specSource.Add(s);
+                    }
+                }
+
+                _filteredSpecsView?.Refresh();
+
+                // Re-open dropdown if the newly merged items now match
+                IsSpecDropdownOpen = !string.IsNullOrEmpty(_specTypedText)
+                                     && ViewHasAnyItems();
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[SpecGroup.LoadAllTypesFallback] {ex.Message}");
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  HandleSpecCommit — glass type detection + silent auto-switch
+        // ══════════════════════════════════════════════════════════════════
+        private void HandleSpecCommit(string specName)
+        {
+            if (string.IsNullOrWhiteSpace(specName)) return;
+
+            var detected = GlassTypeDetector.Detect(specName);
+
+            if (detected == "Unknown")
+            {
+                _ = ShowToastAsync(
+                    "⚠  Cannot detect glass type for this specification. " +
+                    "Please update it in Price & Specs Generator.",
+                    isError: true);
+                return;
+            }
+
+            if (!string.Equals(detected, _selectedGlassType, StringComparison.OrdinalIgnoreCase))
+            {
+                _isAutoSwitchingGlassType = true;
+                try
+                {
+                    var previous = _selectedGlassType;
+                    _selectedGlassType = detected;
+                    OnPropertyChanged(nameof(SelectedGlassType));
+                    UpdatePerimeterFactors();
+
+                    _ = ShowToastAsync(
+                        $"✓  Auto-switched glass type: {previous} → {detected} (based on spec)");
+
+                    _ = LoadSpecsAsync();
+                }
+                finally
+                {
+                    _isAutoSwitchingGlassType = false;
+                }
+            }
+        }
+
+        private void TryAutoFillRate()
+        {
+            if (string.IsNullOrWhiteSpace(_selectedSpecName)) return;
+
+            var match = _specSource.FirstOrDefault(s =>
+                string.Equals(s.SpecName, _selectedSpecName, StringComparison.OrdinalIgnoreCase));
+
+            if (match != null) BaseRate = match.PricePerSqm;
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  COLLECTION HANDLERS
+        // ══════════════════════════════════════════════════════════════════
 
         private void OnItemRowsChanged(object s, NotifyCollectionChangedEventArgs e)
         {
@@ -500,11 +874,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 RecalculateFooter();
             }
 
-            // BUG-49 (preserved): When user edits dimensions and Sqm1
-            // crosses the 4 m² threshold, auto-swap between BaseRate and
-            // EffectiveRate — but only if the row's current rate is one
-            // of those two managed values. If user typed a custom rate,
-            // leave it alone.
             if (e.PropertyName == nameof(GlassItemRow.Sqm1)
                 && s is GlassItemRow row
                 && !row.SuppressRateAutoAdjust)
@@ -847,63 +1216,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 row.PerimeterFactor = factor;
         }
 
-        // ════════════════════════════════════════════════════════════════════
-        // 🔧 HOTFIX — UpdateAllRowRates
-        // ════════════════════════════════════════════════════════════════════
-        // OLD (buggy) behavior:
-        //   Checked "row.Rate == BaseRate || row.Rate == EffectiveRate"
-        //   AFTER BaseRate had already changed. The row's OLD rate never
-        //   matched the NEW BaseRate → every row got skipped → nothing
-        //   updated → user saw stale prices.
-        //
-        // NEW (correct) behavior:
-        //   Changing BaseRate or SurchargePercent at the group level is
-        //   an EXPLICIT user action to reprice all rows in this group.
-        //   We push the new rate to every row unconditionally, EXCEPT
-        //   rows that were flagged SuppressRateAutoAdjust (meaning the
-        //   user typed a custom rate directly into that row's Rate cell).
-        //
-        //   The 4 m² threshold logic (BaseRate for < 4 m², EffectiveRate
-        //   for >= 4 m²) is preserved.
-        // ════════════════════════════════════════════════════════════════════
+        // HOTFIX-1: Always propagate rate to all rows (unless flagged)
         private void UpdateAllRowRates()
         {
             foreach (var row in ItemRows)
             {
-                // User typed a custom rate into this row — never overwrite.
                 if (row.SuppressRateAutoAdjust) continue;
 
                 var targetRate = row.Sqm1 >= 4m ? EffectiveRate : BaseRate;
                 if (row.Rate != targetRate)
                     row.Rate = targetRate;
             }
-        }
-
-        public async Task LoadFilteredSpecsAsync()
-        {
-            FilteredSpecs.Clear();
-            if (string.IsNullOrWhiteSpace(_selectedGlassType) || App.Specs == null) return;
-
-            try
-            {
-                var specs = await App.Specs.GetAllAsync(_selectedGlassType);
-                foreach (var x in specs) FilteredSpecs.Add(x);
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[SpecGroup.LoadFilteredSpecs] {ex.Message}");
-            }
-        }
-
-        internal void LoadFilteredSpecs() => _ = LoadFilteredSpecsAsync();
-
-        private void TryAutoFillRate()
-        {
-            if (string.IsNullOrWhiteSpace(_selectedSpecName)) return;
-            var match = FilteredSpecs?.FirstOrDefault(s =>
-                string.Equals(s.SpecName, _selectedSpecName,
-                    StringComparison.OrdinalIgnoreCase));
-            if (match != null) BaseRate = match.PricePerSqm;
         }
     }
 
