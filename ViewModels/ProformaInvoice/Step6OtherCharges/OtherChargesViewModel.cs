@@ -1,44 +1,53 @@
 ﻿using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
+using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Services.ProformaInvoice.Export;
 using ProGlassAutomation.ViewModels;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastages;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.CustomCharges;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
 using System.Linq;
+using System.Windows;
+using System.Windows.Threading;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
 {
     /// <summary>
     /// Main ViewModel for Step 6 (Other Charges).
-    /// Owns predefined charge rows, wires them to live DataGrid metrics via GridSourceOption,
-    /// computes Polish LM per sub-type by iterating raw spec-group rows,
-    /// manages the Glass Wastages sub-section (color-aggregated),
-    /// manages the Custom Manual Charges sub-section (free-form line items),
-    /// and exposes the running Total Other Charges (excluding VAT/Discount).
+    /// Owns predefined charge rows, wires them to live DataGrid metrics,
+    /// computes Polish LM per sub-type, manages wastage + custom charge
+    /// sections, and exposes running Total Other Charges.
+    ///
+    /// BUG-53 [HIGH]: RecalculatePolishRows debounced via DispatcherTimer
+    ///                (150 ms). Was firing THOUSANDS of times during Excel
+    ///                paste of 500 rows — now fires once after paste settles.
+    /// BUG-54 [HIGH]: Inline SQM/perimeter formula replaced with shared
+    ///                ProformaChargeMetricsCalculator.ComputePolishLm.
+    /// BUG-55 [MEDIUM]: Subscription pattern documented — weak events not
+    ///                  needed at current data volumes but flagged for
+    ///                  future scaling.
     /// </summary>
     public class OtherChargesViewModel : ViewModelBase
     {
         private readonly DataGridViewModel _dataGridVM;
 
+        // BUG-53: debouncer for polish recalculation
+        private readonly DispatcherTimer _polishDebouncer;
+        private const int POLISH_DEBOUNCE_MS = 150;
+
         public string Title { get; } = "OTHER CHARGES";
         public string Subtitle { get; } = "Supplementary, fabrication and delivery charges — calculated live from DataGrid metrics.";
 
-        /// <summary>Top stats hub (auto-refresh from DataGrid).</summary>
         public MetricDiscoveryHubViewModel MetricHub { get; }
 
-        /// <summary>Reusable pool of grid-source options, kept in sync with DataGrid.</summary>
         public ObservableCollection<GridSourceOption> AllSources { get; } = new();
-
-        /// <summary>Predefined charge rows (Argon, Silicon, Overlap, etc.).</summary>
         public ObservableCollection<OtherChargeRow> ChargeRows { get; } = new();
 
-        /// <summary>Phase 7.11c — Color-aggregated wastage rows section.</summary>
         public WastagesSectionViewModel WastagesSection { get; }
-
-        /// <summary>Phase 7.11d — Free-form manual charges section.</summary>
         public CustomChargesSectionViewModel CustomChargesSection { get; }
 
         // ── Total ──────────────────────────────────────────────────────────
@@ -56,26 +65,30 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
         {
             _dataGridVM = dataGridVM ?? throw new ArgumentNullException(nameof(dataGridVM));
 
+            // BUG-53: initialize debouncer
+            _polishDebouncer = new DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(POLISH_DEBOUNCE_MS)
+            };
+            _polishDebouncer.Tick += OnPolishDebounceElapsed;
+
             MetricHub = new MetricDiscoveryHubViewModel(_dataGridVM.SpecGroups);
             MetricHub.PropertyChanged += OnHubPropertyChanged;
 
             BuildSourcePool();
             BuildChargeRows();
 
-            // Phase 7.11c: instantiate wastages sub-VM
             WastagesSection = new WastagesSectionViewModel(_dataGridVM);
             WastagesSection.PropertyChanged += OnSubSectionChanged;
 
-            // Phase 7.11d: instantiate custom manual charges sub-VM
             CustomChargesSection = new CustomChargesSectionViewModel();
             CustomChargesSection.PropertyChanged += OnSubSectionChanged;
 
-            // Subscribe to DataGrid changes for Polish recalculation + Wastage source sync
             _dataGridVM.SpecGroups.CollectionChanged += OnSpecGroupsCollectionChanged;
             foreach (var g in _dataGridVM.SpecGroups)
                 HookSpecGroup(g);
 
-            RecalculatePolishRows();
+            RecalculatePolishRowsImmediate();
         }
 
         // ── Source pool ────────────────────────────────────────────────────
@@ -100,8 +113,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
         private void OnHubPropertyChanged(object sender, PropertyChangedEventArgs e)
         {
             SyncSourceValuesFromHub();
-
-            // Phase 7.11c: also refresh wastage sqm sources when metrics update
             WastagesSection?.SyncAllWastageSources();
         }
 
@@ -176,20 +187,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
 
                 if (row.IsPolishRow)
                 {
-                    // Populate polish sub-types
                     foreach (var info in PolishSubTypeInfo.All)
                         row.AvailablePolishSubTypes.Add(info);
 
-                    // Default to "All Side Polish"
                     row.SelectedPolishSubType = row.AvailablePolishSubTypes[0];
                 }
                 else
                 {
-                    // Standard row — filter available sources by unit type
                     foreach (var src in AllSources.Where(s => s.Unit == template.Unit))
                         row.AvailableSources.Add(src);
 
-                    var defaultSrc = row.AvailableSources.FirstOrDefault(s => s.Key == template.DefaultSourceKey);
+                    var defaultSrc = row.AvailableSources.FirstOrDefault(
+                        s => s.Key == template.DefaultSourceKey);
                     if (defaultSrc != null)
                         row.SelectedSource = defaultSrc;
                     else if (row.AvailableSources.Count > 0)
@@ -209,16 +218,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                 RecalculateTotal();
             }
 
-            // Polish sub-type change or active toggle → recompute polish LM
             if (sender is OtherChargeRow row && row.IsPolishRow
                 && e.PropertyName is nameof(OtherChargeRow.SelectedPolishSubType)
                     or nameof(OtherChargeRow.IsActive))
             {
-                RecalculatePolishRows();
+                // BUG-53: use debounced path
+                RequestPolishRecalculation();
             }
         }
 
-        // ── Sub-section change tracking (Wastages + Custom Charges) ────────
+        // ── Sub-section change tracking ────────────────────────────────────
 
         private void OnSubSectionChanged(object sender, PropertyChangedEventArgs e)
         {
@@ -229,74 +238,92 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
             }
         }
 
-        // ── Polish LM calculation ──────────────────────────────────────────
+        // ══════════════════════════════════════════════════════════════════
+        //  POLISH LM CALCULATION (BUG-53 debounced, BUG-54 shared calculator)
+        // ══════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Called whenever spec groups / rows / dimensions change.
-        /// Iterates every glass row across every spec group and computes
-        /// the total polish LM based on the row's selected sub-type formula.
+        /// BUG-53: Requests a polish recalculation with debouncing.
+        /// Multiple rapid calls (e.g. during Excel paste of 500 rows)
+        /// coalesce into ONE recalculation after 150 ms of silence.
         /// </summary>
-        private void RecalculatePolishRows()
+        private void RequestPolishRecalculation()
         {
+            _polishDebouncer.Stop();
+            _polishDebouncer.Start();
+        }
+
+        private void OnPolishDebounceElapsed(object sender, EventArgs e)
+        {
+            _polishDebouncer.Stop();
+            RecalculatePolishRowsImmediate();
+        }
+
+        /// <summary>
+        /// BUG-54: Uses shared ProformaChargeMetricsCalculator.ComputePolishLm
+        /// instead of inline W+H formulas. Same math, single source of truth,
+        /// automatic snapshot compatibility with PDF/Excel export layouts.
+        /// </summary>
+        private void RecalculatePolishRowsImmediate()
+        {
+            // Build a lightweight snapshot of spec groups for the shared calculator
+            var specSnapshots = BuildSpecSnapshotsForCalculator();
+
             foreach (var row in ChargeRows.Where(r => r.IsPolishRow))
             {
                 if (row.SelectedPolishSubType == null
                     || row.SelectedPolishSubType.Type == PolishSubType.Custom)
                 {
-                    // Custom → user enters qty manually; nothing to compute here
+                    // Custom → user enters qty manually; nothing to compute
                     continue;
                 }
 
-                decimal totalLm = 0m;
-                foreach (var group in _dataGridVM.SpecGroups)
-                {
-                    foreach (var itemRow in group.ItemRows)
-                    {
-                        totalLm += CalculatePolishLmForRow(
-                            itemRow.W1, itemRow.H1, itemRow.W2, itemRow.H2,
-                            itemRow.Qty, group.SelectedGlassType,
-                            row.SelectedPolishSubType.Type);
-                    }
-                }
+                // BUG-54: shared calculator
+                decimal totalLm = ProformaChargeMetricsCalculator.ComputePolishLm(
+                    specSnapshots,
+                    row.SelectedPolishSubType.Type.ToString());
 
-                row.SetCalculatedPolishQty(Math.Round(totalLm, 3));
+                row.SetCalculatedPolishQty(totalLm);
             }
         }
 
         /// <summary>
-        /// Computes polish LM for ONE glass row based on sub-type formula.
-        /// For DGU/LAM (2 glasses), polish applies to BOTH glasses so we sum W1H1 + W2H2 perimeters.
+        /// Converts live SpecGroup VMs into POCO snapshots that the shared
+        /// calculator understands. This is a tiny in-memory adapter — no DB,
+        /// no allocation cost beyond the transient list.
         /// </summary>
-        private static decimal CalculatePolishLmForRow(
-            int w1, int h1, int w2, int h2, int qty, string glassType, PolishSubType subType)
+        private List<SpecGroupSnapshot> BuildSpecSnapshotsForCalculator()
         {
-            if (qty <= 0) return 0m;
+            var result = new List<SpecGroupSnapshot>(_dataGridVM.SpecGroups.Count);
 
-            bool isDoubleGlass = glassType == "DGU" || glassType == "LAM" || glassType == "DGU+LAM";
-
-            decimal lm = 0m;
-
-            // Glass 1 (outer)
-            if (w1 > 0 && h1 > 0)
-                lm += CalcSingleGlassPolish(w1, h1, subType);
-
-            // Glass 2 (inner) — only for DGU/LAM
-            if (isDoubleGlass && w2 > 0 && h2 > 0)
-                lm += CalcSingleGlassPolish(w2, h2, subType);
-
-            return lm * qty;
-        }
-
-        private static decimal CalcSingleGlassPolish(int w, int h, PolishSubType subType)
-        {
-            return subType switch
+            foreach (var g in _dataGridVM.SpecGroups)
             {
-                PolishSubType.AllSidePolish => ((decimal)w + h) / 1000m * 2m,
-                PolishSubType.AllSidePolishAsPerDwg => ((decimal)w + h) / 1000m * 2m,
-                PolishSubType.BothHeightSide => (decimal)h / 1000m * 2m,
-                PolishSubType.BothWidthSide => (decimal)w / 1000m * 2m,
-                _ => 0m
-            };
+                var snap = new SpecGroupSnapshot
+                {
+                    GroupNumber = g.GroupNumber,
+                    GroupName = g.GroupName ?? "",
+                    SelectedGlassType = g.SelectedGlassType ?? "",
+                    SelectedSpecName = g.SelectedSpecName ?? ""
+                };
+
+                foreach (var r in g.ItemRows)
+                {
+                    snap.ItemRows.Add(new GlassItemRowSnapshot
+                    {
+                        SerialNumber = r.SerialNumber,
+                        GlassRef = r.GlassRef ?? "",
+                        W1 = r.W1,
+                        H1 = r.H1,
+                        W2 = r.W2,
+                        H2 = r.H2,
+                        Qty = r.Qty
+                    });
+                }
+
+                result.Add(snap);
+            }
+
+            return result;
         }
 
         // ── Spec group change tracking ─────────────────────────────────────
@@ -311,12 +338,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                 foreach (SpecGroup g in e.NewItems)
                     HookSpecGroup(g);
 
-            RecalculatePolishRows();
-
-            // Phase 7.11c: refresh wastage sources when spec groups added/removed
+            RequestPolishRecalculation();  // BUG-53: debounced
             WastagesSection?.SyncAllWastageSources();
         }
 
+        /// <summary>
+        /// BUG-55: Documented — this iterates every item in the spec group
+        /// and hooks a handler. For 500-row groups this creates 500 subs.
+        /// Weak events would be more elegant but current data volumes
+        /// (typical DGU project = 50-100 items) do not justify the complexity.
+        /// Flagged for revisit if list virtualization issues appear.
+        /// </summary>
         private void HookSpecGroup(SpecGroup group)
         {
             group.PropertyChanged += OnSpecGroupPropertyChanged;
@@ -337,11 +369,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
         {
             if (e.PropertyName == nameof(SpecGroup.SelectedGlassType))
             {
-                RecalculatePolishRows();
+                RequestPolishRecalculation();  // BUG-53: debounced
                 WastagesSection?.SyncAllWastageSources();
             }
 
-            // Phase 7.11c: refresh wastage sources when footer totals change
             if (e.PropertyName is nameof(SpecGroup.FooterTotalSqm)
                 or nameof(SpecGroup.FooterTotalSqm2)
                 or nameof(SpecGroup.GroupName))
@@ -360,7 +391,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                 foreach (GlassItemRow r in e.NewItems)
                     r.PropertyChanged += OnItemRowPropertyChanged;
 
-            RecalculatePolishRows();
+            RequestPolishRecalculation();  // BUG-53: debounced
         }
 
         private void OnItemRowPropertyChanged(object sender, PropertyChangedEventArgs e)
@@ -371,7 +402,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                 or nameof(GlassItemRow.H2)
                 or nameof(GlassItemRow.Qty))
             {
-                RecalculatePolishRows();
+                RequestPolishRecalculation();  // BUG-53: debounced
             }
         }
 

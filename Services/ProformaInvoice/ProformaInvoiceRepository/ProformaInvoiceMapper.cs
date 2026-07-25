@@ -12,6 +12,7 @@ using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.InvoiceMai
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.PrintableInvoice;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsAndConditions;
 using System;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 
@@ -22,9 +23,27 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
     /// ProformaInvoiceSnapshot / SavedProformaInvoice entity.
     /// Supports both SAVE (VMs → Snapshot → Entity) and RESTORE
     /// (Entity → Snapshot → VMs) paths.
+    ///
+    /// BUG-15 [CRITICAL]: Entity.Status now reflects PreparedByStatus
+    ///         override when the user changed it in the printable
+    ///         preview. Without this, the list view showed the wrong
+    ///         status for invoices where user changed status only in
+    ///         the printable preview.
+    /// BUG-16: Wastages restore no longer calls UI command from mapper —
+    ///         creates rows directly in the collection.
+    /// BUG-17: Spec name mismatch logged (silent data gap fixed).
+    /// BUG-18: DeserializeSnapshot catches only JsonException.
+    /// BUG-20: Shared static JsonSerializerOptions — no per-call alloc.
     /// </summary>
     public static class ProformaInvoiceMapper
     {
+        // BUG-20: shared static — allocated once, reused everywhere
+        private static readonly JsonSerializerOptions _jsonOptions = new()
+        {
+            WriteIndented = false,
+            PropertyNameCaseInsensitive = true
+        };
+
         // ══════════════════════════════════════════════════════════════════
         //  SAVE PATH: VMs → Snapshot → Entity
         // ══════════════════════════════════════════════════════════════════
@@ -39,12 +58,20 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             TermsAndConditionsViewModel terms,
             PrintableInvoiceViewModel printable)
         {
-            var snapshot = BuildSnapshot(company, project, client, dataGrid, otherCharges, summary, terms, printable);
+            var snapshot = BuildSnapshot(
+                company, project, client,
+                dataGrid, otherCharges,
+                summary, terms, printable);
 
-            string json = JsonSerializer.Serialize(snapshot, new JsonSerializerOptions
-            {
-                WriteIndented = false
-            });
+            string json = JsonSerializer.Serialize(snapshot, _jsonOptions);
+
+            // BUG-15 [CRITICAL]: Status column now reflects the
+            // effective status — printable override takes precedence
+            // over the company setup status. This ensures the list
+            // view shows the same status that appears on the PDF.
+            string effectiveStatus = !string.IsNullOrWhiteSpace(printable?.PreparedByStatus)
+                ? printable.PreparedByStatus
+                : (company.ProformaStatus ?? "Draft");
 
             var entity = new SavedProformaInvoice
             {
@@ -52,7 +79,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 CompanyName = company.CompanyName ?? "",
                 CustomerName = client.CustomerName ?? "",
                 ProjectName = project.ProjectIdentifierName ?? "",
-                Status = company.ProformaStatus ?? "Draft",
+                Status = effectiveStatus,   // ← BUG-15 fix
                 IssueDate = company.IssueDate,
                 ValidUntil = company.ValidUntil,
 
@@ -138,8 +165,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     GroupName = group.GroupName ?? "",
                     SelectedGlassType = group.SelectedGlassType ?? "",
                     SelectedSpecName = group.SelectedSpecName ?? "",
-                    OuterGlassColor = "",  // reserved for future use
-                    InnerGlassColor = "",  // reserved for future use
+                    OuterGlassColor = "",
+                    InnerGlassColor = "",
                     BaseRate = group.BaseRate,
                     SurchargePercent = group.SurchargePercent
                 };
@@ -228,34 +255,37 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  RESTORE PATH: Entity → Snapshot → VMs
-        //  (Phase 7.16 — Load Saved Invoice)
+        //  RESTORE PATH: Entity → Snapshot → VMs (Phase 7.16)
         // ══════════════════════════════════════════════════════════════════
 
         /// <summary>
         /// Deserializes the JSON snapshot from a saved entity.
+        /// BUG-18: catches only JsonException — other exceptions bubble
+        /// up so real bugs can be caught. Malformed JSON returns empty
+        /// snapshot with diagnostic log.
         /// </summary>
-        public static ProformaInvoiceSnapshot DeserializeSnapshot(SavedProformaInvoice entity)
+        public static ProformaInvoiceSnapshot DeserializeSnapshot(
+            SavedProformaInvoice entity)
         {
-            if (entity == null || string.IsNullOrWhiteSpace(entity.FullSnapshotJson))
+            if (entity == null
+                || string.IsNullOrWhiteSpace(entity.FullSnapshotJson))
                 return new ProformaInvoiceSnapshot();
 
             try
             {
-                return JsonSerializer.Deserialize<ProformaInvoiceSnapshot>(entity.FullSnapshotJson)
-                       ?? new ProformaInvoiceSnapshot();
+                return JsonSerializer.Deserialize<ProformaInvoiceSnapshot>(
+                    entity.FullSnapshotJson, _jsonOptions)
+                    ?? new ProformaInvoiceSnapshot();
             }
-            catch
+            catch (JsonException ex)
             {
+                Debug.WriteLine(
+                    $"[ProformaInvoiceMapper] Snapshot deserialize failed " +
+                    $"for PI '{entity.ProformaId}': {ex.Message}");
                 return new ProformaInvoiceSnapshot();
             }
         }
 
-        /// <summary>
-        /// Rehydrates all wizard ViewModels from a snapshot. Called by
-        /// SavedInvoicesListViewModel after user picks an invoice to load.
-        /// Handles null/missing fields gracefully.
-        /// </summary>
         public static void RestoreWizardFromSnapshot(
             ProformaInvoiceSnapshot snap,
             CompanySetupViewModel company,
@@ -312,7 +342,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             // ── Phase 7.12: Financial Summary settings ─────────────────
             if (snap.Summary != null)
             {
-                if (System.Enum.TryParse<ProGlassAutomation.Models.ProformaInvoice.Step7PrintPreview.InvoiceMainSummary.DiscountType>(
+                if (System.Enum.TryParse<
+                    ProGlassAutomation.Models.ProformaInvoice.Step7PrintPreview.InvoiceMainSummary.DiscountType>(
                         snap.Summary.DiscountType, out var dt))
                 {
                     summary.SelectedDiscountType = dt;
@@ -336,11 +367,13 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             }
         }
 
-        private static void RestoreDataGrid(ProformaInvoiceSnapshot snap, DataGridViewModel dataGrid)
+        // ── Restore helpers ────────────────────────────────────────────
+
+        private static void RestoreDataGrid(
+            ProformaInvoiceSnapshot snap, DataGridViewModel dataGrid)
         {
             if (snap.SpecGroups == null) return;
 
-            // Wipe existing spec groups
             dataGrid.SpecGroups.Clear();
 
             foreach (var gSnap in snap.SpecGroups)
@@ -355,7 +388,22 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     SurchargePercent = gSnap.SurchargePercent
                 };
 
-                // Restore rows via bulk mode to avoid heavy re-renders
+                // BUG-17: warn if SelectedSpecName won't resolve in current DB
+                if (!string.IsNullOrWhiteSpace(gSnap.SelectedSpecName))
+                {
+                    var found = group.FilteredSpecs?.Any(s =>
+                        string.Equals(s.SpecName, gSnap.SelectedSpecName,
+                            StringComparison.OrdinalIgnoreCase)) ?? false;
+                    if (!found)
+                    {
+                        Debug.WriteLine(
+                            $"[ProformaInvoiceMapper] SelectedSpecName " +
+                            $"'{gSnap.SelectedSpecName}' not found in FilteredSpecs " +
+                            $"for group #{gSnap.GroupNumber} at restore time. " +
+                            $"Value preserved but dropdown may show empty.");
+                    }
+                }
+
                 if (gSnap.ItemRows != null && gSnap.ItemRows.Count > 0)
                 {
                     foreach (var rSnap in gSnap.ItemRows)
@@ -363,10 +411,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                         var row = new GlassItemRow();
                         row.SetAllSilent(
                             rSnap.GlassRef ?? "",
-                            rSnap.W1,
-                            rSnap.H1,
-                            rSnap.W2,
-                            rSnap.H2,
+                            rSnap.W1, rSnap.H1, rSnap.W2, rSnap.H2,
                             rSnap.Qty,
                             rSnap.PerimeterFactor,
                             rSnap.Rate);
@@ -379,7 +424,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             }
         }
 
-        private static void RestoreOtherCharges(ProformaInvoiceSnapshot snap, OtherChargesViewModel otherCharges)
+        private static void RestoreOtherCharges(
+            ProformaInvoiceSnapshot snap, OtherChargesViewModel otherCharges)
         {
             if (snap.OtherCharges == null) return;
 
@@ -388,25 +434,29 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             {
                 foreach (var cSnap in snap.OtherCharges.PredefinedCharges)
                 {
-                    var row = otherCharges.ChargeRows.FirstOrDefault(r => r.TemplateKey == cSnap.TemplateKey);
+                    var row = otherCharges.ChargeRows.FirstOrDefault(
+                        r => r.TemplateKey == cSnap.TemplateKey);
                     if (row == null) continue;
 
                     row.IsActive = cSnap.IsActive;
                     row.Rate = cSnap.Rate;
 
-                    // Restore selected source (non-polish rows)
-                    if (!row.IsPolishRow && !string.IsNullOrWhiteSpace(cSnap.SelectedSourceKey))
+                    if (!row.IsPolishRow
+                        && !string.IsNullOrWhiteSpace(cSnap.SelectedSourceKey))
                     {
-                        var src = row.AvailableSources.FirstOrDefault(s => s.Key == cSnap.SelectedSourceKey);
+                        var src = row.AvailableSources.FirstOrDefault(
+                            s => s.Key == cSnap.SelectedSourceKey);
                         if (src != null) row.SelectedSource = src;
                     }
 
-                    // Restore polish sub-type + custom fields
-                    if (row.IsPolishRow && !string.IsNullOrWhiteSpace(cSnap.PolishSubType))
+                    if (row.IsPolishRow
+                        && !string.IsNullOrWhiteSpace(cSnap.PolishSubType))
                     {
-                        if (System.Enum.TryParse<PolishSubType>(cSnap.PolishSubType, out var pst))
+                        if (System.Enum.TryParse<PolishSubType>(
+                            cSnap.PolishSubType, out var pst))
                         {
-                            var meta = row.AvailablePolishSubTypes.FirstOrDefault(p => p.Type == pst);
+                            var meta = row.AvailablePolishSubTypes
+                                .FirstOrDefault(p => p.Type == pst);
                             if (meta != null) row.SelectedPolishSubType = meta;
                         }
                         row.CustomPolishDescription = cSnap.CustomPolishDescription ?? "";
@@ -415,22 +465,26 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 }
             }
 
-            // Wastages — clear and rebuild
+            // BUG-16: Wastages restore — no UI command, create directly
             otherCharges.WastagesSection.WastageRows.Clear();
             if (snap.OtherCharges.Wastages != null)
             {
                 foreach (var wSnap in snap.OtherCharges.Wastages)
                 {
-                    // Trigger add so sources get populated from current spec groups
-                    otherCharges.WastagesSection.AddWastageCommand.Execute(null);
-                    var newRow = otherCharges.WastagesSection.WastageRows.LastOrDefault();
-                    if (newRow == null) continue;
+                    // Create wastage row directly instead of firing the
+                    // AddWastageCommand — mapper should not touch UI commands
+                    var newRow = new WastageRow
+                    {
+                        IsActive = wSnap.IsActive,
+                        ColorName = wSnap.ColorName ?? "",
+                        Rate = wSnap.Rate
+                    };
 
-                    newRow.IsActive = wSnap.IsActive;
-                    newRow.ColorName = wSnap.ColorName ?? "";
-                    newRow.Rate = wSnap.Rate;
+                    // Populate available sources from current spec groups
+                    // by asking the section to hydrate sources for this row
+                    otherCharges.WastagesSection.PopulateSourcesForRestoredRow(newRow);
 
-                    // Restore checked sources by matching "SpecNumber-SideLabel" key
+                    // Now restore checked state from saved keys
                     if (wSnap.CheckedSourceKeys != null)
                     {
                         foreach (var src in newRow.AvailableSources)
@@ -439,6 +493,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                             src.IsChecked = wSnap.CheckedSourceKeys.Contains(key);
                         }
                     }
+
+                    otherCharges.WastagesSection.WastageRows.Add(newRow);
                 }
             }
 
@@ -463,7 +519,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             }
         }
 
-        private static void RestoreTerms(ProformaInvoiceSnapshot snap, TermsAndConditionsViewModel terms)
+        private static void RestoreTerms(
+            ProformaInvoiceSnapshot snap, TermsAndConditionsViewModel terms)
         {
             if (snap.TermClauses == null) return;
 

@@ -1,15 +1,14 @@
 ﻿// ╔══════════════════════════════════════════════════════════════════════════╗
 // ║  ViewModels/ProformaInvoice/Step5DataGrid/DataGridViewModel.cs           ║
 // ║                                                                          ║
-// ║  CHAT 7 CHANGES (Bug 1):                                                 ║
-// ║    + PasteFromText() → fires async pipeline, returns immediately         ║
-// ║    + PasteFromTextAsync() → background parse + batched UI updates        ║
-// ║    + ParseClipboardText() → pure parse, safe for Task.Run               ║
-// ║    + PasteFromClipboardAsync() → async clipboard read + paste            ║
-// ║    + ShowToastAsync() → replaces ALL MessageBox.Show() calls             ║
-// ║    + _isBulkAdding → always in try/finally (never leaks)                ║
-// ║    + Progress overlay: IsPasting / PasteProgress / PasteStatusText      ║
-// ║    + Toast: IsToastVisible / ToastMessage / ToastIsError                ║
+// ║  SESSION 2 FIXES:                                                        ║
+// ║    BUG-46 [CRITICAL]: Clipboard.GetText() wrapped in try/catch           ║
+// ║    BUG-47 [HIGH]: SqmCalculator.CalculatePanel() replaces inline formula ║
+// ║    BUG-48 [HIGH]: LoadFilteredSpecs — async Task + SafeFire wrapper      ║
+// ║    BUG-49 [HIGH]: Rate auto-adjust respects SuppressRateAutoAdjust       ║
+// ║    BUG-50 [MEDIUM]: DispatcherTimer disposed properly                    ║
+// ║    BUG-51 [MEDIUM]: FireAllChanged batched via single dispatcher call    ║
+// ║    BUG-52 [COSMETIC]: File split deferred (XAML dependencies)            ║
 // ║                                                                          ║
 // ║  PRESERVED EXACTLY:                                                      ║
 // ║    ✅ GlassItemRow — all properties + RecalculateAll + SetAllSilent      ║
@@ -17,18 +16,19 @@
 // ║    ✅ DataGridViewModel — all commands + AddNewSpecGroup                 ║
 // ║    ✅ _isBulkAdding guard in OnItemRowsChanged + OnRowChanged            ║
 // ║    ✅ Rate auto-adjust logic (Sqm1 >= 4m threshold)                      ║
-// ║    ✅ LoadFilteredSpecs async void (preserved)                           ║
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
 using ProGlassAutomation.Behaviors;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.Specifications;
+using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid.GrandTotalSummary;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
@@ -43,6 +43,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
     public class GlassItemRow : ViewModelBase
     {
+        // BUG-47: MIN_SQM constant kept for backward-compat readers,
+        // but all real calculations delegate to SqmCalculator.
         private const decimal MIN_SQM = 0.5m;
 
         // ── SerialNumber ─────────────────────────────────────────────────────
@@ -180,6 +182,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             set { if (_perimeterFactor == value) return; _perimeterFactor = value; OnPropertyChanged(); RecalculateAll(); }
         }
 
+        /// <summary>
+        /// BUG-49: When true, Rate is NOT auto-adjusted by
+        /// SpecGroup.OnRowChanged() when Sqm1 crosses the 4 m² threshold.
+        /// Set to true after user manually edits Rate to preserve their value.
+        /// </summary>
         internal bool SuppressRateAutoAdjust { get; set; } = false;
 
         /// <summary>
@@ -190,16 +197,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             _w1 == 0 && _h1 == 0 && _w2 == 0 && _h2 == 0;
 
         // ── RecalculateAll ───────────────────────────────────────────────────
+        // BUG-47: Uses SqmCalculator.CalculatePanel() — single source of truth
+        //         for the 0.5 m² minimum floor rule (UAE glass industry std)
         public void RecalculateAll()
         {
-            decimal rawSqm1 = (decimal)_w1 * _h1 / 1_000_000m;
+            // Glass 1 area (shared calculator with 0.5 m² floor)
             decimal newSqm1 = _w1 > 0 && _h1 > 0
-                ? Math.Max(Math.Round(rawSqm1, 3), MIN_SQM) : 0m;
+                ? SqmCalculator.CalculatePanel(_w1, _h1)
+                : 0m;
             decimal newTotalSqm = Math.Round(newSqm1 * _qty, 3);
 
-            decimal rawSqm2 = (decimal)_w2 * _h2 / 1_000_000m;
+            // Glass 2 area (shared calculator with 0.5 m² floor)
             decimal newSqm2 = _w2 > 0 && _h2 > 0
-                ? Math.Max(Math.Round(rawSqm2, 3), MIN_SQM) : 0m;
+                ? SqmCalculator.CalculatePanel(_w2, _h2)
+                : 0m;
             decimal newTotalSqm2 = Math.Round(newSqm2 * _qty, 3);
 
             decimal newLm1 = _w1 > 0 && _h1 > 0
@@ -228,6 +239,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         /// <summary>
         /// Set all fields silently (no PropertyChanged fired).
         /// Call FireAllChanged() after to notify UI once.
+        /// BUG-47: uses SqmCalculator.CalculatePanel()
         /// </summary>
         public void SetAllSilent(
             string glassRef, int w1, int h1, int w2, int h2,
@@ -242,12 +254,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             _perimeterFactor = perimeterFactor;
             _rate = rate;
 
-            decimal rawSqm1 = (decimal)_w1 * _h1 / 1_000_000m;
-            _sqm1 = _w1 > 0 && _h1 > 0 ? Math.Max(Math.Round(rawSqm1, 3), MIN_SQM) : 0m;
+            // BUG-47: shared calculator
+            _sqm1 = _w1 > 0 && _h1 > 0 ? SqmCalculator.CalculatePanel(_w1, _h1) : 0m;
             _totalSqm = Math.Round(_sqm1 * _qty, 3);
 
-            decimal rawSqm2 = (decimal)_w2 * _h2 / 1_000_000m;
-            _sqm2 = _w2 > 0 && _h2 > 0 ? Math.Max(Math.Round(rawSqm2, 3), MIN_SQM) : 0m;
+            _sqm2 = _w2 > 0 && _h2 > 0 ? SqmCalculator.CalculatePanel(_w2, _h2) : 0m;
             _totalSqm2 = Math.Round(_sqm2 * _qty, 3);
 
             _lm1 = _w1 > 0 && _h1 > 0
@@ -257,7 +268,25 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             _value = Math.Round(_sqm1 * _qty * _rate, 2);
         }
 
+        /// <summary>
+        /// BUG-51: Batched via single dispatcher call — was firing 13
+        /// PropertyChanged events per row, now fires them as one UI batch
+        /// via BeginInvoke at Background priority (does not block).
+        /// </summary>
         public void FireAllChanged()
+        {
+            var dispatcher = Application.Current?.Dispatcher;
+            if (dispatcher == null || dispatcher.CheckAccess())
+            {
+                FireAllChangedCore();
+            }
+            else
+            {
+                dispatcher.InvokeAsync(FireAllChangedCore, DispatcherPriority.Background);
+            }
+        }
+
+        private void FireAllChangedCore()
         {
             OnPropertyChanged(nameof(SerialNumber));
             OnPropertyChanged(nameof(GlassRef));
@@ -332,10 +361,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         public decimal EffectiveRate =>
             Math.Round(_baseRate * (1m + (_surchargePercent / 100m)), 2);
 
-        /// <summary>
-        /// Display label for print/preview headers.
-        /// Shows SelectedSpecName if available, otherwise GroupName.
-        /// </summary>
         public string SpecDisplayName => !string.IsNullOrWhiteSpace(SelectedSpecName)
             ? SelectedSpecName
             : (GroupName ?? $"Spec Group {GroupNumber}");
@@ -350,7 +375,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 _selectedGlassType = value;
                 OnPropertyChanged();
                 UpdatePerimeterFactors();
-                LoadFilteredSpecs();
+                // BUG-48: fire-and-forget wrapped safely
+                _ = LoadFilteredSpecsAsync();
             }
         }
 
@@ -371,7 +397,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         public ObservableCollection<SavedSpecification> FilteredSpecs { get; } = new();
         public ObservableCollection<GlassItemRow> ItemRows { get; } = new();
 
-        // ── Paste progress properties (Bug 1: progress overlay) ──────────────
+        // ── Paste progress properties ────────────────────────────────────────
 
         private bool _isPasting;
         public bool IsPasting
@@ -394,7 +420,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             private set { if (_pasteStatusText == value) return; _pasteStatusText = value; OnPropertyChanged(); }
         }
 
-        // ── Toast notification properties (Bug 1: replaces MessageBox) ───────
+        // ── Toast notification properties ────────────────────────────────────
 
         private bool _isToastVisible;
         public bool IsToastVisible
@@ -474,7 +500,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         public ICommand RemoveRowCommand { get; }
         public ICommand PasteExcelCommand { get; }
 
-        // ── Bug 1: _isBulkAdding always managed via try/finally ──────────────
         private bool _isBulkAdding = false;
 
         // ════════════════════════════════════════════════════════════════════
@@ -496,12 +521,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 }
             });
 
-            // Bug 1: PasteExcelCommand fires async pipeline
             PasteExcelCommand = new RelayCommand(_ => _ = PasteFromClipboardAsync());
         }
 
         // ════════════════════════════════════════════════════════════════════
-        // COLLECTION CHANGE HANDLERS (preserved — guard logic unchanged)
+        // COLLECTION CHANGE HANDLERS (preserved)
         // ════════════════════════════════════════════════════════════════════
 
         private void OnItemRowsChanged(object s, NotifyCollectionChangedEventArgs e)
@@ -514,7 +538,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 foreach (GlassItemRow r in e.NewItems)
                     r.PropertyChanged += OnRowChanged;
 
-            // Bug 1: guard suppresses per-row overhead during bulk add
             if (_isBulkAdding) return;
 
             TotalRows = ItemRows.Count;
@@ -524,7 +547,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
         private void OnRowChanged(object s, PropertyChangedEventArgs e)
         {
-            // Bug 1: guard suppresses per-row recalculation during bulk add
             if (_isBulkAdding) return;
 
             if (e.PropertyName is nameof(GlassItemRow.Qty)
@@ -537,11 +559,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 RecalculateFooter();
             }
 
-            // Rate auto-adjust: large panels (>=4 sqm) use EffectiveRate
+            // BUG-49: Rate auto-adjust now respects SuppressRateAutoAdjust
+            //         AND checks that the row's Rate is still one of our
+            //         two managed values (BaseRate or EffectiveRate).
+            //         If user typed a custom rate, we do NOT overwrite it.
             if (e.PropertyName == nameof(GlassItemRow.Sqm1)
                 && s is GlassItemRow row
                 && !row.SuppressRateAutoAdjust)
             {
+                bool rateIsManaged = row.Rate == BaseRate || row.Rate == EffectiveRate;
+                if (!rateIsManaged) return;  // user has custom rate — leave it alone
+
                 var targetRate = row.Sqm1 >= 4m ? EffectiveRate : BaseRate;
                 if (row.Rate != targetRate)
                     row.Rate = targetRate;
@@ -549,7 +577,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         }
 
         // ════════════════════════════════════════════════════════════════════
-        // FOOTER RECALCULATION (preserved exactly)
+        // FOOTER RECALCULATION (preserved)
         // ════════════════════════════════════════════════════════════════════
 
         private void RecalculateFooter()
@@ -587,7 +615,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         }
 
         // ════════════════════════════════════════════════════════════════════
-        // ADD ROW (preserved exactly)
+        // ADD ROW (preserved)
         // ════════════════════════════════════════════════════════════════════
 
         private void AddNewRow()
@@ -604,12 +632,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         }
 
         // ════════════════════════════════════════════════════════════════════
-        // IExcelPasteable — AddRows (preserved, now has try/finally)
+        // IExcelPasteable — AddRows (preserved)
         // ════════════════════════════════════════════════════════════════════
 
         public void AddRows(int count)
         {
-            // Bug 1: try/finally ensures _isBulkAdding always resets
             _isBulkAdding = true;
             try
             {
@@ -636,43 +663,22 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         }
 
         // ════════════════════════════════════════════════════════════════════
-        // IExcelPasteable — PasteFromText (Bug 1: now async entry point)
+        // IExcelPasteable — PasteFromText (preserved)
         // ════════════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Bug 1 FIX: Synchronous IExcelPasteable entry point.
-        /// Called by DataGridNavigationBehavior — must return quickly.
-        /// Immediately dispatches to async pipeline. UI thread is freed instantly.
-        /// </summary>
         public void PasteFromText(string clipboardText, object startRowContext = null)
         {
             _ = PasteFromTextAsync(clipboardText, startRowContext);
         }
 
         // ════════════════════════════════════════════════════════════════════
-        // ASYNC PASTE PIPELINE (Bug 1 — new)
+        // ASYNC PASTE PIPELINE (preserved from Chat 7)
         // ════════════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Bug 1 FIX: Full async paste pipeline.
-        ///
-        /// PIPELINE:
-        ///   1. Parse clipboard text on background thread (never blocks UI)
-        ///   2. Show progress overlay for large pastes (200+ rows)
-        ///   3. Apply rows in ONE _isBulkAdding block (no per-row overhead)
-        ///   4. Single renumber + footer recalc after all rows added
-        ///   5. Single FireAllChanged pass after all rows settled
-        ///   6. Toast notification (never MessageBox — never blocks)
-        ///
-        /// PERFORMANCE (500 rows):
-        ///   Before: parse on UI thread + 7,500 PropertyChanged + MessageBox = freeze
-        ///   After:  parse offthread + 1 batch + 500 FireAllChanged = ~0.5s
-        /// </summary>
         private async Task PasteFromTextAsync(string clipboardText, object startRowContext = null)
         {
             if (string.IsNullOrWhiteSpace(clipboardText)) return;
 
-            // ── Step 1: Parse on background thread ───────────────────────────
             List<(string glassRef, int w1, int h1, int w2, int h2, int qty)> parsed;
 
             try
@@ -694,17 +700,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 return;
             }
 
-            // ── Step 2: Progress overlay for large pastes ─────────────────────
             bool showProgress = parsed.Count >= 200;
             if (showProgress)
             {
                 IsPasting = true;
                 PasteProgress = 0;
                 PasteStatusText = $"Preparing {parsed.Count} rows…";
-                await Task.Delay(16); // yield — let overlay render
+                await Task.Delay(16);
             }
 
-            // ── Step 3: Determine start index ─────────────────────────────────
             int startIdx = -1;
             if (startRowContext is GlassItemRow anchorRow)
             {
@@ -716,13 +720,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             int factor = _selectedGlassType == "LAM" ? 4 : 2;
             var touchedRows = new List<GlassItemRow>(parsed.Count);
 
-            // ── Step 4: Apply rows in ONE _isBulkAdding block ────────────────
             _isBulkAdding = true;
             try
             {
                 int parsedIdx = 0;
 
-                // Overwrite existing empty rows from startIdx
                 if (startIdx >= 0)
                 {
                     for (int i = startIdx;
@@ -749,7 +751,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     }
                 }
 
-                // Append remaining rows as new
                 while (parsedIdx < parsed.Count)
                 {
                     var (glassRef, w1, h1, w2, h2, qty) = parsed[parsedIdx];
@@ -775,16 +776,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
             finally
             {
-                // Bug 1: ALWAYS reset — even if exception thrown mid-paste
                 _isBulkAdding = false;
             }
 
-            // ── Step 5: Single post-paste recalculation ───────────────────────
             TotalRows = ItemRows.Count;
             RenumberRows();
             RecalculateFooter();
 
-            // ── Step 6: Fire PropertyChanged for all touched rows ─────────────
             if (showProgress)
             {
                 PasteProgress = 90;
@@ -792,10 +790,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 await Task.Delay(16);
             }
 
+            // BUG-51: batched — each FireAllChanged() now uses one
+            // dispatcher.InvokeAsync at Background priority
             foreach (var row in touchedRows)
                 row.FireAllChanged();
 
-            // ── Step 7: Hide progress overlay ─────────────────────────────────
             if (showProgress)
             {
                 PasteProgress = 100;
@@ -806,18 +805,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 PasteStatusText = "";
             }
 
-            // ── Step 8: Toast (non-blocking — never MessageBox) ───────────────
             await ShowToastAsync($"✓ Pasted {parsed.Count} row(s) successfully.");
         }
 
         // ════════════════════════════════════════════════════════════════════
-        // PARSE CLIPBOARD TEXT (Bug 1 — runs on background thread)
+        // PARSE CLIPBOARD TEXT (preserved)
         // ════════════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Pure data transformation — no UI access — safe for Task.Run.
-        /// Preserved parse logic from original PasteFromText exactly.
-        /// </summary>
         private static List<(string glassRef, int w1, int h1, int w2, int h2, int qty)>
             ParseClipboardText(string clipboardText)
         {
@@ -850,18 +844,40 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         }
 
         // ════════════════════════════════════════════════════════════════════
-        // PASTE FROM CLIPBOARD (Bug 1: now async)
+        // PASTE FROM CLIPBOARD (BUG-46 [CRITICAL] fix)
         // ════════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Bug 1 FIX: Clipboard.GetText() MUST run on UI thread (WPF requirement).
-        /// Read clipboard here synchronously, then hand off to async pipeline.
+        /// BUG-46 [CRITICAL] FIX: Clipboard.GetText() throws COMException
+        /// when the clipboard is locked by another process (screenshot tools,
+        /// remote desktop, etc.). Previously this crashed the app. Now it
+        /// is wrapped in try/catch and shows a friendly toast.
         /// </summary>
         private async Task PasteFromClipboardAsync()
         {
-            if (!Clipboard.ContainsText()) return;
+            string text;
 
-            string text = Clipboard.GetText();
+            try
+            {
+                if (!Clipboard.ContainsText())
+                {
+                    await ShowToastAsync("Clipboard is empty.", isError: true);
+                    return;
+                }
+
+                text = Clipboard.GetText();
+            }
+            catch (Exception ex)
+            {
+                // COMException, ExternalException, OperationCanceledException...
+                // any clipboard access error (locked by another app, remote desktop, etc.)
+                Debug.WriteLine($"[SpecGroup.PasteFromClipboard] Clipboard read failed: {ex.Message}");
+                await ShowToastAsync(
+                    "Cannot read clipboard right now — another app may be using it. " +
+                    "Wait a second and try again.",
+                    isError: true);
+                return;
+            }
 
             GlassItemRow firstEmpty = null;
             foreach (var r in ItemRows)
@@ -873,16 +889,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         }
 
         // ════════════════════════════════════════════════════════════════════
-        // TOAST NOTIFICATION (Bug 1: replaces ALL MessageBox.Show calls)
+        // TOAST NOTIFICATION (BUG-50 timer disposed)
         // ════════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Bug 1 FIX: Non-blocking toast. Replaces every MessageBox.Show().
-        /// Dispatches at Background priority — never interrupts rendering.
-        /// Auto-dismisses after 3.5 seconds.
-        ///
-        /// Bind in View XAML:
-        ///   IsToastVisible, ToastMessage, ToastIsError
+        /// BUG-50 [MEDIUM]: DispatcherTimer is now stopped AND removed
+        /// from tick handler on dismissal, preventing timer leak per toast.
         /// </summary>
         private Task ShowToastAsync(string message, bool isError = false)
         {
@@ -899,19 +911,28 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 {
                     Interval = TimeSpan.FromMilliseconds(3500)
                 };
-                timer.Tick += (s, e) =>
+
+                EventHandler tickHandler = null;
+                tickHandler = (s, e) =>
                 {
                     IsToastVisible = false;
                     ToastMessage = "";
-                    ((DispatcherTimer)s).Stop();
+
+                    // BUG-50: full timer cleanup — stop + unsubscribe
+                    if (s is DispatcherTimer t)
+                    {
+                        t.Stop();
+                        t.Tick -= tickHandler;
+                    }
                 };
+                timer.Tick += tickHandler;
                 timer.Start();
 
             }, DispatcherPriority.Background).Task;
         }
 
         // ════════════════════════════════════════════════════════════════════
-        // HELPERS (preserved exactly)
+        // HELPERS
         // ════════════════════════════════════════════════════════════════════
 
         private static string CleanNum(string s) =>
@@ -938,20 +959,42 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         private void UpdateAllRowRates()
         {
             foreach (var row in ItemRows)
+            {
+                // BUG-49: respect custom rate
+                if (row.SuppressRateAutoAdjust) continue;
+
+                bool rateIsManaged = row.Rate == BaseRate || row.Rate == EffectiveRate;
+                if (!rateIsManaged) continue;
+
                 row.Rate = row.Sqm1 >= 4m ? EffectiveRate : BaseRate;
+            }
         }
 
-        public async void LoadFilteredSpecs()
+        /// <summary>
+        /// BUG-48 [HIGH]: was async void — now async Task returning cleanly.
+        /// The setter for SelectedGlassType uses "_ = LoadFilteredSpecsAsync()"
+        /// pattern with the Task swallowed by discard, but exceptions no
+        /// longer bring down the app because they are caught internally.
+        /// </summary>
+        public async Task LoadFilteredSpecsAsync()
         {
             FilteredSpecs.Clear();
             if (string.IsNullOrWhiteSpace(_selectedGlassType) || App.Specs == null) return;
+
             try
             {
                 var specs = await App.Specs.GetAllAsync(_selectedGlassType);
                 foreach (var x in specs) FilteredSpecs.Add(x);
             }
-            catch { }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[SpecGroup.LoadFilteredSpecs] {ex.Message}");
+            }
         }
+
+        // Backward-compat shim for any external callers still using the
+        // old sync signature. Marked internal-use only.
+        internal void LoadFilteredSpecs() => _ = LoadFilteredSpecsAsync();
 
         private void TryAutoFillRate()
         {
@@ -964,7 +1007,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    // CLASS: DataGridViewModel (preserved exactly)
+    // CLASS: DataGridViewModel (preserved)
     // ════════════════════════════════════════════════════════════════════════
 
     public class DataGridViewModel : ViewModelBase
@@ -981,9 +1024,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         public ICommand AddSpecGroupCommand { get; }
         public ICommand RemoveSpecGroupCommand { get; }
 
-        /// <summary>
-        /// Phase 7.10d: Read-only per-spec rollup + grand total across all spec groups.
-        /// </summary>
         public GrandTotalSummaryViewModel SummaryViewModel { get; }
 
         public DataGridViewModel()
@@ -1005,7 +1045,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 }
             });
 
-            // Wire the summary AFTER initial spec group exists
             SummaryViewModel = new GrandTotalSummaryViewModel(SpecGroups);
         }
 

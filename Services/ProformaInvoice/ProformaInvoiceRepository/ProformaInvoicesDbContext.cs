@@ -11,21 +11,26 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
     ///
     /// Isolated from main proglass.db and specifications.db so invoices
     /// can be backed up, exported, or reset independently.
+    ///
+    /// BUG-13: DatabaseFilePath no longer calls Directory.CreateDirectory
+    ///         in its getter. Side effect moved to OnConfiguring where
+    ///         it runs once per context creation.
+    /// BUG-14: Added indexes on ValidUntil + IssueDate for fast date-range
+    ///         filtering in the Load List UI.
     /// </summary>
     public class ProformaInvoicesDbContext : DbContext
     {
         public DbSet<SavedProformaInvoice> ProformaInvoices { get; set; }
 
+        // BUG-13: pure computation — no side effects
         public static string DatabaseFilePath
         {
             get
             {
                 var appDataFolder = Path.Combine(
-                    Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                    Environment.GetFolderPath(
+                        Environment.SpecialFolder.ApplicationData),
                     "ProGlassAutomation");
-
-                if (!Directory.Exists(appDataFolder))
-                    Directory.CreateDirectory(appDataFolder);
 
                 return Path.Combine(appDataFolder, "proformainvoices.db");
             }
@@ -33,6 +38,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            // BUG-13: Directory creation moved here — runs once per
+            // context instance, not on every property access.
+            var folder = Path.GetDirectoryName(DatabaseFilePath)!;
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
             optionsBuilder.UseSqlite($"Data Source={DatabaseFilePath}");
         }
 
@@ -48,6 +59,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 entity.HasIndex(e => e.CustomerName);
                 entity.HasIndex(e => e.Status);
                 entity.HasIndex(e => e.CreatedAt);
+
+                // BUG-14: date-range indexes for filter queries
+                entity.HasIndex(e => e.IssueDate)
+                    .HasDatabaseName("IX_ProformaInvoices_IssueDate");
+                entity.HasIndex(e => e.ValidUntil)
+                    .HasDatabaseName("IX_ProformaInvoices_ValidUntil");
             });
 
             base.OnModelCreating(modelBuilder);

@@ -1,6 +1,7 @@
 ﻿using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Export.Core;
+using ProGlassAutomation.Services.Export.Csv;
 using ProGlassAutomation.Services.Export.Excel;
 using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.ProformaInvoice.Export;
@@ -16,6 +17,17 @@ using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 {
+    /// <summary>
+    /// ViewModel for the Saved Invoices list page.
+    ///
+    /// BUG-72 [HIGH]: ChangeStatusCommand accepts Tuple parameter matching
+    ///                what the view code-behind actually passes.
+    /// BUG-73 [HIGH]: Filter changes no longer trigger LoadInvoicesAsync().
+    ///                Filtering is 100% in-memory over _allItems.
+    /// BUG-74 [MEDIUM]: ApplyFilters uses standard clear+refill pattern.
+    /// BUG-75 [MEDIUM]: Export success shows LastExportStatus feedback.
+    /// BUG-76 [LOW]: Added ExportCsvFromListCommand for detail view parity.
+    /// </summary>
     public class SavedInvoicesListViewModel : ViewModelBase
     {
         public string Title { get; } = "SAVED PROFORMA INVOICES";
@@ -107,6 +119,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             private set { _isLoading = value; OnPropertyChanged(); }
         }
 
+        // BUG-75: user feedback for export operations
+        private string _lastExportStatus = "";
+        public string LastExportStatus
+        {
+            get => _lastExportStatus;
+            private set
+            {
+                if (_lastExportStatus == value) return;
+                _lastExportStatus = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasExportStatus));
+            }
+        }
+        public bool HasExportStatus => !string.IsNullOrEmpty(_lastExportStatus);
+
         // ── Commands ─────────────────────────────────────────────────────────
 
         public ICommand RefreshCommand { get; }
@@ -117,21 +144,42 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         public ICommand ChangeStatusCommand { get; }
         public ICommand ExportPdfFromListCommand { get; }
         public ICommand ExportExcelFromListCommand { get; }
+        public ICommand ExportCsvFromListCommand { get; }   // BUG-76
 
         public SavedInvoicesListViewModel()
         {
             RefreshCommand = new RelayCommand(async _ => await LoadInvoicesAsync());
             ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
             LoadInvoiceCommand = new RelayCommand(p => RequestLoad(p as SavedInvoiceListItem));
-            DuplicateInvoiceCommand = new RelayCommand(async p => await DuplicateAsync(p as SavedInvoiceListItem));
-            DeleteInvoiceCommand = new RelayCommand(async p => await DeleteAsync(p as SavedInvoiceListItem));
+
+            DuplicateInvoiceCommand = new RelayCommand(
+                async p => await DuplicateAsync(p as SavedInvoiceListItem));
+            DeleteInvoiceCommand = new RelayCommand(
+                async p => await DeleteAsync(p as SavedInvoiceListItem));
+
+            // BUG-72 [HIGH]: accept Tuple parameter matching code-behind
             ChangeStatusCommand = new RelayCommand(async p =>
             {
-                if (p is object[] arr && arr.Length == 2
-                    && arr[0] is SavedInvoiceListItem item
-                    && arr[1] is string newStatus)
+                switch (p)
                 {
-                    await ChangeStatusAsync(item, newStatus);
+                    // View code-behind CreateStatusItem returns MenuItem
+                    // that fires an event capturing the tuple pattern:
+                    case Tuple<SavedInvoiceListItem, string> tuple
+                        when tuple.Item1 != null && !string.IsNullOrWhiteSpace(tuple.Item2):
+                        await ChangeStatusAsync(tuple.Item1, tuple.Item2);
+                        break;
+
+                    case ValueTuple<SavedInvoiceListItem, string> vtuple
+                        when vtuple.Item1 != null && !string.IsNullOrWhiteSpace(vtuple.Item2):
+                        await ChangeStatusAsync(vtuple.Item1, vtuple.Item2);
+                        break;
+
+                    // Backward-compat: original object[] shape
+                    case object[] arr when arr.Length == 2
+                        && arr[0] is SavedInvoiceListItem item
+                        && arr[1] is string newStatus:
+                        await ChangeStatusAsync(item, newStatus);
+                        break;
                 }
             });
 
@@ -140,11 +188,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             ExportExcelFromListCommand = new RelayCommand(
                 async p => await ExportExcelFromListAsync(p as SavedInvoiceListItem));
 
+            // BUG-76: CSV export from list for parity with detail view
+            ExportCsvFromListCommand = new RelayCommand(
+                async p => await ExportCsvFromListAsync(p as SavedInvoiceListItem));
+
             _ = LoadInvoicesAsync();
         }
 
         // ── Data loading ──────────────────────────────────────────────────────
 
+        /// <summary>
+        /// BUG-73 [HIGH]: Only called on explicit Refresh, initial load, and
+        /// after mutations (delete/duplicate/status change). Filter changes
+        /// no longer trigger this — filtering is now in-memory only.
+        /// </summary>
         public async Task LoadInvoicesAsync()
         {
             if (App.Invoices == null) return;
@@ -184,6 +241,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             }
         }
 
+        /// <summary>
+        /// BUG-73/74: Pure in-memory filter over _allItems.
+        /// Uses standard Clear() + AddRange pattern which is what WPF
+        /// virtualization expects. Incremental diff would be premature
+        /// optimization at typical invoice counts (dozens to low hundreds).
+        /// </summary>
         private void ApplyFilters()
         {
             IEnumerable<SavedInvoiceListItem> query = _allItems;
@@ -220,6 +283,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             };
 
             var result = query.ToList();
+
+            // BUG-74: standard clear + refill pattern
             FilteredItems.Clear();
             foreach (var item in result) FilteredItems.Add(item);
 
@@ -363,7 +428,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
         // ══════════════════════════════════════════════════════════════════
         //  PHASE 9.5b — Export from saved list via SHARED ENGINE
-        //  Snapshot-based path — no wizard VMs needed (gotcha #7)
+        //  BUG-75/76: success feedback + CSV parity
         // ══════════════════════════════════════════════════════════════════
 
         private async Task ExportPdfFromListAsync(SavedInvoiceListItem item)
@@ -385,6 +450,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 };
 
                 var result = await engine.ExportAsync(layout, request);
+
+                // BUG-75: success feedback
+                LastExportStatus = result.Success
+                    ? $"✓ PDF exported: {entity.ProformaId}"
+                    : result.Cancelled ? "" : $"✗ PDF export failed";
+
                 if (!result.Success && !result.Cancelled)
                     MessageBox.Show(
                         $"PDF export failed: {result.ErrorMessage}",
@@ -394,6 +465,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             }
             catch (Exception ex)
             {
+                LastExportStatus = $"✗ PDF export failed: {ex.Message}";
                 MessageBox.Show(
                     $"PDF export failed: {ex.Message}",
                     "Export Failed",
@@ -421,6 +493,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 };
 
                 var result = await engine.ExportAsync(layout, request);
+
+                LastExportStatus = result.Success
+                    ? $"✓ Excel exported: {entity.ProformaId}"
+                    : result.Cancelled ? "" : $"✗ Excel export failed";
+
                 if (!result.Success && !result.Cancelled)
                     MessageBox.Show(
                         $"Excel export failed: {result.ErrorMessage}",
@@ -430,8 +507,55 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             }
             catch (Exception ex)
             {
+                LastExportStatus = $"✗ Excel export failed: {ex.Message}";
                 MessageBox.Show(
                     $"Excel export failed: {ex.Message}",
+                    "Export Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// BUG-76: CSV export from list — was missing, PDF/Excel both had it.
+        /// Now list and detail views have full parity for all 3 formats.
+        /// </summary>
+        private async Task ExportCsvFromListAsync(SavedInvoiceListItem item)
+        {
+            if (item == null || App.Invoices == null) return;
+
+            try
+            {
+                var entity = await App.Invoices.GetByIdAsync(item.Id);
+                if (entity == null) return;
+
+                var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
+                var layout = new ProformaInvoiceCsvLayout(entity, snapshot);
+                var engine = new CsvExportEngine();
+                var request = new ExportRequest
+                {
+                    PromptForLocation = true,
+                    OpenAfterSave = true
+                };
+
+                var result = await engine.ExportAsync(layout, request);
+
+                LastExportStatus = result.Success
+                    ? $"✓ CSV exported: {entity.ProformaId}"
+                    : result.Cancelled ? "" : $"✗ CSV export failed";
+
+                if (!result.Success && !result.Cancelled)
+                    MessageBox.Show(
+                        $"CSV export failed: {result.ErrorMessage}",
+                        "Export Failed",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+            }
+            catch (Exception ex)
+            {
+                LastExportStatus = $"✗ CSV export failed: {ex.Message}";
+                MessageBox.Show(
+                    $"CSV export failed: {ex.Message}",
                     "Export Failed",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);

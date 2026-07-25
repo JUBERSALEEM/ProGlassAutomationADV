@@ -1,14 +1,14 @@
 ﻿using CsvHelper;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Export.Csv;
+using ProGlassAutomation.Utilities;
 using System;
 using System.Linq;
 
 namespace ProGlassAutomation.Services.ProformaInvoice.Export
 {
     /// <summary>
-    /// Phase 9.5b — ICsvLayout implementation for Proforma Invoice.
-    /// Replaces InvoiceCsvExportService via shared CsvExportEngine.
+    /// ICsvLayout implementation for Proforma Invoice.
     ///
     /// 13-column CSV:
     ///   Spec # | Spec Name | Row # | Glass Ref | W1 | H1 | W2 | H2 |
@@ -16,13 +16,17 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
     ///
     /// Followed by blank row + 3 summary rows
     /// (11 empty fields + label + value = 13 fields per row).
-    /// UTF-8 BOM handled automatically by CsvExportEngine.
     ///
-    /// STRANGLER PATTERN Round 1 — legacy InvoiceCsvExportService
-    /// still compiles alongside this.
+    /// BUG-22: SqmCalculator.CalculatePanel() replaces inline formula.
+    /// BUG-27: Inline SQM formula removed — uses shared SqmCalculator.
+    /// BUG-28: Magic number 11 replaced with named constant.
     /// </summary>
     public class ProformaInvoiceCsvLayout : ICsvLayout
     {
+        // BUG-28: Named constant — 11 empty fields precede label + value
+        // (11 + 1 label + 1 value = 13 total columns matching data rows)
+        private const int EMPTY_COLS_BEFORE_SUMMARY = 11;
+
         private readonly SavedProformaInvoice _entity;
         private readonly ProformaInvoiceSnapshot _snapshot;
 
@@ -45,10 +49,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
         // ── ICsvLayout ───────────────────────────────────────────────────────
 
-        /// <summary>
-        /// Engine provides a configured CsvWriter with UTF-8 BOM stream.
-        /// Layout writes header then data rows directly to the writer.
-        /// </summary>
         public void WriteRows(CsvWriter writer)
         {
             // ── 13-column header ─────────────────────────────────────────
@@ -83,10 +83,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
                     foreach (var r in g.ItemRows)
                     {
-                        decimal unitArea = Math.Max(
-                            Math.Round((decimal)r.W1 * r.H1
-                                / 1_000_000m, 3),
-                            0.5m);
+                        // BUG-22 / BUG-27: shared SqmCalculator (0.5 m² floor)
+                        decimal unitArea = SqmCalculator.CalculatePanel(r.W1, r.H1);
                         decimal totalArea = Math.Round(unitArea * r.Qty, 3);
                         decimal total = Math.Round(totalArea * r.Rate, 2);
 
@@ -111,7 +109,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             // ── Blank separator row ──────────────────────────────────────
             writer.NextRecord();
 
-            // ── Summary rows (11 empty + label + value = 13 fields) ──────
+            // ── Summary rows ─────────────────────────────────────────────
             WriteEmptyThenSummary(writer,
                 "Glass Materials Total",
                 _entity.GlassMaterialsSubtotal.ToString("N2"));
@@ -127,10 +125,15 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
         // ── Helper ───────────────────────────────────────────────────────────
 
+        /// <summary>
+        /// BUG-28: Uses EMPTY_COLS_BEFORE_SUMMARY constant instead of
+        /// hardcoded 11 loop iterations.
+        /// </summary>
         private static void WriteEmptyThenSummary(
             CsvWriter writer, string label, string value)
         {
-            for (int i = 0; i < 11; i++) writer.WriteField("");
+            for (int i = 0; i < EMPTY_COLS_BEFORE_SUMMARY; i++)
+                writer.WriteField("");
             writer.WriteField(label);
             writer.WriteField(value);
             writer.NextRecord();

@@ -8,6 +8,15 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
     /// JSON serialization. Never contains WPF types or ObservableCollections.
     /// Populated by ProformaInvoiceMapper.ToSnapshot(),
     /// consumed by ProformaInvoiceMapper.RestoreFromSnapshot().
+    ///
+    /// BUG-01: CompanySnapshot.IssueDate / ValidUntil no longer default
+    ///         to DateTime.Now at property level. Mapper sets them
+    ///         explicitly to avoid silent "today's date" on empty snapshots.
+    /// BUG-02: TermClauseSnapshot.Type stores enum name as string. This
+    ///         is INTENTIONAL for JSON stability — enum reordering will
+    ///         not break saved invoices. Rename enum values with care.
+    /// BUG-03: PolishSubType documented — valid values match the
+    ///         PolishSubType enum in Step6OtherCharges.
     /// </summary>
     public class ProformaInvoiceSnapshot
     {
@@ -46,8 +55,19 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string CompanyTrn { get; set; } = "";
         public string CompanyLocation { get; set; } = "";
         public string ProformaId { get; set; } = "";
-        public DateTime IssueDate { get; set; } = DateTime.Now;
-        public DateTime ValidUntil { get; set; } = DateTime.Now.AddDays(7);
+
+        /// <summary>
+        /// BUG-01: Changed default from DateTime.Now to default(DateTime).
+        /// Mapper sets this explicitly — no silent today's-date fallback.
+        /// </summary>
+        public DateTime IssueDate { get; set; } = default;
+
+        /// <summary>
+        /// BUG-01: Changed default from DateTime.Now.AddDays(7) to default.
+        /// Mapper sets this explicitly based on Company VM.
+        /// </summary>
+        public DateTime ValidUntil { get; set; } = default;
+
         public string ProformaStatus { get; set; } = "Draft";
     }
 
@@ -119,7 +139,13 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string SelectedSourceKey { get; set; } = "";
         public decimal Rate { get; set; }
 
-        // Polish-specific
+        // ── Polish-specific ──
+        /// <summary>
+        /// BUG-03: Stores PolishSubType enum name as string.
+        /// Valid values: "AllSidePolish", "AllSidePolishAsPerDwg",
+        ///               "BothHeightSide", "BothWidthSide", "Custom".
+        /// Empty string = no sub-type selected.
+        /// </summary>
         public string PolishSubType { get; set; } = "";
         public string CustomPolishDescription { get; set; } = "";
         public decimal CustomPolishQty { get; set; }
@@ -131,7 +157,10 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string ColorName { get; set; } = "";
         public decimal Rate { get; set; }
 
-        /// <summary>Selected source keys formatted as "SpecNumber-SideLabel" (e.g. "1-Outer (W1/H1)").</summary>
+        /// <summary>
+        /// Selected source keys formatted as "SpecNumber-SideLabel"
+        /// (e.g. "1-Outer (W1/H1)").
+        /// </summary>
         public List<string> CheckedSourceKeys { get; set; } = new();
     }
 
@@ -148,7 +177,8 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
 
     public class InvoiceSummarySnapshot
     {
-        public string DiscountType { get; set; } = "Percentage"; // "Percentage" or "FixedAmount"
+        /// <summary>"Percentage" or "FixedAmount"</summary>
+        public string DiscountType { get; set; } = "Percentage";
         public decimal DiscountValue { get; set; }
         public bool IsVatApplicable { get; set; } = true;
         public decimal VatPercent { get; set; } = 5m;
@@ -158,7 +188,13 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
 
     public class TermClauseSnapshot
     {
-        public string Type { get; set; } = "Custom"; // stores enum name as string
+        /// <summary>
+        /// BUG-02: Stores TermClauseType enum name as string for JSON
+        /// stability. Valid values: "PaymentTerms", "Delivery", "Warranty",
+        /// "Validity", "Taxes", "Installation", "Custom".
+        /// </summary>
+        public string Type { get; set; } = "Custom";
+
         public int Order { get; set; }
         public bool IsActive { get; set; } = true;
         public string Title { get; set; } = "";

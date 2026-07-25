@@ -14,11 +14,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
     /// </summary>
     public class GlassTypeCard : ViewModelBase
     {
-        public string Code { get; set; }
-        public string Title { get; set; }
-        public string Description { get; set; }
-        public string Icon { get; set; }
-        public string AccentColor { get; set; }
+        public string Code { get; set; } = "";
+        public string Title { get; set; } = "";
+        public string Description { get; set; } = "";
+        public string Icon { get; set; } = "";
+        public string AccentColor { get; set; } = "";
 
         private bool _isSelected;
         public bool IsSelected
@@ -29,12 +29,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
     }
 
     /// <summary>
-    /// Represents a specification target group (pulled from Step 5 data grid).
+    /// Represents a specification target group (visual preview only —
+    /// diverges from Step 5's real SpecGroups by design).
+    ///
+    /// BUG-43: This is a Step-4-only visual collection for the "Apply Rate
+    ///         to Specs" picker. It does NOT sync with Step5VM.SpecGroups.
+    ///         Users pick which specs the calculated rate applies to;
+    ///         those specs are then updated in the Step 5 grid separately.
     /// </summary>
     public class SpecTargetGroup : ViewModelBase
     {
-        public string Name { get; set; }
-        public string Description { get; set; }
+        public string Name { get; set; } = "";
+        public string Description { get; set; } = "";
 
         private bool _isSelected;
         public bool IsSelected
@@ -46,10 +52,22 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
 
     /// <summary>
     /// ViewModel for Step 4 of the Proforma Invoice wizard.
-    /// Handles the Smart Pricing Estimator: glass type selection,
-    /// per-glass-type parameter panels, processing treatments,
-    /// spec target groups, and live rate calculation.
+    /// Smart Pricing Estimator: glass type selection, per-glass-type
+    /// parameter panels, processing treatments, spec target groups,
+    /// and live rate calculation.
     /// APPLY button saves the current spec to specifications.db.
+    ///
+    /// BUG-40/41 [HIGH]: Invalid yield factor no longer silently reset —
+    ///                    warning message shown via YieldFactorWarning.
+    /// BUG-42 [HIGH]: DGU+LAM hybrid returns "" for spec name so save
+    ///                is blocked instead of writing "not yet implemented"
+    ///                garbage to the DB. Save command disabled via
+    ///                CanExecute check.
+    /// BUG-43 [MEDIUM]: SpecGroups documented — divergent from Step5 by design.
+    /// BUG-44 [MEDIUM]: Save success shows one-line status instead of blocking
+    ///                  MessageBox (matches DN pattern — non-blocking UX).
+    /// BUG-45 [LOW]: Property-changed switches consolidated — recalculates
+    ///               whenever the active panel changes any tracked property.
     /// </summary>
     public class PricingEstimatorViewModel : ViewModelBase
     {
@@ -62,8 +80,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         // === Glass Type Cards ===
         public ObservableCollection<GlassTypeCard> GlassTypes { get; }
 
-        private GlassTypeCard _selectedGlassType;
-        public GlassTypeCard SelectedGlassType
+        private GlassTypeCard? _selectedGlassType;
+        public GlassTypeCard? SelectedGlassType
         {
             get => _selectedGlassType;
             set
@@ -115,7 +133,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             set { _edgeDeletionLayer = value; OnPropertyChanged(); }
         }
 
-        // === Specification Target Groups ===
+        // === Specification Target Groups (Step 4 preview only — see BUG-43) ===
         public ObservableCollection<SpecTargetGroup> SpecGroups { get; }
 
         public int TotalSpecsActive => SpecGroups?.Count(g => g.IsSelected) ?? 0;
@@ -131,10 +149,41 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 _estimatedRatePerSqm = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(HasCalculatedRate));
+                CommandManager.InvalidateRequerySuggested();
             }
         }
 
         public bool HasCalculatedRate => EstimatedRatePerSqm > 0m;
+
+        // BUG-40/41: warning message when yield factor is invalid
+        private string _yieldFactorWarning = "";
+        public string YieldFactorWarning
+        {
+            get => _yieldFactorWarning;
+            private set
+            {
+                if (_yieldFactorWarning == value) return;
+                _yieldFactorWarning = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasYieldFactorWarning));
+            }
+        }
+        public bool HasYieldFactorWarning => !string.IsNullOrEmpty(_yieldFactorWarning);
+
+        // BUG-44: non-blocking status line for save success/failure
+        private string _applyStatusMessage = "";
+        public string ApplyStatusMessage
+        {
+            get => _applyStatusMessage;
+            private set
+            {
+                if (_applyStatusMessage == value) return;
+                _applyStatusMessage = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasApplyStatus));
+            }
+        }
+        public bool HasApplyStatus => !string.IsNullOrEmpty(_applyStatusMessage);
 
         // === Commands ===
         public ICommand SelectGlassTypeCommand { get; }
@@ -149,56 +198,57 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             LamVM = new LamParameters.LamParametersViewModel();
             DguLamVM = new DguLamParameters.DguLamParametersViewModel();
 
-            // Subscribe to parameter changes to auto-recalculate rate
-            SguVM.PropertyChanged += OnSguParametersChanged;
-            DguVM.PropertyChanged += OnDguParametersChanged;
-            LamVM.PropertyChanged += OnLamParametersChanged;
+            // BUG-45: blanket recalc when the active glass type panel
+            // changes ANY property — no more brittle property-name switches
+            SguVM.PropertyChanged += OnAnyPanelPropertyChanged;
+            DguVM.PropertyChanged += OnAnyPanelPropertyChanged;
+            LamVM.PropertyChanged += OnAnyPanelPropertyChanged;
 
             // Seed 4 glass type options
             GlassTypes = new ObservableCollection<GlassTypeCard>
             {
                 new GlassTypeCard
                 {
-                    Code = "SGU",
-                    Title = "Single Glass Unit (SGU)",
+                    Code        = "SGU",
+                    Title       = "Single Glass Unit (SGU)",
                     Description = "Monolithic pane. Direct pricing with custom color & treatments.",
-                    Icon = "\U0001F4E6",
+                    Icon        = "\U0001F4E6",
                     AccentColor = "#6366F1"
                 },
                 new GlassTypeCard
                 {
-                    Code = "DGU",
-                    Title = "Double Glass Unit (DGU)",
+                    Code        = "DGU",
+                    Title       = "Double Glass Unit (DGU)",
                     Description = "Insulated glass assembly. Configures spacers, gas insertion & outer/inner treatments.",
-                    Icon = "\U0001F4DA",
+                    Icon        = "\U0001F4DA",
                     AccentColor = "#A855F7"
                 },
                 new GlassTypeCard
                 {
-                    Code = "LAM",
-                    Title = "Laminated Assembly (LAM)",
+                    Code        = "LAM",
+                    Title       = "Laminated Assembly (LAM)",
                     Description = "Multi-layer safety sandwich. Customizes PVB thickness, outer/inner prices & margins.",
-                    Icon = "\U0001F517",
+                    Icon        = "\U0001F517",
                     AccentColor = "#22C55E"
                 },
                 new GlassTypeCard
                 {
-                    Code = "DGU+LAM",
-                    Title = "DGU + Laminated (Hybrid)",
+                    Code        = "DGU+LAM",
+                    Title       = "DGU + Laminated (Hybrid)",
                     Description = "Double glazed unit with one laminated layer. Combines thermal and safety performance.",
-                    Icon = "\U0001F3D7",
+                    Icon        = "\U0001F3D7",
                     AccentColor = "#F97316"
                 }
             };
 
-            // Seed sample spec groups
+            // BUG-43: SpecGroups is preview-only, not linked to Step5
             SpecGroups = new ObservableCollection<SpecTargetGroup>
             {
                 new SpecTargetGroup
                 {
-                    Name = "Spec Group 1",
+                    Name        = "Spec Group 1",
                     Description = "Default spec group",
-                    IsSelected = true
+                    IsSelected  = true
                 }
             };
 
@@ -217,10 +267,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 }
             });
 
-            // APPLY button: saves the current spec + rate to specifications.db
+            // BUG-42: CanExecute checks spec name is real — DGU+LAM
+            // returns "" so save is disabled until it's implemented
             ApplyRateCommand = new RelayCommand(
                 async _ => await ApplyRateAsync(),
-                _ => TotalSpecsActive > 0 && EstimatedRatePerSqm > 0m);
+                _ => TotalSpecsActive > 0
+                     && EstimatedRatePerSqm > 0m
+                     && !string.IsNullOrWhiteSpace(
+                            GetCurrentSpecName(SelectedGlassType?.Code ?? "")));
 
             // Default selection = SGU
             SelectedGlassType = GlassTypes[0];
@@ -238,139 +292,111 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         // ==================== APPLY RATE (SAVE TO DATABASE) ====================
 
         /// <summary>
-        /// Called when user clicks APPLY RATE TO SELECTED SPECS button.
-        /// Saves the currently configured spec (name + rate) to specifications.db
-        /// for later reuse in Step 5 (Data Grid) spec dropdown.
+        /// Saves the currently configured spec (name + rate) to
+        /// specifications.db for later reuse in Step 5 (Data Grid) spec
+        /// dropdown.
         ///
-        /// If spec already exists (same GlassType + SpecName):
-        ///   - Rate is updated to latest value
-        ///   - UsageCount is incremented
-        ///   - LastUsedAt is set to now
+        /// BUG-42: Returns early with a friendly warning if the current
+        ///         glass type has no real spec name (DGU+LAM hybrid isn't
+        ///         implemented yet — was previously writing garbage).
+        /// BUG-44: Uses one-line non-blocking ApplyStatusMessage instead
+        ///         of blocking MessageBox for success. Errors still use
+        ///         MessageBox because they need to interrupt user attention.
         /// </summary>
         private async System.Threading.Tasks.Task ApplyRateAsync()
         {
             if (SelectedGlassType == null || EstimatedRatePerSqm <= 0m)
             {
-                MessageBox.Show(
-                    "Please configure the glass parameters and ensure the estimated rate is greater than zero.",
-                    "Cannot Apply Rate",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
+                ApplyStatusMessage =
+                    "⚠  Configure glass parameters and ensure estimated rate > 0.";
                 return;
             }
 
-            // Get the auto-generated spec name from the active panel
             string glassType = SelectedGlassType.Code;
             string specName = GetCurrentSpecName(glassType);
             decimal rate = EstimatedRatePerSqm;
 
+            // BUG-42: Guard — empty spec name means the type isn't
+            // implemented (e.g. DGU+LAM). Do NOT save garbage.
             if (string.IsNullOrWhiteSpace(specName))
             {
-                MessageBox.Show(
-                    "Spec name could not be generated. Please check your glass parameters.",
-                    "Cannot Apply Rate",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
+                ApplyStatusMessage =
+                    $"⚠  {glassType} pricing is not yet implemented — cannot save spec.";
                 return;
             }
 
             try
             {
-                // Save (or update) the spec in the database
-                var savedSpec = await App.Specs.SaveOrUpdateAsync(glassType, specName, rate);
+                var savedSpec = await App.Specs.SaveOrUpdateAsync(
+                    glassType, specName, rate);
 
-                var isNew = savedSpec.UsageCount == 1;
-                var actionText = isNew ? "saved as new spec" : $"updated (used {savedSpec.UsageCount}x)";
+                bool isNew = savedSpec.UsageCount == 1;
 
-                MessageBox.Show(
-                    $"Spec {actionText} to database:\n\n" +
-                    $"Glass Type: {glassType}\n" +
-                    $"Spec: {specName}\n" +
-                    $"Rate: AED {rate:N2} / sqm\n\n" +
-                    $"This spec is now available in Step 5 (Data Grid) dropdown.",
-                    "Spec Applied",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                // BUG-44: non-blocking one-line status
+                ApplyStatusMessage = isNew
+                    ? $"✓  Saved '{specName}' — AED {rate:N2}/sqm. Now available in Step 5."
+                    : $"✓  Updated '{specName}' — AED {rate:N2}/sqm  (used {savedSpec.UsageCount}×).";
             }
             catch (Exception ex)
             {
+                // Errors still use MessageBox — must interrupt the user
                 MessageBox.Show(
                     $"Failed to save spec:\n\n{ex.Message}",
                     "Database Error",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+
+                ApplyStatusMessage = $"✗  Save failed: {ex.Message}";
             }
         }
 
         /// <summary>
-        /// Retrieves the current auto-generated spec name from the active panel VM.
-        /// Each panel exposes a GeneratedSpecName computed property.
+        /// Retrieves the current auto-generated spec name from the active panel.
+        ///
+        /// BUG-42: Returns empty string for DGU+LAM (hybrid not implemented)
+        /// instead of "DGU+LAM Hybrid (not yet implemented)" placeholder.
+        /// Save command's CanExecute uses this to disable the button when
+        /// the current glass type has no real spec name.
         /// </summary>
         private string GetCurrentSpecName(string glassType)
         {
             return glassType switch
             {
-                "SGU" => SguVM.GeneratedSpecName,
-                "DGU" => DguVM.GeneratedSpecName,
-                "LAM" => LamVM.GeneratedSpecName,
-                "DGU+LAM" => "DGU+LAM Hybrid (not yet implemented)",
-                _ => string.Empty
+                "SGU" => SguVM.GeneratedSpecName ?? "",
+                "DGU" => DguVM.GeneratedSpecName ?? "",
+                "LAM" => LamVM.GeneratedSpecName ?? "",
+                "DGU+LAM" => "",    // BUG-42: was garbage placeholder
+                _ => ""
             };
         }
 
         // ==================== LIVE CALCULATION ====================
 
-        private void OnSguParametersChanged(object sender, PropertyChangedEventArgs e)
+        // BUG-45: single handler for all panel property changes.
+        // Only recalculates if the currently selected glass type matches
+        // the panel that fired the event.
+        private void OnAnyPanelPropertyChanged(
+            object? sender, PropertyChangedEventArgs e)
         {
-            switch (e.PropertyName)
-            {
-                case nameof(SguParameters.SguParametersViewModel.BasePricePerSqm):
-                case nameof(SguParameters.SguParametersViewModel.YieldFactor):
-                case nameof(SguParameters.SguParametersViewModel.CuttingCostPerSqm):
-                case nameof(SguParameters.SguParametersViewModel.TemperingCostPerSqm):
-                case nameof(SguParameters.SguParametersViewModel.TargetMarginPercent):
-                    if (SelectedGlassType?.Code == "SGU")
-                        RecalculateEstimatedRate();
-                    break;
-            }
-        }
+            string? currentType = SelectedGlassType?.Code;
+            if (currentType == null) return;
 
-        private void OnDguParametersChanged(object sender, PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
+            bool relevant = currentType switch
             {
-                case nameof(DguParameters.DguParametersViewModel.OuterBasePrice):
-                case nameof(DguParameters.DguParametersViewModel.InnerBasePrice):
-                case nameof(DguParameters.DguParametersViewModel.SpacerPrice):
-                case nameof(DguParameters.DguParametersViewModel.YieldFactor):
-                case nameof(DguParameters.DguParametersViewModel.MarginProfitPercent):
-                    if (SelectedGlassType?.Code == "DGU")
-                        RecalculateEstimatedRate();
-                    break;
-            }
-        }
+                "SGU" => sender is SguParameters.SguParametersViewModel,
+                "DGU" => sender is DguParameters.DguParametersViewModel,
+                "LAM" => sender is LamParameters.LamParametersViewModel,
+                _ => false
+            };
 
-        private void OnLamParametersChanged(object sender, PropertyChangedEventArgs e)
-        {
-            switch (e.PropertyName)
-            {
-                case nameof(LamParameters.LamParametersViewModel.OuterBasePrice):
-                case nameof(LamParameters.LamParametersViewModel.InnerBasePrice):
-                case nameof(LamParameters.LamParametersViewModel.PvbMaterialRate):
-                case nameof(LamParameters.LamParametersViewModel.OuterCuttingCost):
-                case nameof(LamParameters.LamParametersViewModel.InnerCuttingCost):
-                case nameof(LamParameters.LamParametersViewModel.OuterTemperingCost):
-                case nameof(LamParameters.LamParametersViewModel.InnerTemperingCost):
-                case nameof(LamParameters.LamParametersViewModel.YieldFactor):
-                case nameof(LamParameters.LamParametersViewModel.MarginProfitPercent):
-                    if (SelectedGlassType?.Code == "LAM")
-                        RecalculateEstimatedRate();
-                    break;
-            }
+            if (relevant)
+                RecalculateEstimatedRate();
         }
 
         private void RecalculateEstimatedRate()
         {
+            YieldFactorWarning = "";   // BUG-40/41: clear stale warning
+
             if (SelectedGlassType == null)
             {
                 EstimatedRatePerSqm = 0m;
@@ -392,7 +418,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                     break;
 
                 case "DGU+LAM":
-                    // Blank for now (per business decision)
+                    // Blank for now — hybrid formula pending business definition
                     EstimatedRatePerSqm = 0m;
                     break;
 
@@ -402,14 +428,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             }
         }
 
-        /// <summary>
-        /// SGU pricing formula.
-        /// Step 1: raw = Base Price per SQM
-        /// Step 2: cost = raw / Yield Factor
-        /// Step 3: + Cutting Cost
-        /// Step 4: + Tempering Cost
-        /// Step 5: * (1 + Margin/100)
-        /// </summary>
+        // ══════════════════════════════════════════════════════════════════
+        //  BUG-40 [HIGH]: SGU rate — invalid yield factor no longer silent
+        //
+        //  Step 1: raw = Base Price per SQM
+        //  Step 2: cost = raw / Yield Factor
+        //  Step 3: + Cutting Cost
+        //  Step 4: + Tempering Cost
+        //  Step 5: * (1 + Margin/100)
+        // ══════════════════════════════════════════════════════════════════
+
         private decimal CalculateSguRate()
         {
             var vm = SguVM;
@@ -420,8 +448,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             decimal temperingCost = vm.TemperingCostPerSqm;
             decimal marginPercent = vm.TargetMarginPercent;
 
+            // BUG-40: warn instead of silent reset
             if (yieldFactor <= 0m)
+            {
+                YieldFactorWarning =
+                    $"⚠  SGU yield factor must be > 0 (currently {yieldFactor:0.###}). " +
+                    "Using 1.0 as fallback.";
                 yieldFactor = 1m;
+            }
 
             decimal step1 = basePrice;
             decimal step2 = step1 / yieldFactor;
@@ -432,19 +466,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             return Math.Round(step5, 2);
         }
 
-        /// <summary>
-        /// DGU (Double Glass Unit) pricing formula:
-        ///   Step 1: Glass Cost = Outer Price + Inner Price
-        ///   Step 2: Base Cost  = Glass Cost / Yield Factor
-        ///   Step 3: + Spacer   = Base Cost + Spacer Price
-        ///   Step 4: * (1 + Margin/100)
-        ///
-        /// Example: Outer=48, Inner=25, Spacer=45, Yield=0.85, Margin=15%
-        ///   48 + 25             = 73
-        ///   73 / 0.85           = 85.88
-        ///   85.88 + 45          = 130.88
-        ///   130.88 * 1.15       = 150.51  ← rate/sqm
-        /// </summary>
+        // ══════════════════════════════════════════════════════════════════
+        //  BUG-41 [HIGH]: DGU rate — invalid yield factor no longer silent
+        // ══════════════════════════════════════════════════════════════════
+
         private decimal CalculateDguRate()
         {
             var vm = DguVM;
@@ -455,35 +480,27 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             decimal yieldFactor = vm.YieldFactor;
             decimal marginPercent = vm.MarginProfitPercent;
 
+            // BUG-41: warn instead of silent reset
             if (yieldFactor <= 0m)
+            {
+                YieldFactorWarning =
+                    $"⚠  DGU yield factor must be > 0 (currently {yieldFactor:0.###}). " +
+                    "Using 1.0 as fallback.";
                 yieldFactor = 1m;
+            }
 
-            decimal step1 = outerPrice + innerPrice;                  // 73
-            decimal step2 = step1 / yieldFactor;                      // 85.88
-            decimal step3 = step2 + spacerPrice;                      // 130.88
-            decimal step4 = step3 * (1m + (marginPercent / 100m));    // 150.51
+            decimal step1 = outerPrice + innerPrice;                    // 73
+            decimal step2 = step1 / yieldFactor;                        // 85.88
+            decimal step3 = step2 + spacerPrice;                        // 130.88
+            decimal step4 = step3 * (1m + (marginPercent / 100m));      // 150.51
 
             return Math.Round(step4, 2);
         }
 
-        /// <summary>
-        /// LAM (Laminated Assembly) pricing formula:
-        ///   Step 1: Glass Cost = Outer Price + Inner Price
-        ///   Step 2: Base Cost  = Glass Cost / Yield Factor  (yield applies to raw glass ONLY)
-        ///   Step 3: + PVB      = Base Cost + PVB Material Rate
-        ///   Step 4: + Cutting  = + Outer Cutting + Inner Cutting
-        ///   Step 5: + Tempering= + Outer Tempering + Inner Tempering
-        ///   Step 6: * (1 + Margin/100)
-        ///
-        /// Example: Outer=25, Inner=25, PVB=110, OCut=5, ICut=5,
-        ///          OTemp=10, ITemp=10, Yield=0.85, Margin=15%
-        ///   25 + 25                       = 50
-        ///   50 / 0.85                     = 58.82
-        ///   58.82 + 110                   = 168.82
-        ///   168.82 + 5 + 5                = 178.82
-        ///   178.82 + 10 + 10              = 198.82
-        ///   198.82 * 1.15                 = 228.65  ← rate/sqm
-        /// </summary>
+        // ══════════════════════════════════════════════════════════════════
+        //  BUG-41 [HIGH]: LAM rate — invalid yield factor no longer silent
+        // ══════════════════════════════════════════════════════════════════
+
         private decimal CalculateLamRate()
         {
             var vm = LamVM;
@@ -498,8 +515,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             decimal yieldFactor = vm.YieldFactor;
             decimal marginPercent = vm.MarginProfitPercent;
 
+            // BUG-41: warn instead of silent reset
             if (yieldFactor <= 0m)
+            {
+                YieldFactorWarning =
+                    $"⚠  LAM yield factor must be > 0 (currently {yieldFactor:0.###}). " +
+                    "Using 1.0 as fallback.";
                 yieldFactor = 1m;
+            }
 
             decimal step1 = outerPrice + innerPrice;                              // 50
             decimal step2 = step1 / yieldFactor;                                  // 58.82

@@ -1,8 +1,10 @@
 ﻿using ProGlassAutomation.Commands;
+using ProGlassAutomation.Models.ProformaInvoice.Step7PrintPreview.TermsAndConditions;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
 
@@ -11,6 +13,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
     /// <summary>
     /// Temporary list item — will be replaced with real ProformaInvoice entity later.
     /// Kept here so Dashboard bindings don't break.
+    ///
+    /// BUG-79 [MEDIUM]: Documented as Dashboard-contract placeholder.
+    /// Real data comes from Phase 20+ Dashboard analytics service.
     /// </summary>
     public class InvoiceItem : ViewModelBase
     {
@@ -23,6 +28,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
 
     /// <summary>
     /// Represents a single step in the wizard sidebar.
+    ///
+    /// BUG-81: Kept in shell file to match existing project structure.
+    /// Splitting would require updating XAML "clr-namespace" bindings.
     /// </summary>
     public class WizardStep : ViewModelBase
     {
@@ -47,11 +55,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
 
     /// <summary>
     /// Main ViewModel for the Proforma Invoice module.
-    /// Phase 7.19: List-first architecture — module landing page shows
-    /// SavedInvoicesList. User creates new or edits existing from the list.
-    /// Wizard is shown on demand, with "Back to List" navigation.
-    /// Phase 8.2: Added TriggerNewInvoice() public method so Dashboard
-    /// quick action can open the new invoice wizard via MainViewModel callback.
+    /// Phase 7.19 : List-first architecture — module landing = SavedInvoicesList.
+    /// Phase 8.2  : TriggerNewInvoice() public method for Dashboard quick action.
+    ///
+    /// BUG-77 [HIGH]: LoadInvoiceIntoWizard was async void — now async Task
+    ///                fired via SafeFireAsync so exceptions surface properly.
+    /// BUG-78 [HIGH]: StartNewInvoice rebuilds spec groups without leaking
+    ///                event handlers hooked by OtherChargesViewModel on the
+    ///                prior spec-group instances. Uses full async path so
+    ///                unique ProformaId is DB-verified (see BUG-33 in
+    ///                CompanySetupViewModel).
+    /// BUG-79 [MEDIUM]: InvoiceItem documented as Dashboard placeholder.
+    /// BUG-80 [LOW]: Dashboard totals return 0 — Phase 20+ implementation.
+    /// BUG-81 [COSMETIC]: File structure preserved — no split.
     /// </summary>
     public class ProformaInvoiceViewModel : ViewModelBase
     {
@@ -59,9 +75,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         public string Subtitle { get; } = "Create professional glass invoices in 7 simple steps";
 
         // === Dashboard Contract (preserved so DashboardViewModel doesn't break) ===
+
         public ObservableCollection<InvoiceItem> Invoices { get; }
             = new ObservableCollection<InvoiceItem>();
 
+        // BUG-80 [LOW]: Real values come from Phase 20+ Dashboard service.
+        // Kept as 0 hardcoded so Dashboard binding paths do not crash.
         public decimal TotalSales => 0m;
         public int InvoiceCount => 0;
         public int PendingCount => 0;
@@ -116,8 +135,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
 
         // ══════════════════════════════════════════════════════════════════
         //  PHASE 7.19 — LIST ↔ WIZARD navigation state
-        //  When IsListView = true, the SavedInvoicesList is shown.
-        //  When false, the 7-step wizard is shown.
         // ══════════════════════════════════════════════════════════════════
 
         private bool _isListView = true;
@@ -189,13 +206,39 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                     CurrentStep = step;
             });
 
-            // Phase 7.19: List ↔ Wizard navigation
-            NewInvoiceCommand = new RelayCommand(_ => StartNewInvoice());
-            BackToListCommand = new RelayCommand(_ => ReturnToList());
+            // BUG-77/78: SafeFireAsync wrappers
+            NewInvoiceCommand = new RelayCommand(
+                _ => SafeFireAsync(StartNewInvoiceAsync));
+            BackToListCommand = new RelayCommand(
+                _ => SafeFireAsync(ReturnToListAsync));
 
             // Saved Invoices List VM — the module landing page
             SavedInvoicesListVM = new SavedInvoicesList.SavedInvoicesListViewModel();
-            SavedInvoicesListVM.OnInvoiceLoadRequested = LoadInvoiceIntoWizard;
+
+            // BUG-77: safe wrapper for the load callback
+            SavedInvoicesListVM.OnInvoiceLoadRequested = id =>
+                SafeFireAsync(() => LoadInvoiceIntoWizardAsync(id));
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  BUG-77 [HIGH]: SafeFireAsync wrapper
+        //  Replaces every "async void" method in the file.
+        // ══════════════════════════════════════════════════════════════════
+
+        private static async void SafeFireAsync(Func<Task> action)
+        {
+            try
+            {
+                await action();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Unexpected error:\n\n{ex.Message}",
+                    "Error",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
         }
 
         private void GoToStep(int stepNumber)
@@ -206,31 +249,37 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  PHASE 7.19 — List ↔ Wizard navigation methods
+        //  PHASE 7.19 — LIST ↔ WIZARD navigation
         // ══════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Creates a fresh wizard (resets all steps) and switches to wizard view.
-        /// Called when user clicks "+ NEW INVOICE" on the list page.
+        /// BUG-78 [HIGH]: Rebuilds spec groups cleanly so event handlers
+        ///                hooked by OtherChargesViewModel on the OLD groups
+        ///                are released before we add new ones.
+        /// BUG-33 integration: uses async unique-ID generator from
+        ///                      CompanySetupViewModel to guarantee no
+        ///                      collision on ProformaId.
         /// </summary>
-        private void StartNewInvoice()
+        private async Task StartNewInvoiceAsync()
         {
-            // Reset Step 1
+            // ── Reset Step 1 — request a real DB-verified unique ID ──────
             Step1VM.CompanyName = "";
             Step1VM.CompanyTrn = "";
             Step1VM.CompanyLocation = "";
-            Step1VM.ProformaId = $"PI-{DateTime.Now.Year}-{(DateTime.Now.Ticks % 1000):000}";
             Step1VM.IssueDate = DateTime.Now;
             Step1VM.ValidUntil = DateTime.Now.AddDays(7);
             Step1VM.ProformaStatus = "Draft";
 
-            // Reset Step 2
+            // BUG-33: async DB check for next unique Proforma ID
+            await Step1VM.GenerateUniqueProformaIdAsync();
+
+            // ── Reset Step 2 ──────────────────────────────────────────────
             Step2VM.ProjectIdentifierName = "";
             Step2VM.ProjectContractNo = "";
             Step2VM.SiteDeliveryLocation = "";
             Step2VM.LpoNumber = "";
 
-            // Reset Step 3
+            // ── Reset Step 3 ──────────────────────────────────────────────
             Step3VM.CustomerName = "";
             Step3VM.CustomerTrn = "";
             Step3VM.CustomerReferenceCode = "";
@@ -240,7 +289,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             Step3VM.AttentionExecutiveName = "";
             Step3VM.ClientContactPhone = "";
 
-            // Reset Step 5 — clear all spec groups and add a fresh one
+            // ── Reset Step 5 — clean spec-group rebuild (BUG-78) ─────────
+            // Clearing SpecGroups fires OtherChargesViewModel's
+            // OnSpecGroupsCollectionChanged which unhooks handlers from
+            // each old group via UnhookSpecGroup(). This prevents the
+            // handler leak. Then adding the new default group re-hooks
+            // handlers cleanly via HookSpecGroup().
             Step5VM.SpecGroups.Clear();
             Step5VM.SpecGroups.Add(new Step5DataGrid.SpecGroup
             {
@@ -251,63 +305,64 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 SelectedGlassType = "SGU"
             });
 
-            // Navigate to Step 1 and show wizard
+            // ── Navigate to Step 1 and show wizard ────────────────────────
             CurrentStep = WizardSteps[0];
             IsListView = false;
         }
 
         /// <summary>
         /// Returns to the saved invoices list view.
-        /// Called when user clicks "Back to List" in the wizard bottom nav.
+        /// BUG-77: async Task, called via SafeFireAsync so any refresh
+        ///          exception surfaces to the user.
         /// </summary>
-        private void ReturnToList()
+        private async Task ReturnToListAsync()
         {
             IsListView = true;
-            // Refresh the list in case user saved something while in wizard
-            _ = SavedInvoicesListVM.LoadInvoicesAsync();
+            await SavedInvoicesListVM.LoadInvoicesAsync();
         }
 
         /// <summary>
-        /// Called when user clicks LOAD on a row in the SavedInvoicesList.
-        /// Fetches the full entity, restores the wizard from the JSON snapshot,
-        /// and switches to wizard view at Step 1 for review.
+        /// Called when user clicks LOAD on a row in SavedInvoicesList.
+        /// BUG-77 [HIGH]: was async void — now async Task fired via
+        ///                SafeFireAsync so DB errors surface.
         /// </summary>
-        private async void LoadInvoiceIntoWizard(int invoiceId)
+        private async Task LoadInvoiceIntoWizardAsync(int invoiceId)
         {
             if (App.Invoices == null) return;
 
+            var entity = await App.Invoices.GetByIdAsync(invoiceId);
+            if (entity == null)
+            {
+                MessageBox.Show(
+                    "Selected invoice could not be found.",
+                    "Load Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
+
+            // BUG-57 integration: use batch update on MainSummary so
+            // Recalculate fires ONCE instead of per-property.
+            Step7VM.InvoiceMainSummary.BeginBatchUpdate();
             try
             {
-                var entity = await App.Invoices.GetByIdAsync(invoiceId);
-                if (entity == null)
-                {
-                    MessageBox.Show(
-                        "Selected invoice could not be found.",
-                        "Load Failed",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
-                    return;
-                }
-
-                var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
-
                 ProformaInvoiceMapper.RestoreWizardFromSnapshot(
                     snapshot,
                     Step1VM, Step2VM, Step3VM, Step5VM, Step6VM,
-                    Step7VM.InvoiceMainSummary, Step7VM.Terms, Step7VM.PrintableInvoice);
-
-                // Switch to wizard at Step 1 for review
-                CurrentStep = WizardSteps[0];
-                IsListView = false;
+                    Step7VM.InvoiceMainSummary,
+                    Step7VM.Terms,
+                    Step7VM.PrintableInvoice);
             }
-            catch (Exception ex)
+            finally
             {
-                MessageBox.Show(
-                    $"Failed to load invoice:\n\n{ex.Message}",
-                    "Load Failed",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
+                Step7VM.InvoiceMainSummary.EndBatchUpdate();
             }
+
+            // Switch to wizard at Step 1 for review
+            CurrentStep = WizardSteps[0];
+            IsListView = false;
         }
 
         // ══════════════════════════════════════════════════════════════════
@@ -316,10 +371,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
 
         /// <summary>
         /// Called by MainViewModel when the Dashboard "New Invoice" quick
-        /// action is clicked. Delegates to StartNewInvoice() so the wizard
-        /// resets and opens — same behaviour as clicking "+ NEW INVOICE"
-        /// on the list page directly.
+        /// action is clicked. Delegates to StartNewInvoiceAsync() via the
+        /// SafeFireAsync wrapper (BUG-77) so exceptions surface.
         /// </summary>
-        public void TriggerNewInvoice() => StartNewInvoice();
+        public void TriggerNewInvoice() =>
+            SafeFireAsync(StartNewInvoiceAsync);
     }
 }

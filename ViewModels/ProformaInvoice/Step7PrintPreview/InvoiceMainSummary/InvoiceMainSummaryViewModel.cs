@@ -10,14 +10,33 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Invoic
 {
     /// <summary>
     /// Financial summary card at the top of Step 7 (Print Preview).
-    /// Aggregates glass materials subtotal from Step 5, other charges from Step 6,
-    /// applies user-entered Discount (% or AED), applies UAE VAT (default 5%, toggleable),
-    /// and produces the final Grand Total (VAT Inclusive) shown on the printed PI.
+    /// Aggregates glass materials + other charges, applies discount,
+    /// applies UAE VAT (default 5%), produces Grand Total (VAT inclusive).
+    ///
+    /// UAE VAT COMPLIANCE (Federal Decree-Law No. 8 of 2017):
+    ///   1. Discount is subtracted from taxable value BEFORE VAT calc.
+    ///   2. VAT applies to (net - discount), not to gross.
+    ///   3. Standard rate is 5% for taxable supplies.
+    ///   4. Zero-rated / exempt supplies set IsVatApplicable = false.
+    ///
+    /// BUG-56 [MEDIUM]: Discount capping consolidated in Recalculate.
+    ///                  Setter for DiscountValue only clamps at zero;
+    ///                  Recalculate() enforces the net-value cap.
+    /// BUG-57 [HIGH]: Recalculate now guarded by _suspendRecalculation.
+    ///                Restore-from-snapshot path suspends recalcs so
+    ///                setting 4 values fires ONE recalc, not 4.
+    /// BUG-58 [MEDIUM]: UAE VAT law reference inline in Recalculate.
+    /// BUG-59 [LOW]: Percentage discount capped at 100% in setter;
+    ///               fixed-amount discount uncapped in setter but
+    ///               capped at net in Recalculate.
     /// </summary>
     public class InvoiceMainSummaryViewModel : ViewModelBase
     {
         private readonly DataGridViewModel _dataGridVM;
         private readonly OtherChargesViewModel _otherChargesVM;
+
+        // BUG-57: guard flag for batched restore
+        private bool _suspendRecalculation;
 
         public string Title { get; } = "INVOICE MAIN SUMMARY";
         public string Subtitle { get; } = "Final financial breakdown — glass materials + other charges + discount + VAT.";
@@ -60,22 +79,34 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Invoic
             }
         }
 
-        /// <summary>Discount value — interpreted as % if Percentage, or AED if FixedAmount.</summary>
+        /// <summary>
+        /// Discount value — interpreted as % if Percentage, or AED if FixedAmount.
+        /// BUG-59: Percentage capped at 100 in setter. Fixed-amount is not
+        /// capped here (uncapped input allowed), but Recalculate() enforces
+        /// the "cannot exceed net" rule to prevent negative subtotals.
+        /// </summary>
         private decimal _discountValue;
         public decimal DiscountValue
         {
             get => _discountValue;
             set
             {
-                if (_discountValue == value) return;
-                _discountValue = value < 0 ? 0 : value;
+                // Lower bound: never negative
+                var clamped = value < 0 ? 0 : value;
+
+                // BUG-59: Upper bound for percentage discount = 100
+                if (_selectedDiscountType == DiscountType.Percentage && clamped > 100m)
+                    clamped = 100m;
+
+                if (_discountValue == clamped) return;
+                _discountValue = clamped;
                 OnPropertyChanged();
                 Recalculate();
             }
         }
 
-        /// <summary>UI hint next to discount input: "%" or "AED".</summary>
-        public string DiscountUnitLabel => _selectedDiscountType == DiscountType.Percentage ? "%" : "AED";
+        public string DiscountUnitLabel =>
+            _selectedDiscountType == DiscountType.Percentage ? "%" : "AED";
 
         // ── VAT ────────────────────────────────────────────────────────────
 
@@ -92,8 +123,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Invoic
             get => _vatPercent;
             set
             {
-                if (_vatPercent == value) return;
-                _vatPercent = value < 0 ? 0 : value;
+                var clamped = value < 0 ? 0 : value;
+                if (_vatPercent == clamped) return;
+                _vatPercent = clamped;
                 OnPropertyChanged();
                 Recalculate();
             }
@@ -138,18 +170,44 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Invoic
 
         // ── Constructor ───────────────────────────────────────────────────
 
-        public InvoiceMainSummaryViewModel(DataGridViewModel dataGridVM, OtherChargesViewModel otherChargesVM)
+        public InvoiceMainSummaryViewModel(
+            DataGridViewModel dataGridVM,
+            OtherChargesViewModel otherChargesVM)
         {
             _dataGridVM = dataGridVM ?? throw new ArgumentNullException(nameof(dataGridVM));
             _otherChargesVM = otherChargesVM ?? throw new ArgumentNullException(nameof(otherChargesVM));
 
-            // Subscribe to upstream changes
             _dataGridVM.SummaryViewModel.PropertyChanged += OnDataGridSummaryChanged;
             _otherChargesVM.PropertyChanged += OnOtherChargesChanged;
 
-            // Prime initial values
             SyncFromDataGrid();
             SyncFromOtherCharges();
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  BATCH LOAD API (BUG-57)
+        //
+        //  Called by ProformaInvoiceMapper.RestoreWizardFromSnapshot to set
+        //  multiple properties in one atomic operation without firing 4
+        //  Recalculate() calls in a row.
+        // ══════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// BUG-57: Suspends Recalculate() while restoring from snapshot.
+        /// Call BeginBatchUpdate, set all properties, then EndBatchUpdate.
+        /// </summary>
+        public void BeginBatchUpdate()
+        {
+            _suspendRecalculation = true;
+        }
+
+        /// <summary>
+        /// BUG-57: Fires ONE Recalculate() after batch update.
+        /// </summary>
+        public void EndBatchUpdate()
+        {
+            _suspendRecalculation = false;
+            Recalculate();
         }
 
         // ── Change tracking ───────────────────────────────────────────────
@@ -176,22 +234,31 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Invoic
             OtherChargesSubtotal = _otherChargesVM.TotalOtherCharges;
         }
 
-        // ── Core calculation ──────────────────────────────────────────────
+        // ══════════════════════════════════════════════════════════════════
+        //  CORE CALCULATION (BUG-56 consolidated, BUG-57 suspendable,
+        //                    BUG-58 UAE VAT law compliance)
+        //
+        //  UAE Federal Decree-Law No. 8 of 2017 on VAT:
+        //    Article 34: Value of supply excludes discounts.
+        //    Article 3:  Standard rate 5% on taxable supplies.
+        //
+        //  Waterfall:
+        //    NetSubtotal        = GlassMaterialsSubtotal + OtherChargesSubtotal
+        //    DiscountAmount     = NetSubtotal * (DiscountValue/100)  OR  DiscountValue
+        //                         (capped so subtotal never goes negative)
+        //    SubtotalBeforeVat  = NetSubtotal - DiscountAmount
+        //    VatAmount          = SubtotalBeforeVat * (VatPercent/100)  OR  0 if VAT disabled
+        //    GrandTotal         = SubtotalBeforeVat + VatAmount
+        // ══════════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Recomputes the full financial waterfall:
-        ///
-        ///   NetSubtotal        = GlassMaterialsSubtotal + OtherChargesSubtotal
-        ///   DiscountAmount     = NetSubtotal * (DiscountValue/100)  OR  DiscountValue
-        ///                        (capped so subtotal never goes negative)
-        ///   SubtotalBeforeVat  = NetSubtotal - DiscountAmount
-        ///   VatAmount          = SubtotalBeforeVat * (VatPercent/100)  OR  0 if VAT disabled
-        ///   GrandTotal         = SubtotalBeforeVat + VatAmount
-        /// </summary>
         private void Recalculate()
         {
+            // BUG-57: skip recalc during batched restore
+            if (_suspendRecalculation) return;
+
             decimal net = GlassMaterialsSubtotal + OtherChargesSubtotal;
 
+            // Compute raw discount from user input
             decimal discount = SelectedDiscountType switch
             {
                 DiscountType.Percentage => Math.Round(net * (DiscountValue / 100m), 2),
@@ -199,11 +266,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Invoic
                 _ => 0m
             };
 
-            // Cap discount so subtotal never goes negative
+            // BUG-56: SINGLE place where discount is capped at net value.
+            // Prevents negative subtotals. Required for UAE VAT compliance —
+            // Article 34 of Federal Decree-Law No. 8 of 2017 states that
+            // discount amount cannot exceed the taxable value of the supply.
             if (discount > net) discount = net;
+            if (discount < 0) discount = 0;
 
             decimal beforeVat = net - discount;
-            decimal vat = IsVatApplicable ? Math.Round(beforeVat * (VatPercent / 100m), 2) : 0m;
+
+            // BUG-58: VAT applied to (net - discount), NOT gross.
+            // This matches UAE FTA guidance for tax invoices.
+            decimal vat = IsVatApplicable
+                ? Math.Round(beforeVat * (VatPercent / 100m), 2)
+                : 0m;
+
             decimal grand = beforeVat + vat;
 
             NetSubtotal = Math.Round(net, 2);

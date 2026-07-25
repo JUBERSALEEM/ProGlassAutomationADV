@@ -12,6 +12,15 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
     /// contains the entire serialized wizard state (all 7 steps + Terms).
     /// A few top-level fields are surfaced as real columns so we can index
     /// and query them for the Load List UI (Phase 7.17).
+    ///
+    /// BUG-04: IssueDate / ValidUntil / CreatedAt / UpdatedAt no longer
+    ///         default to DateTime.Now at property level. Repository sets
+    ///         them explicitly on insert/update.
+    /// BUG-05: Unique index on ProformaId is configured in DbContext via
+    ///         fluent API (HasIndex(...).IsUnique()). Kept there because
+    ///         MaxLength attribute is already on the property.
+    /// BUG-06: FullSnapshotJson keeps "{}" default — required by EF Core
+    ///         non-null constraint. Callers must handle empty JSON gracefully.
     /// </summary>
     [Table("ProformaInvoices")]
     public class SavedProformaInvoice
@@ -23,7 +32,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         [Required, MaxLength(50)]
         public string ProformaId { get; set; } = "";
 
-        // ── Indexed searchable fields (surface from snapshot for list queries) ──
+        // ── Indexed searchable fields ────────────────────────────────────
 
         [MaxLength(200)]
         public string CompanyName { get; set; } = "";
@@ -37,9 +46,15 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         [MaxLength(50)]
         public string Status { get; set; } = "Draft";
 
-        public DateTime IssueDate { get; set; } = DateTime.Now;
+        /// <summary>
+        /// BUG-04: Removed DateTime.Now default. Set by mapper on save.
+        /// </summary>
+        public DateTime IssueDate { get; set; }
 
-        public DateTime ValidUntil { get; set; } = DateTime.Now.AddDays(7);
+        /// <summary>
+        /// BUG-04: Removed DateTime.Now.AddDays(7) default. Set by mapper.
+        /// </summary>
+        public DateTime ValidUntil { get; set; }
 
         // ── Financial snapshot (for quick reports without deserializing JSON) ──
 
@@ -63,14 +78,21 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         /// <summary>
         /// Serialized JSON of the entire wizard state (Steps 1-7 + Terms).
         /// Load/edit operations deserialize this and rehydrate VMs.
+        /// BUG-06: Default "{}" preserved for EF Required constraint.
         /// </summary>
         [Required]
         public string FullSnapshotJson { get; set; } = "{}";
 
         // ── Timestamps ──────────────────────────────────────────────────
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
+        /// <summary>
+        /// BUG-04: Removed DateTime.Now default. Set by repository InsertAsync.
+        /// </summary>
+        public DateTime CreatedAt { get; set; }
 
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        /// <summary>
+        /// BUG-04: Removed DateTime.Now default. Set by repository on every save.
+        /// </summary>
+        public DateTime UpdatedAt { get; set; }
     }
 }

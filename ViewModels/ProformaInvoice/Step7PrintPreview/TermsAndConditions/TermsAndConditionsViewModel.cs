@@ -1,9 +1,11 @@
 ﻿using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.Step7PrintPreview.TermsAndConditions;
 using ProGlassAutomation.ViewModels;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
+using System.Windows;
 using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsAndConditions
@@ -11,17 +13,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsA
     /// <summary>
     /// Manages the Terms &amp; Conditions section shown on the printable invoice.
     /// Ships with 6 default UAE glass industry clauses.
-    /// User can:
-    ///   - Toggle each clause on/off
-    ///   - Edit clause title and body
-    ///   - Add sub-lines to Payment Terms
-    ///   - Pick validity days (2..7)
-    ///   - Add custom clauses
-    ///   - Remove any clause
-    ///   - Reset to defaults
+    ///
+    /// BUG-69 [HIGH]: RemovePaymentSubLineCommand now accepts a Tuple
+    ///                (TermClause, string) so the exact clause is known.
+    ///                Previously loop-matched by string, which removed the
+    ///                wrong line when two clauses had identical sub-line text.
+    /// BUG-70 [MEDIUM]: ResetToDefaultsCommand shows YES/NO confirmation
+    ///                  before overwriting user's custom clauses.
+    /// BUG-71 [LOW]: New-line placeholder extracted to constant for
+    ///               future localization.
     /// </summary>
     public class TermsAndConditionsViewModel : ViewModelBase
     {
+        // BUG-71: extracted for future localization
+        private const string NEW_SUBLINE_PLACEHOLDER = "New payment condition...";
+
         public string Title { get; } = "TERMS & CONDITIONS";
         public string Subtitle { get; } = "Editable clauses printed on the proforma invoice.";
 
@@ -48,19 +54,85 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsA
 
             AddCustomClauseCommand = new RelayCommand(_ => AddCustomClause());
             RemoveClauseCommand = new RelayCommand(p => { if (p is TermClause c) RemoveClause(c); });
-            ResetToDefaultsCommand = new RelayCommand(_ => LoadDefaults());
+
+            // BUG-70: confirmation before destructive reset
+            ResetToDefaultsCommand = new RelayCommand(_ =>
+            {
+                if (Clauses.Count > 0)
+                {
+                    var result = MessageBox.Show(
+                        "Reset all terms to defaults?\n\n" +
+                        "This will DELETE any custom clauses you have added and " +
+                        "revert edits to the default 6 UAE clauses.\n\n" +
+                        "Are you sure?",
+                        "Reset to Defaults",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Warning);
+
+                    if (result != MessageBoxResult.Yes) return;
+                }
+
+                LoadDefaults();
+            });
+
             MoveUpCommand = new RelayCommand(p => { if (p is TermClause c) MoveClause(c, -1); });
             MoveDownCommand = new RelayCommand(p => { if (p is TermClause c) MoveClause(c, +1); });
 
             AddPaymentSubLineCommand = new RelayCommand(p =>
             {
-                if (p is TermClause c) c.SubLines.Add("New payment condition...");
+                if (p is TermClause c) c.SubLines.Add(NEW_SUBLINE_PLACEHOLDER);
             });
 
-            // Simplified: only takes the string to remove; finds it in whichever clause has it
-            RemovePaymentSubLineCommand = new RelayCommand(p =>
+            // BUG-69 [HIGH]: accept Tuple<TermClause, string> so we know
+            // exactly which clause owns the line to be removed.
+            // Backward-compat: if a plain string is passed, fall back to
+            // the old "first match wins" behavior (deprecated).
+            RemovePaymentSubLineCommand = new RelayCommand(RemoveSubLine);
+        }
+
+        // ── Public API used by PrintableInvoice preview ────────────────────
+
+        /// <summary>Returns only active clauses in display order.</summary>
+        public IEnumerable<TermClause> GetActivePrintableClauses()
+            => Clauses.Where(c => c.IsActive).OrderBy(c => c.Order);
+
+        // ── Sub-line removal (BUG-69 fix) ──────────────────────────────────
+
+        /// <summary>
+        /// BUG-69 FIX: Removes a sub-line from a SPECIFIC clause instead of
+        /// looping through all clauses. XAML passes a Tuple(clause, line)
+        /// so we always target the correct one.
+        ///
+        /// Backward-compat: if XAML still passes only a string, we fall back
+        /// to the old "first clause containing this text" behavior with a
+        /// diagnostic warning.
+        /// </summary>
+        private void RemoveSubLine(object p)
+        {
+            // Preferred path: Tuple carries both clause + line
+            if (p is Tuple<TermClause, string> tuple
+                && tuple.Item1 is TermClause targetClause
+                && tuple.Item2 is string targetLine)
             {
-                if (p is not string line) return;
+                targetClause.SubLines.Remove(targetLine);
+                return;
+            }
+
+            // Also support ValueTuple form (some XAML behaviors emit these)
+            if (p is ValueTuple<TermClause, string> vtuple)
+            {
+                vtuple.Item1.SubLines.Remove(vtuple.Item2);
+                return;
+            }
+
+            // Backward-compat fallback (deprecated) — string only
+            if (p is string line)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    "[TermsAndConditionsVM] RemovePaymentSubLineCommand " +
+                    "was called with a plain string. Update XAML to pass " +
+                    "Tuple<TermClause,string> for correct removal.");
+
                 foreach (var clause in Clauses)
                 {
                     if (clause.SubLines.Contains(line))
@@ -69,14 +141,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsA
                         break;
                     }
                 }
-            });
+            }
         }
-
-        // ── Public API used by PrintableInvoice preview ────────────────────
-
-        /// <summary>Returns only active clauses in display order.</summary>
-        public IEnumerable<TermClause> GetActivePrintableClauses()
-            => Clauses.Where(c => c.IsActive).OrderBy(c => c.Order);
 
         // ── Internal helpers ───────────────────────────────────────────────
 

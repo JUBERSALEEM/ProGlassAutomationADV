@@ -17,7 +17,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
         public decimal TotalWastageValue
         {
             get => _totalWastageValue;
-            private set { if (_totalWastageValue == value) return; _totalWastageValue = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_totalWastageValue == value) return;
+                _totalWastageValue = value;
+                OnPropertyChanged();
+            }
         }
 
         public ICommand AddWastageCommand { get; }
@@ -27,14 +32,26 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
         {
             _dataGrid = dataGrid;
             AddWastageCommand = new RelayCommand(_ => AddWastage());
-            RemoveWastageCommand = new RelayCommand(p => { if (p is WastageRow r) { WastageRows.Remove(r); RecalculateTotal(); } });
+            RemoveWastageCommand = new RelayCommand(p =>
+            {
+                if (p is WastageRow r)
+                {
+                    WastageRows.Remove(r);
+                    RecalculateTotal();
+                }
+            });
         }
 
         private void AddWastage()
         {
             var row = new WastageRow();
             SyncSourcesForRow(row);
-            row.PropertyChanged += (s, e) => { if (e.PropertyName == nameof(WastageRow.ResultAmount) || e.PropertyName == nameof(WastageRow.IsActive)) RecalculateTotal(); };
+            row.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(WastageRow.ResultAmount)
+                    || e.PropertyName == nameof(WastageRow.IsActive))
+                    RecalculateTotal();
+            };
             WastageRows.Add(row);
         }
 
@@ -42,6 +59,35 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
         {
             foreach (var row in WastageRows) SyncSourcesForRow(row);
             RecalculateTotal();
+        }
+
+        /// <summary>
+        /// BUG-16 support: Public entry point for the mapper.
+        /// Populates AvailableSources on a freshly created wastage row
+        /// during snapshot restore, WITHOUT firing UI commands.
+        ///
+        /// Also hooks the row's PropertyChanged event so total updates
+        /// when the row becomes active or its rate changes.
+        ///
+        /// Called by ProformaInvoiceMapper.RestoreOtherCharges().
+        /// Do NOT add the row to WastageRows here — caller does that
+        /// after applying restored state (IsActive, ColorName, Rate,
+        /// CheckedSourceKeys).
+        /// </summary>
+        public void PopulateSourcesForRestoredRow(WastageRow row)
+        {
+            if (row == null) return;
+
+            // Populate available sources from current spec groups
+            SyncSourcesForRow(row);
+
+            // Hook total recalculation on state changes
+            row.PropertyChanged += (s, e) =>
+            {
+                if (e.PropertyName == nameof(WastageRow.ResultAmount)
+                    || e.PropertyName == nameof(WastageRow.IsActive))
+                    RecalculateTotal();
+            };
         }
 
         private void SyncSourcesForRow(WastageRow row)
@@ -56,16 +102,30 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
             foreach (var group in _dataGrid.SpecGroups)
             {
                 // Outer
-                var outer = new SpecGroupColorSide { SpecNumber = group.GroupNumber, SpecName = group.GroupName, SideLabel = "Outer (W1/H1)", SqmValue = group.FooterTotalSqm };
-                if (checkedIds.Contains($"{outer.SpecNumber}-{outer.SideLabel}")) outer.IsChecked = true;
+                var outer = new SpecGroupColorSide
+                {
+                    SpecNumber = group.GroupNumber,
+                    SpecName = group.GroupName,
+                    SideLabel = "Outer (W1/H1)",
+                    SqmValue = group.FooterTotalSqm
+                };
+                if (checkedIds.Contains($"{outer.SpecNumber}-{outer.SideLabel}"))
+                    outer.IsChecked = true;
                 row.AvailableSources.Add(outer);
 
                 // Inner (if DGU/LAM)
                 bool hasInner = group.SelectedGlassType != "SGU";
                 if (hasInner)
                 {
-                    var inner = new SpecGroupColorSide { SpecNumber = group.GroupNumber, SpecName = group.GroupName, SideLabel = "Inner (W2/H2)", SqmValue = group.FooterTotalSqm2 };
-                    if (checkedIds.Contains($"{inner.SpecNumber}-{inner.SideLabel}")) inner.IsChecked = true;
+                    var inner = new SpecGroupColorSide
+                    {
+                        SpecNumber = group.GroupNumber,
+                        SpecName = group.GroupName,
+                        SideLabel = "Inner (W2/H2)",
+                        SqmValue = group.FooterTotalSqm2
+                    };
+                    if (checkedIds.Contains($"{inner.SpecNumber}-{inner.SideLabel}"))
+                        inner.IsChecked = true;
                     row.AvailableSources.Add(inner);
                 }
             }
@@ -74,7 +134,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges.Wastag
 
         private void RecalculateTotal()
         {
-            TotalWastageValue = WastageRows.Where(r => r.IsActive).Sum(r => r.ResultAmount);
+            TotalWastageValue = WastageRows
+                .Where(r => r.IsActive)
+                .Sum(r => r.ResultAmount);
         }
     }
 }
