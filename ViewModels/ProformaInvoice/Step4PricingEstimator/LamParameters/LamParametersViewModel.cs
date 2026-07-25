@@ -1,4 +1,35 @@
-﻿using System.Collections.Generic;
+﻿// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  ViewModels/ProformaInvoice/Step4PricingEstimator/LamParameters/         ║
+// ║    LamParametersViewModel.cs                                             ║
+// ║                                                                          ║
+// ║  CHAT 13 HOTFIX-2 (revised):                                             ║
+// ║    Lamination Polish dropdown expanded to 13 real polish types           ║
+// ║    used in UAE glass fabrication — normal + "As Per DWG" variants:      ║
+// ║                                                                          ║
+// ║       1. None                                                            ║
+// ║       2. All Side Polish                                                 ║
+// ║       3. All Side Polish As Per DWG                                      ║
+// ║       4. Both Height Side Polish                                         ║
+// ║       5. Both Height Side Polish As Per DWG                              ║
+// ║       6. Both Width Side Polish                                          ║
+// ║       7. Both Width Side Polish As Per DWG                               ║
+// ║       8. Both Height + One Width Side Polish                             ║
+// ║       9. Both Height + One Width Side Polish As Per DWG                  ║
+// ║      10. One Height + One Width Side Polish                              ║
+// ║      11. One Height + One Width Side Polish As Per DWG                   ║
+// ║      12. One Height Side Polish                                          ║
+// ║      13. One Width Side Polish                                           ║
+// ║                                                                          ║
+// ║    Also updated GeneratedSpecName so it appends "With <polish>"          ║
+// ║    only when polish != "None".                                           ║
+// ║                                                                          ║
+// ║  SCOPE:                                                                  ║
+// ║    ✅ Dropdown options + spec name suffix only                           ║
+// ║    ❌ NO changes to rate calculation (polish cost lives in "Other       ║
+// ║        Charges" section — will be wired separately later)               ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+
+using System.Collections.Generic;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.LamParameters
 {
@@ -194,10 +225,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
 
         /// <summary>
         /// Human-readable spec name auto-built from current LAM parameters.
-        /// Format: "{Outer Glass} + {PVB Layer} + {Inner Glass}[+ Polish]"
+        /// Format: "{Outer Glass} + {PVB Layer} + {Inner Glass}[ With {Polish}]"
+        ///
         /// Examples:
         ///   "6mm Clear FT Glass + 1.52mm Clear PVB + 6mm Clear FT Glass"
-        ///   "6mm Clear FT Glass + 0.76mm Frosted PVB + 6mm Clear FT Glass With All Side Polish"
+        ///   "6mm Clear FT Glass + 1.52mm Clear PVB + 6mm Clear FT Glass With All Side Polish"
+        ///   "6mm Clear FT Glass + 0.76mm Frosted PVB + 6mm Clear FT Glass With Both Height Side Polish As Per DWG"
+        ///
+        /// The " With <polish>" suffix is appended only when polish is not "None".
         /// Saved to specifications.db when user clicks APPLY in main VM.
         /// </summary>
         public string GeneratedSpecName
@@ -210,8 +245,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
 
                 var baseName = $"{outer} + {pvb} + {inner}";
 
-                if (!string.IsNullOrWhiteSpace(LaminationPolish) && LaminationPolish != "None (Standard)")
-                    baseName += $" {LaminationPolish}";
+                // HOTFIX-2: Only append when a real polish is selected.
+                // "None" means no polish → no suffix.
+                if (!string.IsNullOrWhiteSpace(LaminationPolish) &&
+                    !LaminationPolish.Equals("None", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    baseName += $" With {LaminationPolish}";
+                }
 
                 return baseName;
             }
@@ -268,12 +308,43 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
             "Bronze"
         };
 
+        // ══════════════════════════════════════════════════════════════════
+        //  HOTFIX-2: 13 real polish options used in UAE glass fabrication.
+        //  Formulas (for future "Other Charges" LM calculation, NOT here):
+        //
+        //    None                                              → 0 LM
+        //    All Side Polish                                   → (W + H) / 1000 × 2
+        //    All Side Polish As Per DWG                        → (W + H) / 1000 × 2
+        //    Both Height Side Polish                           → H / 1000 × 2
+        //    Both Height Side Polish As Per DWG                → H / 1000 × 2
+        //    Both Width Side Polish                            → W / 1000 × 2
+        //    Both Width Side Polish As Per DWG                 → W / 1000 × 2
+        //    Both Height + One Width Side Polish               → (H × 2 + W) / 1000
+        //    Both Height + One Width Side Polish As Per DWG    → (H × 2 + W) / 1000
+        //    One Height + One Width Side Polish                → (H + W) / 1000
+        //    One Height + One Width Side Polish As Per DWG     → (H + W) / 1000
+        //    One Height Side Polish                            → H / 1000
+        //    One Width Side Polish                             → W / 1000
+        //
+        //  "As Per DWG" variants use the same LM formula as their normal
+        //  counterpart — the difference is only WHICH specific edges get
+        //  polished (customer's drawing dictates location).
+        // ══════════════════════════════════════════════════════════════════
         public List<string> LaminationPolishOptions { get; } = new()
         {
-            "None (Standard)",
-            "With All Side Polish",
-            "With Edge Polish Only",
-            "With Beveled Edges"
+            "None",
+            "All Side Polish",
+            "All Side Polish As Per DWG",
+            "Both Height Side Polish",
+            "Both Height Side Polish As Per DWG",
+            "Both Width Side Polish",
+            "Both Width Side Polish As Per DWG",
+            "Both Height + One Width Side Polish",
+            "Both Height + One Width Side Polish As Per DWG",
+            "One Height + One Width Side Polish",
+            "One Height + One Width Side Polish As Per DWG",
+            "One Height Side Polish",
+            "One Width Side Polish"
         };
 
         public LamParametersViewModel()
@@ -294,7 +365,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
             PvbThickness = "1.52mm";
             PvbColor = "Clear";
             PvbMaterialRate = 80m;
-            LaminationPolish = "None (Standard)";
+            LaminationPolish = "None";   // HOTFIX-2: matches new dropdown
 
             // === Row 4 Defaults (per-pane cutting + tempering) ===
             OuterCuttingCost = 15m;
