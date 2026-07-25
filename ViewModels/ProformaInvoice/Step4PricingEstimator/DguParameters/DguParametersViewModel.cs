@@ -1,4 +1,33 @@
-﻿using System.Collections.Generic;
+﻿// ╔══════════════════════════════════════════════════════════════════════════╗
+// ║  ViewModels/ProformaInvoice/Step4PricingEstimator/DguParameters/         ║
+// ║    DguParametersViewModel.cs                                             ║
+// ║                                                                          ║
+// ║  CHAT 13 HOTFIX-3:                                                       ║
+// ║    Row 3 redesigned. Old confusing controls removed:                     ║
+// ║      ❌ UInsertOption (kept but list corrected)                          ║
+// ║      ❌ OverlapOption (replaced by PanelExtra)                           ║
+// ║      ❌ InnerAsPerDwg (removed — obsolete)                               ║
+// ║                                                                          ║
+// ║    New clean 2-dropdown design:                                          ║
+// ║      ✅ SpacerExtra  — 3 options (U-Insert variants only)                ║
+// ║      ✅ PanelExtra   — 15 options (Overlap, Fanhole, Cutout, Holes,     ║
+// ║                        Shutter Bonding, Argon Gas, all with As Per DWG   ║
+// ║                        variants)                                         ║
+// ║                                                                          ║
+// ║    Spec name format:                                                     ║
+// ║      {Outer} + {Spacer}[ {SpacerExtra}] + {Inner}[ {PanelExtra}]        ║
+// ║                                                                          ║
+// ║    Example:                                                              ║
+// ║      6mm HD Grey FT Glass + 12mm ASP With U-Insert +                    ║
+// ║      6mm Clear FT Glass With Argon Gas As Per DWG                        ║
+// ║                                                                          ║
+// ║  PRESERVED:                                                              ║
+// ║    ✅ All outer/inner glass properties + dropdown options                ║
+// ║    ✅ Spacer width / material / auto-price logic                         ║
+// ║    ✅ Yield factor + margin                                              ║
+// ╚══════════════════════════════════════════════════════════════════════════╝
+
+using System.Collections.Generic;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.DguParameters
 {
@@ -6,7 +35,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
     /// ViewModel for DGU (Double Glass Unit) parameter panel.
     /// Handles outer/inner glass parameters, spacer configuration (with
     /// auto-suggested pricing based on width + material surcharge),
-    /// U-insert & overlap options, yield factor, and margin.
+    /// spacer extras (U-Insert), panel extras (Overlap, Fanhole, Cutout,
+    /// Holes, Shutter Bonding, Argon Gas), yield factor, and margin.
     /// </summary>
     public class DguParametersViewModel : ViewModelBase
     {
@@ -92,27 +122,39 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             set { _spacerPrice = value; OnPropertyChanged(); }
         }
 
-        // ===================== Row 3: U-Insert + Overlap =====================
+        // ===================== Row 3: Spacer Extra + Panel Extra =====================
 
-        private string _uInsertOption;
-        public string UInsertOption
+        /// <summary>
+        /// HOTFIX-3: New unified property for spacer-side extras
+        /// (U-Insert variants only). Placed AFTER spacer in spec name.
+        /// Was: UInsertOption (kept name-compatible for smoother migration).
+        /// </summary>
+        private string _spacerExtra;
+        public string SpacerExtra
         {
-            get => _uInsertOption;
+            get => _spacerExtra;
             set
             {
-                _uInsertOption = value;
+                _spacerExtra = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(GeneratedSpecName));
             }
         }
 
-        private string _overlapOption;
-        public string OverlapOption
+        /// <summary>
+        /// HOTFIX-3: New unified property for panel-side extras
+        /// (Overlap, Fanhole, Cutout, Holes, Shutter Bonding, Argon Gas —
+        /// all with As Per DWG variants). Placed AFTER inner glass in
+        /// spec name.
+        /// Replaces old OverlapOption.
+        /// </summary>
+        private string _panelExtra;
+        public string PanelExtra
         {
-            get => _overlapOption;
+            get => _panelExtra;
             set
             {
-                _overlapOption = value;
+                _panelExtra = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(GeneratedSpecName));
             }
@@ -183,11 +225,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
 
         /// <summary>
         /// Human-readable spec name auto-built from current DGU parameters.
-        /// Format: "{Outer Glass} + {Spacer}[+ U-Insert Variant] + {Inner Glass}[+ Overlap]"
+        /// Format: "{Outer} + {Spacer}[ {SpacerExtra}] + {Inner}[ {PanelExtra}]"
+        ///
         /// Examples:
         ///   "6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass"
         ///   "6mm HD Grey FT Glass + 12mm ASP With U-Insert + 6mm Clear FT Glass"
         ///   "6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass With Overlap As Per DWG"
+        ///   "6mm HD Grey FT Glass + 12mm ASP With U-Insert +
+        ///    6mm Clear FT Glass With Argon Gas As Per DWG"
+        ///
+        /// SpacerExtra and PanelExtra suffixes are appended only when
+        /// they are not "None".
         /// Saved to specifications.db when user clicks APPLY in main VM.
         /// </summary>
         public string GeneratedSpecName
@@ -197,15 +245,22 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
                 // Outer glass segment
                 var outer = $"{OuterThickness} {OuterGlassColor} {OuterTreatment} Glass";
 
-                // Spacer segment (may include U-Insert variant)
+                // Spacer segment — may include a spacer extra (U-Insert variants)
                 var spacer = SpacerWidth ?? "";
-                if (!string.IsNullOrWhiteSpace(UInsertOption) && UInsertOption != "None")
-                    spacer += $" {UInsertOption}";
+                if (!string.IsNullOrWhiteSpace(SpacerExtra) &&
+                    !SpacerExtra.Equals("None", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    spacer += $" {SpacerExtra}";
+                }
 
-                // Inner glass segment (may include Overlap variant)
+                // Inner glass segment — may include a panel extra
+                // (Overlap, Fanhole, Cutout, Holes, Shutter Bonding, Argon Gas)
                 var inner = $"{InnerThickness} {InnerGlassColor} {InnerTreatment} Glass";
-                if (!string.IsNullOrWhiteSpace(OverlapOption) && OverlapOption != "None (empty spec only)")
-                    inner += $" {OverlapOption}";
+                if (!string.IsNullOrWhiteSpace(PanelExtra) &&
+                    !PanelExtra.Equals("None", System.StringComparison.OrdinalIgnoreCase))
+                {
+                    inner += $" {PanelExtra}";
+                }
 
                 return $"{outer} + {spacer} + {inner}";
             }
@@ -266,17 +321,38 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             "TGI Spacer"
         };
 
-        public List<string> UInsertOptions { get; } = new()
+        // ══════════════════════════════════════════════════════════════════
+        //  HOTFIX-3: SPACER EXTRA — 3 options (U-Insert variants only)
+        //  Placed AFTER spacer in generated spec name.
+        // ══════════════════════════════════════════════════════════════════
+        public List<string> SpacerExtraOptions { get; } = new()
         {
             "None",
             "With U-Insert",
             "With U-Insert As Per DWG"
         };
 
-        public List<string> OverlapOptions { get; } = new()
+        // ══════════════════════════════════════════════════════════════════
+        //  HOTFIX-3: PANEL EXTRA — 15 options (all real DGU add-ons)
+        //  Placed AFTER inner glass in generated spec name.
+        // ══════════════════════════════════════════════════════════════════
+        public List<string> PanelExtraOptions { get; } = new()
         {
-            "None (empty spec only)",
-            "With Overlap As Per DWG"
+            "None",
+            "With Overlap",
+            "With Overlap As Per DWG",
+            "With Fanhole",
+            "With Fanhole As Per DWG",
+            "With Cutout",
+            "With Cutout As Per DWG",
+            "With Holes",
+            "With Holes As Per DWG",
+            "With Cutout And Holes",
+            "With Cutout And Holes As Per DWG",
+            "With Shutter Bonding",
+            "With Shutter Bonding As Per DWG",
+            "With Argon Gas",
+            "With Argon Gas As Per DWG"
         };
 
         // ===================== Constructor =====================
@@ -294,9 +370,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             _spacerMaterial = "Normal Mill Aluminum";
             _spacerPrice = CalculateSuggestedSpacerPrice(_spacerWidth, _spacerMaterial);
 
-            // Row 3 defaults
-            _uInsertOption = "None";
-            _overlapOption = "None (empty spec only)";
+            // Row 3 defaults — HOTFIX-3
+            _spacerExtra = "None";
+            _panelExtra = "None";
 
             // Row 4 defaults
             _innerThickness = "6mm";

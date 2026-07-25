@@ -103,19 +103,6 @@
             <Setter Property="IsTextSearchEnabled" Value="True"/>
         </Style>
 
-        <!-- ══════════════════════════════════════════════════════════════
-             DGU CHECKBOX — purple checked state
-        ══════════════════════════════════════════════════════════════ -->
-        <Style x:Key="DguCheckBoxStyle" TargetType="CheckBox">
-            <Setter Property="Foreground"                Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="FontSize"                  Value="12"/>
-            <Setter Property="FontWeight"                Value="SemiBold"/>
-            <Setter Property="VerticalContentAlignment"  Value="Center"/>
-            <Setter Property="Cursor"                    Value="Hand"/>
-            <Setter Property="Padding"                   Value="8,0,0,0"/>
-            <Setter Property="Height"                    Value="38"/>
-        </Style>
-
     </UserControl.Resources>
 
     <!-- ══════════════════════════════════════════════════════════════════
@@ -261,36 +248,32 @@
             </Grid>
 
             <!-- ══════════════════════════════════════════════════════════
-                 ROW 3 — U-INSERT + OVERLAP + INNER AS PER DWG
+                 ROW 3 — SPACER EXTRA + PANEL EXTRA   (HOTFIX-3)
+                 Replaces old U-Insert / Overlap / InnerAsPerDwg controls.
+                 SpacerExtra  → appended after spacer (middle of spec name)
+                 PanelExtra   → appended after inner glass (end of spec name)
             ══════════════════════════════════════════════════════════ -->
             <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="2*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="U-INSERT OPTION" Style="{StaticResource DguLabelStyle}"/>
-                    <ComboBox ItemsSource="{Binding UInsertOptions}"
-                              SelectedItem="{Binding UInsertOption}"
-                              Style="{StaticResource DguComboBoxStyle}"/>
+                    <TextBlock Text="SPACER EXTRA" Style="{StaticResource DguLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding SpacerExtraOptions}"
+                              SelectedItem="{Binding SpacerExtra}"
+                              Style="{StaticResource DguComboBoxStyle}"
+                              ToolTip="Extras attached to the spacer (appears after spacer in spec name)"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
-                    <TextBlock Text="OVERLAP OPTION" Style="{StaticResource DguLabelStyle}"/>
-                    <ComboBox ItemsSource="{Binding OverlapOptions}"
-                              SelectedItem="{Binding OverlapOption}"
-                              Style="{StaticResource DguComboBoxStyle}"/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="4" VerticalAlignment="Center">
-                    <TextBlock Text="INNER SUFFIX" Style="{StaticResource DguLabelStyle}"/>
-                    <CheckBox Content="Inner Glass As Per DWG"
-                              IsChecked="{Binding InnerAsPerDwg}"
-                              Style="{StaticResource DguCheckBoxStyle}"/>
+                    <TextBlock Text="PANEL EXTRA" Style="{StaticResource DguLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding PanelExtraOptions}"
+                              SelectedItem="{Binding PanelExtra}"
+                              Style="{StaticResource DguComboBoxStyle}"
+                              ToolTip="Additional processing on the DGU panel (appears at end of spec name)"/>
                 </StackPanel>
             </Grid>
 
