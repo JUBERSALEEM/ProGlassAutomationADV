@@ -12,11 +12,16 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
     /// FullSnapshotJson contains entire DN state for load/export.
     /// Indexed columns surfaced for list queries without JSON parsing.
     ///
-    /// Status and DeliveryType stored as strings (same pattern as JO — gotcha #24).
+    /// Status and DeliveryType stored as strings (same pattern as JO).
     /// Compare with string constants, not enum values.
     ///
+    /// BUG-10: DeliveryDate / DeliveryTime defaults removed from property
+    ///         level — set explicitly by mapper on creation only.
+    /// BUG-11: CreatedAt / UpdatedAt defaults removed from property
+    ///         level — set explicitly by repository on insert/update only.
+    ///
     /// Phase 10.7: Added TotalPreviouslyDeliveredQty (Improvement 7).
-    ///             Added TaxInvoiceId + HasTaxInvoice (Improvement 6 — Phase 19 prep).
+    ///             Added TaxInvoiceId + HasTaxInvoice (Improvement 6).
     ///             ⚠️ DB schema change — delete deliverynotes.db before first run.
     /// </summary>
     [Table("DeliveryNotes")]
@@ -33,7 +38,7 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
         [Required, MaxLength(50)]
         public string JobOrderId { get; set; } = "";
 
-        /// <summary>Proforma Invoice reference for Tax Invoice link, e.g. "PI-2026-001".</summary>
+        /// <summary>Proforma Invoice reference, e.g. "PI-2026-001".</summary>
         [MaxLength(50)]
         public string ProformaId { get; set; } = "";
 
@@ -70,12 +75,20 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
         [MaxLength(200)]
         public string ReceiverName { get; set; } = "";
 
-        /// <summary>Auto-generated date at creation.</summary>
-        public DateTime DeliveryDate { get; set; } = DateTime.Now;
+        /// <summary>
+        /// Set explicitly by mapper at creation time.
+        /// BUG-10: Removed DateTime.Now default at property level to avoid
+        /// EF materialization interference on existing DB rows.
+        /// </summary>
+        public DateTime DeliveryDate { get; set; }
 
-        /// <summary>Auto-generated time at creation, stored as "HH:mm".</summary>
+        /// <summary>
+        /// Stored as "HH:mm". Set explicitly by mapper at creation time.
+        /// BUG-10: Removed DateTime.Now.ToString("HH:mm") default at
+        /// property level.
+        /// </summary>
         [MaxLength(10)]
-        public string DeliveryTime { get; set; } = DateTime.Now.ToString("HH:mm");
+        public string DeliveryTime { get; set; } = "";
 
         [MaxLength(500)]
         public string Notes { get; set; } = "";
@@ -88,8 +101,7 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
 
         /// <summary>
         /// Phase 10.7 (Improvement 7) — sum of PreviouslyDeliveredQty across
-        /// all items on this DN at the time it was saved. Used for list display
-        /// and export without re-querying sibling DNs.
+        /// all items on this DN at the time it was saved.
         /// Self-healed on load/save by DeliveryNoteDetailViewModel.
         /// </summary>
         public int TotalPreviouslyDeliveredQty { get; set; }
@@ -98,15 +110,13 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
 
         /// <summary>
         /// Phase 10.7 placeholder — wired up in Phase 19 (Tax Invoice module).
-        /// Stores the Tax Invoice reference once generated from this DN.
-        /// e.g. "TAX-2026-001". Empty string = no invoice yet.
+        /// Empty string = no invoice yet.
         /// </summary>
         [MaxLength(50)]
         public string TaxInvoiceId { get; set; } = "";
 
         /// <summary>
         /// True when a Tax Invoice has been generated from this DN.
-        /// Computed from TaxInvoiceId but stored for fast list queries.
         /// Phase 19 will set this when converting DN → Tax Invoice.
         /// </summary>
         public bool HasTaxInvoice { get; set; }
@@ -118,10 +128,19 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
 
         // ── Timestamps ───────────────────────────────────────────────────
 
-        public DateTime CreatedAt { get; set; } = DateTime.Now;
-        public DateTime UpdatedAt { get; set; } = DateTime.Now;
+        /// <summary>
+        /// BUG-11: Removed DateTime.Now default at property level.
+        /// Set explicitly by repository in InsertAsync only.
+        /// </summary>
+        public DateTime CreatedAt { get; set; }
 
-        // ── Navigation (EF relationships — items + attachments) ──────────
+        /// <summary>
+        /// BUG-11: Removed DateTime.Now default at property level.
+        /// Set explicitly by repository in InsertAsync + UpdateAsync.
+        /// </summary>
+        public DateTime UpdatedAt { get; set; }
+
+        // ── Navigation (EF relationships) ────────────────────────────────
 
         public List<DeliveryNoteItem> Items { get; set; } = new();
         public List<DeliveryNoteAttachment> Attachments { get; set; } = new();

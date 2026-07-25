@@ -13,10 +13,14 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
     /// One row per glass item with all identifying context columns
     /// so the file is machine-parseable and self-contained.
     ///
+    /// BUG-58: Added null guard on Items before OrderBy.
+    /// BUG-60: DocumentTitle uses shared constant.
+    ///
     /// Columns:
     ///   DN ID · JO ID · Customer · Project · Status · Type · FOC ·
-    ///   Date · Driver · Vehicle · Spec # · Spec Group · Row # ·
-    ///   Glass Ref · W1 · H1 · W2 · H2 ·
+    ///   Date · Driver · Vehicle · Receiver ·
+    ///   Spec # · Spec Group · Row # · Glass Ref ·
+    ///   W1 · H1 · W2 · H2 ·
     ///   Ordered · Prev Delivered · This DN · Balance
     /// </summary>
     public class DeliveryNoteCsvLayout : ICsvLayout
@@ -37,12 +41,13 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
         // ── IDocumentLayout ──────────────────────────────────────────────
         public string DocumentPrefix => "DN";
         public string DocumentId => _entity.DeliveryNoteId;
-        public string DocumentTitle => "Delivery Note";
+        public string DocumentTitle => DeliveryNoteExportConstants.DocumentTitle;
         public string CompanyName => _joRef.CustomerName;
         public string Reference => _joRef.ProjectName;
-        public DateTime DocumentDate => _entity.DeliveryDate != default
-                                            ? _entity.DeliveryDate
-                                            : _entity.CreatedAt;
+        public DateTime DocumentDate =>
+            _entity.DeliveryDate != default
+                ? _entity.DeliveryDate
+                : _entity.CreatedAt;
 
         public void WriteRows(CsvWriter writer)
         {
@@ -73,7 +78,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             writer.WriteField("Balance");
             writer.NextRecord();
 
-            // ── Shared context values (same for every row) ────────────────
+            // ── Shared context values ─────────────────────────────────────
             string dnId = _entity.DeliveryNoteId;
             string joId = _entity.JobOrderId;
             string customer = _joRef.CustomerName;
@@ -87,13 +92,14 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             string vehicle = _entity.VehicleNumber;
             string receiver = _entity.ReceiverName;
 
-            // ── Data rows — one per item ──────────────────────────────────
+            // BUG-58: null guard on Items before OrderBy
+            if (_entity.Items == null || _entity.Items.Count == 0)
+                return;
+
             var items = _entity.Items
                 .OrderBy(i => i.SpecGroupNumber)
                 .ThenBy(i => i.SerialNumber)
                 .ToList();
-
-            if (items.Count == 0) return;
 
             foreach (var item in items)
             {

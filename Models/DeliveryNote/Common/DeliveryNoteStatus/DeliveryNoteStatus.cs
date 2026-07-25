@@ -3,6 +3,9 @@
     /// <summary>
     /// Status flow for Delivery Notes:
     /// Draft → Dispatched → Delivered → Signed → Received
+    ///
+    /// Stored as STRING in DB — never cast to/from int.
+    /// Use DeliveryNoteStatusValues constants for comparisons.
     /// </summary>
     public enum DeliveryNoteStatus
     {
@@ -11,5 +14,19 @@
         Delivered,
         Signed,
         Received
+    }
+
+    /// <summary>
+    /// String constants for status comparisons.
+    /// Use these instead of magic strings throughout the codebase.
+    /// Matches enum values exactly.
+    /// </summary>
+    public static class DeliveryNoteStatusValues
+    {
+        public const string Draft = "Draft";
+        public const string Dispatched = "Dispatched";
+        public const string Delivered = "Delivered";
+        public const string Signed = "Signed";
+        public const string Received = "Received";
     }
 }

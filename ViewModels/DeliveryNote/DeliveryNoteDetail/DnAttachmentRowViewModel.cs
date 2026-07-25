@@ -10,6 +10,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
     /// <summary>
     /// One row in the attachments list on the DN detail view.
     /// Wraps a DeliveryNoteAttachment entity for display.
+    ///
+    /// BUG-FIX: Preview was calling LoadPreview() on every property
+    /// access — file read + BitmapImage allocation on every render.
+    /// Now cached on first access via _preview backing field.
     /// </summary>
     public class DnAttachmentRowViewModel : ViewModelBase
     {
@@ -31,15 +35,40 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         /// <summary>
         /// Preview thumbnail — only populated for Image type.
-        /// Loaded lazily on first access, small (80 px wide) for memory efficiency.
+        /// Loaded lazily on first access and cached — never re-reads
+        /// from disk on subsequent renders (BUG-FIX).
+        /// Small (80 px wide) for memory efficiency.
         /// </summary>
-        public ImageSource? Preview => IsImage ? LoadPreview() : null;
+        private ImageSource? _preview;
+        private bool _previewLoaded;
+
+        public ImageSource? Preview
+        {
+            get
+            {
+                if (!IsImage) return null;
+
+                // Cache on first access — never re-read from disk
+                if (!_previewLoaded)
+                {
+                    _preview = LoadPreview();
+                    _previewLoaded = true;
+                }
+
+                return _preview;
+            }
+        }
 
         private string _description = "";
         public string Description
         {
             get => _description;
-            set { if (_description == value) return; _description = value; OnPropertyChanged(); }
+            set
+            {
+                if (_description == value) return;
+                _description = value;
+                OnPropertyChanged();
+            }
         }
 
         public DnAttachmentRowViewModel(DeliveryNoteAttachment e)
@@ -53,13 +82,17 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             UploadedAt = e.UploadedAt;
             _description = e.Description ?? "";
 
-            // Fully qualify to avoid clash with local `AttachmentType` property
-            IsImage = string.Equals(AttachmentType,
-                ProGlassAutomation.Services.DeliveryNote.Attachments.AttachmentType.Image,
+            // Fully qualify to avoid clash with local AttachmentType property
+            IsImage = string.Equals(
+                AttachmentType,
+                ProGlassAutomation.Services.DeliveryNote.Attachments
+                    .AttachmentType.Image,
                 StringComparison.OrdinalIgnoreCase);
 
-            IsPdf = string.Equals(AttachmentType,
-                ProGlassAutomation.Services.DeliveryNote.Attachments.AttachmentType.Pdf,
+            IsPdf = string.Equals(
+                AttachmentType,
+                ProGlassAutomation.Services.DeliveryNote.Attachments
+                    .AttachmentType.Pdf,
                 StringComparison.OrdinalIgnoreCase);
 
             TypeIcon = IsImage ? "🖼️" : "📄";
@@ -76,7 +109,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 var img = new BitmapImage();
                 img.BeginInit();
                 img.CacheOption = BitmapCacheOption.OnLoad;
-                img.DecodePixelWidth = 80;   // small thumbnail — memory-friendly
+                img.DecodePixelWidth = 80;
                 img.UriSource = new Uri(FilePath, UriKind.Absolute);
                 img.EndInit();
                 img.Freeze();

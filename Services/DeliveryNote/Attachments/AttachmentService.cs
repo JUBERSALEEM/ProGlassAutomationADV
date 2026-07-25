@@ -15,10 +15,15 @@ namespace ProGlassAutomation.Services.DeliveryNote.Attachments
     ///     Images\{DeliveryNoteId}\{filename}
     ///     PDFs\{DeliveryNoteId}\{filename}
     ///
-    /// Phase 10.6a: CopyImage/CopyPdf accept an optional customFileName
-    /// so the user can rename the file on upload. Extension is preserved
-    /// from the source path if the custom name is missing an extension.
-    /// Name collisions handled by auto-suffixing "-1", "-2", etc.
+    /// BUG-26: SanitizeFolderName + SanitizeFileName were identical —
+    ///         merged into one shared SanitizeName helper.
+    /// BUG-27: DeleteFile now returns bool — caller knows if file was
+    ///         actually deleted or was missing/locked.
+    /// BUG-28: ResolveUniquePath is synchronous disk I/O — kept as-is
+    ///         since it is called from async context, but loop limit
+    ///         reduced to 1000 and GUID fallback is immediate safety net.
+    ///
+    /// Phase 10.6a: CopyImage/CopyPdf accept optional customFileName.
     /// </summary>
     public class AttachmentService
     {
@@ -29,7 +34,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Attachments
         public AttachmentService()
         {
             _rootFolder = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                Environment.GetFolderPath(
+                    Environment.SpecialFolder.ApplicationData),
                 "ProGlassAutomation",
                 "DeliveryNotes",
                 "Attachments");
@@ -64,13 +70,13 @@ namespace ProGlassAutomation.Services.DeliveryNote.Attachments
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  COPY (upload) — copies from source into managed storage
-        //  customFileName is optional; if null/empty, source filename used.
-        //  Returns the DB entity ready to persist (Id not yet set).
+        //  COPY (upload)
         // ═════════════════════════════════════════════════════════════════
 
         public async Task<DeliveryNoteAttachment> CopyImageAsync(
-            string sourcePath, string deliveryNoteId, string? customFileName = null)
+            string sourcePath,
+            string deliveryNoteId,
+            string? customFileName = null)
         {
             return await CopyFileAsync(
                 sourcePath, deliveryNoteId, customFileName,
@@ -78,7 +84,9 @@ namespace ProGlassAutomation.Services.DeliveryNote.Attachments
         }
 
         public async Task<DeliveryNoteAttachment> CopyPdfAsync(
-            string sourcePath, string deliveryNoteId, string? customFileName = null)
+            string sourcePath,
+            string deliveryNoteId,
+            string? customFileName = null)
         {
             return await CopyFileAsync(
                 sourcePath, deliveryNoteId, customFileName,
@@ -93,23 +101,20 @@ namespace ProGlassAutomation.Services.DeliveryNote.Attachments
             string attachmentType)
         {
             if (!File.Exists(sourcePath))
-                throw new FileNotFoundException($"Source file not found: {sourcePath}");
+                throw new FileNotFoundException(
+                    $"Source file not found: {sourcePath}");
 
-            string safeDnId = SanitizeFolderName(deliveryNoteId);
+            // BUG-26: use shared SanitizeName instead of duplicate methods
+            string safeDnId = SanitizeName(deliveryNoteId);
             string destFolder = Path.Combine(typeFolder, safeDnId);
             Directory.CreateDirectory(destFolder);
 
-            // Determine final filename:
-            //  1. If customFileName given → use it (defensively add source's
-            //     extension if custom name is missing one)
-            //  2. Otherwise → use original filename from source path
             string finalName;
             if (!string.IsNullOrWhiteSpace(customFileName))
             {
                 var customExt = Path.GetExtension(customFileName);
                 if (string.IsNullOrWhiteSpace(customExt))
                 {
-                    // Custom name missing extension — append source's extension
                     var srcExt = Path.GetExtension(sourcePath);
                     finalName = customFileName + srcExt;
                 }
@@ -123,14 +128,16 @@ namespace ProGlassAutomation.Services.DeliveryNote.Attachments
                 finalName = Path.GetFileName(sourcePath);
             }
 
-            // Sanitize defensively (user input already validated in dialog,
-            // but we protect against direct API misuse too)
-            finalName = SanitizeFileName(finalName);
+            finalName = SanitizeName(finalName);  // BUG-26: shared helper
 
             string destPath = ResolveUniquePath(destFolder, finalName);
 
-            using (var src = new FileStream(sourcePath, FileMode.Open, FileAccess.Read))
-            using (var dst = new FileStream(destPath, FileMode.CreateNew, FileAccess.Write))
+            using (var src = new FileStream(
+                       sourcePath, FileMode.Open, FileAccess.Read,
+                       FileShare.Read, 81920, useAsync: true))
+            using (var dst = new FileStream(
+                       destPath, FileMode.CreateNew, FileAccess.Write,
+                       FileShare.None, 81920, useAsync: true))
             {
                 await src.CopyToAsync(dst);
             }
@@ -148,6 +155,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Attachments
             };
         }
 
+        // BUG-28: reduced loop to 1_000, GUID fallback is immediate safety net
         private static string ResolveUniquePath(string folder, string fileName)
         {
             string candidate = Path.Combine(folder, fileName);
@@ -156,23 +164,18 @@ namespace ProGlassAutomation.Services.DeliveryNote.Attachments
             string nameOnly = Path.GetFileNameWithoutExtension(fileName);
             string ext = Path.GetExtension(fileName);
 
-            for (int i = 1; i < 10_000; i++)
+            for (int i = 1; i < 1_000; i++)
             {
                 string next = Path.Combine(folder, $"{nameOnly}-{i}{ext}");
                 if (!File.Exists(next)) return next;
             }
 
+            // Immediate GUID fallback — avoids 10,000 disk I/O calls
             return Path.Combine(folder, $"{Guid.NewGuid():N}{ext}");
         }
 
-        private static string SanitizeFolderName(string name)
-        {
-            var invalid = Path.GetInvalidFileNameChars();
-            var chars = name.Select(c => invalid.Contains(c) ? '_' : c).ToArray();
-            return new string(chars);
-        }
-
-        private static string SanitizeFileName(string name)
+        // BUG-26: single shared sanitize helper (was two identical methods)
+        private static string SanitizeName(string name)
         {
             var invalid = Path.GetInvalidFileNameChars();
             var chars = name.Select(c => invalid.Contains(c) ? '_' : c).ToArray();
@@ -183,17 +186,24 @@ namespace ProGlassAutomation.Services.DeliveryNote.Attachments
         //  DELETE
         // ═════════════════════════════════════════════════════════════════
 
-        public void DeleteFile(string filePath)
+        /// <summary>
+        /// Deletes the file at the given path from disk.
+        /// BUG-27: Now returns bool — true if deleted, false if missing or locked.
+        /// DB row deletion is authoritative; this is best-effort file cleanup.
+        /// </summary>
+        public bool DeleteFile(string filePath)
         {
             try
             {
-                if (File.Exists(filePath))
-                    File.Delete(filePath);
+                if (!File.Exists(filePath)) return false;
+                File.Delete(filePath);
+                return true;
             }
             catch (Exception)
             {
-                // Swallow — DB row deletion is authoritative.
-                // Orphan files can be cleaned up later if needed.
+                // File locked or access denied — DB row still deleted.
+                // Orphan file can be cleaned up manually if needed.
+                return false;
             }
         }
 

@@ -2,6 +2,8 @@
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Media3D;
 
 namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
 {
@@ -16,10 +18,10 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
 
         private void OnLoaded(object sender, RoutedEventArgs e)
         {
-            // Phase 10.5c — added TabReturned as 6th tab
             _tabButtons = new[]
             {
-                TabAll, TabPrepared, TabDelivered, TabPending, TabRework, TabReturned
+                TabAll, TabPrepared, TabDelivered,
+                TabPending, TabRework, TabReturned
             };
         }
 
@@ -51,24 +53,19 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  Ship 8b — JO GROUP ROW HANDLERS (new)
-        //
-        //  The 5 main tabs (All / Prepared / Delivered / Rework / Returned)
-        //  now show per-JO group rows instead of per-DN rows. Left click
-        //  opens the LATEST split DN in the family via OpenGroupCommand.
-        //  Right click shows a JO-level context menu.
-        //
-        //  The Pending Qty tab (index 3) is unchanged — it's already
-        //  per-JO by design and uses its own template with its own row VM.
+        //  Ship 8b — JO GROUP ROW HANDLERS
         // ═════════════════════════════════════════════════════════════════
 
-        private void OnGroupRowLeftClick(object sender, MouseButtonEventArgs e)
+        private void OnGroupRowLeftClick(
+            object sender, MouseButtonEventArgs e)
         {
             if (sender is not FrameworkElement element) return;
-            if (element.DataContext is not JobOrderGroupRowViewModel group) return;
+            if (element.DataContext is not JobOrderGroupRowViewModel group)
+                return;
             if (DataContext is not DeliveryNoteListViewModel vm) return;
 
-            // Ignore clicks that originated on a Button inside the row
+            // CRASH FIX: e.OriginalSource can be a Run (FrameworkContentElement)
+            // which is NOT a Visual. FindAncestor now handles this safely.
             if (e.OriginalSource is DependencyObject dep)
             {
                 if (FindAncestor<Button>(dep) != null) return;
@@ -78,10 +75,12 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             e.Handled = true;
         }
 
-        private void OnGroupRowRightClick(object sender, MouseButtonEventArgs e)
+        private void OnGroupRowRightClick(
+            object sender, MouseButtonEventArgs e)
         {
             if (sender is not FrameworkElement element) return;
-            if (element.DataContext is not JobOrderGroupRowViewModel group) return;
+            if (element.DataContext is not JobOrderGroupRowViewModel group)
+                return;
             if (DataContext is not DeliveryNoteListViewModel vm) return;
 
             var menu = new ContextMenu();
@@ -90,7 +89,8 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             {
                 Header = $"📂  Open latest DN ({group.LatestDnId})"
             };
-            openItem.Click += (_, __) => vm.OpenGroupCommand.Execute(group);
+            openItem.Click += (_, __) =>
+                vm.OpenGroupCommand.Execute(group);
             menu.Items.Add(openItem);
 
             menu.Items.Add(new Separator());
@@ -105,7 +105,8 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             if (!group.AllDelivered)
             {
                 masterInvItem.ToolTip =
-                    "Available only when every split DN is Delivered / Signed / Received.";
+                    "Available only when every split DN is " +
+                    "Delivered / Signed / Received.";
             }
             menu.Items.Add(masterInvItem);
 
@@ -114,18 +115,14 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
 
         // ═════════════════════════════════════════════════════════════════
         //  DEPRECATED — per-DN row handlers (Ship 8b transition)
-        //
-        //  These were used by DnRowTemplate before Ship 8b moved the 5
-        //  main tabs to per-JO grouping. Kept for now in case any code
-        //  path still references them via XAML, and as a safety fallback.
-        //
         //  Safe to delete AFTER confirming no XAML uses DnRowTemplate.
         // ═════════════════════════════════════════════════════════════════
 
         private void OnRowLeftClick(object sender, MouseButtonEventArgs e)
         {
             if (sender is not FrameworkElement element) return;
-            if (element.DataContext is not DeliveryNoteRowViewModel row) return;
+            if (element.DataContext is not DeliveryNoteRowViewModel row)
+                return;
             if (DataContext is not DeliveryNoteListViewModel vm) return;
 
             if (e.OriginalSource is DependencyObject dep)
@@ -140,7 +137,8 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
         private void OnRowRightClick(object sender, MouseButtonEventArgs e)
         {
             if (sender is not FrameworkElement element) return;
-            if (element.DataContext is not DeliveryNoteRowViewModel row) return;
+            if (element.DataContext is not DeliveryNoteRowViewModel row)
+                return;
             if (DataContext is not DeliveryNoteListViewModel vm) return;
 
             var menu = new ContextMenu();
@@ -174,13 +172,35 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             menu.IsOpen = true;
         }
 
+        // ═════════════════════════════════════════════════════════════════
+        //  CRASH FIX — FindAncestor safe for FrameworkContentElement
+        //
+        //  VisualTreeHelper.GetParent() only works on Visual/Visual3D.
+        //  When user clicks on a <Run> inside a <TextBlock>, the
+        //  e.OriginalSource is a Run (FrameworkContentElement), which
+        //  crashes VisualTreeHelper.GetParent().
+        //
+        //  Fix: If the starting element is not a Visual, walk the LOGICAL
+        //  tree first until we find a Visual (usually the parent TextBlock),
+        //  then continue up the VISUAL tree from there.
+        // ═════════════════════════════════════════════════════════════════
+
         private static T? FindAncestor<T>(DependencyObject current)
             where T : DependencyObject
         {
             while (current != null)
             {
                 if (current is T t) return t;
-                current = System.Windows.Media.VisualTreeHelper.GetParent(current);
+
+                // If current is not a Visual (e.g. Run, Span),
+                // walk the logical tree until we find a Visual
+                if (current is not Visual and not Visual3D)
+                {
+                    current = LogicalTreeHelper.GetParent(current);
+                    continue;
+                }
+
+                current = VisualTreeHelper.GetParent(current);
             }
             return null;
         }

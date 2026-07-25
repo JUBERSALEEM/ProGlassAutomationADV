@@ -11,8 +11,10 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
     /// Excel layout for a Delivery Note — 2-sheet workbook.
     ///
     /// Sheet 1: Summary  — DN header, customer, logistics, totals
-    /// Sheet 2: Items    — flat table of all glass items with
-    ///                     Ordered / Prev / This DN / Balance columns
+    /// Sheet 2: Items    — flat table of all glass items
+    ///
+    /// BUG-59: SetAutoFilter guarded — only when items exist.
+    /// BUG-60: DocumentTitle uses shared constant.
     ///
     /// No pricing — delivery document only.
     /// </summary>
@@ -34,12 +36,13 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
         // ── IDocumentLayout ──────────────────────────────────────────────
         public string DocumentPrefix => "DN";
         public string DocumentId => _entity.DeliveryNoteId;
-        public string DocumentTitle => "Delivery Note";
+        public string DocumentTitle => DeliveryNoteExportConstants.DocumentTitle;
         public string CompanyName => _joRef.CustomerName;
         public string Reference => _joRef.ProjectName;
-        public DateTime DocumentDate => _entity.DeliveryDate != default
-                                            ? _entity.DeliveryDate
-                                            : _entity.CreatedAt;
+        public DateTime DocumentDate =>
+            _entity.DeliveryDate != default
+                ? _entity.DeliveryDate
+                : _entity.CreatedAt;
 
         public void RenderWorkbook(IXLWorkbook workbook)
         {
@@ -58,7 +61,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             int r = 1;
 
             // Title strip
-            ws.Cell(r, 1).Value = "DELIVERY NOTE";
+            ws.Cell(r, 1).Value = DeliveryNoteExportConstants.DocumentTitle;
             ws.Range(r, 1, r, 4).Merge()
                 .Style.Fill.SetBackgroundColor(
                     XLColor.FromHtml("#" + WorkbookStyle.ColorHeaderBg))
@@ -73,7 +76,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             LabelValue(ws, r++, "Delivery Note ID", _entity.DeliveryNoteId);
             LabelValue(ws, r++, "Job Order ID", _entity.JobOrderId);
             LabelValue(ws, r++, "Proforma ID", _entity.ProformaId);
-            LabelValue(ws, r++, "Sequence No.", _entity.SequenceNumber.ToString());
+            LabelValue(ws, r++, "Sequence No.",
+                _entity.SequenceNumber.ToString());
             LabelValue(ws, r++, "Status", _entity.Status);
             LabelValue(ws, r++, "Type", _entity.DeliveryType);
             LabelValue(ws, r++, "FOC", _entity.IsFoc ? "Yes" : "No");
@@ -101,10 +105,14 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
 
             // Quantity totals
             SectionHeader(ws, r, "QTY SUMMARY"); r++;
-            LabelValue(ws, r++, "Total Ordered", _entity.TotalOrderedQty.ToString());
-            LabelValue(ws, r++, "Total Delivered", _entity.TotalDeliveredQty.ToString());
-            LabelValue(ws, r++, "Total Balance", _entity.TotalBalanceQty.ToString());
-            LabelValue(ws, r++, "Total Items", _entity.Items.Count.ToString());
+            LabelValue(ws, r++, "Total Ordered",
+                _entity.TotalOrderedQty.ToString());
+            LabelValue(ws, r++, "Total Delivered",
+                _entity.TotalDeliveredQty.ToString());
+            LabelValue(ws, r++, "Total Balance",
+                _entity.TotalBalanceQty.ToString());
+            LabelValue(ws, r++, "Total Items",
+                (_entity.Items?.Count ?? 0).ToString());
             r++;
 
             // Tax invoice placeholder
@@ -123,7 +131,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             LabelValue(ws, r++, "Updated At",
                 _entity.UpdatedAt.ToString("dd MMM yyyy HH:mm"));
 
-            // Column widths
             ws.Column(1).Width = 22;
             ws.Column(2).Width = 50;
         }
@@ -138,7 +145,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             ws.ShowGridLines = false;
             int r = 1;
 
-            // Header row
             string[] headers =
             {
                 "DN ID", "JO ID", "Customer", "Spec #", "Spec Group",
@@ -167,7 +173,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             string joId = _entity.JobOrderId;
             string customer = _joRef.CustomerName;
 
-            var orderedItems = _entity.Items
+            // BUG-59: guard against null items
+            var orderedItems = (_entity.Items ?? new())
                 .OrderBy(i => i.SpecGroupNumber)
                 .ThenBy(i => i.SerialNumber)
                 .ToList();
@@ -210,35 +217,35 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                 ws.Cell(r, 14).Value = _entity.TotalDeliveredQty;
                 ws.Cell(r, 15).Value = _entity.TotalBalanceQty;
 
-                var totalRange = ws.Range(r, 12, r, 15);
-                totalRange.Style
+                ws.Range(r, 12, r, 15).Style
                     .Font.SetBold()
                     .Fill.SetBackgroundColor(
                         XLColor.FromHtml("#" + WorkbookStyle.ColorTotalRowBg));
+
+                r++;
             }
 
-            // Auto-filter on header row
-            if (r > 2)
+            // BUG-59: only apply auto-filter when items exist
+            if (orderedItems.Count > 0)
                 ws.Range(1, 1, r - 1, headers.Length).SetAutoFilter();
 
             // Column widths
-            ws.Column(1).Width = 18;  // DN ID
-            ws.Column(2).Width = 16;  // JO ID
-            ws.Column(3).Width = 26;  // Customer
-            ws.Column(4).Width = 8;   // Spec #
-            ws.Column(5).Width = 28;  // Spec Group
-            ws.Column(6).Width = 8;   // Row #
-            ws.Column(7).Width = 22;  // Glass Ref
-            ws.Column(8).Width = 8;   // W1
-            ws.Column(9).Width = 8;   // H1
-            ws.Column(10).Width = 8;   // W2
-            ws.Column(11).Width = 8;   // H2
-            ws.Column(12).Width = 10;  // Ordered
-            ws.Column(13).Width = 14;  // Prev Delivered
-            ws.Column(14).Width = 10;  // This DN
-            ws.Column(15).Width = 10;  // Balance
+            ws.Column(1).Width = 18;
+            ws.Column(2).Width = 16;
+            ws.Column(3).Width = 26;
+            ws.Column(4).Width = 8;
+            ws.Column(5).Width = 28;
+            ws.Column(6).Width = 8;
+            ws.Column(7).Width = 22;
+            ws.Column(8).Width = 8;
+            ws.Column(9).Width = 8;
+            ws.Column(10).Width = 8;
+            ws.Column(11).Width = 8;
+            ws.Column(12).Width = 10;
+            ws.Column(13).Width = 14;
+            ws.Column(14).Width = 10;
+            ws.Column(15).Width = 10;
 
-            // Freeze header row
             ws.SheetView.FreezeRows(1);
         }
 
@@ -246,7 +253,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
         //  STYLING HELPERS
         // ═════════════════════════════════════════════════════════════════
 
-        private static void SectionHeader(IXLWorksheet ws, int row, string title)
+        private static void SectionHeader(
+            IXLWorksheet ws, int row, string title)
         {
             var cell = ws.Cell(row, 1);
             cell.Value = title;
@@ -280,7 +288,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
 
             if (hasBalance)
             {
-                // Highlight balance column in red
                 ws.Cell(row, 15).Style
                     .Font.SetBold()
                     .Font.SetFontColor(XLColor.FromHtml("#DC2626"));
@@ -292,5 +299,15 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                     XLColor.FromHtml("#" + WorkbookStyle.ColorAltRowBg));
             }
         }
+    }
+
+    // ═════════════════════════════════════════════════════════════════════
+    //  SHARED EXPORT CONSTANTS — BUG-60
+    //  Single source of truth for DocumentTitle across all 3 layouts.
+    // ═════════════════════════════════════════════════════════════════════
+
+    public static class DeliveryNoteExportConstants
+    {
+        public const string DocumentTitle = "Delivery Note";
     }
 }

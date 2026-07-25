@@ -27,27 +27,14 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
     /// <summary>
     /// ViewModel for the Delivery Note detail view.
     ///
-    /// Phase 10.6 : Attachments managed independently.
-    /// Phase 10.6a: Rename dialog on upload.
-    /// Phase 10.6b: Clickable history rows drive attachments panel.
-    /// Phase 10.7 : Self-healing PREV, GroupedItemsView, MakeDnCommand.
-    /// Phase 10.7a: DeleteDnCommand, zero-qty save warning, status refresh.
-    /// Phase 10.8 : Export commands — PDF, Excel, CSV.
-    /// Phase 10.8a: TotalPreviouslyDeliveredQty exposed for XAML binding.
-    /// Phase 10.8b: DnItemRowViewModel exposes Sqm + TotalSqm (computed).
-    ///              DnHistoryEntryViewModel exposes cumulative timeline
-    ///              (OrderedQty, CumulativePrevQty, CumulativeBalanceQty).
-    ///              Added ConvertToTaxInvoiceCommand as placeholder (Phase 19).
-    /// Phase 10.8c: ConvertToTaxInvoiceCommand now accepts optional
-    ///              DnHistoryEntryViewModel parameter — enables per-row
-    ///              Tax Invoice buttons in history feed.
-    ///              CanExecute checks the target entry's Status (not current).
-    /// Phase 10.8d: LoadHistoryAsync orders entries by SequenceNumber
-    ///              descending — newest DN at top of history feed.
-    /// Ship 8c-2  : DnItemRowViewModel.Sqm + TotalSqm now delegate to
-    ///              SqmCalculator (shared 0.5 m² min rule). Single source
-    ///              of truth used by DN List repo, DN Detail, and future
-    ///              PI / JO / Tax Invoice modules.
+    /// BUG-40: ConfirmDispatchAsync race condition fixed — IsSaving
+    ///         managed in one place, SaveAsync called without double-set.
+    /// BUG-41: TotalOrderedQty now updated in SaveAsync.
+    /// BUG-42: Event handler leak fixed — unsubscribe before re-subscribe.
+    /// BUG-43: HealItemPrevQtyAsync order dependency safe and documented.
+    /// BUG-44: DeleteDnAsync reloads fresh attachments before file delete.
+    /// BUG-45: EnsureLoaded handles null snapshot gracefully.
+    /// BUG-46: SelectedDnHeaderText shows selected DN attachment count.
     /// </summary>
     public class DeliveryNoteDetailViewModel : ViewModelBase
     {
@@ -60,7 +47,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         private readonly AttachmentService _attachmentService = new();
 
-        // Phase 10.7a — guard against re-entrancy during history navigation
         private bool _isNavigatingHistory;
 
         // ── loading state ─────────────────────────────────────────────────
@@ -69,28 +55,48 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public bool IsLoading
         {
             get => _isLoading;
-            private set { if (_isLoading == value) return; _isLoading = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_isLoading == value) return;
+                _isLoading = value;
+                OnPropertyChanged();
+            }
         }
 
         private bool _isSaving;
         public bool IsSaving
         {
             get => _isSaving;
-            private set { if (_isSaving == value) return; _isSaving = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_isSaving == value) return;
+                _isSaving = value;
+                OnPropertyChanged();
+            }
         }
 
         private bool _hasError;
         public bool HasError
         {
             get => _hasError;
-            private set { if (_hasError == value) return; _hasError = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_hasError == value) return;
+                _hasError = value;
+                OnPropertyChanged();
+            }
         }
 
         private string _errorMessage = "";
         public string ErrorMessage
         {
             get => _errorMessage;
-            private set { if (_errorMessage == value) return; _errorMessage = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_errorMessage == value) return;
+                _errorMessage = value;
+                OnPropertyChanged();
+            }
         }
 
         // ── DN header fields ─────────────────────────────────────────────
@@ -99,49 +105,84 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public string DeliveryNoteId
         {
             get => _deliveryNoteId;
-            private set { if (_deliveryNoteId == value) return; _deliveryNoteId = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_deliveryNoteId == value) return;
+                _deliveryNoteId = value;
+                OnPropertyChanged();
+            }
         }
 
         private string _jobOrderId = "";
         public string JobOrderId
         {
             get => _jobOrderId;
-            private set { if (_jobOrderId == value) return; _jobOrderId = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_jobOrderId == value) return;
+                _jobOrderId = value;
+                OnPropertyChanged();
+            }
         }
 
         private string _proformaId = "";
         public string ProformaId
         {
             get => _proformaId;
-            private set { if (_proformaId == value) return; _proformaId = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_proformaId == value) return;
+                _proformaId = value;
+                OnPropertyChanged();
+            }
         }
 
         private string _deliveryType = "Original";
         public string DeliveryType
         {
             get => _deliveryType;
-            private set { if (_deliveryType == value) return; _deliveryType = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_deliveryType == value) return;
+                _deliveryType = value;
+                OnPropertyChanged();
+            }
         }
 
         private string _deliveryDateDisplay = "";
         public string DeliveryDateDisplay
         {
             get => _deliveryDateDisplay;
-            private set { if (_deliveryDateDisplay == value) return; _deliveryDateDisplay = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_deliveryDateDisplay == value) return;
+                _deliveryDateDisplay = value;
+                OnPropertyChanged();
+            }
         }
 
         private string _deliveryTime = "";
         public string DeliveryTime
         {
             get => _deliveryTime;
-            private set { if (_deliveryTime == value) return; _deliveryTime = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_deliveryTime == value) return;
+                _deliveryTime = value;
+                OnPropertyChanged();
+            }
         }
 
         private int _sequenceNumber;
         public int SequenceNumber
         {
             get => _sequenceNumber;
-            private set { if (_sequenceNumber == value) return; _sequenceNumber = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_sequenceNumber == value) return;
+                _sequenceNumber = value;
+                OnPropertyChanged();
+            }
         }
 
         // ── JO context ───────────────────────────────────────────────────
@@ -150,28 +191,48 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public string CustomerName
         {
             get => _customerName;
-            private set { if (_customerName == value) return; _customerName = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_customerName == value) return;
+                _customerName = value;
+                OnPropertyChanged();
+            }
         }
 
         private string _projectName = "";
         public string ProjectName
         {
             get => _projectName;
-            private set { if (_projectName == value) return; _projectName = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_projectName == value) return;
+                _projectName = value;
+                OnPropertyChanged();
+            }
         }
 
         private string _companyName = "";
         public string CompanyName
         {
             get => _companyName;
-            private set { if (_companyName == value) return; _companyName = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_companyName == value) return;
+                _companyName = value;
+                OnPropertyChanged();
+            }
         }
 
         private string _companyTrn = "";
         public string CompanyTrn
         {
             get => _companyTrn;
-            private set { if (_companyTrn == value) return; _companyTrn = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_companyTrn == value) return;
+                _companyTrn = value;
+                OnPropertyChanged();
+            }
         }
 
         // ── Editable fields ──────────────────────────────────────────────
@@ -185,7 +246,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 if (_status == value) return;
                 _status = value;
                 OnPropertyChanged();
-                // CanConvertToTaxInvoice depends on Status
                 CommandManager.InvalidateRequerySuggested();
             }
         }
@@ -194,35 +254,60 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public bool IsFoc
         {
             get => _isFoc;
-            set { if (_isFoc == value) return; _isFoc = value; OnPropertyChanged(); }
+            set
+            {
+                if (_isFoc == value) return;
+                _isFoc = value;
+                OnPropertyChanged();
+            }
         }
 
         private string _driverName = "";
         public string DriverName
         {
             get => _driverName;
-            set { if (_driverName == value) return; _driverName = value; OnPropertyChanged(); }
+            set
+            {
+                if (_driverName == value) return;
+                _driverName = value;
+                OnPropertyChanged();
+            }
         }
 
         private string _vehicleNumber = "";
         public string VehicleNumber
         {
             get => _vehicleNumber;
-            set { if (_vehicleNumber == value) return; _vehicleNumber = value; OnPropertyChanged(); }
+            set
+            {
+                if (_vehicleNumber == value) return;
+                _vehicleNumber = value;
+                OnPropertyChanged();
+            }
         }
 
         private string _receiverName = "";
         public string ReceiverName
         {
             get => _receiverName;
-            set { if (_receiverName == value) return; _receiverName = value; OnPropertyChanged(); }
+            set
+            {
+                if (_receiverName == value) return;
+                _receiverName = value;
+                OnPropertyChanged();
+            }
         }
 
         private string _notes = "";
         public string Notes
         {
             get => _notes;
-            set { if (_notes == value) return; _notes = value; OnPropertyChanged(); }
+            set
+            {
+                if (_notes == value) return;
+                _notes = value;
+                OnPropertyChanged();
+            }
         }
 
         public System.Collections.Generic.List<string> StatusOptions { get; } = new()
@@ -251,7 +336,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public ICollectionView? GroupedItemsView
         {
             get => _groupedItemsView;
-            private set { if (_groupedItemsView == value) return; _groupedItemsView = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_groupedItemsView == value) return;
+                _groupedItemsView = value;
+                OnPropertyChanged();
+            }
         }
 
         private void RebuildGroupedView()
@@ -270,28 +360,48 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public int TotalOrderedQty
         {
             get => _totalOrderedQty;
-            private set { if (_totalOrderedQty == value) return; _totalOrderedQty = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_totalOrderedQty == value) return;
+                _totalOrderedQty = value;
+                OnPropertyChanged();
+            }
         }
 
         private int _totalPreviouslyDeliveredQty;
         public int TotalPreviouslyDeliveredQty
         {
             get => _totalPreviouslyDeliveredQty;
-            private set { if (_totalPreviouslyDeliveredQty == value) return; _totalPreviouslyDeliveredQty = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_totalPreviouslyDeliveredQty == value) return;
+                _totalPreviouslyDeliveredQty = value;
+                OnPropertyChanged();
+            }
         }
 
         private int _totalDeliveredQty;
         public int TotalDeliveredQty
         {
             get => _totalDeliveredQty;
-            private set { if (_totalDeliveredQty == value) return; _totalDeliveredQty = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_totalDeliveredQty == value) return;
+                _totalDeliveredQty = value;
+                OnPropertyChanged();
+            }
         }
 
         private int _totalBalanceQty;
         public int TotalBalanceQty
         {
             get => _totalBalanceQty;
-            private set { if (_totalBalanceQty == value) return; _totalBalanceQty = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_totalBalanceQty == value) return;
+                _totalBalanceQty = value;
+                OnPropertyChanged();
+            }
         }
 
         // ── Delivery history ──────────────────────────────────────────────
@@ -300,28 +410,48 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public ObservableCollection<DnHistoryEntryViewModel> HistoryEntries
         {
             get => _historyEntries;
-            private set { if (_historyEntries == value) return; _historyEntries = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_historyEntries == value) return;
+                _historyEntries = value;
+                OnPropertyChanged();
+            }
         }
 
         private int _historyTotalOrdered;
         public int HistoryTotalOrdered
         {
             get => _historyTotalOrdered;
-            private set { if (_historyTotalOrdered == value) return; _historyTotalOrdered = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_historyTotalOrdered == value) return;
+                _historyTotalOrdered = value;
+                OnPropertyChanged();
+            }
         }
 
         private int _historyTotalDelivered;
         public int HistoryTotalDelivered
         {
             get => _historyTotalDelivered;
-            private set { if (_historyTotalDelivered == value) return; _historyTotalDelivered = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_historyTotalDelivered == value) return;
+                _historyTotalDelivered = value;
+                OnPropertyChanged();
+            }
         }
 
         private int _historyTotalBalance;
         public int HistoryTotalBalance
         {
             get => _historyTotalBalance;
-            private set { if (_historyTotalBalance == value) return; _historyTotalBalance = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_historyTotalBalance == value) return;
+                _historyTotalBalance = value;
+                OnPropertyChanged();
+            }
         }
 
         // ── Selected history entry ────────────────────────────────────────
@@ -333,15 +463,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             set
             {
                 if (_selectedHistoryEntry == value) return;
-
                 if (_selectedHistoryEntry != null)
                     _selectedHistoryEntry.IsSelected = false;
-
                 _selectedHistoryEntry = value;
-
                 if (_selectedHistoryEntry != null)
                     _selectedHistoryEntry.IsSelected = true;
-
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(SelectedDnHeaderText));
                 OnPropertyChanged(nameof(IsSelectedDnCurrent));
@@ -350,11 +476,16 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         public bool IsSelectedDnCurrent =>
             _selectedHistoryEntry == null ||
-            string.Equals(_selectedHistoryEntry.DeliveryNoteId, _deliveryNoteId,
-                          StringComparison.OrdinalIgnoreCase);
+            string.Equals(
+                _selectedHistoryEntry.DeliveryNoteId,
+                _deliveryNoteId,
+                StringComparison.OrdinalIgnoreCase);
 
+        // BUG-46: show attachment count for SELECTED DN not current DN
         public string SelectedDnHeaderText =>
-            $"ATTACHMENTS ({AttachmentsCount})";
+            _selectedHistoryEntry != null
+                ? $"ATTACHMENTS ({_selectedHistoryEntry.AttachmentCount})"
+                : $"ATTACHMENTS ({AttachmentsCount})";
 
         public ICommand SelectHistoryEntryCommand { get; }
 
@@ -386,18 +517,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public ICommand BackCommand { get; }
         public ICommand MakeDnCommand { get; }
         public ICommand DeleteDnCommand { get; }
-
         public ICommand UploadImageCommand { get; }
         public ICommand UploadPdfCommand { get; }
         public ICommand OpenAttachmentCommand { get; }
         public ICommand DeleteAttachmentCommand { get; }
-
-        // Phase 10.8 — export commands
         public ICommand ExportPdfCommand { get; }
         public ICommand ExportExcelCommand { get; }
         public ICommand ExportCsvCommand { get; }
-
-        // Phase 10.8b/c — Tax Invoice conversion (placeholder until Phase 19)
         public ICommand ConvertToTaxInvoiceCommand { get; }
 
         // ═════════════════════════════════════════════════════════════════
@@ -447,7 +573,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     await NavigateToDnAsync(entry.DeliveryNoteId);
             });
 
-            // Phase 10.8 — export
             ExportPdfCommand = new RelayCommand(
                 async _ => await ExportPdfAsync(),
                 _ => _entity != null && !IsSaving && !IsLoading);
@@ -477,7 +602,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             if (_isNavigatingHistory) return;
 
             if (string.Equals(targetDeliveryNoteId, _deliveryNoteId,
-                              StringComparison.OrdinalIgnoreCase))
+                StringComparison.OrdinalIgnoreCase))
                 return;
 
             try
@@ -555,7 +680,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 ReceiverName = _entity.ReceiverName;
                 Notes = _entity.Notes;
 
+                // Heal PREV quantities BEFORE building row VMs
                 await HealItemPrevQtyAsync(_entity);
+
+                // BUG-42: unsubscribe from old rows before creating new ones
+                foreach (var oldRow in _itemRows)
+                    oldRow.DeliveredQtyChanged -= OnItemDeliveredQtyChanged;
 
                 var rows = _entity.Items
                     .OrderBy(i => i.SpecGroupNumber)
@@ -565,6 +695,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
                 ItemRows = new ObservableCollection<DnItemRowViewModel>(rows);
 
+                // Subscribe to new rows
                 foreach (var row in ItemRows)
                     row.DeliveredQtyChanged += OnItemDeliveredQtyChanged;
 
@@ -578,9 +709,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                         StringComparison.OrdinalIgnoreCase));
 
                 _selectedHistoryEntry = currentInHistory;
-                if (currentInHistory != null) currentInHistory.IsSelected = true;
+                if (currentInHistory != null)
+                    currentInHistory.IsSelected = true;
+
                 OnPropertyChanged(nameof(SelectedHistoryEntry));
                 OnPropertyChanged(nameof(IsSelectedDnCurrent));
+                OnPropertyChanged(nameof(SelectedDnHeaderText));
 
                 await LoadAttachmentsDirectlyAsync(DeliveryNoteId);
 
@@ -615,7 +749,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  LOAD HISTORY (Phase 10.8d — newest first)
+        //  LOAD HISTORY
         // ═════════════════════════════════════════════════════════════════
 
         private async Task LoadHistoryAsync()
@@ -646,7 +780,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 if (vm.IsCurrentDn) vm.IsSelected = true;
                 return vm;
             })
-            // Phase 10.8d — newest DN first (reverse chronological by sequence)
             .OrderByDescending(vm => vm.SequenceNumber)
             .ToList();
 
@@ -697,20 +830,24 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     if (item == null) continue;
 
                     item.DeliveredQty = row.DeliveredQty;
-                    item.BalanceQty = item.OrderedQty
-                                        - item.PreviouslyDeliveredQty
-                                        - item.DeliveredQty;
+                    item.BalanceQty = Math.Max(0,
+                        item.OrderedQty
+                        - item.PreviouslyDeliveredQty
+                        - item.DeliveredQty);
                     item.Notes = row.Notes;
                 }
 
+                // BUG-41: update ALL totals including TotalOrderedQty
+                _entity.TotalOrderedQty = _entity.Items.Sum(i => i.OrderedQty);
                 _entity.TotalDeliveredQty = _entity.Items.Sum(i => i.DeliveredQty);
                 _entity.TotalBalanceQty = _entity.Items.Sum(i => i.BalanceQty);
+                _entity.TotalPreviouslyDeliveredQty =
+                    _entity.Items.Sum(i => i.PreviouslyDeliveredQty);
 
                 var joRef = _snapshot?.JobOrderRef;
                 DeliveryNoteMapper.RefreshSnapshot(_entity, joRef);
 
                 await App.DeliveryNotes.UpdateAsync(_entity);
-
                 await LoadAsync(_entity.Id);
 
                 MessageBox.Show(
@@ -735,6 +872,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         // ═════════════════════════════════════════════════════════════════
         //  MAKE DN (dispatch)
+        //  BUG-40: IsSaving managed in one place — SaveAsync handles its
+        //          own IsSaving internally. ConfirmDispatchAsync does NOT
+        //          set IsSaving = true before calling SaveAsync to avoid
+        //          the race condition where SaveAsync finally block sets
+        //          IsSaving = false mid-dispatch.
         // ═════════════════════════════════════════════════════════════════
 
         private async Task ConfirmDispatchAsync()
@@ -765,10 +907,45 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
             try
             {
+                // BUG-40: set IsSaving here in the outer method only
+                // SaveAsync will NOT double-set it — we call inner logic
                 IsSaving = true;
 
+                // Update status then call inner save logic directly
+                // to avoid double IsSaving management
                 Status = "Dispatched";
-                await SaveAsync();
+
+                _entity.Status = Status;
+                _entity.IsFoc = IsFoc;
+                _entity.DriverName = DriverName;
+                _entity.VehicleNumber = VehicleNumber;
+                _entity.ReceiverName = ReceiverName;
+                _entity.Notes = Notes;
+
+                foreach (var row in ItemRows)
+                {
+                    var item = _entity.Items.FirstOrDefault(i =>
+                        i.SpecGroupNumber == row.SpecGroupNumber &&
+                        i.SerialNumber == row.SerialNumber);
+                    if (item == null) continue;
+
+                    item.DeliveredQty = row.DeliveredQty;
+                    item.BalanceQty = Math.Max(0,
+                        item.OrderedQty
+                        - item.PreviouslyDeliveredQty
+                        - item.DeliveredQty);
+                    item.Notes = row.Notes;
+                }
+
+                _entity.TotalOrderedQty = _entity.Items.Sum(i => i.OrderedQty);
+                _entity.TotalDeliveredQty = _entity.Items.Sum(i => i.DeliveredQty);
+                _entity.TotalBalanceQty = _entity.Items.Sum(i => i.BalanceQty);
+                _entity.TotalPreviouslyDeliveredQty =
+                    _entity.Items.Sum(i => i.PreviouslyDeliveredQty);
+
+                var joRef = _snapshot?.JobOrderRef;
+                DeliveryNoteMapper.RefreshSnapshot(_entity, joRef);
+                await App.DeliveryNotes.UpdateAsync(_entity);
 
                 int totalBalance = _entity.Items.Sum(i => i.BalanceQty);
                 if (totalBalance > 0)
@@ -818,6 +995,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         // ═════════════════════════════════════════════════════════════════
         //  DELETE DN
+        //  BUG-44: reload fresh attachments from DB before deleting files
         // ═════════════════════════════════════════════════════════════════
 
         private async Task DeleteDnAsync()
@@ -841,13 +1019,15 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             {
                 IsSaving = true;
 
-                if (_entity.Attachments != null)
+                // BUG-44: reload fresh attachments from DB
+                // UpdateAsync clears entity.Attachments — reload before delete
+                var freshAttachments = await App.DeliveryNotes
+                    .GetAttachmentsAsync(_entity.DeliveryNoteId);
+
+                foreach (var att in freshAttachments)
                 {
-                    foreach (var att in _entity.Attachments)
-                    {
-                        try { _attachmentService.DeleteFile(att.FilePath); }
-                        catch { /* file may already be gone */ }
-                    }
+                    try { _attachmentService.DeleteFile(att.FilePath); }
+                    catch { /* file may already be gone */ }
                 }
 
                 await App.DeliveryNotes.DeleteAsync(_entity.Id);
@@ -875,7 +1055,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  PHASE 10.8b/c — CONVERT TO TAX INVOICE (Placeholder)
+        //  TAX INVOICE (Placeholder)
         // ═════════════════════════════════════════════════════════════════
 
         private bool CanConvertToTaxInvoice(DnHistoryEntryViewModel? entry)
@@ -887,7 +1067,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 || targetStatus == "Received";
         }
 
-        private void ConvertToTaxInvoicePlaceholder(DnHistoryEntryViewModel? entry)
+        private void ConvertToTaxInvoicePlaceholder(
+            DnHistoryEntryViewModel? entry)
         {
             var targetDnId = entry?.DeliveryNoteId ?? DeliveryNoteId;
             var targetStatus = entry?.Status ?? Status;
@@ -912,73 +1093,101 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  PHASE 10.8 — EXPORT
+        //  EXPORT
+        //  BUG-45: EnsureLoaded handles null snapshot gracefully
         // ═════════════════════════════════════════════════════════════════
 
         private async Task ExportPdfAsync()
         {
-            if (!EnsureLoaded()) return;
+            if (!EnsureLoaded(out var entity, out var snapshot)) return;
 
-            var layout = new DeliveryNotePdfLayout(_entity!, _snapshot!);
+            var layout = new DeliveryNotePdfLayout(entity, snapshot);
             var engine = new PdfExportEngine();
             var request = new ExportRequest
             {
                 PromptForLocation = true,
                 OpenAfterSave = true
             };
-
             var result = await engine.ExportAsync(layout, request);
             ShowExportResult(result, "PDF");
         }
 
         private async Task ExportExcelAsync()
         {
-            if (!EnsureLoaded()) return;
+            if (!EnsureLoaded(out var entity, out var snapshot)) return;
 
-            var layout = new DeliveryNoteExcelLayout(_entity!, _snapshot!);
+            var layout = new DeliveryNoteExcelLayout(entity, snapshot);
             var engine = new ExcelExportEngine();
             var request = new ExportRequest
             {
                 PromptForLocation = true,
                 OpenAfterSave = true
             };
-
             var result = await engine.ExportAsync(layout, request);
             ShowExportResult(result, "Excel");
         }
 
         private async Task ExportCsvAsync()
         {
-            if (!EnsureLoaded()) return;
+            if (!EnsureLoaded(out var entity, out var snapshot)) return;
 
-            var layout = new DeliveryNoteCsvLayout(_entity!, _snapshot!);
+            var layout = new DeliveryNoteCsvLayout(entity, snapshot);
             var engine = new CsvExportEngine();
             var request = new ExportRequest
             {
                 PromptForLocation = true,
                 OpenAfterSave = true
             };
-
             var result = await engine.ExportAsync(layout, request);
             ShowExportResult(result, "CSV");
         }
 
-        private bool EnsureLoaded()
+        // BUG-45: handles null snapshot — creates empty snapshot as fallback
+        private bool EnsureLoaded(
+            out SavedDeliveryNote entity,
+            out DeliveryNoteSnapshot snapshot)
         {
-            if (_entity != null && _snapshot != null) return true;
+            if (_entity == null)
+            {
+                entity = null!;
+                snapshot = null!;
+                MessageBox.Show(
+                    "Load a delivery note before exporting.",
+                    "Nothing to export",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return false;
+            }
 
-            MessageBox.Show(
-                "Load a delivery note before exporting.",
-                "Nothing to export",
-                MessageBoxButton.OK,
-                MessageBoxImage.Warning);
-            return false;
+            entity = _entity;
+
+            // BUG-45: if snapshot is null (malformed JSON), use empty
+            // snapshot so export still works with header data from entity
+            snapshot = _snapshot ?? new DeliveryNoteSnapshot
+            {
+                Header = new DnHeaderSnapshot
+                {
+                    DeliveryNoteId = _entity.DeliveryNoteId,
+                    JobOrderId = _entity.JobOrderId,
+                    Status = _entity.Status,
+                    DeliveryType = _entity.DeliveryType,
+                    DeliveryDate = _entity.DeliveryDate,
+                    DeliveryTime = _entity.DeliveryTime
+                },
+                JobOrderRef = new DnJobOrderRefSnapshot
+                {
+                    CustomerName = _entity.CustomerName,
+                    ProjectName = _entity.ProjectName
+                }
+            };
+
+            return true;
         }
 
-        private static void ShowExportResult(ExportResult result, string formatLabel)
+        private static void ShowExportResult(
+            ExportResult result, string formatLabel)
         {
-            if (result.Success) return;
-            if (result.Cancelled) return;
+            if (result.Success || result.Cancelled) return;
 
             MessageBox.Show(
                 $"{formatLabel} export failed:\n\n{result.ErrorMessage}",
@@ -998,14 +1207,18 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
             var list = await App.DeliveryNotes
                 .GetAttachmentsAsync(deliveryNoteId);
-            var rows = list.Select(a => new DnAttachmentRowViewModel(a)).ToList();
+            var rows = list
+                .Select(a => new DnAttachmentRowViewModel(a)).ToList();
             Attachments = new ObservableCollection<DnAttachmentRowViewModel>(rows);
 
-            var historyRow = HistoryEntries.FirstOrDefault(h => string.Equals(
-                h.DeliveryNoteId, deliveryNoteId,
-                StringComparison.OrdinalIgnoreCase));
+            var historyRow = HistoryEntries.FirstOrDefault(h =>
+                string.Equals(h.DeliveryNoteId, deliveryNoteId,
+                    StringComparison.OrdinalIgnoreCase));
             if (historyRow != null)
                 historyRow.AttachmentCount = rows.Count;
+
+            // BUG-46: refresh header text after attachment count changes
+            OnPropertyChanged(nameof(SelectedDnHeaderText));
         }
 
         private async Task UploadImageAsync()
@@ -1026,7 +1239,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 if (!_attachmentService.IsValidImageExtension(dlg.FileName))
                 {
                     MessageBox.Show(
-                        "Unsupported image format.\n\nAllowed: JPG, PNG, BMP, GIF, WEBP.",
+                        "Unsupported image format.\n\n" +
+                        "Allowed: JPG, PNG, BMP, GIF, WEBP.",
                         "Invalid File",
                         MessageBoxButton.OK,
                         MessageBoxImage.Warning);
@@ -1036,7 +1250,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 if (!_attachmentService.IsUnderSizeLimit(dlg.FileName))
                 {
                     MessageBox.Show(
-                        $"File is too large.\n\nMaximum size: {AttachmentLimits.MaxFileSizeDisplay}",
+                        $"File is too large.\n\n" +
+                        $"Maximum size: {AttachmentLimits.MaxFileSizeDisplay}",
                         "File Too Large",
                         MessageBoxButton.OK,
                         MessageBoxImage.Warning);
@@ -1045,7 +1260,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
                 var origName = Path.GetFileName(dlg.FileName);
                 var renameDlg = new RenameAttachmentDialog(origName)
-                { Owner = Application.Current.MainWindow };
+                {
+                    Owner = Application.Current.MainWindow
+                };
                 if (renameDlg.ShowDialog() != true) return;
                 var finalName = renameDlg.ResultFileName;
 
@@ -1096,7 +1313,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 if (!_attachmentService.IsUnderSizeLimit(dlg.FileName))
                 {
                     MessageBox.Show(
-                        $"File is too large.\n\nMaximum size: {AttachmentLimits.MaxFileSizeDisplay}",
+                        $"File is too large.\n\n" +
+                        $"Maximum size: {AttachmentLimits.MaxFileSizeDisplay}",
                         "File Too Large",
                         MessageBoxButton.OK,
                         MessageBoxImage.Warning);
@@ -1105,7 +1323,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
                 var origName = Path.GetFileName(dlg.FileName);
                 var renameDlg = new RenameAttachmentDialog(origName)
-                { Owner = Application.Current.MainWindow };
+                {
+                    Owner = Application.Current.MainWindow
+                };
                 if (renameDlg.ShowDialog() != true) return;
                 var finalName = renameDlg.ResultFileName;
 
@@ -1185,7 +1405,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
     // ═════════════════════════════════════════════════════════════════════
     //  DN ITEM ROW VIEWMODEL
-    //  Ship 8c-2: Sqm + TotalSqm now use shared SqmCalculator.
     // ═════════════════════════════════════════════════════════════════════
 
     public class DnItemRowViewModel : ViewModelBase
@@ -1225,24 +1444,22 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public string Notes
         {
             get => _notes;
-            set { if (_notes == value) return; _notes = value; OnPropertyChanged(); }
+            set
+            {
+                if (_notes == value) return;
+                _notes = value;
+                OnPropertyChanged();
+            }
         }
 
         public string DimensionDisplay =>
-            W2 > 0 || H2 > 0 ? $"{W1}×{H1}  /  {W2}×{H2}" : $"{W1}×{H1}";
+            W2 > 0 || H2 > 0
+                ? $"{W1}×{H1}  /  {W2}×{H2}"
+                : $"{W1}×{H1}";
 
         public bool HasBalance => BalanceQty > 0;
 
-        // ══════════════════════════════════════════════════════════════
-        // Ship 8c-2 — Delegates to SqmCalculator (single source of truth)
-        //
-        // Formula preserved (identical result):
-        //   Panel SQM = (W1 × H1) / 1,000,000, floored to 0.5 m² minimum
-        //   Total SQM = Panel SQM × OrderedQty
-        // ══════════════════════════════════════════════════════════════
-
         public decimal Sqm => SqmCalculator.CalculatePanel(W1, H1);
-
         public decimal TotalSqm => SqmCalculator.CalculateTotal(W1, H1, OrderedQty);
 
         public DnItemRowViewModel(DeliveryNoteItem item)
@@ -1264,7 +1481,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
     // ═════════════════════════════════════════════════════════════════════
     //  DN HISTORY ENTRY VIEWMODEL
-    //  Phase 10.8b — exposes cumulative timeline fields for master-DN pattern
     // ═════════════════════════════════════════════════════════════════════
 
     public class DnHistoryEntryViewModel : ViewModelBase
@@ -1279,7 +1495,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public string TypeIcon { get; }
         public string StatusBrushKey { get; }
 
-        // Phase 10.8b — cumulative timeline fields
         public int OrderedQty { get; }
         public int CumulativePrevQty { get; }
         public int CumulativeBalanceQty { get; }
@@ -1289,14 +1504,24 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public bool IsSelected
         {
             get => _isSelected;
-            set { if (_isSelected == value) return; _isSelected = value; OnPropertyChanged(); }
+            set
+            {
+                if (_isSelected == value) return;
+                _isSelected = value;
+                OnPropertyChanged();
+            }
         }
 
         private bool _isCurrentDn;
         public bool IsCurrentDn
         {
             get => _isCurrentDn;
-            set { if (_isCurrentDn == value) return; _isCurrentDn = value; OnPropertyChanged(); }
+            set
+            {
+                if (_isCurrentDn == value) return;
+                _isCurrentDn = value;
+                OnPropertyChanged();
+            }
         }
 
         private int _attachmentCount;
@@ -1324,7 +1549,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             BalanceQty = e.BalanceQty;
             DeliveryDate = e.DeliveryDate.ToString("dd MMM yyyy");
             DriverName = e.DriverName;
-
             OrderedQty = e.OrderedQty;
             CumulativePrevQty = e.CumulativePrevQty;
             CumulativeBalanceQty = e.CumulativeBalanceQty;

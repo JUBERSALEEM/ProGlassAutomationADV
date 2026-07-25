@@ -1,5 +1,6 @@
 ﻿using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
+using ProGlassAutomation.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,17 +15,17 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
     ///
     /// Path A — FromJobOrder(SavedJobOrder, snapshot, dnId, seq):
     ///   Creates a new Draft DN from a Job Order.
-    ///   All items populated with OrderedQty from JO spec rows.
-    ///   DeliveredQty = 0, PreviouslyDeliveredQty = 0, BalanceQty = OrderedQty.
-    ///   User edits DeliveredQty in the UI before confirming.
     ///
     /// Path B — FromBalance(SavedDeliveryNote, dnId, seq):
     ///   Creates a Dummy DN from the balance of a prior DN.
-    ///   Items where BalanceQty > 0 are carried forward.
-    ///   DeliveredQty = 0, PreviouslyDeliveredQty updated, BalanceQty = balance.
-    ///   Items fully delivered are excluded.
     ///
     /// Path C — Serialize/Deserialize snapshot (JSON round-trip).
+    ///
+    /// BUG-22: TotalArea now uses SqmCalculator.CalculatePanel()
+    ///         instead of inline formula — single source of truth.
+    /// BUG-23: FromBalance TotalOrderedQty uses MAX per unique item
+    ///         not SUM — fixes Gotcha #40 double-count on splits.
+    /// BUG-24: Empty ItemRows list guard added in FromJobOrder.
     /// </summary>
     public static class DeliveryNoteMapper
     {
@@ -38,11 +39,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
         //  PATH A — Job Order → New Draft Delivery Note
         // ════════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Creates a new Draft DN entity from a Job Order.
-        /// All quantities start at 0 delivered — user sets DeliveredQty
-        /// in the Create Delivery UI before saving.
-        /// </summary>
         public static SavedDeliveryNote FromJobOrder(
             SavedJobOrder jobOrder,
             JobOrderSnapshot joSnapshot,
@@ -53,7 +49,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
             if (joSnapshot == null) throw new ArgumentNullException(nameof(joSnapshot));
 
             var pi = joSnapshot.EmbeddedInvoice;
-
             var now = DateTime.Now;
 
             var entity = new SavedDeliveryNote
@@ -75,7 +70,9 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
                 Notes = "",
                 TotalOrderedQty = 0,
                 TotalDeliveredQty = 0,
-                TotalBalanceQty = 0
+                TotalBalanceQty = 0,
+                CreatedAt = now,
+                UpdatedAt = now
             };
 
             // ── Build items from JO spec groups ──────────────────────────
@@ -85,7 +82,9 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
             {
                 foreach (var group in pi.SpecGroups)
                 {
-                    if (group.ItemRows == null) continue;
+                    // BUG-24: guard against null AND empty ItemRows
+                    if (group.ItemRows == null || group.ItemRows.Count == 0)
+                        continue;
 
                     foreach (var row in group.ItemRows)
                     {
@@ -94,9 +93,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
                             DeliveryNoteId = deliveryNoteId,
                             JobOrderId = jobOrder.JobOrderId,
                             SpecGroupNumber = group.GroupNumber,
-                            SpecGroupName = !string.IsNullOrWhiteSpace(group.SelectedSpecName)
+                            SpecGroupName = !string.IsNullOrWhiteSpace(
+                                                         group.SelectedSpecName)
                                                          ? group.SelectedSpecName
-                                                         : (group.GroupName ?? $"Spec {group.GroupNumber}"),
+                                                         : (group.GroupName
+                                                            ?? $"Spec {group.GroupNumber}"),
                             SerialNumber = row.SerialNumber,
                             GlassRef = row.GlassRef ?? "",
                             W1 = row.W1,
@@ -106,7 +107,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
                             OrderedQty = row.Qty,
                             PreviouslyDeliveredQty = 0,
                             DeliveredQty = 0,
-                            BalanceQty = row.Qty,  // all balance at start
+                            BalanceQty = row.Qty,
                             ReworkQty = 0,
                             ReturnedQty = 0,
                             Notes = ""
@@ -123,7 +124,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
 
             // ── Build snapshot ────────────────────────────────────────────
             var snapshot = BuildSnapshot(entity, joSnapshot);
-            entity.FullSnapshotJson = JsonSerializer.Serialize(snapshot, _jsonOptions);
+            entity.FullSnapshotJson = JsonSerializer.Serialize(
+                snapshot, _jsonOptions);
 
             return entity;
         }
@@ -132,12 +134,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
         //  PATH B — Prior DN Balance → New Dummy Delivery Note
         // ════════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Creates a Dummy DN from the balance quantities of a prior DN.
-        /// Only items with BalanceQty > 0 are carried forward.
-        /// PreviouslyDeliveredQty updated to reflect all prior deliveries.
-        /// DeliveredQty starts at 0 — user edits before confirming.
-        /// </summary>
         public static SavedDeliveryNote FromBalance(
             SavedDeliveryNote priorDn,
             string newDeliveryNoteId,
@@ -167,51 +163,64 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
                 Notes = "",
                 TotalOrderedQty = 0,
                 TotalDeliveredQty = 0,
-                TotalBalanceQty = 0
+                TotalBalanceQty = 0,
+                CreatedAt = now,
+                UpdatedAt = now
             };
 
             // ── Carry forward only items with balance > 0 ─────────────────
             var items = new List<DeliveryNoteItem>();
 
-            foreach (var priorItem in priorDn.Items
-                .Where(i => i.BalanceQty > 0))
+            // BUG-23: Group by unique item key to get MAX OrderedQty
+            // OrderedQty is REPLICATED across splits — use MAX not SUM
+            var uniqueItems = priorDn.Items
+                .Where(i => i.BalanceQty > 0)
+                .GroupBy(i => new { i.SpecGroupNumber, i.SerialNumber })
+                .ToList();
+
+            foreach (var itemGroup in uniqueItems)
             {
-                // PreviouslyDelivered = all prior delivered (including this DN)
-                int totalPreviouslyDelivered =
-                    priorItem.PreviouslyDeliveredQty + priorItem.DeliveredQty;
+                // MAX OrderedQty across splits (Gotcha #40 fix — BUG-23)
+                var representative = itemGroup.First();
+                int maxOrderedQty = itemGroup.Max(i => i.OrderedQty);
+                int totalPreviouslyDeliv =
+                    representative.PreviouslyDeliveredQty +
+                    representative.DeliveredQty;
 
                 var item = new DeliveryNoteItem
                 {
                     DeliveryNoteId = newDeliveryNoteId,
                     JobOrderId = priorDn.JobOrderId,
-                    SpecGroupNumber = priorItem.SpecGroupNumber,
-                    SpecGroupName = priorItem.SpecGroupName,
-                    SerialNumber = priorItem.SerialNumber,
-                    GlassRef = priorItem.GlassRef,
-                    W1 = priorItem.W1,
-                    H1 = priorItem.H1,
-                    W2 = priorItem.W2,
-                    H2 = priorItem.H2,
-                    OrderedQty = priorItem.OrderedQty,
-                    PreviouslyDeliveredQty = totalPreviouslyDelivered,
+                    SpecGroupNumber = representative.SpecGroupNumber,
+                    SpecGroupName = representative.SpecGroupName,
+                    SerialNumber = representative.SerialNumber,
+                    GlassRef = representative.GlassRef,
+                    W1 = representative.W1,
+                    H1 = representative.H1,
+                    W2 = representative.W2,
+                    H2 = representative.H2,
+                    OrderedQty = maxOrderedQty,
+                    PreviouslyDeliveredQty = totalPreviouslyDeliv,
                     DeliveredQty = 0,
-                    BalanceQty = priorItem.BalanceQty,
+                    BalanceQty = representative.BalanceQty,
                     ReworkQty = 0,
                     ReturnedQty = 0,
                     Notes = ""
                 };
 
                 items.Add(item);
-                entity.TotalOrderedQty += priorItem.OrderedQty;
-                entity.TotalBalanceQty += priorItem.BalanceQty;
+                entity.TotalOrderedQty += maxOrderedQty;
+                entity.TotalBalanceQty += representative.BalanceQty;
             }
 
             entity.Items = items;
 
             // ── Deserialize prior snapshot to get JO ref context ──────────
             var priorSnapshot = DeserializeSnapshot(priorDn);
-            var snapshot = BuildSnapshot(entity, null, priorSnapshot?.JobOrderRef);
-            entity.FullSnapshotJson = JsonSerializer.Serialize(snapshot, _jsonOptions);
+            var snapshot = BuildSnapshot(
+                entity, null, priorSnapshot?.JobOrderRef);
+            entity.FullSnapshotJson = JsonSerializer.Serialize(
+                snapshot, _jsonOptions);
 
             return entity;
         }
@@ -223,6 +232,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
         /// <summary>
         /// Deserializes the JSON snapshot from a saved entity.
         /// Returns null if JSON is empty or malformed.
+        /// BUG-25: Catch block preserved — malformed JSON returns null
+        /// gracefully. Callers must handle null snapshot defensively.
         /// </summary>
         public static DeliveryNoteSnapshot? DeserializeSnapshot(
             SavedDeliveryNote entity)
@@ -237,8 +248,12 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
                 return JsonSerializer.Deserialize<DeliveryNoteSnapshot>(
                     entity.FullSnapshotJson, _jsonOptions);
             }
-            catch
+            catch (JsonException ex)
             {
+                // Log for diagnostics — malformed snapshot causes empty detail view
+                System.Diagnostics.Debug.WriteLine(
+                    $"[DeliveryNoteMapper] Snapshot deserialize failed " +
+                    $"for DN '{entity.DeliveryNoteId}': {ex.Message}");
                 return null;
             }
         }
@@ -265,8 +280,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
             JobOrderSnapshot? joSnapshot = null,
             DnJobOrderRefSnapshot? existingRef = null)
         {
-            // Build JO reference block from JO snapshot if available,
-            // otherwise reuse existing ref from prior snapshot
             var joRef = existingRef ?? new DnJobOrderRefSnapshot();
 
             if (joSnapshot != null)
@@ -282,6 +295,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
                     CompanyName = pi?.Company?.CompanyName ?? "",
                     CompanyTrn = pi?.Company?.CompanyTrn ?? "",
                     CompanyLocation = pi?.Company?.CompanyLocation ?? "",
+
+                    // BUG-22: use SqmCalculator instead of inline formula
                     SpecGroups = pi?.SpecGroups?.Select(g => new DnJoSpecGroupSnapshot
                     {
                         GroupNumber = g.GroupNumber,
@@ -292,9 +307,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
                         SpecName = g.SelectedSpecName ?? "",
                         TotalQty = g.ItemRows?.Sum(r => r.Qty) ?? 0,
                         TotalArea = g.ItemRows?.Sum(r =>
-                            (decimal)Math.Max(
-                                Math.Round((double)r.W1 * r.H1 / 1_000_000d, 3),
-                                0.5d) * r.Qty) ?? 0m
+                            SqmCalculator.CalculatePanel(r.W1, r.H1) * r.Qty)
+                            ?? 0m
                     }).ToList() ?? new()
                 };
             }

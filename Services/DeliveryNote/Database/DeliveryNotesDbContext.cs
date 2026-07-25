@@ -15,15 +15,18 @@ namespace ProGlassAutomation.Services.DeliveryNote.Database
     ///   DeliveryNoteItems       — normalized line items per DN
     ///   DeliveryNoteAttachments — file references (images + PDFs)
     ///
-    /// Initialized in App.xaml.cs alongside other DbContexts:
-    ///   App.DeliveryNotes = new DeliveryNoteRepository();
-    ///   await App.DeliveryNotes.InitializeAsync();
+    /// BUG-12: DbPath no longer calls Directory.CreateDirectory in getter.
+    ///         Side effect moved to OnConfiguring where it belongs.
+    /// BUG-13: Added index on HasTaxInvoice for Phase 19 queries.
+    /// BUG-14: Added HasColumnType on FullSnapshotJson for migration compat.
     /// </summary>
     public class DeliveryNotesDbContext : DbContext
     {
         public DbSet<SavedDeliveryNote> DeliveryNotes { get; set; }
         public DbSet<DeliveryNoteItem> DeliveryNoteItems { get; set; }
         public DbSet<DeliveryNoteAttachment> DeliveryNoteAttachments { get; set; }
+
+        // ── DB path (pure computation — no side effects) ─────────────────
 
         private static string DbPath
         {
@@ -34,15 +37,20 @@ namespace ProGlassAutomation.Services.DeliveryNote.Database
                         Environment.SpecialFolder.ApplicationData),
                     "ProGlassAutomation");
 
-                if (!Directory.Exists(folder))
-                    Directory.CreateDirectory(folder);
-
                 return Path.Combine(folder, "deliverynotes.db");
             }
         }
 
+        // ── Configuration ────────────────────────────────────────────────
+
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
+            // BUG-12: Directory creation moved here — runs once per context
+            // creation, not on every DbPath property access.
+            var folder = Path.GetDirectoryName(DbPath)!;
+            if (!Directory.Exists(folder))
+                Directory.CreateDirectory(folder);
+
             options.UseSqlite($"Data Source={DbPath}");
         }
 
@@ -59,16 +67,25 @@ namespace ProGlassAutomation.Services.DeliveryNote.Database
                 e.HasIndex(x => x.DeliveryType);
                 e.HasIndex(x => x.DeliveryDate);
 
-                // One-to-many: DN → Items
+                // BUG-13: Index for Phase 19 Tax Invoice queries
+                // WHERE HasTaxInvoice = false — without this = full table scan
+                e.HasIndex(x => x.HasTaxInvoice)
+                    .HasDatabaseName("IX_DeliveryNotes_HasTaxInvoice");
+
+                // BUG-14: Explicit column type for migration compatibility
+                e.Property(x => x.FullSnapshotJson)
+                    .HasColumnType("TEXT");
+
+                // One-to-many: DN → Items (cascade delete)
                 e.HasMany(x => x.Items)
-                    .WithOne()
+                    .WithOne(i => i.DeliveryNote)
                     .HasForeignKey(i => i.DeliveryNoteId)
                     .HasPrincipalKey(x => x.DeliveryNoteId)
                     .OnDelete(DeleteBehavior.Cascade);
 
-                // One-to-many: DN → Attachments
+                // One-to-many: DN → Attachments (cascade delete)
                 e.HasMany(x => x.Attachments)
-                    .WithOne()
+                    .WithOne(a => a.DeliveryNote)
                     .HasForeignKey(a => a.DeliveryNoteId)
                     .HasPrincipalKey(x => x.DeliveryNoteId)
                     .OnDelete(DeleteBehavior.Cascade);
@@ -79,7 +96,12 @@ namespace ProGlassAutomation.Services.DeliveryNote.Database
             {
                 e.HasIndex(x => x.DeliveryNoteId);
                 e.HasIndex(x => x.JobOrderId);
-                e.HasIndex(x => new { x.JobOrderId, x.SpecGroupNumber, x.SerialNumber });
+                e.HasIndex(x => new
+                {
+                    x.JobOrderId,
+                    x.SpecGroupNumber,
+                    x.SerialNumber
+                });
             });
 
             // ── DeliveryNoteAttachments table ────────────────────────────

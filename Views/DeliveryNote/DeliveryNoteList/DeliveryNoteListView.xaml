@@ -14,12 +14,6 @@
 
         <!-- ══════════════════════════════════════════════════════════════
              SHIP 8b + 8c-2 — JO GROUP ROW TEMPLATE (per-JO summary)
-             
-             Used by All / Prepared / Delivered / Rework / Returned tabs.
-             Each row = one JO family (e.g. JOB-2026-779 covering DN-01..08).
-             
-             Ship 8c-2 adds SQM line below qty line inside the middle
-             progress column.
         ══════════════════════════════════════════════════════════════ -->
         <DataTemplate x:Key="JoGroupRowTemplate">
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
@@ -40,7 +34,6 @@
                                         Value="{DynamicResource MenuHoverBrush}"/>
                                 <Setter Property="BorderBrush" Value="#4338CA"/>
                             </Trigger>
-                            <!-- Completed families get a subtle green tint -->
                             <DataTrigger Binding="{Binding AllDelivered}" Value="True">
                                 <Setter Property="BorderBrush" Value="#047857"/>
                                 <Setter Property="BorderThickness" Value="1.5"/>
@@ -52,14 +45,13 @@
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="240"/>
+                        <ColumnDefinition Width="280"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
                     <!-- ── LEFT: JO info + badges + customer/project + latest DN ── -->
                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
 
-                        <!-- LINE 1: JO ID + DN count + status + optional badges -->
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="📋 " FontSize="14"
                                        VerticalAlignment="Center"
@@ -69,7 +61,6 @@
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        VerticalAlignment="Center"/>
 
-                            <!-- DN count pill -->
                             <Border CornerRadius="6" Padding="7,2" Margin="10,0,0,0"
                                     VerticalAlignment="Center"
                                     Background="{DynamicResource TintIndigoBrush}">
@@ -80,7 +71,6 @@
                                 </TextBlock>
                             </Border>
 
-                            <!-- Status pill: green if completed, amber if in progress -->
                             <Border CornerRadius="6" Padding="7,2" Margin="6,0,0,0"
                                     VerticalAlignment="Center">
                                 <Border.Style>
@@ -110,7 +100,6 @@
                                 </TextBlock>
                             </Border>
 
-                            <!-- FOC family badge -->
                             <Border CornerRadius="6" Padding="7,2" Margin="6,0,0,0"
                                     VerticalAlignment="Center"
                                     Background="{DynamicResource TintAmberBrush}"
@@ -120,7 +109,6 @@
                                            Foreground="#B45309"/>
                             </Border>
 
-                            <!-- Rework family badge -->
                             <Border CornerRadius="6" Padding="7,2" Margin="6,0,0,0"
                                     VerticalAlignment="Center"
                                     Background="{DynamicResource TintAmberBrush}"
@@ -130,7 +118,6 @@
                                            Foreground="#B45309"/>
                             </Border>
 
-                            <!-- Return family badge -->
                             <Border CornerRadius="6" Padding="7,2" Margin="6,0,0,0"
                                     VerticalAlignment="Center"
                                     Background="{DynamicResource TintRedBrush}"
@@ -141,7 +128,6 @@
                             </Border>
                         </StackPanel>
 
-                        <!-- LINE 2: Customer · Project -->
                         <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
                             <TextBlock Text="{Binding CustomerName}"
                                        FontSize="12" FontWeight="SemiBold"
@@ -162,7 +148,6 @@
                                        MaxWidth="280"/>
                         </StackPanel>
 
-                        <!-- LINE 3: Latest split meta -->
                         <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                             <TextBlock Text="📅 Latest: " FontSize="10"
                                        VerticalAlignment="Center"
@@ -195,10 +180,7 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <!-- ══════════════════════════════════════════════════
-                         MIDDLE: progress bar + qty summary + SQM summary
-                         Ship 8c-2 — added SQM line below qty line.
-                    ══════════════════════════════════════════════════ -->
+                    <!-- ── MIDDLE: progress bar + qty + SQM ── -->
                     <StackPanel Grid.Column="1"
                                 VerticalAlignment="Center"
                                 Margin="16,0,16,0">
@@ -236,7 +218,6 @@
                             </Border>
                         </Border>
 
-                        <!-- QTY summary line -->
                         <TextBlock HorizontalAlignment="Right"
                                    FontSize="10"
                                    Margin="0,5,0,0"
@@ -244,7 +225,8 @@
                             <Run Text="QTY: "
                                  FontWeight="Bold"
                                  Foreground="{DynamicResource MutedForegroundBrush}"/>
-                            <Run Text="{Binding TotalOrdered, Mode=OneWay}" FontWeight="SemiBold"/>
+                            <Run Text="{Binding TotalOrdered, Mode=OneWay}"
+                                 FontWeight="SemiBold"/>
                             <Run Text=" ord · "/>
                             <Run Text="{Binding TotalDelivered, Mode=OneWay}"
                                  FontWeight="SemiBold" Foreground="#047857"/>
@@ -254,7 +236,6 @@
                             <Run Text=" bal"/>
                         </TextBlock>
 
-                        <!-- SQM summary line (Ship 8c-2) -->
                         <TextBlock HorizontalAlignment="Right"
                                    FontSize="10"
                                    Margin="0,3,0,0"
@@ -283,7 +264,6 @@
                                 VerticalAlignment="Center"
                                 Width="150">
 
-                        <!-- 📂 Open latest -->
                         <Button Command="{Binding DataContext.OpenGroupCommand,
                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"
@@ -313,7 +293,6 @@
                             </Button.Template>
                         </Button>
 
-                        <!-- 🧾 Master Invoice — only enabled when all splits fulfilled -->
                         <Button Command="{Binding DataContext.GenerateMasterInvoiceCommand,
                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"
@@ -356,11 +335,7 @@
             </Border>
         </DataTemplate>
 
-        <!-- ══════════════════════════════════════════════════════════════
-             LEGACY DN ROW TEMPLATE — kept for backward compat / rollback
-             No longer used by the 5 main tabs (moved to JoGroupRowTemplate).
-             Safe to delete after Ship 8b is verified working.
-        ══════════════════════════════════════════════════════════════ -->
+        <!-- ══ LEGACY DN ROW TEMPLATE — kept for backward compat ══ -->
         <DataTemplate x:Key="DnRowTemplate">
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderThickness="3,1,1,1"
@@ -382,7 +357,6 @@
             </Border>
         </DataTemplate>
 
-        <!-- ── Pending row style (Tab 3 only) — unchanged -->
         <Style x:Key="PendingRowCardStyle" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource TintAmberBrush}"/>
@@ -393,7 +367,6 @@
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
-        <!-- ── ListBoxItem style — unchanged -->
         <Style x:Key="DnListBoxItemStyle" TargetType="ListBoxItem">
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Margin" Value="0"/>
@@ -411,7 +384,6 @@
             </Setter>
         </Style>
 
-        <!-- ── Slim horizontal tab buttons (Ship 7) — unchanged -->
         <Style x:Key="TabCardInactiveStyle" TargetType="Button">
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
@@ -559,9 +531,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ═══════════════════════════════════════════════════════════
-             STICKY HEADER
-        ═══════════════════════════════════════════════════════════ -->
+        <!-- ═══ STICKY HEADER ═══ -->
         <StackPanel Grid.Row="0" Margin="24,16,24,0">
 
             <Grid Margin="4,0,4,14">
@@ -607,7 +577,7 @@
                            FontSize="12" TextWrapping="Wrap"/>
             </Border>
 
-            <!-- KPI HERO CARDS — unchanged from Ship 7 -->
+            <!-- KPI HERO CARDS -->
             <Grid Margin="0,0,0,10">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -636,8 +606,7 @@
                 <Border Grid.Column="2"
                         Background="{DynamicResource TintAmberBrush}"
                         CornerRadius="12" Padding="14" Margin="4"
-                        MinHeight="92"
-                        SnapsToDevicePixels="True">
+                        MinHeight="92" SnapsToDevicePixels="True">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -645,14 +614,12 @@
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0"
                                 Width="36" Height="36" CornerRadius="9"
-                                Background="#B45309"
-                                VerticalAlignment="Center">
+                                Background="#B45309" VerticalAlignment="Center">
                             <TextBlock Text="🔧" FontSize="17"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
                         </Border>
-                        <StackPanel Grid.Column="1"
-                                    Margin="10,0,0,0"
+                        <StackPanel Grid.Column="1" Margin="10,0,0,0"
                                     VerticalAlignment="Center">
                             <TextBlock Text="{Binding HeroCard3Value}"
                                        FontSize="20" FontWeight="Bold"
@@ -670,8 +637,7 @@
                 <Border Grid.Column="3"
                         Background="{DynamicResource TintRedBrush}"
                         CornerRadius="12" Padding="14" Margin="4"
-                        MinHeight="92"
-                        SnapsToDevicePixels="True">
+                        MinHeight="92" SnapsToDevicePixels="True">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -679,14 +645,12 @@
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0"
                                 Width="36" Height="36" CornerRadius="9"
-                                Background="#B91C1C"
-                                VerticalAlignment="Center">
+                                Background="#B91C1C" VerticalAlignment="Center">
                             <TextBlock Text="↩️" FontSize="17"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
                         </Border>
-                        <StackPanel Grid.Column="1"
-                                    Margin="10,0,0,0"
+                        <StackPanel Grid.Column="1" Margin="10,0,0,0"
                                     VerticalAlignment="Center">
                             <TextBlock Text="{Binding HeroCard4Value}"
                                        FontSize="20" FontWeight="Bold"
@@ -704,8 +668,7 @@
                 <Border Grid.Column="4"
                         Background="{DynamicResource TintGreenBrush}"
                         CornerRadius="12" Padding="14" Margin="4"
-                        MinHeight="92"
-                        SnapsToDevicePixels="True">
+                        MinHeight="92" SnapsToDevicePixels="True">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="Auto"/>
@@ -713,15 +676,13 @@
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0"
                                 Width="36" Height="36" CornerRadius="9"
-                                Background="#047857"
-                                VerticalAlignment="Center">
+                                Background="#047857" VerticalAlignment="Center">
                             <TextBlock Text="{Binding HeroCard5Icon}"
                                        FontSize="17"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
                         </Border>
-                        <StackPanel Grid.Column="1"
-                                    Margin="10,0,0,0"
+                        <StackPanel Grid.Column="1" Margin="10,0,0,0"
                                     VerticalAlignment="Center">
                             <TextBlock Text="{Binding HeroCard5Value}"
                                        FontSize="20" FontWeight="Bold"
@@ -750,34 +711,30 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-
                     <TextBlock Grid.Column="0"
                                Text="🔍  Selected:"
                                FontSize="11" FontWeight="Bold"
                                VerticalAlignment="Center"
                                Margin="0,0,10,0"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-
                     <TextBlock Grid.Column="1"
                                Text="{Binding SelectedDnMetaLine}"
                                FontSize="11" FontWeight="SemiBold"
                                VerticalAlignment="Center"
                                TextTrimming="CharacterEllipsis"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-
                     <Button Grid.Column="2"
                             Content="✕ Clear"
                             Command="{Binding ClearSelectionCommand}"
                             FontSize="10" FontWeight="Bold"
-                            Padding="10,4"
-                            Cursor="Hand"
+                            Padding="10,4" Cursor="Hand"
                             Background="{DynamicResource ModuleBackgroundBrush}"
                             Foreground="{DynamicResource PrimaryForegroundBrush}"
                             BorderThickness="0"/>
                 </Grid>
             </Border>
 
-            <!-- FILTER BAR — search + status filter (no type at JO level) -->
+            <!-- FILTER BAR -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="1" CornerRadius="10"
@@ -836,7 +793,10 @@
                 </Grid>
             </Border>
 
-            <!-- SLIM TAB BAR (Ship 7) — grouped counts -->
+            <!-- SLIM TAB BAR
+                 BUG-52: CommandParameter now binds to dedicated
+                 *GroupedCount properties instead of inline .Count call
+            -->
             <Grid Margin="4,0,4,12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -849,18 +809,19 @@
 
                 <Button Grid.Column="0"
                         Tag="📦" Content="ALL"
-                        CommandParameter="{Binding AllItemsGrouped.Count}"
+                        CommandParameter="{Binding AllGroupedCount}"
                         Margin="0,0,3,0"
                         Click="OnTabCardClick"
                         x:Name="TabAll">
                     <Button.Style>
-                        <Style TargetType="Button" BasedOn="{StaticResource TabCardActiveStyle}"/>
+                        <Style TargetType="Button"
+                               BasedOn="{StaticResource TabCardActiveStyle}"/>
                     </Button.Style>
                 </Button>
 
                 <Button Grid.Column="1"
                         Tag="📝" Content="PREPARED"
-                        CommandParameter="{Binding PreparedItemsGrouped.Count}"
+                        CommandParameter="{Binding PreparedGroupedCount}"
                         Margin="3,0,3,0"
                         Click="OnTabCardClick"
                         x:Name="TabPrepared"
@@ -868,7 +829,7 @@
 
                 <Button Grid.Column="2"
                         Tag="✅" Content="DELIVERED"
-                        CommandParameter="{Binding DeliveredItemsGrouped.Count}"
+                        CommandParameter="{Binding DeliveredGroupedCount}"
                         Margin="3,0,3,0"
                         Click="OnTabCardClick"
                         x:Name="TabDelivered"
@@ -884,7 +845,7 @@
 
                 <Button Grid.Column="4"
                         Tag="🔧" Content="REWORK"
-                        CommandParameter="{Binding ReworkItemsGrouped.Count}"
+                        CommandParameter="{Binding ReworkGroupedCount}"
                         Margin="3,0,3,0"
                         Click="OnTabCardClick"
                         x:Name="TabRework"
@@ -892,7 +853,7 @@
 
                 <Button Grid.Column="5"
                         Tag="↩️" Content="RETURNED"
-                        CommandParameter="{Binding ReturnedItemsGrouped.Count}"
+                        CommandParameter="{Binding ReturnedGroupedCount}"
                         Margin="3,0,0,0"
                         Click="OnTabCardClick"
                         x:Name="TabReturned"
@@ -900,12 +861,10 @@
             </Grid>
         </StackPanel>
 
-        <!-- ═══════════════════════════════════════════════════════════
-             VIRTUALIZED TAB CONTENT
-        ═══════════════════════════════════════════════════════════ -->
+        <!-- ═══ VIRTUALIZED TAB CONTENT ═══ -->
         <Grid Grid.Row="1" Margin="30,0,30,16">
 
-            <!-- ── TAB 0: ALL (per-JO) ─────────────────────────────── -->
+            <!-- TAB 0: ALL -->
             <Grid>
                 <Grid.Style>
                     <Style TargetType="Grid">
@@ -917,7 +876,6 @@
                         </Style.Triggers>
                     </Style>
                 </Grid.Style>
-
                 <ListBox ItemsSource="{Binding AllItemsGrouped}"
                          ItemTemplate="{StaticResource JoGroupRowTemplate}"
                          ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
@@ -940,7 +898,6 @@
                         </ItemsPanelTemplate>
                     </ListBox.ItemsPanel>
                 </ListBox>
-
                 <StackPanel HorizontalAlignment="Center"
                             VerticalAlignment="Center"
                             IsHitTestVisible="False">
@@ -971,7 +928,7 @@
                 </StackPanel>
             </Grid>
 
-            <!-- ── TAB 1: PREPARED (per-JO) ─────────────────────────── -->
+            <!-- TAB 1: PREPARED -->
             <Grid>
                 <Grid.Style>
                     <Style TargetType="Grid">
@@ -983,7 +940,6 @@
                         </Style.Triggers>
                     </Style>
                 </Grid.Style>
-
                 <ListBox ItemsSource="{Binding PreparedItemsGrouped}"
                          ItemTemplate="{StaticResource JoGroupRowTemplate}"
                          ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
@@ -1006,7 +962,6 @@
                         </ItemsPanelTemplate>
                     </ListBox.ItemsPanel>
                 </ListBox>
-
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
                             IsHitTestVisible="False">
                     <StackPanel.Style>
@@ -1028,7 +983,7 @@
                 </StackPanel>
             </Grid>
 
-            <!-- ── TAB 2: DELIVERED (per-JO) ────────────────────────── -->
+            <!-- TAB 2: DELIVERED -->
             <Grid>
                 <Grid.Style>
                     <Style TargetType="Grid">
@@ -1040,7 +995,6 @@
                         </Style.Triggers>
                     </Style>
                 </Grid.Style>
-
                 <ListBox ItemsSource="{Binding DeliveredItemsGrouped}"
                          ItemTemplate="{StaticResource JoGroupRowTemplate}"
                          ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
@@ -1063,7 +1017,6 @@
                         </ItemsPanelTemplate>
                     </ListBox.ItemsPanel>
                 </ListBox>
-
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
                             IsHitTestVisible="False">
                     <StackPanel.Style>
@@ -1085,7 +1038,7 @@
                 </StackPanel>
             </Grid>
 
-            <!-- ── TAB 3: PENDING QTY (unchanged, per-JO by design) -->
+            <!-- TAB 3: PENDING QTY -->
             <Grid>
                 <Grid.Style>
                     <Style TargetType="Grid">
@@ -1097,7 +1050,6 @@
                         </Style.Triggers>
                     </Style>
                 </Grid.Style>
-
                 <ListBox ItemsSource="{Binding PendingItems}"
                          ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
                          BorderThickness="0" Background="Transparent"
@@ -1126,7 +1078,6 @@
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="200"/>
                                     </Grid.ColumnDefinitions>
-
                                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding JobOrderId}"
                                                    FontSize="14" FontWeight="Bold"
@@ -1147,7 +1098,6 @@
                                             <Run Text=" pcs"/>
                                         </TextBlock>
                                     </StackPanel>
-
                                     <StackPanel Grid.Column="1"
                                                 VerticalAlignment="Center"
                                                 Margin="16,0,0,0">
@@ -1181,7 +1131,6 @@
                         </DataTemplate>
                     </ListBox.ItemTemplate>
                 </ListBox>
-
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
                             IsHitTestVisible="False">
                     <StackPanel.Style>
@@ -1203,7 +1152,7 @@
                 </StackPanel>
             </Grid>
 
-            <!-- ── TAB 4: REWORK (per-JO) ──────────────────────────── -->
+            <!-- TAB 4: REWORK -->
             <Grid>
                 <Grid.Style>
                     <Style TargetType="Grid">
@@ -1215,7 +1164,6 @@
                         </Style.Triggers>
                     </Style>
                 </Grid.Style>
-
                 <ListBox ItemsSource="{Binding ReworkItemsGrouped}"
                          ItemTemplate="{StaticResource JoGroupRowTemplate}"
                          ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
@@ -1238,7 +1186,6 @@
                         </ItemsPanelTemplate>
                     </ListBox.ItemsPanel>
                 </ListBox>
-
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
                             IsHitTestVisible="False">
                     <StackPanel.Style>
@@ -1260,7 +1207,7 @@
                 </StackPanel>
             </Grid>
 
-            <!-- ── TAB 5: RETURNED (per-JO) ────────────────────────── -->
+            <!-- TAB 5: RETURNED -->
             <Grid>
                 <Grid.Style>
                     <Style TargetType="Grid">
@@ -1272,7 +1219,6 @@
                         </Style.Triggers>
                     </Style>
                 </Grid.Style>
-
                 <ListBox ItemsSource="{Binding ReturnedItemsGrouped}"
                          ItemTemplate="{StaticResource JoGroupRowTemplate}"
                          ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
@@ -1295,7 +1241,6 @@
                         </ItemsPanelTemplate>
                     </ListBox.ItemsPanel>
                 </ListBox>
-
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
                             IsHitTestVisible="False">
                     <StackPanel.Style>

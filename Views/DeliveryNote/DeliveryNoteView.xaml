@@ -29,6 +29,11 @@
         <!-- ══ LIST VIEW ════════════════════════════════════════════════
              Shown when IsListView = True.
              DataContext explicitly set to ListVM (always non-null).
+
+             NOTE: DataContext of this DeliveryNoteListView is ListVM,
+             so we must walk up to the parent UserControl to get
+             IsListView from DeliveryNoteViewModel. This is correct
+             and intentional — do not simplify this binding.
         ═══════════════════════════════════════════════════════════════ -->
         <list:DeliveryNoteListView DataContext="{Binding ListVM}">
             <list:DeliveryNoteListView.Style>
@@ -53,7 +58,6 @@
              - Content="{Binding DetailVM}" watches DetailVM on the shell VM
              - When DetailVM is null  → ContentControl renders nothing
              - When DetailVM is set   → WPF finds the DataTemplate above
-                                        (DataType=DeliveryNoteDetailViewModel)
                                         and instantiates DeliveryNoteDetailView
                                         with DataContext = DetailVM automatically
              - No direct instantiation → no frozen-null-DataContext problem

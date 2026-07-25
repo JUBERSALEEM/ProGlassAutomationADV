@@ -7,6 +7,11 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
     /// Pure POCO snapshot of the entire delivery note state for JSON serialization.
     /// Never contains WPF types. Populated by DeliveryNoteMapper.ToSnapshot(),
     /// consumed by DeliveryNoteMapper.DeserializeSnapshot().
+    ///
+    /// BUG-08: DnHeaderSnapshot.DeliveryDate default changed to default(DateTime).
+    /// BUG-09: DnAttachmentSnapshot.UploadedAt default changed to default(DateTime).
+    /// Both were DateTime.Now which caused freshly constructed snapshots to
+    /// silently show today's date instead of an unset/empty state.
     /// </summary>
     public class DeliveryNoteSnapshot
     {
@@ -39,7 +44,13 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
         public string DriverName { get; set; } = "";
         public string VehicleNumber { get; set; } = "";
         public string ReceiverName { get; set; } = "";
-        public DateTime DeliveryDate { get; set; } = DateTime.Now;
+
+        /// <summary>
+        /// BUG-08: Changed default from DateTime.Now to default(DateTime).
+        /// Mapper sets this explicitly — no silent today's-date fallback.
+        /// </summary>
+        public DateTime DeliveryDate { get; set; } = default;
+
         public string DeliveryTime { get; set; } = "";
         public string Notes { get; set; } = "";
     }
@@ -100,6 +111,11 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
         public string FilePath { get; set; } = "";
         public long FileSize { get; set; }
         public string Description { get; set; } = "";
-        public DateTime UploadedAt { get; set; } = DateTime.Now;
+
+        /// <summary>
+        /// BUG-09: Changed default from DateTime.Now to default(DateTime).
+        /// Set explicitly by AttachmentService — no silent today's-date fallback.
+        /// </summary>
+        public DateTime UploadedAt { get; set; } = default;
     }
 }

@@ -20,9 +20,10 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
     /// - Totals strip (Ordered · Prev Delivered · This DN · Balance · Sequence)
     /// - Signature block (Dispatched By · Received By · Date)
     ///
-    /// Phase 10.8a: Added Prev Delivered to totals strip so printed
-    /// document is self-verifiable: Ordered − Prev − This DN = Balance.
+    /// BUG-60: DocumentTitle now uses DeliveryNoteExportConstants.DocumentTitle
+    ///         for consistency across PDF / Excel / CSV layouts.
     ///
+    /// Phase 10.8a: Added Prev Delivered to totals strip.
     /// No pricing — delivery document only.
     /// </summary>
     public class DeliveryNotePdfLayout : IPdfLayout
@@ -43,12 +44,16 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
         // ── IDocumentLayout ──────────────────────────────────────────────
         public string DocumentPrefix => "DN";
         public string DocumentId => _entity.DeliveryNoteId;
-        public string DocumentTitle => "Delivery Note";
+
+        // BUG-60: shared constant — single source of truth
+        public string DocumentTitle => DeliveryNoteExportConstants.DocumentTitle;
+
         public string CompanyName => _joRef.CustomerName;
         public string Reference => _joRef.ProjectName;
-        public DateTime DocumentDate => _entity.DeliveryDate != default
-                                            ? _entity.DeliveryDate
-                                            : _entity.CreatedAt;
+        public DateTime DocumentDate =>
+            _entity.DeliveryDate != default
+                ? _entity.DeliveryDate
+                : _entity.CreatedAt;
 
         // ── IPdfLayout ───────────────────────────────────────────────────
         public PageLayout PageLayout => PageLayout.A4Portrait;
@@ -74,7 +79,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             content.Item().Element(c =>
                 SectionHeaderRenderer.Render(c, "GLASS ITEMS"));
 
-            var groups = _entity.Items
+            var groups = (_entity.Items ?? new())
                 .GroupBy(i => new { i.SpecGroupNumber, i.SpecGroupName })
                 .OrderBy(g => g.Key.SpecGroupNumber)
                 .ToList();
@@ -269,7 +274,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
         {
             container.PaddingBottom(6).Column(col =>
             {
-                // Group header bar
                 col.Item()
                     .Background(DocumentStyle.ColorAccentLight)
                     .PaddingHorizontal(6).PaddingVertical(3)
@@ -278,7 +282,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                     .Bold()
                     .FontColor(DocumentStyle.ColorAccent);
 
-                // Table
                 col.Item().Table(t =>
                 {
                     t.ColumnsDefinition(cols =>
@@ -291,7 +294,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                         cols.ConstantColumn(52);   // Balance
                     });
 
-                    // Header
                     t.Header(h =>
                     {
                         HeaderCell(h.Cell(), "#");
@@ -302,7 +304,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                         HeaderCell(h.Cell(), "BALANCE");
                     });
 
-                    // Data rows
                     bool alt = false;
                     foreach (var item in items.OrderBy(i => i.SerialNumber))
                     {
@@ -311,9 +312,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                             : DocumentStyle.ColorWhite;
 
                         DataCell(t.Cell(), item.SerialNumber.ToString(), bg);
-                        DataCell(t.Cell(), item.GlassRef ?? "—", bg, align: false);
+                        DataCell(t.Cell(), item.GlassRef ?? "—", bg,
+                            align: false);
                         DataCell(t.Cell(), item.OrderedQty.ToString(), bg);
-                        DataCell(t.Cell(), item.PreviouslyDeliveredQty.ToString(), bg);
+                        DataCell(t.Cell(),
+                            item.PreviouslyDeliveredQty.ToString(), bg);
                         DataCell(t.Cell(), item.DeliveredQty.ToString(), bg,
                             highlight: item.DeliveredQty > 0);
                         DataCell(t.Cell(), item.BalanceQty.ToString(), bg,
@@ -324,7 +327,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                     }
                 });
 
-                // Group subtotal
                 int groupDelivered = items.Sum(i => i.DeliveredQty);
                 int groupBalance = items.Sum(i => i.BalanceQty);
                 col.Item().AlignRight().PaddingTop(2)
@@ -335,11 +337,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
             });
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        //  TOTALS STRIP — Phase 10.8a: added Prev Delivered column
-        //  Full formula visible: Ordered − Prev − This DN = Balance
-        // ═════════════════════════════════════════════════════════════════
-
         private void RenderTotalsStrip(IContainer container)
         {
             container
@@ -347,7 +344,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                 .Padding(8)
                 .Row(row =>
                 {
-                    // 1 — Total Ordered
                     row.RelativeItem().Column(col =>
                     {
                         col.Item().Text("TOTAL ORDERED")
@@ -358,7 +354,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                             .FontColor(DocumentStyle.ColorText);
                     });
 
-                    // 2 — Previously Delivered (NEW — Phase 10.8a)
                     row.RelativeItem().Column(col =>
                     {
                         col.Item().Text("PREV DELIVERED")
@@ -370,7 +365,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                             .FontColor(DocumentStyle.ColorMuted);
                     });
 
-                    // 3 — This DN Delivered
                     row.RelativeItem().Column(col =>
                     {
                         col.Item().Text("THIS DN")
@@ -381,7 +375,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                             .FontColor(DocumentStyle.ColorAccent);
                     });
 
-                    // 4 — Balance Remaining
                     row.RelativeItem().Column(col =>
                     {
                         col.Item().Text("BALANCE")
@@ -394,7 +387,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                                 : DocumentStyle.ColorSuccess);
                     });
 
-                    // 5 — DN Sequence
                     row.RelativeItem().Column(col =>
                     {
                         col.Item().Text("DN SEQUENCE")

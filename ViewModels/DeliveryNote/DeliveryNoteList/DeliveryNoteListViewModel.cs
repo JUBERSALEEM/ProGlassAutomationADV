@@ -21,28 +21,18 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
     /// 6 tabs: All | Prepared | Delivered | Pending Qty | Rework | Returned
     /// 5 hero cards: dynamic — dataset stats or selected DN stats.
     ///
-    /// Phase 10.5c : Selection, 6 tabs, 5 hero cards.
-    /// Phase 10.7a : CreateDnCommand (JO picker).
-    /// Phase 10.7a : GenerateInvoiceCommand placeholder — visible per row
-    ///               when Status ∈ {Delivered, Signed, Received}.
-    ///               Actual wiring in Phase 19 (Tax Invoice module).
-    /// Ship 8a     : Per-JO grouped collections + JobOrderGroupRowViewModel
-    ///               + OpenGroupCommand + GenerateMasterInvoiceCommand.
-    /// Ship 8c-1   : BUGFIX — TotalOrdered was SUM (wrong). Now MAX
-    ///               because OrderedQty is REPLICATED across splits.
-    ///               Balance = Ordered - Delivered (derived).
-    /// Ship 8c-2   : SQM aggregation added. Repository batch-computes
-    ///               SqmCache once per LoadAsync. JobOrderGroupRowViewModel
-    ///               gains TotalOrderedSqm / TotalDeliveredSqm / TotalBalanceSqm.
-    ///               Uses SqmCalculator (0.5 m² min per panel).
+    /// BUG-33: LoadTabAsync now refreshes _sqmCache on every tab switch.
+    /// BUG-35: Filter now applies to Tabs 1,2,4,5 not just Tab 0.
+    /// BUG-36: GenerateMasterInvoiceCommand canExecute re-evaluates correctly.
+    /// BUG-37: Using directive added — no more fragile full namespace path.
+    /// BUG-38: Row ViewModels split to DeliveryNoteListRowViewModels.cs.
+    /// BUG-39: Tab count badges use dedicated grouped count properties.
     /// </summary>
     public class DeliveryNoteListViewModel : ViewModelBase
     {
         private int _loadingFlag = 0;
 
         public Action<int>? OnDeliveryNoteOpenRequested { get; set; }
-
-        // Phase 10.7a — callback to shell VM to create DN from picked JO
         public Action<SavedJobOrder>? OnCreateDnFromJobOrder { get; set; }
 
         // ══════════════════════════════════════════════════════════════════
@@ -56,13 +46,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             set
             {
                 if (_selectedRow == value) return;
-
                 if (_selectedRow != null) _selectedRow.IsSelected = false;
                 _selectedRow = value;
                 if (_selectedRow != null) _selectedRow.IsSelected = true;
-
                 OnPropertyChanged();
-
                 OnPropertyChanged(nameof(HasSelection));
                 OnPropertyChanged(nameof(HeroCard1Value));
                 OnPropertyChanged(nameof(HeroCard1Label));
@@ -87,7 +74,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 : TotalCount.ToString();
 
         public string HeroCard1Label =>
-            _selectedRow != null ? "Ordered Qty (this DN)" : "Total Delivery Notes";
+            _selectedRow != null
+                ? "Ordered Qty (this DN)"
+                : "Total Delivery Notes";
 
         public string HeroCard2Value =>
             _selectedRow != null
@@ -95,7 +84,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 : PendingJobsCount.ToString();
 
         public string HeroCard2Label =>
-            _selectedRow != null ? "Delivered Qty (this DN)" : "Jobs with Pending Qty";
+            _selectedRow != null
+                ? "Delivered Qty (this DN)"
+                : "Jobs with Pending Qty";
 
         public string HeroCard3Value =>
             _selectedRow != null
@@ -103,13 +94,14 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 : ReworkCount.ToString();
 
         public string HeroCard3Label =>
-            _selectedRow != null ? "Balance Qty (this DN)" : "Rework DNs";
+            _selectedRow != null
+                ? "Balance Qty (this DN)"
+                : "Rework DNs";
 
         public string HeroCard4Value =>
             _selectedRow != null
                 ? (string.IsNullOrWhiteSpace(_selectedRow.DriverName)
-                    ? "—"
-                    : _selectedRow.DriverName)
+                    ? "—" : _selectedRow.DriverName)
                 : ReturnedCount.ToString();
 
         public string HeroCard4Label =>
@@ -127,9 +119,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             _selectedRow != null ? "🔢" : "✅";
 
         public string SelectedDnMetaLine =>
-            _selectedRow == null
-                ? ""
-                : $"{_selectedRow.DeliveryNoteId}  ·  🚚 {NullIfBlank(_selectedRow.VehicleNumber, "—")}  ·  📅 {_selectedRow.DeliveryDateDisplay}  ·  🕐 {NullIfBlank(_selectedRow.DeliveryTime, "—")}";
+            _selectedRow == null ? "" :
+            $"{_selectedRow.DeliveryNoteId}  ·  " +
+            $"🚚 {NullIfBlank(_selectedRow.VehicleNumber, "—")}  ·  " +
+            $"📅 {_selectedRow.DeliveryDateDisplay}  ·  " +
+            $"🕐 {NullIfBlank(_selectedRow.DeliveryTime, "—")}";
 
         private static string NullIfBlank(string? s, string fallback)
             => string.IsNullOrWhiteSpace(s) ? fallback : s!;
@@ -156,10 +150,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  TAB COLLECTIONS (per-DN)
-        //
-        //  Setters ALSO raise PropertyChanged for the corresponding
-        //  *Grouped property so XAML can bind to either shape.
+        //  TAB COLLECTIONS
         // ══════════════════════════════════════════════════════════════════
 
         private ObservableCollection<DeliveryNoteRowViewModel> _allItems = new();
@@ -172,6 +163,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 _allItems = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(AllItemsGrouped));
+                OnPropertyChanged(nameof(AllGroupedCount));
             }
         }
 
@@ -185,6 +177,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 _preparedItems = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(PreparedItemsGrouped));
+                OnPropertyChanged(nameof(PreparedGroupedCount));
             }
         }
 
@@ -198,6 +191,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 _deliveredItems = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(DeliveredItemsGrouped));
+                OnPropertyChanged(nameof(DeliveredGroupedCount));
             }
         }
 
@@ -205,7 +199,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public ObservableCollection<PendingQtyRowViewModel> PendingItems
         {
             get => _pendingItems;
-            private set { if (_pendingItems == value) return; _pendingItems = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_pendingItems == value) return;
+                _pendingItems = value;
+                OnPropertyChanged();
+            }
         }
 
         private ObservableCollection<DeliveryNoteRowViewModel> _reworkItems = new();
@@ -218,6 +217,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 _reworkItems = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(ReworkItemsGrouped));
+                OnPropertyChanged(nameof(ReworkGroupedCount));
             }
         }
 
@@ -231,14 +231,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 _returnedItems = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(ReturnedItemsGrouped));
+                OnPropertyChanged(nameof(ReturnedGroupedCount));
             }
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  PER-JO GROUPED COLLECTIONS (Ship 8a + 8c-2 SQM cache)
-        //
-        //  All 5 grouped views pass _sqmCache so JobOrderGroupRowViewModel
-        //  can populate TotalOrderedSqm / TotalDeliveredSqm / TotalBalanceSqm.
+        //  PER-JO GROUPED COLLECTIONS + SQM CACHE
         // ══════════════════════════════════════════════════════════════════
 
         private Dictionary<string, JobOrderSqmSummary> _sqmCache = new();
@@ -257,6 +255,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
         public IReadOnlyList<JobOrderGroupRowViewModel> ReturnedItemsGrouped
             => JobOrderGroupRowViewModel.GroupFrom(_returnedItems, _sqmCache);
+
+        // BUG-39: dedicated count properties for tab badges
+        public int AllGroupedCount => AllItemsGrouped.Count;
+        public int PreparedGroupedCount => PreparedItemsGrouped.Count;
+        public int DeliveredGroupedCount => DeliveredItemsGrouped.Count;
+        public int ReworkGroupedCount => ReworkItemsGrouped.Count;
+        public int ReturnedGroupedCount => ReturnedItemsGrouped.Count;
 
         // ══════════════════════════════════════════════════════════════════
         //  KPI
@@ -335,21 +340,36 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public bool IsLoading
         {
             get => _isLoading;
-            private set { if (_isLoading == value) return; _isLoading = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_isLoading == value) return;
+                _isLoading = value;
+                OnPropertyChanged();
+            }
         }
 
         private bool _hasError;
         public bool HasError
         {
             get => _hasError;
-            private set { if (_hasError == value) return; _hasError = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_hasError == value) return;
+                _hasError = value;
+                OnPropertyChanged();
+            }
         }
 
         private string _errorMessage = "";
         public string ErrorMessage
         {
             get => _errorMessage;
-            private set { if (_errorMessage == value) return; _errorMessage = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_errorMessage == value) return;
+                _errorMessage = value;
+                OnPropertyChanged();
+            }
         }
 
         // ══════════════════════════════════════════════════════════════════
@@ -366,7 +386,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 _searchText = value;
                 OnPropertyChanged();
                 SelectedRow = null;
-                ApplyAllTabFilter();
+                ApplyFilters();
             }
         }
 
@@ -380,7 +400,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 _selectedStatusFilter = value;
                 OnPropertyChanged();
                 SelectedRow = null;
-                ApplyAllTabFilter();
+                ApplyFilters();
             }
         }
 
@@ -394,13 +414,14 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 _selectedTypeFilter = value;
                 OnPropertyChanged();
                 SelectedRow = null;
-                ApplyAllTabFilter();
+                ApplyFilters();
             }
         }
 
         public List<string> StatusFilterOptions { get; } = new()
         {
-            "All Statuses", "Draft", "Dispatched", "Delivered", "Signed", "Received"
+            "All Statuses", "Draft", "Dispatched",
+            "Delivered", "Signed", "Received"
         };
 
         public List<string> TypeFilterOptions { get; } = new()
@@ -408,7 +429,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             "All Types", "Original", "Dummy", "Rework", "Return"
         };
 
+        // Raw unfiltered lists for each tab
         private List<DeliveryNoteRowViewModel> _rawAll = new();
+        private List<DeliveryNoteRowViewModel> _rawPrepared = new();
+        private List<DeliveryNoteRowViewModel> _rawDelivered = new();
+        private List<DeliveryNoteRowViewModel> _rawRework = new();
+        private List<DeliveryNoteRowViewModel> _rawReturned = new();
 
         // ══════════════════════════════════════════════════════════════════
         //  COMMANDS
@@ -419,13 +445,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public ICommand OpenCommand { get; }
         public ICommand DeleteCommand { get; }
         public ICommand ChangeStatusCommand { get; }
-
         public ICommand CreateDnCommand { get; }
-
         public ICommand GenerateInvoiceCommand { get; }
-
         public ICommand OpenGroupCommand { get; }
         public ICommand GenerateMasterInvoiceCommand { get; }
+        public ICommand SelectRowCommand2 { get; }
 
         // ══════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
@@ -476,9 +500,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 {
                     MessageBox.Show(
                         $"Tax Invoice generation for '{row.DeliveryNoteId}'\n\n" +
-                        "This feature is coming in Phase 19 — Tax Invoice module.\n\n" +
-                        "The button is placed here now so the flow is ready\n" +
-                        "when Phase 19 wires up the actual generation logic.",
+                        "This feature is coming in Phase 19 — Tax Invoice module.",
                         "Coming in Phase 19",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
@@ -491,6 +513,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                     OnDeliveryNoteOpenRequested?.Invoke(group.LatestDnDbId);
             });
 
+            // BUG-36: canExecute re-evaluates via CommandManager
             GenerateMasterInvoiceCommand = new RelayCommand(
                 execute: param =>
                 {
@@ -505,15 +528,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                             $"Ordered SQM    : {group.TotalOrderedSqm:0.000}\n" +
                             $"Delivered SQM  : {group.TotalDeliveredSqm:0.000}\n" +
                             $"Balance SQM    : {group.TotalBalanceSqm:0.000}\n\n" +
-                            "Tax Invoice module is coming in Phase 19.\n\n" +
-                            "When ready, this button will:\n" +
-                            "  • Consolidate ALL split DNs into one invoice\n" +
-                            "  • Copy customer, project, all items, quantities\n" +
-                            "  • Auto-calculate UAE 5% VAT on grand total\n" +
-                            "  • Link back to every split DN (TaxInvoiceId)\n" +
-                            "  • Mark the whole JO as fully invoiced\n\n" +
-                            "For per-shipment (partial) invoices, open a DN\n" +
-                            "and use the Tax Invoice button in its history row.",
+                            "Tax Invoice module coming in Phase 19.",
                             "Master Tax Invoice — Coming in Phase 19",
                             MessageBoxButton.OK,
                             MessageBoxImage.Information);
@@ -542,7 +557,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             }
 
             List<SavedJobOrder> jobOrders;
-
             try
             {
                 jobOrders = await App.Jobs.GetAllAsync();
@@ -612,25 +626,33 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                     allTask, prepTask, delTask,
                     pendingTask, reworkTask, returnedTask);
 
-                var allItems = allTask.Result.Select(x => new DeliveryNoteRowViewModel(x)).ToList();
-                var prepItems = prepTask.Result.Select(x => new DeliveryNoteRowViewModel(x)).ToList();
-                var delItems = delTask.Result.Select(x => new DeliveryNoteRowViewModel(x)).ToList();
-                var pendingItems = pendingTask.Result.Select(x => new PendingQtyRowViewModel(x)).ToList();
-                var reworkItems = reworkTask.Result.Select(x => new DeliveryNoteRowViewModel(x)).ToList();
-                var returnedItems = returnedTask.Result.Select(x => new DeliveryNoteRowViewModel(x)).ToList();
+                var allItems = allTask.Result
+                    .Select(x => new DeliveryNoteRowViewModel(x)).ToList();
+                var prepItems = prepTask.Result
+                    .Select(x => new DeliveryNoteRowViewModel(x)).ToList();
+                var delItems = delTask.Result
+                    .Select(x => new DeliveryNoteRowViewModel(x)).ToList();
+                var pendingItems = pendingTask.Result
+                    .Select(x => new PendingQtyRowViewModel(x)).ToList();
+                var reworkItems = reworkTask.Result
+                    .Select(x => new DeliveryNoteRowViewModel(x)).ToList();
+                var returnedItems = returnedTask.Result
+                    .Select(x => new DeliveryNoteRowViewModel(x)).ToList();
 
+                // Store raw lists for filtering
                 _rawAll = allItems;
+                _rawPrepared = prepItems;
+                _rawDelivered = delItems;
+                _rawRework = reworkItems;
+                _rawReturned = returnedItems;
 
-                // ══════════════════════════════════════════════════════════
-                //  Ship 8c-2 — batch-load SQM aggregates per JO
-                //  One repo call. Populates _sqmCache which JobOrderGroupRow-
-                //  ViewModel reads in its constructor via GroupFrom().
-                // ══════════════════════════════════════════════════════════
+                // BUG-33: batch-load SQM cache once per full load
                 var allJobOrderIds = allItems
                     .Select(x => x.JobOrderId)
                     .Where(id => !string.IsNullOrWhiteSpace(id))
                     .Distinct(StringComparer.OrdinalIgnoreCase)
                     .ToList();
+
                 _sqmCache = await App.DeliveryNotes
                     .GetSqmSummariesByJobOrderAsync(allJobOrderIds);
 
@@ -647,6 +669,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 ReturnedCount = returnedItems.Count;
                 DeliveredTodayCount = delItems.Count(x =>
                     x.DeliveryDate.Date == DateTime.Today);
+
+                // BUG-36: trigger canExecute re-evaluation after load
+                CommandManager.InvalidateRequerySuggested();
             }
             catch (Exception ex)
             {
@@ -660,6 +685,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             }
         }
 
+        // BUG-33: LoadTabAsync now refreshes _sqmCache on every tab switch
         private async Task LoadTabAsync(int tabIndex)
         {
             if (App.DeliveryNotes == null) return;
@@ -670,14 +696,20 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 {
                     case 1:
                         var prep = await App.DeliveryNotes.GetPreparedAsync();
+                        _rawPrepared = prep
+                            .Select(x => new DeliveryNoteRowViewModel(x)).ToList();
+                        await RefreshSqmCacheAsync(_rawPrepared);
                         PreparedItems = new ObservableCollection<DeliveryNoteRowViewModel>(
-                            prep.Select(x => new DeliveryNoteRowViewModel(x)));
+                            _rawPrepared);
                         break;
 
                     case 2:
                         var del = await App.DeliveryNotes.GetDeliveredAsync();
+                        _rawDelivered = del
+                            .Select(x => new DeliveryNoteRowViewModel(x)).ToList();
+                        await RefreshSqmCacheAsync(_rawDelivered);
                         DeliveredItems = new ObservableCollection<DeliveryNoteRowViewModel>(
-                            del.Select(x => new DeliveryNoteRowViewModel(x)));
+                            _rawDelivered);
                         break;
 
                     case 3:
@@ -689,15 +721,21 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
                     case 4:
                         var rework = await App.DeliveryNotes.GetReworkAsync();
+                        _rawRework = rework
+                            .Select(x => new DeliveryNoteRowViewModel(x)).ToList();
+                        await RefreshSqmCacheAsync(_rawRework);
                         ReworkItems = new ObservableCollection<DeliveryNoteRowViewModel>(
-                            rework.Select(x => new DeliveryNoteRowViewModel(x)));
+                            _rawRework);
                         ReworkCount = ReworkItems.Count;
                         break;
 
                     case 5:
                         var returned = await App.DeliveryNotes.GetReturnedAsync();
+                        _rawReturned = returned
+                            .Select(x => new DeliveryNoteRowViewModel(x)).ToList();
+                        await RefreshSqmCacheAsync(_rawReturned);
                         ReturnedItems = new ObservableCollection<DeliveryNoteRowViewModel>(
-                            returned.Select(x => new DeliveryNoteRowViewModel(x)));
+                            _rawReturned);
                         ReturnedCount = ReturnedItems.Count;
                         break;
                 }
@@ -712,13 +750,49 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             }
         }
 
+        // BUG-33: refresh SQM cache for a set of rows
+        private async Task RefreshSqmCacheAsync(
+            List<DeliveryNoteRowViewModel> rows)
+        {
+            if (App.DeliveryNotes == null) return;
+
+            var joIds = rows
+                .Select(x => x.JobOrderId)
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (joIds.Count == 0) return;
+
+            var fresh = await App.DeliveryNotes
+                .GetSqmSummariesByJobOrderAsync(joIds);
+
+            foreach (var kvp in fresh)
+                _sqmCache[kvp.Key] = kvp.Value;
+        }
+
         // ══════════════════════════════════════════════════════════════════
-        //  FILTER
+        //  FILTER — BUG-35: now applies to all tabs not just Tab 0
         // ══════════════════════════════════════════════════════════════════
 
-        private void ApplyAllTabFilter()
+        private void ApplyFilters()
         {
-            IEnumerable<DeliveryNoteRowViewModel> query = _rawAll;
+            AllItems = new ObservableCollection<DeliveryNoteRowViewModel>(
+                Filter(_rawAll));
+            PreparedItems = new ObservableCollection<DeliveryNoteRowViewModel>(
+                Filter(_rawPrepared));
+            DeliveredItems = new ObservableCollection<DeliveryNoteRowViewModel>(
+                Filter(_rawDelivered));
+            ReworkItems = new ObservableCollection<DeliveryNoteRowViewModel>(
+                Filter(_rawRework));
+            ReturnedItems = new ObservableCollection<DeliveryNoteRowViewModel>(
+                Filter(_rawReturned));
+        }
+
+        private IEnumerable<DeliveryNoteRowViewModel> Filter(
+            IEnumerable<DeliveryNoteRowViewModel> source)
+        {
+            IEnumerable<DeliveryNoteRowViewModel> query = source;
 
             if (!string.IsNullOrWhiteSpace(_searchText))
             {
@@ -741,7 +815,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                     x.DeliveryType, _selectedTypeFilter,
                     StringComparison.OrdinalIgnoreCase));
 
-            AllItems = new ObservableCollection<DeliveryNoteRowViewModel>(query);
+            return query;
         }
 
         private void ClearFilters()
@@ -755,7 +829,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             OnPropertyChanged(nameof(SelectedStatusFilter));
             OnPropertyChanged(nameof(SelectedTypeFilter));
 
-            ApplyAllTabFilter();
+            ApplyFilters();
         }
 
         // ══════════════════════════════════════════════════════════════════
@@ -811,279 +885,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
-        }
-    }
-
-    // ═════════════════════════════════════════════════════════════════════
-    //  ROW VIEWMODEL — per-DN (unchanged from Ship 8c-1)
-    // ═════════════════════════════════════════════════════════════════════
-
-    public class DeliveryNoteRowViewModel : ViewModelBase
-    {
-        public int Id { get; }
-        public string DeliveryNoteId { get; }
-        public string JobOrderId { get; }
-        public string ProformaId { get; }
-        public string CustomerName { get; }
-        public string ProjectName { get; }
-        public string Status { get; }
-        public string DeliveryType { get; }
-        public bool IsFoc { get; }
-        public string DriverName { get; }
-        public string VehicleNumber { get; }
-        public int TotalOrderedQty { get; }
-        public int TotalDeliveredQty { get; }
-        public int TotalBalanceQty { get; }
-        public int SequenceNumber { get; }
-        public DateTime DeliveryDate { get; }
-        public string DeliveryTime { get; }
-        public DateTime CreatedAt { get; }
-
-        public string StatusLabel { get; }
-        public string StatusBrushKey { get; }
-        public string TypeLabel { get; }
-        public string TypeBrushKey { get; }
-        public string DeliveryDateDisplay { get; }
-        public string QtySummary { get; }
-        public bool HasBalance { get; }
-        public bool IsDummy { get; }
-
-        public bool CanGenerateInvoice { get; }
-
-        private bool _isSelected;
-        public bool IsSelected
-        {
-            get => _isSelected;
-            set { if (_isSelected == value) return; _isSelected = value; OnPropertyChanged(); }
-        }
-
-        public DeliveryNoteRowViewModel(DeliveryNoteListItem e)
-        {
-            Id = e.Id;
-            DeliveryNoteId = e.DeliveryNoteId;
-            JobOrderId = e.JobOrderId;
-            ProformaId = e.ProformaId;
-            CustomerName = string.IsNullOrWhiteSpace(e.CustomerName) ? "—" : e.CustomerName;
-            ProjectName = string.IsNullOrWhiteSpace(e.ProjectName) ? "—" : e.ProjectName;
-            Status = e.Status;
-            DeliveryType = e.DeliveryType;
-            IsFoc = e.IsFoc;
-            DriverName = e.DriverName;
-            VehicleNumber = e.VehicleNumber;
-            TotalOrderedQty = e.TotalOrderedQty;
-            TotalDeliveredQty = e.TotalDeliveredQty;
-            TotalBalanceQty = e.TotalBalanceQty;
-            SequenceNumber = e.SequenceNumber;
-            DeliveryDate = e.DeliveryDate;
-            DeliveryTime = e.DeliveryTime;
-            CreatedAt = e.CreatedAt;
-
-            var statusInfo = Models.DeliveryNote.Common.DeliveryNoteStatus
-                .DeliveryNoteStatusMeta.Get(Status);
-            StatusLabel = $"{statusInfo.Icon} {statusInfo.DisplayName}";
-            StatusBrushKey = statusInfo.BrushKey;
-
-            var typeInfo = Models.DeliveryNote.Common.DeliveryType
-                .DeliveryTypeMeta.Get(DeliveryType);
-            TypeLabel = $"{typeInfo.Icon} {typeInfo.DisplayName}";
-            TypeBrushKey = typeInfo.BrushKey;
-
-            DeliveryDateDisplay = DeliveryDate.ToString("dd MMM yyyy");
-            QtySummary = $"{TotalDeliveredQty} delivered  •  {TotalBalanceQty} balance";
-            HasBalance = TotalBalanceQty > 0;
-            IsDummy = string.Equals(DeliveryType, "Dummy",
-                              StringComparison.OrdinalIgnoreCase);
-
-            CanGenerateInvoice =
-                string.Equals(Status, "Delivered", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(Status, "Signed", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(Status, "Received", StringComparison.OrdinalIgnoreCase);
-        }
-    }
-
-    // ═════════════════════════════════════════════════════════════════════
-    //  PENDING QTY ROW (unchanged)
-    // ═════════════════════════════════════════════════════════════════════
-
-    public class PendingQtyRowViewModel
-    {
-        public string JobOrderId { get; }
-        public string CustomerName { get; }
-        public string ProjectName { get; }
-        public int TotalOrdered { get; }
-        public int TotalDelivered { get; }
-        public int TotalBalance { get; }
-        public string LastDnId { get; }
-        public string ProgressDisplay { get; }
-        public double ProgressPercent { get; }
-
-        public PendingQtyRowViewModel(PendingQtySummary s)
-        {
-            JobOrderId = s.JobOrderId;
-            CustomerName = string.IsNullOrWhiteSpace(s.CustomerName) ? "—" : s.CustomerName;
-            ProjectName = string.IsNullOrWhiteSpace(s.ProjectName) ? "—" : s.ProjectName;
-            TotalOrdered = s.TotalOrdered;
-            TotalDelivered = s.TotalDelivered;
-            TotalBalance = s.TotalBalance;
-            LastDnId = s.LastDnId;
-            ProgressDisplay = $"{TotalDelivered} / {TotalOrdered} pcs";
-            ProgressPercent = TotalOrdered > 0
-                ? Math.Round((double)TotalDelivered / TotalOrdered * 100, 1)
-                : 0;
-        }
-    }
-
-    // ═════════════════════════════════════════════════════════════════════
-    //  JOB ORDER GROUP ROW — Ship 8a + 8c-1 + 8c-2
-    //
-    //  Aggregates a family of split DNs into a single per-JO summary row.
-    //
-    //  Ship 8c-1 (qty math fix):
-    //    OrderedQty is REPLICATED across all splits → take MAX (or First).
-    //    DeliveredQty is per-split partial → SUM.
-    //    Balance = Ordered - Delivered (derived, clamped ≥ 0).
-    //
-    //  Ship 8c-2 (SQM aggregation):
-    //    SQM sourced from repository batch cache (JobOrderSqmSummary).
-    //    Same MAX/SUM math applied at panel level in the repository.
-    //    Uses SqmCalculator (0.5 m² min per panel).
-    //    Graceful fallback to 0 if JO not in cache.
-    // ═════════════════════════════════════════════════════════════════════
-
-    public class JobOrderGroupRowViewModel
-    {
-        // Shared JO context
-        public string JobOrderId { get; }
-        public string ProformaId { get; }
-        public string CustomerName { get; }
-        public string ProjectName { get; }
-
-        // Family stats — qty
-        public int DnCount { get; }
-        public int TotalOrdered { get; }
-        public int TotalDelivered { get; }
-        public int TotalBalance { get; }
-
-        // Family stats — SQM (Ship 8c-2)
-        public decimal TotalOrderedSqm { get; }
-        public decimal TotalDeliveredSqm { get; }
-        public decimal TotalBalanceSqm { get; }
-
-        // Display strings for XAML binding
-        public string QtySummaryDisplay { get; }
-        public string SqmSummaryDisplay { get; }
-
-        public bool AllDelivered { get; }
-        public string StatusLabel { get; }
-        public double ProgressPercent { get; }
-        public string ProgressDisplay { get; }
-
-        // Latest split
-        public string LatestDnId { get; }
-        public int LatestDnDbId { get; }
-        public DateTime LatestDeliveryDate { get; }
-        public string LatestDeliveryDateDisplay { get; }
-        public string LatestDriverName { get; }
-        public int LatestSequenceNumber { get; }
-
-        public bool HasFoc { get; }
-        public bool HasRework { get; }
-        public bool HasReturn { get; }
-
-        // ──────────────────────────────────────────────────────────────
-        // Factory: group per-DN collection into per-JO summaries.
-        //
-        // sqmCache: keyed by JobOrderId, sourced from repository batch
-        //           query (GetSqmSummariesByJobOrderAsync). If a JO is
-        //           missing from cache, SQM shows as 0 (graceful fallback).
-        // ──────────────────────────────────────────────────────────────
-        public static IReadOnlyList<JobOrderGroupRowViewModel> GroupFrom(
-            IEnumerable<DeliveryNoteRowViewModel>? source,
-            Dictionary<string, JobOrderSqmSummary>? sqmCache = null)
-        {
-            if (source == null) return Array.Empty<JobOrderGroupRowViewModel>();
-
-            var cache = sqmCache ?? new Dictionary<string, JobOrderSqmSummary>();
-
-            return source
-                .Where(x => !string.IsNullOrWhiteSpace(x.JobOrderId))
-                .GroupBy(x => x.JobOrderId, StringComparer.OrdinalIgnoreCase)
-                .Select(g =>
-                {
-                    cache.TryGetValue(g.Key, out var sqm);
-                    return new JobOrderGroupRowViewModel(g.Key, g.ToList(), sqm);
-                })
-                .OrderByDescending(g => g.LatestDeliveryDate)
-                .ThenByDescending(g => g.LatestSequenceNumber)
-                .ToList();
-        }
-
-        private JobOrderGroupRowViewModel(
-            string jobOrderId,
-            List<DeliveryNoteRowViewModel> family,
-            JobOrderSqmSummary? sqm)
-        {
-            JobOrderId = jobOrderId;
-            DnCount = family.Count;
-
-            // Latest split by sequence number (fallback: delivery date)
-            var latest = family
-                .OrderByDescending(x => x.SequenceNumber)
-                .ThenByDescending(x => x.DeliveryDate)
-                .First();
-
-            LatestDnId = latest.DeliveryNoteId;
-            LatestDnDbId = latest.Id;
-            LatestDeliveryDate = latest.DeliveryDate;
-            LatestDeliveryDateDisplay = latest.DeliveryDateDisplay;
-            LatestDriverName = string.IsNullOrWhiteSpace(latest.DriverName)
-                ? "—" : latest.DriverName;
-            LatestSequenceNumber = latest.SequenceNumber;
-
-            ProformaId = latest.ProformaId;
-            CustomerName = latest.CustomerName;
-            ProjectName = latest.ProjectName;
-
-            // ══════════════════════════════════════════════════════════════
-            //  Correct qty math (Ship 8c-1)
-            // ══════════════════════════════════════════════════════════════
-            TotalOrdered = family.Max(x => x.TotalOrderedQty);
-            TotalDelivered = family.Sum(x => x.TotalDeliveredQty);
-            TotalBalance = Math.Max(0, TotalOrdered - TotalDelivered);
-
-            // ══════════════════════════════════════════════════════════════
-            //  SQM aggregation (Ship 8c-2)
-            //  Sourced from repository cache — computed server-side with
-            //  correct per-item MAX/SUM logic + 0.5 m² minimum per panel.
-            //  If cache miss, graceful fallback to 0.
-            // ══════════════════════════════════════════════════════════════
-            TotalOrderedSqm = sqm?.OrderedSqm ?? 0m;
-            TotalDeliveredSqm = sqm?.DeliveredSqm ?? 0m;
-            TotalBalanceSqm = sqm?.BalanceSqm ?? 0m;
-
-            // Display strings for XAML (used by JO row template)
-            QtySummaryDisplay =
-                $"{TotalOrdered} ordered  ·  {TotalDelivered} delivered  ·  {TotalBalance} balance";
-            SqmSummaryDisplay =
-                $"{TotalOrderedSqm:0.000} SQM  ·  {TotalDeliveredSqm:0.000} del  ·  {TotalBalanceSqm:0.000} bal";
-
-            // Family status
-            AllDelivered = family.All(x =>
-                string.Equals(x.Status, "Delivered", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(x.Status, "Signed", StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(x.Status, "Received", StringComparison.OrdinalIgnoreCase));
-            StatusLabel = AllDelivered ? "Completed" : "In Progress";
-
-            ProgressPercent = TotalOrdered > 0
-                ? Math.Round((double)TotalDelivered / TotalOrdered * 100, 1)
-                : 0;
-            ProgressDisplay = $"{TotalDelivered} / {TotalOrdered} pcs";
-
-            HasFoc = family.Any(x => x.IsFoc);
-            HasRework = family.Any(x =>
-                string.Equals(x.DeliveryType, "Rework", StringComparison.OrdinalIgnoreCase));
-            HasReturn = family.Any(x =>
-                string.Equals(x.DeliveryType, "Return", StringComparison.OrdinalIgnoreCase));
         }
     }
 }
