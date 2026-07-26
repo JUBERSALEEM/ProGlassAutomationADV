@@ -20,6 +20,37 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
+    <!--
+    ═══════════════════════════════════════════════════════════════════
+    UX CLEANUP — Chat 14 Phase 1
+    ═══════════════════════════════════════════════════════════════════
+
+    UX-CLEANUP-01: Removed duplicate "Invoice List" pill button from
+                   the footer bar. Sidebar hero card at top-left is
+                   now the ONLY way to return to invoice list from
+                   within the wizard. Cleaner UX, no duplicate paths.
+
+    Preserved:
+      ✅ Sidebar "Invoice List" hero card (top-left, always visible)
+      ✅ Footer "Back" button (step navigation — different purpose)
+      ✅ Footer "STEP X OF 7" label
+      ✅ Footer "Continue" hero button
+      ✅ All 7 step ContentControls (ProformaInvoiceViewModel.Step1VM..Step7VM)
+      ✅ Progress bar with ColumnSpan binding
+
+    Deferred bugs reviewed:
+      • BUG-82 [MED] Magic Margin="0,60,0,0" — kept, no theme resource
+                     exists yet. Flagged for future when app-shell
+                     provides a HeaderOffset resource.
+      • BUG-83 [LOW] Grid.ColumnSpan="{Binding CurrentStepNumber}" —
+                     RECLASSIFIED as non-bug. Int32 binds to ColumnSpan
+                     directly in WPF. Works correctly.
+      • BUG-84 [LOW] All 7 step controls eager-instantiated —
+                     kept per "no refactor mid-fix" rule. Flagged for
+                     a dedicated lazy-load refactor pass later.
+    ═══════════════════════════════════════════════════════════════════
+    -->
+
     <UserControl.Resources>
 
         <!-- ══════════════════════════════════════════════════════════════
@@ -63,6 +94,7 @@
 
         <!-- ══════════════════════════════════════════════════════════════
              GHOST PILL BUTTON — outlined · indigo text
+             (kept in resources — future features may still need it)
         ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="GhostPillButton" TargetType="Button">
             <Setter Property="Height"          Value="44"/>
@@ -142,6 +174,7 @@
 
     <!-- ══════════════════════════════════════════════════════════════════
          ROOT
+         Margin="0,60,0,0" — offset for app-shell header (BUG-82 flagged)
     ══════════════════════════════════════════════════════════════════ -->
     <Grid Background="{DynamicResource WindowBackgroundBrush}"
           Margin="0,60,0,0">
@@ -244,7 +277,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- SIDEBAR -->
+            <!-- SIDEBAR — includes the ONLY "Invoice List" navigation -->
             <Border Grid.Column="0"
                     Background="{DynamicResource SideMenuBackgroundBrush}"
                     CornerRadius="20"
@@ -262,6 +295,7 @@
 
                     <StackPanel Grid.Row="0" Margin="16,20,16,0">
 
+                        <!-- Sidebar hero card — primary "go back to list" anchor -->
                         <Button Command="{Binding BackToListCommand}"
                                 HorizontalContentAlignment="Stretch"
                                 Cursor="Hand"
@@ -484,6 +518,11 @@
                                 </TextBlock>
                             </StackPanel>
 
+                            <!--
+                                BUG-83 verified: Grid.ColumnSpan="{Binding CurrentStepNumber}"
+                                works correctly. Int32 → ColumnSpan is a valid WPF binding.
+                                Progress fills 1/7 through 7/7 columns as step advances.
+                            -->
                             <Grid Margin="0,8,0,0">
                                 <Border Background="#DBEAFE"
                                         Height="4"
@@ -658,6 +697,16 @@
                         </Grid>
                     </Border>
 
+                    <!--
+                        FOOTER BAR — UX-CLEANUP-01
+                        Duplicate "Invoice List" ghost pill button REMOVED.
+                        Grid rebalanced from 4 columns to 3.
+                        Sidebar hero card is now the ONLY "return to list" path.
+
+                        Layout:
+                          [Back] .......... [STEP X OF 7] .......... [Continue]
+                          Col 0             Col 1 (stretches)         Col 2
+                    -->
                     <Border Grid.Row="1"
                             Background="{DynamicResource ModuleBackgroundBrush}"
                             CornerRadius="20"
@@ -670,32 +719,12 @@
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="Auto"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
+                            <!-- BACK — step navigation only, NOT list navigation -->
                             <Button Grid.Column="0"
-                                    Command="{Binding BackToListCommand}"
-                                    Style="{StaticResource GhostPillButton}"
-                                    Margin="0,0,10,0">
-                                <StackPanel Orientation="Horizontal"
-                                            VerticalAlignment="Center">
-                                    <TextBlock Text="&#xE76B;"
-                                               FontFamily="Segoe MDL2 Assets"
-                                               FontSize="11"
-                                               Foreground="#4338CA"
-                                               VerticalAlignment="Center"
-                                               Margin="0,0,8,0"/>
-                                    <TextBlock Text="Invoice List"
-                                               FontSize="13"
-                                               FontWeight="SemiBold"
-                                               Foreground="#4338CA"
-                                               VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
-
-                            <Button Grid.Column="1"
                                     Command="{Binding PreviousStepCommand}"
                                     Style="{StaticResource NeutralPillButton}">
                                 <StackPanel Orientation="Horizontal"
@@ -714,7 +743,8 @@
                                 </StackPanel>
                             </Button>
 
-                            <TextBlock Grid.Column="2"
+                            <!-- STEP X OF 7 -->
+                            <TextBlock Grid.Column="1"
                                        Text="{Binding StepProgressText}"
                                        FontSize="12"
                                        FontWeight="SemiBold"
@@ -722,7 +752,8 @@
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
 
-                            <Button Grid.Column="3"
+                            <!-- CONTINUE -->
+                            <Button Grid.Column="2"
                                     Command="{Binding NextStepCommand}"
                                     Style="{StaticResource HeroPillButton}">
                                 <StackPanel Orientation="Horizontal"

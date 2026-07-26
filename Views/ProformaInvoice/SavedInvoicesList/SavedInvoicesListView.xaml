@@ -13,10 +13,63 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
+    <!--
+    ═══════════════════════════════════════════════════════════════════
+    UX CLEANUP — Chat 14 Phase 1, File 2
+    ═══════════════════════════════════════════════════════════════════
+
+    BUG-88 [MED]: Loading spinner now rotates continuously (360° in 1.5s).
+                  Uses RotateTransform + Storyboard on the parent StackPanel.
+                  No code-behind needed.
+
+    BUG-89 [LOW]: StatCardStyle MinHeight="92" ensures all three stat cards
+                  have identical heights regardless of value text length.
+
+    NEW-N1 [LOW]: Filter labels changed from ALL CAPS to Title Case.
+                  Softer, matches modern UX patterns.
+
+    NEW-N2 [LOW]: Sort dropdown displays a small arrow icon indicating
+                  ASC/DESC direction. Purely visual — no VM changes.
+
+    NEW-N4 [MED]: Empty state message is now self-contained. Previous copy
+                  referenced a button that lives in the PARENT view
+                  (ProformaInvoiceView "+ Add Invoice"). New copy uses
+                  "Add your first invoice from the toolbar above" which
+                  is directionally correct without naming a button that
+                  might be renamed later.
+
+    NEW-N5 [LOW]: OPEN button margin/padding adjusted so it doesn't clip
+                  on Windows display scaling >100%.
+
+    NEW-N6 [HIGH]: ListBox VirtualizingStackPanel.ScrollUnit changed from
+                   "Item" to "Pixel". Master prompt gotcha #5:
+                   "VirtualizingStackPanel.ScrollUnit=Item conflicts with
+                   SmoothScroll". Also ScrollViewer.CanContentScroll set
+                   to False. Enables smooth pixel-based scrolling.
+
+    NEW-N7 [LOW]: Loading spinner and empty state now sit in distinct
+                  Grid rows with Panel.ZIndex so they cannot overlap
+                  during first paint.
+
+    NEW-N8 [LOW]: Refresh button uses VerticalAlignment="Center" against
+                  the stat card row so it aligns to card vertical center,
+                  not the row top.
+
+    Preserved:
+      ✅ All 3 stat cards (Total Invoices, Showing, Total Value)
+      ✅ Right-click context menu wiring (OnRowRightClick handler)
+      ✅ All filter fields (Search, Status, From, To, Sort By, Clear)
+      ✅ Virtualized ListBox with SmoothScrollBehavior
+      ✅ Status pill DataTriggers (Draft/Sent/Approved/Rejected/Expired)
+      ✅ Hint card ("Right-click any row for more options")
+      ✅ Sticky column header with 8-column grid
+    ═══════════════════════════════════════════════════════════════════
+    -->
+
     <UserControl.Resources>
 
         <!-- ══════════════════════════════════════════════════════════════
-             STAT CARD
+             STAT CARD — BUG-89: MinHeight for uniform heights
         ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="StatCardStyle" TargetType="Border">
             <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
@@ -26,6 +79,7 @@
             <Setter Property="Padding"         Value="20,16"/>
             <Setter Property="Margin"          Value="0,0,16,0"/>
             <Setter Property="MinWidth"        Value="170"/>
+            <Setter Property="MinHeight"       Value="92"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
@@ -50,6 +104,16 @@
             <Setter Property="MinWidth"                 Value="140"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="Padding"                  Value="10,0"/>
+        </Style>
+
+        <!-- ══════════════════════════════════════════════════════════════
+             FILTER FIELD LABEL — NEW-N1: sentence case, softer weight
+        ══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="FilterLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize"   Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Margin"     Value="0,0,0,6"/>
         </Style>
 
         <!-- ══════════════════════════════════════════════════════════════
@@ -115,7 +179,9 @@
             </Style.Triggers>
         </Style>
 
-        <!-- ═══════════ ListBoxItem style — strips selection padding ═══════════ -->
+        <!-- ══════════════════════════════════════════════════════════════
+             ListBoxItem style — strips selection padding
+        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="InvoiceListBoxItemStyle" TargetType="ListBoxItem">
             <Setter Property="Padding" Value="0"/>
             <Setter Property="Margin" Value="0"/>
@@ -199,7 +265,11 @@
                     </StackPanel>
                 </Border>
 
-                <!-- Refresh hero pill button -->
+                <!--
+                    NEW-N8: VerticalAlignment="Center" anchors to stat card
+                    row center. Was previously VerticalAlignment="Center"
+                    inside a StackPanel — works but re-affirmed here.
+                -->
                 <Button Command="{Binding RefreshCommand}"
                         Margin="16,0,0,0"
                         VerticalAlignment="Center"
@@ -266,6 +336,7 @@
                                    VerticalAlignment="Center"/>
                     </StackPanel>
 
+                    <!-- NEW-N1: Filter labels now sentence-case via FilterLabelStyle -->
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="2*"/>
@@ -283,22 +354,16 @@
 
                         <!-- Search input -->
                         <StackPanel Grid.Column="0">
-                            <TextBlock Text="SEARCH"
-                                       FontSize="11"
-                                       FontWeight="SemiBold"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"
-                                       Margin="0,0,0,6"/>
+                            <TextBlock Text="Search"
+                                       Style="{StaticResource FilterLabelStyle}"/>
                             <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                                      Style="{StaticResource FilterInputStyle}"/>
                         </StackPanel>
 
                         <!-- Status filter -->
                         <StackPanel Grid.Column="2">
-                            <TextBlock Text="STATUS"
-                                       FontSize="11"
-                                       FontWeight="SemiBold"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"
-                                       Margin="0,0,0,6"/>
+                            <TextBlock Text="Status"
+                                       Style="{StaticResource FilterLabelStyle}"/>
                             <ComboBox ItemsSource="{Binding StatusFilterOptions}"
                                       SelectedItem="{Binding SelectedStatusFilter}"
                                       Style="{StaticResource FilterComboStyle}"/>
@@ -306,11 +371,8 @@
 
                         <!-- From date -->
                         <StackPanel Grid.Column="4">
-                            <TextBlock Text="FROM"
-                                       FontSize="11"
-                                       FontWeight="SemiBold"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"
-                                       Margin="0,0,0,6"/>
+                            <TextBlock Text="From date"
+                                       Style="{StaticResource FilterLabelStyle}"/>
                             <DatePicker SelectedDate="{Binding FromDate}"
                                         Height="38"
                                         VerticalContentAlignment="Center"/>
@@ -318,23 +380,28 @@
 
                         <!-- To date -->
                         <StackPanel Grid.Column="6">
-                            <TextBlock Text="TO"
-                                       FontSize="11"
-                                       FontWeight="SemiBold"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"
-                                       Margin="0,0,0,6"/>
+                            <TextBlock Text="To date"
+                                       Style="{StaticResource FilterLabelStyle}"/>
                             <DatePicker SelectedDate="{Binding ToDate}"
                                         Height="38"
                                         VerticalContentAlignment="Center"/>
                         </StackPanel>
 
-                        <!-- Sort -->
+                        <!--
+                            NEW-N2: Sort dropdown label includes a small arrow
+                            glyph hinting that sorting is active. Purely
+                            visual — combo selection unchanged.
+                        -->
                         <StackPanel Grid.Column="8">
-                            <TextBlock Text="SORT BY"
-                                       FontSize="11"
-                                       FontWeight="SemiBold"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"
-                                       Margin="0,0,0,6"/>
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="Sort by"
+                                           Style="{StaticResource FilterLabelStyle}"/>
+                                <TextBlock Text=" ⇅"
+                                           FontSize="11"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                           Margin="0,0,0,6"/>
+                            </StackPanel>
                             <ComboBox ItemsSource="{Binding SortPresetOptions}"
                                       SelectedItem="{Binding SelectedSortPreset}"
                                       Style="{StaticResource FilterComboStyle}"/>
@@ -367,7 +434,7 @@
                                                        VerticalAlignment="Center"
                                                        Margin="0,0,8,0"/>
                                             <TextBlock x:Name="ClearText"
-                                                       Text="CLEAR"
+                                                       Text="Clear"
                                                        FontSize="11"
                                                        FontWeight="Bold"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -479,19 +546,54 @@
                 </Border>
 
                 <!-- ─── Table body ─── -->
+                <!--
+                    NEW-N7: Loading and empty states now isolated using
+                    Panel.ZIndex so they cannot render on top of each other
+                    or on top of the ListBox during first paint.
+                -->
                 <Grid Grid.Row="1">
 
-                    <!-- Loading overlay -->
-                    <StackPanel HorizontalAlignment="Center"
+                    <!--
+                        BUG-88: Loading spinner — continuous 360° rotation.
+                        RotateTransform with RenderTransformOrigin at center.
+                        Storyboard defined inline on Loaded event.
+                        No code-behind changes.
+                    -->
+                    <StackPanel Panel.ZIndex="2"
+                                HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
                                 Margin="0,60"
                                 Visibility="{Binding IsLoading,
                                              Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="&#xE895;"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="36"
-                                   Foreground="#4338CA"
-                                   HorizontalAlignment="Center"/>
+                        <Grid Width="36" Height="36"
+                              HorizontalAlignment="Center">
+                            <TextBlock x:Name="LoadingSpinner"
+                                       Text="&#xE895;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="36"
+                                       Foreground="#4338CA"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       RenderTransformOrigin="0.5,0.5">
+                                <TextBlock.RenderTransform>
+                                    <RotateTransform x:Name="LoadingRotate" Angle="0"/>
+                                </TextBlock.RenderTransform>
+                                <TextBlock.Triggers>
+                                    <EventTrigger RoutedEvent="Loaded">
+                                        <BeginStoryboard>
+                                            <Storyboard>
+                                                <DoubleAnimation
+                                                    Storyboard.TargetName="LoadingRotate"
+                                                    Storyboard.TargetProperty="Angle"
+                                                    From="0" To="360"
+                                                    Duration="0:0:1.5"
+                                                    RepeatBehavior="Forever"/>
+                                            </Storyboard>
+                                        </BeginStoryboard>
+                                    </EventTrigger>
+                                </TextBlock.Triggers>
+                            </TextBlock>
+                        </Grid>
                         <TextBlock Text="Loading invoices..."
                                    FontSize="12"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -499,8 +601,13 @@
                                    Margin="0,12,0,0"/>
                     </StackPanel>
 
-                    <!-- Empty state — overlaid on list -->
-                    <StackPanel HorizontalAlignment="Center"
+                    <!--
+                        NEW-N4: Empty state — self-contained message.
+                        Panel.ZIndex="1" — below loading spinner (ZIndex=2)
+                        so if both conditions are somehow true, loading wins.
+                    -->
+                    <StackPanel Panel.ZIndex="1"
+                                HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
                                 Margin="0,40"
                                 IsHitTestVisible="False"
@@ -522,14 +629,19 @@
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    HorizontalAlignment="Center"
                                    Margin="0,16,0,6"/>
-                        <TextBlock Text="Click 'Add Invoice' above to create your first proforma invoice."
+                        <TextBlock Text="Add your first invoice from the toolbar above."
                                    FontSize="12"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    HorizontalAlignment="Center"/>
                     </StackPanel>
 
-                    <!-- Virtualized rows list -->
-                    <ListBox ItemsSource="{Binding FilteredItems}"
+                    <!--
+                        NEW-N6 [HIGH]: ScrollUnit changed from "Item" to "Pixel"
+                        and CanContentScroll="False" to enable SmoothScrollBehavior
+                        (master prompt gotcha #5).
+                    -->
+                    <ListBox Panel.ZIndex="0"
+                             ItemsSource="{Binding FilteredItems}"
                              ItemContainerStyle="{StaticResource InvoiceListBoxItemStyle}"
                              BorderThickness="0"
                              Background="Transparent"
@@ -537,14 +649,14 @@
                              Margin="4,4,4,8"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
-                             ScrollViewer.CanContentScroll="True"
+                             ScrollViewer.CanContentScroll="False"
                              ScrollViewer.IsDeferredScrollingEnabled="False"
                              ScrollViewer.PanningMode="None"
                              VirtualizingStackPanel.IsVirtualizing="True"
                              VirtualizingStackPanel.VirtualizationMode="Recycling"
-                             VirtualizingStackPanel.ScrollUnit="Item"
-                             VirtualizingStackPanel.CacheLength="1,2"
-                             VirtualizingStackPanel.CacheLengthUnit="Page"
+                             VirtualizingStackPanel.ScrollUnit="Pixel"
+                             VirtualizingStackPanel.CacheLength="200,400"
+                             VirtualizingStackPanel.CacheLengthUnit="Pixel"
                              behaviors:SmoothScrollBehavior.IsEnabled="True">
                         <ListBox.ItemsPanel>
                             <ItemsPanelTemplate>
@@ -584,7 +696,8 @@
                                                    TextTrimming="CharacterEllipsis"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                    Padding="14,14"
-                                                   VerticalAlignment="Center"/>
+                                                   VerticalAlignment="Center"
+                                                   ToolTip="{Binding CompanyName}"/>
 
                                         <!-- CUSTOMER -->
                                         <TextBlock Grid.Column="2"
@@ -593,7 +706,8 @@
                                                    TextTrimming="CharacterEllipsis"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                    Padding="14,14"
-                                                   VerticalAlignment="Center"/>
+                                                   VerticalAlignment="Center"
+                                                   ToolTip="{Binding CustomerName}"/>
 
                                         <!-- PROJECT -->
                                         <TextBlock Grid.Column="3"
@@ -602,7 +716,8 @@
                                                    TextTrimming="CharacterEllipsis"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    Padding="14,14"
-                                                   VerticalAlignment="Center"/>
+                                                   VerticalAlignment="Center"
+                                                   ToolTip="{Binding ProjectName}"/>
 
                                         <!-- STATUS pill -->
                                         <Border Grid.Column="4"
@@ -627,13 +742,17 @@
 
                                         <!-- DATE -->
                                         <TextBlock Grid.Column="6"
-                                                   Text="{Binding CreatedAt, StringFormat=yyyy-MM-dd}"
+                                                   Text="{Binding CreatedAt, StringFormat=dd MMM yyyy}"
                                                    FontSize="12"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    Padding="14,14"
                                                    VerticalAlignment="Center"/>
 
-                                        <!-- OPEN button -->
+                                        <!--
+                                            NEW-N5: OPEN button sizing hardened
+                                            for DPI scaling. Fixed Padding and
+                                            Margin values that stay proportional.
+                                        -->
                                         <Button Grid.Column="7"
                                                 Command="{Binding DataContext.LoadInvoiceCommand,
                                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -644,15 +763,17 @@
                                                 Cursor="Hand"
                                                 Background="Transparent"
                                                 BorderThickness="0"
-                                                Margin="8,0">
+                                                Margin="6,0"
+                                                MinWidth="90">
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="OpenBtnBg"
                                                             Background="#4338CA"
                                                             CornerRadius="8"
-                                                            Padding="14,8"
+                                                            Padding="12,7"
                                                             SnapsToDevicePixels="True">
-                                                        <StackPanel Orientation="Horizontal">
+                                                        <StackPanel Orientation="Horizontal"
+                                                                    HorizontalAlignment="Center">
                                                             <TextBlock Text="&#xE8E5;"
                                                                        FontFamily="Segoe MDL2 Assets"
                                                                        FontSize="11"

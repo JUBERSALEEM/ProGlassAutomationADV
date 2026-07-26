@@ -546,8 +546,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                 CompanyTrn = snapshot.Company?.CompanyTrn ?? "",
                 CompanyLocation = snapshot.Company?.CompanyLocation ?? "",
                 ProformaId = snapshot.Company?.ProformaId ?? entity.ProformaId,
-                IssueDate = snapshot.Company?.IssueDate.ToString("yyyy-MM-dd") ?? "",
-                ValidUntil = snapshot.Company?.ValidUntil.ToString("yyyy-MM-dd") ?? "",
+                IssueDate = snapshot.Company?.IssueDate.ToString("dd MMM yyyy") ?? "",
+                ValidUntil = snapshot.Company?.ValidUntil.ToString("dd MMM yyyy") ?? "",
                 ProformaStatus = snapshot.Company?.ProformaStatus ?? entity.Status,
 
                 ProjectName = snapshot.Project?.ProjectIdentifierName ?? entity.ProjectName,

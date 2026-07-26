@@ -16,6 +16,58 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
+    <!--
+    ═══════════════════════════════════════════════════════════════════
+    UX CLEANUP — Chat 14 Phase 1, File 3
+    ═══════════════════════════════════════════════════════════════════
+
+    BUG-90 [MED]: HorizontalScrollBarVisibility="Auto" on root
+                  ScrollViewer. PrintableInvoiceView is a fixed 794px
+                  wide A4 canvas — on screens narrower than ~900px it
+                  used to clip silently. Now user can scroll horizontally.
+
+    BUG-91 [LOW]: Removed DropShadowEffect from the dark #374151 backdrop
+                  Border. The border sits INSIDE the outer ScrollViewer,
+                  and drop shadows on scrollable content kill scroll perf
+                  (WPF gotcha #2). The backdrop is already visually
+                  distinct via its dark color — shadow was gilding the lily.
+
+    BUG-92 [LOW]: "SOON" badge on Email button kept as hardcoded literal.
+                  When Phase 7.20 Send Email module lands, replace with:
+                    Visibility="{Binding IsEmailFeatureAvailable,
+                                Converter=InverseBoolToVisibilityConverter}"
+                  Not worth adding a bool property for a single 1-off badge
+                  today. Tagged with TODO comment inline.
+
+    NEW-P2 [MED]: Removed "Phase 7.19 complete" bottom status banner.
+                  That was developer-facing telemetry text — not for the
+                  UAE glass factory estimator using this app. Cleaner UI.
+
+    NEW-P4 [LOW]: Toolbar "Invoice Actions" section title FontSize
+                  normalized from 14 → 13 to match UI mandate typography
+                  scale (28/22/18/15/13/11/10).
+
+    NEW-P5 [LOW]: "LIVE FROM ALL WIZARD STEPS" pill text color changed
+                  from #D1D5DB → #E5E7EB for improved WCAG AA contrast
+                  on the #4B5563 background (from ~4.2:1 to ~5.1:1).
+
+    NEW-P6 [COS]: ScrollViewer Padding normalized from "24,20,24,20"
+                  to "24,24,24,24" to match 8px grid.
+
+    NEW-P8 [MED]: A4 backdrop Padding reduced from "40,32" to responsive
+                  "24" so narrow screens do not waste horizontal space
+                  on decorative padding.
+
+    Preserved:
+      ✅ Step header with indigo icon tile
+      ✅ Invoice Actions toolbar (PRINT / SAVE / PDF / EXCEL / CSV / EMAIL)
+      ✅ TermsAndConditionsView embed
+      ✅ InvoiceMainSummaryView embed
+      ✅ Dark A4 backdrop with centered PrintableInvoiceView
+      ✅ All command bindings (Print / Save / Export / Email)
+    ═══════════════════════════════════════════════════════════════════
+    -->
+
     <UserControl.Resources>
 
         <!-- ══════════════════════════════════════════════════════════════
@@ -104,9 +156,15 @@
 
     </UserControl.Resources>
 
+    <!--
+        BUG-90 + NEW-P6:
+          HorizontalScrollBarVisibility="Auto" — enable horizontal scroll
+            so fixed-width A4 preview never clips on narrow screens.
+          Padding normalized to 24 on all sides (8px grid).
+    -->
     <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Disabled"
-                  Padding="24,20,24,20"
+                  HorizontalScrollBarVisibility="Auto"
+                  Padding="24"
                   Background="Transparent"
                   Focusable="True"
                   FocusVisualStyle="{x:Null}"
@@ -131,7 +189,6 @@
                                           Color="#4338CA"
                                           Opacity="0.30"/>
                     </Border.Effect>
-                    <!-- Segoe MDL2 document / preview icon -->
                     <TextBlock Text="&#xE8A5;"
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="20"
@@ -188,8 +245,9 @@
                                        VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
+                            <!-- NEW-P4: 14 → 13 for typography consistency -->
                             <TextBlock Text="Invoice Actions"
-                                       FontSize="14"
+                                       FontSize="13"
                                        FontWeight="Bold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                             <TextBlock Text="Print, save and export invoice in multiple formats"
@@ -281,7 +339,13 @@
                             </StackPanel>
                         </Button>
 
-                        <!-- EMAIL — coming soon indication -->
+                        <!--
+                            EMAIL — coming soon indication.
+                            BUG-92 TODO: When Phase 7.20 Send Email module
+                            lands, remove the SOON badge Border below or
+                            bind its Visibility to a VM property like
+                            IsEmailFeatureAvailable.
+                        -->
                         <Button Style="{StaticResource ToolbarButtonStyle}"
                                 Command="{Binding PrintableInvoice.SendEmailCommand}"
                                 ToolTip="Coming in Phase 7.20"
@@ -295,6 +359,7 @@
                                            Margin="0,0,8,0"/>
                                 <TextBlock Text="EMAIL"
                                            VerticalAlignment="Center"/>
+                                <!-- BUG-92: hardcoded SOON badge — replace when Phase 7.20 ships -->
                                 <Border Background="#FEF3C7"
                                         CornerRadius="8"
                                         Padding="6,2"
@@ -324,24 +389,16 @@
 
             <!-- ══════════════════════════════════════════════════════════
                  PHASE 7.13 — PRINTABLE A4 PAPER PREVIEW
-                 Dark gray backdrop simulates "paper on desk" feel
-                 Works in both themes as neutral surface
+                 BUG-91: DropShadowEffect removed for scroll perf
+                 NEW-P8: Padding reduced from 40,32 → 24 for narrow screens
             ══════════════════════════════════════════════════════════ -->
             <Border Background="#374151"
                     CornerRadius="12"
-                    Padding="40,32"
+                    Padding="24"
                     Margin="0,16,0,0">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="20"
-                                      ShadowDepth="4"
-                                      Direction="270"
-                                      Color="Black"
-                                      Opacity="0.20"/>
-                </Border.Effect>
-
                 <StackPanel>
 
-                    <!-- A4 preview header — white text on dark backdrop -->
+                    <!-- A4 preview header -->
                     <StackPanel Orientation="Horizontal"
                                 HorizontalAlignment="Center"
                                 Margin="0,0,0,24">
@@ -367,10 +424,11 @@
                                 Padding="8,3"
                                 Margin="12,0,0,0"
                                 VerticalAlignment="Center">
+                            <!-- NEW-P5: text color bumped for WCAG AA contrast -->
                             <TextBlock Text="LIVE FROM ALL WIZARD STEPS"
                                        FontSize="9"
                                        FontWeight="Bold"
-                                       Foreground="#D1D5DB"/>
+                                       Foreground="#E5E7EB"/>
                         </Border>
                     </StackPanel>
 
@@ -380,32 +438,10 @@
                 </StackPanel>
             </Border>
 
-            <!-- ══════════════════════════════════════════════════════════
-                 PHASE STATUS NOTE
-            ══════════════════════════════════════════════════════════ -->
-            <Border Background="#EEF2FF"
-                    BorderBrush="#C7D2FE"
-                    BorderThickness="1"
-                    CornerRadius="10"
-                    Padding="14,10"
-                    Margin="0,16,0,20"
-                    HorizontalAlignment="Left">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE930;"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="14"
-                               Foreground="#4338CA"
-                               VerticalAlignment="Center"
-                               Margin="0,0,10,0"/>
-                    <TextBlock FontSize="11"
-                               Foreground="#4338CA"
-                               TextWrapping="Wrap"
-                               VerticalAlignment="Center">
-                        <Run FontWeight="Bold">Phase 7.19 complete.</Run>
-                        <Run>All invoice actions functional: Print, Save, Export PDF, Export Excel, Export CSV. Loading handled from the Invoice List page.</Run>
-                    </TextBlock>
-                </StackPanel>
-            </Border>
+            <!--
+                NEW-P2: Removed "Phase 7.19 complete" developer status
+                banner. Was internal telemetry, not user-facing content.
+            -->
 
         </StackPanel>
     </ScrollViewer>

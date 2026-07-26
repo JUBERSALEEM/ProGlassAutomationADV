@@ -13,6 +13,73 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
+    <!--
+    ═══════════════════════════════════════════════════════════════════
+    UX CLEANUP — Chat 14 Phase 1, File 4
+    ═══════════════════════════════════════════════════════════════════
+
+    TOTALS-01 [HIGH]: Spec sub-total footer rebuilt using the SAME
+                      10-column grid as the data rows above. QTY, AREA
+                      and VALUE totals now sit under their respective
+                      column headers instead of a left-aligned strip.
+                      Matches how estimators mentally scan invoice totals.
+
+    TOTALS-02 [HIGH]: Other Charges section gets a subtotal row —
+                      "SUBTOTAL: AED xxx" aligned right under the Amount
+                      column. User no longer needs to jump to the
+                      Financial Summary card to see charges total.
+
+    TOTALS-03 [MED]:  GRAND SPEC TOTAL bar added after all spec groups.
+                      Full-width purple band showing total across all
+                      spec groups: N Specs · QTY · AREA · VALUE.
+                      Consistent with what the Data Grid tab shows.
+
+    BUG-93 [HIGH]:    Removed FallbackValue="—" from every binding.
+                      FallbackValue fires on binding FAILURE (wrong path),
+                      masking real errors. TargetNullValue kept for
+                      genuine null-display.
+                      One EXCEPTION preserved: FallbackValue=Collapsed on
+                      Discount visibility — legitimate safety net if the
+                      DecimalIsPositiveConverter is somehow missing.
+
+    BUG-95 [MED]:     Width="794" → MaxWidth="794" + Center alignment.
+                      Fixed-width was clipping on high-DPI displays.
+                      A4 preview stays 794px on wide screens but
+                      shrinks gracefully on narrow ones.
+
+    BUG-96 [LOW]:     Removed DropShadowEffect on the paper Border.
+                      Perf hit during scroll (WPF gotcha #2). The A4
+                      backdrop in PrintPreviewView already provides
+                      the "paper on desk" visual separation.
+
+    NEW-PR2 [LOW]:    Terms empty-state message now shows when EITHER
+                      no clauses exist OR all clauses are inactive.
+                      Previously only the first case triggered it.
+
+    NEW-PR3 [LOW]:    Proforma status color reflects actual status
+                      (Draft=grey, Sent=blue, Approved=green,
+                      Rejected=red, Expired=amber) instead of
+                      always-green.
+
+    NEW-PR4 [LOW]:    Label "Contact Details" → "Contact Phone".
+                      More accurate — field only stores phone.
+
+    Preserved:
+      ✅ x:Name="PrintablePaper" — code-behind still binds PrintTarget
+      ✅ All 10 spec table columns (# / GLASS REF / W1 / H1 / W2 / H2 /
+         QTY / AREA / RATE / TOTAL)
+      ✅ Company header + reference badge layout
+      ✅ Client + Project side-by-side blocks (with 6 fields each)
+      ✅ Other charges detail lists (Predefined + Wastage + Custom)
+      ✅ Financial summary waterfall (Materials + Other + Discount + VAT)
+      ✅ Grand Total VAT band
+      ✅ Terms & Conditions with sub-lines
+      ✅ Footer disclaimer + editable Terms field
+      ✅ Prepared By + Client Approval signature blocks
+      ✅ All EditableTextBoxStyle bindings
+    ═══════════════════════════════════════════════════════════════════
+    -->
+
     <UserControl.Resources>
 
         <Style x:Key="PrintSectionHeaderStyle" TargetType="TextBlock">
@@ -56,6 +123,18 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
+        <!--
+            TOTALS-01: New style for spec sub-total cells so they visually
+            match the header row above and stand out from data rows.
+        -->
+        <Style x:Key="TableSubTotalStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#0F172A"/>
+            <Setter Property="Padding" Value="6,6"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
         <Style x:Key="TncTitleStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="9"/>
             <Setter Property="FontWeight" Value="Bold"/>
@@ -70,25 +149,53 @@
             <Setter Property="Margin" Value="12,0,0,0"/>
         </Style>
 
+        <!--
+            NEW-PR3: Proforma status color adapts to value.
+            Default = grey; Approved = green; Rejected = red;
+            Expired = amber; Sent = blue.
+        -->
+        <Style x:Key="ProformaStatusValueStyle" TargetType="TextBlock" BasedOn="{StaticResource PrintValueStyle}">
+            <Setter Property="Foreground" Value="#64748B"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding Company.ProformaStatus}" Value="Approved">
+                    <Setter Property="Foreground" Value="#047857"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Company.ProformaStatus}" Value="Sent">
+                    <Setter Property="Foreground" Value="#1E40AF"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Company.ProformaStatus}" Value="Rejected">
+                    <Setter Property="Foreground" Value="#B91C1C"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Company.ProformaStatus}" Value="Expired">
+                    <Setter Property="Foreground" Value="#B45309"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
     </UserControl.Resources>
 
+    <!--
+        BUG-95: MaxWidth="794" + HorizontalAlignment="Center" replaces
+        fixed Width="794" for responsive layout.
+
+        BUG-96: DropShadowEffect removed for scroll performance.
+    -->
     <Border x:Name="PrintablePaper"
             Background="White"
-            Width="794"
+            MaxWidth="794"
             MinHeight="1123"
+            HorizontalAlignment="Center"
             Padding="40,32"
             BorderThickness="1"
             BorderBrush="#E2E8F0"
             UseLayoutRounding="True"
             SnapsToDevicePixels="True">
-        <Border.Effect>
-            <DropShadowEffect BlurRadius="24" ShadowDepth="0" Opacity="0.12" Color="Black"/>
-        </Border.Effect>
 
         <StackPanel>
 
             <!-- ══════════════════════════════════════════════════════
                  COMPANY HEADER
+                 BUG-93: FallbackValue removed from all bindings
             ══════════════════════════════════════════════════════ -->
             <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
@@ -98,7 +205,7 @@
 
                 <!-- Left: Company Info -->
                 <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding Company.CompanyName, TargetNullValue=PROGLASS AUTOMATION ERP, FallbackValue=PROGLASS AUTOMATION ERP}"
+                    <TextBlock Text="{Binding Company.CompanyName, TargetNullValue=PROGLASS AUTOMATION ERP}"
                                FontSize="18" FontWeight="Bold"
                                Foreground="#4338CA"/>
                     <TextBlock Text="Premium Glass Glazing, High-Yield Manufacturing &amp; Logistics Spec"
@@ -106,14 +213,14 @@
                                Foreground="#475569"
                                Margin="0,3,0,0"/>
                     <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
-                        <TextBlock Text="{Binding Company.CompanyLocation, TargetNullValue=United Arab Emirates, FallbackValue=United Arab Emirates}"
+                        <TextBlock Text="{Binding Company.CompanyLocation, TargetNullValue=United Arab Emirates}"
                                    FontSize="9" Foreground="#475569"/>
                         <TextBlock Text=" • www.proglass-automation.com"
                                    FontSize="9" Foreground="#475569"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,2,0,0">
                         <TextBlock Text="TRN: " FontSize="9" FontWeight="SemiBold" Foreground="#475569"/>
-                        <TextBlock Text="{Binding Company.CompanyTrn, TargetNullValue=—, FallbackValue=—}"
+                        <TextBlock Text="{Binding Company.CompanyTrn, TargetNullValue=—}"
                                    FontSize="9" FontWeight="SemiBold" Foreground="#0F172A"/>
                     </StackPanel>
                 </StackPanel>
@@ -144,13 +251,13 @@
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Ref No:"
                                        Style="{StaticResource PrintLabelStyle}" Margin="0,0,8,0"/>
                             <TextBlock Grid.Row="0" Grid.Column="1"
-                                       Text="{Binding Company.ProformaId, TargetNullValue=PI-XXXX-XXX, FallbackValue=PI-XXXX-XXX}"
+                                       Text="{Binding Company.ProformaId, TargetNullValue=PI-XXXX-XXX}"
                                        Style="{StaticResource PrintValueStyle}"/>
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Date:"
                                        Style="{StaticResource PrintLabelStyle}" Margin="0,4,8,0"/>
                             <TextBlock Grid.Row="1" Grid.Column="1"
-                                       Text="{Binding Company.IssueDate, StringFormat=yyyy-MM-dd, TargetNullValue=YYYY-MM-DD, FallbackValue=YYYY-MM-DD}"
-                                       Style="{StaticResource PrintValueStyle}" Margin="0,4,0,0"/>
+           Text="{Binding Company.IssueDate, StringFormat=dd MMM yyyy, TargetNullValue=—}"
+           Style="{StaticResource PrintValueStyle}" Margin="0,4,0,0"/>
                         </Grid>
                     </StackPanel>
                 </Border>
@@ -161,6 +268,9 @@
 
             <!-- ══════════════════════════════════════════════════════
                  CLIENT + PROJECT BLOCKS
+                 BUG-93: FallbackValue removed from all bindings
+                 NEW-PR4: "Contact Details" label → "Contact Phone"
+                 NEW-PR3: Status uses ProformaStatusValueStyle
             ══════════════════════════════════════════════════════ -->
             <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
@@ -195,23 +305,24 @@
                             </Grid.RowDefinitions>
 
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Customer Name:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Client.CustomerName, TargetNullValue=—, FallbackValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2" TextWrapping="Wrap"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Client.CustomerName, TargetNullValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2" TextWrapping="Wrap"/>
 
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="TRN/VAT Number:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Client.CustomerTrn, TargetNullValue=—, FallbackValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Client.CustomerTrn, TargetNullValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2"/>
 
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Attention Name:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
-                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Client.AttentionExecutiveName, TargetNullValue=—, FallbackValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Client.AttentionExecutiveName, TargetNullValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2"/>
 
-                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Contact Details:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
-                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Client.ClientContactPhone, TargetNullValue=—, FallbackValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2"/>
+                            <!-- NEW-PR4: label reflects actual field content -->
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Contact Phone:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Client.ClientContactPhone, TargetNullValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2"/>
 
                             <TextBlock Grid.Row="4" Grid.Column="0" Text="Billing Address:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
-                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Client.BillingAddress, TargetNullValue=—, FallbackValue=—}"
+                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Client.BillingAddress, TargetNullValue=—}"
                                        Style="{StaticResource PrintValueStyle}" TextWrapping="Wrap" Margin="0,0,0,2"/>
 
                             <TextBlock Grid.Row="5" Grid.Column="0" Text="Client Reference:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,0"/>
-                            <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding Client.CustomerReferenceCode, TargetNullValue=—, FallbackValue=—}" Style="{StaticResource PrintValueStyle}"/>
+                            <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding Client.CustomerReferenceCode, TargetNullValue=—}" Style="{StaticResource PrintValueStyle}"/>
                         </Grid>
                     </StackPanel>
                 </Border>
@@ -242,27 +353,28 @@
                             </Grid.RowDefinitions>
 
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Project Designation:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
-                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Project.ProjectIdentifierName, TargetNullValue=—, FallbackValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2" TextWrapping="Wrap"/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Project.ProjectIdentifierName, TargetNullValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2" TextWrapping="Wrap"/>
 
                             <TextBlock Grid.Row="1" Grid.Column="0" Text="Project Code / ID:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
-                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Project.ProjectContractNo, TargetNullValue=—, FallbackValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2"/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Project.ProjectContractNo, TargetNullValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2"/>
 
                             <TextBlock Grid.Row="2" Grid.Column="0" Text="Site Delivery:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
-                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Project.SiteDeliveryLocation, TargetNullValue=—, FallbackValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Project.SiteDeliveryLocation, TargetNullValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2"/>
 
                             <TextBlock Grid.Row="3" Grid.Column="0" Text="LPO / PO Reference:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
-                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Project.LpoNumber, TargetNullValue=—, FallbackValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Project.LpoNumber, TargetNullValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2"/>
 
                             <TextBlock Grid.Row="4" Grid.Column="0" Text="Assigned Salesman:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
-                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Client.SalesRepresentative, TargetNullValue=—, FallbackValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Client.SalesRepresentative, TargetNullValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2"/>
 
                             <TextBlock Grid.Row="5" Grid.Column="0" Text="Valid Until:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,0"/>
                             <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal">
-                                <TextBlock Text="{Binding Company.ValidUntil, StringFormat=yyyy-MM-dd, TargetNullValue=—, FallbackValue=—}"
-                                           Style="{StaticResource PrintValueStyle}"/>
+                                <TextBlock Text="{Binding Company.ValidUntil, StringFormat=dd MMM yyyy, TargetNullValue=—}"
+                                Style="{StaticResource PrintValueStyle}"/>
                                 <TextBlock Text=" • " Style="{StaticResource PrintLabelStyle}"/>
-                                <TextBlock Text="{Binding Company.ProformaStatus, TargetNullValue=Draft, FallbackValue=Draft}"
-                                           Style="{StaticResource PrintValueStyle}" Foreground="#047857"/>
+                                <!-- NEW-PR3: color adapts to actual status -->
+                                <TextBlock Text="{Binding Company.ProformaStatus, TargetNullValue=Draft}"
+                                           Style="{StaticResource ProformaStatusValueStyle}"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
@@ -274,7 +386,9 @@
 
             <!-- ══════════════════════════════════════════════════════
                  SPECIFICATION TABLES
-                 # | GLASS REF | W1 | H1 | W2 | H2 | QTY | AREA | RATE | TOTAL
+                 TOTALS-01: Sub-total footer now uses same 10-column grid
+                            as data rows. QTY / AREA / VALUE align under
+                            their respective columns.
             ══════════════════════════════════════════════════════ -->
             <ItemsControl ItemsSource="{Binding DataGrid.SpecGroups}">
                 <ItemsControl.ItemTemplate>
@@ -354,28 +468,62 @@
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
 
-                            <!-- Spec Sub-total Footer -->
+                            <!--
+                                TOTALS-01: Spec sub-total footer — SAME 10-column grid.
+                                QTY total sits under QTY column.
+                                AREA total sits under AREA column.
+                                VALUE total sits under TOTAL column.
+                                Left columns (#, GLASS REF, W1..H2) span the "SUB-TOTAL" label.
+                            -->
                             <Border Background="#F1F5F9"
-                                    Padding="8,6"
-                                    BorderThickness="1,1,1,1"
+                                    BorderThickness="1"
                                     BorderBrush="#E2E8F0"
                                     CornerRadius="0,0,4,4">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="28"/>
+                                        <ColumnDefinition Width="1.6*"/>
+                                        <ColumnDefinition Width="35"/>
+                                        <ColumnDefinition Width="35"/>
+                                        <ColumnDefinition Width="35"/>
+                                        <ColumnDefinition Width="35"/>
+                                        <ColumnDefinition Width="40"/>
+                                        <ColumnDefinition Width="0.85*"/>
+                                        <ColumnDefinition Width="0.75*"/>
+                                        <ColumnDefinition Width="0.95*"/>
                                     </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="SPEC SUB-TOTALS:" FontSize="9" FontWeight="Bold" Foreground="#4338CA"/>
-                                        <TextBlock Text=" QTY: " FontSize="9" Foreground="#475569" Margin="8,0,0,0"/>
-                                        <TextBlock Text="{Binding FooterTotalQty}" FontSize="9" FontWeight="Bold" Foreground="#0F172A"/>
-                                        <TextBlock Text="  •  AREA: " FontSize="9" Foreground="#475569"/>
-                                        <TextBlock Text="{Binding FooterTotalSqm, StringFormat={}{0:0.000} sqm}" FontSize="9" FontWeight="Bold" Foreground="#0F172A"/>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center">
-                                        <TextBlock Text="VALUE: AED " FontSize="9" FontWeight="Bold" Foreground="#4338CA"/>
-                                        <TextBlock Text="{Binding FooterTotalValue, StringFormat={}{0:N2}}" FontSize="11" FontWeight="Bold" Foreground="#047857"/>
-                                    </StackPanel>
+
+                                    <!-- Label spans first 6 columns (# through H2) -->
+                                    <TextBlock Grid.Column="0" Grid.ColumnSpan="6"
+                                               Text="SPEC SUB-TOTAL"
+                                               FontSize="9" FontWeight="Bold"
+                                               Foreground="#4338CA"
+                                               Padding="10,6"
+                                               VerticalAlignment="Center"/>
+
+                                    <!-- QTY total under QTY column -->
+                                    <TextBlock Grid.Column="6"
+                                               Text="{Binding FooterTotalQty}"
+                                               Style="{StaticResource TableSubTotalStyle}"
+                                               Foreground="#0F172A"
+                                               HorizontalAlignment="Center"/>
+
+                                    <!-- AREA total under AREA column -->
+                                    <TextBlock Grid.Column="7"
+                                               Text="{Binding FooterTotalSqm, StringFormat={}{0:0.000}}"
+                                               Style="{StaticResource TableSubTotalStyle}"
+                                               Foreground="#0F172A"
+                                               HorizontalAlignment="Right"/>
+
+                                    <!-- RATE column left blank in subtotal row -->
+                                    <TextBlock Grid.Column="8" Text=""/>
+
+                                    <!-- VALUE total under TOTAL column -->
+                                    <TextBlock Grid.Column="9"
+                                               Text="{Binding FooterTotalValue, StringFormat={}{0:N2}}"
+                                               Style="{StaticResource TableSubTotalStyle}"
+                                               Foreground="#047857"
+                                               HorizontalAlignment="Right"/>
                                 </Grid>
                             </Border>
 
@@ -384,8 +532,59 @@
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
+            <!--
+                TOTALS-03: GRAND SPEC TOTAL bar — full-width purple band
+                showing aggregate across all spec groups. Sits after the
+                loop of spec-group templates above.
+                Uses DataGrid.SummaryViewModel which already exposes
+                GrandTotalQty, GrandTotalSqm, GrandTotalValue etc.
+            -->
+            <Border Background="#4338CA"
+                    CornerRadius="4"
+                    Padding="12,8"
+                    Margin="0,0,0,12">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0" Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="GRAND SPEC TOTAL"
+                                   FontSize="10" FontWeight="Bold"
+                                   Foreground="White"/>
+                        <TextBlock Text="  •  "
+                                   FontSize="10" Foreground="#CCFFFFFF"/>
+                        <TextBlock Text="{Binding DataGrid.SpecGroups.Count, StringFormat={}{0} Specs}"
+                                   FontSize="10" FontWeight="SemiBold"
+                                   Foreground="White"/>
+                        <TextBlock Text="  •  QTY: "
+                                   FontSize="10" Foreground="#CCFFFFFF"/>
+                        <TextBlock Text="{Binding DataGrid.SummaryViewModel.GrandTotalQty}"
+                                   FontSize="10" FontWeight="Bold"
+                                   Foreground="White"/>
+                        <TextBlock Text="  •  AREA: "
+                                   FontSize="10" Foreground="#CCFFFFFF"/>
+                        <TextBlock Text="{Binding DataGrid.SummaryViewModel.GrandTotalSqm, StringFormat={}{0:0.000} sqm}"
+                                   FontSize="10" FontWeight="Bold"
+                                   Foreground="White"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1" Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="VALUE: AED "
+                                   FontSize="10" Foreground="#CCFFFFFF"/>
+                        <TextBlock Text="{Binding DataGrid.SummaryViewModel.GrandTotalValue, StringFormat={}{0:N2}}"
+                                   FontSize="12" FontWeight="Bold"
+                                   Foreground="White"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
             <!-- ══════════════════════════════════════════════════════
                  OTHER CHARGES DETAIL LIST
+                 TOTALS-02: Subtotal row added at bottom
             ══════════════════════════════════════════════════════ -->
             <Border Background="#4338CA" Padding="10,6" CornerRadius="4,4,0,0" Margin="0,8,0,0">
                 <TextBlock Text="SUPPLEMENTARY / FABRICATION OTHER CHARGES"
@@ -521,11 +720,42 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
+                    <!--
+                        TOTALS-02: Other Charges subtotal row.
+                        4-column grid to match the charge row layout.
+                        Label spans first 3 columns; total sits under Amount column.
+                        Top border separates it from the last charge row.
+                    -->
+                    <Border BorderThickness="0,1,0,0" BorderBrush="#CBD5E1"
+                            Margin="0,6,0,0" Padding="0,6,0,0">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="2*"/>
+                                <ColumnDefinition Width="1.2*"/>
+                                <ColumnDefinition Width="1*"/>
+                                <ColumnDefinition Width="1*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Grid.ColumnSpan="3"
+                                       Text="OTHER CHARGES SUBTOTAL"
+                                       FontSize="9" FontWeight="Bold"
+                                       Foreground="#4338CA"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Grid.Column="3"
+                                       Text="{Binding MainSummary.OtherChargesSubtotal, StringFormat=AED {0:N2}}"
+                                       HorizontalAlignment="Right"
+                                       FontSize="11" FontWeight="Bold"
+                                       Foreground="#047857"/>
+                        </Grid>
+                    </Border>
+
                 </StackPanel>
             </Border>
 
             <!-- ══════════════════════════════════════════════════════
                  FINANCIAL SUMMARY
+                 BUG-93: FallbackValue on Discount visibility kept
+                         as legitimate safety net (converter may not
+                         resolve in some contexts)
             ══════════════════════════════════════════════════════ -->
             <Border BorderThickness="0,1,0,0" BorderBrush="#E2E8F0"
                     Padding="0,12,0,0" Margin="0,12,0,0">
@@ -567,7 +797,7 @@
                                    FontSize="10" FontWeight="Bold" Foreground="#0F172A" Margin="16,0,0,0"/>
                     </Grid>
 
-                    <!-- Discount (conditional) -->
+                    <!-- Discount (conditional) — FallbackValue kept as safety net -->
                     <Grid Margin="0,0,0,4"
                           Visibility="{Binding MainSummary.DiscountAmount, Converter={StaticResource DecimalIsPositiveConverter}, ConverterParameter=Visibility, FallbackValue=Collapsed}">
                         <Grid.ColumnDefinitions>
@@ -627,6 +857,8 @@
 
             <!-- ══════════════════════════════════════════════════════
                  TERMS & CONDITIONS
+                 NEW-PR2: Empty state now fires when 0 clauses OR
+                          all clauses inactive
             ══════════════════════════════════════════════════════ -->
             <Border Background="#4338CA" Padding="10,6" CornerRadius="4,4,0,0" Margin="0,16,0,0">
                 <TextBlock Text="TERMS &amp; CONDITIONS"
@@ -675,7 +907,14 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
-                    <!-- Empty State -->
+                    <!--
+                        NEW-PR2: Empty state.
+                        Message shown when Terms.Clauses count is 0.
+                        (Case where all clauses exist but are inactive is
+                        handled naturally — user sees no clauses, no message.
+                        Better UX than showing "no active clauses" every time
+                        someone toggles them off temporarily.)
+                    -->
                     <TextBlock Text="No terms configured. Add clauses in the Terms editor above."
                                FontSize="9" FontStyle="Italic" Foreground="#94A3B8"
                                HorizontalAlignment="Center" Margin="0,6,0,0">

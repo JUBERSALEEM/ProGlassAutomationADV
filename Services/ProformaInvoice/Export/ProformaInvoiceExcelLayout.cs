@@ -90,8 +90,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             AddField(ws, ref row, "Company TRN", _snapshot.Company?.CompanyTrn ?? "");
             AddField(ws, ref row, "Location", _snapshot.Company?.CompanyLocation ?? "");
             AddField(ws, ref row, "Proforma ID", _snapshot.Company?.ProformaId ?? _entity.ProformaId);
-            AddField(ws, ref row, "Issue Date", _snapshot.Company?.IssueDate.ToString("yyyy-MM-dd") ?? "");
-            AddField(ws, ref row, "Valid Until", _snapshot.Company?.ValidUntil.ToString("yyyy-MM-dd") ?? "");
+            AddField(ws, ref row, "Issue Date", _snapshot.Company?.IssueDate.ToString("dd MMM yyyy") ?? "");
+            AddField(ws, ref row, "Valid Until", _snapshot.Company?.ValidUntil.ToString("dd MMM yyyy") ?? "");
             AddField(ws, ref row, "Status", _snapshot.Company?.ProformaStatus ?? _entity.Status);
             row++;
 
