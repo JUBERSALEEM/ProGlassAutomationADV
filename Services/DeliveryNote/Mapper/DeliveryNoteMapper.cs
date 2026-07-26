@@ -345,6 +345,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Mapper
                     OrderedQty = i.OrderedQty,
                     PreviouslyDeliveredQty = i.PreviouslyDeliveredQty,
                     DeliveredQty = i.DeliveredQty,
+                    InvoicedQty = i.InvoicedQty,
                     BalanceQty = i.BalanceQty,
                     ReworkQty = i.ReworkQty,
                     ReturnedQty = i.ReturnedQty,

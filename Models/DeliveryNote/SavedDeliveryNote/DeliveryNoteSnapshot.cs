@@ -96,6 +96,7 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
         public int OrderedQty { get; set; }
         public int PreviouslyDeliveredQty { get; set; }
         public int DeliveredQty { get; set; }
+        public int InvoicedQty { get; set; }
         public int BalanceQty { get; set; }
         public int ReworkQty { get; set; }
         public int ReturnedQty { get; set; }

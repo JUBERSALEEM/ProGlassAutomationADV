@@ -1,0 +1,317 @@
+<UserControl x:Class="ProGlassAutomation.Views.TaxInvoice.TaxInvoiceListView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <Style x:Key="HeaderButtonStyle" TargetType="Button">
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.75"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="RowCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Padding" Value="16,12"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ActionButtonStyle" TargetType="Button">
+            <Setter Property="Padding" Value="12,6"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.88"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.72"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- STICKY HEADER AND FILTER BAR -->
+        <StackPanel Grid.Row="0" Margin="24,16,24,0">
+            <Grid Margin="4,0,4,14">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Tax Invoices"
+                               FontSize="26" FontWeight="Bold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    <TextBlock Text="Manage, print, and track payments for VAT-compliant Tax Invoices."
+                               FontSize="12" Margin="0,3,0,0"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                </StackPanel>
+
+                <Button Grid.Column="1"
+                        Content="🔄  Refresh"
+                        Command="{Binding RefreshCommand}"
+                        Style="{StaticResource HeaderButtonStyle}"
+                        VerticalAlignment="Center"
+                        Margin="16,0,0,0"/>
+            </Grid>
+
+            <!-- Loading indicator -->
+            <Border Visibility="{Binding IsLoading, Converter={StaticResource BoolToVisibilityConverter}}"
+                    Padding="10" Margin="4,0,4,10">
+                <TextBlock Text="⏳  Loading Tax Invoices…"
+                           FontSize="12" HorizontalAlignment="Center"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+            </Border>
+
+            <!-- FILTER BAR -->
+            <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1" CornerRadius="10"
+                    Padding="12,10" Margin="0,0,0,12"
+                    SnapsToDevicePixels="True">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox Grid.Column="0"
+                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="12" Padding="10,7"
+                             Margin="0,0,8,0"
+                             VerticalContentAlignment="Center"
+                             behaviors:TextBoxBehaviors.SelectAllOnFocus="True"/>
+
+                    <ComboBox Grid.Column="1"
+                              ItemsSource="{Binding PaymentFilterOptions}"
+                              SelectedItem="{Binding SelectedPaymentFilter}"
+                              FontSize="12" Margin="0,0,8,0"
+                              VerticalContentAlignment="Center"/>
+
+                    <Button Grid.Column="2"
+                            Content="Clear Filters"
+                            Command="{Binding ClearFiltersCommand}"
+                            FontSize="11" FontWeight="SemiBold"
+                            Padding="14,7"
+                            Cursor="Hand"
+                            Background="{DynamicResource MenuHoverBrush}"
+                            Foreground="{DynamicResource PrimaryForegroundBrush}"
+                            BorderThickness="0"/>
+                </Grid>
+            </Border>
+        </StackPanel>
+
+        <!-- MAIN INVOICE LIST -->
+        <Grid Grid.Row="1" Margin="24,0,24,16">
+            <ListBox ItemsSource="{Binding Invoices}"
+                     BorderThickness="0" Background="Transparent"
+                     Focusable="False"
+                     ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                     ScrollViewer.VerticalScrollBarVisibility="Auto"
+                     behaviors:SmoothScrollBehavior.IsEnabled="True">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="ListBoxItem">
+                        <Setter Property="Padding" Value="0"/>
+                        <Setter Property="Margin" Value="0"/>
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="Focusable" Value="False"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="ListBoxItem">
+                                    <ContentPresenter/>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+
+                <ListBox.ItemTemplate>
+                    <DataTemplate>
+                        <Border Style="{StaticResource RowCardStyle}">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="130"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="150"/>
+                                    <ColumnDefinition Width="140"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Column 0: Invoice No -->
+                                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                    <TextBlock Text="{Binding InvoiceNumber}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text="{Binding InvoiceDate, StringFormat={}{0:dd MMM yyyy}}" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,2,0,0"/>
+                                </StackPanel>
+
+                                <!-- Column 1: Customer and Project -->
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="10,0">
+                                    <TextBlock Text="{Binding CustomerName}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,2,0,0">
+                                        <Run Text="Project: " FontWeight="SemiBold"/>
+                                        <Run Text="{Binding ProjectName}"/>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <!-- Column 2: Delivery Details -->
+                                <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="10,0">
+                                    <TextBlock FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                        <Run Text="DN: " FontWeight="SemiBold"/>
+                                        <Run Text="{Binding DeliveryNoteId}"/>
+                                    </TextBlock>
+                                    <TextBlock FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,2,0,0">
+                                        <Run Text="JO: " FontWeight="SemiBold"/>
+                                        <Run Text="{Binding JobOrderId}"/>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <!-- Column 3: Totals -->
+                                <StackPanel Grid.Column="3" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="10,0">
+                                    <TextBlock FontSize="14" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}">
+                                        <Run Text="{Binding Currency}"/>
+                                        <Run Text=" "/>
+                                        <Run Text="{Binding GrandTotal, StringFormat={}{0:N2}}"/>
+                                    </TextBlock>
+                                    <TextBlock FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Right" Margin="0,2,0,0">
+                                        <Run Text="VAT Included (5%)"/>
+                                    </TextBlock>
+                                </StackPanel>
+
+                                <!-- Column 4: Actions -->
+                                <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Right">
+                                    <Border CornerRadius="4" Padding="8,3" Margin="0,0,10,0" VerticalAlignment="Center">
+                                        <Border.Style>
+                                            <Style TargetType="Border">
+                                                <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding PaymentStatus}" Value="Paid">
+                                                        <Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding PaymentStatus}" Value="Partially Paid">
+                                                        <Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Border.Style>
+                                        <TextBlock Text="{Binding PaymentStatus}" FontSize="10" FontWeight="Bold">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding PaymentStatus}" Value="Paid">
+                                                            <Setter Property="Foreground" Value="#047857"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding PaymentStatus}" Value="Partially Paid">
+                                                            <Setter Property="Foreground" Value="#B45309"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Border>
+
+                                    <Button Content="📂  Open"
+                                            Command="{Binding DataContext.OpenCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Style="{StaticResource ActionButtonStyle}"
+                                            Margin="0,0,6,0"/>
+
+                                    <Button Content="✕"
+                                            Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}"
+                                            Style="{StaticResource ActionButtonStyle}"
+                                            Background="#B91C1C"
+                                            Foreground="White"/>
+                                </StackPanel>
+                            </Grid>
+                        </Border>
+                    </DataTemplate>
+                </ListBox.ItemTemplate>
+            </ListBox>
+
+            <!-- No Invoices message -->
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" IsHitTestVisible="False">
+                <StackPanel.Style>
+                    <Style TargetType="StackPanel">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding Invoices.Count}" Value="0">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </StackPanel.Style>
+                <TextBlock Text="🧾" FontSize="48" HorizontalAlignment="Center" Opacity="0.4"/>
+                <TextBlock Text="No Tax Invoices Found" FontSize="16" FontWeight="Bold" Margin="0,10,0,4" HorizontalAlignment="Center" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                <TextBlock Text="Go to the Delivery Notes module and right-click a delivered note to create an invoice." FontSize="12" HorizontalAlignment="Center" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+            </StackPanel>
+        </Grid>
+    </Grid>
+</UserControl>

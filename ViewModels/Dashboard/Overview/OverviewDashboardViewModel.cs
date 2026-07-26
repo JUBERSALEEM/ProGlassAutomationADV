@@ -162,6 +162,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             var jobs = await App.Jobs.GetAllAsync();
             var allDns = await App.DeliveryNotes.GetAllAsync();
             var pendingJobs = await App.DeliveryNotes.GetPendingQtyJobsAsync();
+            var taxInvoices = App.TaxInvoices != null ? await App.TaxInvoices.GetAllAsync() : new List<Models.TaxInvoice.TaxInvoice>();
 
             // ── Compute stats ──────────────────────────────────────────
             decimal totalSales = invoices.Sum(i => i.GrandTotalVatInclusive);
@@ -171,6 +172,16 @@ namespace ProGlassAutomation.ViewModels.Dashboard
 
             int totalInvoices = invoices.Count;
             int approvedCount = invoices.Count(i => Eq(i.Status, "Approved"));
+
+            // Compute Tax Invoice stats
+            decimal totalTaxInvoiced = taxInvoices.Sum(t => t.GrandTotal * t.ExchangeRate);
+            decimal taxInvoicedMtd = taxInvoices
+                .Where(t => t.InvoiceDate >= firstOfMonth)
+                .Sum(t => t.GrandTotal * t.ExchangeRate);
+            int totalTaxInvoicesCount = taxInvoices.Count;
+            decimal pendingPaymentAmount = taxInvoices
+                .Where(t => !string.Equals(t.PaymentStatus, "Paid", StringComparison.OrdinalIgnoreCase))
+                .Sum(t => t.GrandTotal * t.ExchangeRate);
 
             int jobInProduction = jobs.Count(j => j.Status == JobStatusInProduction);
             int jobOverdue = jobs.Count(j =>
@@ -231,29 +242,29 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 new KpiTileModel
                 {
                     Icon         = "💰",
-                    Label        = "Total Sales",
-                    DisplayValue = $"AED {totalSales:N2}",
+                    Label        = "Total Tax Invoiced",
+                    DisplayValue = $"AED {totalTaxInvoiced:N2}",
                     Accent       = "Green"
                 },
                 new KpiTileModel
                 {
-                    Icon         = "📄",
-                    Label        = "Invoices",
-                    DisplayValue = totalInvoices.ToString("N0"),
+                    Icon         = "🧾",
+                    Label        = "Tax Invoices",
+                    DisplayValue = totalTaxInvoicesCount.ToString("N0"),
                     Accent       = "Green"
                 },
                 new KpiTileModel
                 {
                     Icon         = "📅",
-                    Label        = "This Month",
-                    DisplayValue = $"AED {salesMtd:N2}",
+                    Label        = "This Month (Invoiced)",
+                    DisplayValue = $"AED {taxInvoicedMtd:N2}",
                     Accent       = "Green"
                 },
                 new KpiTileModel
                 {
-                    Icon         = "✅",
-                    Label        = "Approved",
-                    DisplayValue = approvedCount.ToString("N0"),
+                    Icon         = "⏳",
+                    Label        = "Pending Payments",
+                    DisplayValue = $"AED {pendingPaymentAmount:N2}",
                     Accent       = "Green"
                 }
             };
@@ -543,6 +554,36 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     };
                 });
             feedItems.AddRange(dnActivity);
+
+            // Tax Invoice activity
+            var taxActivity = taxInvoices.Select(t =>
+            {
+                var date = t.UpdatedAt != default ? t.UpdatedAt : t.CreatedAt;
+                return new ActivityFeedItem
+                {
+                    Icon = "🧾",
+                    Title = $"{t.InvoiceNumber}" +
+                                   $"{(string.IsNullOrWhiteSpace(t.CustomerName) ? "" : $"  ·  {t.CustomerName}")}",
+                    SubTitle = $"Tax Invoice  ·  {t.PaymentStatus}  ·  {date:dd MMM}",
+                    ValueDisplay = $"{t.Currency} {t.GrandTotal:N2}",
+                    StatusLabel = t.PaymentStatus.ToUpperInvariant(),
+                    StatusColor = t.PaymentStatus.ToLowerInvariant() switch
+                    {
+                        "paid" => "SuccessBrush",
+                        "partially paid" => "WarningBrush",
+                        _ => "NeutralBrush"
+                    },
+                    TintColor = t.PaymentStatus.ToLowerInvariant() switch
+                    {
+                        "paid" => "TintGreenBrush",
+                        "partially paid" => "TintAmberBrush",
+                        _ => "TintGrayBrush"
+                    },
+                    ModuleTag = "TaxInvoice",
+                    SortDate = date
+                };
+            });
+            feedItems.AddRange(taxActivity);
 
             var merged = feedItems
                 .OrderByDescending(f => f.SortDate)

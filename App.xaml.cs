@@ -34,6 +34,9 @@ namespace ProGlassAutomation
         // Delivery Notes — saved delivery notes (separate SQLite: deliverynotes.db) — Phase 10
         public static IDeliveryNoteRepository DeliveryNotes { get; private set; }
 
+        // Tax Invoices — saved tax invoices (separate SQLite: taxinvoices.db) — Phase 19
+        public static Services.TaxInvoice.Repository.ITaxInvoiceRepository TaxInvoices { get; private set; }
+
         // Master Data — companies, clients, projects, salesmen (separate SQLite: masterdata.db) — Phase 14
         public static IMasterDataRepository MasterData { get; private set; }
 
@@ -83,6 +86,10 @@ namespace ProGlassAutomation
             // 6) Phase 10 — Initialize Delivery Notes database (deliverynotes.db)
             DeliveryNotes = new DeliveryNoteRepository();
             await DeliveryNotes.InitializeAsync();
+
+            // Phase 19 — Initialize Tax Invoices database (taxinvoices.db)
+            TaxInvoices = new Services.TaxInvoice.Repository.TaxInvoiceRepository();
+            await TaxInvoices.InitializeAsync();
 
             // 7) Phase 14 — Initialize Master Data database (masterdata.db)
             //    Companies, Clients, Projects, Salesmen — auto-populated

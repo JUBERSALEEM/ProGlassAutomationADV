@@ -110,6 +110,24 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             }
             menu.Items.Add(masterInvItem);
 
+            menu.Items.Add(new Separator());
+
+            var makeTaxInvoiceGroupItem = new MenuItem
+            {
+                Header = "🧾  Make Tax Invoice",
+                IsEnabled = group.AllDelivered
+            };
+
+            var fullConvertGroupItem = new MenuItem { Header = "Convert Full Delivery To Tax Invoice" };
+            fullConvertGroupItem.Click += (_, __) => vm.ConvertFullToInvoiceCommand.Execute(group);
+            makeTaxInvoiceGroupItem.Items.Add(fullConvertGroupItem);
+
+            var partialConvertGroupItem = new MenuItem { Header = "Convert Partial Delivery To Tax Invoice" };
+            partialConvertGroupItem.Click += (_, __) => vm.ConvertPartialToInvoiceCommand.Execute(group);
+            makeTaxInvoiceGroupItem.Items.Add(partialConvertGroupItem);
+
+            menu.Items.Add(makeTaxInvoiceGroupItem);
+
             menu.IsOpen = true;
         }
 
@@ -168,6 +186,24 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             var deleteItem = new MenuItem { Header = "🗑  Delete" };
             deleteItem.Click += (_, __) => vm.DeleteCommand.Execute(row);
             menu.Items.Add(deleteItem);
+
+            menu.Items.Add(new Separator());
+
+            var makeTaxInvoiceItem = new MenuItem
+            {
+                Header = "🧾  Make Tax Invoice",
+                IsEnabled = row.CanGenerateInvoice
+            };
+
+            var fullConvertItem = new MenuItem { Header = "Convert Full Delivery To Tax Invoice" };
+            fullConvertItem.Click += (_, __) => vm.ConvertFullToInvoiceCommand.Execute(row);
+            makeTaxInvoiceItem.Items.Add(fullConvertItem);
+
+            var partialConvertItem = new MenuItem { Header = "Convert Partial Delivery To Tax Invoice" };
+            partialConvertItem.Click += (_, __) => vm.ConvertPartialToInvoiceCommand.Execute(row);
+            makeTaxInvoiceItem.Items.Add(partialConvertItem);
+
+            menu.Items.Add(makeTaxInvoiceItem);
 
             menu.IsOpen = true;
         }

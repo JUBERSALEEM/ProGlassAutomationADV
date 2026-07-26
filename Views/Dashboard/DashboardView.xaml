@@ -4,11 +4,13 @@
              xmlns:vm="clr-namespace:ProGlassAutomation.ViewModels.Dashboard"
              xmlns:vmJo="clr-namespace:ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard"
              xmlns:vmDn="clr-namespace:ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard"
+             xmlns:vmTax="clr-namespace:ProGlassAutomation.ViewModels.Dashboard.TaxInvoice"
              xmlns:ov="clr-namespace:ProGlassAutomation.Views.Dashboard.Overview"
              xmlns:ss="clr-namespace:ProGlassAutomation.Views.Dashboard.SheetStore"
              xmlns:pi="clr-namespace:ProGlassAutomation.Views.Dashboard.ProformaInvoice"
              xmlns:jo="clr-namespace:ProGlassAutomation.Views.Dashboard.JobOrder.JoDashboard"
              xmlns:dn="clr-namespace:ProGlassAutomation.Views.Dashboard.DeliveryNote.DnDashboard"
+             xmlns:tx="clr-namespace:ProGlassAutomation.Views.Dashboard.TaxInvoice"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -36,6 +38,9 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type vmDn:DnDashboardViewModel}">
             <dn:DnDashboardView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmTax:TaxInvoiceDashboardViewModel}">
+            <tx:TaxInvoiceDashboardView/>
         </DataTemplate>
 
         <!-- ═══════════════════════════════════════════════════════════════

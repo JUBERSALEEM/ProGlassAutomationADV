@@ -70,6 +70,13 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
         /// <summary>Qty delivered in THIS DN.</summary>
         public int DeliveredQty { get; set; }
 
+        /// <summary>Qty invoiced from THIS DN.</summary>
+        public int InvoicedQty { get; set; }
+
+        /// <summary>Delivered but not yet invoiced qty in THIS DN.</summary>
+        [NotMapped]
+        public int RemainingInvoicedQty => System.Math.Max(0, DeliveredQty - InvoicedQty);
+
         /// <summary>
         /// Stored balance for fast list queries.
         /// BUG-05: This value CAN go stale if siblings change.

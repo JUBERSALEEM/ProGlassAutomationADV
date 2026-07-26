@@ -1,6 +1,7 @@
 ﻿using ProGlassAutomation.Commands;
 using ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard;
 using ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard;
+using ProGlassAutomation.ViewModels.Dashboard.TaxInvoice;
 using System;
 using System.Collections.Generic;
 using System.Windows.Input;
@@ -40,6 +41,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         public PiDashboardViewModel ProformaVM { get; }
         public JoDashboardViewModel JobOrderVM { get; }
         public DnDashboardViewModel DeliveryNoteVM { get; }   // ← Phase 10.9 NEW
+        public TaxInvoiceDashboardViewModel TaxInvoiceVM { get; }
 
         // ── commands ──────────────────────────────────────────────────────
         public ICommand SelectTabCommand { get; }
@@ -71,6 +73,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             ProformaVM = new PiDashboardViewModel();
             JobOrderVM = new JoDashboardViewModel();
             DeliveryNoteVM = new DnDashboardViewModel();   // ← Phase 10.9 NEW
+            TaxInvoiceVM = new TaxInvoiceDashboardViewModel();
 
             Pages = new List<DashboardPageBase>
             {
@@ -78,7 +81,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 SheetStoreVM,
                 ProformaVM,
                 JobOrderVM,
-                DeliveryNoteVM   // ← Phase 10.9 NEW (appears as tab)
+                DeliveryNoteVM,   // ← Phase 10.9 NEW (appears as tab)
+                TaxInvoiceVM
             };
 
             SelectTabCommand = new RelayCommand(p =>

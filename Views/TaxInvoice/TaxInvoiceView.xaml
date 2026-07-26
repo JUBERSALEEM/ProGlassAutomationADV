@@ -1,6 +1,50 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.TaxInvoice.TaxInvoiceView"
+<UserControl x:Class="ProGlassAutomation.Views.TaxInvoice.TaxInvoiceView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:shared="clr-namespace:ProGlassAutomation.Views.Shared">
-    <shared:ComingSoonView/>
+             xmlns:list="clr-namespace:ProGlassAutomation.Views.TaxInvoice"
+             xmlns:create="clr-namespace:ProGlassAutomation.Views.TaxInvoice"
+             xmlns:createVm="clr-namespace:ProGlassAutomation.ViewModels.TaxInvoice"
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <DataTemplate DataType="{x:Type createVm:TaxInvoiceCreateViewModel}">
+            <list:TaxInvoiceCreateView/>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+        <!-- ══ LIST VIEW ══ -->
+        <list:TaxInvoiceListView DataContext="{Binding ListVM}">
+            <list:TaxInvoiceListView.Style>
+                <Style TargetType="list:TaxInvoiceListView">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding DataContext.IsListView,
+                                                       RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                     Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </list:TaxInvoiceListView.Style>
+        </list:TaxInvoiceListView>
+
+        <!-- ══ CREATE/DETAIL VIEW ══ -->
+        <ContentControl Content="{Binding CreateVM}">
+            <ContentControl.Style>
+                <Style TargetType="ContentControl">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsCreateView}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ContentControl.Style>
+        </ContentControl>
+    </Grid>
 </UserControl>

@@ -450,6 +450,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public ICommand OpenGroupCommand { get; }
         public ICommand GenerateMasterInvoiceCommand { get; }
         public ICommand SelectRowCommand2 { get; }
+        public ICommand ConvertFullToInvoiceCommand { get; }
+        public ICommand ConvertPartialToInvoiceCommand { get; }
 
         // ══════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
@@ -536,6 +538,26 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 },
                 canExecute: param =>
                     param is JobOrderGroupRowViewModel g && g.AllDelivered);
+
+            ConvertFullToInvoiceCommand = new RelayCommand(
+                async param =>
+                {
+                    if (param is DeliveryNoteRowViewModel row)
+                        await ConvertToInvoiceAsync(row.Id, true);
+                    else if (param is JobOrderGroupRowViewModel group)
+                        await ConvertToInvoiceAsync(group.LatestDnDbId, true);
+                },
+                CanConvertParam);
+
+            ConvertPartialToInvoiceCommand = new RelayCommand(
+                async param =>
+                {
+                    if (param is DeliveryNoteRowViewModel row)
+                        await ConvertToInvoiceAsync(row.Id, false);
+                    else if (param is JobOrderGroupRowViewModel group)
+                        await ConvertToInvoiceAsync(group.LatestDnDbId, false);
+                },
+                CanConvertParam);
 
             _ = LoadAsync();
         }
@@ -884,6 +906,74 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                     "Update Failed",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+            }
+        }
+
+        private bool CanConvertParam(object? param)
+        {
+            if (param is DeliveryNoteRowViewModel row)
+                return row.CanGenerateInvoice;
+            if (param is JobOrderGroupRowViewModel group)
+                return group.AllDelivered;
+            return false;
+        }
+
+        private async Task ConvertToInvoiceAsync(int dnDbId, bool isFull)
+        {
+            if (App.DeliveryNotes == null) return;
+            var dn = await App.DeliveryNotes.GetByIdAsync(dnDbId);
+            if (dn == null) return;
+
+            // Check if it's already fully invoiced
+            if (dn.HasTaxInvoice)
+            {
+                var choice = MessageBox.Show(
+                    $"This delivery note already has a Tax Invoice linked:\n" +
+                    $"Invoice Ref: {dn.TaxInvoiceId}\n\n" +
+                    "Would you like to open the existing Tax Invoice?",
+                    "Invoice Already Generated",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Information);
+
+                if (choice == MessageBoxResult.Yes)
+                {
+                    var mainVm = Application.Current.MainWindow.DataContext as MainViewModel;
+                    if (mainVm != null)
+                    {
+                        mainVm.CurrentViewModel = mainVm.TaxInvoiceVM;
+                        if (App.TaxInvoices != null)
+                        {
+                            var taxInv = await App.TaxInvoices.GetByInvoiceNumberAsync(dn.TaxInvoiceId);
+                            if (taxInv != null)
+                            {
+                                mainVm.TaxInvoiceVM.IsListView = false;
+                                mainVm.TaxInvoiceVM.CreateVM.LoadExistingInvoice(taxInv);
+                            }
+                        }
+                    }
+                }
+                return;
+            }
+
+            if (dn.IsFoc)
+            {
+                MessageBox.Show(
+                    "This delivery note is marked as Free of Charge (FOC).\n\n" +
+                    "FOC delivery notes cannot be converted to Tax Invoices.",
+                    "FOC Delivery Note",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            var main = Application.Current.MainWindow.DataContext as MainViewModel;
+            if (main != null)
+            {
+                main.CurrentViewModel = main.TaxInvoiceVM;
+                if (isFull)
+                    main.TaxInvoiceVM.NavigateToCreateFull(dn);
+                else
+                    main.TaxInvoiceVM.NavigateToCreatePartial(dn);
             }
         }
     }
