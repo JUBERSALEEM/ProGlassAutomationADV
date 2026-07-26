@@ -16,6 +16,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
+using System.Threading.Tasks;
 
 namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 {
@@ -26,24 +27,17 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
     /// (Entity → Snapshot → VMs) paths.
     ///
     /// BUG-15 [CRITICAL]: Entity.Status now reflects PreparedByStatus
-    ///         override when the user changed it in the printable
-    ///         preview. Without this, the list view showed the wrong
-    ///         status for invoices where user changed status only in
-    ///         the printable preview.
-    /// BUG-16: Wastages restore no longer calls UI command from mapper —
-    ///         creates rows directly in the collection.
+    ///         override when the user changed it in the printable preview.
+    /// BUG-16: Wastages restore no longer calls UI command from mapper.
     /// BUG-17: Spec name mismatch check removed — FilteredSpecs is now
-    ///         an ICollectionView populated asynchronously, so a
-    ///         synchronous check at restore time is unreliable and
-    ///         produced false-positive warnings. Value is preserved
-    ///         verbatim regardless.
+    ///         an ICollectionView populated asynchronously.
     /// BUG-18: DeserializeSnapshot catches only JsonException.
-    /// BUG-20: Shared static JsonSerializerOptions — no per-call alloc.
+    /// BUG-20: Shared static JsonSerializerOptions.
     ///
-    /// HOTFIX-5 (compile fix): Removed .Any() call on FilteredSpecs
-    ///         which is now ICollectionView (non-generic) instead of
-    ///         ObservableCollection<SavedSpecification>. LINQ's generic
-    ///         Any<T> could not infer the type parameter.
+    /// PHASE 14: Auto-save hook — BuildEntityFromWizard now fires
+    ///           SafeAutoSaveMasterDataAsync to upsert company/client/
+    ///           project/salesman into masterdata.db. Fire-and-forget —
+    ///           never blocks invoice save.
     /// </summary>
     public static class ProformaInvoiceMapper
     {
@@ -102,7 +96,66 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 FullSnapshotJson = json
             };
 
+            // ══════════════════════════════════════════════════════════════
+            //  PHASE 14 — Master Data auto-save
+            //
+            //  Extracts company, client, project, and salesman from the
+            //  wizard VMs and upserts them into masterdata.db.
+            //
+            //  Fire-and-forget — failures are logged but never block
+            //  invoice save. Master data is a CONVENIENCE feature
+            //  (card auto-fill); invoice save is the CRITICAL path.
+            // ══════════════════════════════════════════════════════════════
+            if (App.MasterData != null)
+            {
+                _ = SafeAutoSaveMasterDataAsync(company, project, client);
+            }
+
             return entity;
+        }
+
+        /// <summary>
+        /// Phase 14 — Fire-and-forget master data auto-save.
+        /// Private helper so BuildEntityFromWizard stays clean.
+        /// All exceptions swallowed — master data must never block invoice save.
+        /// </summary>
+        private static async Task SafeAutoSaveMasterDataAsync(
+            CompanySetupViewModel company,
+            ProjectSpecsViewModel project,
+            ClientProfileViewModel client)
+        {
+            try
+            {
+                await App.MasterData.AutoSaveFromInvoiceAsync(
+                    // Company fields
+                    companyName: company.CompanyName ?? "",
+                    companyTrn: company.CompanyTrn ?? "",
+                    companyLocation: company.CompanyLocation ?? "",
+
+                    // Client fields
+                    customerName: client.CustomerName ?? "",
+                    customerTrn: client.CustomerTrn ?? "",
+                    customerReferenceCode: client.CustomerReferenceCode ?? "",
+                    salesRepresentative: client.SalesRepresentative ?? "",
+                    documentPreparedBy: client.DocumentPreparedBy ?? "",
+                    billingAddress: client.BillingAddress ?? "",
+                    attentionExecutiveName: client.AttentionExecutiveName ?? "",
+                    clientContactPhone: client.ClientContactPhone ?? "",
+
+                    // Project fields
+                    projectIdentifierName: project.ProjectIdentifierName ?? "",
+                    projectContractNo: project.ProjectContractNo ?? "",
+                    siteDeliveryLocation: project.SiteDeliveryLocation ?? "",
+                    lpoNumber: project.LpoNumber ?? "");
+            }
+            catch (Exception ex)
+            {
+                // Master data auto-save must NEVER block invoice save.
+                // Log and move on. User sees fewer auto-fill cards next
+                // time but their invoice is safe.
+                Debug.WriteLine(
+                    $"[ProformaInvoiceMapper] Master data auto-save failed: {ex.Message}");
+            }
         }
 
         private static ProformaInvoiceSnapshot BuildSnapshot(
@@ -398,13 +451,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     SurchargePercent = gSnap.SurchargePercent
                 };
 
-                // BUG-17 note: We no longer verify the spec name against
-                // FilteredSpecs at restore time — FilteredSpecs is now an
-                // ICollectionView populated asynchronously by LoadSpecsAsync,
-                // so a synchronous check here would fire spurious warnings
-                // even for valid specs. The name is preserved verbatim; the
-                // dropdown resolves it once the async load completes.
-
                 if (gSnap.ItemRows != null && gSnap.ItemRows.Count > 0)
                 {
                     foreach (var rSnap in gSnap.ItemRows)
@@ -472,8 +518,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             {
                 foreach (var wSnap in snap.OtherCharges.Wastages)
                 {
-                    // Create wastage row directly instead of firing the
-                    // AddWastageCommand — mapper should not touch UI commands
                     var newRow = new WastageRow
                     {
                         IsActive = wSnap.IsActive,
@@ -481,11 +525,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                         Rate = wSnap.Rate
                     };
 
-                    // Populate available sources from current spec groups
-                    // by asking the section to hydrate sources for this row
                     otherCharges.WastagesSection.PopulateSourcesForRestoredRow(newRow);
 
-                    // Now restore checked state from saved keys
                     if (wSnap.CheckedSourceKeys != null)
                     {
                         foreach (var src in newRow.AvailableSources)

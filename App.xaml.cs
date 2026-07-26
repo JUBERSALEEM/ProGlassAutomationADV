@@ -5,6 +5,7 @@ using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Database.DatabaseBackup;
 using ProGlassAutomation.Services.DeliveryNote.Repository;
 using ProGlassAutomation.Services.JobOrder.Repository;
+using ProGlassAutomation.Services.MasterData.Repository;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
 using ProGlassAutomation.Views.Splash;
@@ -32,6 +33,9 @@ namespace ProGlassAutomation
 
         // Delivery Notes — saved delivery notes (separate SQLite: deliverynotes.db) — Phase 10
         public static IDeliveryNoteRepository DeliveryNotes { get; private set; }
+
+        // Master Data — companies, clients, projects, salesmen (separate SQLite: masterdata.db) — Phase 14
+        public static IMasterDataRepository MasterData { get; private set; }
 
         private async void Application_Startup(object sender, StartupEventArgs e)
         {
@@ -80,19 +84,26 @@ namespace ProGlassAutomation
             DeliveryNotes = new DeliveryNoteRepository();
             await DeliveryNotes.InitializeAsync();
 
-            // 7) Initialize AI + Connectivity services
+            // 7) Phase 14 — Initialize Master Data database (masterdata.db)
+            //    Companies, Clients, Projects, Salesmen — auto-populated
+            //    from Proforma Invoice saves. Powers card auto-fill and
+            //    salesman dropdown across the app.
+            MasterData = new MasterDataRepository();
+            await MasterData.InitializeAsync();
+
+            // 8) Initialize AI + Connectivity services
             Ai = new GeminiAiService(Config.Ai);
             Connectivity = new ConnectivityService();
             Connectivity.StartMonitoring();
 
-            // 8) Show splash
+            // 9) Show splash
             var splash = new SplashView();
             splash.Show();
 
-            // 9) Loading time for splash animations
+            // 10) Loading time for splash animations
             await Task.Delay(2800);
 
-            // 10) Create main window (not shown yet)
+            // 11) Create main window (not shown yet)
             var mainWindow = new MainWindow();
 
             // ══════════════════════════════════════════════════════════════
