@@ -1,0 +1,629 @@
+﻿<!--
+═══════════════════════════════════════════════════════════════════════
+FILE: Views/ProformaInvoice/Step2ClientProfile/ClientProfileView.xaml
+═══════════════════════════════════════════════════════════════════════
+CHAT 15 — DEFINITIVE FIX
+  x:Class = Step2ClientProfile (correct namespace)
+  Style-set-twice on TextBlock inline warnings FIXED:
+    REMOVED: Style="{StaticResource InlineWarningStyle}" attribute
+    KEPT:    <TextBlock.Style><Style BasedOn="..."> only
+    Style set exactly ONCE per TextBlock.
+═══════════════════════════════════════════════════════════════════════
+-->
+<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step2ClientProfile.ClientProfileView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="900" d:DesignWidth="900"
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+
+        <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize"   Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Margin"     Value="0,0,0,8"/>
+        </Style>
+
+        <Style x:Key="SubsectionLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize"   Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#4338CA"/>
+            <Setter Property="Margin"     Value="0,0,0,12"/>
+        </Style>
+
+        <!--
+            InlineWarningStyle — used via BasedOn ONLY.
+            Never applied as Style= attribute directly on any element.
+        -->
+        <Style x:Key="InlineWarningStyle" TargetType="TextBlock">
+            <Setter Property="FontSize"   Value="11"/>
+            <Setter Property="Foreground" Value="#B45309"/>
+            <Setter Property="Margin"     Value="2,4,0,0"/>
+        </Style>
+
+        <!-- Salesman editable ComboBox — WPF Gotcha #12: TextSearch.TextPath required -->
+        <Style x:Key="SalesmanComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness"          Value="1"/>
+            <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="FontSize"                 Value="13"/>
+            <Setter Property="Padding"                  Value="12,0"/>
+            <Setter Property="Height"                   Value="38"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="IsEditable"               Value="True"/>
+            <Setter Property="IsTextSearchEnabled"      Value="True"/>
+            <Setter Property="TextSearch.TextPath"      Value="."/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#6366F1"/>
+                </Trigger>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                    <Setter Property="BorderBrush"     Value="#4338CA"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="ClientCardStyle" TargetType="Border">
+            <Setter Property="Background"      Value="{DynamicResource WindowBackgroundBrush}"/>
+            <Setter Property="CornerRadius"    Value="14"/>
+            <Setter Property="Padding"         Value="18,16"/>
+            <Setter Property="Margin"          Value="0,0,8,8"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#4338CA"/>
+                    <Setter Property="Background"  Value="#EEF2FF"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="UsageBadgeStyle" TargetType="Border">
+            <Setter Property="Background"   Value="#EEF2FF"/>
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding"      Value="6,3"/>
+        </Style>
+
+        <!--
+            ViewAllLinkStyle — used via BasedOn inside Button.Style only.
+        -->
+        <Style x:Key="ViewAllLinkStyle" TargetType="Button">
+            <Setter Property="Background"      Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="Padding"         Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <TextBlock x:Name="LinkText"
+                                   FontSize="12" FontWeight="SemiBold"
+                                   Foreground="#4338CA" TextDecorations="Underline">
+                            <ContentPresenter/>
+                        </TextBlock>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="LinkText"
+                                        Property="Foreground" Value="#6366F1"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  Padding="24,20,32,20">
+        <StackPanel>
+
+            <!-- STEP HEADER -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
+                <Border Background="#4338CA" Width="44" Height="44"
+                        CornerRadius="12" VerticalAlignment="Center">
+                    <Border.Effect>
+                        <DropShadowEffect BlurRadius="12" ShadowDepth="2"
+                                          Direction="270" Color="#4338CA" Opacity="0.30"/>
+                    </Border.Effect>
+                    <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets"
+                               FontSize="20" Foreground="White"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel VerticalAlignment="Center" Margin="16,0,0,0">
+                    <TextBlock Text="Client Profile &amp; References"
+                               FontSize="22" FontWeight="Bold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    <TextBlock Text="Select a saved client or enter customer details, billing address and salesman."
+                               FontSize="12"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Margin="0,4,0,0" TextWrapping="Wrap"/>
+                </StackPanel>
+            </StackPanel>
+
+            <Border Background="{DynamicResource BorderBrush}" Height="1" Margin="0,20,0,24"/>
+
+            <!-- SAVED CLIENT CARDS SECTION -->
+            <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                    CornerRadius="16" Padding="24" Margin="0,0,0,24"
+                    BorderThickness="1" BorderBrush="{DynamicResource BorderBrush}">
+                <StackPanel>
+
+                    <!-- Section header -->
+                    <Grid Margin="0,0,0,18">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal">
+                            <Border Background="#EEF2FF" Width="28" Height="28"
+                                    CornerRadius="8" VerticalAlignment="Center" Margin="0,0,10,0">
+                                <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets"
+                                           FontSize="13" Foreground="#4338CA"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="Saved Clients" FontSize="14" FontWeight="Bold"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                <TextBlock Text="Click a card to auto-fill all client details"
+                                           FontSize="11"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <Button Grid.Column="1" Command="{Binding RefreshCardsCommand}"
+                                ToolTip="Refresh saved clients from database"
+                                Background="Transparent" BorderThickness="0"
+                                Cursor="Hand" VerticalAlignment="Center">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="RefreshBg" Background="Transparent"
+                                            CornerRadius="8" Padding="8,6">
+                                        <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets"
+                                                   FontSize="14"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="RefreshBg" Property="Background" Value="#EEF2FF"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </Grid>
+
+                    <!-- LOADING STATE -->
+                    <StackPanel Orientation="Horizontal" Margin="0,8,0,16"
+                                HorizontalAlignment="Center">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsLoadingCards}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+                        <Border Width="18" Height="18" CornerRadius="9"
+                                BorderThickness="2" BorderBrush="#4338CA"
+                                Margin="0,0,10,0" VerticalAlignment="Center">
+                            <Border.RenderTransform>
+                                <RotateTransform x:Name="ClientSpinTransform" CenterX="9" CenterY="9"/>
+                            </Border.RenderTransform>
+                            <Border.Triggers>
+                                <EventTrigger RoutedEvent="Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard RepeatBehavior="Forever">
+                                            <DoubleAnimation Storyboard.TargetName="ClientSpinTransform"
+                                                             Storyboard.TargetProperty="Angle"
+                                                             From="0" To="360" Duration="0:0:1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Border.Triggers>
+                        </Border>
+                        <TextBlock Text="Loading saved clients…" FontSize="13"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <!-- ERROR STATE -->
+                    <Border CornerRadius="10" Padding="14,10" Margin="0,0,0,12"
+                            Background="#FEF2F2" BorderBrush="#B91C1C" BorderThickness="1">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasCardsError}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Text="&#xE783;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="14" Foreground="#B91C1C"
+                                       VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBlock Text="{Binding CardsErrorMessage}" FontSize="12"
+                                       Foreground="#B91C1C" VerticalAlignment="Center"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- EMPTY STATE -->
+                    <Border CornerRadius="12" Padding="24,20" Margin="0,0,0,8"
+                            Background="{DynamicResource WindowBackgroundBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasNoSavedClients}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <StackPanel HorizontalAlignment="Center">
+                            <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="32"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       HorizontalAlignment="Center" Opacity="0.4" Margin="0,0,0,12"/>
+                            <TextBlock Text="No saved clients yet" FontSize="14" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                       HorizontalAlignment="Center"/>
+                            <TextBlock Text="Save your first invoice to build your client profile library."
+                                       FontSize="12"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       HorizontalAlignment="Center" Margin="0,6,0,0"
+                                       TextWrapping="Wrap" TextAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- CLIENT CARDS GRID -->
+                    <ItemsControl ItemsSource="{Binding SavedClientCards}">
+                        <ItemsControl.Style>
+                            <Style TargetType="ItemsControl">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsLoadingCards}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding HasNoSavedClients}" Value="True">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </ItemsControl.Style>
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Columns="3"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource ClientCardStyle}"
+                                        ToolTip="Click to auto-fill all client details">
+                                    <Border.InputBindings>
+                                        <MouseBinding MouseAction="LeftClick"
+                                                      Command="{Binding DataContext.LoadClientCommand,
+                                                                RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                      CommandParameter="{Binding}"/>
+                                    </Border.InputBindings>
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <RowDefinition Height="*"/>
+                                            <RowDefinition Height="Auto"/>
+                                        </Grid.RowDefinitions>
+                                        <Grid Grid.Row="0" Margin="0,0,0,8">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+                                            <TextBlock Grid.Column="0" Text="{Binding CustomerName}"
+                                                       FontSize="14" FontWeight="Bold"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                       TextWrapping="Wrap" VerticalAlignment="Top"/>
+                                            <Border Grid.Column="1" Style="{StaticResource UsageBadgeStyle}"
+                                                    VerticalAlignment="Top" Margin="6,0,0,0">
+                                                <TextBlock Text="{Binding UsageBadgeText}"
+                                                           FontSize="9" FontWeight="Bold" Foreground="#4338CA"/>
+                                            </Border>
+                                        </Grid>
+                                        <StackPanel Grid.Row="1">
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                                                <TextBlock Text="&#xE8EC;" FontFamily="Segoe MDL2 Assets"
+                                                           FontSize="10"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                                <TextBlock Text="{Binding TrnMasked}" FontSize="11"
+                                                           FontFamily="Consolas"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                                                <TextBlock Text="&#xE8D0;" FontFamily="Segoe MDL2 Assets"
+                                                           FontSize="10"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                                <TextBlock Text="{Binding BillingAddressPreview}"
+                                                           FontSize="11"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           VerticalAlignment="Center"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <StackPanel Grid.Row="2" Orientation="Horizontal">
+                                            <TextBlock Text="&#xE72D;" FontFamily="Segoe MDL2 Assets"
+                                                       FontSize="10" Foreground="#4338CA"
+                                                       VerticalAlignment="Center" Margin="0,0,5,0"/>
+                                            <TextBlock Text="Click to load" FontSize="10"
+                                                       FontWeight="SemiBold" Foreground="#4338CA"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <!-- VIEW ALL — Style set via Button.Style BasedOn only. -->
+                    <Button HorizontalAlignment="Left" Margin="4,8,0,0"
+                            Command="{Binding ShowAllClientsCommand}"
+                            ToolTip="Show all saved client profiles">
+                        <Button.Style>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource ViewAllLinkStyle}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasMoreClients}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <TextBlock FontSize="12" FontWeight="SemiBold"
+                                   Foreground="#4338CA" TextDecorations="Underline">
+                            <Run Text="View all ("/>
+                            <Run Text="{Binding TotalClientCount, Mode=OneWay}"/>
+                            <Run Text=")"/>
+                        </TextBlock>
+                    </Button>
+
+                </StackPanel>
+            </Border>
+
+            <!-- LOADED PROFILE INDICATOR -->
+            <Border CornerRadius="10" Padding="14,10" Margin="0,0,0,20" HorizontalAlignment="Left">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <Setter Property="Visibility"      Value="Collapsed"/>
+                        <Setter Property="Background"      Value="#D1FAE5"/>
+                        <Setter Property="BorderBrush"     Value="#047857"/>
+                        <Setter Property="BorderThickness" Value="1"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding HasLoadedProfile}" Value="True">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <StackPanel Orientation="Horizontal">
+                    <Border Background="#047857" Width="20" Height="20" CornerRadius="10"
+                            VerticalAlignment="Center" Margin="0,0,10,0">
+                        <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets"
+                                   FontSize="10" Foreground="White"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock FontSize="12" Foreground="#047857" VerticalAlignment="Center">
+                        <Run Text="Client loaded: "/>
+                        <Run Text="{Binding LoadedProfileName}" FontWeight="Bold"/>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <!-- SECTION 1 — CUSTOMER IDENTITY -->
+            <TextBlock Text="CUSTOMER IDENTITY" Style="{StaticResource SubsectionLabelStyle}"/>
+
+            <Grid Margin="0,0,0,4">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Customer Name -->
+                <StackPanel Grid.Column="0">
+                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                               ToolTip="Client company name as it appears on the invoice">
+                        <Run Text="CUSTOMER / BILL TO NAME"/>
+                        <Run Text=" *" Foreground="#B91C1C"/>
+                    </TextBlock>
+                    <TextBox Text="{Binding CustomerName, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="Enter the client's full company name"/>
+                    <!--
+                        FIXED: No Style= attribute. TextBlock.Style with BasedOn only.
+                    -->
+                    <TextBlock Text="{Binding CustomerNameValidationMessage}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock"
+                                   BasedOn="{StaticResource InlineWarningStyle}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasCustomerNameError}" Value="True">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+
+                <!-- Customer TRN -->
+                <StackPanel Grid.Column="2">
+                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                               ToolTip="Client's 15-digit UAE TRN for VAT compliance">
+                        <Run Text="CUSTOMER TRN"/>
+                    </TextBlock>
+                    <TextBox Text="{Binding CustomerTrn, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="Enter the client's 15-digit UAE TRN (digits only)"
+                             MaxLength="15"/>
+                    <!--
+                        FIXED: No Style= attribute. TextBlock.Style with BasedOn only.
+                    -->
+                    <TextBlock Text="{Binding CustomerTrnValidationMessage}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock"
+                                   BasedOn="{StaticResource InlineWarningStyle}">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsCustomerTrnValid}" Value="False">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
+
+            <Border Height="12"/>
+
+            <!-- Reference Code + Sales Representative -->
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                               ToolTip="Your internal reference code for this client account">
+                        <Run Text="CUSTOMER REFERENCE CODE"/>
+                    </TextBlock>
+                    <TextBox Text="{Binding CustomerReferenceCode, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="Optional internal client reference code"/>
+                </StackPanel>
+
+                <!-- Sales Representative — editable ComboBox -->
+                <StackPanel Grid.Column="2">
+                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                               ToolTip="Your salesman assigned to this client">
+                        <Run Text="RESPONSIBLE SALES REPRESENTATIVE"/>
+                    </TextBlock>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <ComboBox Grid.Column="0"
+                                  Style="{StaticResource SalesmanComboBoxStyle}"
+                                  ItemsSource="{Binding SalesmanOptions}"
+                                  Text="{Binding SalesRepresentative,
+                                                 UpdateSourceTrigger=PropertyChanged}"
+                                  ToolTip="Select or type a salesman name. New names saved automatically."/>
+                        <!-- Salesman loading spinner -->
+                        <Border Grid.Column="1" Width="18" Height="18" CornerRadius="9"
+                                BorderThickness="2" BorderBrush="#4338CA"
+                                Margin="8,0,0,0" VerticalAlignment="Center">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsLoadingSalesmanOptions}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <Border.RenderTransform>
+                                <RotateTransform x:Name="SalesmanSpinTransform" CenterX="9" CenterY="9"/>
+                            </Border.RenderTransform>
+                            <Border.Triggers>
+                                <EventTrigger RoutedEvent="Loaded">
+                                    <BeginStoryboard>
+                                        <Storyboard RepeatBehavior="Forever">
+                                            <DoubleAnimation Storyboard.TargetName="SalesmanSpinTransform"
+                                                             Storyboard.TargetProperty="Angle"
+                                                             From="0" To="360" Duration="0:0:1"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </EventTrigger>
+                            </Border.Triggers>
+                        </Border>
+                    </Grid>
+                </StackPanel>
+            </Grid>
+
+            <!-- Document Prepared By -->
+            <Grid Margin="0,0,0,24">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                               ToolTip="Name of the person preparing this document">
+                        <Run Text="DOCUMENT PREPARED BY"/>
+                    </TextBlock>
+                    <TextBox Text="{Binding DocumentPreparedBy, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="Enter the name of the document preparer"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- SECTION 2 — BILLING & CONTACT -->
+            <TextBlock Text="BILLING &amp; CONTACT" Style="{StaticResource SubsectionLabelStyle}"/>
+
+            <StackPanel Margin="0,0,0,16">
+                <TextBlock Style="{StaticResource FieldLabelStyle}"
+                           ToolTip="Client's full registered billing address">
+                    <Run Text="BILLING / REGISTERED ADDRESS"/>
+                </TextBlock>
+                <TextBox Text="{Binding BillingAddress, UpdateSourceTrigger=PropertyChanged}"
+                         ToolTip="Enter the client's full billing address"/>
+            </StackPanel>
+
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                               ToolTip="Name of the client executive this invoice is addressed to">
+                        <Run Text="ATTENTION EXECUTIVE NAME"/>
+                    </TextBlock>
+                    <TextBox Text="{Binding AttentionExecutiveName, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="e.g. Mr. Ahmed Al Rashid"/>
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                               ToolTip="Client's primary contact mobile or office number">
+                        <Run Text="CLIENT CONTACT MOBILE / TEL"/>
+                    </TextBlock>
+                    <TextBox Text="{Binding ClientContactPhone, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="e.g. +971 50 123 4567"/>
+                </StackPanel>
+            </Grid>
+
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

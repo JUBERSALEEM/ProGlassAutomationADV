@@ -1,12 +1,23 @@
-﻿using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+﻿// ═══════════════════════════════════════════════════════════════════════
+// FILE: Services/ProformaInvoice/ProformaInvoiceRepository/ProformaInvoiceMapper.cs
+// ═══════════════════════════════════════════════════════════════════════
+// CHAT 15 — PROJECT REFERENCE FIELD ADDED
+//   3 precise changes:
+//     1. BuildSnapshot: ProjectSnapshot gains ProjectReference
+//     2. RestoreWizardFromSnapshot: project.ProjectReference restored
+//     3. SafeAutoSaveMasterDataAsync: projectReference passed to auto-save
+//   All BUG-15/16/17/18/20 + PHASE 14 + step swap fixes preserved.
+// ═══════════════════════════════════════════════════════════════════════
+
+using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Models.ProformaInvoice.Specifications;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.CustomCharges;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges.Wastages;
 using ProGlassAutomation.Models.ProformaInvoice.Step7PrintPreview.TermsAndConditions;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup;
-using ProGlassAutomation.ViewModels.ProformaInvoice.Step2ProjectSpecs;
-using ProGlassAutomation.ViewModels.ProformaInvoice.Step3ClientProfile;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step2ClientProfile;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step3ProjectSpecs;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.InvoiceMainSummary;
@@ -23,21 +34,15 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
     /// <summary>
     /// Converts between live wizard ViewModels and the JSON-serializable
     /// ProformaInvoiceSnapshot / SavedProformaInvoice entity.
-    /// Supports both SAVE (VMs → Snapshot → Entity) and RESTORE
-    /// (Entity → Snapshot → VMs) paths.
     ///
-    /// BUG-15 [CRITICAL]: Entity.Status now reflects PreparedByStatus
-    ///         override when the user changed it in the printable preview.
-    /// BUG-16: Wastages restore no longer calls UI command from mapper.
-    /// BUG-17: Spec name mismatch check removed — FilteredSpecs is now
-    ///         an ICollectionView populated asynchronously.
+    /// BUG-15 [CRITICAL]: Status reflects PreparedByStatus override.
+    /// BUG-16: Wastages restore — no UI command called from mapper.
+    /// BUG-17: Spec name mismatch check removed.
     /// BUG-18: DeserializeSnapshot catches only JsonException.
     /// BUG-20: Shared static JsonSerializerOptions.
-    ///
-    /// PHASE 14: Auto-save hook — BuildEntityFromWizard now fires
-    ///           SafeAutoSaveMasterDataAsync to upsert company/client/
-    ///           project/salesman into masterdata.db. Fire-and-forget —
-    ///           never blocks invoice save.
+    /// PHASE 14: Auto-save hook — fire-and-forget to masterdata.db.
+    /// CHAT 15:  Step swap (Step2=Client, Step3=Project).
+    ///           ProjectReference field added.
     /// </summary>
     public static class ProformaInvoiceMapper
     {
@@ -48,14 +53,14 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             PropertyNameCaseInsensitive = true
         };
 
-        // ══════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════
         //  SAVE PATH: VMs → Snapshot → Entity
-        // ══════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════
 
         public static SavedProformaInvoice BuildEntityFromWizard(
             CompanySetupViewModel company,
-            ProjectSpecsViewModel project,
             ClientProfileViewModel client,
+            ProjectSpecsViewModel project,
             DataGridViewModel dataGrid,
             OtherChargesViewModel otherCharges,
             InvoiceMainSummaryViewModel summary,
@@ -63,19 +68,17 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             PrintableInvoiceViewModel printable)
         {
             var snapshot = BuildSnapshot(
-                company, project, client,
+                company, client, project,
                 dataGrid, otherCharges,
                 summary, terms, printable);
 
             string json = JsonSerializer.Serialize(snapshot, _jsonOptions);
 
-            // BUG-15 [CRITICAL]: Status column now reflects the
-            // effective status — printable override takes precedence
-            // over the company setup status. This ensures the list
-            // view shows the same status that appears on the PDF.
-            string effectiveStatus = !string.IsNullOrWhiteSpace(printable?.PreparedByStatus)
-                ? printable.PreparedByStatus
-                : (company.ProformaStatus ?? "Draft");
+            // BUG-15: Effective status — printable override takes precedence
+            string effectiveStatus =
+                !string.IsNullOrWhiteSpace(printable?.PreparedByStatus)
+                    ? printable.PreparedByStatus
+                    : (company.ProformaStatus ?? "Draft");
 
             var entity = new SavedProformaInvoice
             {
@@ -83,7 +86,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 CompanyName = company.CompanyName ?? "",
                 CustomerName = client.CustomerName ?? "",
                 ProjectName = project.ProjectIdentifierName ?? "",
-                Status = effectiveStatus,   // ← BUG-15 fix
+                Status = effectiveStatus,
                 IssueDate = company.IssueDate,
                 ValidUntil = company.ValidUntil,
 
@@ -96,43 +99,32 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 FullSnapshotJson = json
             };
 
-            // ══════════════════════════════════════════════════════════════
-            //  PHASE 14 — Master Data auto-save
-            //
-            //  Extracts company, client, project, and salesman from the
-            //  wizard VMs and upserts them into masterdata.db.
-            //
-            //  Fire-and-forget — failures are logged but never block
-            //  invoice save. Master data is a CONVENIENCE feature
-            //  (card auto-fill); invoice save is the CRITICAL path.
-            // ══════════════════════════════════════════════════════════════
+            // PHASE 14 — Master Data auto-save (fire-and-forget)
             if (App.MasterData != null)
             {
-                _ = SafeAutoSaveMasterDataAsync(company, project, client);
+                _ = SafeAutoSaveMasterDataAsync(company, client, project);
             }
 
             return entity;
         }
 
         /// <summary>
-        /// Phase 14 — Fire-and-forget master data auto-save.
-        /// Private helper so BuildEntityFromWizard stays clean.
-        /// All exceptions swallowed — master data must never block invoice save.
+        /// Phase 14: Fire-and-forget master data auto-save.
+        /// CHAT 15: projectReference now passed to AutoSaveFromInvoiceAsync.
+        /// All exceptions swallowed — must never block invoice save.
         /// </summary>
         private static async Task SafeAutoSaveMasterDataAsync(
             CompanySetupViewModel company,
-            ProjectSpecsViewModel project,
-            ClientProfileViewModel client)
+            ClientProfileViewModel client,
+            ProjectSpecsViewModel project)
         {
             try
             {
                 await App.MasterData.AutoSaveFromInvoiceAsync(
-                    // Company fields
                     companyName: company.CompanyName ?? "",
                     companyTrn: company.CompanyTrn ?? "",
                     companyLocation: company.CompanyLocation ?? "",
 
-                    // Client fields
                     customerName: client.CustomerName ?? "",
                     customerTrn: client.CustomerTrn ?? "",
                     customerReferenceCode: client.CustomerReferenceCode ?? "",
@@ -142,17 +134,14 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     attentionExecutiveName: client.AttentionExecutiveName ?? "",
                     clientContactPhone: client.ClientContactPhone ?? "",
 
-                    // Project fields
                     projectIdentifierName: project.ProjectIdentifierName ?? "",
                     projectContractNo: project.ProjectContractNo ?? "",
+                    projectReference: project.ProjectReference ?? "",   // CHAT 15: NEW
                     siteDeliveryLocation: project.SiteDeliveryLocation ?? "",
                     lpoNumber: project.LpoNumber ?? "");
             }
             catch (Exception ex)
             {
-                // Master data auto-save must NEVER block invoice save.
-                // Log and move on. User sees fewer auto-fill cards next
-                // time but their invoice is safe.
                 Debug.WriteLine(
                     $"[ProformaInvoiceMapper] Master data auto-save failed: {ex.Message}");
             }
@@ -160,8 +149,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 
         private static ProformaInvoiceSnapshot BuildSnapshot(
             CompanySetupViewModel company,
-            ProjectSpecsViewModel project,
             ClientProfileViewModel client,
+            ProjectSpecsViewModel project,
             DataGridViewModel dataGrid,
             OtherChargesViewModel otherCharges,
             InvoiceMainSummaryViewModel summary,
@@ -181,14 +170,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     ProformaStatus = company.ProformaStatus ?? "Draft"
                 },
 
-                Project = new ProjectSnapshot
-                {
-                    ProjectIdentifierName = project.ProjectIdentifierName ?? "",
-                    ProjectContractNo = project.ProjectContractNo ?? "",
-                    SiteDeliveryLocation = project.SiteDeliveryLocation ?? "",
-                    LpoNumber = project.LpoNumber ?? ""
-                },
-
                 Client = new ClientSnapshot
                 {
                     CustomerName = client.CustomerName ?? "",
@@ -199,6 +180,15 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     BillingAddress = client.BillingAddress ?? "",
                     AttentionExecutiveName = client.AttentionExecutiveName ?? "",
                     ClientContactPhone = client.ClientContactPhone ?? ""
+                },
+
+                Project = new ProjectSnapshot
+                {
+                    ProjectIdentifierName = project.ProjectIdentifierName ?? "",
+                    ProjectContractNo = project.ProjectContractNo ?? "",
+                    ProjectReference = project.ProjectReference ?? "",  // CHAT 15: NEW
+                    SiteDeliveryLocation = project.SiteDeliveryLocation ?? "",
+                    LpoNumber = project.LpoNumber ?? ""
                 },
 
                 Summary = new InvoiceSummarySnapshot
@@ -317,15 +307,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             return snap;
         }
 
-        // ══════════════════════════════════════════════════════════════════
-        //  RESTORE PATH: Entity → Snapshot → VMs (Phase 7.16)
-        // ══════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════
+        //  RESTORE PATH: Entity → Snapshot → VMs
+        // ══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Deserializes the JSON snapshot from a saved entity.
-        /// BUG-18: catches only JsonException — other exceptions bubble
-        /// up so real bugs can be caught. Malformed JSON returns empty
-        /// snapshot with diagnostic log.
+        /// BUG-18: catches only JsonException.
         /// </summary>
         public static ProformaInvoiceSnapshot DeserializeSnapshot(
             SavedProformaInvoice entity)
@@ -352,8 +339,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         public static void RestoreWizardFromSnapshot(
             ProformaInvoiceSnapshot snap,
             CompanySetupViewModel company,
-            ProjectSpecsViewModel project,
             ClientProfileViewModel client,
+            ProjectSpecsViewModel project,
             DataGridViewModel dataGrid,
             OtherChargesViewModel otherCharges,
             InvoiceMainSummaryViewModel summary,
@@ -362,7 +349,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         {
             if (snap == null) return;
 
-            // ── Step 1: Company ─────────────────────────────────────────
+            // ── Step 1: Company ────────────────────────────────────────
             if (snap.Company != null)
             {
                 company.CompanyName = snap.Company.CompanyName ?? "";
@@ -374,16 +361,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 company.ProformaStatus = snap.Company.ProformaStatus ?? "Draft";
             }
 
-            // ── Step 2: Project ─────────────────────────────────────────
-            if (snap.Project != null)
-            {
-                project.ProjectIdentifierName = snap.Project.ProjectIdentifierName ?? "";
-                project.ProjectContractNo = snap.Project.ProjectContractNo ?? "";
-                project.SiteDeliveryLocation = snap.Project.SiteDeliveryLocation ?? "";
-                project.LpoNumber = snap.Project.LpoNumber ?? "";
-            }
-
-            // ── Step 3: Client ──────────────────────────────────────────
+            // ── Step 2: Client ─────────────────────────────────────────
             if (snap.Client != null)
             {
                 client.CustomerName = snap.Client.CustomerName ?? "";
@@ -396,17 +374,28 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 client.ClientContactPhone = snap.Client.ClientContactPhone ?? "";
             }
 
-            // ── Step 5: DataGrid spec groups ───────────────────────────
+            // ── Step 3: Project ────────────────────────────────────────
+            if (snap.Project != null)
+            {
+                project.ProjectIdentifierName = snap.Project.ProjectIdentifierName ?? "";
+                project.ProjectContractNo = snap.Project.ProjectContractNo ?? "";
+                project.ProjectReference = snap.Project.ProjectReference ?? "";  // CHAT 15: NEW
+                project.SiteDeliveryLocation = snap.Project.SiteDeliveryLocation ?? "";
+                project.LpoNumber = snap.Project.LpoNumber ?? "";
+            }
+
+            // ── Step 5: DataGrid ───────────────────────────────────────
             RestoreDataGrid(snap, dataGrid);
 
-            // ── Step 6: Other Charges ───────────────────────────────────
+            // ── Step 6: Other Charges ──────────────────────────────────
             RestoreOtherCharges(snap, otherCharges);
 
-            // ── Phase 7.12: Financial Summary settings ─────────────────
+            // ── Financial Summary ──────────────────────────────────────
             if (snap.Summary != null)
             {
                 if (System.Enum.TryParse<
-                    ProGlassAutomation.Models.ProformaInvoice.Step7PrintPreview.InvoiceMainSummary.DiscountType>(
+                    ProGlassAutomation.Models.ProformaInvoice
+                        .Step7PrintPreview.InvoiceMainSummary.DiscountType>(
                         snap.Summary.DiscountType, out var dt))
                 {
                     summary.SelectedDiscountType = dt;
@@ -416,10 +405,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 summary.VatPercent = snap.Summary.VatPercent;
             }
 
-            // ── Phase 7.14: Terms & Conditions ──────────────────────────
+            // ── Terms & Conditions ─────────────────────────────────────
             RestoreTerms(snap, terms);
 
-            // ── Phase 7.13: Prepared By ─────────────────────────────────
+            // ── Prepared By ────────────────────────────────────────────
             if (snap.PreparedBy != null)
             {
                 printable.PreparedByName = snap.PreparedBy.PreparedByName ?? "";
@@ -476,7 +465,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         {
             if (snap.OtherCharges == null) return;
 
-            // Predefined charges — match by TemplateKey
             if (snap.OtherCharges.PredefinedCharges != null)
             {
                 foreach (var cSnap in snap.OtherCharges.PredefinedCharges)
@@ -540,7 +528,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 }
             }
 
-            // Custom charges — clear and rebuild
             otherCharges.CustomChargesSection.AddedCharges.Clear();
             if (snap.OtherCharges.CustomCharges != null)
             {

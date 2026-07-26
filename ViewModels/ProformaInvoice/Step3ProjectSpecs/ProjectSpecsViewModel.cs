@@ -1,0 +1,434 @@
+﻿// ═══════════════════════════════════════════════════════════════════════
+// FILE: ViewModels/ProformaInvoice/Step3ProjectSpecs/ProjectSpecsViewModel.cs
+// ═══════════════════════════════════════════════════════════════════════
+// CHAT 15 — PROJECT REFERENCE FIELD ADDED
+//   4 precise additions:
+//     1. ProjectReference property with change notification
+//     2. ProjectProfileCard.ProjectReference field + ReferencePreview
+//     3. LoadCardsAsync maps p.ProjectReference to card
+//     4. LoadProjectFromCard sets ProjectReference from card
+//   All P-01..P-10 features + client filter logic preserved.
+// ═══════════════════════════════════════════════════════════════════════
+
+using ProGlassAutomation.Commands;
+using ProGlassAutomation.Models.MasterData;
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows.Input;
+
+namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step3ProjectSpecs
+{
+    // ═══════════════════════════════════════════════════════════════════
+    //  PROJECT PROFILE CARD
+    // ═══════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// Display model for a saved project card in the Fast Setup grid.
+    /// Built from <see cref="SavedProject"/> retrieved from masterdata.db.
+    ///
+    /// CHAT 15: ProjectReference field added.
+    /// </summary>
+    public class ProjectProfileCard : ViewModelBase
+    {
+        public int Id { get; set; }
+        public string ProjectIdentifierName { get; set; } = "";
+        public string ProjectContractNo { get; set; } = "";
+        public string ProjectReference { get; set; } = "";   // CHAT 15: NEW
+        public string SiteDeliveryLocation { get; set; } = "";
+        public string LpoNumber { get; set; } = "";
+        public string CustomerName { get; set; } = "";
+        public int UsageCount { get; set; }
+        public string LastUsed { get; set; } = "";
+
+        /// <summary>Usage badge label.</summary>
+        public string UsageBadgeText =>
+            UsageCount > 0 ? $"Used {UsageCount}×" : "New";
+
+        /// <summary>Customer context shown on card.</summary>
+        public string CustomerPreview =>
+            string.IsNullOrWhiteSpace(CustomerName)
+                ? "No client linked"
+                : CustomerName;
+
+        /// <summary>
+        /// Contract number — with clear "Project Name/No:" prefix.
+        /// Truncated to 30 chars for card display.
+        /// </summary>
+        public string ContractPreview
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(ProjectContractNo))
+                    return "No project no.";
+                var v = ProjectContractNo.Length > 30
+                    ? ProjectContractNo.Substring(0, 30) + "…"
+                    : ProjectContractNo;
+                return v;
+            }
+        }
+
+        /// <summary>
+        /// CHAT 15: NEW — Project reference preview with clear label.
+        /// Descriptive text (e.g. "HOUSE FOR IMAD HABIB").
+        /// Truncated to 40 chars.
+        /// </summary>
+        public string ReferencePreview
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(ProjectReference))
+                    return "No reference";
+                return ProjectReference.Length > 40
+                    ? ProjectReference.Substring(0, 40) + "…"
+                    : ProjectReference;
+            }
+        }
+    }
+
+    // ═══════════════════════════════════════════════════════════════════
+    //  PROJECT SPECS VIEW MODEL
+    // ═══════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// ViewModel for Step 3 of the Proforma Invoice wizard (was Step 2).
+    /// Handles project identification, contract numbers, delivery location,
+    /// LPO, and saved project card auto-fill.
+    ///
+    /// P-07: Shell VM calls SetClientFilter() when client card is clicked
+    ///       in Step 2. Client-matching projects float to top of list.
+    /// E-FIX: DateTime.HasValue removed — non-nullable DateTime.
+    /// CHAT 15: ProjectReference field added.
+    /// </summary>
+    public class ProjectSpecsViewModel : ViewModelBase
+    {
+        // ── Guard while populating from card ──────────────────────────
+        private bool _isLoadingProfile;
+
+        // ── Internal full list for View all toggle ────────────────────
+        private List<ProjectProfileCard> _allProjectCards = new();
+        private bool _showingAll = false;
+
+        // ── Current client filter ─────────────────────────────────────
+        private string _activeClientFilter = "";
+
+        // ═══════════════════════════════════════════════════════════════
+        //  PROJECT FIELDS
+        // ═══════════════════════════════════════════════════════════════
+
+        private string _projectIdentifierName = string.Empty;
+        public string ProjectIdentifierName
+        {
+            get => _projectIdentifierName;
+            set
+            {
+                if (_projectIdentifierName == value) return;
+                _projectIdentifierName = value;
+                OnPropertyChanged();
+                MarkUserEditedIfNotLoading();
+            }
+        }
+
+        private string _projectContractNo = string.Empty;
+        public string ProjectContractNo
+        {
+            get => _projectContractNo;
+            set
+            {
+                if (_projectContractNo == value) return;
+                _projectContractNo = value;
+                OnPropertyChanged();
+                MarkUserEditedIfNotLoading();
+            }
+        }
+
+        // CHAT 15: NEW field
+        private string _projectReference = string.Empty;
+        public string ProjectReference
+        {
+            get => _projectReference;
+            set
+            {
+                if (_projectReference == value) return;
+                _projectReference = value;
+                OnPropertyChanged();
+                MarkUserEditedIfNotLoading();
+            }
+        }
+
+        private string _siteDeliveryLocation = string.Empty;
+        public string SiteDeliveryLocation
+        {
+            get => _siteDeliveryLocation;
+            set
+            {
+                if (_siteDeliveryLocation == value) return;
+                _siteDeliveryLocation = value;
+                OnPropertyChanged();
+                MarkUserEditedIfNotLoading();
+            }
+        }
+
+        private string _lpoNumber = string.Empty;
+        public string LpoNumber
+        {
+            get => _lpoNumber;
+            set
+            {
+                if (_lpoNumber == value) return;
+                _lpoNumber = value;
+                OnPropertyChanged();
+                MarkUserEditedIfNotLoading();
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        //  P-06: CLIENT FILTER INDICATOR
+        // ═══════════════════════════════════════════════════════════════
+
+        private string _filteredClientName = "";
+        public string FilteredClientName
+        {
+            get => _filteredClientName;
+            private set
+            {
+                _filteredClientName = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsClientFilterActive));
+                OnPropertyChanged(nameof(FilterBannerText));
+            }
+        }
+
+        public bool IsClientFilterActive =>
+            !string.IsNullOrEmpty(FilteredClientName);
+
+        public string FilterBannerText =>
+            IsClientFilterActive
+                ? $"Showing projects for: {FilteredClientName}"
+                : "All saved projects";
+
+        // ═══════════════════════════════════════════════════════════════
+        //  P-02: SAVED PROJECT CARDS
+        // ═══════════════════════════════════════════════════════════════
+
+        public ObservableCollection<ProjectProfileCard> SavedProjectCards { get; }
+            = new ObservableCollection<ProjectProfileCard>();
+
+        private bool _isLoadingCards;
+        public bool IsLoadingCards
+        {
+            get => _isLoadingCards;
+            set { _isLoadingCards = value; OnPropertyChanged(); }
+        }
+
+        public bool HasNoSavedProjects =>
+            !IsLoadingCards
+            && string.IsNullOrEmpty(CardsErrorMessage)
+            && SavedProjectCards.Count == 0
+            && _allProjectCards.Count == 0;
+
+        private string _cardsErrorMessage = "";
+        public string CardsErrorMessage
+        {
+            get => _cardsErrorMessage;
+            set
+            {
+                _cardsErrorMessage = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasCardsError));
+            }
+        }
+        public bool HasCardsError => !string.IsNullOrEmpty(CardsErrorMessage);
+
+        public bool HasMoreProjects =>
+            !_showingAll && _allProjectCards.Count > 6;
+
+        public int TotalProjectCount => _allProjectCards.Count;
+
+        // ═══════════════════════════════════════════════════════════════
+        //  P-09: LOADED PROFILE INDICATOR
+        // ═══════════════════════════════════════════════════════════════
+
+        private string _loadedProfileName = "";
+        public string LoadedProfileName
+        {
+            get => _loadedProfileName;
+            set
+            {
+                _loadedProfileName = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasLoadedProfile));
+            }
+        }
+
+        public bool HasLoadedProfile => !string.IsNullOrEmpty(LoadedProfileName);
+
+        // ═══════════════════════════════════════════════════════════════
+        //  COMMANDS
+        // ═══════════════════════════════════════════════════════════════
+
+        public ICommand LoadProjectCommand { get; }
+        public ICommand ShowAllProjectsCommand { get; }
+        public ICommand RefreshCardsCommand { get; }
+        public ICommand ClearClientFilterCommand { get; }
+
+        // ═══════════════════════════════════════════════════════════════
+        //  CONSTRUCTOR
+        // ═══════════════════════════════════════════════════════════════
+
+        public ProjectSpecsViewModel()
+        {
+            LoadProjectCommand = new RelayCommand(param =>
+            {
+                if (param is ProjectProfileCard card)
+                    LoadProjectFromCard(card);
+            });
+
+            ShowAllProjectsCommand = new RelayCommand(_ =>
+            {
+                _showingAll = true;
+                RebuildVisibleCards();
+                OnPropertyChanged(nameof(HasMoreProjects));
+            });
+
+            RefreshCardsCommand = new RelayCommand(
+                _ => SafeFireAsync(LoadCardsAsync));
+
+            ClearClientFilterCommand = new RelayCommand(_ =>
+            {
+                SetClientFilter("");
+            });
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        //  P-03: LOAD PROJECT CARDS FROM MASTERDATA.DB
+        // ═══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Loads saved projects from masterdata.db.
+        /// Client-matching projects float to top when filter active.
+        /// E-FIX: LastUsedAt is DateTime — check against default.
+        /// CHAT 15: ProjectReference mapped into card.
+        /// </summary>
+        public async Task LoadCardsAsync()
+        {
+            if (App.MasterData == null) return;
+
+            IsLoadingCards = true;
+            CardsErrorMessage = "";
+            _showingAll = false;
+
+            try
+            {
+                var projects = await App.MasterData.GetAllProjectsAsync();
+
+                var hasFilter = !string.IsNullOrWhiteSpace(_activeClientFilter);
+
+                _allProjectCards = projects
+                    .Select(p => new ProjectProfileCard
+                    {
+                        Id = p.Id,
+                        ProjectIdentifierName = p.ProjectIdentifierName ?? "",
+                        ProjectContractNo = p.ProjectContractNo ?? "",
+                        ProjectReference = p.ProjectReference ?? "",  // CHAT 15: NEW
+                        SiteDeliveryLocation = p.SiteDeliveryLocation ?? "",
+                        LpoNumber = p.LpoNumber ?? "",
+                        CustomerName = p.CustomerName ?? "",
+                        UsageCount = p.UsageCount,
+                        LastUsed = p.LastUsedAt != default(DateTime)
+                                                    ? p.LastUsedAt.ToString("dd MMM yyyy")
+                                                    : ""
+                    })
+                    .OrderByDescending(p =>
+                        hasFilter &&
+                        p.CustomerName.Equals(
+                            _activeClientFilter,
+                            StringComparison.OrdinalIgnoreCase))
+                    .ThenByDescending(p => p.UsageCount)
+                    .ToList();
+
+                RebuildVisibleCards();
+            }
+            catch (Exception ex)
+            {
+                CardsErrorMessage =
+                    $"Could not load saved projects: {ex.Message}";
+            }
+            finally
+            {
+                IsLoadingCards = false;
+                OnPropertyChanged(nameof(HasNoSavedProjects));
+                OnPropertyChanged(nameof(HasMoreProjects));
+                OnPropertyChanged(nameof(TotalProjectCount));
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        //  P-07: CLIENT FILTER
+        // ═══════════════════════════════════════════════════════════════
+
+        public void SetClientFilter(string clientName)
+        {
+            _activeClientFilter = clientName ?? "";
+            FilteredClientName = _activeClientFilter;
+            _showingAll = false;
+            SafeFireAsync(LoadCardsAsync);
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        //  PRIVATE HELPERS
+        // ═══════════════════════════════════════════════════════════════
+
+        private void RebuildVisibleCards()
+        {
+            SavedProjectCards.Clear();
+
+            var visible = _showingAll
+                ? _allProjectCards
+                : _allProjectCards.Take(6).ToList();
+
+            foreach (var card in visible)
+                SavedProjectCards.Add(card);
+
+            OnPropertyChanged(nameof(HasNoSavedProjects));
+            OnPropertyChanged(nameof(HasMoreProjects));
+        }
+
+        /// <summary>
+        /// P-04/P-09: Fills all project fields from selected card.
+        /// CHAT 15: Also fills ProjectReference.
+        /// </summary>
+        private void LoadProjectFromCard(ProjectProfileCard card)
+        {
+            _isLoadingProfile = true;
+            try
+            {
+                ProjectIdentifierName = card.ProjectIdentifierName;
+                ProjectContractNo = card.ProjectContractNo;
+                ProjectReference = card.ProjectReference;   // CHAT 15: NEW
+                SiteDeliveryLocation = card.SiteDeliveryLocation;
+                LpoNumber = card.LpoNumber;
+                LoadedProfileName = card.ProjectIdentifierName;
+            }
+            finally
+            {
+                _isLoadingProfile = false;
+            }
+        }
+
+        private void MarkUserEditedIfNotLoading()
+        {
+            if (_isLoadingProfile) return;
+            if (!string.IsNullOrEmpty(_loadedProfileName))
+                LoadedProfileName = "";
+        }
+
+        private static async void SafeFireAsync(Func<Task> action)
+        {
+            try { await action(); }
+            catch { /* error shown via CardsErrorMessage */ }
+        }
+    }
+}

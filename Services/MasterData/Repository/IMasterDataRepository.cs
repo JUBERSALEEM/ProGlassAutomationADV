@@ -1,4 +1,13 @@
-﻿using ProGlassAutomation.Models.MasterData;
+﻿// ═══════════════════════════════════════════════════════════════════════
+// FILE: Services/MasterData/Repository/IMasterDataRepository.cs
+// ═══════════════════════════════════════════════════════════════════════
+// CHAT 15 — PROJECT REFERENCE PARAMETER ADDED
+//   ONLY change: AutoSaveFromInvoiceAsync gains projectReference param.
+//   All original XML documentation preserved exactly.
+//   No method signatures changed except the auto-save one.
+// ═══════════════════════════════════════════════════════════════════════
+
+using ProGlassAutomation.Models.MasterData;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -163,7 +172,11 @@ namespace ProGlassAutomation.Services.MasterData.Repository
         ///   companyName, companyTrn, companyLocation
         ///   customerName, customerTrn, customerRef, salesRep,
         ///   preparedBy, billingAddress, attentionName, contactPhone
-        ///   projectName, contractNo, siteDelivery, lpoNumber
+        ///   projectName, contractNo, projectReference, siteDelivery, lpoNumber
+        ///
+        /// CHAT 15: projectReference parameter added.
+        ///   Descriptive project reference (e.g. "HOUSE FOR IMAD HABIB")
+        ///   separate from projectContractNo (short code, e.g. "428 IMAD HABIB").
         /// </summary>
         Task AutoSaveFromInvoiceAsync(
             // Company fields
@@ -184,6 +197,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             // Project fields
             string projectIdentifierName,
             string projectContractNo,
+            string projectReference,        // CHAT 15: NEW
             string siteDeliveryLocation,
             string lpoNumber);
     }

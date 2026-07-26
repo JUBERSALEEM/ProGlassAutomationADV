@@ -1,4 +1,15 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿// ═══════════════════════════════════════════════════════════════════════
+// FILE: Services/MasterData/Repository/MasterDataRepository.cs
+// ═══════════════════════════════════════════════════════════════════════
+// CHAT 15 — PROJECT REFERENCE FIELD ADDED
+//   3 precise changes:
+//     1. SaveOrUpdateProjectAsync update-branch: persist ProjectReference
+//     2. AutoSaveFromInvoiceAsync signature: add projectReference param
+//     3. AutoSaveFromInvoiceAsync project block: pass ProjectReference
+//   All other code, comments, methods preserved byte-for-byte.
+// ═══════════════════════════════════════════════════════════════════════
+
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.MasterData;
 using ProGlassAutomation.Services.MasterData.Database;
 using System;
@@ -211,6 +222,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             {
                 // Update — latest data wins
                 existing.ProjectContractNo = project.ProjectContractNo;
+                existing.ProjectReference = project.ProjectReference;    // CHAT 15: NEW
                 existing.SiteDeliveryLocation = project.SiteDeliveryLocation;
                 existing.LpoNumber = project.LpoNumber;
                 existing.UsageCount += 1;
@@ -368,6 +380,9 @@ namespace ProGlassAutomation.Services.MasterData.Repository
         //  race condition), the others still succeed. Errors are
         //  swallowed with Debug.WriteLine because master data auto-save
         //  should NEVER block invoice save.
+        //
+        //  CHAT 15: projectReference parameter added between
+        //           projectContractNo and siteDeliveryLocation.
         // ══════════════════════════════════════════════════════════════════
 
         public async Task AutoSaveFromInvoiceAsync(
@@ -389,6 +404,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             // Project fields
             string projectIdentifierName,
             string projectContractNo,
+            string projectReference,           // CHAT 15: NEW
             string siteDeliveryLocation,
             string lpoNumber)
         {
@@ -461,6 +477,7 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                     {
                         ProjectIdentifierName = projectIdentifierName.Trim(),
                         ProjectContractNo = (projectContractNo ?? "").Trim(),
+                        ProjectReference = (projectReference ?? "").Trim(),   // CHAT 15: NEW
                         SiteDeliveryLocation = (siteDeliveryLocation ?? "").Trim(),
                         LpoNumber = (lpoNumber ?? "").Trim(),
                         CustomerName = (customerName ?? "").Trim()

@@ -1,4 +1,23 @@
-﻿using ProGlassAutomation.Commands;
+﻿// ═══════════════════════════════════════════════════════════════════════
+// FILE: ViewModels/ProformaInvoice/Step1CompanySetup/CompanySetupViewModel.cs
+// ═══════════════════════════════════════════════════════════════════════
+// CHAT 15 — ALL FIXES APPLIED
+//   C-01  SavedCompany cards from App.MasterData.GetAllCompaniesAsync()
+//   C-02  CompanyProfileCard rebuilt (ProjectName removed)
+//   C-03  IsLoadingCards loading state
+//   C-04  HasNoSavedCompanies empty state
+//   C-05  CardsErrorMessage error state
+//   C-06  LoadCardsAsync() — max 6, UsageCount ordered
+//   C-07  TrnMasked on card
+//   C-08  CompanyNameValidationMessage + HasCompanyNameError
+//   C-09  ProformaIdValidationMessage + HasProformaIdError
+//   C-10  ShowAllCompaniesCommand + HasMoreCompanies + TotalCompanyCount
+//   C-11  BUG-33/34/35/36/37 preserved
+//   E-FIX DateTime.HasValue removed — LastUsedAt is DateTime not DateTime?
+// ═══════════════════════════════════════════════════════════════════════
+
+using ProGlassAutomation.Commands;
+using ProGlassAutomation.Models.MasterData;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -8,50 +27,86 @@ using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
 {
+    // ═══════════════════════════════════════════════════════════════════
+    //  COMPANY PROFILE CARD
+    // ═══════════════════════════════════════════════════════════════════
+
     /// <summary>
-    /// Represents a saved company profile that can be quickly loaded.
-    ///
-    /// BUG-34: This is a placeholder card until the Master Data module
-    /// (Phase 20+) provides real company profiles. The SavedProfiles
-    /// collection is now EMPTY by default — no more fake sample data
-    /// with real-looking UAE TRN numbers in production.
+    /// Display model for a saved company card in the Fast Setup grid.
+    /// Built from <see cref="SavedCompany"/> retrieved from masterdata.db.
     /// </summary>
     public class CompanyProfileCard : ViewModelBase
     {
+        public int Id { get; set; }
         public string CompanyName { get; set; } = "";
-        public string ProjectName { get; set; } = "";
-
-        // Full data pre-filled when this profile is loaded
         public string Trn { get; set; } = "";
         public string Location { get; set; } = "";
+        public int UsageCount { get; set; }
+        public string LastUsed { get; set; } = "";
+
+        /// <summary>
+        /// Privacy-safe TRN display — "100**********003".
+        /// Shows first 3 + last 3 digits, masks middle with *.
+        /// </summary>
+        public string TrnMasked
+        {
+            get
+            {
+                if (string.IsNullOrWhiteSpace(Trn))
+                    return "No TRN";
+
+                var digits = new string(Trn.Where(char.IsDigit).ToArray());
+                if (digits.Length < 6) return digits;
+
+                int visibleEnd = Math.Min(3, digits.Length);
+                int visibleStart = Math.Max(0, digits.Length - 3);
+                int maskLen = Math.Max(0, digits.Length - visibleEnd
+                                               - (digits.Length - visibleStart));
+
+                return digits.Substring(0, visibleEnd)
+                     + new string('*', maskLen)
+                     + digits.Substring(visibleStart);
+            }
+        }
+
+        /// <summary>Usage badge label — "Used 5×" or "New".</summary>
+        public string UsageBadgeText =>
+            UsageCount > 0 ? $"Used {UsageCount}×" : "New";
     }
+
+    // ═══════════════════════════════════════════════════════════════════
+    //  COMPANY SETUP VIEW MODEL
+    // ═══════════════════════════════════════════════════════════════════
 
     /// <summary>
     /// ViewModel for Step 1 of the Proforma Invoice wizard.
-    /// Handles company identity, TRN, dates, and fast-load profile selection.
+    /// Handles company identity, TRN, dates, and fast-load profile cards.
     ///
-    /// BUG-33 [HIGH]: ProformaId no longer uses "Ticks % 1000" which
-    ///                caused collisions. Now queries the DB via
-    ///                App.Invoices.SuggestNextIdAsync() for a unique ID.
-    ///                Falls back to a safe GUID-based ID if DB unavailable.
-    /// BUG-34 [HIGH]: SavedProfiles is now empty by default. Loading
-    ///                real profiles from Master Data DB is Phase 20+.
-    /// BUG-35 [MEDIUM]: UAE TRN 15-digit validation exposed via
-    ///                  TrnValidationMessage property (View binds to it).
-    /// BUG-36 [MEDIUM]: StatusOptions documented — matches list filter.
-    /// BUG-37 [LOW]: LoadedProfileName cleared when user edits fields
-    ///               manually after loading a profile.
+    /// BUG-33 [HIGH]:   ProformaId uses DB-verified unique ID.
+    /// BUG-34 [HIGH]:   SavedProfiles loaded from masterdata.db.
+    /// BUG-35 [MEDIUM]: UAE TRN 15-digit validation.
+    /// BUG-36 [MEDIUM]: StatusOptions in sync with list VM.
+    /// BUG-37 [LOW]:    LoadedProfileName cleared on manual edit.
+    /// C-08:            CompanyName required field inline warning.
+    /// C-09:            ProformaId required field inline warning.
+    /// C-10:            View all (N) when more than 6 companies exist.
+    /// E-FIX:           DateTime.HasValue removed — non-nullable DateTime.
     /// </summary>
     public class CompanySetupViewModel : ViewModelBase
     {
-        // === Callback to parent wizard for navigation ===
+        // ── Callback to parent wizard ─────────────────────────────────
         private readonly Action<int>? _navigateToStep;
 
-        // BUG-37: guard flag — true while LoadProfile is actively populating,
-        // so setters don't wipe LoadedProfileName during initial fill
+        // ── BUG-37: guard while loading profile ───────────────────────
         private bool _isLoadingProfile;
 
-        // === Company Fields ===
+        // ── Internal full list for View all toggle ────────────────────
+        private List<CompanyProfileCard> _allCompanyCards = new();
+        private bool _showingAll = false;
+
+        // ═══════════════════════════════════════════════════════════════
+        //  COMPANY FIELDS
+        // ═══════════════════════════════════════════════════════════════
 
         private string _companyName = string.Empty;
         public string CompanyName
@@ -62,6 +117,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                 if (_companyName == value) return;
                 _companyName = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(CompanyNameValidationMessage));
+                OnPropertyChanged(nameof(HasCompanyNameError));
                 MarkUserEditedIfNotLoading();
             }
         }
@@ -75,8 +132,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                 if (_companyTrn == value) return;
                 _companyTrn = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(TrnValidationMessage));   // BUG-35
-                OnPropertyChanged(nameof(IsTrnValid));             // BUG-35
+                OnPropertyChanged(nameof(TrnValidationMessage));
+                OnPropertyChanged(nameof(IsTrnValid));
                 MarkUserEditedIfNotLoading();
             }
         }
@@ -94,7 +151,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
             }
         }
 
-        // === Proforma Fields ===
+        // ═══════════════════════════════════════════════════════════════
+        //  PROFORMA FIELDS
+        // ═══════════════════════════════════════════════════════════════
 
         private string _proformaId = "";
         public string ProformaId
@@ -105,6 +164,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                 if (_proformaId == value) return;
                 _proformaId = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(ProformaIdValidationMessage));
+                OnPropertyChanged(nameof(HasProformaIdError));
             }
         }
 
@@ -130,11 +191,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
         }
 
         /// <summary>
-        /// Dropdown options for Status. Must match SavedInvoicesListViewModel
-        /// StatusFilterOptions (minus the "All Statuses" entry) so filtering
-        /// works consistently.
-        ///
-        /// BUG-36: Documented — keep in sync with list VM filter options.
+        /// BUG-36: Status options — kept in sync with
+        /// SavedInvoicesListViewModel StatusFilterOptions.
         /// </summary>
         public List<string> StatusOptions { get; } = new List<string>
         {
@@ -145,21 +203,23 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
             "Expired"
         };
 
-        // === UAE TRN Validation (BUG-35) ===
+        // ═══════════════════════════════════════════════════════════════
+        //  TRN VALIDATION (BUG-35)
+        // ═══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// UAE Federal Tax Authority TRN must be exactly 15 digits.
-        /// Returns null when valid, or an error message when invalid.
-        /// Empty TRN is treated as "not yet entered" (no error shown).
+        /// UAE TRN must be exactly 15 digits.
+        /// Returns null when valid or empty. Returns message when invalid.
         /// </summary>
         public string? TrnValidationMessage
         {
             get
             {
                 if (string.IsNullOrWhiteSpace(_companyTrn))
-                    return null;  // no error while user hasn't typed yet
+                    return null;
 
-                var digitsOnly = new string(_companyTrn.Where(char.IsDigit).ToArray());
+                var digitsOnly = new string(
+                    _companyTrn.Where(char.IsDigit).ToArray());
 
                 if (digitsOnly.Length != 15)
                     return "UAE TRN must be exactly 15 digits.";
@@ -167,32 +227,80 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                 if (digitsOnly != _companyTrn.Trim())
                     return "TRN should contain only digits (no spaces or letters).";
 
-                return null;  // valid
+                return null;
             }
         }
 
-        /// <summary>
-        /// True when TRN is either empty or a valid 15-digit UAE TRN.
-        /// XAML uses this to enable/disable Save button downstream.
-        /// </summary>
+        /// <summary>True when TRN is empty or valid 15-digit UAE TRN.</summary>
         public bool IsTrnValid => TrnValidationMessage == null;
 
-        // === Saved Company Profiles (Fast Setup Cards) ===
+        // ═══════════════════════════════════════════════════════════════
+        //  REQUIRED FIELD VALIDATIONS (C-08, C-09)
+        // ═══════════════════════════════════════════════════════════════
+
+        public string? CompanyNameValidationMessage =>
+            string.IsNullOrWhiteSpace(_companyName)
+                ? "Company name is required for invoice generation."
+                : null;
+
+        public bool HasCompanyNameError => CompanyNameValidationMessage != null;
+
+        public string? ProformaIdValidationMessage =>
+            string.IsNullOrWhiteSpace(_proformaId)
+                ? "Proforma ID is required."
+                : null;
+
+        public bool HasProformaIdError => ProformaIdValidationMessage != null;
+
+        // ═══════════════════════════════════════════════════════════════
+        //  SAVED COMPANY CARDS
+        // ═══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// BUG-34 [HIGH]: This collection is now EMPTY by default.
-        /// Previously contained hardcoded fake data (Apex, Emirates, Gulf,
-        /// Arabian, Technal) with real-looking UAE TRN numbers. That was
-        /// production data hygiene violation and could be mistaken for
-        /// real customer data.
-        ///
-        /// Phase 20+ Master Data module will populate this from a real DB.
-        /// Until then, users type company details manually in Step 1.
+        /// Cards loaded from masterdata.db.
+        /// Max 6 visible by default. View all shows full list.
         /// </summary>
         public ObservableCollection<CompanyProfileCard> SavedProfiles { get; }
             = new ObservableCollection<CompanyProfileCard>();
 
-        // === Loaded Profile Indicator ===
+        // Loading state
+        private bool _isLoadingCards;
+        public bool IsLoadingCards
+        {
+            get => _isLoadingCards;
+            set { _isLoadingCards = value; OnPropertyChanged(); }
+        }
+
+        // Empty state
+        public bool HasNoSavedCompanies =>
+            !IsLoadingCards
+            && string.IsNullOrEmpty(CardsErrorMessage)
+            && SavedProfiles.Count == 0
+            && _allCompanyCards.Count == 0;
+
+        // Error state
+        private string _cardsErrorMessage = "";
+        public string CardsErrorMessage
+        {
+            get => _cardsErrorMessage;
+            set
+            {
+                _cardsErrorMessage = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasCardsError));
+            }
+        }
+        public bool HasCardsError => !string.IsNullOrEmpty(CardsErrorMessage);
+
+        // View all
+        public bool HasMoreCompanies =>
+            !_showingAll && _allCompanyCards.Count > 6;
+
+        public int TotalCompanyCount => _allCompanyCards.Count;
+
+        // ═══════════════════════════════════════════════════════════════
+        //  LOADED PROFILE INDICATOR (BUG-37)
+        // ═══════════════════════════════════════════════════════════════
 
         private string _loadedProfileName = "";
         public string LoadedProfileName
@@ -208,60 +316,128 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
 
         public bool HasLoadedProfile => !string.IsNullOrEmpty(LoadedProfileName);
 
-        // === Commands ===
+        // ═══════════════════════════════════════════════════════════════
+        //  COMMANDS
+        // ═══════════════════════════════════════════════════════════════
+
         public ICommand LoadProfileCommand { get; }
         public ICommand GoToGridCommand { get; }
+        public ICommand ShowAllCompaniesCommand { get; }
+        public ICommand RefreshCardsCommand { get; }
 
-        // Parameterless constructor for design-time / fallback
+        // ═══════════════════════════════════════════════════════════════
+        //  CONSTRUCTORS
+        // ═══════════════════════════════════════════════════════════════
+
+        /// <summary>Parameterless — design-time and fallback only.</summary>
         public CompanySetupViewModel() : this(null) { }
 
         public CompanySetupViewModel(Action<int>? navigateToStep)
         {
             _navigateToStep = navigateToStep;
 
-            // BUG-33 [HIGH]: temporary placeholder until first async load.
-            // The shell VM (ProformaInvoiceViewModel.StartNewInvoice) should
-            // call GenerateUniqueProformaIdAsync() after construction, or
-            // callers may await GenerateUniqueProformaIdAsync() directly
-            // whenever a fresh invoice starts.
+            // BUG-33: placeholder until async load completes
             ProformaId = $"PI-{DateTime.Now.Year}-000";
-
-            // Default dates
             IssueDate = DateTime.Now;
             ValidUntil = DateTime.Now.AddDays(30);
-
-            // Default status
             ProformaStatus = "Draft";
 
-            // BUG-34: NO hardcoded profiles. Empty collection.
-            // Real profiles come from Phase 20+ Master Data module.
-
-            // Load Profile Command — fills form fields from selected card
             LoadProfileCommand = new RelayCommand(param =>
             {
                 if (param is CompanyProfileCard profile)
                     LoadProfile(profile);
             });
 
-            // Go Directly to Grid (Step 5) Command
             GoToGridCommand = new RelayCommand(_ =>
             {
                 _navigateToStep?.Invoke(5);
             });
+
+            ShowAllCompaniesCommand = new RelayCommand(_ =>
+            {
+                _showingAll = true;
+                RebuildVisibleCards();
+                OnPropertyChanged(nameof(HasMoreCompanies));
+            });
+
+            RefreshCardsCommand = new RelayCommand(
+                _ => SafeFireAsync(LoadCardsAsync));
         }
 
-        // ══════════════════════════════════════════════════════════════════
-        //  BUG-33 [HIGH]: Async unique-ID generator
-        //
-        //  Called by shell VM StartNewInvoice() after constructing this VM.
-        //  Uses the repository's SuggestNextIdAsync to guarantee uniqueness.
-        //  Falls back to a GUID-based ID if the repo is unavailable.
-        // ══════════════════════════════════════════════════════════════════
+        // ═══════════════════════════════════════════════════════════════
+        //  LOAD CARDS FROM MASTERDATA.DB
+        // ═══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Generates a database-verified unique Proforma ID.
-        /// Should be called by shell VM whenever a new invoice starts.
-        /// Safe to call multiple times — always fetches next unused ID.
+        /// Loads saved companies from masterdata.db.
+        /// Called by shell VM on wizard open and new invoice.
+        /// E-FIX: LastUsedAt is DateTime (not DateTime?) — use default check.
+        /// </summary>
+        public async Task LoadCardsAsync()
+        {
+            if (App.MasterData == null) return;
+
+            IsLoadingCards = true;
+            CardsErrorMessage = "";
+            _showingAll = false;
+
+            try
+            {
+                var companies = await App.MasterData.GetAllCompaniesAsync();
+
+                _allCompanyCards = companies
+                    .Select(c => new CompanyProfileCard
+                    {
+                        Id = c.Id,
+                        CompanyName = c.CompanyName ?? "",
+                        Trn = c.CompanyTrn ?? "",
+                        Location = c.CompanyLocation ?? "",
+                        UsageCount = c.UsageCount,
+                        // E-FIX: DateTime is non-nullable — check against default
+                        LastUsed = c.LastUsedAt != default(DateTime)
+                                        ? c.LastUsedAt.ToString("dd MMM yyyy")
+                                        : ""
+                    })
+                    .ToList();
+
+                RebuildVisibleCards();
+            }
+            catch (Exception ex)
+            {
+                CardsErrorMessage =
+                    $"Could not load saved companies: {ex.Message}";
+            }
+            finally
+            {
+                IsLoadingCards = false;
+                OnPropertyChanged(nameof(HasNoSavedCompanies));
+                OnPropertyChanged(nameof(HasMoreCompanies));
+                OnPropertyChanged(nameof(TotalCompanyCount));
+            }
+        }
+
+        private void RebuildVisibleCards()
+        {
+            SavedProfiles.Clear();
+
+            var visible = _showingAll
+                ? _allCompanyCards
+                : _allCompanyCards.Take(6).ToList();
+
+            foreach (var card in visible)
+                SavedProfiles.Add(card);
+
+            OnPropertyChanged(nameof(HasNoSavedCompanies));
+            OnPropertyChanged(nameof(HasMoreCompanies));
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        //  BUG-33: Async unique Proforma ID generator
+        // ═══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Generates a DB-verified unique Proforma ID.
+        /// Called by shell VM on new invoice start.
         /// </summary>
         public async Task GenerateUniqueProformaIdAsync()
         {
@@ -269,30 +445,24 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
             {
                 if (App.Invoices == null)
                 {
-                    // DB not initialized — use a safe GUID-based fallback
-                    // that cannot collide even without a DB check
                     ProformaId =
                         $"PI-{DateTime.Now.Year}-{Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper()}";
                     return;
                 }
 
-                // Ask the repository for the next available ID in the
-                // "PI-{year}-001" family. The repo handles increment,
-                // padding, and duplicate checks in one query (post BUG-08).
                 string seedId = $"PI-{DateTime.Now.Year}-000";
                 ProformaId = await App.Invoices.SuggestNextIdAsync(seedId);
             }
-            catch (Exception)
+            catch
             {
-                // Any DB error → fall back to GUID-based ID (never collides)
                 ProformaId =
                     $"PI-{DateTime.Now.Year}-{Guid.NewGuid().ToString("N").Substring(0, 6).ToUpper()}";
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════
-        //  BUG-37 [LOW]: Loaded profile lifecycle
-        // ══════════════════════════════════════════════════════════════════
+        // ═══════════════════════════════════════════════════════════════
+        //  BUG-37: Loaded profile lifecycle
+        // ═══════════════════════════════════════════════════════════════
 
         private void LoadProfile(CompanyProfileCard profile)
         {
@@ -312,14 +482,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
 
         /// <summary>
         /// BUG-37: Clears LoadedProfileName when user manually edits
-        /// company fields after loading a profile. Prevents stale indicator.
+        /// after loading a profile.
         /// </summary>
         private void MarkUserEditedIfNotLoading()
         {
             if (_isLoadingProfile) return;
-
             if (!string.IsNullOrEmpty(_loadedProfileName))
                 LoadedProfileName = "";
+        }
+
+        // ── SafeFireAsync — avoids async void crashes ─────────────────
+        private static async void SafeFireAsync(Func<Task> action)
+        {
+            try { await action(); }
+            catch { /* error shown via CardsErrorMessage */ }
         }
     }
 }

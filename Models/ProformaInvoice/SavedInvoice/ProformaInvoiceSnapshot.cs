@@ -1,4 +1,17 @@
-﻿using System;
+﻿// ═══════════════════════════════════════════════════════════════════════
+// FILE: Models/ProformaInvoice/SavedInvoice/ProformaInvoiceSnapshot.cs
+// ═══════════════════════════════════════════════════════════════════════
+// CHAT 15 — PROJECT REFERENCE FIELD ADDED
+//   NEW: ProjectSnapshot.ProjectReference field
+//   All other snapshot classes preserved EXACTLY.
+//
+// JSON BACKWARD COMPATIBILITY:
+//   Old invoices without ProjectReference in JSON will deserialize
+//   to empty string (System.Text.Json default). No migration needed
+//   for proforma invoices — they load fine with empty reference.
+// ═══════════════════════════════════════════════════════════════════════
+
+using System;
 using System.Collections.Generic;
 
 namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
@@ -10,13 +23,11 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
     /// consumed by ProformaInvoiceMapper.RestoreFromSnapshot().
     ///
     /// BUG-01: CompanySnapshot.IssueDate / ValidUntil no longer default
-    ///         to DateTime.Now at property level. Mapper sets them
-    ///         explicitly to avoid silent "today's date" on empty snapshots.
-    /// BUG-02: TermClauseSnapshot.Type stores enum name as string. This
-    ///         is INTENTIONAL for JSON stability — enum reordering will
-    ///         not break saved invoices. Rename enum values with care.
-    /// BUG-03: PolishSubType documented — valid values match the
-    ///         PolishSubType enum in Step6OtherCharges.
+    ///         to DateTime.Now at property level.
+    /// BUG-02: TermClauseSnapshot.Type stores enum name as string.
+    /// BUG-03: PolishSubType documented.
+    ///
+    /// CHAT 15: ProjectSnapshot.ProjectReference added.
     /// </summary>
     public class ProformaInvoiceSnapshot
     {
@@ -25,10 +36,10 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         // Step 1: Company
         public CompanySnapshot Company { get; set; } = new();
 
-        // Step 2: Project
+        // Step 2 in snapshot = Project data (structure unchanged for JSON stability)
         public ProjectSnapshot Project { get; set; } = new();
 
-        // Step 3: Client
+        // Step 3 in snapshot = Client data (structure unchanged for JSON stability)
         public ClientSnapshot Client { get; set; } = new();
 
         // Step 5: DataGrid spec groups
@@ -56,32 +67,38 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string CompanyLocation { get; set; } = "";
         public string ProformaId { get; set; } = "";
 
-        /// <summary>
-        /// BUG-01: Changed default from DateTime.Now to default(DateTime).
-        /// Mapper sets this explicitly — no silent today's-date fallback.
-        /// </summary>
+        /// <summary>BUG-01: default(DateTime). Mapper sets explicitly.</summary>
         public DateTime IssueDate { get; set; } = default;
 
-        /// <summary>
-        /// BUG-01: Changed default from DateTime.Now.AddDays(7) to default.
-        /// Mapper sets this explicitly based on Company VM.
-        /// </summary>
+        /// <summary>BUG-01: default(DateTime). Mapper sets explicitly.</summary>
         public DateTime ValidUntil { get; set; } = default;
 
         public string ProformaStatus { get; set; } = "Draft";
     }
 
-    // ── Step 2 ──────────────────────────────────────────────────────────
+    // ── Project data ────────────────────────────────────────────────────
 
+    /// <summary>
+    /// CHAT 15: ProjectReference field added.
+    /// Old JSON snapshots without this field deserialize to "" — safe.
+    /// </summary>
     public class ProjectSnapshot
     {
         public string ProjectIdentifierName { get; set; } = "";
         public string ProjectContractNo { get; set; } = "";
+
+        /// <summary>
+        /// CHAT 15: NEW — Descriptive project reference.
+        /// e.g. "HOUSE FOR IMAD HABIB" — full descriptive text.
+        /// Separate from ProjectContractNo which is a short code.
+        /// </summary>
+        public string ProjectReference { get; set; } = "";
+
         public string SiteDeliveryLocation { get; set; } = "";
         public string LpoNumber { get; set; } = "";
     }
 
-    // ── Step 3 ──────────────────────────────────────────────────────────
+    // ── Client data ─────────────────────────────────────────────────────
 
     public class ClientSnapshot
     {
@@ -139,12 +156,9 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string SelectedSourceKey { get; set; } = "";
         public decimal Rate { get; set; }
 
-        // ── Polish-specific ──
         /// <summary>
-        /// BUG-03: Stores PolishSubType enum name as string.
-        /// Valid values: "AllSidePolish", "AllSidePolishAsPerDwg",
-        ///               "BothHeightSide", "BothWidthSide", "Custom".
-        /// Empty string = no sub-type selected.
+        /// BUG-03: Valid values: "AllSidePolish", "AllSidePolishAsPerDwg",
+        ///                       "BothHeightSide", "BothWidthSide", "Custom".
         /// </summary>
         public string PolishSubType { get; set; } = "";
         public string CustomPolishDescription { get; set; } = "";
@@ -157,10 +171,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string ColorName { get; set; } = "";
         public decimal Rate { get; set; }
 
-        /// <summary>
-        /// Selected source keys formatted as "SpecNumber-SideLabel"
-        /// (e.g. "1-Outer (W1/H1)").
-        /// </summary>
+        /// <summary>Format: "SpecNumber-SideLabel" (e.g. "1-Outer (W1/H1)").</summary>
         public List<string> CheckedSourceKeys { get; set; } = new();
     }
 
@@ -189,9 +200,8 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
     public class TermClauseSnapshot
     {
         /// <summary>
-        /// BUG-02: Stores TermClauseType enum name as string for JSON
-        /// stability. Valid values: "PaymentTerms", "Delivery", "Warranty",
-        /// "Validity", "Taxes", "Installation", "Custom".
+        /// BUG-02: Valid values: "PaymentTerms", "Delivery", "Warranty",
+        ///                       "Validity", "Taxes", "Installation", "Custom".
         /// </summary>
         public string Type { get; set; } = "Custom";
 

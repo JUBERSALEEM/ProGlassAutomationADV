@@ -347,6 +347,8 @@
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
+                                <!-- CHAT 15: NEW row for Project Reference -->
+                                <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
                                 <RowDefinition Height="Auto"/>
@@ -355,26 +357,31 @@
                             <TextBlock Grid.Row="0" Grid.Column="0" Text="Project Designation:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
                             <TextBlock Grid.Row="0" Grid.Column="1" Text="{Binding Project.ProjectIdentifierName, TargetNullValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2" TextWrapping="Wrap"/>
 
-                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Project Code / ID:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
+                            <!-- CHAT 15: label changed from "Project Code / ID" to "Project Name / No" to match Step 3 wizard form -->
+                            <TextBlock Grid.Row="1" Grid.Column="0" Text="Project Name / No:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
                             <TextBlock Grid.Row="1" Grid.Column="1" Text="{Binding Project.ProjectContractNo, TargetNullValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2"/>
 
-                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Site Delivery:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
-                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Project.SiteDeliveryLocation, TargetNullValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2"/>
+                            <!-- CHAT 15: NEW ROW — Project Reference (descriptive, e.g. "HOUSE FOR IMAD HABIB") -->
+                            <TextBlock Grid.Row="2" Grid.Column="0" Text="Project Reference:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Text="{Binding Project.ProjectReference, TargetNullValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2" TextWrapping="Wrap"/>
 
-                            <TextBlock Grid.Row="3" Grid.Column="0" Text="LPO / PO Reference:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
-                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Project.LpoNumber, TargetNullValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2"/>
+                            <TextBlock Grid.Row="3" Grid.Column="0" Text="Site Delivery:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
+                            <TextBlock Grid.Row="3" Grid.Column="1" Text="{Binding Project.SiteDeliveryLocation, TargetNullValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2"/>
 
-                            <TextBlock Grid.Row="4" Grid.Column="0" Text="Assigned Salesman:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
-                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Client.SalesRepresentative, TargetNullValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2"/>
+                            <TextBlock Grid.Row="4" Grid.Column="0" Text="LPO / PO Reference:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
+                            <TextBlock Grid.Row="4" Grid.Column="1" Text="{Binding Project.LpoNumber, TargetNullValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2"/>
 
-                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Valid Until:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,0"/>
-                            <StackPanel Grid.Row="5" Grid.Column="1" Orientation="Horizontal">
+                            <TextBlock Grid.Row="5" Grid.Column="0" Text="Assigned Salesman:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,2"/>
+                            <TextBlock Grid.Row="5" Grid.Column="1" Text="{Binding Client.SalesRepresentative, TargetNullValue=—}" Style="{StaticResource PrintValueStyle}" Margin="0,0,0,2"/>
+
+                            <TextBlock Grid.Row="6" Grid.Column="0" Text="Valid Until:" Style="{StaticResource PrintLabelStyle}" Margin="0,0,6,0"/>
+                            <StackPanel Grid.Row="6" Grid.Column="1" Orientation="Horizontal">
                                 <TextBlock Text="{Binding Company.ValidUntil, StringFormat=dd MMM yyyy, TargetNullValue=—}"
-                                Style="{StaticResource PrintValueStyle}"/>
+        Style="{StaticResource PrintValueStyle}"/>
                                 <TextBlock Text=" • " Style="{StaticResource PrintLabelStyle}"/>
                                 <!-- NEW-PR3: color adapts to actual status -->
                                 <TextBlock Text="{Binding Company.ProformaStatus, TargetNullValue=Draft}"
-                                           Style="{StaticResource ProformaStatusValueStyle}"/>
+                   Style="{StaticResource ProformaStatusValueStyle}"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
