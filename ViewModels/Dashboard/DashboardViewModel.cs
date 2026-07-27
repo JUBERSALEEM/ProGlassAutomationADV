@@ -1,17 +1,16 @@
 ﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Dashboard/DashboardViewModel.cs
 // PROJECT: ProGlassAutomation
-// NAMESPACE: ProGlassAutomation.ViewModels.Dashboard
 //
-// CHANGES vs PREVIOUS VERSION:
-//   Chat 15 — Added TiDashboardViewModel as the 6th dashboard tab.
-//   Added NavigateTo callback wiring for the Tax Invoice tab.
-//   All other code UNCHANGED.
+// CHAT 16: Added StDashboardViewModel as the 7th dashboard tab.
+//          Added NavigateTo callback wiring for the Statement tab.
+//          All other code UNCHANGED.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard;
 using ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard;
+using ProGlassAutomation.ViewModels.Dashboard.Statement;
 using ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard;
 using System;
 using System.Collections.Generic;
@@ -28,6 +27,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     ///
     /// Phase 10.9:  Added DnDashboardVM (Deliveries tab).
     /// Chat 15:     Added TiDashboardVM (Tax Invoices tab).
+    /// Chat 16:     Added StDashboardVM (Statements tab).
     /// </summary>
     public class DashboardViewModel : ViewModelBase
     {
@@ -53,7 +53,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         public PiDashboardViewModel ProformaVM { get; }
         public JoDashboardViewModel JobOrderVM { get; }
         public DnDashboardViewModel DeliveryNoteVM { get; }
-        public TiDashboardViewModel TaxInvoiceVM { get; }   // ← Chat 15 NEW
+        public TiDashboardViewModel TaxInvoiceVM { get; }  // Chat 15
+        public StDashboardViewModel StatementVM { get; }  // Chat 16 NEW
 
         // ── commands ──────────────────────────────────────────────────────
         public ICommand SelectTabCommand { get; }
@@ -62,15 +63,16 @@ namespace ProGlassAutomation.ViewModels.Dashboard
 
         /// <summary>
         /// Wired by MainViewModel: target => Navigate(target).
-        /// Passed down to OverviewVM AND TiDashboardVM so quick action
-        /// buttons on both tabs can navigate to other modules.
+        /// Passed down to OverviewVM, TiDashboardVM, AND StDashboardVM
+        /// so quick action buttons on all tabs can navigate to modules.
         /// </summary>
         public Action<string>? NavigateTo
         {
             set
             {
                 OverviewVM.NavigateTo = value;
-                TaxInvoiceVM.NavigateTo = value;   // ← Chat 15: wire TI tab too
+                TaxInvoiceVM.NavigateTo = value;  // Chat 15
+                StatementVM.NavigateTo = value;  // Chat 16 NEW
             }
         }
 
@@ -91,7 +93,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             ProformaVM = new PiDashboardViewModel();
             JobOrderVM = new JoDashboardViewModel();
             DeliveryNoteVM = new DnDashboardViewModel();
-            TaxInvoiceVM = new TiDashboardViewModel();       // ← Chat 15 NEW
+            TaxInvoiceVM = new TiDashboardViewModel();   // Chat 15
+            StatementVM = new StDashboardViewModel();   // Chat 16 NEW
 
             Pages = new List<DashboardPageBase>
             {
@@ -100,7 +103,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 ProformaVM,
                 JobOrderVM,
                 DeliveryNoteVM,
-                TaxInvoiceVM                                   // ← Chat 15 NEW
+                TaxInvoiceVM,                              // Chat 15
+                StatementVM                                // Chat 16 NEW
             };
 
             SelectTabCommand = new RelayCommand(p =>

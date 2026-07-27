@@ -100,7 +100,8 @@
             <Setter Property="Width" Value="40"/>
             <Setter Property="Height" Value="40"/>
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="FontSize" Value="18"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -120,7 +121,8 @@
                                         Value="{DynamicResource MenuHoverBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Opacity" Value="0.75"/>
+                                <Setter TargetName="border" Property="Opacity"
+                                        Value="0.75"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -132,7 +134,8 @@
         <Style x:Key="SidebarGroupHeaderStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="10"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource MutedForegroundBrush}"/>
             <Setter Property="Margin" Value="22,20,0,8"/>
         </Style>
 
@@ -168,11 +171,12 @@
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="Template" Value="{StaticResource SidebarItemTemplate}"/>
+            <Setter Property="Template"
+                    Value="{StaticResource SidebarItemTemplate}"/>
         </Style>
 
         <!-- =========================================================== -->
-        <!-- GLASSY VERTICAL SLIDER (SCROLL INDICATOR)                    -->
+        <!-- GLASSY VERTICAL SLIDER                                        -->
         <!-- =========================================================== -->
         <Style x:Key="GlassySliderThumbStyle" TargetType="Thumb">
             <Setter Property="Cursor" Value="Hand"/>
@@ -183,7 +187,8 @@
                             <Ellipse Width="22" Height="22" Fill="White"/>
                             <Ellipse Width="8" Height="8">
                                 <Ellipse.Fill>
-                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <LinearGradientBrush StartPoint="0,0"
+                                                         EndPoint="1,1">
                                         <GradientStop Color="#8B5CF6" Offset="0"/>
                                         <GradientStop Color="#EC4899" Offset="1"/>
                                     </LinearGradientBrush>
@@ -216,8 +221,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Slider">
                         <Grid HorizontalAlignment="Center">
-                            <Border Width="14"
-                                    CornerRadius="7"
+                            <Border Width="14" CornerRadius="7"
                                     Background="{DynamicResource MenuHoverBrush}"
                                     Opacity="0.6"/>
                             <Grid>
@@ -225,12 +229,14 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="*"/>
                                 </Grid.RowDefinitions>
-                                <Border Grid.Row="0"
-                                        Width="14"
+                                <Border Grid.Row="0" Width="14"
                                         CornerRadius="7,7,0,0"
-                                        Height="{Binding ElementName=PART_Track, Path=Thumb.ActualHeight, FallbackValue=22}">
+                                        Height="{Binding ElementName=PART_Track,
+                                            Path=Thumb.ActualHeight,
+                                            FallbackValue=22}">
                                     <Border.Background>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                                        <LinearGradientBrush StartPoint="0,0"
+                                                             EndPoint="0,1">
                                             <GradientStop Color="#8B5CF6" Offset="0"/>
                                             <GradientStop Color="#EC4899" Offset="1"/>
                                         </LinearGradientBrush>
@@ -239,15 +245,17 @@
                             </Grid>
                             <Track x:Name="PART_Track" IsDirectionReversed="True">
                                 <Track.DecreaseRepeatButton>
-                                    <RepeatButton Style="{StaticResource InvisibleRepeatButton}"
-                                                  Command="Slider.DecreaseLarge"/>
+                                    <RepeatButton
+                                        Style="{StaticResource InvisibleRepeatButton}"
+                                        Command="Slider.DecreaseLarge"/>
                                 </Track.DecreaseRepeatButton>
                                 <Track.Thumb>
                                     <Thumb Style="{StaticResource GlassySliderThumbStyle}"/>
                                 </Track.Thumb>
                                 <Track.IncreaseRepeatButton>
-                                    <RepeatButton Style="{StaticResource InvisibleRepeatButton}"
-                                                  Command="Slider.IncreaseLarge"/>
+                                    <RepeatButton
+                                        Style="{StaticResource InvisibleRepeatButton}"
+                                        Command="Slider.IncreaseLarge"/>
                                 </Track.IncreaseRepeatButton>
                             </Track>
                         </Grid>
@@ -257,7 +265,7 @@
         </Style>
 
         <!-- =========================================================== -->
-        <!-- MODERN iOS-STYLE TOGGLE SWITCH (ON/OFF WITH LABELS)          -->
+        <!-- MODERN iOS-STYLE TOGGLE SWITCH                               -->
         <!-- =========================================================== -->
         <Style x:Key="ModernToggleSwitch" TargetType="ToggleButton">
             <Setter Property="Width" Value="56"/>
@@ -277,26 +285,21 @@
                                                       Opacity="0.15" Color="Black"/>
                                 </Border.Effect>
                             </Border>
-                            <TextBlock x:Name="OffLabel"
-                                       Text="OFF"
-                                       FontSize="9"
-                                       FontWeight="Bold"
+                            <TextBlock x:Name="OffLabel" Text="OFF"
+                                       FontSize="9" FontWeight="Bold"
                                        Foreground="White"
                                        HorizontalAlignment="Right"
                                        VerticalAlignment="Center"
                                        Margin="0,0,9,0"/>
-                            <TextBlock x:Name="OnLabel"
-                                       Text="ON"
-                                       FontSize="9"
-                                       FontWeight="Bold"
+                            <TextBlock x:Name="OnLabel" Text="ON"
+                                       FontSize="9" FontWeight="Bold"
                                        Foreground="White"
                                        HorizontalAlignment="Left"
                                        VerticalAlignment="Center"
                                        Margin="9,0,0,0"
                                        Opacity="0"/>
                             <Ellipse x:Name="Thumb"
-                                     Width="22" Height="22"
-                                     Fill="White"
+                                     Width="22" Height="22" Fill="White"
                                      HorizontalAlignment="Left"
                                      Margin="3,0,0,0">
                                 <Ellipse.Effect>
@@ -331,7 +334,8 @@
                                                 To="1" Duration="0:0:0.15"/>
                                             <ColorAnimation
                                                 Storyboard.TargetName="Track"
-                                                Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                Storyboard.TargetProperty=
+                                                    "(Border.Background).(SolidColorBrush.Color)"
                                                 To="#10B981" Duration="0:0:0.2"/>
                                         </Storyboard>
                                     </BeginStoryboard>
@@ -357,7 +361,8 @@
                                                 To="0" Duration="0:0:0.15"/>
                                             <ColorAnimation
                                                 Storyboard.TargetName="Track"
-                                                Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
+                                                Storyboard.TargetProperty=
+                                                    "(Border.Background).(SolidColorBrush.Color)"
                                                 To="#CBD5E1" Duration="0:0:0.2"/>
                                         </Storyboard>
                                     </BeginStoryboard>
@@ -376,7 +381,8 @@
         <Style x:Key="SettingsSectionHeaderStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="10"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource MutedForegroundBrush}"/>
             <Setter Property="Margin" Value="0,0,0,10"/>
         </Style>
 
@@ -385,10 +391,13 @@
             <Setter Property="Height" Value="38"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Background"
+                    Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderBrush"
+                    Value="{DynamicResource BorderBrush}"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -408,7 +417,8 @@
                                         Value="{DynamicResource AccentBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Opacity" Value="0.85"/>
+                                <Setter TargetName="border" Property="Opacity"
+                                        Value="0.85"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -421,7 +431,8 @@
             <Setter Property="Height" Value="40"/>
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="Background"
+                    Value="{DynamicResource AccentBrush}"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -437,10 +448,12 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Opacity" Value="0.9"/>
+                                <Setter TargetName="border" Property="Opacity"
+                                        Value="0.9"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Opacity" Value="0.8"/>
+                                <Setter TargetName="border" Property="Opacity"
+                                        Value="0.8"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -453,9 +466,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="56"/>
-            <!-- Top Bar -->
             <RowDefinition Height="*"/>
-            <!-- Module Content -->
         </Grid.RowDefinitions>
 
         <!-- ══════════════════════════════════════════════════════
@@ -474,15 +485,10 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
-                    <!-- Hamburger -->
                     <ColumnDefinition Width="Auto"/>
-                    <!-- Logo + Brand -->
                     <ColumnDefinition Width="Auto"/>
-                    <!-- Module Badge -->
                     <ColumnDefinition Width="*"/>
-                    <!-- Spacer -->
                     <ColumnDefinition Width="Auto"/>
-                    <!-- Settings + Info -->
                 </Grid.ColumnDefinitions>
 
                 <!-- Hamburger -->
@@ -493,20 +499,16 @@
                         ToolTip="Menu"
                         Margin="12,0,4,0"/>
 
-                <!-- Custom Logo + Brand Wordmark -->
+                <!-- Logo + Brand -->
                 <StackPanel Grid.Column="1"
                             Orientation="Horizontal"
                             VerticalAlignment="Center"
                             Margin="8,0,0,0">
-
-                    <!-- Custom Vector Logo: Glass Diamond with Automation Spark -->
                     <Grid Width="36" Height="36" VerticalAlignment="Center">
                         <Grid.Effect>
                             <DropShadowEffect BlurRadius="8" ShadowDepth="0"
                                               Opacity="0.35" Color="#4338CA"/>
                         </Grid.Effect>
-
-                        <!-- Rounded gradient background tile -->
                         <Border CornerRadius="8">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -515,24 +517,14 @@
                                 </LinearGradientBrush>
                             </Border.Background>
                         </Border>
-
-                        <!-- Diamond/glass shape (rotated square) -->
-                        <Path Stroke="White"
-                              StrokeThickness="1.8"
+                        <Path Stroke="White" StrokeThickness="1.8"
                               Fill="#33FFFFFF"
                               Data="M 18,7 L 27,18 L 18,29 L 9,18 Z"
                               StrokeLineJoin="Round"/>
-
-                        <!-- Inner facet lines for glass effect -->
-                        <Path Stroke="White"
-                              StrokeThickness="1"
-                              Opacity="0.8"
+                        <Path Stroke="White" StrokeThickness="1" Opacity="0.8"
                               Data="M 18,7 L 18,29 M 9,18 L 27,18"
                               StrokeLineJoin="Round"/>
-
-                        <!-- Automation spark (top-right accent dot) -->
-                        <Ellipse Width="5" Height="5"
-                                 Fill="#10B981"
+                        <Ellipse Width="5" Height="5" Fill="#10B981"
                                  HorizontalAlignment="Right"
                                  VerticalAlignment="Top"
                                  Margin="0,3,3,0">
@@ -542,19 +534,13 @@
                             </Ellipse.Effect>
                         </Ellipse>
                     </Grid>
-
-                    <!-- Brand Wordmark -->
                     <StackPanel VerticalAlignment="Center" Margin="10,0,0,0">
                         <TextBlock Text="PROGLASS"
-                                   FontSize="15"
-                                   FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   VerticalAlignment="Center"/>
+                                   FontSize="15" FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <TextBlock Text="AUTOMATION"
-                                   FontSize="9"
-                                   FontWeight="SemiBold"
+                                   FontSize="9" FontWeight="SemiBold"
                                    Foreground="{DynamicResource AccentBrush}"
-                                   VerticalAlignment="Center"
                                    Margin="0,-2,0,0"/>
                     </StackPanel>
                 </StackPanel>
@@ -567,26 +553,22 @@
                         VerticalAlignment="Center"
                         Margin="20,0,0,0">
                     <TextBlock Text="MODULE"
-                               FontSize="11"
-                               FontWeight="Bold"
-                               Foreground="White"
-                               VerticalAlignment="Center"/>
+                               FontSize="11" FontWeight="Bold"
+                               Foreground="White"/>
                 </Border>
 
-                <!-- Right side: Settings gear + Info -->
+                <!-- Right: Settings + About -->
                 <StackPanel Grid.Column="4"
                             Orientation="Horizontal"
                             VerticalAlignment="Center"
                             Margin="0,0,8,0">
                     <Button Style="{StaticResource TopBarIconButtonStyle}"
-                            Content="&#9881;"
-                            FontSize="20"
+                            Content="&#9881;" FontSize="20"
                             Command="{Binding ToggleSettingsCommand}"
                             ToolTip="Settings"
                             Margin="0,0,4,0"/>
                     <Button Style="{StaticResource TopBarIconButtonStyle}"
-                            Content="&#8505;"
-                            FontSize="20"
+                            Content="&#8505;" FontSize="20"
                             Command="{Binding ShowAboutCommand}"
                             ToolTip="About"
                             Margin="0,0,4,0"/>
@@ -595,7 +577,7 @@
         </Border>
 
         <!-- ══════════════════════════════════════════════════════
-             MAIN CONTENT AREA (below top bar)
+             MAIN CONTENT AREA
         ══════════════════════════════════════════════════════ -->
         <Grid Grid.Row="1">
 
@@ -611,10 +593,12 @@
                     <Style TargetType="Rectangle">
                         <Setter Property="Visibility" Value="Collapsed"/>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsMenuOpen}" Value="True">
+                            <DataTrigger Binding="{Binding IsMenuOpen}"
+                                         Value="True">
                                 <Setter Property="Visibility" Value="Visible"/>
                             </DataTrigger>
-                            <DataTrigger Binding="{Binding IsSettingsOpen}" Value="True">
+                            <DataTrigger Binding="{Binding IsSettingsOpen}"
+                                         Value="True">
                                 <Setter Property="Visibility" Value="Visible"/>
                             </DataTrigger>
                         </Style.Triggers>
@@ -622,7 +606,26 @@
                 </Rectangle.Style>
             </Rectangle>
 
-            <!-- ============ LEFT DRAWER (GROUPED MENU) ============ -->
+            <!-- ════════════════════════════════════════════════
+                 LEFT DRAWER — NAVIGATION MENU
+                 NEW ORDER:
+                   MAIN        → Dashboard
+                   INVENTORY   → Sheet Store
+                   SALES       → Proforma Invoice
+                                 Job Order
+                   PRODUCTION  → Optimization
+                                 Cutting
+                                 Holes & Cutouts
+                                 Polish
+                                 Edge Deletion
+                                 Mitring
+                                 Tempering
+                                 Pairing
+                                 Doubling / Lamination
+                   DISPATCH    → Delivery Note
+                                 Tax Invoice
+                   REPORTS     → Sales Report
+            ════════════════════════════════════════════════ -->
             <Border Width="290"
                     HorizontalAlignment="Left"
                     Background="{DynamicResource SideMenuBackgroundBrush}"
@@ -636,7 +639,8 @@
                     <Style TargetType="Border">
                         <Setter Property="Visibility" Value="Collapsed"/>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsMenuOpen}" Value="True">
+                            <DataTrigger Binding="{Binding IsMenuOpen}"
+                                         Value="True">
                                 <Setter Property="Visibility" Value="Visible"/>
                             </DataTrigger>
                         </Style.Triggers>
@@ -658,51 +662,92 @@
                         <StackPanel Margin="0,20,0,20">
 
                             <!-- ─── MAIN ─── -->
-                            <TextBlock Text="MAIN" Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                            <Button Style="{StaticResource SidebarItemStyle}" Content="Dashboard" Tag="&#128200;"
-                                    Command="{Binding NavigateCommand}" CommandParameter="Dashboard"/>
+                            <TextBlock Text="MAIN"
+                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                            <Button Style="{StaticResource SidebarItemStyle}"
+                                    Content="Dashboard" Tag="&#128200;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="Dashboard"/>
 
                             <!-- ─── INVENTORY ─── -->
-                            <TextBlock Text="INVENTORY" Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                            <Button Style="{StaticResource SidebarItemStyle}" Content="Sheet Store" Tag="&#128230;"
-                                    Command="{Binding NavigateCommand}" CommandParameter="SheetStore"/>
+                            <TextBlock Text="INVENTORY"
+                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                            <Button Style="{StaticResource SidebarItemStyle}"
+                                    Content="Sheet Store" Tag="&#128230;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="SheetStore"/>
 
-                            <!-- ─── SALES & REPORTS ─── -->
-                            <TextBlock Text="SALES &amp; REPORTS" Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                            <Button Style="{StaticResource SidebarItemStyle}" Content="Proforma Invoice" Tag="&#128221;"
-                                    Command="{Binding NavigateCommand}" CommandParameter="ProformaInvoice"/>
-                            <Button Style="{StaticResource SidebarItemStyle}" Content="Job Order" Tag="&#128203;"
-                                    Command="{Binding NavigateCommand}" CommandParameter="JobOrder"/>
-                            <Button Style="{StaticResource SidebarItemStyle}" Content="Optimization" Tag="&#9881;"
-                                    Command="{Binding NavigateCommand}" CommandParameter="Optimization"/>
-                            <Button Style="{StaticResource SidebarItemStyle}" Content="Sales Report" Tag="&#128202;"
-                                    Command="{Binding NavigateCommand}" CommandParameter="SalesReport"/>
+                            <!-- ─── SALES ─── -->
+                            <TextBlock Text="SALES"
+                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                            <Button Style="{StaticResource SidebarItemStyle}"
+                                    Content="Proforma Invoice" Tag="&#128221;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="ProformaInvoice"/>
+                            <Button Style="{StaticResource SidebarItemStyle}"
+                                    Content="Job Order" Tag="&#128203;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="JobOrder"/>
 
                             <!-- ─── PRODUCTION ─── -->
-                            <TextBlock Text="PRODUCTION" Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                            <Button Style="{StaticResource SidebarItemStyle}" Content="Cutting" Tag="&#9986;"
-                                    Command="{Binding NavigateCommand}" CommandParameter="Cutting"/>
-                            <Button Style="{StaticResource SidebarItemStyle}" Content="Holes &amp; Cutouts" Tag="&#128371;"
-                                    Command="{Binding NavigateCommand}" CommandParameter="HolesCutouts"/>
-                            <Button Style="{StaticResource SidebarItemStyle}" Content="Polish" Tag="&#10024;"
-                                    Command="{Binding NavigateCommand}" CommandParameter="Polish"/>
-                            <Button Style="{StaticResource SidebarItemStyle}" Content="Edge Deletion" Tag="&#128208;"
-                                    Command="{Binding NavigateCommand}" CommandParameter="EdgeDeletion"/>
-                            <Button Style="{StaticResource SidebarItemStyle}" Content="Mitring" Tag="&#128314;"
-                                    Command="{Binding NavigateCommand}" CommandParameter="Mitring"/>
-                            <Button Style="{StaticResource SidebarItemStyle}" Content="Tempering" Tag="&#128293;"
-                                    Command="{Binding NavigateCommand}" CommandParameter="Tempering"/>
+                            <TextBlock Text="PRODUCTION"
+                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                            <Button Style="{StaticResource SidebarItemStyle}"
+                                    Content="Optimization" Tag="&#9881;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="Optimization"/>
+                            <Button Style="{StaticResource SidebarItemStyle}"
+                                    Content="Cutting" Tag="&#9986;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="Cutting"/>
+                            <Button Style="{StaticResource SidebarItemStyle}"
+                                    Content="Holes &amp; Cutouts" Tag="&#128371;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="HolesCutouts"/>
+                            <Button Style="{StaticResource SidebarItemStyle}"
+                                    Content="Polish" Tag="&#10024;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="Polish"/>
+                            <Button Style="{StaticResource SidebarItemStyle}"
+                                    Content="Edge Deletion" Tag="&#128208;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="EdgeDeletion"/>
+                            <Button Style="{StaticResource SidebarItemStyle}"
+                                    Content="Mitring" Tag="&#128314;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="Mitring"/>
+                            <Button Style="{StaticResource SidebarItemStyle}"
+                                    Content="Tempering" Tag="&#128293;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="Tempering"/>
+                            <Button Style="{StaticResource SidebarItemStyle}"
+                                    Content="Pairing" Tag="&#128279;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="Pairing"/>
+                            <Button Style="{StaticResource SidebarItemStyle}"
+                                    Content="Doubling / Lamination" Tag="&#128218;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="DoublingLamination"/>
 
                             <!-- ─── DISPATCH ─── -->
-                            <TextBlock Text="DISPATCH" Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                            <Button Style="{StaticResource SidebarItemStyle}" Content="Pairing" Tag="&#128279;"
-                                    Command="{Binding NavigateCommand}" CommandParameter="Pairing"/>
-                            <Button Style="{StaticResource SidebarItemStyle}" Content="Doubling / Lamination" Tag="&#128218;"
-                                    Command="{Binding NavigateCommand}" CommandParameter="DoublingLamination"/>
-                            <Button Style="{StaticResource SidebarItemStyle}" Content="Delivery Note" Tag="&#128666;"
-                                    Command="{Binding NavigateCommand}" CommandParameter="DeliveryNote"/>
-                            <Button Style="{StaticResource SidebarItemStyle}" Content="Tax Invoice" Tag="&#129534;"
-                                    Command="{Binding NavigateCommand}" CommandParameter="TaxInvoice"/>
+                            <TextBlock Text="DISPATCH"
+                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                            <Button Style="{StaticResource SidebarItemStyle}"
+                                    Content="Delivery Note" Tag="&#128666;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="DeliveryNote"/>
+                            <Button Style="{StaticResource SidebarItemStyle}"
+                                    Content="Tax Invoice" Tag="&#129534;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="TaxInvoice"/>
+
+                            <!-- ─── REPORTS ─── -->
+                            <TextBlock Text="REPORTS"
+                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                            <Button Style="{StaticResource SidebarItemStyle}"
+                                    Content="Sales Report" Tag="&#128202;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="SalesReport"/>
 
                         </StackPanel>
                     </ScrollViewer>
@@ -711,10 +756,8 @@
                             Grid.Column="1"
                             Style="{StaticResource GlassyVerticalSliderStyle}"
                             Margin="4,20,10,20"
-                            Minimum="0"
-                            Maximum="1"
-                            SmallChange="0.05"
-                            LargeChange="0.15"
+                            Minimum="0" Maximum="1"
+                            SmallChange="0.05" LargeChange="0.15"
                             ValueChanged="ScrollSlider_ValueChanged"/>
                 </Grid>
             </Border>
@@ -733,7 +776,8 @@
                     <Style TargetType="Border">
                         <Setter Property="Visibility" Value="Collapsed"/>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsSettingsOpen}" Value="True">
+                            <DataTrigger Binding="{Binding IsSettingsOpen}"
+                                         Value="True">
                                 <Setter Property="Visibility" Value="Visible"/>
                             </DataTrigger>
                         </Style.Triggers>
@@ -744,100 +788,91 @@
                               HorizontalScrollBarVisibility="Disabled">
                     <StackPanel Margin="24,24,24,24">
 
-                        <!-- Settings Title -->
                         <TextBlock Text="SETTINGS"
                                    FontSize="14" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    Margin="0,0,0,24"/>
 
-                        <!-- ═══ APPEARANCE SECTION ═══ -->
+                        <!-- APPEARANCE -->
                         <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                                CornerRadius="12"
-                                Padding="16"
-                                Margin="0,0,0,16">
+                                CornerRadius="12" Padding="16" Margin="0,0,0,16">
                             <StackPanel>
                                 <TextBlock Text="APPEARANCE"
                                            Style="{StaticResource SettingsSectionHeaderStyle}"/>
                                 <DockPanel>
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal"
+                                                VerticalAlignment="Center">
                                         <TextBlock Text="☀" FontSize="16"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,8,0"/>
                                         <TextBlock Text="Dark Mode"
-                                                   FontSize="14"
-                                                   FontWeight="SemiBold"
+                                                   FontSize="14" FontWeight="SemiBold"
                                                    VerticalAlignment="Center"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                     </StackPanel>
                                     <ToggleButton HorizontalAlignment="Right"
-                                                  IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
+                                                  IsChecked="{Binding IsDarkTheme,
+                                                      Mode=TwoWay}"
                                                   Style="{StaticResource ModernToggleSwitch}"/>
                                 </DockPanel>
                             </StackPanel>
                         </Border>
 
-                        <!-- ═══ AI ASSISTANT SECTION ═══ -->
+                        <!-- AI ASSISTANT -->
                         <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                                CornerRadius="12"
-                                Padding="16"
-                                Margin="0,0,0,16">
+                                CornerRadius="12" Padding="16" Margin="0,0,0,16">
                             <StackPanel>
                                 <TextBlock Text="AI ASSISTANT"
                                            Style="{StaticResource SettingsSectionHeaderStyle}"/>
 
-                                <!-- Enable AI toggle -->
                                 <DockPanel Margin="0,0,0,16">
-                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <StackPanel Orientation="Horizontal"
+                                                VerticalAlignment="Center">
                                         <TextBlock Text="🤖" FontSize="16"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                                   VerticalAlignment="Center"
+                                                   Margin="0,0,8,0"/>
                                         <TextBlock Text="Enable AI"
-                                                   FontSize="14"
-                                                   FontWeight="SemiBold"
+                                                   FontSize="14" FontWeight="SemiBold"
                                                    VerticalAlignment="Center"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                     </StackPanel>
                                     <ToggleButton HorizontalAlignment="Right"
-                                                  IsChecked="{Binding IsAiEnabled, Mode=TwoWay}"
+                                                  IsChecked="{Binding IsAiEnabled,
+                                                      Mode=TwoWay}"
                                                   Style="{StaticResource ModernToggleSwitch}"/>
                                 </DockPanel>
 
-                                <!-- API Key -->
                                 <TextBlock Text="GEMINI API KEY"
                                            FontSize="11" FontWeight="SemiBold"
                                            Foreground="{DynamicResource MutedForegroundBrush}"
                                            Margin="0,0,0,6"/>
                                 <PasswordBox x:Name="ApiKeyBox"
-                                             Height="38"
-                                             FontSize="12"
+                                             Height="38" FontSize="12"
                                              Padding="10,8"
                                              PasswordChanged="ApiKeyBox_PasswordChanged"
                                              Background="{DynamicResource MenuHoverBrush}"
                                              Foreground="{DynamicResource PrimaryForegroundBrush}"
                                              BorderThickness="1"
                                              BorderBrush="{DynamicResource BorderBrush}"/>
-
                                 <TextBlock Text="Get free key at aistudio.google.com"
                                            FontSize="10" FontStyle="Italic"
                                            Foreground="{DynamicResource MutedForegroundBrush}"
                                            Margin="0,6,0,12"/>
 
-                                <!-- Test Connection -->
                                 <Button Content="TEST CONNECTION"
                                         Style="{StaticResource SettingsSecondaryButtonStyle}"
                                         Command="{Binding TestAiConnectionCommand}"
                                         Margin="0,0,0,8"/>
-
                                 <TextBlock Text="{Binding AiTestStatus}"
-                                           FontSize="11"
-                                           FontWeight="SemiBold"
+                                           FontSize="11" FontWeight="SemiBold"
                                            TextWrapping="Wrap"
                                            Foreground="{DynamicResource AccentBrush}"
                                            Margin="0,4,0,0"/>
                             </StackPanel>
                         </Border>
 
-                        <!-- ═══ CLOSE SETTINGS ═══ -->
                         <Button Content="CLOSE SETTINGS"
                                 Style="{StaticResource SettingsPrimaryButtonStyle}"
                                 Command="{Binding ToggleSettingsCommand}"
@@ -847,11 +882,9 @@
                 </ScrollViewer>
             </Border>
 
-            <!-- ============ AI CHAT (floating button + panel) — TOP-MOST ============ -->
+            <!-- AI CHAT -->
             <viewsAi:AiChatView DataContext="{Binding AiChatVM}"
-                                 Panel.ZIndex="200"/>
-
+                                Panel.ZIndex="200"/>
         </Grid>
-
     </Grid>
 </Window>

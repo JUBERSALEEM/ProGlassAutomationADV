@@ -1,6 +1,56 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.Reports.SalesReportView"
-             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:shared="clr-namespace:ProGlassAutomation.Views.Shared">
-    <shared:ComingSoonView/>
+﻿<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Reports/SalesReportView.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Account Statement / Sales Report (Chat 16)
+
+     PURPOSE:
+       Shell view. Toggles between StatementListView and
+       StatementGeneratorView based on SalesReportViewModel.ShowList.
+       Mirrors TaxInvoiceView.xaml pattern (Chat 14).
+
+     PERFORMANCE:
+       TextOptions + UseLayoutRounding on root UserControl.
+       No DropShadowEffect on scrollable content.
+       Visibility via BoolToVisibilityConverter (no layout thrash).
+═══════════════════════════════════════════════════════════════════════ -->
+<UserControl
+    x:Class="ProGlassAutomation.Views.Reports.SalesReportView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vmList="clr-namespace:ProGlassAutomation.ViewModels.Reports.StatementList"
+    xmlns:vmGen="clr-namespace:ProGlassAutomation.ViewModels.Reports.StatementGenerator"
+    xmlns:vList="clr-namespace:ProGlassAutomation.Views.Reports.StatementList"
+    xmlns:vGen="clr-namespace:ProGlassAutomation.Views.Reports.StatementGenerator"
+    FontFamily="Segoe UI"
+    TextOptions.TextFormattingMode="Display"
+    TextOptions.TextRenderingMode="ClearType"
+    TextOptions.TextHintingMode="Fixed"
+    UseLayoutRounding="True"
+    SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <!-- VM → View mappings for child content areas -->
+        <DataTemplate DataType="{x:Type vmList:StatementListViewModel}">
+            <vList:StatementListView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmGen:StatementGeneratorViewModel}">
+            <vGen:StatementGeneratorView/>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+
+        <!-- LIST VIEW — visible when ShowList = true -->
+        <ContentControl
+            Content="{Binding ListVM}"
+            Visibility="{Binding ShowList,
+                Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+        <!-- GENERATOR VIEW — visible when ShowGenerator = true -->
+        <ContentControl
+            Content="{Binding GeneratorVM}"
+            Visibility="{Binding ShowGenerator,
+                Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+    </Grid>
 </UserControl>

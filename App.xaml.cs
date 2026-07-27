@@ -1,4 +1,13 @@
-﻿using ProGlassAutomation.Services.AI.AIConfig;
+﻿// ═══════════════════════════════════════════════════════════════════════
+// FILE: App.xaml.cs
+// PROJECT: ProGlassAutomation
+//
+// CHAT 16: Added IStatementRepository + StatementRepository registration.
+//          Initialized after TaxInvoices (step 9).
+//          All other code UNCHANGED.
+// ═══════════════════════════════════════════════════════════════════════
+
+using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.AI.AIConnectivity;
 using ProGlassAutomation.Services.AI.AIService;
 using ProGlassAutomation.Services.Database;
@@ -8,6 +17,7 @@ using ProGlassAutomation.Services.JobOrder.Repository;
 using ProGlassAutomation.Services.MasterData.Repository;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
+using ProGlassAutomation.Services.Statement.Repository;
 using ProGlassAutomation.Services.TaxInvoice.Repository;
 using ProGlassAutomation.Views.Splash;
 using System;
@@ -45,6 +55,13 @@ namespace ProGlassAutomation
         /// Initialized after DeliveryNotes in Application_Startup.
         /// </summary>
         public static ITaxInvoiceRepository TaxInvoices { get; private set; }
+
+        /// <summary>
+        /// Statements — saved account statements (separate SQLite: statements.db)
+        /// Added in Chat 16 (Sales Report / Account Statement module).
+        /// Initialized after TaxInvoices in Application_Startup.
+        /// </summary>
+        public static IStatementRepository Statements { get; private set; }
 
         private async void Application_Startup(object sender, StartupEventArgs e)
         {
@@ -108,19 +125,25 @@ namespace ProGlassAutomation
             TaxInvoices = new TaxInvoiceRepository();
             await TaxInvoices.InitializeAsync();
 
-            // 9) Initialize AI + Connectivity services
+            // 9) Initialize Statements database (statements.db)
+            //    Chat 16 — Sales Report / Account Statement module.
+            //    Initialized after TaxInvoices (statements aggregate invoices).
+            Statements = new StatementRepository();
+            await Statements.InitializeAsync();
+
+            // 10) Initialize AI + Connectivity services
             Ai = new GeminiAiService(Config.Ai);
             Connectivity = new ConnectivityService();
             Connectivity.StartMonitoring();
 
-            // 10) Show splash
+            // 11) Show splash
             var splash = new SplashView();
             splash.Show();
 
-            // 11) Loading time for splash animations
+            // 12) Loading time for splash animations
             await Task.Delay(2800);
 
-            // 12) Create main window (not shown yet)
+            // 13) Create main window (not shown yet)
             var mainWindow = new MainWindow();
 
             // ══════════════════════════════════════════════════════════════
@@ -140,7 +163,7 @@ namespace ProGlassAutomation
                 mainWindow.Activate();      // bring to foreground
                 mainWindow.Focus();         // grab keyboard focus
                 mainWindow.Topmost = true;  // force above splash residue
-                mainWindow.Topmost = false; // immediately release so other apps can go on top
+                mainWindow.Topmost = false; // immediately release
             });
         }
 

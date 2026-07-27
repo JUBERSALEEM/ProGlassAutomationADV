@@ -2,9 +2,9 @@
      FILE: Views/Dashboard/DashboardView.xaml
      PROJECT: ProGlassAutomation
 
-     CHANGES vs PREVIOUS VERSION (Chat 15):
-       Added TiDashboard namespace xmlns:ti
-       Added DataTemplate mapping TiDashboardViewModel → TiDashboardView
+     CHANGES vs PREVIOUS VERSION (Chat 16):
+       Added StDashboard namespace xmlns:st
+       Added DataTemplate mapping StDashboardViewModel → StDashboardView
        All other markup UNCHANGED.
 ═══════════════════════════════════════════════════════════════════════ -->
 
@@ -15,12 +15,14 @@
              xmlns:vmJo="clr-namespace:ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard"
              xmlns:vmDn="clr-namespace:ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard"
              xmlns:vmTi="clr-namespace:ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard"
+             xmlns:vmSt="clr-namespace:ProGlassAutomation.ViewModels.Dashboard.Statement"
              xmlns:ov="clr-namespace:ProGlassAutomation.Views.Dashboard.Overview"
              xmlns:ss="clr-namespace:ProGlassAutomation.Views.Dashboard.SheetStore"
              xmlns:pi="clr-namespace:ProGlassAutomation.Views.Dashboard.ProformaInvoice"
              xmlns:jo="clr-namespace:ProGlassAutomation.Views.Dashboard.JobOrder.JoDashboard"
              xmlns:dn="clr-namespace:ProGlassAutomation.Views.Dashboard.DeliveryNote.DnDashboard"
              xmlns:ti="clr-namespace:ProGlassAutomation.Views.Dashboard.TaxInvoice.TiDashboard"
+             xmlns:st="clr-namespace:ProGlassAutomation.Views.Dashboard.Statement"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -31,8 +33,9 @@
     <UserControl.Resources>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             VM → View mappings for the 6 sub-dashboards
+             VM → View mappings for the 7 sub-dashboards
              Chat 15: Added TiDashboard mapping (6th tab)
+             Chat 16: Added StDashboard mapping (7th tab)
         ═══════════════════════════════════════════════════════════════ -->
         <DataTemplate DataType="{x:Type vm:OverviewDashboardViewModel}">
             <ov:OverviewDashboardView/>
@@ -50,9 +53,14 @@
             <dn:DnDashboardView/>
         </DataTemplate>
 
-        <!-- ── Chat 15 NEW: Tax Invoice dashboard tab ────────────────── -->
+        <!-- Chat 15: Tax Invoice dashboard tab -->
         <DataTemplate DataType="{x:Type vmTi:TiDashboardViewModel}">
             <ti:TiDashboardView/>
+        </DataTemplate>
+
+        <!-- Chat 16 NEW: Statement dashboard tab -->
+        <DataTemplate DataType="{x:Type vmSt:StDashboardViewModel}">
+            <st:StDashboardView/>
         </DataTemplate>
 
         <!-- ═══════════════════════════════════════════════════════════════
@@ -117,8 +125,8 @@
 
         <!-- ═══════════════════════════════════════════════════════════════
              TAB STRIP — auto-generates a tab button for every page in Pages
-             The 6th tab (Tax Invoices 🧾) appears automatically because
-             TiDashboardVM is added to DashboardViewModel.Pages.
+             The 7th tab (Statements 📊) appears automatically because
+             StDashboardVM is added to DashboardViewModel.Pages.
         ═══════════════════════════════════════════════════════════════ -->
         <Border Grid.Row="0"
                 Background="{DynamicResource ModuleBackgroundBrush}"
@@ -161,7 +169,8 @@
                                                 </DataTrigger.Binding>
                                                 <Setter Property="Foreground"
                                                         Value="{DynamicResource AccentBrush}"/>
-                                                <Setter Property="FontWeight" Value="SemiBold"/>
+                                                <Setter Property="FontWeight"
+                                                        Value="SemiBold"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -172,7 +181,8 @@
                             <Border Grid.Row="1" CornerRadius="2,2,0,0">
                                 <Border.Style>
                                     <Style TargetType="Border">
-                                        <Setter Property="Background" Value="Transparent"/>
+                                        <Setter Property="Background"
+                                                Value="Transparent"/>
                                         <Style.Triggers>
                                             <DataTrigger Value="True">
                                                 <DataTrigger.Binding>
@@ -198,10 +208,12 @@
         </Border>
 
         <!-- Divider under tabs -->
-        <Border Grid.Row="1" Background="{DynamicResource BorderBrush}"/>
+        <Border Grid.Row="1"
+                Background="{DynamicResource BorderBrush}"/>
 
         <!-- Active sub-dashboard — ContentPresenter auto-selects
              the correct DataTemplate based on the VM type -->
-        <ContentPresenter Grid.Row="2" Content="{Binding ActivePage}"/>
+        <ContentPresenter Grid.Row="2"
+                          Content="{Binding ActivePage}"/>
     </Grid>
 </UserControl>

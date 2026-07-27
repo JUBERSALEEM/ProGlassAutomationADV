@@ -22,6 +22,9 @@
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
 		<PackageReference Include="QuestPDF" Version="2024.12.2" />
+		<PackageReference Include="PdfSharp-WPF" Version="6.1.1" />
+		<PackageReference Include="SkiaSharp" Version="2.88.8" />
+		<PackageReference Include="SkiaSharp.Views.WPF" Version="2.88.8" />
 	</ItemGroup>
 
 	<ItemGroup>
@@ -34,10 +37,8 @@
 
 	<!-- ═══════════════════════════════════════════════════════════
 	     Phase 8.3 — Explicit registration for Controls folder
-	     Ensures WPF designer sees the custom UserControls in the
-	     Controls/ subfolders. SDK-style auto-include usually handles
-	     this, but explicit entries prevent XDG0008 design-time errors
-	     in the XAML designer.
+	     Uses Update (not Include) — SDK already auto-includes.
+	     Update only sets build properties on already-included files.
 	═══════════════════════════════════════════════════════════ -->
 	<ItemGroup>
 		<Page Update="Controls\**\*.xaml">
@@ -50,7 +51,7 @@
 		</Compile>
 	</ItemGroup>
 
-	<!-- Same treatment for Themes/Styles folder (ResourceDictionaries) -->
+	<!-- Themes/Styles folder -->
 	<ItemGroup>
 		<Page Update="Themes\Styles\**\*.xaml">
 			<Generator>MSBuild:Compile</Generator>
@@ -58,6 +59,51 @@
 		</Page>
 		<Compile Update="Themes\Styles\**\*.xaml.cs">
 			<DependentUpon>%(Filename)</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+	</ItemGroup>
+
+	<!-- ═══════════════════════════════════════════════════════════
+	     Chat 16 — Set build properties on new Chat 16 XAML files.
+	     Uses Update (not Include) — SDK auto-includes all .xaml
+	     and .cs files in project directory by default.
+	     Update ensures correct Generator + DependentUpon linkage
+	     so XAML designer recognizes the code-behind correctly.
+	═══════════════════════════════════════════════════════════ -->
+	<ItemGroup>
+		<Page Update="Views\Reports\SalesReportView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\SalesReportView.xaml.cs">
+			<DependentUpon>SalesReportView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<Page Update="Views\Reports\StatementList\StatementListView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\StatementList\StatementListView.xaml.cs">
+			<DependentUpon>StatementListView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<Page Update="Views\Reports\StatementGenerator\StatementGeneratorView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\StatementGenerator\StatementGeneratorView.xaml.cs">
+			<DependentUpon>StatementGeneratorView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<Page Update="Views\Dashboard\Statement\StDashboardView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Dashboard\Statement\StDashboardView.xaml.cs">
+			<DependentUpon>StDashboardView.xaml</DependentUpon>
 			<SubType>Code</SubType>
 		</Compile>
 	</ItemGroup>

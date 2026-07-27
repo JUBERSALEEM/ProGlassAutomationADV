@@ -1,0 +1,199 @@
+﻿// ═══════════════════════════════════════════════════════════════════════
+// FILE: ViewModels/Dashboard/Statement/StDashboardViewModel.cs
+// PROJECT: ProGlassAutomation
+// MODULE: Account Statement / Sales Report (Chat 16)
+//
+// FIX vs PREVIOUS VERSION:
+//   1. Removed override LoadAsync() — DashboardPageBase.LoadAsync()
+//      is NOT virtual. It is the public entry point with reentrancy guard.
+//   2. Implemented LoadCoreAsync() — this is the abstract method that
+//      DashboardPageBase.LoadAsync() calls internally after setting
+//      IsLoading=true and clearing errors.
+//   3. Removed duplicate IsLoading property — DashboardPageBase already
+//      owns IsLoading. Using base class property directly.
+//   4. App.Statements null-guard preserved from previous fix.
+// ═══════════════════════════════════════════════════════════════════════
+
+using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Statement.Pdf;
+using System;
+using System.Collections.ObjectModel;
+using System.Linq;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Input;
+
+namespace ProGlassAutomation.ViewModels.Dashboard.Statement
+{
+    /// <summary>
+    /// Dashboard tab for Account Statements / Sales Reports.
+    /// Lazy-loaded on first tab selection via DashboardViewModel.ActivePage setter.
+    /// Uses App.Statements (registered singleton).
+    /// Overrides LoadCoreAsync() — called by DashboardPageBase.LoadAsync().
+    /// </summary>
+    public class StDashboardViewModel : DashboardPageBase
+    {
+        // ── Tab identity ──────────────────────────────────────────────────
+        public override string TabTitle => "Statements";
+        public override string TabIcon => "📊";
+
+        // ── Navigation callback (wired by DashboardViewModel) ─────────────
+        public Action<string>? NavigateTo { get; set; }
+
+        // ── Recent statements list ────────────────────────────────────────
+        public ObservableCollection<RecentStatementItem> RecentStatements { get; }
+            = new();
+
+        // ── KPI backing fields ────────────────────────────────────────────
+        private int _totalStatements;
+        private decimal _totalInvoiced;
+        private decimal _totalOutstanding;
+        private decimal _overdueAmount;
+        private bool _isLoaded;
+
+        // ── KPI display properties ────────────────────────────────────────
+        public int TotalStatements
+            => _totalStatements;
+        public string TotalInvoicedDisplay
+            => $"AED {_totalInvoiced:N2}";
+        public string TotalOutstandingDisplay
+            => $"AED {_totalOutstanding:N2}";
+        public string OverdueAmountDisplay
+            => _overdueAmount > 0 ? $"AED {_overdueAmount:N2}" : "—";
+
+        public bool HasOverdue => _overdueAmount > 0;
+        public bool HasStatements => _totalStatements > 0;
+
+        /// <summary>
+        /// True only after first load completes with zero statements.
+        /// Uses base.IsLoading to avoid conflict with DashboardPageBase.
+        /// </summary>
+        public bool IsEmpty => _isLoaded && !IsLoading && _totalStatements == 0;
+
+        // ── Commands ──────────────────────────────────────────────────────
+        public ICommand GoToStatementsCommand { get; }
+        public ICommand NewStatementCommand { get; }
+        public ICommand OpenPdfCommand { get; }
+
+        // ═════════════════════════════════════════════════════════════════
+        public StDashboardViewModel()
+        {
+            GoToStatementsCommand = new RelayCommand(_ =>
+                NavigateTo?.Invoke("SalesReport"));
+
+            NewStatementCommand = new RelayCommand(_ =>
+                NavigateTo?.Invoke("SalesReport"));
+
+            OpenPdfCommand = new RelayCommand(p =>
+            {
+                if (p is RecentStatementItem item && item.HasPdf)
+                    StatementPdfExporter.OpenPdf(item.PdfPath);
+            });
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  CORE LOAD — called by DashboardPageBase.LoadAsync()
+        //  DashboardPageBase sets IsLoading=true BEFORE calling this.
+        //  DashboardPageBase sets IsLoading=false AFTER this returns.
+        //  Do NOT set IsLoading here — base class manages it.
+        // ═════════════════════════════════════════════════════════════════
+
+        protected override async Task LoadCoreAsync()
+        {
+            // Guard: App.Statements may be null if called before startup
+            if (App.Statements == null)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    "[StDashboard] App.Statements not yet initialized.");
+                return;
+            }
+
+            // Load on background thread
+            var items = await Task.Run(
+                () => App.Statements.GetAllAsync());
+
+            if (items == null || items.Count == 0)
+            {
+                Application.Current?.Dispatcher.Invoke(() =>
+                {
+                    RecentStatements.Clear();
+                    _totalStatements = 0;
+                    _totalInvoiced = 0m;
+                    _totalOutstanding = 0m;
+                    _overdueAmount = 0m;
+                    _isLoaded = true;
+                    OnPropertyChanged(string.Empty);
+                });
+                return;
+            }
+
+            // ── Compute KPIs ──────────────────────────────────────────────
+            int totalCount = items.Count;
+            decimal totalInv = items.Sum(i => i.TotalInvoiced);
+            decimal totalOut = items.Sum(i => i.TotalOutstanding);
+            decimal totalOverdue = items.Sum(i => i.OverdueAmount);
+
+            // ── Recent 5 statements ───────────────────────────────────────
+            var recent = items
+                .OrderByDescending(i => i.CreatedAt)
+                .Take(5)
+                .Select(i => new RecentStatementItem
+                {
+                    StatementNumber = i.StatementNumber,
+                    Title = i.Title,
+                    SubTitle = i.SubTitle,
+                    TotalInvoicedDisplay = i.TotalInvoicedDisplay,
+                    OutstandingDisplay = i.TotalOutstandingDisplay,
+                    OverdueDisplay = i.OverdueAmountDisplay,
+                    HasOverdue = i.OverdueAmount > 0,
+                    CreatedAtDisplay = i.CreatedAtDisplay,
+                    PdfPath = i.PdfPath,
+                    HasPdf = i.HasPdf,
+                    HasAttachments = i.HasAttachments,
+                    InvoiceCount = i.InvoiceCount
+                })
+                .ToList();
+
+            // ── Update UI on dispatcher ───────────────────────────────────
+            Application.Current?.Dispatcher.Invoke(() =>
+            {
+                RecentStatements.Clear();
+                foreach (var r in recent)
+                    RecentStatements.Add(r);
+
+                _totalStatements = totalCount;
+                _totalInvoiced = totalInv;
+                _totalOutstanding = totalOut;
+                _overdueAmount = totalOverdue;
+                _isLoaded = true;
+
+                // Batch notification — single fire
+                OnPropertyChanged(string.Empty);
+            });
+        }
+    }
+
+    // ═════════════════════════════════════════════════════════════════════
+    //  RECENT STATEMENT ITEM — display DTO
+    // ═════════════════════════════════════════════════════════════════════
+
+    /// <summary>
+    /// One row in the dashboard recent statements list.
+    /// POCO — no INotifyPropertyChanged needed (list rebuilt on each load).
+    /// </summary>
+    public class RecentStatementItem
+    {
+        public string StatementNumber { get; init; } = "";
+        public string Title { get; init; } = "";
+        public string SubTitle { get; init; } = "";
+        public string TotalInvoicedDisplay { get; init; } = "";
+        public string OutstandingDisplay { get; init; } = "";
+        public string OverdueDisplay { get; init; } = "";
+        public bool HasOverdue { get; init; }
+        public string CreatedAtDisplay { get; init; } = "";
+        public string PdfPath { get; init; } = "";
+        public bool HasPdf { get; init; }
+        public bool HasAttachments { get; init; }
+        public int InvoiceCount { get; init; }
+    }
+}
