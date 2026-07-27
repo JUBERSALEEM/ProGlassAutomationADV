@@ -186,14 +186,76 @@
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
+        <!-- ══════════════════════════════════════════════════════════════
+             FAMILY MEMBER ROW STYLES (Chat 16 sidebar)
+        ══════════════════════════════════════════════════════════════ -->
+
+        <Style x:Key="FamilyRowContentBorderStyle" TargetType="Border">
+            <Setter Property="Padding" Value="12,10"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                    <Setter Property="BorderThickness" Value="2"/>
+                    <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                    <Setter Property="BorderBrush" Value="#4338CA"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding IsCurrentInvoice}" Value="True">
+                    <Setter Property="BorderThickness" Value="4,2,2,2"/>
+                    <Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/>
+                    <Setter Property="BorderBrush" Value="#047857"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="FamilyRowButtonStyle" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Padding" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border Margin="12,4,12,4"
+                                Background="Transparent"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Opacity" Value="0.95"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <Style x:Key="FamilyInvoiceNumberStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsCurrentInvoice}" Value="True">
+                    <Setter Property="FontSize" Value="14"/>
+                    <Setter Property="Foreground" Value="#047857"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
     </UserControl.Resources>
 
     <!--
-        ROOT GRID — 4 rows (mirrors DeliveryNoteDetailView pattern exactly)
+        ROOT GRID — 4 rows
         Row 0: Action bar        (Auto)
         Row 1: Loading/Error     (Auto)
         Row 2: Stats + Attach    (Auto)
-        Row 3: Items + Summary   (* fills)
+        Row 3: Main content + Family sidebar (* fills)
     -->
     <Grid Margin="24,16,24,16"
           Background="{DynamicResource ModuleBackgroundBrush}">
@@ -215,7 +277,6 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Back button -->
                 <Button Grid.Column="0"
                         Content="← Back"
                         Command="{Binding BackCommand}"
@@ -225,7 +286,6 @@
                         Margin="0,0,12,0"
                         ToolTip="Back to list (Esc)"/>
 
-                <!-- Title + status badges -->
                 <StackPanel Grid.Column="1"
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
@@ -242,7 +302,6 @@
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     </Border>
 
-                    <!-- TRN warning badge -->
                     <Border CornerRadius="8" Padding="10,3"
                             Margin="6,0,0,0" VerticalAlignment="Center"
                             Background="{DynamicResource TintRedBrush}">
@@ -261,7 +320,6 @@
                                    Foreground="#B91C1C"/>
                     </Border>
 
-                    <!-- Saving indicator -->
                     <Border CornerRadius="8" Padding="10,3"
                             Margin="6,0,0,0" VerticalAlignment="Center"
                             Background="{DynamicResource TintAmberBrush}"
@@ -273,7 +331,6 @@
                     </Border>
                 </StackPanel>
 
-                <!-- Action buttons -->
                 <StackPanel Grid.Column="2"
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
@@ -322,7 +379,7 @@
             </Grid>
         </Border>
 
-        <!-- ══ ROW 1 — LOADING / ERROR ═══════════════════════════════ -->
+        <!-- ══ ROW 1 — LOADING / STATUS ══════════════════════════════ -->
         <StackPanel Grid.Row="1">
             <Border Visibility="{Binding IsLoading,
                                  Converter={StaticResource BoolToVisibilityConverter}}"
@@ -361,7 +418,7 @@
                             </LinearGradientBrush>
                         </Border.Background>
                         <StackPanel>
-                            <TextBlock Text="💰  FINANCIAL SUMMARY"
+                            <TextBlock Text="💰  THIS INVOICE — FINANCIAL SUMMARY"
                                        FontSize="11" FontWeight="Bold"
                                        Foreground="White"/>
                             <TextBlock Text="Live totals — updates as you edit rows"
@@ -382,7 +439,6 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <!-- Subtotal -->
                         <Border Grid.Row="0" Grid.Column="0"
                                 Style="{StaticResource CompactStatTileStyle}">
                             <StackPanel HorizontalAlignment="Center">
@@ -399,7 +455,6 @@
                             </StackPanel>
                         </Border>
 
-                        <!-- VAT -->
                         <Border Grid.Row="0" Grid.Column="2"
                                 Style="{StaticResource CompactStatTileStyle}">
                             <StackPanel HorizontalAlignment="Center">
@@ -416,7 +471,6 @@
                             </StackPanel>
                         </Border>
 
-                        <!-- Discount -->
                         <Border Grid.Row="2" Grid.Column="0"
                                 Style="{StaticResource CompactStatTileStyle}"
                                 Background="{DynamicResource TintAmberBrush}">
@@ -434,7 +488,6 @@
                             </StackPanel>
                         </Border>
 
-                        <!-- Grand Total -->
                         <Border Grid.Row="2" Grid.Column="2"
                                 Style="{StaticResource CompactStatTileStyle}"
                                 Background="{DynamicResource TintGreenBrush}">
@@ -455,12 +508,13 @@
                 </StackPanel>
             </Border>
 
-            <!-- ── ATTACHMENTS CARD (right) ── -->
+            <!-- ── ATTACHMENTS CARD (right) — auto-switches per family entry ── -->
             <Border Grid.Column="2"
                     Style="{StaticResource CardStyle}"
                     MaxHeight="260">
                 <Grid>
                     <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
@@ -479,12 +533,15 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="📎  ATTACHMENTS"
+                                <!-- Chat 16: SelectedFamilyHeaderText updates when family entry clicked -->
+                                <TextBlock Text="{Binding SelectedFamilyHeaderText}"
                                            FontSize="11" FontWeight="Bold"
-                                           Foreground="White"/>
-                                <TextBlock Text="Signed PI · Signed DN · Supporting docs"
+                                           Foreground="White"
+                                           TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Text="Photos + signed docs · click family entry to switch view"
                                            FontSize="10" Foreground="#CCFFFFFF"
-                                           Margin="0,2,0,0"/>
+                                           Margin="0,2,0,0"
+                                           TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                             <Button Grid.Column="1"
                                     Content="+ Add File"
@@ -494,7 +551,30 @@
                         </Grid>
                     </Border>
 
-                    <ScrollViewer Grid.Row="1"
+                    <!-- Viewing-different-family-member warning -->
+                    <Border Grid.Row="1"
+                            Padding="12,8" Margin="10,10,10,0"
+                            CornerRadius="10"
+                            Background="{DynamicResource TintAmberBrush}"
+                            SnapsToDevicePixels="True">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSelectedFamilyCurrent}" Value="False">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock FontSize="11" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   TextWrapping="Wrap">
+                            <Run Text="👁  Attachments shown are for the selected family member (not the currently loaded invoice)."/>
+                        </TextBlock>
+                    </Border>
+
+                    <ScrollViewer Grid.Row="2"
                                   VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled"
                                   CanContentScroll="False"
@@ -502,7 +582,6 @@
                                   PanningMode="None"
                                   behaviors:SmoothScrollBehavior.IsEnabled="True">
                         <StackPanel>
-                            <!-- Empty state -->
                             <Border Padding="16,20">
                                 <Border.Style>
                                     <Style TargetType="Border">
@@ -532,7 +611,6 @@
                                 </StackPanel>
                             </Border>
 
-                            <!-- Attachment rows -->
                             <ItemsControl ItemsSource="{Binding Attachments}"
                                           Margin="10,6,10,10">
                                 <ItemsControl.ItemTemplate>
@@ -549,14 +627,12 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
 
-                                                <!-- Type icon -->
                                                 <TextBlock Grid.Column="0"
                                                            Text="{Binding TypeIcon}"
                                                            FontSize="22"
                                                            HorizontalAlignment="Center"
                                                            VerticalAlignment="Center"/>
 
-                                                <!-- File info -->
                                                 <StackPanel Grid.Column="1"
                                                             VerticalAlignment="Center"
                                                             Margin="10,0,8,0">
@@ -572,7 +648,6 @@
                                                     </TextBlock>
                                                 </StackPanel>
 
-                                                <!-- Attachment type selector -->
                                                 <ComboBox Grid.Column="2"
                                                           SelectedItem="{Binding AttachmentType}"
                                                           FontSize="10"
@@ -584,7 +659,6 @@
                                                     <ComboBoxItem Content="Other"/>
                                                 </ComboBox>
 
-                                                <!-- Remove button -->
                                                 <Button Grid.Column="3"
                                                         Content="✕"
                                                         Command="{Binding DataContext.RemoveAttachmentCommand,
@@ -606,24 +680,24 @@
             </Border>
         </Grid>
 
-        <!-- ══ ROW 3 — MAIN CONTENT + FINANCIAL SUMMARY SIDEBAR ══════ -->
+        <!-- ══ ROW 3 — MAIN CONTENT + FAMILY SIDEBAR ═════════════════ -->
         <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="3*"/>
                 <ColumnDefinition Width="12"/>
-                <ColumnDefinition Width="320"/>
+                <ColumnDefinition Width="1*" MinWidth="350"/>
             </Grid.ColumnDefinitions>
 
-            <!-- ── LEFT: INVOICE CONTENT CARD ── -->
+            <!-- ══════════════════════════════════════════════════════════
+                 LEFT: INVOICE CONTENT
+                 Order: Hero → Details form → Spec groups
+            ══════════════════════════════════════════════════════════ -->
             <Border Grid.Column="0" Style="{StaticResource CardStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
-                        <!-- Hero strip -->
                         <RowDefinition Height="Auto"/>
-                        <!-- Header fields form -->
                         <RowDefinition Height="*"/>
-                        <!-- Spec groups scrolls -->
                     </Grid.RowDefinitions>
 
                     <!-- HERO STRIP -->
@@ -702,7 +776,7 @@
                         </Grid>
                     </Border>
 
-                    <!-- HEADER FIELDS FORM -->
+                    <!-- HEADER FIELDS FORM (compact — includes customer + bank) -->
                     <Border Grid.Row="1"
                             Padding="18,14"
                             BorderBrush="{DynamicResource BorderBrush}"
@@ -754,7 +828,7 @@
                             </Grid>
 
                             <!-- Row 2: Issue Date, Payment Terms, Bank, TRN -->
-                            <Grid>
+                            <Grid Margin="0,0,0,12">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="14"/>
@@ -796,6 +870,98 @@
                                              FontSize="12"/>
                                 </StackPanel>
                             </Grid>
+
+                            <!-- Row 3: Customer, Customer TRN, Contact, Discount -->
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="14"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="14"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="14"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="CUSTOMER NAME"/>
+                                    <TextBox Text="{Binding CustomerName,
+                                                   UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="12"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="CUSTOMER TRN"/>
+                                    <TextBox Text="{Binding CustomerTrn,
+                                                   UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="12"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="4">
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="CONTACT PERSON"/>
+                                    <TextBox Text="{Binding ContactPerson,
+                                                   UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="12"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="6">
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="DISCOUNT %"/>
+                                    <TextBox Text="{Binding DiscountPercent,
+                                                   UpdateSourceTrigger=PropertyChanged,
+                                                   StringFormat={}{0:0.##}}"
+                                             behaviors:TextBoxBehaviors.AcceptDecimals="True"
+                                             FontSize="12"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- Row 4: IBAN, SWIFT, Prepared By, Prepared Title -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="14"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="14"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="14"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="IBAN"/>
+                                    <TextBox Text="{Binding Iban,
+                                                   UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="12"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="SWIFT CODE"/>
+                                    <TextBox Text="{Binding SwiftCode,
+                                                   UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="12"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="4">
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="PREPARED BY"/>
+                                    <TextBox Text="{Binding PreparedByName,
+                                                   UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="12"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="6">
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="PREPARED BY TITLE"/>
+                                    <TextBox Text="{Binding PreparedByTitle,
+                                                   UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="12"/>
+                                </StackPanel>
+                            </Grid>
                         </StackPanel>
                     </Border>
 
@@ -809,7 +975,6 @@
                                   behaviors:SmoothScrollBehavior.IsEnabled="True">
                         <StackPanel Margin="14,12,14,14">
 
-                            <!-- Spec groups header + add button -->
                             <Grid Margin="4,0,4,10">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
@@ -831,7 +996,6 @@
                                         VerticalAlignment="Center"/>
                             </Grid>
 
-                            <!-- Empty state -->
                             <Border Padding="32,40">
                                 <Border.Style>
                                     <Style TargetType="Border">
@@ -861,14 +1025,12 @@
                                 </StackPanel>
                             </Border>
 
-                            <!-- Spec group cards -->
                             <ItemsControl ItemsSource="{Binding SpecGroups}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border Style="{StaticResource SpecGroupCardStyle}">
                                             <StackPanel>
 
-                                                <!-- Spec group header -->
                                                 <Border CornerRadius="12,12,0,0" Padding="14,10">
                                                     <Border.Background>
                                                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -909,7 +1071,6 @@
                                                                      VerticalContentAlignment="Center"/>
                                                         </StackPanel>
 
-                                                        <!-- Rate per SQM -->
                                                         <StackPanel Grid.Column="2"
                                                                     Orientation="Horizontal"
                                                                     VerticalAlignment="Center"
@@ -936,7 +1097,6 @@
                                                                        VerticalAlignment="Center"/>
                                                         </StackPanel>
 
-                                                        <!-- Group total -->
                                                         <StackPanel Grid.Column="3"
                                                                     Orientation="Horizontal"
                                                                     VerticalAlignment="Center"
@@ -955,7 +1115,6 @@
                                                             </TextBlock>
                                                         </StackPanel>
 
-                                                        <!-- Add row button -->
                                                         <Button Grid.Column="4"
                                                                 Content="+ Row"
                                                                 Command="{Binding AddRowCommand}"
@@ -966,7 +1125,6 @@
                                                                 Foreground="White"
                                                                 BorderThickness="0"/>
 
-                                                        <!-- Remove group button -->
                                                         <Button Grid.Column="5"
                                                                 Content="✕ Group"
                                                                 Command="{Binding DataContext.RemoveSpecGroupCommand,
@@ -980,7 +1138,6 @@
                                                     </Grid>
                                                 </Border>
 
-                                                <!-- Column headers -->
                                                 <Border Background="{DynamicResource MenuHoverBrush}"
                                                         BorderBrush="{DynamicResource BorderBrush}"
                                                         BorderThickness="0,0,0,1">
@@ -1051,7 +1208,6 @@
                                                     </Grid>
                                                 </Border>
 
-                                                <!-- Glass item rows -->
                                                 <ItemsControl ItemsSource="{Binding Rows}">
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
@@ -1076,13 +1232,11 @@
                                                                         <ColumnDefinition Width="40"/>
                                                                     </Grid.ColumnDefinitions>
 
-                                                                    <!-- # -->
                                                                     <TextBlock Grid.Column="0"
                                                                                Text="{Binding SerialNumber}"
                                                                                Style="{StaticResource GridDataCell}"
                                                                                HorizontalAlignment="Center"/>
 
-                                                                    <!-- Glass Ref -->
                                                                     <TextBox Grid.Column="1"
                                                                              Text="{Binding GlassRef,
                                                                                    UpdateSourceTrigger=PropertyChanged}"
@@ -1091,7 +1245,6 @@
                                                                              Margin="4,3"
                                                                              VerticalContentAlignment="Center"/>
 
-                                                                    <!-- W1 -->
                                                                     <TextBox Grid.Column="2"
                                                                              Text="{Binding W1,
                                                                                    UpdateSourceTrigger=PropertyChanged}"
@@ -1101,7 +1254,6 @@
                                                                              Padding="4,4,8,4" Margin="2,3"
                                                                              VerticalContentAlignment="Center"/>
 
-                                                                    <!-- H1 -->
                                                                     <TextBox Grid.Column="3"
                                                                              Text="{Binding H1,
                                                                                    UpdateSourceTrigger=PropertyChanged}"
@@ -1111,7 +1263,6 @@
                                                                              Padding="4,4,8,4" Margin="2,3"
                                                                              VerticalContentAlignment="Center"/>
 
-                                                                    <!-- W2 -->
                                                                     <TextBox Grid.Column="4"
                                                                              Text="{Binding W2,
                                                                                    UpdateSourceTrigger=PropertyChanged}"
@@ -1122,7 +1273,6 @@
                                                                              Opacity="0.7"
                                                                              VerticalContentAlignment="Center"/>
 
-                                                                    <!-- H2 -->
                                                                     <TextBox Grid.Column="5"
                                                                              Text="{Binding H2,
                                                                                    UpdateSourceTrigger=PropertyChanged}"
@@ -1133,7 +1283,6 @@
                                                                              Opacity="0.7"
                                                                              VerticalContentAlignment="Center"/>
 
-                                                                    <!-- QTY -->
                                                                     <TextBox Grid.Column="6"
                                                                              Text="{Binding Qty,
                                                                                    UpdateSourceTrigger=PropertyChanged}"
@@ -1149,7 +1298,6 @@
                                                                     <Border Grid.Column="7"
                                                                             Style="{StaticResource ColumnSeparatorStyle}"/>
 
-                                                                    <!-- SQM (computed) -->
                                                                     <TextBlock Grid.Column="8"
                                                                                Text="{Binding Sqm,
                                                                                       StringFormat={}{0:0.000}}"
@@ -1159,7 +1307,6 @@
                                                                     <Border Grid.Column="9"
                                                                             Style="{StaticResource ColumnSeparatorStyle}"/>
 
-                                                                    <!-- T.SQM (computed) -->
                                                                     <TextBlock Grid.Column="10"
                                                                                Text="{Binding TotalSqm,
                                                                                       StringFormat={}{0:0.000}}"
@@ -1169,7 +1316,6 @@
                                                                     <Border Grid.Column="11"
                                                                             Style="{StaticResource ColumnSeparatorStyle}"/>
 
-                                                                    <!-- Rate · Value (stacked) -->
                                                                     <StackPanel Grid.Column="12"
                                                                                 VerticalAlignment="Center"
                                                                                 Margin="4,2">
@@ -1192,7 +1338,6 @@
                                                                                    Foreground="#047857"/>
                                                                     </StackPanel>
 
-                                                                    <!-- Remove row -->
                                                                     <Button Grid.Column="13"
                                                                             Content="✕"
                                                                             Command="{Binding DataContext.RemoveRowCommand,
@@ -1210,7 +1355,6 @@
                                                     </ItemsControl.ItemTemplate>
                                                 </ItemsControl>
 
-                                                <!-- Spec group footer totals -->
                                                 <Border Background="{DynamicResource TintIndigoBrush}"
                                                         BorderBrush="{DynamicResource BorderBrush}"
                                                         BorderThickness="0,1,0,0"
@@ -1253,13 +1397,18 @@
                 </Grid>
             </Border>
 
-            <!-- ── RIGHT: FINANCIAL SUMMARY SIDEBAR ── -->
+            <!-- ══════════════════════════════════════════════════════════
+                 RIGHT: INVOICE FAMILY SIDEBAR (Chat 16 — like DN History)
+            ══════════════════════════════════════════════════════════ -->
             <Border Grid.Column="2" Style="{StaticResource CardStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
+                        <!-- Header -->
                         <RowDefinition Height="*"/>
+                        <!-- Family list scrolls -->
                         <RowDefinition Height="Auto"/>
+                        <!-- Family totals fixed -->
                     </Grid.RowDefinitions>
 
                     <!-- Sidebar header -->
@@ -1267,180 +1416,218 @@
                             Style="{StaticResource SectionHeaderStyle}">
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                <GradientStop Color="#047857" Offset="0"/>
-                                <GradientStop Color="#10B981" Offset="1"/>
+                                <GradientStop Color="#4338CA" Offset="0"/>
+                                <GradientStop Color="#6366F1" Offset="1"/>
                             </LinearGradientBrush>
                         </Border.Background>
-                        <StackPanel>
-                            <TextBlock Text="💰  INVOICE DETAILS"
-                                       FontSize="11" FontWeight="Bold"
-                                       Foreground="White"/>
-                            <TextBlock Text="Customer · Bank · Prepared by"
-                                       FontSize="10" Foreground="#CCFFFFFF"
-                                       Margin="0,2,0,0"/>
-                        </StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="📋  INVOICE FAMILY"
+                                           FontSize="11" FontWeight="Bold"
+                                           Foreground="White"/>
+                                <TextBlock Text="Click any invoice to load it · Green = editing"
+                                           FontSize="10" Foreground="#CCFFFFFF"
+                                           Margin="0,2,0,0"
+                                           TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                            <Border Grid.Column="1"
+                                    CornerRadius="8" Padding="8,3"
+                                    Background="#22FFFFFF"
+                                    VerticalAlignment="Center">
+                                <TextBlock FontSize="10" FontWeight="Bold" Foreground="White">
+                                    <Run Text="{Binding FamilyMemberCount, Mode=OneWay}"/>
+                                    <Run Text=" invoice(s)"/>
+                                </TextBlock>
+                            </Border>
+                        </Grid>
                     </Border>
 
-                    <!-- Sidebar scrollable fields -->
+                    <!-- FAMILY MEMBERS LIST — scrollable -->
                     <ScrollViewer Grid.Row="1"
                                   VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled"
                                   CanContentScroll="False"
                                   IsDeferredScrollingEnabled="False"
                                   PanningMode="None"
+                                  Focusable="True"
+                                  FocusVisualStyle="{x:Null}"
                                   behaviors:SmoothScrollBehavior.IsEnabled="True">
-                        <StackPanel Margin="16,14,16,14">
+                        <ItemsControl ItemsSource="{Binding FamilyMembers}"
+                                      Margin="0,8,0,8">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Style="{StaticResource FamilyRowButtonStyle}"
+                                            Command="{Binding DataContext.SelectFamilyMemberCommand,
+                                                      RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}">
+                                        <Border Style="{StaticResource FamilyRowContentBorderStyle}">
+                                            <StackPanel>
+                                                <!-- Row 1: Invoice number + badges -->
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
 
-                            <!-- CUSTOMER section -->
-                            <TextBlock Text="CUSTOMER"
-                                       FontSize="10" FontWeight="Bold"
-                                       Foreground="#4338CA"
-                                       Margin="0,0,0,8"/>
+                                                    <StackPanel Grid.Column="0"
+                                                                Orientation="Horizontal">
+                                                        <TextBlock Text="🧾 " FontSize="14"
+                                                                   VerticalAlignment="Center"/>
+                                                        <TextBlock Text="{Binding InvoiceNumber}"
+                                                                   Style="{StaticResource FamilyInvoiceNumberStyle}"/>
 
-                            <TextBlock Style="{StaticResource FieldLabelStyle}"
-                                       Text="CUSTOMER NAME"/>
-                            <TextBox Text="{Binding CustomerName,
-                                           UpdateSourceTrigger=PropertyChanged}"
-                                     FontSize="12" Margin="0,0,0,10"/>
+                                                        <!-- Editing badge -->
+                                                        <Border CornerRadius="4" Padding="6,1"
+                                                                Margin="6,0,0,0"
+                                                                Background="#047857"
+                                                                VerticalAlignment="Center"
+                                                                Visibility="{Binding IsCurrentInvoice,
+                                                                    Converter={StaticResource BoolToVisibilityConverter}}">
+                                                            <TextBlock Text="✏️ EDITING"
+                                                                       FontSize="9" FontWeight="Bold"
+                                                                       Foreground="White"/>
+                                                        </Border>
 
-                            <TextBlock Style="{StaticResource FieldLabelStyle}"
-                                       Text="CUSTOMER TRN"/>
-                            <TextBox Text="{Binding CustomerTrn,
-                                           UpdateSourceTrigger=PropertyChanged}"
-                                     FontSize="12" Margin="0,0,0,10"/>
+                                                        <!-- Attachment count badge -->
+                                                        <Border CornerRadius="4" Padding="5,1"
+                                                                Margin="5,0,0,0"
+                                                                Background="{DynamicResource TintIndigoBrush}"
+                                                                VerticalAlignment="Center"
+                                                                Visibility="{Binding HasAttachments,
+                                                                    Converter={StaticResource BoolToVisibilityConverter}}">
+                                                            <TextBlock FontSize="9" FontWeight="Bold"
+                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                                                <Run Text="📎 "/>
+                                                                <Run Text="{Binding AttachmentCount, Mode=OneWay}"/>
+                                                            </TextBlock>
+                                                        </Border>
+                                                    </StackPanel>
 
-                            <TextBlock Style="{StaticResource FieldLabelStyle}"
-                                       Text="PROJECT NAME"/>
-                            <TextBox Text="{Binding ProjectName,
-                                           UpdateSourceTrigger=PropertyChanged}"
-                                     FontSize="12" Margin="0,0,0,10"/>
+                                                    <!-- Status pill -->
+                                                    <Border Grid.Column="1"
+                                                            CornerRadius="6" Padding="7,2"
+                                                            VerticalAlignment="Center">
+                                                        <Border.Background>
+                                                            <Binding Path="StatusBrushKey"
+                                                                     Converter="{StaticResource BrushKeyConverter}"/>
+                                                        </Border.Background>
+                                                        <TextBlock Text="{Binding StatusLabel}"
+                                                                   FontSize="9" FontWeight="Bold"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                    </Border>
+                                                </Grid>
 
-                            <TextBlock Style="{StaticResource FieldLabelStyle}"
-                                       Text="CONTACT PERSON"/>
-                            <TextBox Text="{Binding ContactPerson,
-                                           UpdateSourceTrigger=PropertyChanged}"
-                                     FontSize="12" Margin="0,0,0,16"/>
+                                                <!-- Row 2: Type + date + amount -->
+                                                <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
+                                                    <Border CornerRadius="4" Padding="5,1"
+                                                            VerticalAlignment="Center">
+                                                        <Border.Background>
+                                                            <Binding Path="InvoiceTypeBrushKey"
+                                                                     Converter="{StaticResource BrushKeyConverter}"/>
+                                                        </Border.Background>
+                                                        <TextBlock Text="{Binding InvoiceTypeLabel}"
+                                                                   FontSize="9" FontWeight="Bold"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                    </Border>
 
-                            <!-- BANK section -->
-                            <TextBlock Text="BANK DETAILS"
-                                       FontSize="10" FontWeight="Bold"
-                                       Foreground="#4338CA"
-                                       Margin="0,0,0,8"/>
+                                                    <TextBlock Text="{Binding IssueDateDisplay}"
+                                                               FontSize="10"
+                                                               VerticalAlignment="Center"
+                                                               Margin="8,0,0,0"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                </StackPanel>
 
-                            <TextBlock Style="{StaticResource FieldLabelStyle}"
-                                       Text="IBAN"/>
-                            <TextBox Text="{Binding Iban,
-                                           UpdateSourceTrigger=PropertyChanged}"
-                                     FontSize="12" Margin="0,0,0,10"/>
+                                                <!-- Row 3: Grand total + due -->
+                                                <Grid Margin="0,6,0,0">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
 
-                            <TextBlock Style="{StaticResource FieldLabelStyle}"
-                                       Text="SWIFT CODE"/>
-                            <TextBox Text="{Binding SwiftCode,
-                                           UpdateSourceTrigger=PropertyChanged}"
-                                     FontSize="12" Margin="0,0,0,10"/>
+                                                    <StackPanel Grid.Column="0"
+                                                                Orientation="Horizontal">
+                                                        <TextBlock Text="Due: "
+                                                                   FontSize="10"
+                                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                        <TextBlock Text="{Binding DueDateDisplay}"
+                                                                   FontSize="10" FontWeight="SemiBold">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Foreground"
+                                                                            Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding IsOverdue}"
+                                                                                     Value="True">
+                                                                            <Setter Property="Foreground" Value="#B91C1C"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </StackPanel>
 
-                            <TextBlock Style="{StaticResource FieldLabelStyle}"
-                                       Text="ACCOUNT NUMBER"/>
-                            <TextBox Text="{Binding BankAccountNumber,
-                                           UpdateSourceTrigger=PropertyChanged}"
-                                     FontSize="12" Margin="0,0,0,16"/>
-
-                            <!-- DISCOUNT section -->
-                            <TextBlock Text="PRICING"
-                                       FontSize="10" FontWeight="Bold"
-                                       Foreground="#4338CA"
-                                       Margin="0,0,0,8"/>
-
-                            <TextBlock Style="{StaticResource FieldLabelStyle}"
-                                       Text="DISCOUNT %"/>
-                            <TextBox Text="{Binding DiscountPercent,
-                                           UpdateSourceTrigger=PropertyChanged,
-                                           StringFormat={}{0:0.##}}"
-                                     behaviors:TextBoxBehaviors.AcceptDecimals="True"
-                                     FontSize="12" Margin="0,0,0,10"/>
-
-                            <!-- PREPARED BY section -->
-                            <TextBlock Text="PREPARED BY"
-                                       FontSize="10" FontWeight="Bold"
-                                       Foreground="#4338CA"
-                                       Margin="0,0,0,8"/>
-
-                            <TextBlock Style="{StaticResource FieldLabelStyle}"
-                                       Text="NAME"/>
-                            <TextBox Text="{Binding PreparedByName,
-                                           UpdateSourceTrigger=PropertyChanged}"
-                                     FontSize="12" Margin="0,0,0,10"/>
-
-                            <TextBlock Style="{StaticResource FieldLabelStyle}"
-                                       Text="TITLE"/>
-                            <TextBox Text="{Binding PreparedByTitle,
-                                           UpdateSourceTrigger=PropertyChanged}"
-                                     FontSize="12" Margin="0,0,0,10"/>
-
-                        </StackPanel>
+                                                    <TextBlock Grid.Column="1"
+                                                               Text="{Binding GrandTotalDisplay}"
+                                                               FontSize="12" FontWeight="Bold"
+                                                               Foreground="#047857"/>
+                                                </Grid>
+                                            </StackPanel>
+                                        </Border>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </ScrollViewer>
 
-                    <!-- Financial totals (fixed bottom) -->
+                    <!-- FAMILY TOTALS (fixed at bottom) -->
                     <Border Grid.Row="2"
                             Margin="12,0,12,12"
                             Padding="14,12"
                             CornerRadius="10"
                             Background="{DynamicResource TintIndigoBrush}">
                         <StackPanel>
+                            <TextBlock Text="FAMILY TOTALS"
+                                       FontSize="10" FontWeight="Bold"
+                                       Foreground="#4338CA"
+                                       Margin="0,0,0,8"/>
+
                             <Grid Margin="0,0,0,6">
-                                <TextBlock Text="Subtotal"
-                                           FontSize="12"
+                                <TextBlock Text="PI Total"
+                                           FontSize="11"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                <TextBlock Text="{Binding SubtotalDisplay}"
-                                           FontSize="12" FontWeight="SemiBold"
+                                <TextBlock Text="{Binding FamilyProformaTotalDisplay}"
+                                           FontSize="11" FontWeight="SemiBold"
                                            HorizontalAlignment="Right"
                                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                             </Grid>
+
                             <Grid Margin="0,0,0,6">
-                                <TextBlock Text="Discount"
-                                           FontSize="12"
+                                <TextBlock Text="Invoiced"
+                                           FontSize="11"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                <TextBlock Text="{Binding DiscountAmountDisplay}"
-                                           FontSize="12" FontWeight="SemiBold"
+                                <TextBlock Text="{Binding FamilyInvoicedTotalDisplay}"
+                                           FontSize="11" FontWeight="Bold"
                                            HorizontalAlignment="Right"
-                                           Foreground="#B45309"/>
+                                           Foreground="#047857"/>
                             </Grid>
-                            <Grid Margin="0,0,0,6">
-                                <TextBlock Text="After Discount"
-                                           FontSize="12"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                <TextBlock Text="{Binding AfterDiscountDisplay}"
-                                           FontSize="12" FontWeight="SemiBold"
-                                           HorizontalAlignment="Right"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                            </Grid>
-                            <Grid Margin="0,0,0,8">
-                                <TextBlock Text="VAT (5%)"
-                                           FontSize="12"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                <TextBlock Text="{Binding VatDisplay}"
-                                           FontSize="12" FontWeight="SemiBold"
-                                           HorizontalAlignment="Right"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                            </Grid>
+
                             <Border BorderBrush="{DynamicResource BorderBrush}"
                                     BorderThickness="0,1,0,0"
-                                    Padding="0,8,0,0">
+                                    Padding="0,6,0,0">
                                 <Grid>
-                                    <TextBlock Text="GRAND TOTAL"
-                                               FontSize="14" FontWeight="Bold"
+                                    <TextBlock Text="Balance"
+                                               FontSize="12" FontWeight="Bold"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text="{Binding GrandTotalDisplay}"
-                                               FontSize="16" FontWeight="Bold"
+                                    <TextBlock Text="{Binding FamilyBalanceTotalDisplay}"
+                                               FontSize="13" FontWeight="Bold"
                                                HorizontalAlignment="Right"
-                                               Foreground="#047857"/>
+                                               Foreground="#B45309"/>
                                 </Grid>
                             </Border>
-                            <TextBlock Text="{Binding GrandTotalInWords}"
-                                       FontSize="10" FontStyle="Italic"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"
-                                       TextWrapping="Wrap"
-                                       Margin="0,6,0,0"/>
                         </StackPanel>
                     </Border>
                 </Grid>

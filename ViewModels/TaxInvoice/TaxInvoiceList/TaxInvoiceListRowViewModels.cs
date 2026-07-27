@@ -7,15 +7,10 @@ using System.Linq;
 namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
 {
     // ═════════════════════════════════════════════════════════════════════
-    //  INVOICE ROW VIEWMODEL
-    //  One per Tax Invoice in the flat list (All / Draft / Issued tabs).
-    //  Pure computed display properties — no WPF commands here.
-    //  Commands live in TaxInvoiceListViewModel.
-    //
-    //  FIX: Added HasPurchaseOrder bool property.
-    //       Was missing — bound in TaxInvoiceListView.xaml InvoiceRowTemplate
-    //       for PO number visibility. EqualityToVisibilityConverter with "!"
-    //       was the broken original approach — replaced with this bool.
+    //  INVOICE ROW VIEWMODEL — one per Tax Invoice
+    //  Used for: family member entries in detail sidebar,
+    //            individual invoice cards on list (if flat view needed).
+    //  Pure computed display properties — no WPF commands.
     // ═════════════════════════════════════════════════════════════════════
 
     public class TaxInvoiceRowViewModel : ViewModelBase
@@ -70,13 +65,6 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
         public bool IsPaid { get; }
         public bool HasDiscount { get; }
         public bool HasDnReference { get; }
-
-        /// <summary>
-        /// FIX: Added — was missing, bound in TaxInvoiceListView.xaml.
-        /// Controls visibility of PO number row in InvoiceRowTemplate.
-        /// True when PurchaseOrderNumber is non-empty.
-        /// Replaces broken EqualityToVisibilityConverter with "!" param.
-        /// </summary>
         public bool HasPurchaseOrder { get; }
 
         public string DueDateLabel { get; }
@@ -95,6 +83,42 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
             }
         }
 
+        /// <summary>
+        /// True when this is the CURRENTLY loaded invoice in detail view.
+        /// Used for green highlight in family sidebar.
+        /// Set by detail VM when family loads.
+        /// </summary>
+        private bool _isCurrentInvoice;
+        public bool IsCurrentInvoice
+        {
+            get => _isCurrentInvoice;
+            set
+            {
+                if (_isCurrentInvoice == value) return;
+                _isCurrentInvoice = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>
+        /// Attachment count for this specific invoice.
+        /// Populated by detail VM when family loads.
+        /// </summary>
+        private int _attachmentCount;
+        public int AttachmentCount
+        {
+            get => _attachmentCount;
+            set
+            {
+                if (_attachmentCount == value) return;
+                _attachmentCount = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasAttachments));
+            }
+        }
+
+        public bool HasAttachments => _attachmentCount > 0;
+
         // ── Constructor ───────────────────────────────────────────────────
 
         public TaxInvoiceRowViewModel(TaxInvoiceListItem e)
@@ -110,9 +134,9 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
             SequenceNumber = e.SequenceNumber;
             Status = e.Status;
             CustomerName = string.IsNullOrWhiteSpace(e.CustomerName)
-                                        ? "—" : e.CustomerName;
+                ? "—" : e.CustomerName;
             ProjectName = string.IsNullOrWhiteSpace(e.ProjectName)
-                                        ? "—" : e.ProjectName;
+                ? "—" : e.ProjectName;
             CompanyName = e.CompanyName;
             PaymentTerms = e.PaymentTerms;
             IssueDate = e.IssueDate;
@@ -126,10 +150,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
             TotalSqm = e.TotalSqm;
             CreatedAt = e.CreatedAt;
 
-            // ── Status metadata ───────────────────────────────────────────
             (StatusLabel, StatusIcon, StatusBrushKey) = ResolveStatus(Status);
 
-            // ── Invoice type ──────────────────────────────────────────────
             IsPartial = string.Equals(InvoiceType, "Partial",
                 StringComparison.OrdinalIgnoreCase);
             InvoiceTypeLabel = IsPartial
@@ -139,7 +161,6 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                 ? "TintAmberBrush"
                 : "TintGreenBrush";
 
-            // ── Date display ──────────────────────────────────────────────
             IssueDateDisplay = IssueDate == default
                 ? "—"
                 : IssueDate.ToString("dd MMM yyyy");
@@ -161,13 +182,11 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                 ? $"⚠️ OVERDUE — {DueDateDisplay}"
                 : DueDateDisplay;
 
-            // ── Amounts ───────────────────────────────────────────────────
             GrandTotalDisplay = $"AED {GrandTotal:N2}";
             SubtotalDisplay = $"AED {Subtotal:N2}";
             VatDisplay = $"AED {VatAmount:N2}";
             HasDiscount = DiscountAmount > 0m;
 
-            // ── Flags ─────────────────────────────────────────────────────
             IsDraft = string.Equals(Status, "Draft",
                 StringComparison.OrdinalIgnoreCase);
             IsIssued = string.Equals(Status, "Issued",
@@ -176,12 +195,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                 StringComparison.OrdinalIgnoreCase);
 
             HasDnReference = !string.IsNullOrWhiteSpace(DeliveryNoteReference);
-
-            // FIX: Added — controls PO number row visibility in list view
             HasPurchaseOrder = !string.IsNullOrWhiteSpace(PurchaseOrderNumber);
         }
-
-        // ── Status resolver ───────────────────────────────────────────────
 
         private static (string label, string icon, string brushKey)
             ResolveStatus(string status) => status switch
@@ -198,13 +213,21 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
     }
 
     // ═════════════════════════════════════════════════════════════════════
-    //  INVOICE FAMILY ROW VIEWMODEL
-    //  One per ProformaId family in the grouped "By Project" tab.
-    //  Aggregates multiple invoices into one summary row.
-    //  Mirrors JobOrderGroupRowViewModel pattern from DN module.
+    //  INVOICE FAMILY ROW VIEWMODEL — one per ProformaId
+    //
+    //  RESTRUCTURED for master-list-of-family pattern (like DN JO groups):
+    //    • Main list rows use this VM (one row per PI, not per invoice)
+    //    • Also used to compute stats for tab filtering
+    //    • Members collection exposed for detail sidebar
+    //
+    //  New properties:
+    //    - Members: full list of family invoices (for detail sidebar)
+    //    - AnyDraft / AnyIssued / AllPaid: for tab filtering
+    //    - LatestInvoiceStatus: for main list status pill
+    //    - PrimaryInvoiceNumber: master invoice number (INV-YYYY-NNN)
     // ═════════════════════════════════════════════════════════════════════
 
-    public class InvoiceFamilyRowViewModel
+    public class InvoiceFamilyRowViewModel : ViewModelBase
     {
         // ── Identity ──────────────────────────────────────────────────────
 
@@ -238,11 +261,60 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
         public bool HasBalance { get; }
         public bool HasIssuedInvoices { get; }
 
+        /// <summary>
+        /// NEW: True when family has at least one Draft invoice.
+        /// Used by Draft tab filter.
+        /// </summary>
+        public bool AnyDraft { get; }
+
+        /// <summary>
+        /// NEW: True when family has at least one Issued invoice.
+        /// Used by Issued tab filter.
+        /// </summary>
+        public bool AnyIssued { get; }
+
+        /// <summary>
+        /// NEW: True when ALL family members are Paid.
+        /// Used by Paid tab filter.
+        /// </summary>
+        public bool AllPaid { get; }
+
+        /// <summary>
+        /// NEW: True when family has at least one Overdue invoice.
+        /// Used by Overdue filter/display.
+        /// </summary>
+        public bool AnyOverdue { get; }
+
         // ── Latest invoice ────────────────────────────────────────────────
 
         public string LatestInvoiceNumber { get; }
         public int LatestInvoiceId { get; }
         public string LatestIssueDateDisplay { get; }
+        public string LatestInvoiceStatus { get; }
+        public string LatestStatusBrushKey { get; }
+
+        // ── Family members (NEW) ──────────────────────────────────────────
+
+        /// <summary>
+        /// All invoices in this family (master + partials A/B/C).
+        /// Ordered by SequenceNumber ASC.
+        /// Used by detail sidebar to show family list.
+        /// </summary>
+        public List<TaxInvoiceRowViewModel> Members { get; }
+
+        // ── Selection state ──────────────────────────────────────────────
+
+        private bool _isSelected;
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected == value) return;
+                _isSelected = value;
+                OnPropertyChanged();
+            }
+        }
 
         // ── Constructor ───────────────────────────────────────────────────
 
@@ -250,9 +322,9 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
         {
             ProformaId = family.ProformaId;
             CustomerName = string.IsNullOrWhiteSpace(family.CustomerName)
-                               ? "—" : family.CustomerName;
+                ? "—" : family.CustomerName;
             ProjectName = string.IsNullOrWhiteSpace(family.ProjectName)
-                               ? "—" : family.ProjectName;
+                ? "—" : family.ProjectName;
             InvoiceCount = family.MemberCount;
 
             ProformaTotal = family.ProformaTotal;
@@ -275,8 +347,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
 
             ProgressPercent = ProformaTotal > 0m
                 ? Math.Min(100.0,
-                    Math.Round(
-                        (double)(InvoicedTotal / ProformaTotal) * 100, 1))
+                    Math.Round((double)(InvoicedTotal / ProformaTotal) * 100, 1))
                 : 0.0;
 
             ProgressDisplay =
@@ -288,6 +359,21 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
             LatestIssueDateDisplay = family.LatestIssueDate == default
                 ? "—"
                 : family.LatestIssueDate.ToString("dd MMM yyyy");
+            LatestInvoiceStatus = latest?.Status ?? "Draft";
+            LatestStatusBrushKey = ResolveStatusBrush(LatestInvoiceStatus);
+
+            // ── Build Members collection from family ────────────────────
+            Members = family.Members?
+                .OrderBy(m => m.SequenceNumber)
+                .Select(m => new TaxInvoiceRowViewModel(m))
+                .ToList()
+                ?? new List<TaxInvoiceRowViewModel>();
+
+            // ── Compute tab-filtering flags ─────────────────────────────
+            AnyDraft = Members.Any(m => m.IsDraft);
+            AnyIssued = Members.Any(m => m.IsIssued);
+            AllPaid = Members.Count > 0 && Members.All(m => m.IsPaid);
+            AnyOverdue = Members.Any(m => m.IsOverdue);
         }
 
         // ── Factory ───────────────────────────────────────────────────────
@@ -303,7 +389,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                 .ToList();
         }
 
-        // ── Status brush resolver ─────────────────────────────────────────
+        // ── Status brush resolvers ────────────────────────────────────────
 
         private static string ResolveFamilyStatusBrush(string status) =>
             status switch
@@ -314,6 +400,19 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                 "PartiallyInvoiced" => "TintAmberBrush",
                 "PartiallyPaid" => "TintAmberBrush",
                 "Draft" => "TintIndigoBrush",
+                _ => "TintIndigoBrush"
+            };
+
+        private static string ResolveStatusBrush(string status) =>
+            status switch
+            {
+                "Draft" => "TintIndigoBrush",
+                "Issued" => "TintAmberBrush",
+                "Paid" => "TintGreenBrush",
+                "PartiallyPaid" => "TintAmberBrush",
+                "Overdue" => "TintRedBrush",
+                "Cancelled" => "TintRedBrush",
+                "Void" => "TintRedBrush",
                 _ => "TintIndigoBrush"
             };
     }

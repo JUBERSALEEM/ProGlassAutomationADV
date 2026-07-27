@@ -15,48 +15,50 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
     /// <summary>
     /// ViewModel for the Tax Invoice list landing page.
     ///
-    /// 5 tabs: All | Draft | Issued | Paid | By Project
-    /// 5 hero cards: dynamic — dataset stats or selected invoice stats.
+    /// ARCHITECTURE (mirrors DN List module):
+    ///   Every tab shows ONE row per Proforma Invoice (family view).
+    ///   Never shows individual invoices in the main list.
+    ///   Partial invoices (A/B/C) are seen inside the Detail view sidebar.
     ///
-    /// FIXES vs first delivery:
-    ///   • Removed View reference from VM (MVVM violation fixed)
-    ///   • ChangeStatusCommand tuple → IssueRowCommand + MarkPaidRowCommand
-    ///   • CreateInvoiceCommand fires OnCreateInvoiceRequested callback only
-    ///   • All missing using statements added
+    /// 4 tabs, all family-grouped:
+    ///   All      — every PI family
+    ///   Draft    — families containing at least one Draft invoice
+    ///   Issued   — families containing at least one Issued invoice
+    ///   Paid     — families where ALL members are Paid
+    ///
+    /// 5 hero cards: dynamic — dataset stats or selected family stats.
     /// </summary>
     public class TaxInvoiceListViewModel : ViewModelBase
     {
         private int _loadingFlag = 0;
 
         // ── Callbacks to shell VM ─────────────────────────────────────────
+
+        /// <summary>
+        /// Fires with the LATEST invoice ID in a family (opens detail view
+        /// where user can then navigate to any family member).
+        /// </summary>
         public Action<int>? OnInvoiceOpenRequested { get; set; }
 
         /// <summary>
-        /// Shell VM subscribes to this — opens ProformaPickerDialog
-        /// from TaxInvoiceViewModel (shell), not from here.
-        /// MVVM: Views/dialogs opened by shell VM only.
+        /// Shell VM opens ProformaPickerDialog when this fires.
         /// </summary>
         public Action? OnCreateInvoiceRequested { get; set; }
-
-        /// <summary>
-        /// Shell VM subscribes — called with proformaId after picker confirms.
-        /// </summary>
-        public Action<string>? OnProformaSelectedForInvoice { get; set; }
 
         // ══════════════════════════════════════════════════════════════════
         //  SELECTION
         // ══════════════════════════════════════════════════════════════════
 
-        private TaxInvoiceRowViewModel? _selectedRow;
-        public TaxInvoiceRowViewModel? SelectedRow
+        private InvoiceFamilyRowViewModel? _selectedFamily;
+        public InvoiceFamilyRowViewModel? SelectedFamily
         {
-            get => _selectedRow;
+            get => _selectedFamily;
             set
             {
-                if (_selectedRow == value) return;
-                if (_selectedRow != null) _selectedRow.IsSelected = false;
-                _selectedRow = value;
-                if (_selectedRow != null) _selectedRow.IsSelected = true;
+                if (_selectedFamily == value) return;
+                if (_selectedFamily != null) _selectedFamily.IsSelected = false;
+                _selectedFamily = value;
+                if (_selectedFamily != null) _selectedFamily.IsSelected = true;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(HasSelection));
                 OnPropertyChanged(nameof(HeroCard1Value));
@@ -69,49 +71,49 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                 OnPropertyChanged(nameof(HeroCard4Label));
                 OnPropertyChanged(nameof(HeroCard5Value));
                 OnPropertyChanged(nameof(HeroCard5Label));
-                OnPropertyChanged(nameof(SelectedInvoiceMetaLine));
+                OnPropertyChanged(nameof(SelectedFamilyMetaLine));
             }
         }
 
-        public bool HasSelection => _selectedRow != null;
+        public bool HasSelection => _selectedFamily != null;
 
-        // ── Hero cards ────────────────────────────────────────────────────
+        // ── Hero cards — family-aware ────────────────────────────────────
 
-        public string HeroCard1Value => _selectedRow != null
-            ? _selectedRow.GrandTotalDisplay
+        public string HeroCard1Value => _selectedFamily != null
+            ? _selectedFamily.InvoicedTotalDisplay
             : $"AED {_totalInvoicedAmount:N2}";
-        public string HeroCard1Label => _selectedRow != null
-            ? "Invoice Total" : "Total Invoiced (AED)";
+        public string HeroCard1Label => _selectedFamily != null
+            ? "Family Invoiced Total" : "Total Invoiced (AED)";
 
-        public string HeroCard2Value => _selectedRow != null
-            ? _selectedRow.VatDisplay
+        public string HeroCard2Value => _selectedFamily != null
+            ? _selectedFamily.InvoiceCount.ToString()
             : DraftCount.ToString();
-        public string HeroCard2Label => _selectedRow != null
-            ? "VAT Amount" : "Draft Invoices";
+        public string HeroCard2Label => _selectedFamily != null
+            ? "Invoices in Family" : "Families with Draft";
 
-        public string HeroCard3Value => _selectedRow != null
-            ? _selectedRow.SubtotalDisplay
+        public string HeroCard3Value => _selectedFamily != null
+            ? _selectedFamily.BalanceTotalDisplay
             : IssuedCount.ToString();
-        public string HeroCard3Label => _selectedRow != null
-            ? "Subtotal (ex VAT)" : "Issued Invoices";
+        public string HeroCard3Label => _selectedFamily != null
+            ? "Remaining Balance" : "Families with Issued";
 
-        public string HeroCard4Value => _selectedRow != null
-            ? _selectedRow.PaymentTerms
+        public string HeroCard4Value => _selectedFamily != null
+            ? _selectedFamily.FamilyStatus
             : PaidCount.ToString();
-        public string HeroCard4Label => _selectedRow != null
-            ? "Payment Terms" : "Paid Invoices";
+        public string HeroCard4Label => _selectedFamily != null
+            ? "Family Status" : "Fully Paid Families";
 
-        public string HeroCard5Value => _selectedRow != null
-            ? _selectedRow.DueDateLabel
+        public string HeroCard5Value => _selectedFamily != null
+            ? $"{_selectedFamily.ProgressPercent:0.#}%"
             : OverdueCount.ToString();
-        public string HeroCard5Label => _selectedRow != null
-            ? "Due Date" : "Overdue Invoices";
+        public string HeroCard5Label => _selectedFamily != null
+            ? "Invoiced Progress" : "Families with Overdue";
 
-        public string SelectedInvoiceMetaLine => _selectedRow == null ? "" :
-            $"{_selectedRow.InvoiceNumber}  ·  " +
-            $"📋 {_selectedRow.ProformaId}  ·  " +
-            $"📅 {_selectedRow.IssueDateDisplay}  ·  " +
-            $"{_selectedRow.StatusIcon} {_selectedRow.StatusLabel}";
+        public string SelectedFamilyMetaLine => _selectedFamily == null ? "" :
+            $"📋 {_selectedFamily.ProformaId}  ·  " +
+            $"{_selectedFamily.CustomerName}  ·  " +
+            $"{_selectedFamily.InvoiceCount} invoice(s)  ·  " +
+            $"Latest: {_selectedFamily.LatestInvoiceNumber}";
 
         // ══════════════════════════════════════════════════════════════════
         //  TAB INDEX
@@ -126,64 +128,83 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                 if (_selectedTabIndex == value) return;
                 _selectedTabIndex = value;
                 OnPropertyChanged();
-                SelectedRow = null;
-                _ = LoadTabAsync(value);
+                SelectedFamily = null;
+                RebuildActiveTab();
+            }
+        }
+
+        /// <summary>
+        /// Only rebuilds the collection for the NOW-ACTIVE tab.
+        /// Uses cached _filteredFamilies from last ApplyFilters() call.
+        /// No DB query — pure in-memory filter. Near-instant.
+        /// </summary>
+        private void RebuildActiveTab()
+        {
+            var source = _filteredFamilies;
+            if (source == null || source.Count == 0)
+                source = _rawFamilies;
+
+            switch (_selectedTabIndex)
+            {
+                case 0:
+                    AllFamilies = new ObservableCollection<InvoiceFamilyRowViewModel>(
+                        FilterBySearchAndStatus(source));
+                    break;
+                case 1:
+                    DraftFamilies = new ObservableCollection<InvoiceFamilyRowViewModel>(
+                        FilterBySearchAndStatus(source).Where(f => f.AnyDraft));
+                    break;
+                case 2:
+                    IssuedFamilies = new ObservableCollection<InvoiceFamilyRowViewModel>(
+                        FilterBySearchAndStatus(source).Where(f => f.AnyIssued));
+                    break;
+                case 3:
+                    PaidFamilies = new ObservableCollection<InvoiceFamilyRowViewModel>(
+                        FilterBySearchAndStatus(source).Where(f => f.AllPaid));
+                    break;
             }
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  TAB COLLECTIONS
+        //  FAMILY-BASED COLLECTIONS (one row per PI)
         // ══════════════════════════════════════════════════════════════════
 
-        private ObservableCollection<TaxInvoiceRowViewModel> _allItems = new();
-        public ObservableCollection<TaxInvoiceRowViewModel> AllItems
+        private ObservableCollection<InvoiceFamilyRowViewModel> _allFamilies = new();
+        public ObservableCollection<InvoiceFamilyRowViewModel> AllFamilies
         {
-            get => _allItems;
+            get => _allFamilies;
             private set
             {
-                _allItems = value;
+                _allFamilies = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(AllCount));
             }
         }
 
-        private ObservableCollection<TaxInvoiceRowViewModel> _draftItems = new();
-        public ObservableCollection<TaxInvoiceRowViewModel> DraftItems
+        private ObservableCollection<InvoiceFamilyRowViewModel> _draftFamilies = new();
+        public ObservableCollection<InvoiceFamilyRowViewModel> DraftFamilies
         {
-            get => _draftItems;
-            private set { _draftItems = value; OnPropertyChanged(); }
+            get => _draftFamilies;
+            private set { _draftFamilies = value; OnPropertyChanged(); }
         }
 
-        private ObservableCollection<TaxInvoiceRowViewModel> _issuedItems = new();
-        public ObservableCollection<TaxInvoiceRowViewModel> IssuedItems
+        private ObservableCollection<InvoiceFamilyRowViewModel> _issuedFamilies = new();
+        public ObservableCollection<InvoiceFamilyRowViewModel> IssuedFamilies
         {
-            get => _issuedItems;
-            private set { _issuedItems = value; OnPropertyChanged(); }
+            get => _issuedFamilies;
+            private set { _issuedFamilies = value; OnPropertyChanged(); }
         }
 
-        private ObservableCollection<TaxInvoiceRowViewModel> _paidItems = new();
-        public ObservableCollection<TaxInvoiceRowViewModel> PaidItems
+        private ObservableCollection<InvoiceFamilyRowViewModel> _paidFamilies = new();
+        public ObservableCollection<InvoiceFamilyRowViewModel> PaidFamilies
         {
-            get => _paidItems;
-            private set { _paidItems = value; OnPropertyChanged(); }
-        }
-
-        private ObservableCollection<InvoiceFamilyRowViewModel> _familyItems = new();
-        public ObservableCollection<InvoiceFamilyRowViewModel> FamilyItems
-        {
-            get => _familyItems;
-            private set
-            {
-                _familyItems = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(FamilyCount));
-            }
+            get => _paidFamilies;
+            private set { _paidFamilies = value; OnPropertyChanged(); }
         }
 
         // ── Tab badge counts ──────────────────────────────────────────────
 
-        public int AllCount => _allItems.Count;
-        public int FamilyCount => _familyItems.Count;
+        public int AllCount => _allCount > 0 ? _allCount : _allFamilies.Count;
 
         private int _draftCount;
         public int DraftCount
@@ -193,7 +214,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
             {
                 _draftCount = value;
                 OnPropertyChanged();
-                if (_selectedRow == null) OnPropertyChanged(nameof(HeroCard2Value));
+                if (_selectedFamily == null)
+                    OnPropertyChanged(nameof(HeroCard2Value));
             }
         }
 
@@ -205,7 +227,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
             {
                 _issuedCount = value;
                 OnPropertyChanged();
-                if (_selectedRow == null) OnPropertyChanged(nameof(HeroCard3Value));
+                if (_selectedFamily == null)
+                    OnPropertyChanged(nameof(HeroCard3Value));
             }
         }
 
@@ -217,7 +240,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
             {
                 _paidCount = value;
                 OnPropertyChanged();
-                if (_selectedRow == null) OnPropertyChanged(nameof(HeroCard4Value));
+                if (_selectedFamily == null)
+                    OnPropertyChanged(nameof(HeroCard4Value));
             }
         }
 
@@ -229,7 +253,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
             {
                 _overdueCount = value;
                 OnPropertyChanged();
-                if (_selectedRow == null) OnPropertyChanged(nameof(HeroCard5Value));
+                if (_selectedFamily == null)
+                    OnPropertyChanged(nameof(HeroCard5Value));
             }
         }
 
@@ -243,7 +268,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
             {
                 _totalInvoicedAmount = value;
                 OnPropertyChanged();
-                if (_selectedRow == null) OnPropertyChanged(nameof(HeroCard1Value));
+                if (_selectedFamily == null)
+                    OnPropertyChanged(nameof(HeroCard1Value));
             }
         }
 
@@ -285,10 +311,16 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                 if (_searchText == value) return;
                 _searchText = value;
                 OnPropertyChanged();
-                SelectedRow = null;
+                SelectedFamily = null;
                 ApplyFilters();
             }
         }
+
+        public List<string> StatusFilterOptions { get; } = new()
+        {
+            "All Statuses", "Has Draft", "Has Issued", "All Paid",
+            "Has Overdue", "Has Cancelled"
+        };
 
         private string _selectedStatusFilter = "All Statuses";
         public string SelectedStatusFilter
@@ -299,41 +331,13 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                 if (_selectedStatusFilter == value) return;
                 _selectedStatusFilter = value;
                 OnPropertyChanged();
-                SelectedRow = null;
+                SelectedFamily = null;
                 ApplyFilters();
             }
         }
 
-        private string _selectedTypeFilter = "All Types";
-        public string SelectedTypeFilter
-        {
-            get => _selectedTypeFilter;
-            set
-            {
-                if (_selectedTypeFilter == value) return;
-                _selectedTypeFilter = value;
-                OnPropertyChanged();
-                SelectedRow = null;
-                ApplyFilters();
-            }
-        }
-
-        public List<string> StatusFilterOptions { get; } = new()
-        {
-            "All Statuses", "Draft", "Issued", "Paid",
-            "PartiallyPaid", "Overdue", "Cancelled", "Void"
-        };
-
-        public List<string> TypeFilterOptions { get; } = new()
-        {
-            "All Types", "Full", "Partial"
-        };
-
-        // Raw source lists
-        private List<TaxInvoiceRowViewModel> _rawAll = new();
-        private List<TaxInvoiceRowViewModel> _rawDraft = new();
-        private List<TaxInvoiceRowViewModel> _rawIssued = new();
-        private List<TaxInvoiceRowViewModel> _rawPaid = new();
+        // Raw unfiltered families (loaded once, filtered in memory)
+        private List<InvoiceFamilyRowViewModel> _rawFamilies = new();
 
         // ══════════════════════════════════════════════════════════════════
         //  COMMANDS
@@ -341,31 +345,10 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
 
         public ICommand RefreshCommand { get; }
         public ICommand ClearFiltersCommand { get; }
-        public ICommand OpenCommand { get; }
-        public ICommand DeleteCommand { get; }
-
-        /// <summary>
-        /// Issues a Draft invoice — takes TaxInvoiceRowViewModel.
-        /// Replaces the broken ValueTuple ChangeStatusCommand pattern.
-        /// </summary>
-        public ICommand IssueRowCommand { get; }
-
-        /// <summary>
-        /// Marks an Issued invoice as Paid — takes TaxInvoiceRowViewModel.
-        /// Replaces the broken ValueTuple ChangeStatusCommand pattern.
-        /// </summary>
-        public ICommand MarkPaidRowCommand { get; }
-
-        public ICommand SelectRowCommand { get; }
-        public ICommand ClearSelectionCommand { get; }
-
-        /// <summary>
-        /// Fires OnCreateInvoiceRequested callback to shell VM.
-        /// Shell VM opens ProformaPickerDialog — NOT this VM.
-        /// </summary>
-        public ICommand CreateInvoiceCommand { get; }
-
         public ICommand OpenFamilyCommand { get; }
+        public ICommand SelectFamilyCommand { get; }
+        public ICommand ClearSelectionCommand { get; }
+        public ICommand CreateInvoiceCommand { get; }
 
         // ══════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
@@ -375,50 +358,11 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
         {
             RefreshCommand = new RelayCommand(async _ =>
             {
-                SelectedRow = null;
+                SelectedFamily = null;
                 await LoadAsync();
             });
 
             ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
-
-            OpenCommand = new RelayCommand(param =>
-            {
-                if (param is TaxInvoiceRowViewModel row)
-                    OnInvoiceOpenRequested?.Invoke(row.Id);
-            });
-
-            SelectRowCommand = new RelayCommand(param =>
-            {
-                if (param is TaxInvoiceRowViewModel row)
-                    SelectedRow = SelectedRow == row ? null : row;
-            });
-
-            ClearSelectionCommand = new RelayCommand(_ => SelectedRow = null);
-
-            DeleteCommand = new RelayCommand(async param =>
-            {
-                if (param is TaxInvoiceRowViewModel row)
-                    await DeleteAsync(row);
-            });
-
-            // FIX: separate commands — no ValueTuple from XAML
-            IssueRowCommand = new RelayCommand(async param =>
-            {
-                if (param is TaxInvoiceRowViewModel row)
-                    await ChangeStatusAsync(row, "Issued");
-            },
-            param => param is TaxInvoiceRowViewModel r && r.IsDraft);
-
-            MarkPaidRowCommand = new RelayCommand(async param =>
-            {
-                if (param is TaxInvoiceRowViewModel row)
-                    await ChangeStatusAsync(row, "Paid");
-            },
-            param => param is TaxInvoiceRowViewModel r && r.IsIssued);
-
-            // FIX: no View reference — fire callback to shell VM only
-            CreateInvoiceCommand = new RelayCommand(_ =>
-                OnCreateInvoiceRequested?.Invoke());
 
             OpenFamilyCommand = new RelayCommand(param =>
             {
@@ -426,10 +370,21 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                     && family.LatestInvoiceId > 0)
                     OnInvoiceOpenRequested?.Invoke(family.LatestInvoiceId);
             });
+
+            SelectFamilyCommand = new RelayCommand(param =>
+            {
+                if (param is InvoiceFamilyRowViewModel family)
+                    SelectedFamily = SelectedFamily == family ? null : family;
+            });
+
+            ClearSelectionCommand = new RelayCommand(_ => SelectedFamily = null);
+
+            CreateInvoiceCommand = new RelayCommand(_ =>
+                OnCreateInvoiceRequested?.Invoke());
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  LOAD
+        //  LOAD — single call fetches all families, then filter in memory
         // ══════════════════════════════════════════════════════════════════
 
         public async Task LoadAsync()
@@ -450,43 +405,26 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
                     return;
                 }
 
-                var allTask = App.TaxInvoices.GetAllAsync();
-                var draftTask = App.TaxInvoices.GetDraftAsync();
-                var issuedTask = App.TaxInvoices.GetIssuedAsync();
-                var paidTask = App.TaxInvoices.GetPaidAsync();
-                var overdueTask = App.TaxInvoices.GetOverdueAsync();
-                var famTask = App.TaxInvoices.GetAllFamiliesAsync();
+                // Heavy work on background thread
+                var familyVms = await Task.Run(async () =>
+                {
+                    var families = await App.TaxInvoices.GetAllFamiliesAsync();
+                    return InvoiceFamilyRowViewModel
+                        .FromFamilies(families)
+                        .ToList();
+                });
 
-                await Task.WhenAll(
-                    allTask, draftTask, issuedTask,
-                    paidTask, overdueTask, famTask);
+                // Everything below runs on UI thread (no ConfigureAwait)
+                _rawFamilies = familyVms;
+                _filteredFamilies = familyVms;
+                ApplyFilters();
 
-                _rawAll = allTask.Result
-                    .Select(x => new TaxInvoiceRowViewModel(x)).ToList();
-                _rawDraft = draftTask.Result
-                    .Select(x => new TaxInvoiceRowViewModel(x)).ToList();
-                _rawIssued = issuedTask.Result
-                    .Select(x => new TaxInvoiceRowViewModel(x)).ToList();
-                _rawPaid = paidTask.Result
-                    .Select(x => new TaxInvoiceRowViewModel(x)).ToList();
-
-                var families = InvoiceFamilyRowViewModel
-                    .FromFamilies(famTask.Result);
-
-                AllItems = new ObservableCollection<TaxInvoiceRowViewModel>(_rawAll);
-                DraftItems = new ObservableCollection<TaxInvoiceRowViewModel>(_rawDraft);
-                IssuedItems = new ObservableCollection<TaxInvoiceRowViewModel>(_rawIssued);
-                PaidItems = new ObservableCollection<TaxInvoiceRowViewModel>(_rawPaid);
-                FamilyItems = new ObservableCollection<InvoiceFamilyRowViewModel>(families);
-
-                DraftCount = _rawDraft.Count;
-                IssuedCount = _rawIssued.Count;
-                PaidCount = _rawPaid.Count;
-                OverdueCount = overdueTask.Result.Count;
-
-                TotalInvoicedAmount = _rawAll
-                    .Where(x => !x.IsDraft)
-                    .Sum(x => x.GrandTotal);
+                // KPI aggregations — safe on UI thread after assignment
+                DraftCount = familyVms.Count(f => f.AnyDraft);
+                IssuedCount = familyVms.Count(f => f.AnyIssued);
+                PaidCount = familyVms.Count(f => f.AllPaid);
+                OverdueCount = familyVms.Count(f => f.AnyOverdue);
+                TotalInvoicedAmount = familyVms.Sum(f => f.InvoicedTotal);
 
                 CommandManager.InvalidateRequerySuggested();
             }
@@ -502,100 +440,80 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
             }
         }
 
-        private async Task LoadTabAsync(int tabIndex)
-        {
-            if (App.TaxInvoices == null) return;
-
-            try
-            {
-                switch (tabIndex)
-                {
-                    case 1:
-                        var draft = await App.TaxInvoices.GetDraftAsync();
-                        _rawDraft = draft
-                            .Select(x => new TaxInvoiceRowViewModel(x)).ToList();
-                        DraftItems = new ObservableCollection<TaxInvoiceRowViewModel>(
-                            _rawDraft);
-                        DraftCount = _rawDraft.Count;
-                        break;
-
-                    case 2:
-                        var issued = await App.TaxInvoices.GetIssuedAsync();
-                        _rawIssued = issued
-                            .Select(x => new TaxInvoiceRowViewModel(x)).ToList();
-                        IssuedItems = new ObservableCollection<TaxInvoiceRowViewModel>(
-                            _rawIssued);
-                        IssuedCount = _rawIssued.Count;
-                        break;
-
-                    case 3:
-                        var paid = await App.TaxInvoices.GetPaidAsync();
-                        _rawPaid = paid
-                            .Select(x => new TaxInvoiceRowViewModel(x)).ToList();
-                        PaidItems = new ObservableCollection<TaxInvoiceRowViewModel>(
-                            _rawPaid);
-                        PaidCount = _rawPaid.Count;
-                        break;
-
-                    case 4:
-                        var fams = await App.TaxInvoices.GetAllFamiliesAsync();
-                        FamilyItems = new ObservableCollection<InvoiceFamilyRowViewModel>(
-                            InvoiceFamilyRowViewModel.FromFamilies(fams));
-                        break;
-                }
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    $"Failed to reload tab: {ex.Message}",
-                    "Load Error",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-            }
-        }
-
         // ══════════════════════════════════════════════════════════════════
-        //  FILTER
+        //  FILTERING
+        //  Combines: tab index + search text + status filter
         // ══════════════════════════════════════════════════════════════════
 
         private void ApplyFilters()
         {
-            AllItems = new ObservableCollection<TaxInvoiceRowViewModel>(
-                Filter(_rawAll));
-            DraftItems = new ObservableCollection<TaxInvoiceRowViewModel>(
-                Filter(_rawDraft));
-            IssuedItems = new ObservableCollection<TaxInvoiceRowViewModel>(
-                Filter(_rawIssued));
-            PaidItems = new ObservableCollection<TaxInvoiceRowViewModel>(
-                Filter(_rawPaid));
+            var filtered = FilterBySearchAndStatus(_rawFamilies).ToList();
+
+            // Only rebuild the ACTIVE tab collection — avoids 4x layout passes.
+            // Inactive tabs rebuild lazily when user switches to them.
+            switch (_selectedTabIndex)
+            {
+                case 0:
+                    AllFamilies = new ObservableCollection<InvoiceFamilyRowViewModel>(filtered);
+                    break;
+                case 1:
+                    DraftFamilies = new ObservableCollection<InvoiceFamilyRowViewModel>(
+                        filtered.Where(f => f.AnyDraft));
+                    break;
+                case 2:
+                    IssuedFamilies = new ObservableCollection<InvoiceFamilyRowViewModel>(
+                        filtered.Where(f => f.AnyIssued));
+                    break;
+                case 3:
+                    PaidFamilies = new ObservableCollection<InvoiceFamilyRowViewModel>(
+                        filtered.Where(f => f.AllPaid));
+                    break;
+            }
+
+            // Cache filtered list for lazy tab switching
+            _filteredFamilies = filtered;
+
+            // Update counts without triggering collection rebuilds
+            _allCount = filtered.Count;
+            OnPropertyChanged(nameof(AllCount));
         }
 
-        private IEnumerable<TaxInvoiceRowViewModel> Filter(
-            IEnumerable<TaxInvoiceRowViewModel> source)
-        {
-            IEnumerable<TaxInvoiceRowViewModel> q = source;
+        // Cached filtered list for lazy tab switching
+        private List<InvoiceFamilyRowViewModel> _filteredFamilies = new();
+        private int _allCount;
 
+        private IEnumerable<InvoiceFamilyRowViewModel> FilterBySearchAndStatus(
+            IEnumerable<InvoiceFamilyRowViewModel> source)
+        {
+            IEnumerable<InvoiceFamilyRowViewModel> q = source;
+
+            // Search text filter
             if (!string.IsNullOrWhiteSpace(_searchText))
             {
                 string s = _searchText.Trim().ToLowerInvariant();
-                q = q.Where(x =>
-                    x.InvoiceNumber.ToLowerInvariant().Contains(s) ||
-                    x.ProformaId.ToLowerInvariant().Contains(s) ||
-                    x.CustomerName.ToLowerInvariant().Contains(s) ||
-                    x.ProjectName.ToLowerInvariant().Contains(s) ||
-                    x.PurchaseOrderNumber.ToLowerInvariant().Contains(s) ||
-                    x.DeliveryNoteReference.ToLowerInvariant().Contains(s));
+                q = q.Where(f =>
+                    f.ProformaId.ToLowerInvariant().Contains(s) ||
+                    f.CustomerName.ToLowerInvariant().Contains(s) ||
+                    f.ProjectName.ToLowerInvariant().Contains(s) ||
+                    f.LatestInvoiceNumber.ToLowerInvariant().Contains(s) ||
+                    f.Members.Any(m =>
+                        m.InvoiceNumber.ToLowerInvariant().Contains(s) ||
+                        m.PurchaseOrderNumber.ToLowerInvariant().Contains(s) ||
+                        m.DeliveryNoteReference.ToLowerInvariant().Contains(s)));
             }
 
-            if (_selectedStatusFilter != "All Statuses")
-                q = q.Where(x => string.Equals(
-                    x.Status, _selectedStatusFilter,
-                    StringComparison.OrdinalIgnoreCase));
-
-            if (_selectedTypeFilter != "All Types")
-                q = q.Where(x => string.Equals(
-                    x.InvoiceType, _selectedTypeFilter,
-                    StringComparison.OrdinalIgnoreCase));
+            // Status filter
+            q = _selectedStatusFilter switch
+            {
+                "Has Draft" => q.Where(f => f.AnyDraft),
+                "Has Issued" => q.Where(f => f.AnyIssued),
+                "All Paid" => q.Where(f => f.AllPaid),
+                "Has Overdue" => q.Where(f => f.AnyOverdue),
+                "Has Cancelled" => q.Where(f =>
+                    string.Equals(f.FamilyStatus, "HasCancelled",
+                        StringComparison.OrdinalIgnoreCase)),
+                _ => q
+            };
 
             return q;
         }
@@ -604,64 +522,10 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
         {
             _searchText = "";
             _selectedStatusFilter = "All Statuses";
-            _selectedTypeFilter = "All Types";
-            SelectedRow = null;
+            SelectedFamily = null;
             OnPropertyChanged(nameof(SearchText));
             OnPropertyChanged(nameof(SelectedStatusFilter));
-            OnPropertyChanged(nameof(SelectedTypeFilter));
             ApplyFilters();
-        }
-
-        // ══════════════════════════════════════════════════════════════════
-        //  MUTATIONS
-        // ══════════════════════════════════════════════════════════════════
-
-        private async Task DeleteAsync(TaxInvoiceRowViewModel row)
-        {
-            var result = MessageBox.Show(
-                $"Delete invoice '{row.InvoiceNumber}'?\n\n" +
-                $"Customer : {row.CustomerName}\n" +
-                $"Amount   : {row.GrandTotalDisplay}\n\n" +
-                "This action cannot be undone.",
-                "Confirm Delete",
-                MessageBoxButton.YesNo,
-                MessageBoxImage.Warning);
-
-            if (result != MessageBoxResult.Yes) return;
-
-            try
-            {
-                if (SelectedRow == row) SelectedRow = null;
-                await App.TaxInvoices!.DeleteAsync(row.Id);
-                await LoadAsync();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    $"Failed to delete:\n\n{ex.Message}",
-                    "Delete Failed",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-            }
-        }
-
-        private async Task ChangeStatusAsync(
-            TaxInvoiceRowViewModel row, string newStatus)
-        {
-            try
-            {
-                await App.TaxInvoices!.UpdateStatusAsync(
-                    row.InvoiceNumber, newStatus);
-                await LoadAsync();
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    $"Failed to change status:\n\n{ex.Message}",
-                    "Update Failed",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-            }
         }
     }
 }

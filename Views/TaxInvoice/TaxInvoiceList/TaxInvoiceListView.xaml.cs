@@ -8,15 +8,14 @@ namespace ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList
     /// <summary>
     /// Code-behind for TaxInvoiceListView.xaml.
     ///
-    /// Handles:
-    ///   • Tab switching (same click-handler pattern as DN list)
-    ///   • Row left-click  → select
-    ///   • Row right-click → context menu (IssueRowCommand / MarkPaidRowCommand)
-    ///   • Family row left-click → open latest invoice
+    /// RESTRUCTURED for family-grouped list (mirrors DN List pattern):
+    ///   • All 4 tabs show family rows (no more flat invoice list)
+    ///   • Single click on family → select (highlights with indigo border)
+    ///   • Double-click / Open button → navigate to detail view
+    ///   • Right-click → context menu (Open, Refresh)
     ///
-    /// FIX: ChangeStatusCommand removed — replaced with
-    ///      IssueRowCommand and MarkPaidRowCommand (separate commands,
-    ///      no ValueTuple parameter — XAML-safe).
+    /// The individual invoices within a family are only visible inside
+    /// the Detail view's right sidebar (Invoice Family history).
     /// </summary>
     public partial class TaxInvoiceListView : UserControl
     {
@@ -35,7 +34,7 @@ namespace ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList
             _activeTab = TabAll;
         }
 
-        // ── Tab switching ─────────────────────────────────────────────────
+        // ── Tab switching (4 tabs: All / Draft / Issued / Paid) ──────────
 
         private void OnTabClick(object sender, RoutedEventArgs e)
         {
@@ -53,7 +52,6 @@ namespace ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList
                 "TabDraft" => 1,
                 "TabIssued" => 2,
                 "TabPaid" => 3,
-                "TabFamily" => 4,
                 _ => 0
             };
 
@@ -61,97 +59,88 @@ namespace ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList
                 Vm.SelectedTabIndex = index;
         }
 
-        // ── Invoice row interactions ──────────────────────────────────────
-
-        private void OnRowLeftClick(object sender, MouseButtonEventArgs e)
-        {
-            if (sender is not FrameworkElement fe) return;
-            if (fe.DataContext is not TaxInvoiceRowViewModel row) return;
-            Vm?.SelectRowCommand.Execute(row);
-        }
-
-        private void OnRowRightClick(object sender, MouseButtonEventArgs e)
-        {
-            if (sender is not FrameworkElement fe) return;
-            if (fe.DataContext is not TaxInvoiceRowViewModel row) return;
-            if (Vm == null) return;
-
-            // Select the row first
-            Vm.SelectRowCommand.Execute(row);
-
-            var menu = new ContextMenu();
-
-            // Open
-            var openItem = new MenuItem { Header = "📂  Open Invoice" };
-            openItem.Click += (_, _) => Vm.OpenCommand.Execute(row);
-            menu.Items.Add(openItem);
-
-            menu.Items.Add(new Separator());
-
-            // Issue — only for Draft invoices
-            // FIX: IssueRowCommand (not ChangeStatusCommand with tuple)
-            if (row.IsDraft)
-            {
-                var issueItem = new MenuItem { Header = "📤  Issue Invoice" };
-                issueItem.Click += (_, _) =>
-                    Vm.IssueRowCommand.Execute(row);
-                menu.Items.Add(issueItem);
-            }
-
-            // Mark Paid — only for Issued invoices
-            // FIX: MarkPaidRowCommand (not ChangeStatusCommand with tuple)
-            if (row.IsIssued)
-            {
-                var paidItem = new MenuItem { Header = "✅  Mark as Paid" };
-                paidItem.Click += (_, _) =>
-                    Vm.MarkPaidRowCommand.Execute(row);
-                menu.Items.Add(paidItem);
-
-                var overdueItem = new MenuItem
-                {
-                    Header = "⚠️  Mark as Overdue"
-                };
-                overdueItem.Click += (_, _) =>
-                {
-                    // Overdue is a status change — handled via direct
-                    // repository call through ListVM helper
-                    // Uses IssueRowCommand pattern but for Overdue:
-                    // Wire through a future MarkOverdueRowCommand if needed.
-                    // For now: show info message.
-                    MessageBox.Show(
-                        $"To mark '{row.InvoiceNumber}' as Overdue:\n\n" +
-                        "Open the invoice and change the Status dropdown " +
-                        "to 'Overdue', then Save.",
-                        "Mark as Overdue",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
-                };
-                menu.Items.Add(overdueItem);
-            }
-
-            menu.Items.Add(new Separator());
-
-            // Delete
-            var deleteItem = new MenuItem
-            {
-                Header = "🗑️  Delete Invoice",
-                Foreground = System.Windows.Media.Brushes.Firebrick
-            };
-            deleteItem.Click += (_, _) => Vm.DeleteCommand.Execute(row);
-            menu.Items.Add(deleteItem);
-
-            menu.IsOpen = true;
-            e.Handled = true;
-        }
-
-        // ── Family row interactions ───────────────────────────────────────
+        // ── Family row: left-click selects, second click opens ───────────
 
         private void OnFamilyRowLeftClick(
             object sender, MouseButtonEventArgs e)
         {
             if (sender is not FrameworkElement fe) return;
             if (fe.DataContext is not InvoiceFamilyRowViewModel family) return;
-            Vm?.OpenFamilyCommand.Execute(family);
+            if (Vm == null) return;
+
+            // Toggle selection on click
+            Vm.SelectFamilyCommand.Execute(family);
+
+            // Double-click opens the family (opens latest invoice in detail)
+            if (e.ClickCount >= 2)
+                Vm.OpenFamilyCommand.Execute(family);
+        }
+
+        // ── Family row: right-click context menu ─────────────────────────
+
+        private void OnFamilyRowRightClick(
+            object sender, MouseButtonEventArgs e)
+        {
+            if (sender is not FrameworkElement fe) return;
+            if (fe.DataContext is not InvoiceFamilyRowViewModel family) return;
+            if (Vm == null) return;
+
+            // Select the family first
+            Vm.SelectFamilyCommand.Execute(family);
+
+            var menu = new ContextMenu();
+
+            // ── Open Latest Invoice ──────────────────────────────────────
+            var openItem = new MenuItem
+            {
+                Header = "📂  Open Latest Invoice"
+            };
+            openItem.Click += (_, _) =>
+                Vm.OpenFamilyCommand.Execute(family);
+            menu.Items.Add(openItem);
+
+            menu.Items.Add(new Separator());
+
+            // ── Family info section (visual only, no click) ──────────────
+            var infoHeader = new MenuItem
+            {
+                Header = $"📋 {family.ProformaId}",
+                IsEnabled = false,
+                Foreground = System.Windows.Media.Brushes.DarkSlateGray
+            };
+            menu.Items.Add(infoHeader);
+
+            var countItem = new MenuItem
+            {
+                Header = $"🧾 {family.InvoiceCount} invoice(s) in family",
+                IsEnabled = false
+            };
+            menu.Items.Add(countItem);
+
+            var statusItem = new MenuItem
+            {
+                Header = $"📊 Status: {family.FamilyStatus}",
+                IsEnabled = false
+            };
+            menu.Items.Add(statusItem);
+
+            var progressItem = new MenuItem
+            {
+                Header = $"💰 {family.ProgressPercent:0.#}% invoiced " +
+                         $"({family.InvoicedTotalDisplay})",
+                IsEnabled = false
+            };
+            menu.Items.Add(progressItem);
+
+            menu.Items.Add(new Separator());
+
+            // ── Refresh list ─────────────────────────────────────────────
+            var refreshItem = new MenuItem { Header = "🔄  Refresh List" };
+            refreshItem.Click += (_, _) => Vm.RefreshCommand.Execute(null);
+            menu.Items.Add(refreshItem);
+
+            menu.IsOpen = true;
+            e.Handled = true;
         }
     }
 }

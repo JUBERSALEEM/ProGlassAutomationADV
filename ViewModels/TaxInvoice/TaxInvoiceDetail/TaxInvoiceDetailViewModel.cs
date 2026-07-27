@@ -3,6 +3,7 @@ using ProGlassAutomation.Models.TaxInvoice.Attachment;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Services.TaxInvoice.Mapper;
 using ProGlassAutomation.Utilities;
+using ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -17,26 +18,31 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
     /// <summary>
     /// ViewModel for Tax Invoice detail / creation.
     ///
-    /// LOAD PATHS:
-    ///   LoadAsync(id)                     — load existing invoice from DB
-    ///   InitNewAsync(piId)                — blank invoice for PI (full import, rare)
-    ///   InitFromDeliveryNoteAsync(dnId)   — invoice ONLY that DN's delivered qty
-    ///   InitFromDeliveryNoteFamilyAsync(piId) — Master Invoice: sum ALL sibling
-    ///                                            DNs' delivered qty for this PI
+    /// FAMILY-AWARE (Chat 16):
+    ///   Detail view now shows all family members (partial invoices A/B/C)
+    ///   in a right sidebar. User clicks a member → loads that invoice
+    ///   + its attachments (like DN History sidebar).
     ///
-    /// PARTIAL INVOICING BUSINESS RULE:
-    ///   Never invoice the full PI unless zero deliveries exist.
-    ///   Always base Qty on actual DeliveredQty from DN items.
-    ///   Skip rows with 0 delivered qty (not billable).
-    ///   Rate comes from PI (pricing), Qty comes from DN (delivered).
+    /// NEW PROPERTIES:
+    ///   FamilyMembers        — all invoices sharing this ProformaId
+    ///   SelectedFamilyMember — currently loaded invoice in family
+    ///   FamilyProformaTotal  — PI grand total
+    ///   FamilyInvoicedTotal  — sum of issued invoices in family
+    ///   FamilyBalanceTotal   — remaining unbilled amount
     ///
-    /// PHASE 6 (PDF): ExportPdfAsync() uses TaxInvoicePdfExporter.
+    /// NEW COMMANDS:
+    ///   SelectFamilyMemberCommand — click family entry to load that invoice
     /// </summary>
     public class TaxInvoiceDetailViewModel : ViewModelBase
     {
         public Action? OnRequestBackToList { get; set; }
 
-        // ── Mode ──────────────────────────────────────────────────────────
+        // ── Navigation guard ─────────────────────────────────────────────
+
+        private bool _isNavigatingFamily;
+        private bool _suppressNotifications;
+
+        // ── Mode ─────────────────────────────────────────────────────────
 
         private bool _isNewInvoice = true;
         public bool IsNewInvoice
@@ -135,28 +141,25 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             set { _paymentTermsDays = value; OnPropertyChanged(); }
         }
 
-        public System.Collections.Generic.List<string> PaymentTermsOptions { get; } = new()
+        public List<string> PaymentTermsOptions { get; } = new()
         {
             "Immediate", "Net 7", "Net 15", "Net 30",
             "Net 45", "Net 60", "Net 90", "Custom"
         };
 
-        public System.Collections.Generic.List<string> StatusOptions { get; } = new()
+        public List<string> StatusOptions { get; } = new()
         {
             "Draft", "Issued", "Paid", "PartiallyPaid",
             "Overdue", "Cancelled", "Void"
         };
 
         // ══════════════════════════════════════════════════════════════════
-        //  COMPANY
+        //  COMPANY / CUSTOMER / PROJECT / BANK / PREPARED BY
         // ══════════════════════════════════════════════════════════════════
 
         private string _companyName = "";
         public string CompanyName
-        {
-            get => _companyName;
-            set { _companyName = value; OnPropertyChanged(); }
-        }
+        { get => _companyName; set { _companyName = value; OnPropertyChanged(); } }
 
         private string _companyTrn = "";
         public string CompanyTrn
@@ -175,166 +178,87 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
         private string _companyAddress = "";
         public string CompanyAddress
-        {
-            get => _companyAddress;
-            set { _companyAddress = value; OnPropertyChanged(); }
-        }
+        { get => _companyAddress; set { _companyAddress = value; OnPropertyChanged(); } }
 
         private string _companyLocation = "";
         public string CompanyLocation
-        {
-            get => _companyLocation;
-            set { _companyLocation = value; OnPropertyChanged(); }
-        }
+        { get => _companyLocation; set { _companyLocation = value; OnPropertyChanged(); } }
 
         private string _companyPhone = "";
         public string CompanyPhone
-        {
-            get => _companyPhone;
-            set { _companyPhone = value; OnPropertyChanged(); }
-        }
+        { get => _companyPhone; set { _companyPhone = value; OnPropertyChanged(); } }
 
         private string _companyEmail = "";
         public string CompanyEmail
-        {
-            get => _companyEmail;
-            set { _companyEmail = value; OnPropertyChanged(); }
-        }
-
-        // ══════════════════════════════════════════════════════════════════
-        //  CUSTOMER
-        // ══════════════════════════════════════════════════════════════════
+        { get => _companyEmail; set { _companyEmail = value; OnPropertyChanged(); } }
 
         private string _customerName = "";
         public string CustomerName
-        {
-            get => _customerName;
-            set { _customerName = value; OnPropertyChanged(); }
-        }
+        { get => _customerName; set { _customerName = value; OnPropertyChanged(); } }
 
         private string _customerTrn = "";
         public string CustomerTrn
-        {
-            get => _customerTrn;
-            set { _customerTrn = value; OnPropertyChanged(); }
-        }
+        { get => _customerTrn; set { _customerTrn = value; OnPropertyChanged(); } }
 
         private string _customerAddress = "";
         public string CustomerAddress
-        {
-            get => _customerAddress;
-            set { _customerAddress = value; OnPropertyChanged(); }
-        }
+        { get => _customerAddress; set { _customerAddress = value; OnPropertyChanged(); } }
 
         private string _customerPhone = "";
         public string CustomerPhone
-        {
-            get => _customerPhone;
-            set { _customerPhone = value; OnPropertyChanged(); }
-        }
+        { get => _customerPhone; set { _customerPhone = value; OnPropertyChanged(); } }
 
         private string _customerEmail = "";
         public string CustomerEmail
-        {
-            get => _customerEmail;
-            set { _customerEmail = value; OnPropertyChanged(); }
-        }
+        { get => _customerEmail; set { _customerEmail = value; OnPropertyChanged(); } }
 
         private string _contactPerson = "";
         public string ContactPerson
-        {
-            get => _contactPerson;
-            set { _contactPerson = value; OnPropertyChanged(); }
-        }
-
-        // ══════════════════════════════════════════════════════════════════
-        //  PROJECT
-        // ══════════════════════════════════════════════════════════════════
+        { get => _contactPerson; set { _contactPerson = value; OnPropertyChanged(); } }
 
         private string _projectName = "";
         public string ProjectName
-        {
-            get => _projectName;
-            set { _projectName = value; OnPropertyChanged(); }
-        }
+        { get => _projectName; set { _projectName = value; OnPropertyChanged(); } }
 
         private string _projectLocation = "";
         public string ProjectLocation
-        {
-            get => _projectLocation;
-            set { _projectLocation = value; OnPropertyChanged(); }
-        }
+        { get => _projectLocation; set { _projectLocation = value; OnPropertyChanged(); } }
 
         private string _projectReference = "";
         public string ProjectReference
-        {
-            get => _projectReference;
-            set { _projectReference = value; OnPropertyChanged(); }
-        }
-
-        // ══════════════════════════════════════════════════════════════════
-        //  BANK
-        // ══════════════════════════════════════════════════════════════════
+        { get => _projectReference; set { _projectReference = value; OnPropertyChanged(); } }
 
         private string _bankName = "";
         public string BankName
-        {
-            get => _bankName;
-            set { _bankName = value; OnPropertyChanged(); }
-        }
+        { get => _bankName; set { _bankName = value; OnPropertyChanged(); } }
 
         private string _bankAccountNumber = "";
         public string BankAccountNumber
-        {
-            get => _bankAccountNumber;
-            set { _bankAccountNumber = value; OnPropertyChanged(); }
-        }
+        { get => _bankAccountNumber; set { _bankAccountNumber = value; OnPropertyChanged(); } }
 
         private string _iban = "";
         public string Iban
-        {
-            get => _iban;
-            set { _iban = value; OnPropertyChanged(); }
-        }
+        { get => _iban; set { _iban = value; OnPropertyChanged(); } }
 
         private string _swiftCode = "";
         public string SwiftCode
-        {
-            get => _swiftCode;
-            set { _swiftCode = value; OnPropertyChanged(); }
-        }
+        { get => _swiftCode; set { _swiftCode = value; OnPropertyChanged(); } }
 
         private string _paymentNotes = "";
         public string PaymentNotes
-        {
-            get => _paymentNotes;
-            set { _paymentNotes = value; OnPropertyChanged(); }
-        }
-
-        // ══════════════════════════════════════════════════════════════════
-        //  PREPARED BY
-        // ══════════════════════════════════════════════════════════════════
+        { get => _paymentNotes; set { _paymentNotes = value; OnPropertyChanged(); } }
 
         private string _preparedByName = "";
         public string PreparedByName
-        {
-            get => _preparedByName;
-            set { _preparedByName = value; OnPropertyChanged(); }
-        }
+        { get => _preparedByName; set { _preparedByName = value; OnPropertyChanged(); } }
 
         private string _preparedByTitle = "";
         public string PreparedByTitle
-        {
-            get => _preparedByTitle;
-            set { _preparedByTitle = value; OnPropertyChanged(); }
-        }
+        { get => _preparedByTitle; set { _preparedByTitle = value; OnPropertyChanged(); } }
 
         private string _preparedByDepartment = "";
         public string PreparedByDepartment
-        {
-            get => _preparedByDepartment;
-            set { _preparedByDepartment = value; OnPropertyChanged(); }
-        }
+        { get => _preparedByDepartment; set { _preparedByDepartment = value; OnPropertyChanged(); } }
 
         // ══════════════════════════════════════════════════════════════════
         //  SPEC GROUPS
@@ -369,8 +293,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             get => _subtotal;
             private set
             {
-                _subtotal = value;
-                OnPropertyChanged();
+                _subtotal = value; OnPropertyChanged();
                 OnPropertyChanged(nameof(SubtotalDisplay));
             }
         }
@@ -381,8 +304,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             get => _discountAmount;
             private set
             {
-                _discountAmount = value;
-                OnPropertyChanged();
+                _discountAmount = value; OnPropertyChanged();
                 OnPropertyChanged(nameof(DiscountAmountDisplay));
             }
         }
@@ -393,8 +315,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             get => _afterDiscount;
             private set
             {
-                _afterDiscount = value;
-                OnPropertyChanged();
+                _afterDiscount = value; OnPropertyChanged();
                 OnPropertyChanged(nameof(AfterDiscountDisplay));
             }
         }
@@ -405,8 +326,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             get => _vatAmount;
             private set
             {
-                _vatAmount = value;
-                OnPropertyChanged();
+                _vatAmount = value; OnPropertyChanged();
                 OnPropertyChanged(nameof(VatDisplay));
             }
         }
@@ -417,8 +337,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             get => _grandTotal;
             private set
             {
-                _grandTotal = value;
-                OnPropertyChanged();
+                _grandTotal = value; OnPropertyChanged();
                 OnPropertyChanged(nameof(GrandTotalDisplay));
                 OnPropertyChanged(nameof(GrandTotalInWords));
             }
@@ -437,8 +356,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             get => _previouslyInvoicedTotal;
             private set
             {
-                _previouslyInvoicedTotal = value;
-                OnPropertyChanged();
+                _previouslyInvoicedTotal = value; OnPropertyChanged();
                 OnPropertyChanged(nameof(PreviouslyInvoicedDisplay));
             }
         }
@@ -453,6 +371,103 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         public string PreviouslyInvoicedDisplay => $"AED {_previouslyInvoicedTotal:N2}";
 
         // ══════════════════════════════════════════════════════════════════
+        //  FAMILY SIDEBAR (Chat 16)
+        // ══════════════════════════════════════════════════════════════════
+
+        private ObservableCollection<TaxInvoiceRowViewModel> _familyMembers = new();
+        public ObservableCollection<TaxInvoiceRowViewModel> FamilyMembers
+        {
+            get => _familyMembers;
+            private set
+            {
+                _familyMembers = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(FamilyMemberCount));
+                OnPropertyChanged(nameof(HasMultipleFamilyMembers));
+            }
+        }
+
+        public int FamilyMemberCount => _familyMembers?.Count ?? 0;
+
+        public bool HasMultipleFamilyMembers => FamilyMemberCount > 1;
+
+        private TaxInvoiceRowViewModel? _selectedFamilyMember;
+        public TaxInvoiceRowViewModel? SelectedFamilyMember
+        {
+            get => _selectedFamilyMember;
+            set
+            {
+                if (_selectedFamilyMember == value) return;
+                if (_selectedFamilyMember != null)
+                    _selectedFamilyMember.IsSelected = false;
+                _selectedFamilyMember = value;
+                if (_selectedFamilyMember != null)
+                    _selectedFamilyMember.IsSelected = true;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(SelectedFamilyHeaderText));
+                OnPropertyChanged(nameof(IsSelectedFamilyCurrent));
+            }
+        }
+
+        /// <summary>
+        /// True when selected family member matches the currently loaded invoice.
+        /// Used to hide the "Viewing different invoice" warning banner.
+        /// </summary>
+        public bool IsSelectedFamilyCurrent =>
+            _selectedFamilyMember == null ||
+            string.Equals(_selectedFamilyMember.InvoiceNumber,
+                _editingInvoiceNumber, StringComparison.OrdinalIgnoreCase);
+
+        /// <summary>
+        /// Attachments header text — shows selected invoice number and its
+        /// attachment count. Updates when family member is clicked.
+        /// </summary>
+        public string SelectedFamilyHeaderText =>
+            _selectedFamilyMember != null
+                ? $"ATTACHMENTS ({_selectedFamilyMember.AttachmentCount}) · " +
+                  $"{_selectedFamilyMember.InvoiceNumber}"
+                : $"ATTACHMENTS ({Attachments?.Count ?? 0})";
+
+        // ── Family financial totals ──────────────────────────────────────
+
+        private decimal _familyProformaTotal;
+        public decimal FamilyProformaTotal
+        {
+            get => _familyProformaTotal;
+            private set
+            {
+                _familyProformaTotal = value; OnPropertyChanged();
+                OnPropertyChanged(nameof(FamilyProformaTotalDisplay));
+            }
+        }
+
+        private decimal _familyInvoicedTotal;
+        public decimal FamilyInvoicedTotal
+        {
+            get => _familyInvoicedTotal;
+            private set
+            {
+                _familyInvoicedTotal = value; OnPropertyChanged();
+                OnPropertyChanged(nameof(FamilyInvoicedTotalDisplay));
+            }
+        }
+
+        private decimal _familyBalanceTotal;
+        public decimal FamilyBalanceTotal
+        {
+            get => _familyBalanceTotal;
+            private set
+            {
+                _familyBalanceTotal = value; OnPropertyChanged();
+                OnPropertyChanged(nameof(FamilyBalanceTotalDisplay));
+            }
+        }
+
+        public string FamilyProformaTotalDisplay => $"AED {_familyProformaTotal:N2}";
+        public string FamilyInvoicedTotalDisplay => $"AED {_familyInvoicedTotal:N2}";
+        public string FamilyBalanceTotalDisplay => $"AED {_familyBalanceTotal:N2}";
+
+        // ══════════════════════════════════════════════════════════════════
         //  ATTACHMENTS
         // ══════════════════════════════════════════════════════════════════
 
@@ -460,7 +475,12 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         public ObservableCollection<InvAttachmentViewModel> Attachments
         {
             get => _attachments;
-            set { _attachments = value; OnPropertyChanged(); }
+            set
+            {
+                _attachments = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(SelectedFamilyHeaderText));
+            }
         }
 
         // ══════════════════════════════════════════════════════════════════
@@ -493,8 +513,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             }
         }
 
-        public bool HasStatusMessage =>
-            !string.IsNullOrWhiteSpace(_statusMessage);
+        public bool HasStatusMessage => !string.IsNullOrWhiteSpace(_statusMessage);
 
         // ══════════════════════════════════════════════════════════════════
         //  COMMANDS
@@ -511,6 +530,12 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         public ICommand RecalculateCommand { get; }
         public ICommand ExportPdfCommand { get; }
         public ICommand DeleteCommand { get; }
+
+        /// <summary>
+        /// Chat 16: click a family sidebar entry to switch to that invoice.
+        /// Reloads invoice + attachments in place.
+        /// </summary>
+        public ICommand SelectFamilyMemberCommand { get; }
 
         // ══════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
@@ -550,8 +575,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                     await RemoveAttachmentAsync(a);
             });
 
-            RecalculateCommand = new RelayCommand(
-                _ => RecalculateFinancials());
+            RecalculateCommand = new RelayCommand(_ => RecalculateFinancials());
 
             ExportPdfCommand = new RelayCommand(
                 async _ => await ExportPdfAsync(),
@@ -576,18 +600,91 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 }
                 catch (Exception ex)
                 {
-                    MessageBox.Show(
-                        $"Delete failed:\n\n{ex.Message}",
-                        "Delete Failed",
-                        MessageBoxButton.OK,
+                    MessageBox.Show($"Delete failed:\n\n{ex.Message}",
+                        "Delete Failed", MessageBoxButton.OK,
                         MessageBoxImage.Error);
                 }
             },
             _ => !IsNewInvoice && !_isSaving);
+
+            // Chat 16: family sidebar navigation
+            SelectFamilyMemberCommand = new RelayCommand(async param =>
+            {
+                if (param is TaxInvoiceRowViewModel member)
+                    await NavigateToFamilyMemberAsync(member);
+            });
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  LOAD EXISTING
+        //  NAVIGATE TO SIBLING INVOICE (Chat 16 — family sidebar click)
+        // ══════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Switch to a sibling invoice within the same family.
+        /// PERFORMANCE: skips family reload (family didn't change).
+        /// Only reloads invoice content + attachments.
+        /// </summary>
+        private async Task NavigateToFamilyMemberAsync(
+            TaxInvoiceRowViewModel target)
+        {
+            if (App.TaxInvoices == null) return;
+            if (_isNavigatingFamily) return;
+            if (target.Id == _editingId) return;
+
+            try
+            {
+                _isNavigatingFamily = true;
+                IsLoading = true;
+
+                var result = await Task.Run(async () =>
+                {
+                    var ent = await App.TaxInvoices.GetByIdAsync(target.Id);
+                    if (ent == null) return ((SavedTaxInvoice?)null, (TaxInvoiceSnapshot?)null);
+                    var snap = TaxInvoiceMapper.DeserializeSnapshot(ent);
+                    return (ent, snap);
+                });
+
+                if (result.Item1 == null || result.Item2 == null) return;
+
+                var entity = result.Item1;
+                var snapshot = result.Item2;
+
+                _editingId = target.Id;
+                _editingInvoiceNumber = entity.InvoiceNumber;
+                IsNewInvoice = false;
+
+                RestoreFromSnapshot(entity, snapshot);
+
+                // Update family highlights WITHOUT reloading family list
+                foreach (var m in FamilyMembers)
+                {
+                    m.IsCurrentInvoice = string.Equals(
+                        m.InvoiceNumber, _editingInvoiceNumber,
+                        StringComparison.OrdinalIgnoreCase);
+                    m.IsSelected = m.IsCurrentInvoice;
+                }
+
+                _selectedFamilyMember = FamilyMembers.FirstOrDefault(
+                    m => m.IsCurrentInvoice);
+                OnPropertyChanged(nameof(SelectedFamilyMember));
+                OnPropertyChanged(nameof(SelectedFamilyHeaderText));
+                OnPropertyChanged(nameof(IsSelectedFamilyCurrent));
+
+                StatusMessage = "";
+            }
+            catch (Exception ex)
+            {
+                StatusMessage = $"Switch failed: {ex.Message}";
+            }
+            finally
+            {
+                IsLoading = false;
+                _isNavigatingFamily = false;
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  LOAD EXISTING (enhanced to load family)
         // ══════════════════════════════════════════════════════════════════
 
         public async Task LoadAsync(int id)
@@ -622,6 +719,10 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 IsNewInvoice = false;
 
                 RestoreFromSnapshot(entity, snapshot);
+
+                // Chat 16: load family sidebar
+                await LoadFamilyAsync(entity.ProformaId);
+
                 StatusMessage = "";
             }
             catch (Exception ex)
@@ -635,14 +736,83 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  INIT NEW — 3 ENTRY POINTS
+        //  LOAD FAMILY (Chat 16 — sidebar contents)
         // ══════════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// PI-only path (no DN context). Rarely used — creates invoice with
-        /// full PI qty. Only appropriate when no DN exists yet.
-        /// Called by: PI picker dialog when creating invoice directly from PI.
-        /// </summary>
+        private async Task LoadFamilyAsync(string proformaId)
+        {
+            if (App.TaxInvoices == null ||
+                string.IsNullOrWhiteSpace(proformaId))
+                return;
+
+            try
+            {
+                // Fetch the family
+                var family = await App.TaxInvoices.GetFamilyAsync(proformaId);
+                if (family == null || family.Members == null)
+                {
+                    FamilyMembers = new ObservableCollection<TaxInvoiceRowViewModel>();
+                    return;
+                }
+
+                // Build family member VMs ordered by sequence
+                var memberVms = family.Members
+                    .OrderBy(m => m.SequenceNumber)
+                    .Select(m =>
+                    {
+                        var vm = new TaxInvoiceRowViewModel(m);
+                        vm.IsCurrentInvoice = string.Equals(
+                            m.InvoiceNumber, _editingInvoiceNumber,
+                            StringComparison.OrdinalIgnoreCase);
+                        return vm;
+                    })
+                    .ToList();
+
+                // Load attachment counts per member
+                var invoiceNumbers = memberVms
+                    .Select(m => m.InvoiceNumber).ToList();
+                var counts = await App.TaxInvoices
+                    .GetAttachmentCountsAsync(invoiceNumbers);
+
+                foreach (var vm in memberVms)
+                {
+                    vm.AttachmentCount = counts.TryGetValue(
+                        vm.InvoiceNumber, out var c) ? c : 0;
+                }
+
+                FamilyMembers = new ObservableCollection<TaxInvoiceRowViewModel>(
+                    memberVms);
+
+                // Update family financial totals
+                FamilyProformaTotal = family.ProformaTotal > 0m
+                    ? family.ProformaTotal
+                    : family.Members.Sum(m => m.GrandTotal);
+                FamilyInvoicedTotal = family.InvoicedTotal;
+                FamilyBalanceTotal = family.BalanceTotal;
+
+                // Auto-select the currently loaded invoice
+                var current = memberVms.FirstOrDefault(m =>
+                    string.Equals(m.InvoiceNumber, _editingInvoiceNumber,
+                        StringComparison.OrdinalIgnoreCase));
+
+                _selectedFamilyMember = current;
+                if (current != null) current.IsSelected = true;
+
+                OnPropertyChanged(nameof(SelectedFamilyMember));
+                OnPropertyChanged(nameof(SelectedFamilyHeaderText));
+                OnPropertyChanged(nameof(IsSelectedFamilyCurrent));
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[TaxInvoiceDetailVM] Load family failed: {ex.Message}");
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  INIT NEW — 3 ENTRY POINTS (from Chat 14)
+        // ══════════════════════════════════════════════════════════════════
+
         public async Task InitNewAsync(string proformaId)
         {
             await ImportInternalAsync(
@@ -652,12 +822,6 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 importLabel: "full PI");
         }
 
-        /// <summary>
-        /// Convert a SINGLE DN to Tax Invoice.
-        /// Only imports rows where DeliveredQty > 0 in THIS specific DN.
-        /// Qty column = this DN's DeliveredQty (not ordered qty from PI).
-        /// Called by: "Convert to Tax Invoice" button on DN Detail history row.
-        /// </summary>
         public async Task InitFromDeliveryNoteAsync(string deliveryNoteId)
         {
             if (App.DeliveryNotes == null
@@ -672,25 +836,22 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 IsLoading = true;
                 StatusMessage = $"Loading DN '{deliveryNoteId}'…";
 
-                // Fetch this specific DN
                 var dnEntity = await App.DeliveryNotes
                     .GetByDeliveryNoteIdAsync(deliveryNoteId);
 
                 if (dnEntity == null)
                 {
-                    StatusMessage = $"⚠️ Delivery Note '{deliveryNoteId}' not found.";
+                    StatusMessage = $"⚠️ DN '{deliveryNoteId}' not found.";
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(dnEntity.ProformaId))
                 {
                     StatusMessage =
-                        $"⚠️ DN '{deliveryNoteId}' has no linked Proforma Invoice.";
+                        $"⚠️ DN '{deliveryNoteId}' has no linked PI.";
                     return;
                 }
 
-                // Build qty map: (SpecGroupNumber, SerialNumber) → DeliveredQty
-                // Only include rows with DeliveredQty > 0
                 var qtyMap = dnEntity.Items
                     .Where(i => i.DeliveredQty > 0)
                     .ToDictionary(
@@ -700,8 +861,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 if (qtyMap.Count == 0)
                 {
                     StatusMessage =
-                        $"⚠️ DN '{deliveryNoteId}' has no delivered items " +
-                        "(all qty = 0). Cannot create invoice.";
+                        $"⚠️ DN '{deliveryNoteId}' has no delivered items.";
                     return;
                 }
 
@@ -711,16 +871,16 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                     dnReferenceLabel: deliveryNoteId,
                     importLabel: $"DN '{deliveryNoteId}'");
 
-                // Set JO ID from DN for cross-module tracking
                 JobOrderId = dnEntity.JobOrderId;
+
+                // Chat 16: load family sidebar for new invoice too
+                await LoadFamilyAsync(dnEntity.ProformaId);
             }
             catch (Exception ex)
             {
                 StatusMessage = $"Init from DN failed: {ex.Message}";
-                MessageBox.Show(
-                    $"Failed to import DN data:\n\n{ex.Message}",
-                    "Import Failed",
-                    MessageBoxButton.OK,
+                MessageBox.Show($"Failed to import DN data:\n\n{ex.Message}",
+                    "Import Failed", MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
             finally
@@ -729,11 +889,6 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             }
         }
 
-        /// <summary>
-        /// MASTER INVOICE: aggregate ALL delivered qty across ALL sibling DNs
-        /// for this ProformaId. Only imports rows with total delivered > 0.
-        /// Called by: "Master Invoice" button on DN List JO group row.
-        /// </summary>
         public async Task InitFromDeliveryNoteFamilyAsync(string proformaId)
         {
             if (App.DeliveryNotes == null
@@ -748,7 +903,6 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 IsLoading = true;
                 StatusMessage = $"Loading all deliveries for '{proformaId}'…";
 
-                // Fetch all DNs for this PI
                 var allDns = await App.DeliveryNotes.GetAllAsync();
                 var siblingDnIds = allDns
                     .Where(d => string.Equals(d.ProformaId, proformaId,
@@ -759,13 +913,10 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 if (siblingDnIds.Count == 0)
                 {
                     StatusMessage =
-                        $"⚠️ No delivery notes found for '{proformaId}'.";
+                        $"⚠️ No delivery notes for '{proformaId}'.";
                     return;
                 }
 
-                // Aggregate delivered qty across all sibling DNs
-                // Key: (SpecGroupNumber, SerialNumber)
-                // Value: SUM of DeliveredQty across all DNs
                 var aggregatedQty = new Dictionary<(int, int), int>();
                 var refList = new List<string>();
 
@@ -786,14 +937,13 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                         hasAnyDelivered = true;
                     }
 
-                    if (hasAnyDelivered)
-                        refList.Add(dnId);
+                    if (hasAnyDelivered) refList.Add(dnId);
                 }
 
                 if (aggregatedQty.Count == 0)
                 {
                     StatusMessage =
-                        $"⚠️ No delivered items across any DN for '{proformaId}'.";
+                        $"⚠️ No delivered items across any DN.";
                     return;
                 }
 
@@ -804,14 +954,15 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                     deliveryNoteQtyMap: aggregatedQty,
                     dnReferenceLabel: dnRefs,
                     importLabel: $"Master ({refList.Count} DN{(refList.Count > 1 ? "s" : "")})");
+
+                // Chat 16: load family sidebar
+                await LoadFamilyAsync(proformaId);
             }
             catch (Exception ex)
             {
                 StatusMessage = $"Master import failed: {ex.Message}";
-                MessageBox.Show(
-                    $"Failed to build Master Invoice:\n\n{ex.Message}",
-                    "Import Failed",
-                    MessageBoxButton.OK,
+                MessageBox.Show($"Failed:\n\n{ex.Message}",
+                    "Import Failed", MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
             finally
@@ -821,9 +972,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  INTERNAL IMPORT — shared logic
-        //  If deliveryNoteQtyMap is null → import full PI qty
-        //  Otherwise → import ONLY rows in map, using map's qty
+        //  INTERNAL IMPORT (shared logic — unchanged from Chat 14)
         // ══════════════════════════════════════════════════════════════════
 
         private async Task ImportInternalAsync(
@@ -840,7 +989,6 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             ProformaId = proformaId;
             DeliveryNoteReference = dnReferenceLabel;
 
-            // ── Tax Invoice family summary ────────────────────────────────
             if (App.TaxInvoices != null)
             {
                 var summary = await App.TaxInvoices
@@ -848,7 +996,6 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 PreviouslyInvoicedTotal = summary.TotalInvoiced;
             }
 
-            // ── Load PI entity ────────────────────────────────────────────
             if (App.Invoices == null)
             {
                 StatusMessage = "";
@@ -859,8 +1006,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
             if (piEntity == null)
             {
-                StatusMessage =
-                    $"⚠️ Proforma Invoice '{proformaId}' not found.";
+                StatusMessage = $"⚠️ PI '{proformaId}' not found.";
                 return;
             }
 
@@ -870,13 +1016,12 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
             if (piSnapshot == null)
             {
-                StatusMessage = $"⚠️ PI snapshot could not be read.";
+                StatusMessage = "⚠️ PI snapshot could not be read.";
                 return;
             }
 
             ProformaTotal = piEntity.GrandTotalVatInclusive;
 
-            // ── Copy Company data ────────────────────────────────────────
             if (piSnapshot.Company != null)
             {
                 CompanyName = piSnapshot.Company.CompanyName;
@@ -884,7 +1029,6 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 CompanyLocation = piSnapshot.Company.CompanyLocation;
             }
 
-            // ── Copy Customer data ───────────────────────────────────────
             if (piSnapshot.Client != null)
             {
                 CustomerName = piSnapshot.Client.CustomerName;
@@ -894,7 +1038,6 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 ContactPerson = piSnapshot.Client.AttentionExecutiveName;
             }
 
-            // ── Copy Project data ────────────────────────────────────────
             if (piSnapshot.Project != null)
             {
                 ProjectName = piSnapshot.Project.ProjectIdentifierName;
@@ -906,14 +1049,12 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 PurchaseOrderNumber = piSnapshot.Project.LpoNumber;
             }
 
-            // ── Copy Prepared By data ────────────────────────────────────
             if (piSnapshot.PreparedBy != null)
             {
                 PreparedByName = piSnapshot.PreparedBy.PreparedByName;
                 PreparedByDepartment = piSnapshot.PreparedBy.PreparedByDept;
             }
 
-            // ── Copy discount from PI ────────────────────────────────────
             if (piSnapshot.Summary != null
                 && string.Equals(piSnapshot.Summary.DiscountType,
                     "Percentage", StringComparison.OrdinalIgnoreCase))
@@ -921,7 +1062,6 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 DiscountPercent = piSnapshot.Summary.DiscountValue;
             }
 
-            // ── Build Spec Groups + Rows ─────────────────────────────────
             SpecGroups.Clear();
 
             if (piSnapshot.SpecGroups != null)
@@ -930,7 +1070,6 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 {
                     if (piGroup == null || piGroup.ItemRows == null) continue;
 
-                    // Collect ONLY rows we should invoice
                     var eligibleRows = new List<(GlassRowData row, int qty)>();
 
                     foreach (var piRow in piGroup.ItemRows)
@@ -938,19 +1077,15 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                         if (piRow == null) continue;
 
                         int invoiceQty;
-
                         if (deliveryNoteQtyMap == null)
                         {
-                            // Full PI import — use PI qty as-is
                             invoiceQty = piRow.Qty;
                         }
                         else
                         {
-                            // DN-scoped import — only if this row was delivered
                             var key = (piGroup.GroupNumber, piRow.SerialNumber);
                             if (!deliveryNoteQtyMap.TryGetValue(key, out invoiceQty))
-                                continue; // 0 delivered → skip row entirely
-
+                                continue;
                             if (invoiceQty <= 0) continue;
                         }
 
@@ -964,13 +1099,11 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                                 W2 = piRow.W2,
                                 H2 = piRow.H2,
                                 Rate = piRow.Rate > 0
-                                    ? piRow.Rate
-                                    : piGroup.BaseRate
+                                    ? piRow.Rate : piGroup.BaseRate
                             },
                             invoiceQty));
                     }
 
-                    // Skip empty groups
                     if (eligibleRows.Count == 0) continue;
 
                     var invGroup = new InvSpecGroupViewModel(
@@ -987,7 +1120,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                     foreach (var (row, qty) in eligibleRows)
                     {
-                        var invRow = new InvRowViewModel(invGroup)
+                        invGroup.Rows.Add(new InvRowViewModel(invGroup)
                         {
                             SerialNumber = row.SerialNumber,
                             GlassRef = row.GlassRef,
@@ -998,9 +1131,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                             Qty = qty,
                             Rate = row.Rate,
                             Notes = ""
-                        };
-
-                        invGroup.Rows.Add(invRow);
+                        });
                     }
 
                     invGroup.RecalculateGroup();
@@ -1008,10 +1139,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 }
             }
 
-            // ── Recalculate financials ────────────────────────────────────
             RecalculateFinancials();
 
-            // ── Fixed-amount discount → convert to % ─────────────────────
             if (piSnapshot.Summary != null
                 && string.Equals(piSnapshot.Summary.DiscountType,
                     "FixedAmount", StringComparison.OrdinalIgnoreCase)
@@ -1022,7 +1151,6 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 RecalculateFinancials();
             }
 
-            // ── Success message ──────────────────────────────────────────
             int totalRows = SpecGroups.Sum(g => g.Rows.Count);
             int totalQty = SpecGroups.Sum(g => g.Rows.Sum(r => r.Qty));
 
@@ -1032,7 +1160,6 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 : $"⚠️ Nothing to invoice — no delivered items found.";
         }
 
-        /// <summary>Private DTO for eligible row collection.</summary>
         private sealed class GlassRowData
         {
             public int SerialNumber { get; set; }
@@ -1045,7 +1172,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  SAVE
+        //  SAVE (enhanced — reload family after save)
         // ══════════════════════════════════════════════════════════════════
 
         public async Task SaveAsync()
@@ -1069,18 +1196,14 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 {
                     int seq = await App.TaxInvoices
                         .GetNextSequenceNumberAsync(ProformaId);
-
                     bool hasExisting = await App.TaxInvoices
                         .HasAnyInvoiceAsync(ProformaId);
-
                     string letter = hasExisting
                         ? await App.TaxInvoices
                             .GetNextSequenceLetterAsync(ProformaId)
                         : "";
-
                     string invoiceNum = await App.TaxInvoices
                         .BuildInvoiceNumberAsync(ProformaId, letter);
-
                     bool exists = await App.TaxInvoices
                         .ExistsByInvoiceNumberAsync(invoiceNum);
 
@@ -1092,7 +1215,6 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                     var entity = TaxInvoiceMapper.BuildEntity(
                         state, invoiceNum, seq, letter);
-
                     var saved = await App.TaxInvoices.InsertAsync(entity);
                     _editingId = saved.Id;
                     _editingInvoiceNumber = saved.InvoiceNumber;
@@ -1109,25 +1231,23 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                     }
 
                     var updated = TaxInvoiceMapper.BuildEntity(
-                        state,
-                        entity.InvoiceNumber,
-                        entity.SequenceNumber,
-                        entity.SequenceLetter);
-
+                        state, entity.InvoiceNumber,
+                        entity.SequenceNumber, entity.SequenceLetter);
                     updated.Id = entity.Id;
                     updated.CreatedAt = entity.CreatedAt;
 
                     await App.TaxInvoices.UpdateAsync(updated);
                     StatusMessage = $"✅ Updated {entity.InvoiceNumber}";
                 }
+
+                // Chat 16: reload family sidebar after save
+                await LoadFamilyAsync(ProformaId);
             }
             catch (Exception ex)
             {
                 StatusMessage = $"Save failed: {ex.Message}";
-                MessageBox.Show(
-                    $"Failed to save:\n\n{ex.Message}",
-                    "Save Failed",
-                    MessageBoxButton.OK,
+                MessageBox.Show($"Failed to save:\n\n{ex.Message}",
+                    "Save Failed", MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
             finally
@@ -1137,7 +1257,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  PDF EXPORT — Phase 6
+        //  PDF EXPORT (unchanged from Chat 14)
         // ══════════════════════════════════════════════════════════════════
 
         private async Task ExportPdfAsync()
@@ -1152,7 +1272,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 var entity = await App.TaxInvoices.GetByIdAsync(_editingId);
                 if (entity == null)
                 {
-                    StatusMessage = "Invoice not found — cannot export.";
+                    StatusMessage = "Invoice not found.";
                     return;
                 }
 
@@ -1164,13 +1284,10 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 {
                     var choice = MessageBox.Show(
                         $"This invoice has {attachments.Count} attachment(s).\n\n" +
-                        "Include them in the PDF?\n\n" +
-                        "  Yes → Invoice + all attachments (single PDF)\n" +
-                        "  No  → Invoice only",
+                        "Include them in the PDF?",
                         "Include Attachments?",
                         MessageBoxButton.YesNo,
                         MessageBoxImage.Question);
-
                     includeAttachments = choice == MessageBoxResult.Yes;
                 }
 
@@ -1188,10 +1305,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 StatusMessage = $"✅ PDF saved: {System.IO.Path.GetFileName(savedPath)}";
 
                 var open = MessageBox.Show(
-                    $"PDF saved successfully:\n\n{savedPath}\n\n" +
-                    "Open now?",
-                    "PDF Ready",
-                    MessageBoxButton.YesNo,
+                    $"PDF saved:\n\n{savedPath}\n\nOpen now?",
+                    "PDF Ready", MessageBoxButton.YesNo,
                     MessageBoxImage.Information);
 
                 if (open == MessageBoxResult.Yes)
@@ -1206,10 +1321,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             catch (Exception ex)
             {
                 StatusMessage = $"PDF export failed: {ex.Message}";
-                MessageBox.Show(
-                    $"Failed to generate PDF:\n\n{ex.Message}",
-                    "PDF Export Failed",
-                    MessageBoxButton.OK,
+                MessageBox.Show($"Failed:\n\n{ex.Message}",
+                    "PDF Export Failed", MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
             finally
@@ -1225,8 +1338,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         private void AddSpecGroup()
         {
             int next = SpecGroups.Count > 0
-                ? SpecGroups.Max(g => g.GroupNumber) + 1
-                : 1;
+                ? SpecGroups.Max(g => g.GroupNumber) + 1 : 1;
 
             var group = new InvSpecGroupViewModel(next, ProformaId)
             {
@@ -1293,10 +1405,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                 if (bytes.Length > 10 * 1024 * 1024)
                 {
-                    MessageBox.Show(
-                        "File is larger than 10 MB.\n\nPlease compress before attaching.",
-                        "File Too Large",
-                        MessageBoxButton.OK,
+                    MessageBox.Show("File is larger than 10 MB.",
+                        "File Too Large", MessageBoxButton.OK,
                         MessageBoxImage.Warning);
                     return;
                 }
@@ -1330,8 +1440,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                 Attachments.Add(vm);
 
-                if (!IsNewInvoice
-                    && App.TaxInvoices != null
+                if (!IsNewInvoice && App.TaxInvoices != null
                     && !string.IsNullOrWhiteSpace(_editingInvoiceNumber))
                 {
                     var attachEntity = new TaxInvoiceAttachment
@@ -1347,14 +1456,17 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                     var saved = await App.TaxInvoices.AddAttachmentAsync(attachEntity);
                     vm.Id = saved.Id;
+
+                    // Update count directly — no DB round-trip needed
+                    if (_selectedFamilyMember != null)
+                        _selectedFamilyMember.AttachmentCount += 1;
+                    OnPropertyChanged(nameof(SelectedFamilyHeaderText));
                 }
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    $"Failed to add attachment:\n\n{ex.Message}",
-                    "Attachment Error",
-                    MessageBoxButton.OK,
+                MessageBox.Show($"Failed:\n\n{ex.Message}",
+                    "Attachment Error", MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
         }
@@ -1375,13 +1487,16 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                     await App.TaxInvoices.DeleteAttachmentAsync(vm.Id);
 
                 Attachments.Remove(vm);
+
+                // Update count directly — no DB round-trip needed
+                if (_selectedFamilyMember != null && _selectedFamilyMember.AttachmentCount > 0)
+                    _selectedFamilyMember.AttachmentCount -= 1;
+                OnPropertyChanged(nameof(SelectedFamilyHeaderText));
             }
             catch (Exception ex)
             {
-                MessageBox.Show(
-                    $"Failed to remove:\n\n{ex.Message}",
-                    "Remove Failed",
-                    MessageBoxButton.OK,
+                MessageBox.Show($"Failed:\n\n{ex.Message}",
+                    "Remove Failed", MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
         }
@@ -1488,56 +1603,57 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         };
 
         private void RestoreFromSnapshot(
-            SavedTaxInvoice entity, TaxInvoiceSnapshot snap)
+    SavedTaxInvoice entity, TaxInvoiceSnapshot snap)
         {
-            ProformaId = snap.Header.ProformaId;
-            DeliveryNoteReference = snap.Header.DeliveryNoteReference;
-            JobOrderId = snap.Header.JobOrderId;
-            PurchaseOrderNumber = snap.Header.PurchaseOrderNumber;
-            Status = snap.Header.Status;
-            IssueDate = snap.Header.IssueDate == default
+            _suppressNotifications = true;
+
+            _proformaId = snap.Header.ProformaId;
+            _deliveryNoteReference = snap.Header.DeliveryNoteReference;
+            _jobOrderId = snap.Header.JobOrderId;
+            _purchaseOrderNumber = snap.Header.PurchaseOrderNumber;
+            _status = snap.Header.Status;
+            _issueDate = snap.Header.IssueDate == default
                 ? DateTime.Today : snap.Header.IssueDate;
-            DueDate = snap.Header.DueDate == default
-                ? IssueDate.AddDays(30) : snap.Header.DueDate;
+            _dueDate = snap.Header.DueDate == default
+                ? _issueDate.AddDays(30) : snap.Header.DueDate;
 
-            CompanyName = snap.Company.CompanyName;
-            CompanyTrn = snap.Company.CompanyTrn;
-            CompanyAddress = snap.Company.CompanyAddress;
-            CompanyLocation = snap.Company.CompanyLocation;
-            CompanyPhone = snap.Company.CompanyPhone;
-            CompanyEmail = snap.Company.CompanyEmail;
+            _companyName = snap.Company.CompanyName;
+            _companyTrn = snap.Company.CompanyTrn;
+            _companyAddress = snap.Company.CompanyAddress;
+            _companyLocation = snap.Company.CompanyLocation;
+            _companyPhone = snap.Company.CompanyPhone;
+            _companyEmail = snap.Company.CompanyEmail;
 
-            CustomerName = snap.Customer.CustomerName;
-            CustomerTrn = snap.Customer.CustomerTrn;
-            CustomerAddress = snap.Customer.CustomerAddress;
-            CustomerPhone = snap.Customer.CustomerPhone;
-            CustomerEmail = snap.Customer.CustomerEmail;
-            ContactPerson = snap.Customer.ContactPerson;
+            _customerName = snap.Customer.CustomerName;
+            _customerTrn = snap.Customer.CustomerTrn;
+            _customerAddress = snap.Customer.CustomerAddress;
+            _customerPhone = snap.Customer.CustomerPhone;
+            _customerEmail = snap.Customer.CustomerEmail;
+            _contactPerson = snap.Customer.ContactPerson;
 
-            ProjectName = snap.Project.ProjectName;
-            ProjectLocation = snap.Project.ProjectLocation;
-            ProjectReference = snap.Project.ProjectReference;
+            _projectName = snap.Project.ProjectName;
+            _projectLocation = snap.Project.ProjectLocation;
+            _projectReference = snap.Project.ProjectReference;
 
-            BankName = snap.Bank.BankName;
-            BankAccountNumber = snap.Bank.BankAccountNumber;
-            Iban = snap.Bank.Iban;
-            SwiftCode = snap.Bank.SwiftCode;
-            PaymentTerms = snap.Bank.PaymentTerms;
-            PaymentTermsDays = snap.Bank.PaymentTermsDays;
-            PaymentNotes = snap.Bank.PaymentNotes;
+            _bankName = snap.Bank.BankName;
+            _bankAccountNumber = snap.Bank.BankAccountNumber;
+            _iban = snap.Bank.Iban;
+            _swiftCode = snap.Bank.SwiftCode;
+            _paymentTerms = snap.Bank.PaymentTerms;
+            _paymentTermsDays = snap.Bank.PaymentTermsDays;
+            _paymentNotes = snap.Bank.PaymentNotes;
 
-            PreparedByName = snap.PreparedBy.Name;
-            PreparedByTitle = snap.PreparedBy.Title;
-            PreparedByDepartment = snap.PreparedBy.Department;
+            _preparedByName = snap.PreparedBy.Name;
+            _preparedByTitle = snap.PreparedBy.Title;
+            _preparedByDepartment = snap.PreparedBy.Department;
 
             _discountPercent = snap.Financial.DiscountPercent;
-            OnPropertyChanged(nameof(DiscountPercent));
-            PreviouslyInvoicedTotal = snap.Financial.PreviouslyInvoicedTotal;
+            _previouslyInvoicedTotal = snap.Financial.PreviouslyInvoicedTotal;
 
-            SpecGroups.Clear();
+            _specGroups.Clear();
             foreach (var g in snap.SpecGroups)
             {
-                var groupVm = new InvSpecGroupViewModel(g.GroupNumber, ProformaId)
+                var groupVm = new InvSpecGroupViewModel(g.GroupNumber, _proformaId)
                 {
                     GroupName = g.GroupName,
                     GlassType = g.GlassType,
@@ -1563,13 +1679,13 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 }
 
                 groupVm.RecalculateGroup();
-                SpecGroups.Add(groupVm);
+                _specGroups.Add(groupVm);
             }
 
-            Attachments.Clear();
+            _attachments.Clear();
             foreach (var a in entity.Attachments)
             {
-                Attachments.Add(new InvAttachmentViewModel
+                _attachments.Add(new InvAttachmentViewModel
                 {
                     Id = a.Id,
                     AttachmentType = a.AttachmentType,
@@ -1582,7 +1698,23 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 });
             }
 
-            RecalculateFinancials();
+            decimal subtotal = 0m;
+            foreach (var group in _specGroups)
+                subtotal += group.GroupTotalValue;
+
+            decimal discountAmt = Math.Round(subtotal * (_discountPercent / 100m), 2);
+            decimal afterDiscount = subtotal - discountAmt;
+            decimal vatAmount = Math.Round(afterDiscount * 0.05m, 2);
+
+            _subtotal = Math.Round(subtotal, 2);
+            _discountAmount = discountAmt;
+            _afterDiscount = afterDiscount;
+            _vatAmount = vatAmount;
+            _grandTotal = afterDiscount + vatAmount;
+
+            _suppressNotifications = false;
+
+            OnPropertyChanged(string.Empty);
         }
 
         private void ResetFields()
@@ -1605,6 +1737,10 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             OnPropertyChanged(nameof(DiscountPercent));
             SpecGroups.Clear();
             Attachments.Clear();
+            FamilyMembers = new ObservableCollection<TaxInvoiceRowViewModel>();
+            FamilyProformaTotal = 0m;
+            FamilyInvoicedTotal = 0m;
+            FamilyBalanceTotal = 0m;
             RecalculateFinancials();
         }
 
