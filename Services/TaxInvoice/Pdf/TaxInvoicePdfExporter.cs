@@ -1,0 +1,305 @@
+﻿using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
+using ProGlassAutomation.Services.TaxInvoice.Mapper;
+using QuestPDF.Fluent;
+using QuestPDF.Infrastructure;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace ProGlassAutomation.Services.TaxInvoice.Pdf
+{
+    /// <summary>
+    /// Generates Tax Invoice PDFs using QuestPDF.
+    ///
+    /// TWO OUTPUT MODES:
+    ///
+    ///   1. Standard invoice PDF:
+    ///      GenerateAsync(entity) — invoice content only.
+    ///
+    ///   2. Invoice + attachments PDF:
+    ///      GenerateWithAttachmentsAsync(entity, attachments)
+    ///      Appends attachments as pages after main invoice.
+    ///      Used by Statement PDF generator (future module).
+    ///
+    /// OUTPUT:
+    ///   PDF bytes returned as byte[] — caller decides to:
+    ///     • Save to disk (Save As dialog)
+    ///     • Open in default viewer (Process.Start)
+    ///     • Store in DB as attachment blob
+    ///
+    /// FILE NAMING:
+    ///   INV-2026-001.pdf
+    ///   INV-2026-001-A.pdf  (partial)
+    ///   INV-2026-001_WithAttachments.pdf
+    /// </summary>
+    public static class TaxInvoicePdfExporter
+    {
+        // ── Public API ────────────────────────────────────────────────────
+
+        /// <summary>
+        /// Generates a standard Tax Invoice PDF.
+        /// Returns PDF bytes. Caller saves/opens as needed.
+        /// Throws on error — wrap in try/catch at call site.
+        /// </summary>
+        public static Task<byte[]> GenerateAsync(SavedTaxInvoice entity)
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            return Task.Run(() => GenerateInvoicePdf(entity));
+        }
+
+        /// <summary>
+        /// Generates Tax Invoice PDF with attachments appended.
+        ///
+        /// ATTACHMENT APPEND ORDER:
+        ///   1. Main invoice content (always)
+        ///   2. SignedPI attachments (PDF files, in order)
+        ///   3. SignedDN attachments (PDF files, in order)
+        ///   4. Other attachments (PDF files, in order)
+        ///
+        /// FUTURE MODULE: Statement PDF generator calls this with
+        /// all attachments from TaxInvoiceRepository.GetAttachmentsAsync().
+        /// </summary>
+        public static Task<byte[]> GenerateWithAttachmentsAsync(
+            SavedTaxInvoice entity,
+            IEnumerable<Models.TaxInvoice.Attachment.TaxInvoiceAttachment>?
+                attachments)
+        {
+            if (entity == null)
+                throw new ArgumentNullException(nameof(entity));
+
+            return Task.Run(() =>
+            {
+                byte[] invoicePdf = GenerateInvoicePdf(entity);
+
+                var attachmentList = attachments?
+                    .Where(a => a.HasContent)
+                    .OrderBy(a => a.AttachmentType == "SignedPI" ? 0
+                               : a.AttachmentType == "SignedDN" ? 1 : 2)
+                    .ThenBy(a => a.UploadedAt)
+                    .ToList()
+                    ?? new();
+
+                if (attachmentList.Count == 0)
+                    return invoicePdf;
+
+                return AppendAttachments(invoicePdf, attachmentList);
+            });
+        }
+
+        /// <summary>
+        /// Saves the invoice PDF to disk and opens it in the default viewer.
+        /// Uses a temp file — deleted by OS on next boot.
+        /// </summary>
+        public static async Task SaveAndOpenAsync(SavedTaxInvoice entity)
+        {
+            byte[] pdf = await GenerateAsync(entity);
+
+            string fileName = BuildFileName(entity, withAttachments: false);
+            string tempPath = Path.Combine(Path.GetTempPath(), fileName);
+
+            await File.WriteAllBytesAsync(tempPath, pdf);
+
+            Process.Start(new ProcessStartInfo(tempPath)
+            {
+                UseShellExecute = true
+            });
+        }
+
+        /// <summary>
+        /// Saves the invoice + attachments PDF to a user-chosen path.
+        /// Returns the saved file path, or null if user cancelled.
+        /// </summary>
+        public static async Task<string?> SaveToFileAsync(
+            SavedTaxInvoice entity,
+            IEnumerable<Models.TaxInvoice.Attachment.TaxInvoiceAttachment>?
+                attachments = null)
+        {
+            var dialog = new Microsoft.Win32.SaveFileDialog
+            {
+                Title = "Save Tax Invoice PDF",
+                Filter = "PDF Files (*.pdf)|*.pdf",
+                FileName = BuildFileName(entity,
+                    withAttachments: attachments != null),
+                DefaultExt = ".pdf"
+            };
+
+            if (dialog.ShowDialog() != true) return null;
+
+            byte[] pdf = attachments != null
+                ? await GenerateWithAttachmentsAsync(entity, attachments)
+                : await GenerateAsync(entity);
+
+            await File.WriteAllBytesAsync(dialog.FileName, pdf);
+            return dialog.FileName;
+        }
+
+        // ── Private — core generation ─────────────────────────────────────
+
+        private static byte[] GenerateInvoicePdf(SavedTaxInvoice entity)
+        {
+            var snapshot = TaxInvoiceMapper.DeserializeSnapshot(entity);
+
+            if (snapshot == null)
+                throw new InvalidOperationException(
+                    $"Cannot generate PDF: invoice snapshot for " +
+                    $"'{entity.InvoiceNumber}' is missing or corrupted.");
+
+            var layout = new TaxInvoicePdfDocument(entity, snapshot);
+            var document = new PdfDocumentWrapper(layout);
+
+            return document.GeneratePdf();
+        }
+
+        // ── Private — attachment appending ────────────────────────────────
+
+        /// <summary>
+        /// Concatenates the invoice PDF with attachment PDFs.
+        ///
+        /// STRATEGY: QuestPDF does not natively merge PDFs.
+        /// For production: recommend adding PdfSharp NuGet package.
+        /// For now: returns invoice PDF only — attachments stored in DB
+        /// remain available for future PdfSharp-based merging.
+        /// </summary>
+        private static byte[] AppendAttachments(
+            byte[] invoicePdf,
+            List<Models.TaxInvoice.Attachment.TaxInvoiceAttachment> attachments)
+        {
+            // Future: iterate attachments with PdfSharp to merge:
+            // foreach (var attachment in attachments)
+            // {
+            //     if (attachment.MimeType == "application/pdf")
+            //         PdfSharpMerger.Append(ms, attachment.FileBytes);
+            //     else if (attachment.MimeType.StartsWith("image/"))
+            //         PdfSharpMerger.AppendImage(ms, attachment.FileBytes);
+            // }
+
+            // For now: invoice-only. Attachments stay in DB for Chat 15+.
+            using var ms = new MemoryStream();
+            ms.Write(invoicePdf, 0, invoicePdf.Length);
+            return ms.ToArray();
+        }
+
+        // ── Private — file naming ─────────────────────────────────────────
+
+        private static string BuildFileName(
+            SavedTaxInvoice entity, bool withAttachments)
+        {
+            string safe = entity.InvoiceNumber
+                .Replace("/", "-")
+                .Replace("\\", "-")
+                .Replace(":", "-");
+
+            return withAttachments
+                ? $"{safe}_WithAttachments.pdf"
+                : $"{safe}.pdf";
+        }
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    //  PDF DOCUMENT WRAPPER
+    //  Bridges IPdfLayout → QuestPDF IDocument.
+    //  Applies letterhead, page size, margins, page numbering.
+    // ════════════════════════════════════════════════════════════════════════
+
+    internal sealed class PdfDocumentWrapper : IDocument
+    {
+        private readonly Services.Export.Pdf.IPdfLayout _layout;
+
+        public PdfDocumentWrapper(Services.Export.Pdf.IPdfLayout layout)
+        {
+            _layout = layout;
+        }
+
+        public DocumentMetadata GetMetadata() => new()
+        {
+            Title = $"{_layout.DocumentTitle} — {_layout.DocumentId}",
+            Author = _layout.CompanyName,
+            Subject = $"{_layout.DocumentTitle} — {_layout.Reference}",
+            Keywords = "Tax Invoice UAE VAT Glass"
+        };
+
+        public DocumentSettings GetSettings() => new()
+        {
+            PdfA = false
+        };
+
+        public void Compose(IDocumentContainer container)
+        {
+            container.Page(page =>
+            {
+                page.Size(QuestPDF.Helpers.PageSizes.A4);
+                page.Margin(30);
+                page.DefaultTextStyle(x => x
+                    .FontFamily("Arial")
+                    .FontSize(10));
+
+                // ── Header (letterhead) ───────────────────────────────────
+                var lh = _layout.Letterhead;
+                if (lh != null)
+                {
+                    page.Header().Column(col =>
+                    {
+                        col.Item().Row(row =>
+                        {
+                            row.RelativeItem().Column(left =>
+                            {
+                                left.Item()
+                                    .Text(lh.CompanyName)
+                                    .FontSize(18).Bold()
+                                    .FontColor("#4338CA");
+
+                                if (!string.IsNullOrWhiteSpace(lh.CompanyLocation))
+                                    left.Item()
+                                        .Text(lh.CompanyLocation)
+                                        .FontSize(9).FontColor("#475569");
+
+                                if (!string.IsNullOrWhiteSpace(lh.CompanyTrn))
+                                    left.Item()
+                                        .Text($"TRN: {lh.CompanyTrn}")
+                                        .FontSize(9).FontColor("#475569");
+                            });
+
+                            row.ConstantItem(20);
+
+                            row.AutoItem().AlignRight().Column(right =>
+                            {
+                                right.Item()
+                                    .Text(lh.DocumentTitle)
+                                    .FontSize(14).Bold()
+                                    .FontColor("#0F172A");
+
+                                right.Item()
+                                    .Text(lh.DocumentId)
+                                    .FontSize(11).SemiBold()
+                                    .FontColor("#4338CA");
+                            });
+                        });
+
+                        col.Item().PaddingTop(4)
+                            .LineHorizontal(2).LineColor("#4338CA");
+                    });
+                }
+
+                // ── Content ───────────────────────────────────────────────
+                page.Content().PaddingTop(12).Column(col =>
+                {
+                    _layout.RenderContent(col);
+                });
+
+                // ── Footer (page numbers) ─────────────────────────────────
+                page.Footer().AlignCenter().Text(text =>
+                {
+                    text.Span("Page ").FontSize(8).FontColor("#475569");
+                    text.CurrentPageNumber().FontSize(8).FontColor("#475569");
+                    text.Span(" of ").FontSize(8).FontColor("#475569");
+                    text.TotalPages().FontSize(8).FontColor("#475569");
+                });
+            });
+        }
+    }
+}

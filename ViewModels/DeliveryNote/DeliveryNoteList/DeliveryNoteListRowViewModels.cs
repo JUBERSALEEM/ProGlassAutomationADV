@@ -11,10 +11,14 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
     // ═════════════════════════════════════════════════════════════════════
     //  DN ROW VIEWMODEL — one per Delivery Note in the list
     //
-    //  BUG-37: StatusMeta and TypeMeta now resolved via using directives
-    //          at the top of this file — no more fragile full namespace
-    //          path inline in constructor.
-    //  BUG-38: Extracted from DeliveryNoteListViewModel.cs (was 487 lines).
+    //  BUG-37: StatusMeta and TypeMeta resolved via using directives.
+    //  BUG-38: Extracted from DeliveryNoteListViewModel.cs.
+    //
+    //  CHAT 14 CHANGES:
+    //    • CanGenerateInvoice now includes "Dispatched" status.
+    //      Real business: dispatched DNs can be invoiced immediately —
+    //      the invoice goes with the goods to the customer.
+    //      Old rule (Delivered/Signed/Received only) was too strict.
     // ═════════════════════════════════════════════════════════════════════
 
     public class DeliveryNoteRowViewModel : ViewModelBase
@@ -84,7 +88,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             DeliveryTime = e.DeliveryTime;
             CreatedAt = e.CreatedAt;
 
-            // BUG-37: resolved via using directive — no full namespace path
+            // BUG-37: resolved via using directive
             var statusInfo = DeliveryNoteStatusMeta.Get(Status);
             StatusLabel = $"{statusInfo.Icon} {statusInfo.DisplayName}";
             StatusBrushKey = statusInfo.BrushKey;
@@ -101,7 +105,14 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 DeliveryType, "Dummy",
                 StringComparison.OrdinalIgnoreCase);
 
+            // CHAT 14 FIX: Dispatched is also invoice-eligible.
+            // Business reality: once goods are dispatched, they're on
+            // the truck to the customer — invoice is prepared and travels
+            // with them. Waiting for "Delivered" confirmation before allowing
+            // invoicing is impractical for UAE glass business.
             CanGenerateInvoice =
+                string.Equals(Status, "Dispatched",
+                    StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(Status, "Delivered",
                     StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(Status, "Signed",
@@ -158,6 +169,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
     //  Ship 8c-2 SQM:
     //    Sourced from repository batch cache (JobOrderSqmSummary).
     //    Graceful fallback to 0 if JO not in cache.
+    //
+    //  CHAT 14 CHANGES:
+    //    • Added AnyDelivered — used by Master Invoice CanExecute.
+    //      Real business: partial delivery = partial invoice allowed.
+    //      AllDelivered kept for status label ("Completed" vs "In Progress").
+    //    • AnyDelivered treats Dispatched as eligible too (see row VM comment).
     // ═════════════════════════════════════════════════════════════════════
 
     public class JobOrderGroupRowViewModel
@@ -183,7 +200,22 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public string QtySummaryDisplay { get; }
         public string SqmSummaryDisplay { get; }
 
+        /// <summary>
+        /// True when ALL splits are Delivered/Signed/Received.
+        /// Used for status label + green highlight.
+        /// NOT used for Master Invoice CanExecute (see AnyDelivered).
+        /// </summary>
         public bool AllDelivered { get; }
+
+        /// <summary>
+        /// CHAT 14: True when AT LEAST ONE split is
+        /// Dispatched/Delivered/Signed/Received.
+        /// Used by Master Invoice button CanExecute.
+        /// Real UAE business: partial invoicing is standard practice —
+        /// customer wants invoice as soon as first shipment goes out.
+        /// </summary>
+        public bool AnyDelivered { get; }
+
         public string StatusLabel { get; }
         public double ProgressPercent { get; }
         public string ProgressDisplay { get; }
@@ -275,7 +307,21 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 $"{TotalDeliveredSqm:0.000} del  ·  " +
                 $"{TotalBalanceSqm:0.000} bal";
 
+            // AllDelivered = every single split is done
             AllDelivered = family.All(x =>
+                string.Equals(x.Status, "Delivered",
+                    StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(x.Status, "Signed",
+                    StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(x.Status, "Received",
+                    StringComparison.OrdinalIgnoreCase));
+
+            // CHAT 14: AnyDelivered = at least one split is in the pipeline
+            // (Dispatched or later). Enables Master Invoice button for
+            // partial invoicing — standard UAE business practice.
+            AnyDelivered = family.Any(x =>
+                string.Equals(x.Status, "Dispatched",
+                    StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(x.Status, "Delivered",
                     StringComparison.OrdinalIgnoreCase) ||
                 string.Equals(x.Status, "Signed",

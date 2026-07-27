@@ -27,6 +27,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
     /// BUG-37: Using directive added — no more fragile full namespace path.
     /// BUG-38: Row ViewModels split to DeliveryNoteListRowViewModels.cs.
     /// BUG-39: Tab count badges use dedicated grouped count properties.
+    ///
+    /// CHAT 14 CHANGES:
+    ///   • Added OnRequestOpenTaxInvoiceForProforma callback (bubbles to shell VM)
+    ///   • GenerateMasterInvoiceCommand now fires callback with group.ProformaId
+    ///     (was placeholder MessageBox — now real navigation to Tax Invoice module)
+    ///   • GenerateInvoiceCommand (per-row) also fires callback with row.ProformaId
+    ///   • CanExecute checks: must have ProformaId AND row/group must be delivered
     /// </summary>
     public class DeliveryNoteListViewModel : ViewModelBase
     {
@@ -34,6 +41,15 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
         public Action<int>? OnDeliveryNoteOpenRequested { get; set; }
         public Action<SavedJobOrder>? OnCreateDnFromJobOrder { get; set; }
+
+        /// <summary>
+        /// Chat 14 — fires when user clicks "Master Invoice" on a JO group row
+        /// OR "Generate Invoice" on a single DN row.
+        /// Argument = ProformaId (e.g. "PI-2026-001").
+        /// Shell VM (DeliveryNoteViewModel) subscribes and relays to MainViewModel,
+        /// which switches to Tax Invoice module and creates/opens invoice for that PI.
+        /// </summary>
+        public Func<string, Task>? OnRequestOpenTaxInvoiceForProforma { get; set; }
 
         // ══════════════════════════════════════════════════════════════════
         //  SELECTION
@@ -446,9 +462,23 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public ICommand DeleteCommand { get; }
         public ICommand ChangeStatusCommand { get; }
         public ICommand CreateDnCommand { get; }
+
+        /// <summary>
+        /// Chat 14 — per-row invoice generation from single DN.
+        /// Fires OnRequestOpenTaxInvoiceForProforma with row.ProformaId.
+        /// CanExecute: row must be Delivered/Signed/Received AND have ProformaId.
+        /// </summary>
         public ICommand GenerateInvoiceCommand { get; }
+
         public ICommand OpenGroupCommand { get; }
+
+        /// <summary>
+        /// Chat 14 — Master invoice from grouped JO row (all splits at once).
+        /// Fires OnRequestOpenTaxInvoiceForProforma with group.ProformaId.
+        /// CanExecute: ALL splits delivered AND group has ProformaId.
+        /// </summary>
         public ICommand GenerateMasterInvoiceCommand { get; }
+
         public ICommand SelectRowCommand2 { get; }
 
         // ══════════════════════════════════════════════════════════════════
@@ -494,18 +524,23 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             CreateDnCommand = new RelayCommand(
                 async _ => await OpenJobOrderPickerAsync());
 
-            GenerateInvoiceCommand = new RelayCommand(param =>
-            {
-                if (param is DeliveryNoteRowViewModel row)
+            // ═══════════════════════════════════════════════════════════════
+            //  CHAT 14 — GenerateInvoiceCommand (per-row)
+            //  Fires OnRequestOpenTaxInvoiceForProforma callback with row's PI.
+            //  Replaces the old placeholder MessageBox.
+            //  Fully wired to Tax Invoice module via shell VM → MainViewModel.
+            // ═══════════════════════════════════════════════════════════════
+            GenerateInvoiceCommand = new RelayCommand(
+                execute: async param =>
                 {
-                    MessageBox.Show(
-                        $"Tax Invoice generation for '{row.DeliveryNoteId}'\n\n" +
-                        "This feature is coming in Phase 19 — Tax Invoice module.",
-                        "Coming in Phase 19",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
-                }
-            });
+                    if (param is not DeliveryNoteRowViewModel row) return;
+                    await FireTaxInvoiceRequestAsync(
+                        row.ProformaId, row.DeliveryNoteId);
+                },
+                canExecute: param =>
+                    param is DeliveryNoteRowViewModel r
+                    && r.CanGenerateInvoice
+                    && !string.IsNullOrWhiteSpace(r.ProformaId));
 
             OpenGroupCommand = new RelayCommand(param =>
             {
@@ -513,31 +548,92 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                     OnDeliveryNoteOpenRequested?.Invoke(group.LatestDnDbId);
             });
 
-            // BUG-36: canExecute re-evaluates via CommandManager
+            // ═══════════════════════════════════════════════════════════════
+            //  CHAT 14 — GenerateMasterInvoiceCommand (per-JO group)
+            //  Fires OnRequestOpenTaxInvoiceForProforma callback with group's PI.
+            //  CanExecute: at least ONE split is Dispatched/Delivered/Signed/Received
+            //  AND group has valid PI.
+            //
+            //  REAL BUSINESS RULE: partial invoicing is standard in UAE glass.
+            //  Even a single dispatched shipment justifies an invoice.
+            //  Waiting for 100% delivery is impractical.
+            // ═══════════════════════════════════════════════════════════════
             GenerateMasterInvoiceCommand = new RelayCommand(
-                execute: param =>
+                execute: async param =>
                 {
-                    if (param is JobOrderGroupRowViewModel group)
-                    {
-                        MessageBox.Show(
-                            $"Master Tax Invoice for '{group.JobOrderId}'\n\n" +
-                            $"Splits         : {group.DnCount} DNs\n" +
-                            $"Total ordered  : {group.TotalOrdered} pcs\n" +
-                            $"Total delivered: {group.TotalDelivered} pcs\n" +
-                            $"Balance        : {group.TotalBalance} pcs\n\n" +
-                            $"Ordered SQM    : {group.TotalOrderedSqm:0.000}\n" +
-                            $"Delivered SQM  : {group.TotalDeliveredSqm:0.000}\n" +
-                            $"Balance SQM    : {group.TotalBalanceSqm:0.000}\n\n" +
-                            "Tax Invoice module coming in Phase 19.",
-                            "Master Tax Invoice — Coming in Phase 19",
-                            MessageBoxButton.OK,
-                            MessageBoxImage.Information);
-                    }
+                    if (param is not JobOrderGroupRowViewModel group) return;
+                    await FireTaxInvoiceRequestAsync(
+                        group.ProformaId, group.JobOrderId);
                 },
                 canExecute: param =>
-                    param is JobOrderGroupRowViewModel g && g.AllDelivered);
+                    param is JobOrderGroupRowViewModel g
+                    && g.AnyDelivered
+                    && !string.IsNullOrWhiteSpace(g.ProformaId));
 
             _ = LoadAsync();
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  CHAT 14 — TAX INVOICE REQUEST HELPER
+        //  Single point of truth for firing OnRequestOpenTaxInvoiceForProforma.
+        //  Validates PI presence, wiring, shows confirmation dialog.
+        //  Called by both GenerateInvoiceCommand (row) and
+        //  GenerateMasterInvoiceCommand (JO group).
+        // ══════════════════════════════════════════════════════════════════
+
+        private async Task FireTaxInvoiceRequestAsync(
+            string? proformaId,
+            string sourceRef)
+        {
+            if (string.IsNullOrWhiteSpace(proformaId))
+            {
+                MessageBox.Show(
+                    "Cannot create Tax Invoice — no Proforma Invoice reference.\n\n" +
+                    $"Source: {sourceRef}\n\n" +
+                    "This DN/JO has no linked PI. Ensure the parent Job Order\n" +
+                    "was created from a Proforma Invoice.",
+                    "No PI Reference",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            if (OnRequestOpenTaxInvoiceForProforma == null)
+            {
+                MessageBox.Show(
+                    "Tax Invoice navigation is not wired up.\n\n" +
+                    "This is a configuration error — please restart the app.",
+                    "Not Wired",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return;
+            }
+
+            var confirm = MessageBox.Show(
+                $"Create Tax Invoice for this order?\n\n" +
+                $"Source : {sourceRef}\n" +
+                $"PI     : {proformaId}\n\n" +
+                "You will be taken to the Tax Invoice module.\n" +
+                "If a Draft invoice already exists for this PI,\n" +
+                "you'll be given the choice to open it or create new.",
+                "Create Tax Invoice",
+                MessageBoxButton.OKCancel,
+                MessageBoxImage.Question);
+
+            if (confirm != MessageBoxResult.OK) return;
+
+            try
+            {
+                await OnRequestOpenTaxInvoiceForProforma(proformaId);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Failed to open Tax Invoice:\n\n{ex.Message}",
+                    "Navigation Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
         }
 
         // ══════════════════════════════════════════════════════════════════

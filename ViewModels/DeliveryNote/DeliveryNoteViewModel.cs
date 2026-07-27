@@ -15,11 +15,17 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
     /// <summary>
     /// Shell ViewModel for the Delivery Note module.
     ///
-    /// BUG-29: CreateDnFromJobOrderAsync was async void — changed to
-    ///         async Task called via SafeFireAsync wrapper.
-    /// BUG-30: LoadDetailAsync + ReturnToList were async void — same fix.
-    /// BUG-31: ListVM.LoadAsync() fire-and-forget now wrapped in try/catch.
-    /// BUG-32: Shared static JsonSerializerOptions — no per-call allocation.
+    /// CHAT 14 CROSS-MODULE INTEGRATION:
+    ///   Two distinct callbacks bubble up to MainViewModel for Tax Invoice
+    ///   creation — each with different semantics:
+    ///
+    ///   1. OnRequestOpenTaxInvoiceForDeliveryNote (dnId)
+    ///      Fired by: DN Detail "Convert to Tax Invoice" button
+    ///      Purpose: Invoice ONLY that specific DN's delivered qty
+    ///
+    ///   2. OnRequestOpenTaxInvoiceForMasterFromProforma (proformaId)
+    ///      Fired by: DN List "Master Invoice" button on JO group row
+    ///      Purpose: Invoice ALL delivered qty across ALL sibling DNs
     /// </summary>
     public class DeliveryNoteViewModel : ViewModelBase
     {
@@ -29,6 +35,21 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
 
         public DeliveryNoteListViewModel ListVM { get; }
         public DeliveryNoteDetailViewModel DetailVM { get; }
+
+        // ── Cross-module callbacks (Chat 14) ──────────────────────────────
+
+        /// <summary>
+        /// Fired from DN Detail "Convert to Tax Invoice".
+        /// Argument = DN ID. Result: single-DN-scoped invoice.
+        /// </summary>
+        public Func<string, Task>? OnRequestOpenTaxInvoiceForDeliveryNote { get; set; }
+
+        /// <summary>
+        /// Fired from DN List "Master Invoice" on JO group row.
+        /// Argument = ProformaId. Result: aggregated invoice across all
+        /// sibling DNs (Master invoice covering all delivered pieces).
+        /// </summary>
+        public Func<string, Task>? OnRequestOpenTaxInvoiceForMasterFromProforma { get; set; }
 
         private bool _isListView = true;
         public bool IsListView
@@ -47,7 +68,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
 
         public ICommand BackToListCommand { get; }
 
-        // BUG-32: shared static options — allocated once, reused everywhere
         private static readonly JsonSerializerOptions _jsonOptions = new()
         {
             WriteIndented = false,
@@ -68,15 +88,115 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             ListVM.OnCreateDnFromJobOrder = jo => SafeFireAsync(
                 () => CreateDnFromJobOrderAsync(jo));
 
+            // Chat 14: DN List Master Invoice → PI-scoped aggregation
+            ListVM.OnRequestOpenTaxInvoiceForProforma = async piId =>
+            {
+                try
+                {
+                    await RelayMasterInvoiceRequestAsync(piId);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        $"Failed to open Master Invoice:\n\n{ex.Message}",
+                        "Navigation Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+            };
+
             DetailVM.OnRequestBackToList = () => SafeFireAsync(ReturnToList);
+
+            // Chat 14: DN Detail Convert → single-DN-scoped invoice
+            DetailVM.OnRequestOpenTaxInvoiceForDeliveryNote = async dnId =>
+            {
+                try
+                {
+                    await RelayConvertDnRequestAsync(dnId);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(
+                        $"Failed to convert DN to Tax Invoice:\n\n{ex.Message}",
+                        "Navigation Error",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                }
+            };
 
             BackToListCommand = new RelayCommand(
                 _ => SafeFireAsync(ReturnToList));
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  SAFE ASYNC FIRE — wraps async Task to prevent unhandled exceptions
-        //  BUG-29 / BUG-30: replaces all async void methods
+        //  CHAT 14 — TAX INVOICE RELAYS
+        // ═════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Relay for "Master Invoice" button on DN List JO group row.
+        /// Bubbles ProformaId up to MainViewModel which triggers
+        /// TaxInvoiceVM.CreateFromProformaAsync (aggregates all sibling DNs).
+        /// </summary>
+        private async Task RelayMasterInvoiceRequestAsync(string proformaId)
+        {
+            if (string.IsNullOrWhiteSpace(proformaId))
+            {
+                MessageBox.Show(
+                    "Cannot create Master Invoice — no Proforma Invoice reference.\n\n" +
+                    "This JO has no linked PI.",
+                    "No PI Reference",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            if (OnRequestOpenTaxInvoiceForMasterFromProforma == null)
+            {
+                MessageBox.Show(
+                    "Tax Invoice navigation is not wired up.\n\n" +
+                    "This is a configuration error — please restart the app.",
+                    "Not Wired",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return;
+            }
+
+            await OnRequestOpenTaxInvoiceForMasterFromProforma(proformaId);
+        }
+
+        /// <summary>
+        /// Relay for "Convert to Tax Invoice" button on DN Detail history row.
+        /// Bubbles DN ID up to MainViewModel which triggers
+        /// TaxInvoiceVM.CreateFromDeliveryNoteAsync (single-DN-scoped).
+        /// </summary>
+        private async Task RelayConvertDnRequestAsync(string deliveryNoteId)
+        {
+            if (string.IsNullOrWhiteSpace(deliveryNoteId))
+            {
+                MessageBox.Show(
+                    "Cannot convert to Tax Invoice — no DN reference.",
+                    "No DN Reference",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            if (OnRequestOpenTaxInvoiceForDeliveryNote == null)
+            {
+                MessageBox.Show(
+                    "Tax Invoice navigation is not wired up.\n\n" +
+                    "This is a configuration error — please restart the app.",
+                    "Not Wired",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return;
+            }
+
+            await OnRequestOpenTaxInvoiceForDeliveryNote(deliveryNoteId);
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  SAFE ASYNC FIRE
         // ═════════════════════════════════════════════════════════════════
 
         private static async void SafeFireAsync(Func<Task> action)
@@ -111,20 +231,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             await SafeLoadListAsync();
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        //  PUBLIC — cross-module entry point (called by MainViewModel)
-        // ═════════════════════════════════════════════════════════════════
-
         public async Task OpenDeliveryNoteAsync(int deliveryNoteId)
         {
             await DetailVM.LoadAsync(deliveryNoteId);
             IsListView = false;
             await SafeLoadListAsync();
         }
-
-        // ═════════════════════════════════════════════════════════════════
-        //  SAFE LIST RELOAD — BUG-31: fire-and-forget with error swallow
-        // ═════════════════════════════════════════════════════════════════
 
         private async Task SafeLoadListAsync()
         {
@@ -141,7 +253,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
 
         // ═════════════════════════════════════════════════════════════════
         //  CREATE DN FROM JO PICKER
-        //  BUG-29: was async void — now async Task called via SafeFireAsync
         // ═════════════════════════════════════════════════════════════════
 
         private async Task CreateDnFromJobOrderAsync(SavedJobOrder jobOrder)
@@ -150,7 +261,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
 
             try
             {
-                // ── Step 1: Check for existing Draft DNs ──────────────────
                 var existingDns = await App.DeliveryNotes
                     .GetByJobOrderIdAsync(jobOrder.JobOrderId);
 
@@ -186,7 +296,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                     }
                 }
 
-                // ── Step 2: Deserialize JO snapshot ───────────────────────
                 JobOrderSnapshot? joSnapshot = null;
 
                 if (!string.IsNullOrWhiteSpace(jobOrder.FullSnapshotJson)
@@ -194,7 +303,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                 {
                     try
                     {
-                        // BUG-32: use shared static options
                         joSnapshot = JsonSerializer.Deserialize<JobOrderSnapshot>(
                             jobOrder.FullSnapshotJson, _jsonOptions);
                     }
@@ -216,7 +324,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                     return;
                 }
 
-                // ── Step 3: Get next sequence + build DN ID ───────────────
                 int nextSeq = await App.DeliveryNotes
                     .GetNextSequenceAsync(jobOrder.JobOrderId);
 
@@ -237,11 +344,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                     return;
                 }
 
-                // ── Step 4: Create DN entity from JO + snapshot ───────────
                 var dnEntity = DeliveryNoteMapper.FromJobOrder(
                     jobOrder, joSnapshot, dnId, nextSeq);
 
-                // ── Step 5: Insert + open detail ──────────────────────────
                 var saved = await App.DeliveryNotes.InsertAsync(dnEntity);
 
                 await DetailVM.LoadAsync(saved.Id);

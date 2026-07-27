@@ -139,13 +139,35 @@ namespace ProGlassAutomation.ViewModels
             };
 
             // ── Phase 10.5: Wire JO → DN navigation ───────────────────────
-            // When user clicks "Create Delivery Note" on a Job Order,
-            // navigate to DN module and open the new DN in detail view.
             JobOrderVM.OnRequestOpenDeliveryNote = async dnId =>
             {
                 Navigate("DeliveryNote");
                 await DeliveryNoteVM.OpenDeliveryNoteAsync(dnId);
             };
+
+            // ══════════════════════════════════════════════════════════════
+            //  CHAT 14 — DN → Tax Invoice navigation (TWO distinct paths)
+            // ══════════════════════════════════════════════════════════════
+
+            // Path 1: DN List "Master Invoice" on JO group row
+            //   → aggregates delivered qty across ALL sibling DNs
+            //   → creates Master Invoice covering all delivered pieces
+            DeliveryNoteVM.OnRequestOpenTaxInvoiceForMasterFromProforma =
+                async proformaId =>
+                {
+                    Navigate("TaxInvoice");
+                    await TaxInvoiceVM.CreateFromProformaAsync(proformaId);
+                };
+
+            // Path 2: DN Detail "Convert to Tax Invoice" on history entry
+            //   → uses ONLY that specific DN's delivered qty
+            //   → creates Partial Invoice with just that DN's rows
+            DeliveryNoteVM.OnRequestOpenTaxInvoiceForDeliveryNote =
+                async deliveryNoteId =>
+                {
+                    Navigate("TaxInvoice");
+                    await TaxInvoiceVM.CreateFromDeliveryNoteAsync(deliveryNoteId);
+                };
 
             // ── commands ──────────────────────────────────────────────────
             ToggleMenuCommand = new RelayCommand(_ =>

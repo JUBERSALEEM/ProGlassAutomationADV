@@ -1,6 +1,79 @@
 ﻿<UserControl x:Class="ProGlassAutomation.Views.TaxInvoice.TaxInvoiceView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:shared="clr-namespace:ProGlassAutomation.Views.Shared">
-    <shared:ComingSoonView/>
+             xmlns:list="clr-namespace:ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList"
+             xmlns:detail="clr-namespace:ProGlassAutomation.Views.TaxInvoice.TaxInvoiceDetail"
+             xmlns:detailVm="clr-namespace:ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail"
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <!--
+            DataTemplate: when Content = TaxInvoiceDetailViewModel,
+            WPF renders TaxInvoiceDetailView with DataContext set automatically.
+            Instantiated LAZILY — only when DetailVM becomes non-null.
+            Same pattern as DeliveryNoteView.xaml.
+        -->
+        <DataTemplate DataType="{x:Type detailVm:TaxInvoiceDetailViewModel}">
+            <detail:TaxInvoiceDetailView/>
+        </DataTemplate>
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+
+        <!-- ══ LIST VIEW ════════════════════════════════════════════════
+             Shown when IsListView = True.
+             DataContext explicitly set to ListVM (always non-null).
+             DataTrigger walks to parent UserControl for IsListView.
+        ═══════════════════════════════════════════════════════════════ -->
+        <list:TaxInvoiceListView DataContext="{Binding ListVM}">
+            <list:TaxInvoiceListView.Style>
+                <Style TargetType="list:TaxInvoiceListView">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger
+                            Binding="{Binding DataContext.IsListView,
+                                      RelativeSource={RelativeSource
+                                          AncestorType=UserControl}}"
+                            Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </list:TaxInvoiceListView.Style>
+        </list:TaxInvoiceListView>
+
+        <!-- ══ DETAIL VIEW ═══════════════════════════════════════════════
+             ContentControl pattern — identical to DeliveryNoteView.xaml.
+
+             HOW IT WORKS:
+               Content="{Binding DetailVM}" watches DetailVM on shell VM.
+               When DetailVM null  → ContentControl renders nothing.
+               When DetailVM set   → WPF finds DataTemplate above and
+                                     instantiates TaxInvoiceDetailView
+                                     with DataContext = DetailVM auto.
+
+             WHY NOT direct UserControl:
+               Direct UC created at XAML parse time with null DataContext.
+               ContentControl re-evaluates Content binding on every change.
+        ═══════════════════════════════════════════════════════════════ -->
+        <ContentControl Content="{Binding DetailVM}">
+            <ContentControl.Style>
+                <Style TargetType="ContentControl">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsDetailView}"
+                                     Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </ContentControl.Style>
+        </ContentControl>
+
+    </Grid>
 </UserControl>

@@ -8,6 +8,7 @@ using ProGlassAutomation.Services.JobOrder.Repository;
 using ProGlassAutomation.Services.MasterData.Repository;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
+using ProGlassAutomation.Services.TaxInvoice.Repository;
 using ProGlassAutomation.Views.Splash;
 using System;
 using System.Threading.Tasks;
@@ -17,7 +18,8 @@ namespace ProGlassAutomation
 {
     public partial class App : Application
     {
-        // Global service instances (simple service locator pattern)
+        // ── Global service instances (simple service locator pattern) ─────
+
         public static AppConfig Config { get; private set; }
         public static IAiService Ai { get; private set; }
         public static IConnectivityService Connectivity { get; private set; }
@@ -28,14 +30,21 @@ namespace ProGlassAutomation
         // Proforma Invoice — saved invoices (separate SQLite: proformainvoices.db)
         public static IProformaInvoiceRepository Invoices { get; private set; }
 
-        // Job Order — saved job orders (separate SQLite: joborders.db) — Phase 9
+        // Job Order — saved job orders (separate SQLite: joborders.db)
         public static IJobOrderRepository Jobs { get; private set; }
 
-        // Delivery Notes — saved delivery notes (separate SQLite: deliverynotes.db) — Phase 10
+        // Delivery Notes — saved delivery notes (separate SQLite: deliverynotes.db)
         public static IDeliveryNoteRepository DeliveryNotes { get; private set; }
 
-        // Master Data — companies, clients, projects, salesmen (separate SQLite: masterdata.db) — Phase 14
+        // Master Data — companies, clients, projects, salesmen (separate SQLite: masterdata.db)
         public static IMasterDataRepository MasterData { get; private set; }
+
+        /// <summary>
+        /// Tax Invoices — saved tax invoices (separate SQLite: taxinvoices.db)
+        /// Added in Chat 14 (Tax Invoice module).
+        /// Initialized after DeliveryNotes in Application_Startup.
+        /// </summary>
+        public static ITaxInvoiceRepository TaxInvoices { get; private set; }
 
         private async void Application_Startup(object sender, StartupEventArgs e)
         {
@@ -46,7 +55,8 @@ namespace ProGlassAutomation
             // ══════════════════════════════════════════════════════════════
             DispatcherUnhandledException += (s, args) =>
             {
-                string msg = $"UNHANDLED EXCEPTION:\n\n" +
+                string msg =
+                    $"UNHANDLED EXCEPTION:\n\n" +
                     $"Type: {args.Exception.GetType().Name}\n" +
                     $"Message: {args.Exception.Message}";
 
@@ -54,7 +64,8 @@ namespace ProGlassAutomation
                     msg += $"\n\nInner: {args.Exception.InnerException.Message}";
 
                 string stack = args.Exception.StackTrace ?? "";
-                if (stack.Length > 600) stack = stack.Substring(0, 600) + "...";
+                if (stack.Length > 600)
+                    stack = stack.Substring(0, 600) + "...";
                 msg += $"\n\nStack:\n{stack}";
 
                 MessageBox.Show(msg, "App Crash — Debug",
@@ -76,34 +87,40 @@ namespace ProGlassAutomation
             Invoices = new ProformaInvoiceRepository();
             await Invoices.InitializeAsync();
 
-            // 5) Phase 9 — Initialize Job Orders database (joborders.db)
+            // 5) Initialize Job Orders database (joborders.db)
             Jobs = new JobOrderRepository();
             await Jobs.InitializeAsync();
 
-            // 6) Phase 10 — Initialize Delivery Notes database (deliverynotes.db)
+            // 6) Initialize Delivery Notes database (deliverynotes.db)
             DeliveryNotes = new DeliveryNoteRepository();
             await DeliveryNotes.InitializeAsync();
 
-            // 7) Phase 14 — Initialize Master Data database (masterdata.db)
+            // 7) Initialize Master Data database (masterdata.db)
             //    Companies, Clients, Projects, Salesmen — auto-populated
             //    from Proforma Invoice saves. Powers card auto-fill and
             //    salesman dropdown across the app.
             MasterData = new MasterDataRepository();
             await MasterData.InitializeAsync();
 
-            // 8) Initialize AI + Connectivity services
+            // 8) Initialize Tax Invoices database (taxinvoices.db)
+            //    Chat 14 — Tax Invoice module.
+            //    Initialized after DeliveryNotes (Tax Invoices reference DNs).
+            TaxInvoices = new TaxInvoiceRepository();
+            await TaxInvoices.InitializeAsync();
+
+            // 9) Initialize AI + Connectivity services
             Ai = new GeminiAiService(Config.Ai);
             Connectivity = new ConnectivityService();
             Connectivity.StartMonitoring();
 
-            // 9) Show splash
+            // 10) Show splash
             var splash = new SplashView();
             splash.Show();
 
-            // 10) Loading time for splash animations
+            // 11) Loading time for splash animations
             await Task.Delay(2800);
 
-            // 11) Create main window (not shown yet)
+            // 12) Create main window (not shown yet)
             var mainWindow = new MainWindow();
 
             // ══════════════════════════════════════════════════════════════

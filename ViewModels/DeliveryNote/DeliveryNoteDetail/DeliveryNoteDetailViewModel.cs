@@ -27,19 +27,40 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
     /// <summary>
     /// ViewModel for the Delivery Note detail view.
     ///
-    /// BUG-40: ConfirmDispatchAsync race condition fixed — IsSaving
-    ///         managed in one place, SaveAsync called without double-set.
+    /// BUG-40: ConfirmDispatchAsync race condition fixed.
     /// BUG-41: TotalOrderedQty now updated in SaveAsync.
     /// BUG-42: Event handler leak fixed — unsubscribe before re-subscribe.
     /// BUG-43: HealItemPrevQtyAsync order dependency safe and documented.
     /// BUG-44: DeleteDnAsync reloads fresh attachments before file delete.
     /// BUG-45: EnsureLoaded handles null snapshot gracefully.
     /// BUG-46: SelectedDnHeaderText shows selected DN attachment count.
+    ///
+    /// CHAT 14 CHANGE:
+    ///   Callback OnRequestOpenTaxInvoiceForProforma REMOVED.
+    ///   Replaced with OnRequestOpenTaxInvoiceForDeliveryNote.
+    ///
+    ///   Reason: Convert-to-Tax-Invoice must invoice ONLY the specific DN's
+    ///   delivered qty, not the full PI. So we pass DN ID, not PI ID.
+    ///   Shell VM + MainViewModel route this to
+    ///   TaxInvoiceVM.CreateFromDeliveryNoteAsync(dnId) which imports
+    ///   only rows with DeliveredQty > 0 from that specific DN.
     /// </summary>
     public class DeliveryNoteDetailViewModel : ViewModelBase
     {
         // ── callbacks ──────────────────────────────────────────────────────
         public Action? OnRequestBackToList { get; set; }
+
+        /// <summary>
+        /// Chat 14 — fires when user clicks "Convert to Tax Invoice" on a
+        /// history entry (or the current DN itself).
+        /// Argument = DeliveryNoteId of the target DN.
+        ///
+        /// Result: Tax Invoice will be created with ONLY that DN's delivered
+        /// qty (not full PI qty, not aggregated across sibling DNs).
+        ///
+        /// Bubbles up: DetailVM → shell VM → MainViewModel → TaxInvoiceVM.
+        /// </summary>
+        public Func<string, Task>? OnRequestOpenTaxInvoiceForDeliveryNote { get; set; }
 
         // ── loaded entity + snapshot ──────────────────────────────────────
         private SavedDeliveryNote? _entity;
@@ -837,7 +858,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     item.Notes = row.Notes;
                 }
 
-                // BUG-41: update ALL totals including TotalOrderedQty
                 _entity.TotalOrderedQty = _entity.Items.Sum(i => i.OrderedQty);
                 _entity.TotalDeliveredQty = _entity.Items.Sum(i => i.DeliveredQty);
                 _entity.TotalBalanceQty = _entity.Items.Sum(i => i.BalanceQty);
@@ -872,11 +892,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         // ═════════════════════════════════════════════════════════════════
         //  MAKE DN (dispatch)
-        //  BUG-40: IsSaving managed in one place — SaveAsync handles its
-        //          own IsSaving internally. ConfirmDispatchAsync does NOT
-        //          set IsSaving = true before calling SaveAsync to avoid
-        //          the race condition where SaveAsync finally block sets
-        //          IsSaving = false mid-dispatch.
         // ═════════════════════════════════════════════════════════════════
 
         private async Task ConfirmDispatchAsync()
@@ -907,12 +922,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
             try
             {
-                // BUG-40: set IsSaving here in the outer method only
-                // SaveAsync will NOT double-set it — we call inner logic
                 IsSaving = true;
 
-                // Update status then call inner save logic directly
-                // to avoid double IsSaving management
                 Status = "Dispatched";
 
                 _entity.Status = Status;
@@ -995,7 +1006,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         // ═════════════════════════════════════════════════════════════════
         //  DELETE DN
-        //  BUG-44: reload fresh attachments from DB before deleting files
         // ═════════════════════════════════════════════════════════════════
 
         private async Task DeleteDnAsync()
@@ -1019,8 +1029,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             {
                 IsSaving = true;
 
-                // BUG-44: reload fresh attachments from DB
-                // UpdateAsync clears entity.Attachments — reload before delete
                 var freshAttachments = await App.DeliveryNotes
                     .GetAttachmentsAsync(_entity.DeliveryNoteId);
 
@@ -1055,46 +1063,123 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  TAX INVOICE (Placeholder)
+        //  TAX INVOICE — Chat 14 real wiring (DN-specific)
+        //  Fires OnRequestOpenTaxInvoiceForDeliveryNote callback which
+        //  carries the DN ID up through the shell VM → MainViewModel →
+        //  TaxInvoiceVM.CreateFromDeliveryNoteAsync(dnId).
+        //  Result: Tax Invoice contains ONLY this DN's delivered qty.
         // ═════════════════════════════════════════════════════════════════
 
         private bool CanConvertToTaxInvoice(DnHistoryEntryViewModel? entry)
         {
             if (_entity == null || IsSaving) return false;
+
+            // Must have a PI reference (Tax Invoice needs it for numbering)
+            if (string.IsNullOrWhiteSpace(ProformaId)) return false;
+
+            // Chat 14: Dispatched onwards is invoice-eligible.
+            // Real UAE glass business: invoice travels with the goods.
             var targetStatus = entry?.Status ?? Status;
-            return targetStatus == "Delivered"
+            return targetStatus == "Dispatched"
+                || targetStatus == "Delivered"
                 || targetStatus == "Signed"
                 || targetStatus == "Received";
         }
 
-        private void ConvertToTaxInvoicePlaceholder(
+        /// <summary>
+        /// Method name kept as ConvertToTaxInvoicePlaceholder to match
+        /// existing command wiring in constructor — no longer a placeholder.
+        /// Now bubbles the target DN's ID up to shell/main for import.
+        /// </summary>
+        private async void ConvertToTaxInvoicePlaceholder(
             DnHistoryEntryViewModel? entry)
         {
+            if (string.IsNullOrWhiteSpace(ProformaId))
+            {
+                MessageBox.Show(
+                    "This delivery note has no linked Proforma Invoice.\n\n" +
+                    "Tax Invoices must be created from a PI reference.\n" +
+                    "Ensure the parent Job Order was created from a PI.",
+                    "No PI Reference",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            if (OnRequestOpenTaxInvoiceForDeliveryNote == null)
+            {
+                MessageBox.Show(
+                    "Tax Invoice navigation is not wired up.\n\n" +
+                    "This is a configuration error — restart the app.",
+                    "Not Wired",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return;
+            }
+
+            // Target DN = the history entry the user right-clicked,
+            // OR the currently-loaded DN if button pressed without entry.
             var targetDnId = entry?.DeliveryNoteId ?? DeliveryNoteId;
             var targetStatus = entry?.Status ?? Status;
             var targetQty = entry?.DeliveredQty ?? TotalDeliveredQty;
 
-            MessageBox.Show(
-                $"Convert '{targetDnId}' to Tax Invoice\n\n" +
-                $"Target DN  : {targetDnId}\n" +
+            if (string.IsNullOrWhiteSpace(targetDnId))
+            {
+                MessageBox.Show(
+                    "Cannot determine which DN to invoice.\n\n" +
+                    "Try right-clicking a specific history entry.",
+                    "No DN Selected",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            if (targetQty <= 0)
+            {
+                MessageBox.Show(
+                    $"DN '{targetDnId}' has 0 delivered qty.\n\n" +
+                    "Only DNs with at least 1 delivered piece can be invoiced.",
+                    "Nothing to Invoice",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            var confirm = MessageBox.Show(
+                $"Create Tax Invoice for this specific delivery?\n\n" +
+                $"DN         : {targetDnId}\n" +
                 $"Status     : {targetStatus}\n" +
-                $"Qty        : {targetQty} pcs\n\n" +
-                "Tax Invoice module is coming in Phase 19.\n\n" +
-                "When ready, this button will:\n" +
-                "  • Create a Tax Invoice entity from this DN\n" +
-                "  • Copy customer, items, quantities, prices\n" +
-                "  • Auto-calculate UAE 5% VAT\n" +
-                "  • Link back to this DN (TaxInvoiceId)\n" +
-                "  • Mark this DN as HasTaxInvoice = true\n\n" +
-                "For now the feature is not yet available.",
-                "Tax Invoice — Coming in Phase 19",
-                MessageBoxButton.OK,
-                MessageBoxImage.Information);
+                $"Delivered  : {targetQty} pcs (from THIS DN only)\n" +
+                $"PI         : {ProformaId}\n" +
+                $"Customer   : {CustomerName}\n\n" +
+                "The invoice will include ONLY the pieces delivered\n" +
+                "on this specific DN — not the full PI qty.\n\n" +
+                "If a Draft invoice already exists for this PI,\n" +
+                "you'll be given the choice to open it or create new.",
+                "Convert Single DN to Tax Invoice",
+                MessageBoxButton.OKCancel,
+                MessageBoxImage.Question);
+
+            if (confirm != MessageBoxResult.OK) return;
+
+            try
+            {
+                // Chat 14: pass DN ID (not PI ID) so Tax Invoice imports
+                // only this DN's delivered rows, not full PI.
+                await OnRequestOpenTaxInvoiceForDeliveryNote(targetDnId);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Failed to open Tax Invoice:\n\n{ex.Message}",
+                    "Navigation Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
         }
 
         // ═════════════════════════════════════════════════════════════════
         //  EXPORT
-        //  BUG-45: EnsureLoaded handles null snapshot gracefully
         // ═════════════════════════════════════════════════════════════════
 
         private async Task ExportPdfAsync()
@@ -1142,7 +1227,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             ShowExportResult(result, "CSV");
         }
 
-        // BUG-45: handles null snapshot — creates empty snapshot as fallback
         private bool EnsureLoaded(
             out SavedDeliveryNote entity,
             out DeliveryNoteSnapshot snapshot)
@@ -1161,8 +1245,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
             entity = _entity;
 
-            // BUG-45: if snapshot is null (malformed JSON), use empty
-            // snapshot so export still works with header data from entity
             snapshot = _snapshot ?? new DeliveryNoteSnapshot
             {
                 Header = new DnHeaderSnapshot
@@ -1217,7 +1299,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             if (historyRow != null)
                 historyRow.AttachmentCount = rows.Count;
 
-            // BUG-46: refresh header text after attachment count changes
             OnPropertyChanged(nameof(SelectedDnHeaderText));
         }
 
