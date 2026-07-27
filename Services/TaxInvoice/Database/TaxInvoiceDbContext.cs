@@ -46,6 +46,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Database
                 e.HasIndex(x => x.JobOrderId);
                 e.HasIndex(x => x.ProformaId);
                 e.HasIndex(x => x.CustomerName);
+                e.HasIndex(x => x.Salesman);
                 e.HasIndex(x => x.InvoiceDate);
 
                 e.Property(x => x.FullSnapshotJson)

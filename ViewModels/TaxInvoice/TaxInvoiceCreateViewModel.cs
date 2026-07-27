@@ -180,6 +180,13 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
             set { if (_projectName == value) return; _projectName = value; OnPropertyChanged(); }
         }
 
+        private string _salesman = "";
+        public string Salesman
+        {
+            get => _salesman;
+            set { if (_salesman == value) return; _salesman = value; OnPropertyChanged(); }
+        }
+
         private string _customerTrn = "";
         public string CustomerTrn
         {
@@ -342,6 +349,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
             ProformaId = invoice.ProformaId;
             CustomerName = invoice.CustomerName;
             ProjectName = invoice.ProjectName;
+            Salesman = invoice.Salesman;
             CustomerTrn = invoice.CustomerTrn;
             CompanyTrn = invoice.CompanyTrn;
             PaymentStatus = invoice.PaymentStatus;
@@ -390,6 +398,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
                 if (joSnapshot?.EmbeddedInvoice?.Client != null)
                 {
                     CustomerTrn = joSnapshot.EmbeddedInvoice.Client.CustomerTrn;
+                    Salesman = joSnapshot.EmbeddedInvoice.Client.SalesRepresentative;
                 }
 
                 // Prepopulate Company TRN
@@ -492,6 +501,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
                     ProformaId = ProformaId,
                     CustomerName = CustomerName,
                     ProjectName = ProjectName,
+                    Salesman = Salesman,
                     CustomerTrn = CustomerTrn,
                     CompanyTrn = CompanyTrn,
                     Subtotal = Subtotal,

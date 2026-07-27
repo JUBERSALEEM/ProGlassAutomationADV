@@ -15,6 +15,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Mapper
         public string ProformaId { get; set; } = "";
         public string CustomerName { get; set; } = "";
         public string ProjectName { get; set; } = "";
+        public string Salesman { get; set; } = "";
         public string CustomerTrn { get; set; } = "";
         public string CompanyTrn { get; set; } = "";
         public decimal Subtotal { get; set; }
@@ -64,6 +65,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Mapper
                 ProformaId = snapshot.ProformaId,
                 CustomerName = snapshot.CustomerName,
                 ProjectName = snapshot.ProjectName,
+                Salesman = snapshot.Salesman,
                 CustomerTrn = snapshot.CustomerTrn,
                 CompanyTrn = snapshot.CompanyTrn,
                 Subtotal = snapshot.Subtotal,
@@ -112,6 +114,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Mapper
                 ProformaId = entity.ProformaId,
                 CustomerName = entity.CustomerName,
                 ProjectName = entity.ProjectName,
+                Salesman = entity.Salesman,
                 CustomerTrn = entity.CustomerTrn,
                 CompanyTrn = entity.CompanyTrn,
                 Subtotal = entity.Subtotal,

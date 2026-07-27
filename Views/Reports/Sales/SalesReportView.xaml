@@ -1,0 +1,323 @@
+<UserControl x:Class="ProGlassAutomation.Views.Reports.Sales.SalesReportView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:sales="clr-namespace:ProGlassAutomation.Views.Reports.Sales"
+             mc:Ignorable="d"
+             d:DesignHeight="750" d:DesignWidth="1100">
+
+    <UserControl.Resources>
+        <Style x:Key="LeftAlignGridText" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="6,2"/>
+        </Style>
+
+        <Style x:Key="RightAlignGridText" TargetType="TextBlock">
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="6,2"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Grid Margin="24">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- Title -->
+            <RowDefinition Height="Auto"/>
+            <!-- Filter view -->
+            <RowDefinition Height="*"/>
+            <!-- Content tabs -->
+        </Grid.RowDefinitions>
+
+        <!-- 1. Header Title Block -->
+        <Grid Grid.Row="0" Margin="0,0,0,20">
+            <StackPanel Orientation="Horizontal">
+                <Border Background="{DynamicResource AccentBrush}"
+                        CornerRadius="8"
+                        Width="44" Height="44"
+                        Margin="0,0,14,0"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="📊"
+                               FontSize="22"
+                               Foreground="White"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel VerticalAlignment="Center">
+                    <TextBlock Text="SALES REPORTS &amp; ANALYTICS"
+                               FontSize="18"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    <TextBlock Text="Comprehensive sales revenue metrics, multi-dimensional ledger filters, and transaction statement generation"
+                               FontSize="11"
+                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                </StackPanel>
+            </StackPanel>
+
+            <Button Grid.Column="1"
+                    Content="🔄 REFRESH DATA"
+                    Command="{Binding RefreshCommand}"
+                    HorizontalAlignment="Right"
+                    VerticalAlignment="Center"
+                    Width="140" Height="36"
+                    FontWeight="Bold"
+                    Style="{StaticResource SettingsSecondaryButtonStyle}"/>
+        </Grid>
+
+        <!-- 2. Integrated Reusable Filters -->
+        <sales:SalesFilterView Grid.Row="1" DataContext="{Binding FilterVM}"/>
+
+        <!-- 3. Dynamic Tab Controls -->
+        <TabControl Grid.Row="2"
+                    Background="Transparent"
+                    BorderThickness="0"
+                    Margin="0,10,0,0">
+
+            <!-- Tab 1: KPI Dashboard & Trends -->
+            <TabItem Header="OVERVIEW DASHBOARD" Width="200" Height="38">
+                <sales:SalesDashboardView DataContext="{Binding DashboardVM}"/>
+            </TabItem>
+
+            <!-- Tab 2: Statement Generator Ledger -->
+            <TabItem Header="STATEMENT GENERATOR" Width="200" Height="38">
+                <Grid Margin="0,16,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Ledger Table Grid -->
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource SideMenuBackgroundBrush}"
+                            BorderThickness="1"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            CornerRadius="12"
+                            Padding="16"
+                            Margin="0,0,0,16">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0"
+                                       Text="FILTERED INVOICE TRANSACTION HISTORY"
+                                       FontSize="11"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       Margin="0,0,0,12"/>
+
+                            <DataGrid Grid.Row="1"
+                                      ItemsSource="{Binding Invoices}"
+                                      AutoGenerateColumns="False"
+                                      IsReadOnly="True"
+                                      Background="Transparent"
+                                      BorderThickness="0"
+                                      RowHeaderWidth="0"
+                                      GridLinesVisibility="Horizontal">
+                                <DataGrid.Columns>
+                                    <DataGridTextColumn Header="INVOICE DATE" Binding="{Binding InvoiceDate, StringFormat='dd MMM yyyy'}" Width="1.2*" ElementStyle="{StaticResource LeftAlignGridText}"/>
+                                    <DataGridTextColumn Header="INVOICE NO" Binding="{Binding InvoiceNumber}" Width="1.2*" ElementStyle="{StaticResource LeftAlignGridText}"/>
+                                    <DataGridTextColumn Header="CUSTOMER NAME" Binding="{Binding CustomerName}" Width="2*" ElementStyle="{StaticResource LeftAlignGridText}"/>
+                                    <DataGridTextColumn Header="PROJECT NAME" Binding="{Binding ProjectName}" Width="2*" ElementStyle="{StaticResource LeftAlignGridText}"/>
+                                    <DataGridTextColumn Header="SALESPERSON" Binding="{Binding Salesman}" Width="1.5*" ElementStyle="{StaticResource LeftAlignGridText}"/>
+                                    <DataGridTextColumn Header="TOTAL (AED)" Binding="{Binding GrandTotalAed, StringFormat={}{0:N2}}" Width="1.3*" ElementStyle="{StaticResource RightAlignGridText}"/>
+                                    <DataGridTextColumn Header="VAT (AED)" Binding="{Binding VatAmountAed, StringFormat={}{0:N2}}" Width="1.1*" ElementStyle="{StaticResource RightAlignGridText}"/>
+                                    <DataGridTemplateColumn Header="STATUS" Width="1.1*">
+                                        <DataGridTemplateColumn.CellTemplate>
+                                            <DataTemplate>
+                                                <Border CornerRadius="4" Padding="6,2" HorizontalAlignment="Center">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="#3B82F6"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding PaymentStatus}" Value="Paid">
+                                                                    <Setter Property="Background" Value="#10B981"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding PaymentStatus}" Value="Partially Paid">
+                                                                    <Setter Property="Background" Value="#F59E0B"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding PaymentStatus}" Value="Unpaid">
+                                                                    <Setter Property="Background" Value="#EF4444"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <TextBlock Text="{Binding PaymentStatus}" FontWeight="Bold" Foreground="White" FontSize="10"/>
+                                                </Border>
+                                            </DataTemplate>
+                                        </DataGridTemplateColumn.CellTemplate>
+                                    </DataGridTemplateColumn>
+                                </DataGrid.Columns>
+                            </DataGrid>
+                        </Grid>
+                    </Border>
+
+                    <!-- Export and Statement Generation Actions -->
+                    <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Right">
+                        <Button Content="📥 EXPORT STATEMENT (PDF)"
+                                Command="{Binding ExportPdfCommand}"
+                                Width="220" Height="38"
+                                Margin="0,0,12,0"
+                                FontWeight="Bold"
+                                Style="{StaticResource SettingsPrimaryButtonStyle}"/>
+
+                        <Button Content="🟢 EXPORT STATEMENT (EXCEL)"
+                                Command="{Binding ExportExcelCommand}"
+                                Width="220" Height="38"
+                                Margin="0,0,12,0"
+                                FontWeight="Bold"
+                                Style="{StaticResource SettingsSecondaryButtonStyle}"/>
+
+                        <Button Content="📝 EXPORT RAW DATA (CSV)"
+                                Command="{Binding ExportCsvCommand}"
+                                Width="220" Height="38"
+                                FontWeight="Bold"
+                                Style="{StaticResource SettingsSecondaryButtonStyle}"/>
+                    </StackPanel>
+                </Grid>
+            </TabItem>
+
+            <!-- Tab 3: Workflow Chain Trace Reference -->
+            <TabItem Header="WORKFLOW CHAIN FINDER" Width="200" Height="38">
+                <Grid Margin="0,16,0,0">
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource SideMenuBackgroundBrush}"
+                            BorderThickness="1"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            CornerRadius="12"
+                            Padding="16"
+                            Margin="0,0,0,16">
+                        <StackPanel>
+                            <TextBlock Text="SEARCH BY TAX INVOICE REFERENCE" FontSize="11" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,0,0,8"/>
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <TextBox Grid.Column="0"
+                                         Text="{Binding SearchInvoiceNumber, UpdateSourceTrigger=PropertyChanged}"
+                                         Height="38"
+                                         FontSize="13"
+                                         Padding="10,8"
+                                         Background="{DynamicResource MenuHoverBrush}"
+                                         Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                         BorderThickness="1"
+                                         BorderBrush="{DynamicResource BorderBrush}"/>
+
+                                <Button Grid.Column="2"
+                                        Content="🔍 TRACE DOCUMENT CHAIN"
+                                        Command="{Binding TraceWorkflowCommand}"
+                                        Width="200" Height="38"
+                                        FontWeight="Bold"
+                                        Style="{StaticResource SettingsPrimaryButtonStyle}"/>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- Trace Chain Visual Representation -->
+                    <Border Grid.Row="1"
+                            Background="{DynamicResource SideMenuBackgroundBrush}"
+                            BorderThickness="1"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            CornerRadius="12"
+                            Padding="24">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                            </Grid.RowDefinitions>
+
+                            <TextBlock Grid.Row="0"
+                                       Text="INTEGRATED WORKFLOW CHAIN VISUALIZATION"
+                                       FontSize="11"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       Margin="0,0,0,24"/>
+
+                            <!-- Timeline Flow -->
+                            <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+                                <!-- Node 1: Proforma Invoice -->
+                                <StackPanel Width="150" HorizontalAlignment="Center">
+                                    <Border Width="60" Height="60" CornerRadius="30" Background="#4F46E5" BorderThickness="2" BorderBrush="White">
+                                        <TextBlock Text="PI" FontSize="22" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="Proforma Invoice" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,12,0,4"/>
+                                    <TextBlock Text="{Binding TraceProformaId}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center"/>
+                                </StackPanel>
+
+                                <!-- Connector 1 -->
+                                <Border Width="60" Height="3" Background="{DynamicResource BorderBrush}" VerticalAlignment="Center" Margin="10,-24,10,0"/>
+
+                                <!-- Node 2: Job Order -->
+                                <StackPanel Width="150" HorizontalAlignment="Center">
+                                    <Border Width="60" Height="60" CornerRadius="30" Background="#06B6D4" BorderThickness="2" BorderBrush="White">
+                                        <TextBlock Text="JO" FontSize="22" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="Job Order" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,12,0,4"/>
+                                    <TextBlock Text="{Binding TraceJobOrderId}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center"/>
+                                </StackPanel>
+
+                                <!-- Connector 2 -->
+                                <Border Width="60" Height="3" Background="{DynamicResource BorderBrush}" VerticalAlignment="Center" Margin="10,-24,10,0"/>
+
+                                <!-- Node 3: Delivery Note -->
+                                <StackPanel Width="150" HorizontalAlignment="Center">
+                                    <Border Width="60" Height="60" CornerRadius="30" Background="#F59E0B" BorderThickness="2" BorderBrush="White">
+                                        <TextBlock Text="DN" FontSize="22" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="Delivery Note" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,12,0,4"/>
+                                    <TextBlock Text="{Binding TraceDeliveryNoteId}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center"/>
+                                </StackPanel>
+
+                                <!-- Connector 3 -->
+                                <Border Width="60" Height="3" Background="{DynamicResource BorderBrush}" VerticalAlignment="Center" Margin="10,-24,10,0"/>
+
+                                <!-- Node 4: Tax Invoice -->
+                                <StackPanel Width="150" HorizontalAlignment="Center">
+                                    <Border Width="60" Height="60" CornerRadius="30" Background="#10B981" BorderThickness="2" BorderBrush="White">
+                                        <TextBlock Text="TI" FontSize="22" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                    <TextBlock Text="Tax Invoice" FontSize="12" FontWeight="Bold" HorizontalAlignment="Center" Margin="0,12,0,4"/>
+                                    <TextBlock Text="{Binding TraceTaxInvoiceId}" FontSize="11" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center"/>
+                                </StackPanel>
+
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </TabItem>
+        </TabControl>
+
+        <!-- Loading Overlay state -->
+        <Border Grid.Row="0" Grid.RowSpan="3"
+                Background="#90000000"
+                Visibility="Collapsed"
+                CornerRadius="16">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                    <Style.Triggers>
+                        <DataTrigger Binding="{Binding IsLoading}" Value="True">
+                            <Setter Property="Visibility" Value="Visible"/>
+                        </DataTrigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
+            <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                <TextBlock Text="⌛" FontSize="44" HorizontalAlignment="Center" Margin="0,0,0,16"/>
+                <TextBlock Text="RECONCILING REPORTING METRICS..." FontSize="16" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

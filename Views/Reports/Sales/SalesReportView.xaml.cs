@@ -1,6 +1,6 @@
-﻿using System.Windows.Controls;
+using System.Windows.Controls;
 
-namespace ProGlassAutomation.Views.Reports
+namespace ProGlassAutomation.Views.Reports.Sales
 {
     public partial class SalesReportView : UserControl
     {

@@ -1,0 +1,141 @@
+<UserControl x:Class="ProGlassAutomation.Views.Reports.Sales.SalesFilterView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="180" d:DesignWidth="900">
+
+    <UserControl.Resources>
+        <!-- Filter Label Style -->
+        <Style x:Key="FilterLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+
+        <!-- Dropdown Box Style -->
+        <Style x:Key="FilterComboStyle" TargetType="ComboBox">
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="Padding" Value="6,3"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+    </UserControl.Resources>
+
+    <Border Background="{DynamicResource SideMenuBackgroundBrush}"
+            BorderThickness="1"
+            BorderBrush="{DynamicResource BorderBrush}"
+            CornerRadius="12"
+            Padding="16"
+            Margin="0,0,0,16">
+        <Grid>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Section Title -->
+            <TextBlock Grid.Row="0"
+                       Text="REUSABLE SALES SEARCH FILTERS"
+                       FontSize="11"
+                       FontWeight="Bold"
+                       Foreground="{DynamicResource AccentBrush}"
+                       Margin="0,0,0,12"/>
+
+            <!-- Filters Grid -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <!-- Customer -->
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                    <!-- Project -->
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                    <!-- Salesperson -->
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="*"/>
+                    <!-- Company -->
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="160"/>
+                    <!-- Date Range -->
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <!-- Clear -->
+                </Grid.ColumnDefinitions>
+
+                <!-- Customer Column -->
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="CUSTOMER" Style="{StaticResource FilterLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding Customers}"
+                              SelectedItem="{Binding SelectedCustomer, Mode=TwoWay}"
+                              Style="{StaticResource FilterComboStyle}"/>
+                </StackPanel>
+
+                <!-- Project Column -->
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="PROJECT" Style="{StaticResource FilterLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding Projects}"
+                              SelectedItem="{Binding SelectedProject, Mode=TwoWay}"
+                              Style="{StaticResource FilterComboStyle}"/>
+                </StackPanel>
+
+                <!-- Salesperson Column -->
+                <StackPanel Grid.Column="4">
+                    <TextBlock Text="SALESPERSON" Style="{StaticResource FilterLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding Salesmen}"
+                              SelectedItem="{Binding SelectedSalesman, Mode=TwoWay}"
+                              Style="{StaticResource FilterComboStyle}"/>
+                </StackPanel>
+
+                <!-- Company Column -->
+                <StackPanel Grid.Column="6">
+                    <TextBlock Text="COMPANY" Style="{StaticResource FilterLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding Companies}"
+                              SelectedItem="{Binding SelectedCompany, Mode=TwoWay}"
+                              Style="{StaticResource FilterComboStyle}"/>
+                </StackPanel>
+
+                <!-- Date range Column -->
+                <StackPanel Grid.Column="8">
+                    <TextBlock Text="DATE DURATION" Style="{StaticResource FilterLabelStyle}"/>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <DatePicker Grid.Column="0"
+                                    SelectedDate="{Binding StartDate, Mode=TwoWay}"
+                                    Height="34"
+                                    BorderThickness="1"
+                                    BorderBrush="{DynamicResource BorderBrush}"
+                                    VerticalContentAlignment="Center"/>
+
+                        <DatePicker Grid.Column="2"
+                                    SelectedDate="{Binding EndDate, Mode=TwoWay}"
+                                    Height="34"
+                                    BorderThickness="1"
+                                    BorderBrush="{DynamicResource BorderBrush}"
+                                    VerticalContentAlignment="Center"/>
+                    </Grid>
+                </StackPanel>
+
+                <!-- Clear Filters Column -->
+                <Button Grid.Column="10"
+                        Content="CLEAR FILTERS"
+                        Command="{Binding ClearFiltersCommand}"
+                        Width="120" Height="34"
+                        Margin="0,17,0,0"
+                        FontWeight="Bold"
+                        Style="{StaticResource SettingsSecondaryButtonStyle}"/>
+            </Grid>
+        </Grid>
+    </Border>
+</UserControl>

@@ -9,7 +9,7 @@ using ProGlassAutomation.ViewModels.JobOrder;
 using ProGlassAutomation.ViewModels.Optimization;
 using ProGlassAutomation.ViewModels.ProformaInvoice;
 using ProGlassAutomation.ViewModels.Production;
-using ProGlassAutomation.ViewModels.Reports;
+using ProGlassAutomation.ViewModels.Reports.Sales;
 using ProGlassAutomation.ViewModels.SheetStore;
 using ProGlassAutomation.ViewModels.TaxInvoice;
 using System.Windows.Input;

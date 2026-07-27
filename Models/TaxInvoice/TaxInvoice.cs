@@ -40,6 +40,9 @@ namespace ProGlassAutomation.Models.TaxInvoice
         [MaxLength(200)]
         public string ProjectName { get; set; } = "";
 
+        [MaxLength(200)]
+        public string Salesman { get; set; } = "";
+
         [MaxLength(50)]
         public string CustomerTrn { get; set; } = "";
 
