@@ -1,14 +1,26 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.Dashboard.DashboardView"
+﻿<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Dashboard/DashboardView.xaml
+     PROJECT: ProGlassAutomation
+
+     CHANGES vs PREVIOUS VERSION (Chat 15):
+       Added TiDashboard namespace xmlns:ti
+       Added DataTemplate mapping TiDashboardViewModel → TiDashboardView
+       All other markup UNCHANGED.
+═══════════════════════════════════════════════════════════════════════ -->
+
+<UserControl x:Class="ProGlassAutomation.Views.Dashboard.DashboardView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:vm="clr-namespace:ProGlassAutomation.ViewModels.Dashboard"
              xmlns:vmJo="clr-namespace:ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard"
              xmlns:vmDn="clr-namespace:ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard"
+             xmlns:vmTi="clr-namespace:ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard"
              xmlns:ov="clr-namespace:ProGlassAutomation.Views.Dashboard.Overview"
              xmlns:ss="clr-namespace:ProGlassAutomation.Views.Dashboard.SheetStore"
              xmlns:pi="clr-namespace:ProGlassAutomation.Views.Dashboard.ProformaInvoice"
              xmlns:jo="clr-namespace:ProGlassAutomation.Views.Dashboard.JobOrder.JoDashboard"
              xmlns:dn="clr-namespace:ProGlassAutomation.Views.Dashboard.DeliveryNote.DnDashboard"
+             xmlns:ti="clr-namespace:ProGlassAutomation.Views.Dashboard.TaxInvoice.TiDashboard"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -19,8 +31,8 @@
     <UserControl.Resources>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             VM → View mappings for the 5 sub-dashboards
-             Phase 10.9: Added DnDashboard mapping
+             VM → View mappings for the 6 sub-dashboards
+             Chat 15: Added TiDashboard mapping (6th tab)
         ═══════════════════════════════════════════════════════════════ -->
         <DataTemplate DataType="{x:Type vm:OverviewDashboardViewModel}">
             <ov:OverviewDashboardView/>
@@ -38,8 +50,14 @@
             <dn:DnDashboardView/>
         </DataTemplate>
 
+        <!-- ── Chat 15 NEW: Tax Invoice dashboard tab ────────────────── -->
+        <DataTemplate DataType="{x:Type vmTi:TiDashboardViewModel}">
+            <ti:TiDashboardView/>
+        </DataTemplate>
+
         <!-- ═══════════════════════════════════════════════════════════════
              TAB BUTTON — icon + label, hover + press + active states
+             UNCHANGED from previous version
         ═══════════════════════════════════════════════════════════════ -->
         <Style x:Key="TabButtonStyle" TargetType="Button">
             <Setter Property="Background"      Value="Transparent"/>
@@ -98,7 +116,9 @@
         </Grid.RowDefinitions>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             TAB STRIP
+             TAB STRIP — auto-generates a tab button for every page in Pages
+             The 6th tab (Tax Invoices 🧾) appears automatically because
+             TiDashboardVM is added to DashboardViewModel.Pages.
         ═══════════════════════════════════════════════════════════════ -->
         <Border Grid.Row="0"
                 Background="{DynamicResource ModuleBackgroundBrush}"
@@ -180,7 +200,8 @@
         <!-- Divider under tabs -->
         <Border Grid.Row="1" Background="{DynamicResource BorderBrush}"/>
 
-        <!-- Active sub-dashboard -->
+        <!-- Active sub-dashboard — ContentPresenter auto-selects
+             the correct DataTemplate based on the VM type -->
         <ContentPresenter Grid.Row="2" Content="{Binding ActivePage}"/>
     </Grid>
 </UserControl>
