@@ -6,8 +6,10 @@
         xmlns:local="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList"
         mc:Ignorable="d"
         Title="Load Saved Proforma Invoice"
-        Height="800" Width="1400"
-        MinHeight="600" MinWidth="1000"
+        Height="800"
+        Width="1400"
+        MinHeight="600"
+        MinWidth="1000"
         WindowStartupLocation="CenterOwner"
         FontFamily="Segoe UI"
         Background="{DynamicResource WindowBackgroundBrush}">
@@ -19,32 +21,94 @@
         </Grid.RowDefinitions>
 
         <!-- Embedded list UserControl -->
-        <local:SavedInvoicesListView x:Name="EmbeddedListView" Grid.Row="0"/>
+        <local:SavedInvoicesListView x:Name="EmbeddedListView"
+                                     Grid.Row="0"/>
 
-        <!-- Close button at bottom -->
+        <!-- Footer bar — fixed: SideMenuBackgroundBrush + BorderBrush separator -->
         <Border Grid.Row="1"
-                Background="{DynamicResource ModuleBackgroundBrush}"
-                BorderThickness="0,1,0,0" BorderBrush="{DynamicResource MenuHoverBrush}"
-                Padding="20,10">
-            <Button Content="✕ CLOSE"
-                    HorizontalAlignment="Right"
-                    Padding="16,7" Cursor="Hand"
-                    Background="Transparent"
-                    BorderBrush="{DynamicResource MenuHoverBrush}" BorderThickness="1"
-                    Foreground="{DynamicResource PrimaryForegroundBrush}"
-                    FontWeight="Bold" FontSize="11"
-                    Click="OnCloseClick">
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="4">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center" Margin="{TemplateBinding Padding}"/>
-                        </Border>
-                    </ControlTemplate>
-                </Button.Template>
-            </Button>
+                Background="{DynamicResource SideMenuBackgroundBrush}"
+                BorderThickness="0,1,0,0"
+                BorderBrush="{DynamicResource BorderBrush}"
+                Padding="20,12">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Optional status hint -->
+                <TextBlock Grid.Column="0"
+                           Text="Select an invoice to load it into the wizard, or close to cancel."
+                           FontSize="12"
+                           Foreground="{DynamicResource MutedForegroundBrush}"
+                           VerticalAlignment="Center"/>
+
+                <!-- Close button — fixed: hover + press states, CornerRadius=10 -->
+                <Button Grid.Column="1"
+                        Click="OnCloseClick"
+                        Cursor="Hand"
+                        BorderThickness="0"
+                        Background="Transparent"
+                        MinWidth="110"
+                        Height="40">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="bd"
+                                    Background="Transparent"
+                                    BorderBrush="{DynamicResource BorderBrush}"
+                                    BorderThickness="1.5"
+                                    CornerRadius="10"
+                                    Padding="18,0"
+                                    SnapsToDevicePixels="True">
+                                <StackPanel Orientation="Horizontal"
+                                            HorizontalAlignment="Center"
+                                            VerticalAlignment="Center">
+                                    <TextBlock x:Name="CloseIcon"
+                                               Text="&#xE711;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="11"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,8,0"/>
+                                    <TextBlock x:Name="CloseText"
+                                               Text="Close"
+                                               FontSize="12"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="bd"
+                                            Property="BorderBrush"
+                                            Value="#B91C1C"/>
+                                    <Setter TargetName="CloseIcon"
+                                            Property="Foreground"
+                                            Value="#B91C1C"/>
+                                    <Setter TargetName="CloseText"
+                                            Property="Foreground"
+                                            Value="#B91C1C"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="bd"
+                                            Property="Background"
+                                            Value="#FEE2E2"/>
+                                    <Setter TargetName="bd"
+                                            Property="BorderBrush"
+                                            Value="#B91C1C"/>
+                                    <Setter TargetName="CloseIcon"
+                                            Property="Foreground"
+                                            Value="#B91C1C"/>
+                                    <Setter TargetName="CloseText"
+                                            Property="Foreground"
+                                            Value="#B91C1C"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
         </Border>
     </Grid>
 </Window>

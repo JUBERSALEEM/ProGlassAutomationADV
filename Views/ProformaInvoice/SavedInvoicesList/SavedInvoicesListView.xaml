@@ -5,7 +5,8 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
-             d:DesignHeight="800" d:DesignWidth="1400"
+             d:DesignHeight="800"
+             d:DesignWidth="1400"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -55,6 +56,14 @@
                   the stat card row so it aligns to card vertical center,
                   not the row top.
 
+    CHAT 17 — UI Polish:
+    UI-01: Stat cards now use solid rich colors (indigo/blue/green) with
+           white text. Consistent with Sales Report rich color design.
+    UI-02: Filter section card has indigo top stripe + colored icon block.
+    UI-03: Row left accent bar now shows permanent status color, not just
+           on hover. Hover still adds MenuHoverBrush background.
+    UI-04: Hint card updated to solid indigo for stronger visibility.
+
     Preserved:
       ✅ All 3 stat cards (Total Invoices, Showing, Total Value)
       ✅ Right-click context menu wiring (OnRowRightClick handler)
@@ -70,11 +79,10 @@
 
         <!-- ══════════════════════════════════════════════════════════════
              STAT CARD — BUG-89: MinHeight for uniform heights
+             UI-01: now a base style only — each card sets its own color
         ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="StatCardStyle" TargetType="Border">
-            <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="CornerRadius"    Value="12"/>
             <Setter Property="Padding"         Value="20,16"/>
             <Setter Property="Margin"          Value="0,0,16,0"/>
@@ -161,20 +169,20 @@
         </Style>
 
         <!-- ══════════════════════════════════════════════════════════════
-             ROW CARD — hover accent (no drop shadow for perf at scale)
+             ROW CARD — UI-03: permanent left accent removed from style.
+             Left accent is now an inline Border per row (status-driven).
+             Hover still applies MenuHoverBrush background.
         ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="RowCardStyle" TargetType="Border">
-            <Setter Property="Background"      Value="Transparent"/>
-            <Setter Property="CornerRadius"    Value="8"/>
-            <Setter Property="Margin"          Value="0,3"/>
-            <Setter Property="Padding"         Value="0"/>
-            <Setter Property="BorderThickness" Value="3,0,0,0"/>
-            <Setter Property="BorderBrush"     Value="Transparent"/>
+            <Setter Property="Background"          Value="Transparent"/>
+            <Setter Property="CornerRadius"        Value="8"/>
+            <Setter Property="Margin"              Value="0,3"/>
+            <Setter Property="Padding"             Value="0"/>
+            <Setter Property="BorderThickness"     Value="0"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background"  Value="{DynamicResource MenuHoverBrush}"/>
-                    <Setter Property="BorderBrush" Value="#4338CA"/>
+                    <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -183,13 +191,13 @@
              ListBoxItem style — strips selection padding
         ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="InvoiceListBoxItemStyle" TargetType="ListBoxItem">
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="Margin" Value="0"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding"                    Value="0"/>
+            <Setter Property="Margin"                     Value="0"/>
+            <Setter Property="Background"                 Value="Transparent"/>
+            <Setter Property="BorderThickness"            Value="0"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-            <Setter Property="Focusable" Value="False"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Focusable"                  Value="False"/>
+            <Setter Property="SnapsToDevicePixels"        Value="True"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListBoxItem">
@@ -207,9 +215,7 @@
     <Grid Background="{DynamicResource ModuleBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <!-- Sticky header -->
             <RowDefinition Height="*"/>
-            <!-- Virtualized table -->
         </Grid.RowDefinitions>
 
         <!-- ═══════════════════════════════════════════════════════════
@@ -217,58 +223,97 @@
         ═══════════════════════════════════════════════════════════════ -->
         <StackPanel Grid.Row="0" Margin="24,20,24,0">
 
-            <!-- ── STAT CARDS ROW ─────────────────────────────────────── -->
+            <!-- ── STAT CARDS ROW ──────────────────────────────────── -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
 
-                <!-- Card 1 — TOTAL INVOICES -->
-                <Border Style="{StaticResource StatCardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="TOTAL INVOICES"
-                                   FontSize="11"
-                                   FontWeight="SemiBold"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                   Margin="0,0,0,10"/>
-                        <TextBlock Text="{Binding TotalCount}"
-                                   FontSize="28"
-                                   FontWeight="Bold"
-                                   Foreground="#4338CA"/>
-                    </StackPanel>
+                <!-- Card 1 — TOTAL INVOICES — solid indigo -->
+                <Border Style="{StaticResource StatCardStyle}"
+                        Background="#4338CA"
+                        ClipToBounds="True">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="4"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0"
+                                Background="#3730A3"
+                                CornerRadius="12,12,0,0"/>
+                        <Border Grid.Row="1" Padding="20,14">
+                            <StackPanel>
+                                <TextBlock Text="TOTAL INVOICES"
+                                           FontSize="11"
+                                           FontWeight="Bold"
+                                           Foreground="#A5B4FC"
+                                           Margin="0,0,0,8"/>
+                                <TextBlock Text="{Binding TotalCount}"
+                                           FontSize="28"
+                                           FontWeight="Bold"
+                                           Foreground="White"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
                 </Border>
 
-                <!-- Card 2 — SHOWING -->
-                <Border Style="{StaticResource StatCardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="SHOWING"
-                                   FontSize="11"
-                                   FontWeight="SemiBold"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                   Margin="0,0,0,10"/>
-                        <TextBlock Text="{Binding FilteredCount}"
-                                   FontSize="28"
-                                   FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    </StackPanel>
+                <!-- Card 2 — SHOWING — solid blue -->
+                <Border Style="{StaticResource StatCardStyle}"
+                        Background="#1E40AF"
+                        ClipToBounds="True">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="4"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0"
+                                Background="#1E3A8A"
+                                CornerRadius="12,12,0,0"/>
+                        <Border Grid.Row="1" Padding="20,14">
+                            <StackPanel>
+                                <TextBlock Text="SHOWING"
+                                           FontSize="11"
+                                           FontWeight="Bold"
+                                           Foreground="#93C5FD"
+                                           Margin="0,0,0,8"/>
+                                <TextBlock Text="{Binding FilteredCount}"
+                                           FontSize="28"
+                                           FontWeight="Bold"
+                                           Foreground="White"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
                 </Border>
 
-                <!-- Card 3 — TOTAL VALUE -->
-                <Border Style="{StaticResource StatCardStyle}" MinWidth="220">
-                    <StackPanel>
-                        <TextBlock Text="TOTAL VALUE"
-                                   FontSize="11"
-                                   FontWeight="SemiBold"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                   Margin="0,0,0,10"/>
-                        <TextBlock Text="{Binding TotalValueSum, StringFormat=AED {0:N2}}"
-                                   FontSize="24"
-                                   FontWeight="Bold"
-                                   Foreground="#047857"/>
-                    </StackPanel>
+                <!-- Card 3 — TOTAL VALUE — solid green -->
+                <Border Style="{StaticResource StatCardStyle}"
+                        Background="#047857"
+                        MinWidth="220"
+                        ClipToBounds="True">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="4"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <Border Grid.Row="0"
+                                Background="#065F46"
+                                CornerRadius="12,12,0,0"/>
+                        <Border Grid.Row="1" Padding="20,14">
+                            <StackPanel>
+                                <TextBlock Text="TOTAL VALUE"
+                                           FontSize="11"
+                                           FontWeight="Bold"
+                                           Foreground="#6EE7B7"
+                                           Margin="0,0,0,8"/>
+                                <TextBlock Text="{Binding TotalValueSum, StringFormat=AED {0:N2}}"
+                                           FontSize="24"
+                                           FontWeight="Bold"
+                                           Foreground="White"/>
+                            </StackPanel>
+                        </Border>
+                    </Grid>
                 </Border>
 
                 <!--
                     NEW-N8: VerticalAlignment="Center" anchors to stat card
-                    row center. Was previously VerticalAlignment="Center"
-                    inside a StackPanel — works but re-affirmed here.
+                    row center.
                 -->
                 <Button Command="{Binding RefreshCommand}"
                         Margin="16,0,0,0"
@@ -301,10 +346,14 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="RefreshBg" Property="Background" Value="#6366F1"/>
+                                    <Setter TargetName="RefreshBg"
+                                            Property="Background"
+                                            Value="#6366F1"/>
                                 </Trigger>
                                 <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="RefreshBg" Property="Background" Value="#3730A3"/>
+                                    <Setter TargetName="RefreshBg"
+                                            Property="Background"
+                                            Value="#3730A3"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
@@ -312,172 +361,198 @@
                 </Button>
             </StackPanel>
 
-            <!-- ── SEARCH & FILTER SECTION ────────────────────────────── -->
-            <Border Background="{DynamicResource ModuleBackgroundBrush}"
+            <!-- ── SEARCH & FILTER SECTION ──────────────────────────── -->
+            <Border Background="{DynamicResource SideMenuBackgroundBrush}"
                     CornerRadius="12"
-                    Padding="24,20"
                     BorderThickness="1"
                     BorderBrush="{DynamicResource BorderBrush}"
                     Margin="0,0,0,16"
-                    SnapsToDevicePixels="True">
-                <StackPanel>
+                    SnapsToDevicePixels="True"
+                    ClipToBounds="True">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="4"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
 
-                    <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                        <TextBlock Text="&#xE721;"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="14"
-                                   Foreground="#4338CA"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,8,0"/>
-                        <TextBlock Text="Search &amp; Filter"
-                                   FontSize="15"
-                                   FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
+                    <!-- UI-02: indigo top stripe on filter card -->
+                    <Border Grid.Row="0"
+                            Background="#4338CA"
+                            CornerRadius="12,12,0,0"/>
 
-                    <!-- NEW-N1: Filter labels now sentence-case via FilterLabelStyle -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="2*"/>
-                            <ColumnDefinition Width="12"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="12"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="12"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="12"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="12"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <!-- Search input -->
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Search"
-                                       Style="{StaticResource FilterLabelStyle}"/>
-                            <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
-                                     Style="{StaticResource FilterInputStyle}"/>
-                        </StackPanel>
-
-                        <!-- Status filter -->
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Status"
-                                       Style="{StaticResource FilterLabelStyle}"/>
-                            <ComboBox ItemsSource="{Binding StatusFilterOptions}"
-                                      SelectedItem="{Binding SelectedStatusFilter}"
-                                      Style="{StaticResource FilterComboStyle}"/>
-                        </StackPanel>
-
-                        <!-- From date -->
-                        <StackPanel Grid.Column="4">
-                            <TextBlock Text="From date"
-                                       Style="{StaticResource FilterLabelStyle}"/>
-                            <DatePicker SelectedDate="{Binding FromDate}"
-                                        Height="38"
-                                        VerticalContentAlignment="Center"/>
-                        </StackPanel>
-
-                        <!-- To date -->
-                        <StackPanel Grid.Column="6">
-                            <TextBlock Text="To date"
-                                       Style="{StaticResource FilterLabelStyle}"/>
-                            <DatePicker SelectedDate="{Binding ToDate}"
-                                        Height="38"
-                                        VerticalContentAlignment="Center"/>
-                        </StackPanel>
-
-                        <!--
-                            NEW-N2: Sort dropdown label includes a small arrow
-                            glyph hinting that sorting is active. Purely
-                            visual — combo selection unchanged.
-                        -->
-                        <StackPanel Grid.Column="8">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="Sort by"
-                                           Style="{StaticResource FilterLabelStyle}"/>
-                                <TextBlock Text=" ⇅"
-                                           FontSize="11"
+                    <Border Grid.Row="1" Padding="24,16,24,20">
+                        <StackPanel>
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,0,0,14">
+                                <Border Width="28"
+                                        Height="28"
+                                        Background="#4338CA"
+                                        CornerRadius="7"
+                                        Margin="0,0,10,0">
+                                    <TextBlock Text="&#xE721;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="13"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <TextBlock Text="Search &amp; Filter"
+                                           FontSize="15"
                                            FontWeight="Bold"
-                                           Foreground="{DynamicResource MutedForegroundBrush}"
-                                           Margin="0,0,0,6"/>
+                                           Foreground="#4338CA"
+                                           VerticalAlignment="Center"/>
                             </StackPanel>
-                            <ComboBox ItemsSource="{Binding SortPresetOptions}"
-                                      SelectedItem="{Binding SelectedSortPreset}"
-                                      Style="{StaticResource FilterComboStyle}"/>
-                        </StackPanel>
 
-                        <!-- Clear button -->
-                        <Button Grid.Column="10"
-                                Command="{Binding ClearFiltersCommand}"
-                                Margin="0,22,0,0"
-                                Cursor="Hand"
-                                Background="Transparent"
-                                BorderThickness="0">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border x:Name="ClearBg"
-                                            Background="Transparent"
-                                            BorderBrush="{DynamicResource BorderBrush}"
-                                            BorderThickness="1.5"
-                                            CornerRadius="8"
-                                            Padding="16,0"
-                                            Height="38"
-                                            SnapsToDevicePixels="True">
-                                        <StackPanel Orientation="Horizontal"
-                                                    VerticalAlignment="Center">
-                                            <TextBlock x:Name="ClearIcon"
-                                                       Text="&#xE711;"
-                                                       FontFamily="Segoe MDL2 Assets"
-                                                       FontSize="11"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       VerticalAlignment="Center"
-                                                       Margin="0,0,8,0"/>
-                                            <TextBlock x:Name="ClearText"
-                                                       Text="Clear"
-                                                       FontSize="11"
-                                                       FontWeight="Bold"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="ClearBg"   Property="BorderBrush" Value="#B91C1C"/>
-                                            <Setter TargetName="ClearIcon" Property="Foreground"  Value="#B91C1C"/>
-                                            <Setter TargetName="ClearText" Property="Foreground"  Value="#B91C1C"/>
-                                        </Trigger>
-                                        <Trigger Property="IsPressed" Value="True">
-                                            <Setter TargetName="ClearBg" Property="Background" Value="#FEE2E2"/>
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Button.Template>
-                        </Button>
-                    </Grid>
-                </StackPanel>
+                            <!-- NEW-N1: Filter labels sentence-case -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="2*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="12"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+
+                                <!-- Search -->
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="Search"
+                                               Style="{StaticResource FilterLabelStyle}"/>
+                                    <TextBox Text="{Binding SearchText,
+                                                 UpdateSourceTrigger=PropertyChanged}"
+                                             Style="{StaticResource FilterInputStyle}"/>
+                                </StackPanel>
+
+                                <!-- Status -->
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Text="Status"
+                                               Style="{StaticResource FilterLabelStyle}"/>
+                                    <ComboBox ItemsSource="{Binding StatusFilterOptions}"
+                                              SelectedItem="{Binding SelectedStatusFilter}"
+                                              Style="{StaticResource FilterComboStyle}"/>
+                                </StackPanel>
+
+                                <!-- From date -->
+                                <StackPanel Grid.Column="4">
+                                    <TextBlock Text="From date"
+                                               Style="{StaticResource FilterLabelStyle}"/>
+                                    <DatePicker SelectedDate="{Binding FromDate}"
+                                                Height="38"
+                                                VerticalContentAlignment="Center"/>
+                                </StackPanel>
+
+                                <!-- To date -->
+                                <StackPanel Grid.Column="6">
+                                    <TextBlock Text="To date"
+                                               Style="{StaticResource FilterLabelStyle}"/>
+                                    <DatePicker SelectedDate="{Binding ToDate}"
+                                                Height="38"
+                                                VerticalContentAlignment="Center"/>
+                                </StackPanel>
+
+                                <!--
+                                    NEW-N2: Sort label includes ⇅ arrow hint
+                                -->
+                                <StackPanel Grid.Column="8">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="Sort by"
+                                                   Style="{StaticResource FilterLabelStyle}"/>
+                                        <TextBlock Text=" ⇅"
+                                                   FontSize="11"
+                                                   FontWeight="Bold"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                   Margin="0,0,0,6"/>
+                                    </StackPanel>
+                                    <ComboBox ItemsSource="{Binding SortPresetOptions}"
+                                              SelectedItem="{Binding SelectedSortPreset}"
+                                              Style="{StaticResource FilterComboStyle}"/>
+                                </StackPanel>
+
+                                <!-- Clear button -->
+                                <Button Grid.Column="10"
+                                        Command="{Binding ClearFiltersCommand}"
+                                        Margin="0,22,0,0"
+                                        Cursor="Hand"
+                                        Background="Transparent"
+                                        BorderThickness="0">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="ClearBg"
+                                                    Background="Transparent"
+                                                    BorderBrush="{DynamicResource BorderBrush}"
+                                                    BorderThickness="1.5"
+                                                    CornerRadius="8"
+                                                    Padding="16,0"
+                                                    Height="38"
+                                                    SnapsToDevicePixels="True">
+                                                <StackPanel Orientation="Horizontal"
+                                                            VerticalAlignment="Center">
+                                                    <TextBlock x:Name="ClearIcon"
+                                                               Text="&#xE711;"
+                                                               FontFamily="Segoe MDL2 Assets"
+                                                               FontSize="11"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                               VerticalAlignment="Center"
+                                                               Margin="0,0,8,0"/>
+                                                    <TextBlock x:Name="ClearText"
+                                                               Text="Clear"
+                                                               FontSize="11"
+                                                               FontWeight="Bold"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                               VerticalAlignment="Center"/>
+                                                </StackPanel>
+                                            </Border>
+                                            <ControlTemplate.Triggers>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter TargetName="ClearBg"
+                                                            Property="BorderBrush"
+                                                            Value="#B91C1C"/>
+                                                    <Setter TargetName="ClearIcon"
+                                                            Property="Foreground"
+                                                            Value="#B91C1C"/>
+                                                    <Setter TargetName="ClearText"
+                                                            Property="Foreground"
+                                                            Value="#B91C1C"/>
+                                                </Trigger>
+                                                <Trigger Property="IsPressed" Value="True">
+                                                    <Setter TargetName="ClearBg"
+                                                            Property="Background"
+                                                            Value="#FEE2E2"/>
+                                                </Trigger>
+                                            </ControlTemplate.Triggers>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </Grid>
+                        </StackPanel>
+                    </Border>
+                </Grid>
             </Border>
 
-            <!-- ── HINT CARD — moved above table for visibility ───────── -->
-            <Border Background="#EEF2FF"
+            <!-- ── HINT CARD — UI-04: solid indigo ──────────────────── -->
+            <Border Background="#4338CA"
                     CornerRadius="10"
                     Padding="14,10"
                     Margin="0,0,0,16"
-                    BorderThickness="1"
-                    BorderBrush="#C7D2FE"
                     SnapsToDevicePixels="True">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE946;"
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="14"
-                               Foreground="#4338CA"
+                               Foreground="White"
                                VerticalAlignment="Center"
                                Margin="0,0,10,0"/>
-                    <TextBlock Text="Right-click any row for more options: Duplicate, Export PDF/Excel, Change Status, Convert to Job Order, Delete"
-                               FontSize="12"
-                               FontWeight="SemiBold"
-                               Foreground="#4338CA"
-                               VerticalAlignment="Center"/>
+                    <TextBlock
+                        Text="Right-click any row for more options: Duplicate, Export PDF/Excel, Change Status, Convert to Job Order, Delete"
+                        FontSize="12"
+                        FontWeight="SemiBold"
+                        Foreground="White"
+                        VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>
         </StackPanel>
@@ -498,7 +573,7 @@
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- ─── Sticky table column header ─── -->
+                <!-- Sticky table column header -->
                 <Border Grid.Row="0"
                         Background="#4338CA"
                         CornerRadius="12,12,0,0"
@@ -545,11 +620,11 @@
                     </Grid>
                 </Border>
 
-                <!-- ─── Table body ─── -->
+                <!-- Table body -->
                 <!--
-                    NEW-N7: Loading and empty states now isolated using
-                    Panel.ZIndex so they cannot render on top of each other
-                    or on top of the ListBox during first paint.
+                    NEW-N7: Loading and empty states isolated using
+                    Panel.ZIndex so they cannot render on top of each
+                    other or on top of the ListBox during first paint.
                 -->
                 <Grid Grid.Row="1">
 
@@ -564,8 +639,9 @@
                                 VerticalAlignment="Center"
                                 Margin="0,60"
                                 Visibility="{Binding IsLoading,
-                                             Converter={StaticResource BoolToVisibilityConverter}}">
-                        <Grid Width="36" Height="36"
+                                    Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Grid Width="36"
+                              Height="36"
                               HorizontalAlignment="Center">
                             <TextBlock x:Name="LoadingSpinner"
                                        Text="&#xE895;"
@@ -576,7 +652,8 @@
                                        VerticalAlignment="Center"
                                        RenderTransformOrigin="0.5,0.5">
                                 <TextBlock.RenderTransform>
-                                    <RotateTransform x:Name="LoadingRotate" Angle="0"/>
+                                    <RotateTransform x:Name="LoadingRotate"
+                                                     Angle="0"/>
                                 </TextBlock.RenderTransform>
                                 <TextBlock.Triggers>
                                     <EventTrigger RoutedEvent="Loaded">
@@ -585,7 +662,8 @@
                                                 <DoubleAnimation
                                                     Storyboard.TargetName="LoadingRotate"
                                                     Storyboard.TargetProperty="Angle"
-                                                    From="0" To="360"
+                                                    From="0"
+                                                    To="360"
                                                     Duration="0:0:1.5"
                                                     RepeatBehavior="Forever"/>
                                             </Storyboard>
@@ -603,8 +681,7 @@
 
                     <!--
                         NEW-N4: Empty state — self-contained message.
-                        Panel.ZIndex="1" — below loading spinner (ZIndex=2)
-                        so if both conditions are somehow true, loading wins.
+                        Panel.ZIndex="1" — below loading spinner (ZIndex=2).
                     -->
                     <StackPanel Panel.ZIndex="1"
                                 HorizontalAlignment="Center"
@@ -612,14 +689,15 @@
                                 Margin="0,40"
                                 IsHitTestVisible="False"
                                 Style="{StaticResource EmptyStateStyle}">
-                        <Border Width="72" Height="72"
+                        <Border Width="72"
+                                Height="72"
                                 CornerRadius="36"
-                                Background="#EEF2FF"
+                                Background="#4338CA"
                                 HorizontalAlignment="Center">
                             <TextBlock Text="&#xE7C3;"
                                        FontFamily="Segoe MDL2 Assets"
                                        FontSize="32"
-                                       Foreground="#4338CA"
+                                       Foreground="White"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
                         </Border>
@@ -636,9 +714,8 @@
                     </StackPanel>
 
                     <!--
-                        NEW-N6 [HIGH]: ScrollUnit changed from "Item" to "Pixel"
-                        and CanContentScroll="False" to enable SmoothScrollBehavior
-                        (master prompt gotcha #5).
+                        NEW-N6 [HIGH]: ScrollUnit=Pixel, CanContentScroll=False
+                        for SmoothScrollBehavior compatibility.
                     -->
                     <ListBox Panel.ZIndex="0"
                              ItemsSource="{Binding FilteredItems}"
@@ -665,11 +742,20 @@
                         </ListBox.ItemsPanel>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
+                                <!--
+                                    UI-03: Row now has permanent left accent
+                                    bar driven by status color. Implemented
+                                    as inner Grid with colored col 0.
+                                    RowCardStyle border stays as outer wrapper
+                                    for hover effect.
+                                -->
                                 <Border Style="{StaticResource RowCardStyle}"
-                                        MouseRightButtonUp="OnRowRightClick">
-
+                                        MouseRightButtonUp="OnRowRightClick"
+                                        ClipToBounds="True">
                                     <Grid>
+                                        <!-- Left accent bar (col 0 = 4px) -->
                                         <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="4"/>
                                             <ColumnDefinition Width="1.2*"/>
                                             <ColumnDefinition Width="1.8*"/>
                                             <ColumnDefinition Width="1.5*"/>
@@ -680,8 +766,50 @@
                                             <ColumnDefinition Width="110"/>
                                         </Grid.ColumnDefinitions>
 
+                                        <!-- Status-driven left accent border -->
+                                        <Border Grid.Column="0">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background"
+                                                            Value="#64748B"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger
+                                                            Binding="{Binding Status}"
+                                                            Value="Draft">
+                                                            <Setter Property="Background"
+                                                                    Value="#64748B"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger
+                                                            Binding="{Binding Status}"
+                                                            Value="Sent">
+                                                            <Setter Property="Background"
+                                                                    Value="#1E40AF"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger
+                                                            Binding="{Binding Status}"
+                                                            Value="Approved">
+                                                            <Setter Property="Background"
+                                                                    Value="#047857"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger
+                                                            Binding="{Binding Status}"
+                                                            Value="Rejected">
+                                                            <Setter Property="Background"
+                                                                    Value="#B91C1C"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger
+                                                            Binding="{Binding Status}"
+                                                            Value="Expired">
+                                                            <Setter Property="Background"
+                                                                    Value="#B45309"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                        </Border>
+
                                         <!-- REF # -->
-                                        <TextBlock Grid.Column="0"
+                                        <TextBlock Grid.Column="1"
                                                    Text="{Binding ProformaId}"
                                                    FontSize="14"
                                                    FontWeight="Bold"
@@ -690,7 +818,7 @@
                                                    VerticalAlignment="Center"/>
 
                                         <!-- COMPANY -->
-                                        <TextBlock Grid.Column="1"
+                                        <TextBlock Grid.Column="2"
                                                    Text="{Binding CompanyName}"
                                                    FontSize="12"
                                                    TextTrimming="CharacterEllipsis"
@@ -700,7 +828,7 @@
                                                    ToolTip="{Binding CompanyName}"/>
 
                                         <!-- CUSTOMER -->
-                                        <TextBlock Grid.Column="2"
+                                        <TextBlock Grid.Column="3"
                                                    Text="{Binding CustomerName}"
                                                    FontSize="12"
                                                    TextTrimming="CharacterEllipsis"
@@ -710,7 +838,7 @@
                                                    ToolTip="{Binding CustomerName}"/>
 
                                         <!-- PROJECT -->
-                                        <TextBlock Grid.Column="3"
+                                        <TextBlock Grid.Column="4"
                                                    Text="{Binding ProjectName}"
                                                    FontSize="12"
                                                    TextTrimming="CharacterEllipsis"
@@ -720,7 +848,7 @@
                                                    ToolTip="{Binding ProjectName}"/>
 
                                         <!-- STATUS pill -->
-                                        <Border Grid.Column="4"
+                                        <Border Grid.Column="5"
                                                 Style="{StaticResource StatusPillStyle}"
                                                 VerticalAlignment="Center">
                                             <TextBlock Text="{Binding Status}"
@@ -731,8 +859,9 @@
                                         </Border>
 
                                         <!-- GRAND TOTAL -->
-                                        <TextBlock Grid.Column="5"
-                                                   Text="{Binding GrandTotal, StringFormat=AED {0:N2}}"
+                                        <TextBlock Grid.Column="6"
+                                                   Text="{Binding GrandTotal,
+                                                       StringFormat=AED {0:N2}}"
                                                    FontSize="14"
                                                    FontWeight="Bold"
                                                    Foreground="#047857"
@@ -741,8 +870,9 @@
                                                    VerticalAlignment="Center"/>
 
                                         <!-- DATE -->
-                                        <TextBlock Grid.Column="6"
-                                                   Text="{Binding CreatedAt, StringFormat=dd MMM yyyy}"
+                                        <TextBlock Grid.Column="7"
+                                                   Text="{Binding CreatedAt,
+                                                       StringFormat=dd MMM yyyy}"
                                                    FontSize="12"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                    Padding="14,14"
@@ -750,12 +880,11 @@
 
                                         <!--
                                             NEW-N5: OPEN button sizing hardened
-                                            for DPI scaling. Fixed Padding and
-                                            Margin values that stay proportional.
+                                            for DPI scaling.
                                         -->
-                                        <Button Grid.Column="7"
+                                        <Button Grid.Column="8"
                                                 Command="{Binding DataContext.LoadInvoiceCommand,
-                                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 ToolTip="Open &amp; Edit (right-click for more options)"
                                                 HorizontalAlignment="Center"
@@ -788,11 +917,17 @@
                                                         </StackPanel>
                                                     </Border>
                                                     <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="OpenBtnBg" Property="Background" Value="#6366F1"/>
+                                                        <Trigger Property="IsMouseOver"
+                                                                 Value="True">
+                                                            <Setter TargetName="OpenBtnBg"
+                                                                    Property="Background"
+                                                                    Value="#6366F1"/>
                                                         </Trigger>
-                                                        <Trigger Property="IsPressed" Value="True">
-                                                            <Setter TargetName="OpenBtnBg" Property="Background" Value="#3730A3"/>
+                                                        <Trigger Property="IsPressed"
+                                                                 Value="True">
+                                                            <Setter TargetName="OpenBtnBg"
+                                                                    Property="Background"
+                                                                    Value="#3730A3"/>
                                                         </Trigger>
                                                     </ControlTemplate.Triggers>
                                                 </ControlTemplate>
@@ -803,10 +938,8 @@
                             </DataTemplate>
                         </ListBox.ItemTemplate>
                     </ListBox>
-
                 </Grid>
             </Grid>
         </Border>
-
     </Grid>
 </UserControl>

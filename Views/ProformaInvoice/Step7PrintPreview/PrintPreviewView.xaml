@@ -1,4 +1,16 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview.PrintPreviewView"
+﻿<!--
+═══════════════════════════════════════════════════════════════════════
+FILE: Views/ProformaInvoice/Step7PrintPreview/PrintPreviewView.xaml
+═══════════════════════════════════════════════════════════════════════
+CHAT 17 — PERFORMANCE + UI POLISH
+  PERF-01: Removed DropShadowEffect from Step Header Icon.
+  UI-01:   Toolbar "Invoice Actions" icon badge → solid #4338CA / White
+           (matches Chat 17 pattern across Steps 1-6).
+  All Chat 14 UX cleanup (BUG-90/91/92, NEW-P2/P4/P5/P6/P8) preserved.
+  All bindings, commands, sub-view embeds, and SOON badge preserved.
+═══════════════════════════════════════════════════════════════════════
+-->
+<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview.PrintPreviewView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -8,7 +20,8 @@
              xmlns:terms="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview.TermsAndConditions"
              xmlns:printable="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview.PrintableInvoice"
              mc:Ignorable="d"
-             d:DesignHeight="900" d:DesignWidth="1200"
+             d:DesignHeight="900"
+             d:DesignWidth="1200"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -65,6 +78,10 @@
       ✅ InvoiceMainSummaryView embed
       ✅ Dark A4 backdrop with centered PrintableInvoiceView
       ✅ All command bindings (Print / Save / Export / Email)
+
+    CHAT 17 additions:
+      PERF-01: Step Header Icon DropShadowEffect removed.
+      UI-01:   Toolbar Invoice Actions icon badge → solid indigo/white.
     ═══════════════════════════════════════════════════════════════════
     -->
 
@@ -176,19 +193,14 @@
 
             <!-- ══════════════════════════════════════════════════════════
                  STEP HEADER
+                 PERF-01: DropShadowEffect removed.
             ══════════════════════════════════════════════════════════ -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                 <Border Background="#4338CA"
-                        Width="44" Height="44"
+                        Width="44"
+                        Height="44"
                         CornerRadius="12"
                         VerticalAlignment="Center">
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="12"
-                                          ShadowDepth="2"
-                                          Direction="270"
-                                          Color="#4338CA"
-                                          Opacity="0.30"/>
-                    </Border.Effect>
                     <TextBlock Text="&#xE8A5;"
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="20"
@@ -217,6 +229,7 @@
 
             <!-- ══════════════════════════════════════════════════════════
                  INVOICE ACTIONS TOOLBAR
+                 UI-01: Icon badge → solid #4338CA / White.
             ══════════════════════════════════════════════════════════ -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     CornerRadius="12"
@@ -231,16 +244,20 @@
                     </Grid.ColumnDefinitions>
 
                     <!-- Left: title with icon badge -->
-                    <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
-                        <Border Background="#EEF2FF"
-                                Width="34" Height="34"
+                    <StackPanel Grid.Column="0"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <!-- UI-01: solid #4338CA / White. Was #EEF2FF / #4338CA -->
+                        <Border Background="#4338CA"
+                                Width="34"
+                                Height="34"
                                 CornerRadius="10"
                                 VerticalAlignment="Center"
                                 Margin="0,0,12,0">
                             <TextBlock Text="&#xE945;"
                                        FontFamily="Segoe MDL2 Assets"
                                        FontSize="14"
-                                       Foreground="#4338CA"
+                                       Foreground="White"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
                         </Border>
@@ -271,8 +288,7 @@
                                            Foreground="White"
                                            VerticalAlignment="Center"
                                            Margin="0,0,8,0"/>
-                                <TextBlock Text="PRINT"
-                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="PRINT" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
@@ -286,8 +302,7 @@
                                            FontSize="13"
                                            VerticalAlignment="Center"
                                            Margin="0,0,8,0"/>
-                                <TextBlock Text="SAVE"
-                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="SAVE" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
@@ -302,8 +317,7 @@
                                            Foreground="#B91C1C"
                                            VerticalAlignment="Center"
                                            Margin="0,0,8,0"/>
-                                <TextBlock Text="PDF"
-                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="PDF" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
@@ -318,8 +332,7 @@
                                            Foreground="#047857"
                                            VerticalAlignment="Center"
                                            Margin="0,0,8,0"/>
-                                <TextBlock Text="EXCEL"
-                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="EXCEL" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
@@ -334,8 +347,7 @@
                                            Foreground="#1E40AF"
                                            VerticalAlignment="Center"
                                            Margin="0,0,8,0"/>
-                                <TextBlock Text="CSV"
-                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="CSV" VerticalAlignment="Center"/>
                             </StackPanel>
                         </Button>
 
@@ -357,8 +369,7 @@
                                            FontSize="13"
                                            VerticalAlignment="Center"
                                            Margin="0,0,8,0"/>
-                                <TextBlock Text="EMAIL"
-                                           VerticalAlignment="Center"/>
+                                <TextBlock Text="EMAIL" VerticalAlignment="Center"/>
                                 <!-- BUG-92: hardcoded SOON badge — replace when Phase 7.20 ships -->
                                 <Border Background="#FEF3C7"
                                         CornerRadius="8"
@@ -403,7 +414,8 @@
                                 HorizontalAlignment="Center"
                                 Margin="0,0,0,24">
                         <Border Background="#4B5563"
-                                Width="30" Height="30"
+                                Width="30"
+                                Height="30"
                                 CornerRadius="8"
                                 VerticalAlignment="Center"
                                 Margin="0,0,10,0">

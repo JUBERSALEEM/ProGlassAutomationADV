@@ -12,18 +12,11 @@ Changes:
   W-06  Sidebar, footer, hero card, progress bar fully preserved
   W-07  BUG-82/83/84 deferred notes preserved
 
-STEP SWAP SUMMARY:
-  Before: Step2=ProjectSpecsView  Step3=ClientProfileView
-  After:  Step2=ClientProfileView Step3=ProjectSpecsView
-
-  The ContentControl DataTrigger VALUES (2 and 3) do NOT change.
-  Only what VIEW is rendered inside each ContentControl changes.
-  Step2VM and Step3VM property names on the shell VM also changed
-  (File 4) to match the new types.
-
-  xmlns ALIASES also swap to point at correct renamed folders:
-    step2 → Step2ClientProfile  (was Step2ProjectSpecs)
-    step3 → Step3ProjectSpecs   (was Step3ClientProfile)
+CHAT 17 — LAYOUT FIX
+  BUG-82 FIXED: Removed hardcoded Margin="0,60,0,0" from root Grid.
+                App shell now reserves header space via layout, not overlay.
+                Empty band at top of page eliminated.
+  List Border top margin reduced 12→4 to align tighter with app header.
 ═══════════════════════════════════════════════════════════════════════
 -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.ProformaInvoiceView"
@@ -40,7 +33,8 @@ STEP SWAP SUMMARY:
              xmlns:step7="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview"
              xmlns:pilist="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList"
              mc:Ignorable="d"
-             d:DesignHeight="900" d:DesignWidth="1400"
+             d:DesignHeight="900"
+             d:DesignWidth="1400"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -66,8 +60,8 @@ STEP SWAP SUMMARY:
       ✅ All 7 step ContentControls
       ✅ Progress bar with ColumnSpan binding
 
-    Deferred bugs (still deferred — no change):
-      BUG-82 [MED] Magic Margin="0,60,0,0" — no theme resource yet.
+    Deferred bugs status:
+      BUG-82 [FIXED in Chat 17] Magic Margin="0,60,0,0" removed.
       BUG-83 [LOW] Grid.ColumnSpan binding — reclassified non-bug.
       BUG-84 [LOW] All 7 step controls eager-instantiated — deferred.
     ═══════════════════════════════════════════════════════════════════
@@ -196,15 +190,17 @@ STEP SWAP SUMMARY:
 
     <!-- ══════════════════════════════════════════════════════════════
          ROOT
-         Margin="0,60,0,0" — offset for app-shell header (BUG-82)
+         CHAT 17 BUG-82 FIX: Removed Margin="0,60,0,0".
+         The app-shell header no longer overlays content — it reserves
+         its own layout space. Empty band at top eliminated.
     ══════════════════════════════════════════════════════════════ -->
     <Grid Background="{DynamicResource WindowBackgroundBrush}"
-          Margin="0,60,0,0">
+          Margin="0">
 
         <!-- ══════════════════════════════════════════════════════════
              LIST VIEW
         ══════════════════════════════════════════════════════════ -->
-        <Border Margin="20,12,20,20">
+        <Border Margin="20,4,20,20">
             <Border.Style>
                 <Style TargetType="Border">
                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -231,7 +227,8 @@ STEP SWAP SUMMARY:
 
                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
                         <TextBlock Text="Proforma Invoices"
-                                   FontSize="28" FontWeight="Bold"
+                                   FontSize="28"
+                                   FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <TextBlock Text="Browse, create, edit and export proforma invoices with ease."
                                    FontSize="13"
@@ -243,21 +240,25 @@ STEP SWAP SUMMARY:
                             Command="{Binding NewInvoiceCommand}"
                             Style="{StaticResource HeroPillButton}"
                             VerticalAlignment="Center">
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal"
+                                    VerticalAlignment="Center">
                             <Border Background="#FFFFFF"
-                                    Width="22" Height="22"
+                                    Width="22"
+                                    Height="22"
                                     CornerRadius="11"
                                     Margin="0,0,10,0"
                                     VerticalAlignment="Center">
                                 <TextBlock Text="+"
-                                           FontSize="16" FontWeight="Bold"
+                                           FontSize="16"
+                                           FontWeight="Bold"
                                            Foreground="#4338CA"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
                                            Margin="0,-2,0,0"/>
                             </Border>
                             <TextBlock Text="Add Invoice"
-                                       FontSize="13" FontWeight="SemiBold"
+                                       FontSize="13"
+                                       FontWeight="SemiBold"
                                        Foreground="White"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
@@ -273,7 +274,6 @@ STEP SWAP SUMMARY:
                         </DataTemplate>
                     </ContentControl.ContentTemplate>
                 </ContentControl>
-
             </Grid>
         </Border>
 
@@ -308,7 +308,7 @@ STEP SWAP SUMMARY:
                     CornerRadius="20"
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="1"
-                    Margin="20,12,10,20"
+                    Margin="20,4,10,20"
                     SnapsToDevicePixels="True">
 
                 <Grid>
@@ -335,7 +335,8 @@ STEP SWAP SUMMARY:
                                             Padding="18,16"
                                             SnapsToDevicePixels="True">
                                         <Border.Background>
-                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                            <LinearGradientBrush StartPoint="0,0"
+                                                                 EndPoint="1,1">
                                                 <GradientStop Color="#4338CA" Offset="0"/>
                                                 <GradientStop Color="#6366F1" Offset="1"/>
                                             </LinearGradientBrush>
@@ -343,28 +344,33 @@ STEP SWAP SUMMARY:
                                         <StackPanel>
                                             <Grid>
                                                 <Border Background="#33FFFFFF"
-                                                        Width="34" Height="34"
+                                                        Width="34"
+                                                        Height="34"
                                                         CornerRadius="17"
                                                         HorizontalAlignment="Left">
                                                     <TextBlock Text="&#xE8AB;"
                                                                FontFamily="Segoe MDL2 Assets"
-                                                               FontSize="14" Foreground="White"
+                                                               FontSize="14"
+                                                               Foreground="White"
                                                                HorizontalAlignment="Center"
                                                                VerticalAlignment="Center"/>
                                                 </Border>
                                                 <Border Background="#33FFFFFF"
-                                                        Width="28" Height="28"
+                                                        Width="28"
+                                                        Height="28"
                                                         CornerRadius="14"
                                                         HorizontalAlignment="Right">
                                                     <TextBlock Text="&#xE76B;"
                                                                FontFamily="Segoe MDL2 Assets"
-                                                               FontSize="10" Foreground="White"
+                                                               FontSize="10"
+                                                               Foreground="White"
                                                                HorizontalAlignment="Center"
                                                                VerticalAlignment="Center"/>
                                                 </Border>
                                             </Grid>
                                             <TextBlock Text="Invoice List"
-                                                       FontSize="15" FontWeight="Bold"
+                                                       FontSize="15"
+                                                       FontWeight="Bold"
                                                        Foreground="White"
                                                        Margin="0,14,0,2"/>
                                             <TextBlock Text="Back to all invoices"
@@ -374,10 +380,14 @@ STEP SWAP SUMMARY:
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="BackHero" Property="Opacity" Value="0.92"/>
+                                            <Setter TargetName="BackHero"
+                                                    Property="Opacity"
+                                                    Value="0.92"/>
                                         </Trigger>
                                         <Trigger Property="IsPressed" Value="True">
-                                            <Setter TargetName="BackHero" Property="Opacity" Value="0.80"/>
+                                            <Setter TargetName="BackHero"
+                                                    Property="Opacity"
+                                                    Value="0.80"/>
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -385,7 +395,8 @@ STEP SWAP SUMMARY:
                         </Button>
 
                         <TextBlock Text="Invoice Builder"
-                                   FontSize="11" FontWeight="SemiBold"
+                                   FontSize="11"
+                                   FontWeight="SemiBold"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    Margin="4,0,0,4"/>
                         <TextBlock Text="7 steps to complete"
@@ -393,7 +404,6 @@ STEP SWAP SUMMARY:
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    Opacity="0.7"
                                    Margin="4,0,0,12"/>
-
                     </StackPanel>
 
                     <!-- Sidebar step list — titles auto-updated via WizardSteps binding -->
@@ -415,7 +425,6 @@ STEP SWAP SUMMARY:
                                             Cursor="Hand">
                                         <Button.Template>
                                             <ControlTemplate TargetType="Button">
-
                                                 <Border x:Name="StepBorder"
                                                         CornerRadius="14"
                                                         Padding="12,12"
@@ -429,14 +438,16 @@ STEP SWAP SUMMARY:
                                                         <!-- Step number circle -->
                                                         <Border x:Name="NumberCircle"
                                                                 Grid.Column="0"
-                                                                Width="28" Height="28"
+                                                                Width="28"
+                                                                Height="28"
                                                                 CornerRadius="14"
                                                                 Background="#EEF2FF"
                                                                 HorizontalAlignment="Center"
                                                                 VerticalAlignment="Center">
                                                             <TextBlock x:Name="NumberText"
                                                                        Text="{Binding StepNumber}"
-                                                                       FontSize="12" FontWeight="Bold"
+                                                                       FontSize="12"
+                                                                       FontWeight="Bold"
                                                                        Foreground="#4338CA"
                                                                        HorizontalAlignment="Center"
                                                                        VerticalAlignment="Center"/>
@@ -448,7 +459,8 @@ STEP SWAP SUMMARY:
                                                                     Margin="12,0,0,0">
                                                             <TextBlock x:Name="TitleText"
                                                                        Text="{Binding Title}"
-                                                                       FontSize="13" FontWeight="SemiBold"
+                                                                       FontSize="13"
+                                                                       FontWeight="SemiBold"
                                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                                        TextTrimming="CharacterEllipsis"/>
                                                             <TextBlock x:Name="SubtitleText"
@@ -458,7 +470,6 @@ STEP SWAP SUMMARY:
                                                                        Margin="0,2,0,0"
                                                                        TextTrimming="CharacterEllipsis"/>
                                                         </StackPanel>
-
                                                     </Grid>
                                                 </Border>
 
@@ -468,7 +479,7 @@ STEP SWAP SUMMARY:
                                                     <MultiDataTrigger>
                                                         <MultiDataTrigger.Conditions>
                                                             <Condition Binding="{Binding IsMouseOver,
-                                                                                RelativeSource={RelativeSource Self}}"
+                                                                                         RelativeSource={RelativeSource Self}}"
                                                                        Value="True"/>
                                                             <Condition Binding="{Binding IsActive}"
                                                                        Value="False"/>
@@ -479,34 +490,46 @@ STEP SWAP SUMMARY:
                                                     </MultiDataTrigger>
 
                                                     <!-- Active step -->
-                                                    <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                    <DataTrigger Binding="{Binding IsActive}"
+                                                                 Value="True">
                                                         <Setter TargetName="StepBorder"
-                                                                Property="Background" Value="#4338CA"/>
+                                                                Property="Background"
+                                                                Value="#4338CA"/>
                                                         <Setter TargetName="NumberCircle"
-                                                                Property="Background" Value="#FFFFFF"/>
+                                                                Property="Background"
+                                                                Value="#FFFFFF"/>
                                                         <Setter TargetName="NumberText"
-                                                                Property="Foreground" Value="#4338CA"/>
+                                                                Property="Foreground"
+                                                                Value="#4338CA"/>
                                                         <Setter TargetName="TitleText"
-                                                                Property="Foreground" Value="White"/>
+                                                                Property="Foreground"
+                                                                Value="White"/>
                                                         <Setter TargetName="TitleText"
-                                                                Property="FontWeight" Value="Bold"/>
+                                                                Property="FontWeight"
+                                                                Value="Bold"/>
                                                         <Setter TargetName="SubtitleText"
-                                                                Property="Foreground" Value="#CCFFFFFF"/>
+                                                                Property="Foreground"
+                                                                Value="#CCFFFFFF"/>
                                                     </DataTrigger>
 
                                                     <!-- Completed step — checkmark -->
-                                                    <DataTrigger Binding="{Binding IsCompleted}" Value="True">
+                                                    <DataTrigger Binding="{Binding IsCompleted}"
+                                                                 Value="True">
                                                         <Setter TargetName="NumberCircle"
-                                                                Property="Background" Value="#D1FAE5"/>
+                                                                Property="Background"
+                                                                Value="#D1FAE5"/>
                                                         <Setter TargetName="NumberText"
-                                                                Property="Text" Value="&#xE73E;"/>
+                                                                Property="Text"
+                                                                Value="&#xE73E;"/>
                                                         <Setter TargetName="NumberText"
                                                                 Property="FontFamily"
                                                                 Value="Segoe MDL2 Assets"/>
                                                         <Setter TargetName="NumberText"
-                                                                Property="FontSize" Value="11"/>
+                                                                Property="FontSize"
+                                                                Value="11"/>
                                                         <Setter TargetName="NumberText"
-                                                                Property="Foreground" Value="#047857"/>
+                                                                Property="Foreground"
+                                                                Value="#047857"/>
                                                     </DataTrigger>
 
                                                 </ControlTemplate.Triggers>
@@ -527,13 +550,16 @@ STEP SWAP SUMMARY:
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="Current Step"
-                                           FontSize="10" FontWeight="SemiBold"
+                                           FontSize="10"
+                                           FontWeight="SemiBold"
                                            Foreground="#4338CA"
                                            VerticalAlignment="Center"/>
                                 <TextBlock Text=" • "
-                                           FontSize="10" Foreground="#4338CA"
+                                           FontSize="10"
+                                           Foreground="#4338CA"
                                            VerticalAlignment="Center"/>
-                                <TextBlock FontSize="10" FontWeight="SemiBold"
+                                <TextBlock FontSize="10"
+                                           FontWeight="SemiBold"
                                            Foreground="#4338CA"
                                            VerticalAlignment="Center">
                                     <Run Text="{Binding CurrentStepNumber, Mode=OneWay}"/>
@@ -548,7 +574,8 @@ STEP SWAP SUMMARY:
                             -->
                             <Grid Margin="0,8,0,0">
                                 <Border Background="#DBEAFE"
-                                        Height="4" CornerRadius="2"/>
+                                        Height="4"
+                                        CornerRadius="2"/>
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -562,7 +589,8 @@ STEP SWAP SUMMARY:
                                     <Border Grid.Column="0"
                                             Grid.ColumnSpan="{Binding CurrentStepNumber}"
                                             Background="#4338CA"
-                                            Height="4" CornerRadius="2"
+                                            Height="4"
+                                            CornerRadius="2"
                                             HorizontalAlignment="Stretch"/>
                                 </Grid>
                             </Grid>
@@ -576,7 +604,7 @@ STEP SWAP SUMMARY:
                  RIGHT CONTENT AREA
             ══════════════════════════════════════════════════════ -->
             <Border Grid.Column="1"
-                    Margin="10,12,20,20">
+                    Margin="10,4,20,20">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
@@ -598,7 +626,8 @@ STEP SWAP SUMMARY:
                                     <Style TargetType="ContentControl">
                                         <Setter Property="Visibility" Value="Collapsed"/>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding CurrentStepNumber}" Value="1">
+                                            <DataTrigger Binding="{Binding CurrentStepNumber}"
+                                                         Value="1">
                                                 <Setter Property="Visibility" Value="Visible"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -623,7 +652,8 @@ STEP SWAP SUMMARY:
                                     <Style TargetType="ContentControl">
                                         <Setter Property="Visibility" Value="Collapsed"/>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding CurrentStepNumber}" Value="2">
+                                            <DataTrigger Binding="{Binding CurrentStepNumber}"
+                                                         Value="2">
                                                 <Setter Property="Visibility" Value="Visible"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -648,7 +678,8 @@ STEP SWAP SUMMARY:
                                     <Style TargetType="ContentControl">
                                         <Setter Property="Visibility" Value="Collapsed"/>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding CurrentStepNumber}" Value="3">
+                                            <DataTrigger Binding="{Binding CurrentStepNumber}"
+                                                         Value="3">
                                                 <Setter Property="Visibility" Value="Visible"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -667,7 +698,8 @@ STEP SWAP SUMMARY:
                                     <Style TargetType="ContentControl">
                                         <Setter Property="Visibility" Value="Collapsed"/>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding CurrentStepNumber}" Value="4">
+                                            <DataTrigger Binding="{Binding CurrentStepNumber}"
+                                                         Value="4">
                                                 <Setter Property="Visibility" Value="Visible"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -686,7 +718,8 @@ STEP SWAP SUMMARY:
                                     <Style TargetType="ContentControl">
                                         <Setter Property="Visibility" Value="Collapsed"/>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding CurrentStepNumber}" Value="5">
+                                            <DataTrigger Binding="{Binding CurrentStepNumber}"
+                                                         Value="5">
                                                 <Setter Property="Visibility" Value="Visible"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -705,7 +738,8 @@ STEP SWAP SUMMARY:
                                     <Style TargetType="ContentControl">
                                         <Setter Property="Visibility" Value="Collapsed"/>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding CurrentStepNumber}" Value="6">
+                                            <DataTrigger Binding="{Binding CurrentStepNumber}"
+                                                         Value="6">
                                                 <Setter Property="Visibility" Value="Visible"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -724,7 +758,8 @@ STEP SWAP SUMMARY:
                                     <Style TargetType="ContentControl">
                                         <Setter Property="Visibility" Value="Collapsed"/>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding CurrentStepNumber}" Value="7">
+                                            <DataTrigger Binding="{Binding CurrentStepNumber}"
+                                                         Value="7">
                                                 <Setter Property="Visibility" Value="Visible"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -752,7 +787,6 @@ STEP SWAP SUMMARY:
                             Margin="0,16,0,0"
                             Padding="20,14"
                             SnapsToDevicePixels="True">
-
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="Auto"/>
@@ -764,7 +798,8 @@ STEP SWAP SUMMARY:
                             <Button Grid.Column="0"
                                     Command="{Binding PreviousStepCommand}"
                                     Style="{StaticResource NeutralPillButton}">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal"
+                                            VerticalAlignment="Center">
                                     <TextBlock Text="&#xE76B;"
                                                FontFamily="Segoe MDL2 Assets"
                                                FontSize="11"
@@ -772,7 +807,8 @@ STEP SWAP SUMMARY:
                                                VerticalAlignment="Center"
                                                Margin="0,0,8,0"/>
                                     <TextBlock Text="Back"
-                                               FontSize="13" FontWeight="SemiBold"
+                                               FontSize="13"
+                                               FontWeight="SemiBold"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
@@ -781,7 +817,8 @@ STEP SWAP SUMMARY:
                             <!-- STEP X OF 7 -->
                             <TextBlock Grid.Column="1"
                                        Text="{Binding StepProgressText}"
-                                       FontSize="12" FontWeight="SemiBold"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
@@ -790,26 +827,26 @@ STEP SWAP SUMMARY:
                             <Button Grid.Column="2"
                                     Command="{Binding NextStepCommand}"
                                     Style="{StaticResource HeroPillButton}">
-                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <StackPanel Orientation="Horizontal"
+                                            VerticalAlignment="Center">
                                     <TextBlock Text="Continue"
-                                               FontSize="13" FontWeight="SemiBold"
+                                               FontSize="13"
+                                               FontWeight="SemiBold"
                                                Foreground="White"
                                                VerticalAlignment="Center"/>
                                     <TextBlock Text="&#xE76C;"
                                                FontFamily="Segoe MDL2 Assets"
-                                               FontSize="11" Foreground="White"
+                                               FontSize="11"
+                                               Foreground="White"
                                                VerticalAlignment="Center"
                                                Margin="8,0,0,0"/>
                                 </StackPanel>
                             </Button>
-
                         </Grid>
                     </Border>
 
                 </Grid>
             </Border>
-
         </Grid>
-
     </Grid>
 </UserControl>

@@ -1,4 +1,17 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges.OtherChargesView"
+﻿<!--
+═══════════════════════════════════════════════════════════════════════
+FILE: Views/ProformaInvoice/Step6OtherCharges/OtherChargesView.xaml
+═══════════════════════════════════════════════════════════════════════
+CHAT 17 — PERFORMANCE + UI POLISH
+  PERF-01: Removed DropShadowEffect from Step Header Icon.
+  PERF-02: Removed DropShadowEffect from Metric Discovery Hub container.
+           Indigo BorderBrush + BorderThickness=1 preserved for emphasis.
+  UI-01:   Metric Hub section header icon → solid #4338CA / White.
+  All bindings, MultiDataTriggers, ComboBox visibility rules, and
+  Bug 4 / Bug 5 fixes preserved exactly.
+═══════════════════════════════════════════════════════════════════════
+-->
+<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges.OtherChargesView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -7,7 +20,8 @@
              xmlns:wastages="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges.Wastages"
              xmlns:custom="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges.CustomCharges"
              mc:Ignorable="d"
-             d:DesignHeight="1200" d:DesignWidth="1200"
+             d:DesignHeight="1200"
+             d:DesignWidth="1200"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -22,15 +36,15 @@
              Green when active (money editable), muted when inactive
         ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="RateInputStyle" TargetType="TextBox">
-            <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground"               Value="#047857"/>
-            <Setter Property="BorderThickness"          Value="1"/>
-            <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="FontSize"                 Value="12"/>
-            <Setter Property="FontWeight"               Value="Bold"/>
-            <Setter Property="Padding"                  Value="8,0"/>
-            <Setter Property="Height"                   Value="30"/>
-            <Setter Property="MinWidth"                 Value="64"/>
+            <Setter Property="Background"                Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground"                Value="#047857"/>
+            <Setter Property="BorderThickness"           Value="1"/>
+            <Setter Property="BorderBrush"               Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="FontSize"                  Value="12"/>
+            <Setter Property="FontWeight"                Value="Bold"/>
+            <Setter Property="Padding"                   Value="8,0"/>
+            <Setter Property="Height"                    Value="30"/>
+            <Setter Property="MinWidth"                  Value="64"/>
             <Setter Property="HorizontalContentAlignment" Value="Center"/>
             <Setter Property="VerticalContentAlignment"   Value="Center"/>
             <Setter Property="Template">
@@ -133,19 +147,14 @@
 
             <!-- ══════════════════════════════════════════════════════════
                  STEP HEADER
+                 PERF-01: DropShadowEffect removed.
             ══════════════════════════════════════════════════════════ -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                 <Border Background="#4338CA"
-                        Width="44" Height="44"
+                        Width="44"
+                        Height="44"
                         CornerRadius="12"
                         VerticalAlignment="Center">
-                    <Border.Effect>
-                        <DropShadowEffect BlurRadius="12"
-                                          ShadowDepth="2"
-                                          Direction="270"
-                                          Color="#4338CA"
-                                          Opacity="0.30"/>
-                    </Border.Effect>
                     <!-- Segoe MDL2 money / receipt icon -->
                     <TextBlock Text="&#xE8C7;"
                                FontFamily="Segoe MDL2 Assets"
@@ -175,6 +184,7 @@
 
             <!-- ══════════════════════════════════════════════════════════
                  AUTOMATED METRIC DISCOVERY HUB
+                 PERF-02: DropShadowEffect removed. BorderBrush indigo kept.
             ══════════════════════════════════════════════════════════ -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     CornerRadius="14"
@@ -182,27 +192,21 @@
                     BorderThickness="1"
                     BorderBrush="#4338CA"
                     Margin="0,0,0,18">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="14"
-                                      ShadowDepth="2"
-                                      Direction="270"
-                                      Color="#4338CA"
-                                      Opacity="0.10"/>
-                </Border.Effect>
 
                 <StackPanel>
 
-                    <!-- Section title with icon badge -->
+                    <!-- Section title with icon badge — UI-01: solid #4338CA / White -->
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                        <Border Background="#EEF2FF"
-                                Width="28" Height="28"
+                        <Border Background="#4338CA"
+                                Width="28"
+                                Height="28"
                                 CornerRadius="8"
                                 VerticalAlignment="Center"
                                 Margin="0,0,10,0">
                             <TextBlock Text="&#xE9D2;"
                                        FontFamily="Segoe MDL2 Assets"
                                        FontSize="13"
-                                       Foreground="#4338CA"
+                                       Foreground="White"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
                         </Border>

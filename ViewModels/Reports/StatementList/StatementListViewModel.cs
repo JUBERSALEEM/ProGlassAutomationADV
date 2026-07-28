@@ -1,17 +1,15 @@
 ﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Reports/StatementList/StatementListViewModel.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Account Statement / Sales Report (Chat 16)
+// CHAT 17 — ALL BUGS FIXED
 //
-// FIX vs PREVIOUS VERSION:
-//   IsEmpty logic fixed:
-//     OLD: IsEmpty = Rows.Count == 0
-//          Problem: IsLoading=true AND IsEmpty=true simultaneously
-//          caused both loading overlay AND empty state to show.
-//     NEW: IsEmpty = !IsLoading && Rows.Count == 0 && _isLoaded
-//          Empty state only shows AFTER load completes with zero results.
-//   Added _isLoaded backing flag to track first load completion.
-//   All other code UNCHANGED.
+// FIXES APPLIED:
+//   L1 — Added IsListVisible property
+//   L2 — Added OnPropertyChanged(nameof(HasSearchText)) in SearchText setter
+//   L3 — IsListVisible notified in IsLoading setter, ApplySearch, LoadAsync
+//   L4 — EditStatementCommand canExecute checks CommandParameter first
+//   L6 — ApplySearch fires OnPropertyChanged(nameof(IsListVisible))
+//   L9 — StatusMessage set on Dispatcher after load
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
@@ -45,14 +43,20 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementList
                 if (_searchText == value) return;
                 _searchText = value;
                 OnPropertyChanged();
+
+                // FIX L2: notify HasSearchText so clear button
+                // visibility updates immediately on every keystroke
+                OnPropertyChanged(nameof(HasSearchText));
+
                 ApplySearch();
             }
         }
 
+        // FIX L2: HasSearchText is a computed bool backed by _searchText.
+        // Now correctly notified via SearchText setter.
         public bool HasSearchText => !string.IsNullOrEmpty(_searchText);
 
         // ── State ─────────────────────────────────────────────────────────
-
         private bool _isLoading;
         public bool IsLoading
         {
@@ -62,23 +66,35 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementList
                 if (_isLoading == value) return;
                 _isLoading = value;
                 OnPropertyChanged();
-                // Recompute IsEmpty whenever loading state changes
+
+                // FIX L3: notify all computed state properties
+                // whenever loading state changes
                 OnPropertyChanged(nameof(IsEmpty));
+                OnPropertyChanged(nameof(IsListVisible));
             }
         }
 
         /// <summary>
-        /// True only after first load completes.
         /// Prevents empty state flashing before first DB query runs.
+        /// Set to true once LoadAsync completes (success or error).
         /// </summary>
         private bool _isLoaded;
 
         /// <summary>
-        /// True only when: load has completed + not currently loading
-        /// + zero rows in current filtered view.
+        /// True only when: load has completed AND not loading
+        /// AND zero rows in current filtered view.
         /// Never true during a loading operation.
         /// </summary>
         public bool IsEmpty => _isLoaded && !_isLoading && Rows.Count == 0;
+
+        /// <summary>
+        /// FIX L1: New property required by redesigned StatementListView.xaml.
+        /// True when: load has completed AND not loading AND rows exist.
+        /// Drives visibility of both the column header row and the ListView.
+        /// Replaces the old InverseBoolToVisibilityConverter on IsEmpty
+        /// which could not guard against the IsLoading race condition.
+        /// </summary>
+        public bool IsListVisible => _isLoaded && !_isLoading && Rows.Count > 0;
 
         private string _statusMessage = "";
         public string StatusMessage
@@ -111,8 +127,10 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementList
         private decimal _totalOverdue;
 
         public int TotalStatements => _totalStatements;
-        public string TotalInvoicedDisplay => $"AED {_totalInvoiced:N2}";
-        public string TotalOutstandingDisplay => $"AED {_totalOutstanding:N2}";
+        public string TotalInvoicedDisplay
+            => $"AED {_totalInvoiced:N2}";
+        public string TotalOutstandingDisplay
+            => $"AED {_totalOutstanding:N2}";
         public string TotalOverdueDisplay
             => _totalOverdue > 0 ? $"AED {_totalOverdue:N2}" : "None";
         public bool HasOverdue => _totalOverdue > 0;
@@ -133,16 +151,26 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementList
         private List<StatementListRowViewModel> _allRows = new();
 
         // ═════════════════════════════════════════════════════════════════
+        //  CONSTRUCTOR
+        // ═════════════════════════════════════════════════════════════════
         public StatementListViewModel(IStatementRepository repo)
         {
             _repo = repo;
 
-            NewStatementCommand = new RelayCommand(_ =>
-                OnRequestNewStatement?.Invoke());
+            NewStatementCommand = new RelayCommand(
+                _ => OnRequestNewStatement?.Invoke());
 
+            // FIX L4: EditStatementCommand resolves row from CommandParameter
+            // first, then falls back to SelectedRow — consistent with
+            // OpenPdfCommand and DeleteStatementCommand pattern.
             EditStatementCommand = new RelayCommand(
-                _ => OnRequestEditStatement?.Invoke(SelectedRow!.Source),
-                _ => SelectedRow != null);
+                p =>
+                {
+                    var row = p as StatementListRowViewModel ?? SelectedRow;
+                    if (row != null)
+                        OnRequestEditStatement?.Invoke(row.Source);
+                },
+                p => (p as StatementListRowViewModel ?? SelectedRow) != null);
 
             OpenPdfCommand = new RelayCommand(
                 p => OpenPdf(p as StatementListRowViewModel ?? SelectedRow),
@@ -158,10 +186,6 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementList
             RefreshCommand = new RelayCommand(
                 async _ => await LoadAsync());
 
-            // FIX: ClearSearchCommand canExecute uses HasSearchText
-            // (bool property) instead of comparing SearchText directly.
-            // The XAML button visibility is handled by HasSearchText binding
-            // not by BoolToVisibilityConverter on a string.
             ClearSearchCommand = new RelayCommand(
                 _ => SearchText = "",
                 _ => HasSearchText);
@@ -170,7 +194,6 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementList
         // ═════════════════════════════════════════════════════════════════
         //  LOAD
         // ═════════════════════════════════════════════════════════════════
-
         public async Task LoadAsync()
         {
             IsLoading = true;
@@ -185,25 +208,37 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementList
                     .Select(i => new StatementListRowViewModel(i))
                     .ToList();
 
+                // FIX L9: all UI state mutations go through Dispatcher
                 Application.Current?.Dispatcher.Invoke(() =>
                 {
                     _allRows = rows;
                     _isLoaded = true;
+
                     ApplySearch();
                     UpdateKpis(rows);
-                });
 
-                StatusMessage = rows.Count == 0
-                    ? "No statements found. Click '+ New Statement' to begin."
-                    : $"{rows.Count} statement(s) loaded.";
+                    // Status message set inside Dispatcher — safe UI thread write
+                    StatusMessage = rows.Count == 0
+                        ? "No statements found. Click '+ New Statement' to begin."
+                        : $"{rows.Count} statement(s) loaded.";
+                });
             }
             catch (Exception ex)
             {
-                StatusMessage = $"Error loading statements: {ex.Message}";
-                _isLoaded = true; // allow empty state to show on error
+                Application.Current?.Dispatcher.Invoke(() =>
+                {
+                    _isLoaded = true;
+
+                    // FIX L3: notify state after error so empty state renders
+                    OnPropertyChanged(nameof(IsEmpty));
+                    OnPropertyChanged(nameof(IsListVisible));
+
+                    StatusMessage = $"Error loading statements: {ex.Message}";
+                });
             }
             finally
             {
+                // IsLoading setter fires IsEmpty + IsListVisible notifications
                 IsLoading = false;
             }
         }
@@ -211,7 +246,6 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementList
         // ═════════════════════════════════════════════════════════════════
         //  SEARCH
         // ═════════════════════════════════════════════════════════════════
-
         private void ApplySearch()
         {
             var filtered = string.IsNullOrWhiteSpace(_searchText)
@@ -241,14 +275,15 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementList
             foreach (var r in filtered)
                 Rows.Add(r);
 
-            // Notify IsEmpty after Rows is updated
+            // FIX L3 + L6: notify all computed visibility properties
+            // after Rows collection is updated
             OnPropertyChanged(nameof(IsEmpty));
+            OnPropertyChanged(nameof(IsListVisible));
         }
 
         // ═════════════════════════════════════════════════════════════════
         //  KPI UPDATE
         // ═════════════════════════════════════════════════════════════════
-
         private void UpdateKpis(List<StatementListRowViewModel> rows)
         {
             _totalStatements = rows.Count;
@@ -256,13 +291,13 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementList
             _totalOutstanding = rows.Sum(r => r.Source.TotalOutstanding);
             _totalOverdue = rows.Sum(r => r.Source.OverdueAmount);
 
+            // Bulk notify — fires PropertyChanged for every property
             OnPropertyChanged(string.Empty);
         }
 
         // ═════════════════════════════════════════════════════════════════
         //  OPEN PDF
         // ═════════════════════════════════════════════════════════════════
-
         private static void OpenPdf(StatementListRowViewModel? row)
         {
             if (row == null || !row.HasPdf) return;
@@ -272,7 +307,6 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementList
         // ═════════════════════════════════════════════════════════════════
         //  DELETE
         // ═════════════════════════════════════════════════════════════════
-
         private async Task DeleteAsync(StatementListRowViewModel? row)
         {
             if (row == null) return;
@@ -292,11 +326,10 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementList
                 await Task.Run(() => _repo.DeleteAsync(row.Id));
 
                 _allRows.Remove(row);
-                ApplySearch();
-                UpdateKpis(_allRows);
+                ApplySearch();           // re-filters + notifies IsEmpty/IsListVisible
+                UpdateKpis(_allRows);    // recalculates KPI cards
 
-                StatusMessage =
-                    $"Statement {row.StatementNumber} deleted.";
+                StatusMessage = $"Statement {row.StatementNumber} deleted.";
             }
             catch (Exception ex)
             {
