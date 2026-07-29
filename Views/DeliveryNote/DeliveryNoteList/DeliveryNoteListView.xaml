@@ -12,9 +12,7 @@
 
     <UserControl.Resources>
 
-        <!-- ══════════════════════════════════════════════════════════════
-             SHIP 8b + 8c-2 — JO GROUP ROW TEMPLATE (per-JO summary)
-        ══════════════════════════════════════════════════════════════ -->
+        <!-- ══ JO GROUP ROW TEMPLATE ══ -->
         <DataTemplate x:Key="JoGroupRowTemplate">
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
@@ -49,20 +47,19 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- ── LEFT: JO info + badges + customer/project + latest DN ── -->
+                    <!-- LEFT: JO info + badges -->
                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
 
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock Text="📋 " FontSize="14"
-                                       VerticalAlignment="Center"
-                                       Opacity="0.7"/>
+                                       VerticalAlignment="Center" Opacity="0.7"/>
                             <TextBlock Text="{Binding JobOrderId}"
                                        FontSize="15" FontWeight="Bold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        VerticalAlignment="Center"/>
 
-                            <Border CornerRadius="6" Padding="7,2" Margin="10,0,0,0"
-                                    VerticalAlignment="Center"
+                            <Border CornerRadius="6" Padding="7,2"
+                                    Margin="10,0,0,0" VerticalAlignment="Center"
                                     Background="{DynamicResource TintIndigoBrush}">
                                 <TextBlock FontSize="9" FontWeight="Bold"
                                            Foreground="{DynamicResource PrimaryForegroundBrush}">
@@ -71,8 +68,8 @@
                                 </TextBlock>
                             </Border>
 
-                            <Border CornerRadius="6" Padding="7,2" Margin="6,0,0,0"
-                                    VerticalAlignment="Center">
+                            <Border CornerRadius="6" Padding="7,2"
+                                    Margin="6,0,0,0" VerticalAlignment="Center">
                                 <Border.Style>
                                     <Style TargetType="Border">
                                         <Setter Property="Background"
@@ -100,8 +97,8 @@
                                 </TextBlock>
                             </Border>
 
-                            <Border CornerRadius="6" Padding="7,2" Margin="6,0,0,0"
-                                    VerticalAlignment="Center"
+                            <Border CornerRadius="6" Padding="7,2"
+                                    Margin="6,0,0,0" VerticalAlignment="Center"
                                     Background="{DynamicResource TintAmberBrush}"
                                     Visibility="{Binding HasFoc,
                                                  Converter={StaticResource BoolToVisibilityConverter}}">
@@ -109,8 +106,8 @@
                                            Foreground="#B45309"/>
                             </Border>
 
-                            <Border CornerRadius="6" Padding="7,2" Margin="6,0,0,0"
-                                    VerticalAlignment="Center"
+                            <Border CornerRadius="6" Padding="7,2"
+                                    Margin="6,0,0,0" VerticalAlignment="Center"
                                     Background="{DynamicResource TintAmberBrush}"
                                     Visibility="{Binding HasRework,
                                                  Converter={StaticResource BoolToVisibilityConverter}}">
@@ -118,13 +115,48 @@
                                            Foreground="#B45309"/>
                             </Border>
 
-                            <Border CornerRadius="6" Padding="7,2" Margin="6,0,0,0"
-                                    VerticalAlignment="Center"
-                                    Background="{DynamicResource TintRedBrush}"
-                                    Visibility="{Binding HasReturn,
-                                                 Converter={StaticResource BoolToVisibilityConverter}}">
+                            <Border CornerRadius="6" Padding="7,2"
+        Margin="6,0,0,0" VerticalAlignment="Center"
+        Background="{DynamicResource TintRedBrush}"
+        Visibility="{Binding HasReturn,
+                     Converter={StaticResource BoolToVisibilityConverter}}">
                                 <TextBlock Text="↩ RETURN" FontSize="9" FontWeight="Bold"
-                                           Foreground="#B91C1C"/>
+               Foreground="#B91C1C"/>
+                            </Border>
+
+                            <!-- CHAT 19 INVOICED: Fully Invoiced badge — green -->
+                            <Border CornerRadius="6" Padding="7,2"
+        Margin="6,0,0,0" VerticalAlignment="Center"
+        Background="{DynamicResource TintGreenBrush}"
+        Visibility="{Binding IsFullyInvoiced,
+                     Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Text="{Binding InvoicedBadgeText}"
+               FontSize="9" FontWeight="Bold"
+               Foreground="#047857"/>
+                            </Border>
+
+                            <!-- CHAT 19 INVOICED: Partial Invoice badge — indigo
+     Shown only when HasAnyInvoiced=true AND IsFullyInvoiced=false -->
+                            <Border CornerRadius="6" Padding="7,2"
+        Margin="6,0,0,0" VerticalAlignment="Center"
+        Background="{DynamicResource TintIndigoBrush}">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding HasAnyInvoiced}" Value="True"/>
+                                                    <Condition Binding="{Binding IsFullyInvoiced}" Value="False"/>
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock Text="{Binding InvoicedBadgeText}"
+               FontSize="9" FontWeight="Bold"
+               Foreground="#4338CA"/>
                             </Border>
                         </StackPanel>
 
@@ -135,11 +167,9 @@
                                        VerticalAlignment="Center"
                                        TextTrimming="CharacterEllipsis"
                                        MaxWidth="240"/>
-                            <TextBlock Text=" · "
-                                       FontSize="12"
+                            <TextBlock Text=" · " FontSize="12"
                                        Foreground="{DynamicResource MutedForegroundBrush}"
-                                       VerticalAlignment="Center"
-                                       Margin="4,0"/>
+                                       VerticalAlignment="Center" Margin="4,0"/>
                             <TextBlock Text="{Binding ProjectName}"
                                        FontSize="12"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -150,8 +180,7 @@
 
                         <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                             <TextBlock Text="📅 Latest: " FontSize="10"
-                                       VerticalAlignment="Center"
-                                       Opacity="0.7"
+                                       VerticalAlignment="Center" Opacity="0.7"
                                        Foreground="{DynamicResource MutedForegroundBrush}"/>
                             <TextBlock Text="{Binding LatestDeliveryDateDisplay}"
                                        FontSize="10" FontWeight="SemiBold"
@@ -180,7 +209,7 @@
                         </StackPanel>
                     </StackPanel>
 
-                    <!-- ── MIDDLE: progress bar + qty + SQM ── -->
+                    <!-- MIDDLE: progress + qty + SQM -->
                     <StackPanel Grid.Column="1"
                                 VerticalAlignment="Center"
                                 Margin="16,0,16,0">
@@ -196,8 +225,7 @@
                         <Border x:Name="ProgressTrack"
                                 CornerRadius="4" Height="8"
                                 Background="{DynamicResource BorderBrush}">
-                            <Border CornerRadius="4"
-                                    HorizontalAlignment="Left">
+                            <Border CornerRadius="4" HorizontalAlignment="Left">
                                 <Border.Style>
                                     <Style TargetType="Border">
                                         <Setter Property="Background" Value="#4338CA"/>
@@ -219,11 +247,9 @@
                         </Border>
 
                         <TextBlock HorizontalAlignment="Right"
-                                   FontSize="10"
-                                   Margin="0,5,0,0"
+                                   FontSize="10" Margin="0,5,0,0"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}">
-                            <Run Text="QTY: "
-                                 FontWeight="Bold"
+                            <Run Text="QTY: " FontWeight="Bold"
                                  Foreground="{DynamicResource MutedForegroundBrush}"/>
                             <Run Text="{Binding TotalOrdered, Mode=OneWay}"
                                  FontWeight="SemiBold"/>
@@ -237,28 +263,58 @@
                         </TextBlock>
 
                         <TextBlock HorizontalAlignment="Right"
-                                   FontSize="10"
-                                   Margin="0,3,0,0"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}">
-                            <Run Text="SQM: "
-                                 FontWeight="Bold"
-                                 Foreground="{DynamicResource MutedForegroundBrush}"/>
-                            <Run Text="{Binding TotalOrderedSqm, Mode=OneWay,
-                                        StringFormat={}{0:0.000}}"
-                                 FontWeight="SemiBold"/>
-                            <Run Text=" ord · "/>
-                            <Run Text="{Binding TotalDeliveredSqm, Mode=OneWay,
-                                        StringFormat={}{0:0.000}}"
-                                 FontWeight="SemiBold" Foreground="#047857"/>
-                            <Run Text=" del · "/>
-                            <Run Text="{Binding TotalBalanceSqm, Mode=OneWay,
-                                        StringFormat={}{0:0.000}}"
-                                 FontWeight="SemiBold" Foreground="#B45309"/>
-                            <Run Text=" bal"/>
+           FontSize="10" Margin="0,3,0,0"
+           Foreground="{DynamicResource SecondaryForegroundBrush}">
+    <Run Text="SQM: " FontWeight="Bold"
+         Foreground="{DynamicResource MutedForegroundBrush}"/>
+    <Run Text="{Binding TotalOrderedSqm, Mode=OneWay,
+                StringFormat={}{0:0.000}}"
+         FontWeight="SemiBold"/>
+    <Run Text=" ord · "/>
+    <Run Text="{Binding TotalDeliveredSqm, Mode=OneWay,
+                StringFormat={}{0:0.000}}"
+         FontWeight="SemiBold" Foreground="#047857"/>
+    <Run Text=" del · "/>
+    <Run Text="{Binding TotalBalanceSqm, Mode=OneWay,
+                StringFormat={}{0:0.000}}"
+         FontWeight="SemiBold" Foreground="#B45309"/>
+    <Run Text=" bal"/>
+                        </TextBlock>
+
+                        <!-- CHAT 19 INVOICED: invoice count line
+     Shows "2 of 3 invoiced" when at least one DN is invoiced.
+     Hidden when no invoices exist (InvoicedCountDisplay = ""). -->
+                        <TextBlock HorizontalAlignment="Right"
+           FontSize="10" Margin="0,3,0,0"
+           FontWeight="Bold">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasAnyInvoiced}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+    <Run Text="🧾 "
+         Foreground="{DynamicResource MutedForegroundBrush}"/>
+    <Run Text="{Binding InvoicedCountDisplay, Mode=OneWay}">
+        <Run.Style>
+            <Style TargetType="Run">
+                <Setter Property="Foreground" Value="#4338CA"/>
+                <Style.Triggers>
+                    <DataTrigger Binding="{Binding IsFullyInvoiced}" Value="True">
+                        <Setter Property="Foreground" Value="#047857"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Run.Style>
+    </Run>
                         </TextBlock>
                     </StackPanel>
 
-                    <!-- ── RIGHT: action buttons ── -->
+                    <!-- RIGHT: action buttons -->
                     <StackPanel Grid.Column="2"
                                 Orientation="Vertical"
                                 VerticalAlignment="Center"
@@ -267,17 +323,14 @@
                         <Button Command="{Binding DataContext.OpenGroupCommand,
                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"
-                                Cursor="Hand"
-                                Margin="0,0,0,6">
+                                Cursor="Hand" Margin="0,0,0,6">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Bg"
                                             Background="{DynamicResource AccentBrush}"
-                                            CornerRadius="7"
-                                            Padding="0,8">
+                                            CornerRadius="7" Padding="0,8">
                                         <TextBlock Text="📂  Open"
-                                                   FontSize="11"
-                                                   FontWeight="Bold"
+                                                   FontSize="11" FontWeight="Bold"
                                                    Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    HorizontalAlignment="Center"/>
                                     </Border>
@@ -297,18 +350,16 @@
                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"
                                 Cursor="Hand"
-                                ToolTip="Generate Master Tax Invoice for the whole order (Phase 19). Enabled only when every split is Delivered / Signed / Received.">
+                                ToolTip="Generate Master Tax Invoice for this order.">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="Bg"
-                                            CornerRadius="7"
-                                            Padding="0,8"
+                                            CornerRadius="7" Padding="0,8"
                                             BorderThickness="1.5"
                                             Background="{DynamicResource TintGreenBrush}"
                                             BorderBrush="#047857">
                                         <TextBlock Text="🧾  Master Invoice"
-                                                   FontSize="10"
-                                                   FontWeight="Bold"
+                                                   FontSize="10" FontWeight="Bold"
                                                    Foreground="#047857"
                                                    HorizontalAlignment="Center"/>
                                     </Border>
@@ -335,7 +386,7 @@
             </Border>
         </DataTemplate>
 
-        <!-- ══ LEGACY DN ROW TEMPLATE — kept for backward compat ══ -->
+        <!-- ══ LEGACY DN ROW TEMPLATE ══ -->
         <DataTemplate x:Key="DnRowTemplate">
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderThickness="3,1,1,1"
@@ -374,6 +425,7 @@
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Focusable" Value="False"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="Template">
                 <Setter.Value>
@@ -397,25 +449,20 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="10"
-                                Padding="12,0"
+                                CornerRadius="10" Padding="12,0"
                                 SnapsToDevicePixels="True">
                             <StackPanel Orientation="Horizontal"
                                         VerticalAlignment="Center"
                                         HorizontalAlignment="Center">
                                 <TextBlock Text="{TemplateBinding Tag}"
-                                           FontSize="15"
-                                           VerticalAlignment="Center"
-                                           Opacity="0.7"
-                                           Margin="0,0,8,0"/>
+                                           FontSize="15" VerticalAlignment="Center"
+                                           Opacity="0.7" Margin="0,0,8,0"/>
                                 <TextBlock Text="{TemplateBinding Content}"
                                            FontSize="11" FontWeight="Bold"
                                            VerticalAlignment="Center"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                <Border CornerRadius="10"
-                                        Padding="7,2"
-                                        Margin="8,0,0,0"
-                                        VerticalAlignment="Center"
+                                <Border CornerRadius="10" Padding="7,2"
+                                        Margin="8,0,0,0" VerticalAlignment="Center"
                                         Background="{DynamicResource MenuHoverBrush}">
                                     <TextBlock Text="{TemplateBinding CommandParameter}"
                                                FontSize="10" FontWeight="Bold"
@@ -444,8 +491,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Card"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="10"
-                                Padding="12,0"
+                                CornerRadius="10" Padding="12,0"
                                 SnapsToDevicePixels="True">
                             <Border.BorderBrush>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -463,8 +509,7 @@
                                         VerticalAlignment="Center"
                                         HorizontalAlignment="Center">
                                 <TextBlock Text="{TemplateBinding Tag}"
-                                           FontSize="15"
-                                           VerticalAlignment="Center"
+                                           FontSize="15" VerticalAlignment="Center"
                                            Margin="0,0,8,0"/>
                                 <TextBlock Text="{TemplateBinding Content}"
                                            FontSize="11" FontWeight="Bold"
@@ -476,10 +521,8 @@
                                         </LinearGradientBrush>
                                     </TextBlock.Foreground>
                                 </TextBlock>
-                                <Border CornerRadius="10"
-                                        Padding="7,2"
-                                        Margin="8,0,0,0"
-                                        VerticalAlignment="Center"
+                                <Border CornerRadius="10" Padding="7,2"
+                                        Margin="8,0,0,0" VerticalAlignment="Center"
                                         Background="#4338CA">
                                     <TextBlock Text="{TemplateBinding CommandParameter}"
                                                FontSize="10" FontWeight="Bold"
@@ -539,16 +582,14 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="Delivery Notes"
                                FontSize="26" FontWeight="Bold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock Text="One row per Job Order. Click to open the latest split. Right-click for actions."
+                    <TextBlock Text="One row per Job Order. Click to open the latest split."
                                FontSize="12" Margin="0,3,0,0"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </StackPanel>
-
                 <Button Grid.Column="1"
                         Content="🚚  Create DN"
                         Command="{Binding CreateDnCommand}"
@@ -568,10 +609,9 @@
 
             <Border Visibility="{Binding HasError,
                                  Converter={StaticResource BoolToVisibilityConverter}}"
-                    Background="#FEF2F2"
-                    BorderBrush="#FECACA"
-                    BorderThickness="1"
-                    CornerRadius="12" Padding="14" Margin="4,0,4,10">
+                    Background="#FEF2F2" BorderBrush="#FECACA"
+                    BorderThickness="1" CornerRadius="12"
+                    Padding="14" Margin="4,0,4,10">
                 <TextBlock Text="{Binding ErrorMessage}"
                            Foreground="#B91C1C"
                            FontSize="12" TextWrapping="Wrap"/>
@@ -587,16 +627,14 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <hero:GradientHeroCard Grid.Column="0"
-                           Icon="📦"
+                <hero:GradientHeroCard Grid.Column="0" Icon="📦"
                            Value="{Binding HeroCard1Value}"
                            Label="{Binding HeroCard1Label}"
                            GradientStartColor="#4338CA"
                            GradientEndColor="#6366F1"
                            Margin="4" MinHeight="92"/>
 
-                <hero:GradientHeroCard Grid.Column="1"
-                           Icon="⏳"
+                <hero:GradientHeroCard Grid.Column="1" Icon="⏳"
                            Value="{Binding HeroCard2Value}"
                            Label="{Binding HeroCard2Label}"
                            GradientStartColor="#B45309"
@@ -612,9 +650,9 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0"
-                                Width="36" Height="36" CornerRadius="9"
-                                Background="#B45309" VerticalAlignment="Center">
+                        <Border Grid.Column="0" Width="36" Height="36"
+                                CornerRadius="9" Background="#B45309"
+                                VerticalAlignment="Center">
                             <TextBlock Text="🔧" FontSize="17"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
@@ -643,9 +681,9 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0"
-                                Width="36" Height="36" CornerRadius="9"
-                                Background="#B91C1C" VerticalAlignment="Center">
+                        <Border Grid.Column="0" Width="36" Height="36"
+                                CornerRadius="9" Background="#B91C1C"
+                                VerticalAlignment="Center">
                             <TextBlock Text="↩️" FontSize="17"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
@@ -674,9 +712,9 @@
                             <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0"
-                                Width="36" Height="36" CornerRadius="9"
-                                Background="#047857" VerticalAlignment="Center">
+                        <Border Grid.Column="0" Width="36" Height="36"
+                                CornerRadius="9" Background="#047857"
+                                VerticalAlignment="Center">
                             <TextBlock Text="{Binding HeroCard5Icon}"
                                        FontSize="17"
                                        HorizontalAlignment="Center"
@@ -699,9 +737,7 @@
             </Grid>
 
             <!-- Selected DN meta bar -->
-            <Border Margin="4,6,4,10"
-                    Padding="12,8"
-                    CornerRadius="10"
+            <Border Margin="4,6,4,10" Padding="12,8" CornerRadius="10"
                     Background="{DynamicResource TintIndigoBrush}"
                     Visibility="{Binding HasSelection,
                                  Converter={StaticResource BoolToVisibilityConverter}}">
@@ -711,8 +747,7 @@
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0"
-                               Text="🔍  Selected:"
+                    <TextBlock Grid.Column="0" Text="🔍  Selected:"
                                FontSize="11" FontWeight="Bold"
                                VerticalAlignment="Center"
                                Margin="0,0,10,0"
@@ -723,8 +758,7 @@
                                VerticalAlignment="Center"
                                TextTrimming="CharacterEllipsis"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <Button Grid.Column="2"
-                            Content="✕ Clear"
+                    <Button Grid.Column="2" Content="✕ Clear"
                             Command="{Binding ClearSelectionCommand}"
                             FontSize="10" FontWeight="Bold"
                             Padding="10,4" Cursor="Hand"
@@ -734,7 +768,7 @@
                 </Grid>
             </Border>
 
-            <!-- FILTER BAR -->
+            <!-- FILTER BAR — hidden on Tab 3 (Pending) only -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="1" CornerRadius="10"
@@ -757,35 +791,27 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
-
                     <TextBox Grid.Column="0"
                              Text="{Binding SearchText,
                                     UpdateSourceTrigger=PropertyChanged}"
                              FontSize="12" Padding="10,7"
                              Margin="0,0,8,0"
                              VerticalContentAlignment="Center"/>
-
                     <ComboBox Grid.Column="1"
                               ItemsSource="{Binding StatusFilterOptions}"
                               SelectedItem="{Binding SelectedStatusFilter}"
                               FontSize="12" Margin="0,0,8,0"
                               VerticalContentAlignment="Center"/>
-
-                    <Button Grid.Column="2"
-                            Content="Clear"
+                    <Button Grid.Column="2" Content="Clear"
                             Command="{Binding ClearFiltersCommand}"
                             FontSize="11" FontWeight="SemiBold"
-                            Padding="14,7" Margin="0,0,8,0"
-                            Cursor="Hand"
+                            Padding="14,7" Margin="0,0,8,0" Cursor="Hand"
                             Background="{DynamicResource MenuHoverBrush}"
                             Foreground="{DynamicResource PrimaryForegroundBrush}"
                             BorderThickness="0"/>
-
-                    <Button Grid.Column="3"
-                            Content="🔄"
+                    <Button Grid.Column="3" Content="🔄"
                             Command="{Binding RefreshCommand}"
-                            FontSize="13" Padding="10,5"
-                            Cursor="Hand"
+                            FontSize="13" Padding="10,5" Cursor="Hand"
                             Background="{DynamicResource MenuHoverBrush}"
                             Foreground="{DynamicResource PrimaryForegroundBrush}"
                             BorderThickness="0"
@@ -793,10 +819,7 @@
                 </Grid>
             </Border>
 
-            <!-- SLIM TAB BAR
-                 BUG-52: CommandParameter now binds to dedicated
-                 *GroupedCount properties instead of inline .Count call
-            -->
+            <!-- TAB BAR — 6 tabs only, no Master DN tab -->
             <Grid Margin="4,0,4,12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -807,11 +830,9 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Button Grid.Column="0"
-                        Tag="📦" Content="ALL"
+                <Button Grid.Column="0" Tag="📦" Content="ALL"
                         CommandParameter="{Binding AllGroupedCount}"
-                        Margin="0,0,3,0"
-                        Click="OnTabCardClick"
+                        Margin="0,0,3,0" Click="OnTabCardClick"
                         x:Name="TabAll">
                     <Button.Style>
                         <Style TargetType="Button"
@@ -819,49 +840,39 @@
                     </Button.Style>
                 </Button>
 
-                <Button Grid.Column="1"
-                        Tag="📝" Content="PREPARED"
+                <Button Grid.Column="1" Tag="📝" Content="PREPARED"
                         CommandParameter="{Binding PreparedGroupedCount}"
-                        Margin="3,0,3,0"
-                        Click="OnTabCardClick"
+                        Margin="3,0,3,0" Click="OnTabCardClick"
                         x:Name="TabPrepared"
                         Style="{StaticResource TabCardInactiveStyle}"/>
 
-                <Button Grid.Column="2"
-                        Tag="✅" Content="DELIVERED"
+                <Button Grid.Column="2" Tag="✅" Content="DELIVERED"
                         CommandParameter="{Binding DeliveredGroupedCount}"
-                        Margin="3,0,3,0"
-                        Click="OnTabCardClick"
+                        Margin="3,0,3,0" Click="OnTabCardClick"
                         x:Name="TabDelivered"
                         Style="{StaticResource TabCardInactiveStyle}"/>
 
-                <Button Grid.Column="3"
-                        Tag="⏳" Content="PENDING QTY"
+                <Button Grid.Column="3" Tag="⏳" Content="PENDING"
                         CommandParameter="{Binding PendingItems.Count}"
-                        Margin="3,0,3,0"
-                        Click="OnTabCardClick"
+                        Margin="3,0,3,0" Click="OnTabCardClick"
                         x:Name="TabPending"
                         Style="{StaticResource TabCardInactiveStyle}"/>
 
-                <Button Grid.Column="4"
-                        Tag="🔧" Content="REWORK"
+                <Button Grid.Column="4" Tag="🔧" Content="REWORK"
                         CommandParameter="{Binding ReworkGroupedCount}"
-                        Margin="3,0,3,0"
-                        Click="OnTabCardClick"
+                        Margin="3,0,3,0" Click="OnTabCardClick"
                         x:Name="TabRework"
                         Style="{StaticResource TabCardInactiveStyle}"/>
 
-                <Button Grid.Column="5"
-                        Tag="↩️" Content="RETURNED"
+                <Button Grid.Column="5" Tag="↩️" Content="RETURNED"
                         CommandParameter="{Binding ReturnedGroupedCount}"
-                        Margin="3,0,0,0"
-                        Click="OnTabCardClick"
+                        Margin="3,0,0,0" Click="OnTabCardClick"
                         x:Name="TabReturned"
                         Style="{StaticResource TabCardInactiveStyle}"/>
             </Grid>
         </StackPanel>
 
-        <!-- ═══ VIRTUALIZED TAB CONTENT ═══ -->
+        <!-- ═══ TAB CONTENT — 6 tabs only ═══ -->
         <Grid Grid.Row="1" Margin="30,0,30,16">
 
             <!-- TAB 0: ALL -->
@@ -884,8 +895,6 @@
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                          ScrollViewer.VerticalScrollBarVisibility="Auto"
                          ScrollViewer.CanContentScroll="False"
-                         ScrollViewer.IsDeferredScrollingEnabled="False"
-                         ScrollViewer.PanningMode="None"
                          VirtualizingStackPanel.IsVirtualizing="True"
                          VirtualizingStackPanel.VirtualizationMode="Recycling"
                          VirtualizingStackPanel.ScrollUnit="Pixel"
@@ -898,8 +907,7 @@
                         </ItemsPanelTemplate>
                     </ListBox.ItemsPanel>
                 </ListBox>
-                <StackPanel HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
+                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
                             IsHitTestVisible="False">
                     <StackPanel.Style>
                         <Style TargetType="StackPanel">
@@ -948,13 +956,9 @@
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                          ScrollViewer.VerticalScrollBarVisibility="Auto"
                          ScrollViewer.CanContentScroll="False"
-                         ScrollViewer.IsDeferredScrollingEnabled="False"
-                         ScrollViewer.PanningMode="None"
                          VirtualizingStackPanel.IsVirtualizing="True"
                          VirtualizingStackPanel.VirtualizationMode="Recycling"
                          VirtualizingStackPanel.ScrollUnit="Pixel"
-                         VirtualizingStackPanel.CacheLength="200,400"
-                         VirtualizingStackPanel.CacheLengthUnit="Pixel"
                          behaviors:SmoothScrollBehavior.IsEnabled="True">
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -1003,13 +1007,9 @@
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                          ScrollViewer.VerticalScrollBarVisibility="Auto"
                          ScrollViewer.CanContentScroll="False"
-                         ScrollViewer.IsDeferredScrollingEnabled="False"
-                         ScrollViewer.PanningMode="None"
                          VirtualizingStackPanel.IsVirtualizing="True"
                          VirtualizingStackPanel.VirtualizationMode="Recycling"
                          VirtualizingStackPanel.ScrollUnit="Pixel"
-                         VirtualizingStackPanel.CacheLength="200,400"
-                         VirtualizingStackPanel.CacheLengthUnit="Pixel"
                          behaviors:SmoothScrollBehavior.IsEnabled="True">
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -1057,13 +1057,9 @@
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                          ScrollViewer.VerticalScrollBarVisibility="Auto"
                          ScrollViewer.CanContentScroll="False"
-                         ScrollViewer.IsDeferredScrollingEnabled="False"
-                         ScrollViewer.PanningMode="None"
                          VirtualizingStackPanel.IsVirtualizing="True"
                          VirtualizingStackPanel.VirtualizationMode="Recycling"
                          VirtualizingStackPanel.ScrollUnit="Pixel"
-                         VirtualizingStackPanel.CacheLength="200,400"
-                         VirtualizingStackPanel.CacheLengthUnit="Pixel"
                          behaviors:SmoothScrollBehavior.IsEnabled="True">
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -1098,8 +1094,7 @@
                                             <Run Text=" pcs"/>
                                         </TextBlock>
                                     </StackPanel>
-                                    <StackPanel Grid.Column="1"
-                                                VerticalAlignment="Center"
+                                    <StackPanel Grid.Column="1" VerticalAlignment="Center"
                                                 Margin="16,0,0,0">
                                         <TextBlock HorizontalAlignment="Right"
                                                    Margin="0,0,0,4"
@@ -1110,7 +1105,7 @@
                                                         StringFormat={}{0:0.#}}"/>
                                             <Run Text="%"/>
                                         </TextBlock>
-                                        <Border x:Name="ProgressTrack"
+                                        <Border x:Name="PendingTrack"
                                                 CornerRadius="4" Height="8"
                                                 Background="{DynamicResource BorderBrush}">
                                             <Border CornerRadius="4"
@@ -1120,7 +1115,7 @@
                                                     <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
                                                         <Binding Path="ProgressPercent"/>
                                                         <Binding Path="ActualWidth"
-                                                                 ElementName="ProgressTrack"/>
+                                                                 ElementName="PendingTrack"/>
                                                     </MultiBinding>
                                                 </Border.Width>
                                             </Border>
@@ -1172,13 +1167,9 @@
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                          ScrollViewer.VerticalScrollBarVisibility="Auto"
                          ScrollViewer.CanContentScroll="False"
-                         ScrollViewer.IsDeferredScrollingEnabled="False"
-                         ScrollViewer.PanningMode="None"
                          VirtualizingStackPanel.IsVirtualizing="True"
                          VirtualizingStackPanel.VirtualizationMode="Recycling"
                          VirtualizingStackPanel.ScrollUnit="Pixel"
-                         VirtualizingStackPanel.CacheLength="200,400"
-                         VirtualizingStackPanel.CacheLengthUnit="Pixel"
                          behaviors:SmoothScrollBehavior.IsEnabled="True">
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>
@@ -1227,13 +1218,9 @@
                          ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                          ScrollViewer.VerticalScrollBarVisibility="Auto"
                          ScrollViewer.CanContentScroll="False"
-                         ScrollViewer.IsDeferredScrollingEnabled="False"
-                         ScrollViewer.PanningMode="None"
                          VirtualizingStackPanel.IsVirtualizing="True"
                          VirtualizingStackPanel.VirtualizationMode="Recycling"
                          VirtualizingStackPanel.ScrollUnit="Pixel"
-                         VirtualizingStackPanel.CacheLength="200,400"
-                         VirtualizingStackPanel.CacheLengthUnit="Pixel"
                          behaviors:SmoothScrollBehavior.IsEnabled="True">
                     <ListBox.ItemsPanel>
                         <ItemsPanelTemplate>

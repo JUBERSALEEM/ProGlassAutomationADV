@@ -15,10 +15,6 @@
 
     <UserControl.Resources>
 
-        <!-- ══════════════════════════════════════════════════════════════
-             ALL STYLES PRESERVED FROM PREVIOUS SHIPS
-        ══════════════════════════════════════════════════════════════ -->
-
         <Style x:Key="OptionalDimStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
@@ -137,6 +133,9 @@
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="Bg" Property="Background" Value="#55FFFFFF"/>
                             </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.40"/>
+                            </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
@@ -172,14 +171,16 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         </Style>
 
-        <Style x:Key="GridNumericCell" TargetType="TextBlock" BasedOn="{StaticResource GridDataCell}">
+        <Style x:Key="GridNumericCell" TargetType="TextBlock"
+               BasedOn="{StaticResource GridDataCell}">
             <Setter Property="HorizontalAlignment" Value="Right"/>
             <Setter Property="TextAlignment" Value="Right"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Margin" Value="6,8,10,8"/>
         </Style>
 
-        <Style x:Key="BalanceCellStyle" TargetType="TextBlock" BasedOn="{StaticResource GridNumericCell}">
+        <Style x:Key="BalanceCellStyle" TargetType="TextBlock"
+               BasedOn="{StaticResource GridNumericCell}">
             <Setter Property="FontWeight" Value="Bold"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding HasBalance}" Value="True">
@@ -224,12 +225,14 @@
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsSelected}" Value="True">
                     <Setter Property="BorderThickness" Value="2"/>
-                    <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                    <Setter Property="Background"
+                            Value="{DynamicResource TintIndigoBrush}"/>
                     <Setter Property="BorderBrush" Value="#4338CA"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding IsCurrentDn}" Value="True">
                     <Setter Property="BorderThickness" Value="4,2,2,2"/>
-                    <Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/>
+                    <Setter Property="Background"
+                            Value="{DynamicResource TintGreenBrush}"/>
                     <Setter Property="BorderBrush" Value="#047857"/>
                 </DataTrigger>
             </Style.Triggers>
@@ -291,7 +294,8 @@
         <Style x:Key="CumulativeLabelStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="9"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource MutedForegroundBrush}"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="TextAlignment" Value="Center"/>
             <Setter Property="Margin" Value="0,5,0,2"/>
@@ -302,7 +306,8 @@
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="TextAlignment" Value="Center"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="Margin" Value="0,0,0,5"/>
         </Style>
 
@@ -323,7 +328,8 @@
         <Style x:Key="HistoryRowDnIdStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsCurrentDn}" Value="True">
@@ -332,10 +338,6 @@
                 </DataTrigger>
             </Style.Triggers>
         </Style>
-
-        <!-- ══════════════════════════════════════════════════════════════
-             COMPACT STAT TILE (2×2 grid)
-        ══════════════════════════════════════════════════════════════ -->
 
         <Style x:Key="CompactStatTileStyle" TargetType="Border">
             <Setter Property="CornerRadius" Value="10"/>
@@ -349,14 +351,16 @@
             <Setter Property="FontSize" Value="22"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource PrimaryForegroundBrush}"/>
         </Style>
 
         <Style x:Key="CompactStatUnitStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="11"/>
             <Setter Property="VerticalAlignment" Value="Bottom"/>
             <Setter Property="Margin" Value="3,0,0,3"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource SecondaryForegroundBrush}"/>
         </Style>
 
         <Style x:Key="CompactStatLabelStyle" TargetType="TextBlock">
@@ -364,12 +368,9 @@
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="Margin" Value="0,4,0,0"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource MutedForegroundBrush}"/>
         </Style>
-
-        <!-- ══════════════════════════════════════════════════════════════
-             MASTER DN HERO STRIP (compact)
-        ══════════════════════════════════════════════════════════════ -->
 
         <Style x:Key="MasterHeroStripStyle" TargetType="Border">
             <Setter Property="CornerRadius" Value="12,12,0,0"/>
@@ -414,34 +415,367 @@
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
+        <!-- ═══════════════════════════════════════════════
+             NAMED STYLES — prevent Style double-set errors
+        ═══════════════════════════════════════════════ -->
+
+        <!-- SELECT ALL REMAINING button -->
+        <Style x:Key="FillRemainingButtonStyle" TargetType="Button">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="#4338CA"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Visibility" Value="Visible"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="#6366F1"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="#3730A3"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMasterDn}" Value="True">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- RESET QTY button — muted grey, companion to FillRemaining -->
+        <Style x:Key="ResetQtyButtonStyle" TargetType="Button">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="14,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="Visibility" Value="Visible"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.82"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.65"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.40"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMasterDn}" Value="True">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Create from Master button -->
+        <Style x:Key="CreateFromMasterButtonStyle" TargetType="Button">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background" Value="#047857"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.88"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.72"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMasterDn}" Value="True">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Real DN actions panel -->
+        <Style x:Key="RealDnActionsStyle" TargetType="StackPanel">
+            <Setter Property="Orientation" Value="Horizontal"/>
+            <Setter Property="Visibility" Value="Visible"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMasterDn}" Value="True">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- THIS DN / DELIVERED column header -->
+        <Style x:Key="ThisDnHeaderStyle" TargetType="TextBlock"
+               BasedOn="{StaticResource GridHeaderCell}">
+            <Setter Property="Text" Value="THIS DN"/>
+            <Setter Property="Foreground" Value="#4338CA"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding DataContext.IsMasterDn,
+                             RelativeSource={RelativeSource AncestorType=UserControl}}"
+                             Value="True">
+                    <Setter Property="Text" Value="DELIVERED"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- DeliveredQty TextBox — hidden on Master DN -->
+        <Style x:Key="DeliveredQtyTextBoxStyle" TargetType="TextBox">
+            <Setter Property="FontSize" Value="13"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="TextAlignment" Value="Right"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Padding" Value="8,4,10,4"/>
+            <Setter Property="Margin" Value="6,3"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="BorderBrush" Value="#4338CA"/>
+            <Setter Property="Background" Value="#EEF2FF"/>
+            <Setter Property="Foreground" Value="#3730A3"/>
+            <Setter Property="Visibility" Value="Visible"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding DataContext.IsMasterDn,
+                             RelativeSource={RelativeSource AncestorType=UserControl}}"
+                             Value="True">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- DeliveredQty TextBlock — shown on Master DN only -->
+        <Style x:Key="DeliveredQtyReadOnlyStyle" TargetType="TextBlock"
+               BasedOn="{StaticResource GridNumericCell}">
+            <Setter Property="Foreground" Value="#047857"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding DataContext.IsMasterDn,
+                             RelativeSource={RelativeSource AncestorType=UserControl}}"
+                             Value="True">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- PREV DELIVERED / TOTAL DELIVERED label -->
+        <Style x:Key="PrevDeliveredLabelStyle" TargetType="TextBlock"
+               BasedOn="{StaticResource CompactStatLabelStyle}">
+            <Setter Property="Text" Value="PREV DELIVERED"/>
+            <Setter Property="Foreground" Value="#4338CA"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMasterDn}" Value="True">
+                    <Setter Property="Text" Value="TOTAL DELIVERED"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- THIS DN / IN PROGRESS label -->
+        <Style x:Key="ThisDnLabelStyle" TargetType="TextBlock"
+               BasedOn="{StaticResource CompactStatLabelStyle}">
+            <Setter Property="Text" Value="THIS DN"/>
+            <Setter Property="Foreground" Value="#047857"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMasterDn}" Value="True">
+                    <Setter Property="Text" Value="IN PROGRESS"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Hero strip label -->
+        <Style x:Key="HeroStripLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#CCFFFFFF"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Text" Value="✏️  DELIVERY NOTE  ·  "/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMasterDn}" Value="True">
+                    <Setter Property="Text" Value="📌  MASTER DELIVERY NOTE  ·  "/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Items section title -->
+        <Style x:Key="ItemsSectionTitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="Text" Value="📦  DELIVERY ITEMS"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMasterDn}" Value="True">
+                    <Setter Property="Text" Value="📦  BALANCE ITEMS — PENDING DELIVERY"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Items section subtitle -->
+        <Style x:Key="ItemsSectionSubtitleStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="Foreground"
+                    Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,2,0,0"/>
+            <Setter Property="Text"
+                    Value="Enter qty in THIS DN then Save. Prev auto-updates."/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMasterDn}" Value="True">
+                    <Setter Property="Text"
+                            Value="Showing only items with remaining balance. Fully delivered items hidden."/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Details form visibility -->
+        <Style x:Key="DetailFormStyle" TargetType="Border">
+            <Setter Property="Padding" Value="18,14,18,14"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="0,0,0,1"/>
+            <Setter Property="Visibility" Value="Visible"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMasterDn}" Value="True">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Master DN banner -->
+        <Style x:Key="MasterDnBannerStyle" TargetType="Border">
+            <Setter Property="Margin" Value="0,0,0,12"/>
+            <Setter Property="Padding" Value="16,12"/>
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMasterDn}" Value="True">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Master DN badge in action bar -->
+        <Style x:Key="MasterDnBadgeStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="10,3"/>
+            <Setter Property="Margin" Value="6,0,0,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Background" Value="#4338CA"/>
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMasterDn}" Value="True">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- FOC badge -->
+        <Style x:Key="FocBadgeStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Padding" Value="10,3"/>
+            <Setter Property="Margin" Value="6,0,0,0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/>
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsFoc}" Value="True">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Viewing-different-DN warning -->
+        <Style x:Key="DifferentDnWarningStyle" TargetType="Border">
+            <Setter Property="Padding" Value="12,8"/>
+            <Setter Property="Margin" Value="10,10,10,0"/>
+            <Setter Property="CornerRadius" Value="10"/>
+            <Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Visibility" Value="Collapsed"/>
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsSelectedDnCurrent}" Value="False">
+                    <Setter Property="Visibility" Value="Visible"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
     </UserControl.Resources>
 
-    <!-- ══════════════════════════════════════════════════════════════════
-         ROOT GRID — 4 rows, NO outer ScrollViewer.
-         Row 0: Action bar        (Auto — fixed)
-         Row 1: Loading/Error     (Auto — fixed)
-         Row 2: Stats + Attach    (Auto — fixed)
-         Row 3: Master DN + Hist  ( *   — fills, both internally scroll)
-    ══════════════════════════════════════════════════════════════════ -->
+    <!-- ROOT GRID
+         Row 0: Action bar
+         Row 1: Master DN banner
+         Row 2: Loading/Error
+         Row 3: Stats + Attachments
+         Row 4: Items + History
+    -->
     <Grid Margin="24,16,24,16"
           Background="{DynamicResource ModuleBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ══════════════════════════════════════════════════════════════
-             ROW 0 — ACTION BAR (FIXED)
-        ══════════════════════════════════════════════════════════════ -->
+        <!-- ═══ ROW 0 — ACTION BAR ═══ -->
         <Border Grid.Row="0"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource BorderBrush}"
-                BorderThickness="1"
-                CornerRadius="12"
-                Padding="14,12"
-                Margin="0,0,0,12"
+                BorderThickness="1" CornerRadius="12"
+                Padding="14,12" Margin="0,0,0,12"
                 SnapsToDevicePixels="True">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -467,34 +801,24 @@
                                VerticalAlignment="Center"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     <Border CornerRadius="8" Padding="10,3"
-                            Margin="10,0,0,0"
-                            VerticalAlignment="Center"
+                            Margin="10,0,0,0" VerticalAlignment="Center"
                             Background="{DynamicResource TintIndigoBrush}">
                         <TextBlock Text="{Binding DeliveryType}"
                                    FontSize="10" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     </Border>
-                    <Border CornerRadius="8" Padding="10,3"
-                            Margin="6,0,0,0"
-                            VerticalAlignment="Center"
-                            Background="{DynamicResource TintAmberBrush}">
-                        <Border.Style>
-                            <Style TargetType="Border">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsFoc}" Value="True">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
+                    <Border Style="{StaticResource MasterDnBadgeStyle}">
+                        <TextBlock Text="📌 MASTER DN — READ ONLY"
+                                   FontSize="10" FontWeight="Bold"
+                                   Foreground="White"/>
+                    </Border>
+                    <Border Style="{StaticResource FocBadgeStyle}">
                         <TextBlock Text="FREE OF CHARGE"
                                    FontSize="10" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     </Border>
                     <Border CornerRadius="8" Padding="10,3"
-                            Margin="6,0,0,0"
-                            VerticalAlignment="Center"
+                            Margin="6,0,0,0" VerticalAlignment="Center"
                             Background="{DynamicResource TintGreenBrush}">
                         <TextBlock Text="{Binding Status}"
                                    FontSize="10" FontWeight="Bold"
@@ -506,65 +830,125 @@
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
 
-                    <Button Content="💾  Save"
-                            Command="{Binding SaveCommand}"
-                            Style="{StaticResource ActionButtonStyle}"
-                            Margin="0,0,6,0"
-                            ToolTip="Save changes (Ctrl+S)"/>
+                    <!-- Real DN actions -->
+                    <StackPanel Style="{StaticResource RealDnActionsStyle}">
+                        <Button Content="💾  Save"
+                                Command="{Binding SaveCommand}"
+                                Style="{StaticResource ActionButtonStyle}"
+                                Margin="0,0,6,0"
+                                ToolTip="Save (Ctrl+S)"/>
+                        <Button Content="🚚  Make DN"
+                                Command="{Binding MakeDnCommand}"
+                                Style="{StaticResource ActionButtonStyle}"
+                                Background="#047857"
+                                Margin="0,0,12,0"/>
+                        <Border Width="1" Margin="0,4,12,4"
+                                Background="{DynamicResource BorderBrush}"/>
+                        <Button Content="📄  PDF"
+                                Command="{Binding ExportPdfCommand}"
+                                Style="{StaticResource ExportButtonStyle}"
+                                Background="#FEF2F2"
+                                BorderBrush="#B91C1C"
+                                Foreground="#B91C1C"
+                                Margin="0,0,6,0"/>
+                        <Button Content="📊  Excel"
+                                Command="{Binding ExportExcelCommand}"
+                                Style="{StaticResource ExportButtonStyle}"
+                                Background="#ECFDF5"
+                                BorderBrush="#047857"
+                                Foreground="#047857"
+                                Margin="0,0,6,0"/>
+                        <Button Content="📋  CSV"
+                                Command="{Binding ExportCsvCommand}"
+                                Style="{StaticResource ExportButtonStyle}"
+                                Background="#EEF2FF"
+                                BorderBrush="#4338CA"
+                                Foreground="#4338CA"
+                                Margin="0,0,12,0"/>
+                        <Border Width="1" Margin="0,4,12,4"
+                                Background="{DynamicResource BorderBrush}"/>
+                        <Button Content="🗑️  Delete"
+                                Command="{Binding DeleteDnCommand}"
+                                Style="{StaticResource ActionButtonStyle}"
+                                Background="#B91C1C"
+                                Foreground="White"/>
+                    </StackPanel>
 
-                    <Button Content="🚚  Make DN"
-                            Command="{Binding MakeDnCommand}"
-                            Style="{StaticResource ActionButtonStyle}"
-                            Background="#047857"
-                            Margin="0,0,12,0"/>
-
-                    <Border Width="1" Margin="0,4,12,4"
-                            Background="{DynamicResource BorderBrush}"/>
-
-                    <Button Content="📄  PDF"
-                            Command="{Binding ExportPdfCommand}"
-                            Style="{StaticResource ExportButtonStyle}"
-                            Background="#FEF2F2"
-                            BorderBrush="#B91C1C"
-                            Foreground="#B91C1C"
-                            Margin="0,0,6,0"
-                            ToolTip="Export current DN as PDF"/>
-
-                    <Button Content="📊  Excel"
-                            Command="{Binding ExportExcelCommand}"
-                            Style="{StaticResource ExportButtonStyle}"
-                            Background="#ECFDF5"
-                            BorderBrush="#047857"
-                            Foreground="#047857"
-                            Margin="0,0,6,0"
-                            ToolTip="Export current DN as Excel"/>
-
-                    <Button Content="📋  CSV"
-                            Command="{Binding ExportCsvCommand}"
-                            Style="{StaticResource ExportButtonStyle}"
-                            Background="#EEF2FF"
-                            BorderBrush="#4338CA"
-                            Foreground="#4338CA"
-                            Margin="0,0,12,0"
-                            ToolTip="Export current DN as CSV"/>
-
-                    <Border Width="1" Margin="0,4,12,4"
-                            Background="{DynamicResource BorderBrush}"/>
-
-                    <Button Content="🗑️  Delete"
-                            Command="{Binding DeleteDnCommand}"
-                            Style="{StaticResource ActionButtonStyle}"
-                            Background="#B91C1C"
-                            Foreground="White"
-                            ToolTip="Permanently delete this delivery note"/>
+                    <!-- Master DN button -->
+                    <Button Content="📦  Create New DN from Balance"
+                            Command="{Binding CreateNewDnFromMasterCommand}"
+                            Style="{StaticResource CreateFromMasterButtonStyle}"
+                            ToolTip="Create a new DN pre-filled with balance quantities"/>
                 </StackPanel>
             </Grid>
         </Border>
 
-        <!-- ══════════════════════════════════════════════════════════════
-             ROW 1 — LOADING / ERROR banners (FIXED, auto-height)
-        ══════════════════════════════════════════════════════════════ -->
-        <StackPanel Grid.Row="1">
+        <!-- ═══ ROW 1 — MASTER DN BANNER ═══ -->
+        <Border Grid.Row="1" Style="{StaticResource MasterDnBannerStyle}">
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                    <GradientStop Color="#4338CA" Offset="0"/>
+                    <GradientStop Color="#6366F1" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Column="0" Text="📌"
+                           FontSize="28" VerticalAlignment="Center"
+                           Margin="0,0,14,0"/>
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="MASTER DELIVERY NOTE — REFERENCE TRACKER"
+                               FontSize="13" FontWeight="Bold"
+                               Foreground="White"/>
+                    <TextBlock FontSize="11" Foreground="#CCFFFFFF"
+                               Margin="0,4,0,0" TextWrapping="Wrap">
+                        <Run Text="Auto-created from Job Order. Read-only."/>
+                        <Run Text=" Updates automatically after each dispatch."/>
+                        <Run Text=" Only items with remaining balance are shown."/>
+                        <Run Text=" Click 'Create New DN from Balance' to deliver."/>
+                    </TextBlock>
+                </StackPanel>
+                <StackPanel Grid.Column="2" VerticalAlignment="Center"
+                            HorizontalAlignment="Right"
+                            Margin="20,0,0,0" MinWidth="140">
+                    <TextBlock HorizontalAlignment="Right"
+                               FontSize="13" FontWeight="Bold"
+                               Foreground="White" Margin="0,0,0,4">
+                        <Run Text="{Binding DeliveryProgressPercent,
+                                    Mode=OneWay, StringFormat={}{0:0.#}}"/>
+                        <Run Text="% delivered"/>
+                    </TextBlock>
+                    <Border x:Name="BannerProgressTrack"
+                            CornerRadius="4" Height="8"
+                            Background="#33FFFFFF">
+                        <Border CornerRadius="4" HorizontalAlignment="Left"
+                                Background="White">
+                            <Border.Width>
+                                <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
+                                    <Binding Path="DeliveryProgressPercent"/>
+                                    <Binding Path="ActualWidth"
+                                             ElementName="BannerProgressTrack"/>
+                                </MultiBinding>
+                            </Border.Width>
+                        </Border>
+                    </Border>
+                    <TextBlock HorizontalAlignment="Right"
+                               FontSize="10" Foreground="#CCFFFFFF"
+                               Margin="0,4,0,0">
+                        <Run Text="{Binding TotalBalanceQty, Mode=OneWay}"
+                             FontWeight="Bold"/>
+                        <Run Text=" pcs remaining"/>
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ═══ ROW 2 — LOADING / ERROR ═══ -->
+        <StackPanel Grid.Row="2">
             <Border Visibility="{Binding IsLoading,
                                  Converter={StaticResource BoolToVisibilityConverter}}"
                     Padding="20">
@@ -572,13 +956,11 @@
                            FontSize="14" HorizontalAlignment="Center"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </Border>
-
             <Border Visibility="{Binding HasError,
                                  Converter={StaticResource BoolToVisibilityConverter}}"
-                    Background="#FEF2F2"
-                    BorderBrush="#FECACA"
-                    BorderThickness="1"
-                    CornerRadius="12" Padding="16" Margin="0,0,0,12"
+                    Background="#FEF2F2" BorderBrush="#FECACA"
+                    BorderThickness="1" CornerRadius="12"
+                    Padding="16" Margin="0,0,0,12"
                     SnapsToDevicePixels="True">
                 <TextBlock Text="{Binding ErrorMessage}"
                            Foreground="#B91C1C"
@@ -587,26 +969,19 @@
             </Border>
         </StackPanel>
 
-        <!-- ══════════════════════════════════════════════════════════════
-             ROW 2 — STATS  |  ATTACHMENTS (FIXED, side-by-side)
-             Left = Stats 2×2 (2fr)
-             Right = Attachments (3fr)
-             NOTE: attachments are typically small, but if many files exist,
-             the internal attachment list has its own scroll below.
-        ══════════════════════════════════════════════════════════════ -->
-        <Grid Grid.Row="2" Margin="0,0,0,12">
+        <!-- ═══ ROW 3 — STATS | ATTACHMENTS ═══ -->
+        <Grid Grid.Row="3" Margin="0,0,0,12">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="2*"/>
                 <ColumnDefinition Width="12"/>
                 <ColumnDefinition Width="3*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- ── STATS CARD (left, 2×2) ──────────────────────────── -->
+            <!-- STATS CARD -->
             <Border Grid.Column="0"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="12"
+                    BorderThickness="1" CornerRadius="12"
                     SnapsToDevicePixels="True">
                 <StackPanel>
                     <Border Style="{StaticResource SectionHeaderStyle}">
@@ -626,7 +1001,7 @@
                         </StackPanel>
                     </Border>
 
-                    <Grid Margin="12,12,12,12">
+                    <Grid Margin="12,12,12,8">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="10"/>
@@ -641,26 +1016,32 @@
                         <Border Grid.Row="0" Grid.Column="0"
                                 Style="{StaticResource CompactStatTileStyle}">
                             <StackPanel HorizontalAlignment="Center">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <StackPanel Orientation="Horizontal"
+                                            HorizontalAlignment="Center">
                                     <TextBlock Text="{Binding TotalOrderedQty}"
                                                Style="{StaticResource CompactStatNumberStyle}"/>
-                                    <TextBlock Text=" pcs" Style="{StaticResource CompactStatUnitStyle}"/>
+                                    <TextBlock Text=" pcs"
+                                               Style="{StaticResource CompactStatUnitStyle}"/>
                                 </StackPanel>
-                                <TextBlock Text="ORDERED" Style="{StaticResource CompactStatLabelStyle}"/>
+                                <TextBlock Text="ORDERED"
+                                           Style="{StaticResource CompactStatLabelStyle}"/>
                             </StackPanel>
                         </Border>
 
                         <Border Grid.Row="0" Grid.Column="2"
-                                Style="{StaticResource CompactStatTileStyle}">
+                                Style="{StaticResource CompactStatTileStyle}"
+                                Background="{DynamicResource TintIndigoBrush}">
                             <StackPanel HorizontalAlignment="Center">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <StackPanel Orientation="Horizontal"
+                                            HorizontalAlignment="Center">
                                     <TextBlock Text="{Binding TotalPreviouslyDeliveredQty}"
                                                Style="{StaticResource CompactStatNumberStyle}"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                    <TextBlock Text=" pcs" Style="{StaticResource CompactStatUnitStyle}"/>
+                                               Foreground="#4338CA"/>
+                                    <TextBlock Text=" pcs"
+                                               Style="{StaticResource CompactStatUnitStyle}"
+                                               Foreground="#4338CA" Opacity="0.75"/>
                                 </StackPanel>
-                                <TextBlock Text="PREV DELIVERED"
-                                           Style="{StaticResource CompactStatLabelStyle}"/>
+                                <TextBlock Style="{StaticResource PrevDeliveredLabelStyle}"/>
                             </StackPanel>
                         </Border>
 
@@ -668,18 +1049,16 @@
                                 Style="{StaticResource CompactStatTileStyle}"
                                 Background="{DynamicResource TintGreenBrush}">
                             <StackPanel HorizontalAlignment="Center">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <StackPanel Orientation="Horizontal"
+                                            HorizontalAlignment="Center">
                                     <TextBlock Text="{Binding TotalDeliveredQty}"
                                                Style="{StaticResource CompactStatNumberStyle}"
                                                Foreground="#047857"/>
                                     <TextBlock Text=" pcs"
                                                Style="{StaticResource CompactStatUnitStyle}"
-                                               Foreground="#047857"
-                                               Opacity="0.75"/>
+                                               Foreground="#047857" Opacity="0.75"/>
                                 </StackPanel>
-                                <TextBlock Text="THIS DN"
-                                           Style="{StaticResource CompactStatLabelStyle}"
-                                           Foreground="#047857"/>
+                                <TextBlock Style="{StaticResource ThisDnLabelStyle}"/>
                             </StackPanel>
                         </Border>
 
@@ -687,14 +1066,14 @@
                                 Style="{StaticResource CompactStatTileStyle}"
                                 Background="{DynamicResource TintAmberBrush}">
                             <StackPanel HorizontalAlignment="Center">
-                                <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                                <StackPanel Orientation="Horizontal"
+                                            HorizontalAlignment="Center">
                                     <TextBlock Text="{Binding TotalBalanceQty}"
                                                Style="{StaticResource CompactStatNumberStyle}"
                                                Foreground="#B45309"/>
                                     <TextBlock Text=" pcs"
                                                Style="{StaticResource CompactStatUnitStyle}"
-                                               Foreground="#B45309"
-                                               Opacity="0.75"/>
+                                               Foreground="#B45309" Opacity="0.75"/>
                                 </StackPanel>
                                 <TextBlock Text="BALANCE"
                                            Style="{StaticResource CompactStatLabelStyle}"
@@ -702,17 +1081,58 @@
                             </StackPanel>
                         </Border>
                     </Grid>
+
+                    <!-- Progress bar -->
+                    <Border Margin="12,0,12,12" CornerRadius="8"
+                            Padding="12,8"
+                            Background="{DynamicResource MenuHoverBrush}">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,5">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0"
+                                           Text="OVERALL DELIVERY PROGRESS"
+                                           FontSize="9" FontWeight="Bold"
+                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                           VerticalAlignment="Center"/>
+                                <TextBlock Grid.Column="1"
+                                           FontSize="11" FontWeight="Bold"
+                                           VerticalAlignment="Center"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                    <Run Text="{Binding DeliveryProgressPercent,
+                                                Mode=OneWay,
+                                                StringFormat={}{0:0.#}}"/>
+                                    <Run Text="%"/>
+                                </TextBlock>
+                            </Grid>
+                            <Border x:Name="StatsProgressTrack"
+                                    CornerRadius="4" Height="8"
+                                    Background="{DynamicResource BorderBrush}">
+                                <Border CornerRadius="4"
+                                        HorizontalAlignment="Left"
+                                        Background="#4338CA">
+                                    <Border.Width>
+                                        <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
+                                            <Binding Path="DeliveryProgressPercent"/>
+                                            <Binding Path="ActualWidth"
+                                                     ElementName="StatsProgressTrack"/>
+                                        </MultiBinding>
+                                    </Border.Width>
+                                </Border>
+                            </Border>
+                        </StackPanel>
+                    </Border>
                 </StackPanel>
             </Border>
 
-            <!-- ── ATTACHMENTS CARD (right, top) ───────────────────── -->
+            <!-- ATTACHMENTS CARD -->
             <Border Grid.Column="2"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="12"
-                    SnapsToDevicePixels="True"
-                    MaxHeight="260">
+                    BorderThickness="1" CornerRadius="12"
+                    SnapsToDevicePixels="True" MaxHeight="260">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
@@ -738,41 +1158,24 @@
                                            FontSize="11" FontWeight="Bold"
                                            Foreground="White"
                                            TextTrimming="CharacterEllipsis"/>
-                                <TextBlock Text="Photos + signed copies · updates when you pick a history row"
+                                <TextBlock Text="Photos + signed copies"
                                            FontSize="10" Foreground="#CCFFFFFF"
-                                           Margin="0,2,0,0"
-                                           TextTrimming="CharacterEllipsis"/>
+                                           Margin="0,2,0,0"/>
                             </StackPanel>
                             <Button Grid.Column="1"
                                     Content="+ Image"
                                     Command="{Binding UploadImageCommand}"
                                     Style="{StaticResource HeaderUploadButtonStyle}"
-                                    Margin="0,0,6,0"
-                                    ToolTip="Upload image (max 10 MB)"/>
+                                    Margin="0,0,6,0"/>
                             <Button Grid.Column="2"
                                     Content="+ PDF"
                                     Command="{Binding UploadPdfCommand}"
-                                    Style="{StaticResource HeaderUploadButtonStyle}"
-                                    ToolTip="Upload PDF (max 10 MB)"/>
+                                    Style="{StaticResource HeaderUploadButtonStyle}"/>
                         </Grid>
                     </Border>
 
-                    <!-- Viewing-different-DN warning -->
                     <Border Grid.Row="1"
-                            Padding="12,8" Margin="10,10,10,0"
-                            CornerRadius="10"
-                            Background="{DynamicResource TintAmberBrush}"
-                            SnapsToDevicePixels="True">
-                        <Border.Style>
-                            <Style TargetType="Border">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsSelectedDnCurrent}" Value="False">
-                                        <Setter Property="Visibility" Value="Visible"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
+                            Style="{StaticResource DifferentDnWarningStyle}">
                         <TextBlock FontSize="11" FontWeight="SemiBold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    TextWrapping="Wrap">
@@ -780,15 +1183,10 @@
                         </TextBlock>
                     </Border>
 
-                    <!-- ══════════════════════════════════════════════
-                         ATTACHMENTS INTERNAL SCROLL — free-scrolling
-                    ══════════════════════════════════════════════ -->
                     <ScrollViewer Grid.Row="2"
                                   VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled"
                                   CanContentScroll="False"
-                                  IsDeferredScrollingEnabled="False"
-                                  PanningMode="None"
                                   Focusable="True"
                                   FocusVisualStyle="{x:Null}"
                                   behaviors:SmoothScrollBehavior.IsEnabled="True">
@@ -798,8 +1196,7 @@
                                                  Converter={StaticResource BoolToVisibilityConverter}}">
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="📎" FontSize="32"
-                                               HorizontalAlignment="Center"
-                                               Opacity="0.4"/>
+                                               HorizontalAlignment="Center" Opacity="0.4"/>
                                     <TextBlock Text="No attachments yet"
                                                FontSize="13" FontWeight="SemiBold"
                                                HorizontalAlignment="Center"
@@ -807,8 +1204,7 @@
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                     <TextBlock Text="Upload photos or signed delivery copies."
                                                FontSize="11" HorizontalAlignment="Center"
-                                               TextAlignment="Center"
-                                               TextWrapping="Wrap"
+                                               TextAlignment="Center" TextWrapping="Wrap"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 </StackPanel>
                             </Border>
@@ -828,7 +1224,6 @@
                                                     <ColumnDefinition Width="Auto"/>
                                                     <ColumnDefinition Width="Auto"/>
                                                 </Grid.ColumnDefinitions>
-
                                                 <Border Grid.Column="0"
                                                         Width="40" Height="40"
                                                         CornerRadius="6"
@@ -848,7 +1243,6 @@
                                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
                                                     </Grid>
                                                 </Border>
-
                                                 <StackPanel Grid.Column="1"
                                                             VerticalAlignment="Center"
                                                             Margin="10,0,10,0">
@@ -863,7 +1257,6 @@
                                                         <Run Text="{Binding UploadedAtDisplay, Mode=OneWay}"/>
                                                     </TextBlock>
                                                 </StackPanel>
-
                                                 <Button Grid.Column="2"
                                                         Content="Open"
                                                         Command="{Binding DataContext.OpenAttachmentCommand,
@@ -875,15 +1268,13 @@
                                                         Background="{DynamicResource AccentBrush}"
                                                         Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                         BorderThickness="0"/>
-
                                                 <Button Grid.Column="3"
                                                         Content="✕"
                                                         Command="{Binding DataContext.DeleteAttachmentCommand,
                                                                   RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                         CommandParameter="{Binding}"
                                                         FontSize="12" FontWeight="Bold"
-                                                        Padding="8,4"
-                                                        Cursor="Hand"
+                                                        Padding="8,4" Cursor="Hand"
                                                         Background="#B91C1C"
                                                         Foreground="White"
                                                         BorderThickness="0"/>
@@ -896,41 +1287,30 @@
                     </ScrollViewer>
                 </Grid>
             </Border>
-
         </Grid>
 
-        <!-- ══════════════════════════════════════════════════════════════
-             ROW 3 — MASTER DN (large left, scrolls internally)
-                   | HISTORY (right sidebar, scrolls internally)
-             This row FILLS remaining vertical space (Height="*").
-        ══════════════════════════════════════════════════════════════ -->
-        <Grid Grid.Row="3">
+        <!-- ═══ ROW 4 — ITEMS | HISTORY ═══ -->
+        <Grid Grid.Row="4">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="3*"/>
                 <ColumnDefinition Width="12"/>
                 <ColumnDefinition Width="1*" MinWidth="320"/>
             </Grid.ColumnDefinitions>
 
-            <!-- ══════════════════════════════════════════════════════════
-                 MASTER DN CARD (left, fills height, table scrolls inside)
-            ══════════════════════════════════════════════════════════ -->
+            <!-- ITEMS CARD -->
             <Border Grid.Column="0"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="12"
+                    BorderThickness="1" CornerRadius="12"
                     SnapsToDevicePixels="True">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
-                        <!-- hero strip -->
                         <RowDefinition Height="Auto"/>
-                        <!-- details form -->
                         <RowDefinition Height="*"/>
-                        <!-- items table scrolls -->
                     </Grid.RowDefinitions>
 
-                    <!-- ── COMPACT HERO STRIP (fixed) ──────────────── -->
+                    <!-- Hero strip -->
                     <Border Grid.Row="0" Style="{StaticResource MasterHeroStripStyle}">
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -943,32 +1323,32 @@
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
-
                             <StackPanel Grid.Column="0" VerticalAlignment="Center">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="✏️  MASTER DELIVERY NOTE  ·  "
-                                               FontSize="11" FontWeight="Bold"
-                                               Foreground="#CCFFFFFF"
-                                               VerticalAlignment="Center"/>
+                                    <TextBlock Style="{StaticResource HeroStripLabelStyle}"/>
                                     <TextBlock Text="{Binding CustomerName}"
                                                Style="{StaticResource MasterHeroTitleStyle}"/>
                                 </StackPanel>
                                 <TextBlock Text="{Binding ProjectName}"
                                            Style="{StaticResource MasterHeroSubtitleStyle}"
-                                           MaxWidth="500"
-                                           Margin="0,4,0,0"/>
+                                           MaxWidth="500" Margin="0,4,0,0"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                                    <TextBlock Text="JO:" Style="{StaticResource MasterHeroMetaLabelStyle}"/>
-                                    <TextBlock Text="{Binding JobOrderId}" Style="{StaticResource MasterHeroMetaValueStyle}"/>
+                                    <TextBlock Text="JO:"
+                                               Style="{StaticResource MasterHeroMetaLabelStyle}"/>
+                                    <TextBlock Text="{Binding JobOrderId}"
+                                               Style="{StaticResource MasterHeroMetaValueStyle}"/>
                                     <TextBlock Style="{StaticResource MasterHeroDividerStyle}"/>
-                                    <TextBlock Text="PI:" Style="{StaticResource MasterHeroMetaLabelStyle}"/>
-                                    <TextBlock Text="{Binding ProformaId}" Style="{StaticResource MasterHeroMetaValueStyle}"/>
+                                    <TextBlock Text="PI:"
+                                               Style="{StaticResource MasterHeroMetaLabelStyle}"/>
+                                    <TextBlock Text="{Binding ProformaId}"
+                                               Style="{StaticResource MasterHeroMetaValueStyle}"/>
                                     <TextBlock Style="{StaticResource MasterHeroDividerStyle}"/>
-                                    <TextBlock Text="SEQ:" Style="{StaticResource MasterHeroMetaLabelStyle}"/>
-                                    <TextBlock Text="{Binding SequenceNumber}" Style="{StaticResource MasterHeroMetaValueStyle}"/>
+                                    <TextBlock Text="SEQ:"
+                                               Style="{StaticResource MasterHeroMetaLabelStyle}"/>
+                                    <TextBlock Text="{Binding SequenceNumber}"
+                                               Style="{StaticResource MasterHeroMetaValueStyle}"/>
                                 </StackPanel>
                             </StackPanel>
-
                             <StackPanel Grid.Column="1"
                                         HorizontalAlignment="Right"
                                         VerticalAlignment="Center">
@@ -992,11 +1372,8 @@
                         </Grid>
                     </Border>
 
-                    <!-- ── DELIVERY DETAILS FORM (fixed) ───────────── -->
-                    <Border Grid.Row="1"
-                            Padding="18,14,18,14"
-                            BorderBrush="{DynamicResource BorderBrush}"
-                            BorderThickness="0,0,0,1">
+                    <!-- Details form -->
+                    <Border Grid.Row="1" Style="{StaticResource DetailFormStyle}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -1014,83 +1391,96 @@
                             </Grid.RowDefinitions>
 
                             <StackPanel Grid.Row="0" Grid.Column="0">
-                                <TextBlock Style="{StaticResource FieldLabelStyle}" Text="STATUS"/>
+                                <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                           Text="STATUS"/>
                                 <ComboBox ItemsSource="{Binding StatusOptions}"
                                           SelectedItem="{Binding Status}"
                                           FontSize="12" Height="38"
                                           VerticalContentAlignment="Center"/>
                             </StackPanel>
-
                             <StackPanel Grid.Row="0" Grid.Column="2">
-                                <TextBlock Style="{StaticResource FieldLabelStyle}" Text="DRIVER NAME"/>
-                                <TextBox Text="{Binding DriverName, UpdateSourceTrigger=PropertyChanged}"
+                                <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                           Text="DRIVER NAME"/>
+                                <TextBox Text="{Binding DriverName,
+                                                UpdateSourceTrigger=PropertyChanged}"
                                          FontSize="12" Padding="10,6"/>
                             </StackPanel>
-
                             <StackPanel Grid.Row="0" Grid.Column="4">
-                                <TextBlock Style="{StaticResource FieldLabelStyle}" Text="VEHICLE NUMBER"/>
-                                <TextBox Text="{Binding VehicleNumber, UpdateSourceTrigger=PropertyChanged}"
+                                <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                           Text="VEHICLE NUMBER"/>
+                                <TextBox Text="{Binding VehicleNumber,
+                                                UpdateSourceTrigger=PropertyChanged}"
                                          FontSize="12" Padding="10,6"/>
                             </StackPanel>
-
-                            <StackPanel Grid.Row="0" Grid.Column="6" VerticalAlignment="Bottom">
-                                <TextBlock Style="{StaticResource FieldLabelStyle}" Text="FOC"/>
+                            <StackPanel Grid.Row="0" Grid.Column="6"
+                                        VerticalAlignment="Bottom">
+                                <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                           Text="FOC"/>
                                 <CheckBox IsChecked="{Binding IsFoc}"
-                                          Content="Free"
-                                          FontSize="12"
+                                          Content="Free" FontSize="12"
                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                          VerticalAlignment="Center"
-                                          Height="38"/>
+                                          VerticalAlignment="Center" Height="38"/>
                             </StackPanel>
-
-                            <StackPanel Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3">
-                                <TextBlock Style="{StaticResource FieldLabelStyle}" Text="RECEIVER NAME"/>
-                                <TextBox Text="{Binding ReceiverName, UpdateSourceTrigger=PropertyChanged}"
+                            <StackPanel Grid.Row="2" Grid.Column="0"
+                                        Grid.ColumnSpan="3">
+                                <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                           Text="RECEIVER NAME"/>
+                                <TextBox Text="{Binding ReceiverName,
+                                                UpdateSourceTrigger=PropertyChanged}"
                                          FontSize="12" Padding="10,6"/>
                             </StackPanel>
-
-                            <StackPanel Grid.Row="2" Grid.Column="4" Grid.ColumnSpan="3">
-                                <TextBlock Style="{StaticResource FieldLabelStyle}" Text="NOTES"/>
-                                <TextBox Text="{Binding Notes, UpdateSourceTrigger=PropertyChanged}"
-                                         behaviors:TextBoxBehaviors.SelectAllOnFocus="False"
+                            <StackPanel Grid.Row="2" Grid.Column="4"
+                                        Grid.ColumnSpan="3">
+                                <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                           Text="NOTES"/>
+                                <TextBox Text="{Binding Notes,
+                                                UpdateSourceTrigger=PropertyChanged}"
                                          FontSize="12" Padding="10,6"
-                                         Height="38"
-                                         TextWrapping="NoWrap"/>
+                                         Height="38" TextWrapping="NoWrap"/>
                             </StackPanel>
                         </Grid>
                     </Border>
 
-                    <!-- ══════════════════════════════════════════════════
-                         DELIVERY ITEMS TABLE — INTERNAL FREE SCROLL
-                         SmoothScrollBehavior = pixel-precise smooth scroll,
-                         no 1-line/3-line snap, no under-scroller section.
-                    ══════════════════════════════════════════════════ -->
+                    <!-- ITEMS TABLE -->
                     <ScrollViewer Grid.Row="2"
                                   VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Auto"
                                   CanContentScroll="False"
-                                  IsDeferredScrollingEnabled="False"
-                                  PanningMode="None"
                                   Focusable="True"
                                   FocusVisualStyle="{x:Null}"
                                   behaviors:SmoothScrollBehavior.IsEnabled="True">
                         <StackPanel Margin="14,12,14,14">
+
+                            <!-- Items header + action buttons -->
                             <Grid Margin="4,0,4,10">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="8"/>
+                                    <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
+
                                 <StackPanel Grid.Column="0">
-                                    <TextBlock Text="📦  DELIVERY ITEMS"
-                                               FontSize="12" FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text="Enter qty in THIS DN then Save. Prev auto-updates from sibling DNs."
-                                               FontSize="10"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               Margin="0,2,0,0"/>
+                                    <TextBlock Style="{StaticResource ItemsSectionTitleStyle}"/>
+                                    <TextBlock Style="{StaticResource ItemsSectionSubtitleStyle}"/>
                                 </StackPanel>
+
+                                <!-- SELECT ALL REMAINING -->
+                                <Button Grid.Column="1"
+                                        Content="⚡  SELECT ALL REMAINING"
+                                        Command="{Binding FillRemainingCommand}"
+                                        Style="{StaticResource FillRemainingButtonStyle}"
+                                        ToolTip="Fill ALL balance quantities into Delivered column."/>
+
+                                <!-- RESET QTY — NEW CHAT 19 -->
+                                <Button Grid.Column="3"
+                                        Content="🔄  RESET QTY"
+                                        Command="{Binding ResetQtyCommand}"
+                                        Style="{StaticResource ResetQtyButtonStyle}"
+                                        ToolTip="Reset all Delivered quantities back to 0."/>
                             </Grid>
 
+                            <!-- Items grouped by spec -->
                             <ItemsControl ItemsSource="{Binding GroupedItemsView}">
                                 <ItemsControl.GroupStyle>
                                     <GroupStyle>
@@ -1123,6 +1513,7 @@
                                                                         </StackPanel>
                                                                     </Border>
 
+                                                                    <!-- Column headers -->
                                                                     <Border Background="{DynamicResource MenuHoverBrush}"
                                                                             BorderBrush="{DynamicResource BorderBrush}"
                                                                             BorderThickness="0,0,0,1">
@@ -1151,38 +1542,48 @@
                                                                                        Style="{StaticResource GridHeaderCell}"/>
                                                                             <TextBlock Grid.Column="2" Text="W1"
                                                                                        Style="{StaticResource GridHeaderCell}"
-                                                                                       HorizontalAlignment="Right" Margin="6,8,10,8"/>
+                                                                                       HorizontalAlignment="Right"
+                                                                                       Margin="6,8,10,8"/>
                                                                             <TextBlock Grid.Column="3" Text="H1"
                                                                                        Style="{StaticResource GridHeaderCell}"
-                                                                                       HorizontalAlignment="Right" Margin="6,8,10,8"/>
+                                                                                       HorizontalAlignment="Right"
+                                                                                       Margin="6,8,10,8"/>
                                                                             <TextBlock Grid.Column="4" Text="W2"
                                                                                        Style="{StaticResource GridHeaderCell}"
-                                                                                       HorizontalAlignment="Right" Margin="6,8,10,8"/>
+                                                                                       HorizontalAlignment="Right"
+                                                                                       Margin="6,8,10,8"/>
                                                                             <TextBlock Grid.Column="5" Text="H2"
                                                                                        Style="{StaticResource GridHeaderCell}"
-                                                                                       HorizontalAlignment="Right" Margin="6,8,10,8"/>
+                                                                                       HorizontalAlignment="Right"
+                                                                                       Margin="6,8,10,8"/>
                                                                             <TextBlock Grid.Column="6" Text="QTY"
                                                                                        Style="{StaticResource GridHeaderCell}"
-                                                                                       HorizontalAlignment="Right" Margin="6,8,10,8"/>
+                                                                                       HorizontalAlignment="Right"
+                                                                                       Margin="6,8,10,8"/>
                                                                             <TextBlock Grid.Column="7" Text="SQM"
                                                                                        Style="{StaticResource GridHeaderCell}"
-                                                                                       HorizontalAlignment="Right" Margin="6,8,10,8"/>
+                                                                                       HorizontalAlignment="Right"
+                                                                                       Margin="6,8,10,8"/>
                                                                             <TextBlock Grid.Column="8" Text="TOTAL SQM"
                                                                                        Style="{StaticResource GridHeaderCell}"
-                                                                                       HorizontalAlignment="Right" Margin="6,8,10,8"/>
-                                                                            <Border Grid.Column="9" Style="{StaticResource ColumnSeparatorStyle}"/>
+                                                                                       HorizontalAlignment="Right"
+                                                                                       Margin="6,8,10,8"/>
+                                                                            <Border Grid.Column="9"
+                                                                                    Style="{StaticResource ColumnSeparatorStyle}"/>
                                                                             <TextBlock Grid.Column="10" Text="PREV"
                                                                                        Style="{StaticResource GridHeaderCell}"
-                                                                                       HorizontalAlignment="Right" Margin="6,8,10,8"/>
-                                                                            <Border Grid.Column="11" Style="{StaticResource ColumnSeparatorStyle}"/>
-                                                                            <TextBlock Grid.Column="12" Text="THIS DN"
-                                                                                       Style="{StaticResource GridHeaderCell}"
-                                                                                       Foreground="#4338CA"
-                                                                                       HorizontalAlignment="Center"/>
-                                                                            <Border Grid.Column="13" Style="{StaticResource ColumnSeparatorStyle}"/>
+                                                                                       HorizontalAlignment="Right"
+                                                                                       Margin="6,8,10,8"/>
+                                                                            <Border Grid.Column="11"
+                                                                                    Style="{StaticResource ColumnSeparatorStyle}"/>
+                                                                            <TextBlock Grid.Column="12"
+                                                                                       Style="{StaticResource ThisDnHeaderStyle}"/>
+                                                                            <Border Grid.Column="13"
+                                                                                    Style="{StaticResource ColumnSeparatorStyle}"/>
                                                                             <TextBlock Grid.Column="14" Text="BALANCE"
                                                                                        Style="{StaticResource GridHeaderCell}"
-                                                                                       HorizontalAlignment="Right" Margin="6,8,10,8"/>
+                                                                                       HorizontalAlignment="Right"
+                                                                                       Margin="6,8,10,8"/>
                                                                         </Grid>
                                                                     </Border>
 
@@ -1203,7 +1604,8 @@
                                                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                                                        VerticalAlignment="Center"
                                                                                        Margin="8,0,0,0">
-                                                                                <Run Text="{Binding ItemCount, Mode=OneWay}" FontWeight="SemiBold"/>
+                                                                                <Run Text="{Binding ItemCount, Mode=OneWay}"
+                                                                                     FontWeight="SemiBold"/>
                                                                                 <Run Text=" items"/>
                                                                             </TextBlock>
                                                                         </StackPanel>
@@ -1227,7 +1629,8 @@
                                                 <Style TargetType="Border">
                                                     <Setter Property="Background" Value="Transparent"/>
                                                     <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding HasBalance}" Value="True">
+                                                        <DataTrigger Binding="{Binding HasBalance}"
+                                                                     Value="True">
                                                             <Setter Property="Background"
                                                                     Value="{DynamicResource TintAmberBrush}"/>
                                                         </DataTrigger>
@@ -1253,10 +1656,12 @@
                                                     <ColumnDefinition Width="70"/>
                                                 </Grid.ColumnDefinitions>
 
-                                                <TextBlock Grid.Column="0" Text="{Binding SerialNumber}"
+                                                <TextBlock Grid.Column="0"
+                                                           Text="{Binding SerialNumber}"
                                                            Style="{StaticResource GridDataCell}"
                                                            HorizontalAlignment="Center"/>
-                                                <TextBlock Grid.Column="1" Text="{Binding GlassRef}"
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{Binding GlassRef}"
                                                            Style="{StaticResource GridDataCell}"
                                                            FontWeight="SemiBold"
                                                            TextTrimming="CharacterEllipsis"
@@ -1265,61 +1670,72 @@
                                                            Style="{StaticResource GridNumericCell}"/>
                                                 <TextBlock Grid.Column="3" Text="{Binding H1}"
                                                            Style="{StaticResource GridNumericCell}"/>
-
                                                 <TextBlock Grid.Column="4">
                                                     <TextBlock.Style>
-                                                        <Style TargetType="TextBlock" BasedOn="{StaticResource OptionalDimStyle}">
+                                                        <Style TargetType="TextBlock"
+                                                               BasedOn="{StaticResource OptionalDimStyle}">
                                                             <Setter Property="Text" Value="{Binding W2}"/>
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding W2}" Value="0">
                                                                     <Setter Property="Text" Value="—"/>
-                                                                    <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                                                    <Setter Property="Foreground"
+                                                                            Value="{DynamicResource MutedForegroundBrush}"/>
                                                                 </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
                                                     </TextBlock.Style>
                                                 </TextBlock>
-
                                                 <TextBlock Grid.Column="5">
                                                     <TextBlock.Style>
-                                                        <Style TargetType="TextBlock" BasedOn="{StaticResource OptionalDimStyle}">
+                                                        <Style TargetType="TextBlock"
+                                                               BasedOn="{StaticResource OptionalDimStyle}">
                                                             <Setter Property="Text" Value="{Binding H2}"/>
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding H2}" Value="0">
                                                                     <Setter Property="Text" Value="—"/>
-                                                                    <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                                                    <Setter Property="Foreground"
+                                                                            Value="{DynamicResource MutedForegroundBrush}"/>
                                                                 </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
                                                     </TextBlock.Style>
                                                 </TextBlock>
-
-                                                <TextBlock Grid.Column="6" Text="{Binding OrderedQty}"
+                                                <TextBlock Grid.Column="6"
+                                                           Text="{Binding OrderedQty}"
                                                            Style="{StaticResource GridNumericCell}"/>
-                                                <TextBlock Grid.Column="7" Text="{Binding Sqm, StringFormat={}{0:0.000}}"
+                                                <TextBlock Grid.Column="7"
+                                                           Text="{Binding Sqm, StringFormat={}{0:0.000}}"
                                                            Style="{StaticResource GridNumericCell}"
                                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                                <TextBlock Grid.Column="8" Text="{Binding TotalSqm, StringFormat={}{0:0.000}}"
+                                                <TextBlock Grid.Column="8"
+                                                           Text="{Binding TotalSqm, StringFormat={}{0:0.000}}"
                                                            Style="{StaticResource GridNumericCell}"
                                                            FontWeight="Bold"/>
-                                                <Border Grid.Column="9" Style="{StaticResource ColumnSeparatorStyle}"/>
-                                                <TextBlock Grid.Column="10" Text="{Binding PreviouslyDeliveredQty}"
+                                                <Border Grid.Column="9"
+                                                        Style="{StaticResource ColumnSeparatorStyle}"/>
+                                                <TextBlock Grid.Column="10"
+                                                           Text="{Binding PreviouslyDeliveredQty}"
                                                            Style="{StaticResource GridNumericCell}"
                                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                                <Border Grid.Column="11" Style="{StaticResource ColumnSeparatorStyle}"/>
+                                                <Border Grid.Column="11"
+                                                        Style="{StaticResource ColumnSeparatorStyle}"/>
+
+                                                <!-- TextBox on real DN -->
                                                 <TextBox Grid.Column="12"
-                                                         Text="{Binding DeliveredQty, UpdateSourceTrigger=PropertyChanged}"
+                                                         Text="{Binding DeliveredQty,
+                                                                UpdateSourceTrigger=PropertyChanged}"
                                                          behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
-                                                         FontSize="13" FontWeight="Bold"
-                                                         TextAlignment="Right"
-                                                         VerticalContentAlignment="Center"
-                                                         Padding="8,4,10,4" Margin="6,3"
-                                                         BorderThickness="1.5"
-                                                         BorderBrush="#4338CA"
-                                                         Background="#EEF2FF"
-                                                         Foreground="#3730A3"/>
-                                                <Border Grid.Column="13" Style="{StaticResource ColumnSeparatorStyle}"/>
-                                                <TextBlock Grid.Column="14" Text="{Binding BalanceQty}"
+                                                         Style="{StaticResource DeliveredQtyTextBoxStyle}"/>
+
+                                                <!-- TextBlock on Master DN -->
+                                                <TextBlock Grid.Column="12"
+                                                           Text="{Binding DeliveredQty}"
+                                                           Style="{StaticResource DeliveredQtyReadOnlyStyle}"/>
+
+                                                <Border Grid.Column="13"
+                                                        Style="{StaticResource ColumnSeparatorStyle}"/>
+                                                <TextBlock Grid.Column="14"
+                                                           Text="{Binding BalanceQty}"
                                                            Style="{StaticResource BalanceCellStyle}"/>
                                             </Grid>
                                         </Border>
@@ -1331,23 +1747,17 @@
                 </Grid>
             </Border>
 
-            <!-- ══════════════════════════════════════════════════════════
-                 HISTORY CARD (right sidebar, fills height, list scrolls)
-            ══════════════════════════════════════════════════════════ -->
+            <!-- HISTORY CARD -->
             <Border Grid.Column="2"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="12"
+                    BorderThickness="1" CornerRadius="12"
                     SnapsToDevicePixels="True">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
-                        <!-- header fixed -->
                         <RowDefinition Height="*"/>
-                        <!-- list scrolls -->
                         <RowDefinition Height="Auto"/>
-                        <!-- totals fixed -->
                     </Grid.RowDefinitions>
 
                     <Border Grid.Row="0" Style="{StaticResource SectionHeaderStyle}">
@@ -1366,7 +1776,7 @@
                                 <TextBlock Text="📋  DELIVERY HISTORY"
                                            FontSize="11" FontWeight="Bold"
                                            Foreground="White"/>
-                                <TextBlock Text="Click to open · Right-click for options · Green = active"
+                                <TextBlock Text="Click to open · Right-click for options"
                                            FontSize="10" Foreground="#CCFFFFFF"
                                            Margin="0,2,0,0"
                                            TextTrimming="CharacterEllipsis"/>
@@ -1375,7 +1785,8 @@
                                     CornerRadius="8" Padding="8,3"
                                     Background="#22FFFFFF"
                                     VerticalAlignment="Center">
-                                <TextBlock FontSize="10" FontWeight="Bold" Foreground="White">
+                                <TextBlock FontSize="10" FontWeight="Bold"
+                                           Foreground="White">
                                     <Run Text="{Binding HistoryTotalDelivered, Mode=OneWay}"/>
                                     <Run Text=" / "/>
                                     <Run Text="{Binding HistoryTotalOrdered, Mode=OneWay}"/>
@@ -1384,15 +1795,10 @@
                         </Grid>
                     </Border>
 
-                    <!-- ══════════════════════════════════════════════
-                         HISTORY LIST — INTERNAL FREE SCROLL
-                    ══════════════════════════════════════════════ -->
                     <ScrollViewer Grid.Row="1"
                                   VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled"
                                   CanContentScroll="False"
-                                  IsDeferredScrollingEnabled="False"
-                                  PanningMode="None"
                                   Focusable="True"
                                   FocusVisualStyle="{x:Null}"
                                   behaviors:SmoothScrollBehavior.IsEnabled="True">
@@ -1413,15 +1819,13 @@
                                                               Style="{StaticResource HistoryContextMenuItemStyle}"
                                                               Command="{Binding PlacementTarget.Tag.SelectHistoryEntryCommand,
                                                                         RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                              CommandParameter="{Binding}"
-                                                              ToolTip="Load this delivery note into the editor"/>
+                                                              CommandParameter="{Binding}"/>
                                                     <Separator/>
                                                     <MenuItem Header="🧾  Convert to Tax Invoice"
                                                               Style="{StaticResource HistoryContextMenuItemStyle}"
                                                               Command="{Binding PlacementTarget.Tag.ConvertToTaxInvoiceCommand,
                                                                         RelativeSource={RelativeSource AncestorType=ContextMenu}}"
-                                                              CommandParameter="{Binding}"
-                                                              ToolTip="Create a Tax Invoice from this DN (Phase 19)"/>
+                                                              CommandParameter="{Binding}"/>
                                                 </ContextMenu>
                                             </Border.ContextMenu>
 
@@ -1439,7 +1843,8 @@
                                                                VerticalAlignment="Top"
                                                                Margin="0,1,10,0"/>
 
-                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                    <StackPanel Grid.Column="1"
+                                                                VerticalAlignment="Center">
                                                         <StackPanel Orientation="Horizontal">
                                                             <TextBlock Text="{Binding DeliveryNoteId}"
                                                                        Style="{StaticResource HistoryRowDnIdStyle}"/>
@@ -1464,21 +1869,34 @@
                                                                            Foreground="White"/>
                                                             </Border>
                                                             <Border CornerRadius="4" Padding="5,1"
-                                                                    Margin="5,0,0,0"
-                                                                    Background="{DynamicResource TintIndigoBrush}"
-                                                                    VerticalAlignment="Center"
-                                                                    Visibility="{Binding HasAttachments,
-                                                                        Converter={StaticResource BoolToVisibilityConverter}}">
+        Margin="5,0,0,0"
+        Background="{DynamicResource TintIndigoBrush}"
+        VerticalAlignment="Center"
+        Visibility="{Binding HasAttachments,
+            Converter={StaticResource BoolToVisibilityConverter}}">
                                                                 <TextBlock FontSize="9" FontWeight="Bold"
-                                                                           Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                                                    <Run Text="📎 "/>
-                                                                    <Run Text="{Binding AttachmentCount, Mode=OneWay}"/>
+               Foreground="{DynamicResource PrimaryForegroundBrush}">
+        <Run Text="📎 "/>
+        <Run Text="{Binding AttachmentCount, Mode=OneWay}"/>
                                                                 </TextBlock>
+                                                            </Border>
+
+                                                            <!-- CHAT 19 INVOICED: invoiced badge in history row
+     Shows "✅ TI-2026-001" when this DN has been invoiced.
+     Hidden when InvoicedBadgeText is empty (not yet invoiced). -->
+                                                            <Border CornerRadius="4" Padding="7,2"
+        Margin="5,0,0,0"
+        Background="{DynamicResource TintGreenBrush}"
+        VerticalAlignment="Center"
+        Visibility="{Binding IsInvoiced,
+            Converter={StaticResource BoolToVisibilityConverter}}">
+                                                                <TextBlock Text="{Binding InvoicedBadgeText, Mode=OneWay}"
+               FontSize="9" FontWeight="Bold"
+               Foreground="#047857"/>
                                                             </Border>
                                                         </StackPanel>
 
-                                                        <TextBlock FontSize="11"
-                                                                   Margin="0,3,0,0"
+                                                        <TextBlock FontSize="11" Margin="0,3,0,0"
                                                                    Foreground="{DynamicResource SecondaryForegroundBrush}">
                                                             <Run Text="{Binding DeliveryDate, Mode=OneWay}"/>
                                                             <Run Text="  ·  🚚 "/>
@@ -1512,20 +1930,37 @@
                                                                        FontSize="9" FontWeight="Bold"
                                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                                         </Border>
-
-                                                        <Button Content="🧾  Tax Invoice"
-                                                                Command="{Binding DataContext.ConvertToTaxInvoiceCommand,
-                                                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                                CommandParameter="{Binding}"
-                                                                Style="{StaticResource TaxInvoiceRowButtonStyle}"
-                                                                Margin="0,6,0,0"
-                                                                HorizontalAlignment="Right"
-                                                                ToolTip="Convert this DN to Tax Invoice (Phase 19)"/>
+                                                        <!-- CHAT 19 INVOICED:
+     When CanInvoice = true  → shows "🧾 Tax Invoice" (blue, active)
+     When CanInvoice = false → shows "✅ Invoiced" (green, disabled)
+     CanInvoice is false when already invoiced OR status not eligible -->
+                                                        <Button Command="{Binding DataContext.ConvertToTaxInvoiceCommand,
+                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+        CommandParameter="{Binding}"
+        IsEnabled="{Binding CanInvoice}"
+        Margin="0,6,0,0"
+        HorizontalAlignment="Right">
+                                                            <Button.Style>
+                                                                <Style TargetType="Button"
+               BasedOn="{StaticResource TaxInvoiceRowButtonStyle}">
+                                                                    <Setter Property="Content" Value="🧾  Tax Invoice"/>
+                                                                    <Setter Property="Background" Value="#1E40AF"/>
+                                                                    <Style.Triggers>
+                                                                        <!-- Already invoiced: show green Invoiced state -->
+                                                                        <DataTrigger Binding="{Binding IsInvoiced}" Value="True">
+                                                                            <Setter Property="Content" Value="✅  Invoiced"/>
+                                                                            <Setter Property="Background" Value="#047857"/>
+                                                                            <Setter Property="Cursor" Value="Arrow"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Button.Style>
+                                                        </Button>
                                                     </StackPanel>
                                                 </Grid>
 
-                                                <Border Margin="0,8,0,0"
-                                                        CornerRadius="8"
+                                                <!-- Cumulative timeline -->
+                                                <Border Margin="0,8,0,0" CornerRadius="8"
                                                         Background="{DynamicResource ModuleBackgroundBrush}"
                                                         BorderBrush="{DynamicResource BorderBrush}"
                                                         BorderThickness="1"
@@ -1540,22 +1975,27 @@
                                                             <ColumnDefinition Width="Auto"/>
                                                             <ColumnDefinition Width="*"/>
                                                         </Grid.ColumnDefinitions>
-
-                                                        <StackPanel Grid.Column="0" HorizontalAlignment="Center">
-                                                            <TextBlock Text="ORDERED" Style="{StaticResource CumulativeLabelStyle}"/>
+                                                        <StackPanel Grid.Column="0"
+                                                                    HorizontalAlignment="Center">
+                                                            <TextBlock Text="ORDERED"
+                                                                       Style="{StaticResource CumulativeLabelStyle}"/>
                                                             <TextBlock Text="{Binding OrderedQty, Mode=OneWay}"
-                                                                       Style="{StaticResource CumulativeValueStyle}"
-                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                                       Style="{StaticResource CumulativeValueStyle}"/>
                                                         </StackPanel>
-                                                        <Border Grid.Column="1" Style="{StaticResource CumulativeSeparatorStyle}"/>
-                                                        <StackPanel Grid.Column="2" HorizontalAlignment="Center">
-                                                            <TextBlock Text="PREV" Style="{StaticResource CumulativeLabelStyle}"/>
+                                                        <Border Grid.Column="1"
+                                                                Style="{StaticResource CumulativeSeparatorStyle}"/>
+                                                        <StackPanel Grid.Column="2"
+                                                                    HorizontalAlignment="Center">
+                                                            <TextBlock Text="PREV"
+                                                                       Style="{StaticResource CumulativeLabelStyle}"/>
                                                             <TextBlock Text="{Binding CumulativePrevQty, Mode=OneWay}"
                                                                        Style="{StaticResource CumulativeValueStyle}"
                                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                                         </StackPanel>
-                                                        <Border Grid.Column="3" Style="{StaticResource CumulativeSeparatorStyle}"/>
-                                                        <StackPanel Grid.Column="4" HorizontalAlignment="Center">
+                                                        <Border Grid.Column="3"
+                                                                Style="{StaticResource CumulativeSeparatorStyle}"/>
+                                                        <StackPanel Grid.Column="4"
+                                                                    HorizontalAlignment="Center">
                                                             <TextBlock Text="THIS DN"
                                                                        Style="{StaticResource CumulativeLabelStyle}"
                                                                        Foreground="#047857"/>
@@ -1563,8 +2003,10 @@
                                                                        Style="{StaticResource CumulativeValueStyle}"
                                                                        Foreground="#047857"/>
                                                         </StackPanel>
-                                                        <Border Grid.Column="5" Style="{StaticResource CumulativeSeparatorStyle}"/>
-                                                        <StackPanel Grid.Column="6" HorizontalAlignment="Center">
+                                                        <Border Grid.Column="5"
+                                                                Style="{StaticResource CumulativeSeparatorStyle}"/>
+                                                        <StackPanel Grid.Column="6"
+                                                                    HorizontalAlignment="Center">
                                                             <TextBlock Text="BALANCE"
                                                                        Style="{StaticResource CumulativeLabelStyle}"
                                                                        Foreground="#B45309"/>
@@ -1582,10 +2024,9 @@
                         </ItemsControl>
                     </ScrollViewer>
 
-                    <!-- History totals (fixed at bottom) -->
+                    <!-- History totals -->
                     <Border Grid.Row="2"
-                            Margin="12,0,12,12"
-                            Padding="12,10"
+                            Margin="12,0,12,12" Padding="12,10"
                             CornerRadius="10"
                             Background="{DynamicResource TintIndigoBrush}">
                         <Grid>
@@ -1599,8 +2040,8 @@
                                            FontSize="18" FontWeight="Bold"
                                            HorizontalAlignment="Center"
                                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                <TextBlock Text="Ordered"
-                                           FontSize="10" HorizontalAlignment="Center"
+                                <TextBlock Text="Ordered" FontSize="10"
+                                           HorizontalAlignment="Center"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="1" HorizontalAlignment="Center">
@@ -1608,8 +2049,8 @@
                                            FontSize="18" FontWeight="Bold"
                                            HorizontalAlignment="Center"
                                            Foreground="#047857"/>
-                                <TextBlock Text="Delivered"
-                                           FontSize="10" HorizontalAlignment="Center"
+                                <TextBlock Text="Delivered" FontSize="10"
+                                           HorizontalAlignment="Center"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             </StackPanel>
                             <StackPanel Grid.Column="2" HorizontalAlignment="Center">
@@ -1617,16 +2058,14 @@
                                            FontSize="18" FontWeight="Bold"
                                            HorizontalAlignment="Center"
                                            Foreground="#B45309"/>
-                                <TextBlock Text="Balance"
-                                           FontSize="10" HorizontalAlignment="Center"
+                                <TextBlock Text="Balance" FontSize="10"
+                                           HorizontalAlignment="Center"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             </StackPanel>
                         </Grid>
                     </Border>
                 </Grid>
             </Border>
-
         </Grid>
-
     </Grid>
 </UserControl>

@@ -12,9 +12,6 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
     /// FullSnapshotJson contains entire DN state for load/export.
     /// Indexed columns surfaced for list queries without JSON parsing.
     ///
-    /// Status and DeliveryType stored as strings (same pattern as JO).
-    /// Compare with string constants, not enum values.
-    ///
     /// BUG-10: DeliveryDate / DeliveryTime defaults removed from property
     ///         level — set explicitly by mapper on creation only.
     /// BUG-11: CreatedAt / UpdatedAt defaults removed from property
@@ -23,6 +20,13 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
     /// Phase 10.7: Added TotalPreviouslyDeliveredQty (Improvement 7).
     ///             Added TaxInvoiceId + HasTaxInvoice (Improvement 6).
     ///             ⚠️ DB schema change — delete deliverynotes.db before first run.
+    ///
+    /// CHAT 19: Added IsMasterDn + LastUpdatedFromDnId.
+    ///   IsMasterDn = true means this DN is the auto-generated Master
+    ///   reference tracker for a Job Order. Created once when JO is saved.
+    ///   Never manually created or edited. Hidden from normal DN list.
+    ///   Updated automatically after every real DN dispatch.
+    ///   ⚠️ DB schema change — delete deliverynotes.db before first run.
     /// </summary>
     [Table("DeliveryNotes")]
     public class SavedDeliveryNote
@@ -42,7 +46,8 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
         [MaxLength(50)]
         public string ProformaId { get; set; } = "";
 
-        /// <summary>Delivery sequence within this JO (1, 2, 3...).</summary>
+        /// <summary>Delivery sequence within this JO (1, 2, 3...).
+        /// Master DN uses sequence = 0.</summary>
         public int SequenceNumber { get; set; } = 1;
 
         // ── Indexed searchable fields ────────────────────────────────────
@@ -64,6 +69,35 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
         /// <summary>Free of charge flag — entire DN is FOC when true.</summary>
         public bool IsFoc { get; set; }
 
+        // ── CHAT 19 — Master DN fields ───────────────────────────────────
+
+        /// <summary>
+        /// CHAT 19: True when this DN is the Master (reference) DN
+        /// for a Job Order.
+        ///
+        /// Master DNs:
+        ///   - Have DeliveryType = "Dummy"
+        ///   - Have SequenceNumber = 0
+        ///   - Are auto-created when a JO is saved
+        ///   - Are NEVER manually created or edited by user
+        ///   - Are hidden from all normal DN list tabs (0-5)
+        ///   - Appear ONLY in Tab 6 (Master DNs)
+        ///   - Are updated every time a real DN is dispatched
+        ///   - Are READ-ONLY in the detail view
+        ///
+        /// DB schema addition — delete deliverynotes.db if upgrading.
+        /// </summary>
+        public bool IsMasterDn { get; set; }
+
+        /// <summary>
+        /// CHAT 19: Tracks which real DN last triggered a Master DN update.
+        /// e.g. "DN-2026-001-02" = the second delivery updated this master.
+        /// Used for audit trail. No business logic depends on it.
+        /// Empty string = never updated (just created).
+        /// </summary>
+        [MaxLength(50)]
+        public string LastUpdatedFromDnId { get; set; } = "";
+
         // ── Delivery logistics ───────────────────────────────────────────
 
         [MaxLength(200)]
@@ -77,15 +111,13 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
 
         /// <summary>
         /// Set explicitly by mapper at creation time.
-        /// BUG-10: Removed DateTime.Now default at property level to avoid
-        /// EF materialization interference on existing DB rows.
+        /// BUG-10: Removed DateTime.Now default at property level.
         /// </summary>
         public DateTime DeliveryDate { get; set; }
 
         /// <summary>
         /// Stored as "HH:mm". Set explicitly by mapper at creation time.
-        /// BUG-10: Removed DateTime.Now.ToString("HH:mm") default at
-        /// property level.
+        /// BUG-10: Removed default at property level.
         /// </summary>
         [MaxLength(10)]
         public string DeliveryTime { get; set; } = "";
@@ -100,25 +132,19 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
         public int TotalBalanceQty { get; set; }
 
         /// <summary>
-        /// Phase 10.7 (Improvement 7) — sum of PreviouslyDeliveredQty across
-        /// all items on this DN at the time it was saved.
-        /// Self-healed on load/save by DeliveryNoteDetailViewModel.
+        /// Phase 10.7 (Improvement 7) — sum of PreviouslyDeliveredQty
+        /// across all items on this DN at the time it was saved.
+        /// On Master DN: equals total delivered across all real DNs.
         /// </summary>
         public int TotalPreviouslyDeliveredQty { get; set; }
 
-        // ── Tax Invoice link (Phase 19 prep — Improvement 6) ─────────────
+        // ── Tax Invoice link ─────────────────────────────────────────────
 
-        /// <summary>
-        /// Phase 10.7 placeholder — wired up in Phase 19 (Tax Invoice module).
-        /// Empty string = no invoice yet.
-        /// </summary>
+        /// <summary>Empty string = no Tax Invoice generated yet.</summary>
         [MaxLength(50)]
         public string TaxInvoiceId { get; set; } = "";
 
-        /// <summary>
-        /// True when a Tax Invoice has been generated from this DN.
-        /// Phase 19 will set this when converting DN → Tax Invoice.
-        /// </summary>
+        /// <summary>True when a Tax Invoice has been generated from this DN.</summary>
         public bool HasTaxInvoice { get; set; }
 
         // ── Full snapshot ────────────────────────────────────────────────
@@ -128,16 +154,10 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
 
         // ── Timestamps ───────────────────────────────────────────────────
 
-        /// <summary>
-        /// BUG-11: Removed DateTime.Now default at property level.
-        /// Set explicitly by repository in InsertAsync only.
-        /// </summary>
+        /// <summary>BUG-11: Set explicitly by repository in InsertAsync only.</summary>
         public DateTime CreatedAt { get; set; }
 
-        /// <summary>
-        /// BUG-11: Removed DateTime.Now default at property level.
-        /// Set explicitly by repository in InsertAsync + UpdateAsync.
-        /// </summary>
+        /// <summary>BUG-11: Set explicitly by repository in InsertAsync + UpdateAsync.</summary>
         public DateTime UpdatedAt { get; set; }
 
         // ── Navigation (EF relationships) ────────────────────────────────

@@ -27,48 +27,52 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
     /// <summary>
     /// ViewModel for the Delivery Note detail view.
     ///
-    /// BUG-40: ConfirmDispatchAsync race condition fixed.
-    /// BUG-41: TotalOrderedQty now updated in SaveAsync.
-    /// BUG-42: Event handler leak fixed — unsubscribe before re-subscribe.
-    /// BUG-43: HealItemPrevQtyAsync order dependency safe and documented.
-    /// BUG-44: DeleteDnAsync reloads fresh attachments before file delete.
-    /// BUG-45: EnsureLoaded handles null snapshot gracefully.
-    /// BUG-46: SelectedDnHeaderText shows selected DN attachment count.
-    ///
-    /// CHAT 14 CHANGE:
-    ///   Callback OnRequestOpenTaxInvoiceForProforma REMOVED.
-    ///   Replaced with OnRequestOpenTaxInvoiceForDeliveryNote.
-    ///
-    ///   Reason: Convert-to-Tax-Invoice must invoice ONLY the specific DN's
-    ///   delivered qty, not the full PI. So we pass DN ID, not PI ID.
-    ///   Shell VM + MainViewModel route this to
-    ///   TaxInvoiceVM.CreateFromDeliveryNoteAsync(dnId) which imports
-    ///   only rows with DeliveredQty > 0 from that specific DN.
+    /// CHAT 19 CHANGES:
+    ///   • IsMasterDn — drives read-only mode
+    ///   • DeliveryProgressPercent — progress bar
+    ///   • IsFullyDelivered — green badge
+    ///   • FillRemainingCommand — SELECT ALL REMAINING
+    ///   • ResetQtyCommand — RESET QTY (sets all to 0)
+    ///   • CreateNewDnFromMasterCommand — fires OnRequestCreateDnFromMaster
+    ///   • OnRequestCreateDnFromMaster — callback to shell VM
+    ///   • Master DN hides rows where BalanceQty = 0
+    ///   • ConfirmDispatchAsync calls UpdateMasterDnAsync
     /// </summary>
     public class DeliveryNoteDetailViewModel : ViewModelBase
     {
         // ── callbacks ──────────────────────────────────────────────────────
         public Action? OnRequestBackToList { get; set; }
+        public Func<string, Task>? OnRequestOpenTaxInvoiceForDeliveryNote { get; set; }
 
         /// <summary>
-        /// Chat 14 — fires when user clicks "Convert to Tax Invoice" on a
-        /// history entry (or the current DN itself).
-        /// Argument = DeliveryNoteId of the target DN.
-        ///
-        /// Result: Tax Invoice will be created with ONLY that DN's delivered
-        /// qty (not full PI qty, not aggregated across sibling DNs).
-        ///
-        /// Bubbles up: DetailVM → shell VM → MainViewModel → TaxInvoiceVM.
+        /// CHAT 19 — fires when user clicks "Create New DN from Balance"
+        /// on a Master DN detail view.
         /// </summary>
-        public Func<string, Task>? OnRequestOpenTaxInvoiceForDeliveryNote { get; set; }
+        public Action<SavedDeliveryNote>? OnRequestCreateDnFromMaster { get; set; }
 
         // ── loaded entity + snapshot ──────────────────────────────────────
         private SavedDeliveryNote? _entity;
         private DeliveryNoteSnapshot? _snapshot;
-
         private readonly AttachmentService _attachmentService = new();
-
         private bool _isNavigatingHistory;
+
+        // ── CHAT 19 — Master DN state ─────────────────────────────────────
+
+        private bool _isMasterDn;
+        public bool IsMasterDn
+        {
+            get => _isMasterDn;
+            private set
+            {
+                if (_isMasterDn == value) return;
+                _isMasterDn = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsNotMasterDn));
+                CommandManager.InvalidateRequerySuggested();
+            }
+        }
+
+        public bool IsNotMasterDn => !_isMasterDn;
 
         // ── loading state ─────────────────────────────────────────────────
 
@@ -351,8 +355,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             }
         }
 
-        // ── Grouped items view ────────────────────────────────────────────
-
         private ICollectionView? _groupedItemsView;
         public ICollectionView? GroupedItemsView
         {
@@ -365,6 +367,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             }
         }
 
+        /// <summary>
+        /// CHAT 19: On Master DN — filter hides rows where BalanceQty = 0
+        /// (fully delivered items not shown — only pending balance items).
+        /// On real DN — all rows shown (user needs to enter qty).
+        /// </summary>
         private void RebuildGroupedView()
         {
             var view = CollectionViewSource.GetDefaultView(_itemRows);
@@ -372,6 +379,18 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             view.GroupDescriptions.Add(
                 new PropertyGroupDescription(
                     nameof(DnItemRowViewModel.SpecGroupName)));
+
+            // CHAT 19: Master DN hides fully delivered rows
+            if (_isMasterDn)
+            {
+                view.Filter = obj =>
+                    obj is DnItemRowViewModel row && row.BalanceQty > 0;
+            }
+            else
+            {
+                view.Filter = null;
+            }
+
             GroupedItemsView = view;
         }
 
@@ -398,6 +417,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 if (_totalPreviouslyDeliveredQty == value) return;
                 _totalPreviouslyDeliveredQty = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(DeliveryProgressPercent));
             }
         }
 
@@ -410,6 +430,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 if (_totalDeliveredQty == value) return;
                 _totalDeliveredQty = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(DeliveryProgressPercent));
             }
         }
 
@@ -422,8 +443,24 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 if (_totalBalanceQty == value) return;
                 _totalBalanceQty = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(DeliveryProgressPercent));
+                OnPropertyChanged(nameof(IsFullyDelivered));
             }
         }
+
+        public double DeliveryProgressPercent
+        {
+            get
+            {
+                if (TotalOrderedQty == 0) return 0;
+                int delivered = TotalPreviouslyDeliveredQty + TotalDeliveredQty;
+                return Math.Min(100.0,
+                    (double)delivered / TotalOrderedQty * 100.0);
+            }
+        }
+
+        public bool IsFullyDelivered =>
+            TotalOrderedQty > 0 && TotalBalanceQty == 0;
 
         // ── Delivery history ──────────────────────────────────────────────
 
@@ -502,7 +539,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 _deliveryNoteId,
                 StringComparison.OrdinalIgnoreCase);
 
-        // BUG-46: show attachment count for SELECTED DN not current DN
         public string SelectedDnHeaderText =>
             _selectedHistoryEntry != null
                 ? $"ATTACHMENTS ({_selectedHistoryEntry.AttachmentCount})"
@@ -547,6 +583,28 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public ICommand ExportCsvCommand { get; }
         public ICommand ConvertToTaxInvoiceCommand { get; }
 
+        /// <summary>
+        /// CHAT 19 — SELECT ALL REMAINING.
+        /// Sets DeliveredQty = BalanceQty for every item where BalanceQty > 0.
+        /// REMINDER: fills ALL remaining pcs.
+        /// Hidden on Master DN.
+        /// </summary>
+        public ICommand FillRemainingCommand { get; }
+
+        /// <summary>
+        /// CHAT 19 — RESET QTY.
+        /// Sets DeliveredQty = 0 for ALL items.
+        /// Companion to FillRemainingCommand — lets user start over.
+        /// Hidden on Master DN.
+        /// </summary>
+        public ICommand ResetQtyCommand { get; }
+
+        /// <summary>
+        /// CHAT 19 — shown only on Master DN detail view.
+        /// Fires OnRequestCreateDnFromMaster → shell VM creates Draft DN.
+        /// </summary>
+        public ICommand CreateNewDnFromMasterCommand { get; }
+
         // ═════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
         // ═════════════════════════════════════════════════════════════════
@@ -555,26 +613,26 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         {
             SaveCommand = new RelayCommand(
                 async _ => await SaveAsync(),
-                _ => !IsSaving && !IsLoading);
+                _ => !IsSaving && !IsLoading && !IsMasterDn);
 
             BackCommand = new RelayCommand(
                 _ => OnRequestBackToList?.Invoke());
 
             MakeDnCommand = new RelayCommand(
                 async _ => await ConfirmDispatchAsync(),
-                _ => Status == "Draft" && !IsSaving);
+                _ => Status == "Draft" && !IsSaving && !IsMasterDn);
 
             DeleteDnCommand = new RelayCommand(
                 async _ => await DeleteDnAsync(),
-                _ => _entity != null && !IsSaving);
+                _ => _entity != null && !IsSaving && !IsMasterDn);
 
             UploadImageCommand = new RelayCommand(
                 async _ => await UploadImageAsync(),
-                _ => _entity != null && !IsSaving);
+                _ => _entity != null && !IsSaving && !IsMasterDn);
 
             UploadPdfCommand = new RelayCommand(
                 async _ => await UploadPdfAsync(),
-                _ => _entity != null && !IsSaving);
+                _ => _entity != null && !IsSaving && !IsMasterDn);
 
             OpenAttachmentCommand = new RelayCommand(param =>
             {
@@ -582,11 +640,14 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     OpenAttachment(row);
             });
 
-            DeleteAttachmentCommand = new RelayCommand(async param =>
-            {
-                if (param is DnAttachmentRowViewModel row)
-                    await DeleteAttachmentAsync(row);
-            });
+            DeleteAttachmentCommand = new RelayCommand(
+                async param =>
+                {
+                    if (param is DnAttachmentRowViewModel row)
+                        await DeleteAttachmentAsync(row);
+                },
+                canExecute: param =>
+                    param is DnAttachmentRowViewModel && !IsMasterDn);
 
             SelectHistoryEntryCommand = new RelayCommand(async param =>
             {
@@ -607,10 +668,76 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 _ => _entity != null && !IsSaving && !IsLoading);
 
             ConvertToTaxInvoiceCommand = new RelayCommand(
-                execute: param => ConvertToTaxInvoicePlaceholder(
+                execute: param => ConvertToTaxInvoiceAsync(
                     param as DnHistoryEntryViewModel),
                 canExecute: param => CanConvertToTaxInvoice(
                     param as DnHistoryEntryViewModel));
+
+            // ═══════════════════════════════════════════════════════════
+            //  CHAT 19 — FillRemainingCommand
+            //  SELECT ALL REMAINING: fills balance qty into DeliveredQty
+            //  REMINDER: balance pcs = ALL remaining pcs for that item
+            // ═══════════════════════════════════════════════════════════
+            FillRemainingCommand = new RelayCommand(
+                _ => FillAllRemaining(),
+                _ => !IsMasterDn &&
+                     !IsSaving &&
+                     _itemRows.Any(r => r.BalanceQty > 0));
+
+            // ═══════════════════════════════════════════════════════════
+            //  CHAT 19 — ResetQtyCommand
+            //  RESET QTY: sets DeliveredQty = 0 for ALL items
+            //  Companion to FillRemainingCommand — lets user start over
+            // ═══════════════════════════════════════════════════════════
+            ResetQtyCommand = new RelayCommand(
+                _ => ResetAllQty(),
+                _ => !IsMasterDn &&
+                     !IsSaving &&
+                     _itemRows.Any(r => r.DeliveredQty > 0));
+
+            // CHAT 19 — Create new real DN from Master DN balance
+            CreateNewDnFromMasterCommand = new RelayCommand(
+                _ =>
+                {
+                    if (_entity != null)
+                        OnRequestCreateDnFromMaster?.Invoke(_entity);
+                },
+                _ => IsMasterDn &&
+                     !IsSaving &&
+                     _entity != null &&
+                     _itemRows.Any(r => r.BalanceQty > 0));
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  CHAT 19 — FILL ALL REMAINING
+        //  REMINDER: balance pcs = ALL remaining pcs for that item.
+        //  SR.1 balance=5 → fills 5. SR.2 balance=0 → skipped.
+        // ═════════════════════════════════════════════════════════════════
+
+        private void FillAllRemaining()
+        {
+            foreach (var row in _itemRows)
+            {
+                if (row.BalanceQty > 0)
+                    row.DeliveredQty = row.BalanceQty;
+            }
+            RecalculateTotals();
+            CommandManager.InvalidateRequerySuggested();
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  CHAT 19 — RESET ALL QTY
+        //  Sets DeliveredQty = 0 for ALL items.
+        //  User can start entering quantities fresh.
+        // ═════════════════════════════════════════════════════════════════
+
+        private void ResetAllQty()
+        {
+            foreach (var row in _itemRows)
+                row.DeliveredQty = 0;
+
+            RecalculateTotals();
+            CommandManager.InvalidateRequerySuggested();
         }
 
         // ═════════════════════════════════════════════════════════════════
@@ -685,8 +812,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 ProformaId = _entity.ProformaId;
                 DeliveryType = _entity.DeliveryType;
                 SequenceNumber = _entity.SequenceNumber;
-                DeliveryDateDisplay = _entity.DeliveryDate.ToString("dd MMM yyyy");
+                DeliveryDateDisplay =
+                    _entity.DeliveryDate.ToString("dd MMM yyyy");
                 DeliveryTime = _entity.DeliveryTime;
+
+                // CHAT 19: set Master DN flag BEFORE RebuildGroupedView
+                IsMasterDn = _entity.IsMasterDn;
 
                 var joRef = _snapshot?.JobOrderRef;
                 CustomerName = joRef?.CustomerName ?? _entity.CustomerName;
@@ -701,10 +832,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 ReceiverName = _entity.ReceiverName;
                 Notes = _entity.Notes;
 
-                // Heal PREV quantities BEFORE building row VMs
-                await HealItemPrevQtyAsync(_entity);
+                // Heal PREV only for real DNs
+                if (!_entity.IsMasterDn)
+                    await HealItemPrevQtyAsync(_entity);
 
-                // BUG-42: unsubscribe from old rows before creating new ones
+                // BUG-42: unsubscribe from old rows
                 foreach (var oldRow in _itemRows)
                     oldRow.DeliveredQtyChanged -= OnItemDeliveredQtyChanged;
 
@@ -715,27 +847,30 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     .ToList();
 
                 ItemRows = new ObservableCollection<DnItemRowViewModel>(rows);
+                // RebuildGroupedView called by ItemRows setter
+                // Filter applied based on IsMasterDn flag already set above
 
-                // Subscribe to new rows
                 foreach (var row in ItemRows)
                     row.DeliveredQtyChanged += OnItemDeliveredQtyChanged;
 
                 RecalculateTotals();
-
                 await LoadHistoryAsync();
 
-                var currentInHistory = HistoryEntries
-                    .FirstOrDefault(h => string.Equals(
-                        h.DeliveryNoteId, DeliveryNoteId,
-                        StringComparison.OrdinalIgnoreCase));
+                if (!_entity.IsMasterDn)
+                {
+                    var currentInHistory = HistoryEntries
+                        .FirstOrDefault(h => string.Equals(
+                            h.DeliveryNoteId, DeliveryNoteId,
+                            StringComparison.OrdinalIgnoreCase));
 
-                _selectedHistoryEntry = currentInHistory;
-                if (currentInHistory != null)
-                    currentInHistory.IsSelected = true;
+                    _selectedHistoryEntry = currentInHistory;
+                    if (currentInHistory != null)
+                        currentInHistory.IsSelected = true;
 
-                OnPropertyChanged(nameof(SelectedHistoryEntry));
-                OnPropertyChanged(nameof(IsSelectedDnCurrent));
-                OnPropertyChanged(nameof(SelectedDnHeaderText));
+                    OnPropertyChanged(nameof(SelectedHistoryEntry));
+                    OnPropertyChanged(nameof(IsSelectedDnCurrent));
+                    OnPropertyChanged(nameof(SelectedDnHeaderText));
+                }
 
                 await LoadAttachmentsDirectlyAsync(DeliveryNoteId);
 
@@ -809,12 +944,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  SAVE
+        //  SAVE (disabled for Master DN)
         // ═════════════════════════════════════════════════════════════════
 
         public async Task SaveAsync()
         {
             if (_entity == null || App.DeliveryNotes == null) return;
+            if (_entity.IsMasterDn) return;
 
             bool hasAnyDelivery = ItemRows.Any(r => r.DeliveredQty > 0);
             if (!hasAnyDelivery)
@@ -822,8 +958,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 var warn = MessageBox.Show(
                     "No items have a delivered quantity — all quantities are 0.\n\n" +
                     "Are you sure you want to save with zero deliveries?\n\n" +
-                    "  Yes → Save anyway (keeps Draft)\n" +
-                    "  No  → Go back and enter quantities",
+                    "  Yes → Save anyway\n  No → Go back and enter quantities",
                     "Zero Delivered Qty",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Warning);
@@ -847,7 +982,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     var item = _entity.Items.FirstOrDefault(i =>
                         i.SpecGroupNumber == row.SpecGroupNumber &&
                         i.SerialNumber == row.SerialNumber);
-
                     if (item == null) continue;
 
                     item.DeliveredQty = row.DeliveredQty;
@@ -859,8 +993,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 }
 
                 _entity.TotalOrderedQty = _entity.Items.Sum(i => i.OrderedQty);
-                _entity.TotalDeliveredQty = _entity.Items.Sum(i => i.DeliveredQty);
-                _entity.TotalBalanceQty = _entity.Items.Sum(i => i.BalanceQty);
+                _entity.TotalDeliveredQty =
+                    _entity.Items.Sum(i => i.DeliveredQty);
+                _entity.TotalBalanceQty =
+                    _entity.Items.Sum(i => i.BalanceQty);
                 _entity.TotalPreviouslyDeliveredQty =
                     _entity.Items.Sum(i => i.PreviouslyDeliveredQty);
 
@@ -891,12 +1027,14 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  MAKE DN (dispatch)
+        //  MAKE DN — CHAT 19 FIXED
+        //  Calls UpdateMasterDnAsync instead of creating new Dummy DN
         // ═════════════════════════════════════════════════════════════════
 
         private async Task ConfirmDispatchAsync()
         {
             if (_entity == null || App.DeliveryNotes == null) return;
+            if (_entity.IsMasterDn) return;
 
             bool hasDelivery = ItemRows.Any(r => r.DeliveredQty > 0);
             if (!hasDelivery)
@@ -913,7 +1051,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             var confirm = MessageBox.Show(
                 $"Confirm dispatch of '{DeliveryNoteId}'?\n\n" +
                 "Status will change to Dispatched.\n" +
-                "If balance qty remains, a Dummy DN will be auto-created.",
+                "The Master DN will be updated with new balance quantities.",
                 "Confirm Dispatch",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Question);
@@ -923,7 +1061,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             try
             {
                 IsSaving = true;
-
                 Status = "Dispatched";
 
                 _entity.Status = Status;
@@ -949,8 +1086,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 }
 
                 _entity.TotalOrderedQty = _entity.Items.Sum(i => i.OrderedQty);
-                _entity.TotalDeliveredQty = _entity.Items.Sum(i => i.DeliveredQty);
-                _entity.TotalBalanceQty = _entity.Items.Sum(i => i.BalanceQty);
+                _entity.TotalDeliveredQty =
+                    _entity.Items.Sum(i => i.DeliveredQty);
+                _entity.TotalBalanceQty =
+                    _entity.Items.Sum(i => i.BalanceQty);
                 _entity.TotalPreviouslyDeliveredQty =
                     _entity.Items.Sum(i => i.PreviouslyDeliveredQty);
 
@@ -958,37 +1097,74 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 DeliveryNoteMapper.RefreshSnapshot(_entity, joRef);
                 await App.DeliveryNotes.UpdateAsync(_entity);
 
+                // CHAT 19: update Master DN — no new Dummy DN
+                await App.DeliveryNotes.UpdateMasterDnAsync(
+                    _entity.JobOrderId,
+                    _entity.DeliveryNoteId);
+
                 int totalBalance = _entity.Items.Sum(i => i.BalanceQty);
-                if (totalBalance > 0)
+
+                // ── FULLY DELIVERED ───────────────────────────────────────────
+                if (totalBalance <= 0)
                 {
-                    int nextSeq = await App.DeliveryNotes
-                        .GetNextSequenceAsync(_entity.JobOrderId);
-                    string newDnId = await App.DeliveryNotes
-                        .BuildDeliveryNoteIdAsync(_entity.JobOrderId, nextSeq);
-
-                    var dummyDn = DeliveryNoteMapper.FromBalance(
-                        _entity, newDnId, nextSeq);
-
-                    await App.DeliveryNotes.InsertAsync(dummyDn);
-
                     MessageBox.Show(
-                        $"Dispatched successfully!\n\n" +
-                        $"Balance of {totalBalance} pcs detected.\n" +
-                        $"Dummy DN '{newDnId}' created in Prepared tab.",
+                        "✅  Dispatched successfully!\n\n" +
+                        "All items fully delivered.\n" +
+                        "Master DN updated to complete.",
                         "Dispatched",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
+
+                    OnRequestBackToList?.Invoke();
+                    return;
+                }
+
+                // ── BALANCE REMAINING — offer to create next DN ───────────────
+                int deliveredThisDn = _entity.Items.Sum(i => i.DeliveredQty);
+                int balanceItemCount = _entity.Items.Count(i => i.BalanceQty > 0);
+
+                var nextDn = MessageBox.Show(
+                    $"✅  Dispatched successfully!\n\n" +
+                    $"This delivery     :  {deliveredThisDn} pcs\n" +
+                    $"Balance remaining :  {totalBalance} pcs " +
+                    $"({balanceItemCount} items)\n\n" +
+                    "Would you like to create the next delivery note now?\n\n" +
+                    "  Yes  →  Create next DN pre-filled with balance\n" +
+                    "           (use SELECT ALL REMAINING to fill instantly)\n" +
+                    "  No   →  Go back to list",
+                    "Dispatched — Balance Remaining",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question);
+
+                if (nextDn == MessageBoxResult.Yes)
+                {
+                    // Load fresh Master DN with updated balances
+                    var masterDn = await App.DeliveryNotes
+                        .GetMasterDnForJobOrderAsync(_entity.JobOrderId);
+
+                    if (masterDn != null &&
+                        masterDn.Items.Any(i => i.BalanceQty > 0))
+                    {
+                        // Fire callback — shell VM creates next DN from balance
+                        OnRequestCreateDnFromMaster?.Invoke(masterDn);
+                    }
+                    else
+                    {
+                        // Fallback — master not found, go to list
+                        MessageBox.Show(
+                            "Could not load Master DN.\n\n" +
+                            "Use 'Create DN' from the list to create next delivery.",
+                            "Master DN Not Found",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Warning);
+
+                        OnRequestBackToList?.Invoke();
+                    }
                 }
                 else
                 {
-                    MessageBox.Show(
-                        "Dispatched successfully! All items fully delivered.",
-                        "Dispatched",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Information);
+                    OnRequestBackToList?.Invoke();
                 }
-
-                OnRequestBackToList?.Invoke();
             }
             catch (Exception ex)
             {
@@ -1005,20 +1181,21 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  DELETE DN
+        //  DELETE DN (guarded for Master DN)
         // ═════════════════════════════════════════════════════════════════
 
         private async Task DeleteDnAsync()
         {
             if (_entity == null || App.DeliveryNotes == null) return;
+            if (_entity.IsMasterDn) return;
 
             var result = MessageBox.Show(
                 $"Delete delivery note '{DeliveryNoteId}'?\n\n" +
                 $"Customer : {CustomerName}\n" +
                 $"Project  : {ProjectName}\n" +
                 $"Status   : {Status}\n\n" +
-                "This will permanently delete the DN, all its items\n" +
-                "and all attached files. This cannot be undone.",
+                "This will permanently delete the DN and all attached files.\n" +
+                "This cannot be undone.",
                 "Confirm Delete",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
@@ -1063,22 +1240,21 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  TAX INVOICE — Chat 14 real wiring (DN-specific)
-        //  Fires OnRequestOpenTaxInvoiceForDeliveryNote callback which
-        //  carries the DN ID up through the shell VM → MainViewModel →
-        //  TaxInvoiceVM.CreateFromDeliveryNoteAsync(dnId).
-        //  Result: Tax Invoice contains ONLY this DN's delivered qty.
+        //  TAX INVOICE
         // ═════════════════════════════════════════════════════════════════
 
         private bool CanConvertToTaxInvoice(DnHistoryEntryViewModel? entry)
         {
-            if (_entity == null || IsSaving) return false;
-
-            // Must have a PI reference (Tax Invoice needs it for numbering)
+            if (_entity == null || IsSaving || IsMasterDn) return false;
             if (string.IsNullOrWhiteSpace(ProformaId)) return false;
 
-            // Chat 14: Dispatched onwards is invoice-eligible.
-            // Real UAE glass business: invoice travels with the goods.
+            // CHAT 19 INVOICED: already invoiced DNs cannot be re-invoiced
+            // Check the specific history entry's invoiced state
+            if (entry != null && entry.HasTaxInvoice) return false;
+
+            // If no specific entry, check the currently loaded DN
+            if (entry == null && _entity.HasTaxInvoice) return false;
+
             var targetStatus = entry?.Status ?? Status;
             return targetStatus == "Dispatched"
                 || targetStatus == "Delivered"
@@ -1086,20 +1262,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 || targetStatus == "Received";
         }
 
-        /// <summary>
-        /// Method name kept as ConvertToTaxInvoicePlaceholder to match
-        /// existing command wiring in constructor — no longer a placeholder.
-        /// Now bubbles the target DN's ID up to shell/main for import.
-        /// </summary>
-        private async void ConvertToTaxInvoicePlaceholder(
+        private async void ConvertToTaxInvoiceAsync(
             DnHistoryEntryViewModel? entry)
         {
             if (string.IsNullOrWhiteSpace(ProformaId))
             {
                 MessageBox.Show(
-                    "This delivery note has no linked Proforma Invoice.\n\n" +
-                    "Tax Invoices must be created from a PI reference.\n" +
-                    "Ensure the parent Job Order was created from a PI.",
+                    "This delivery note has no linked Proforma Invoice.",
                     "No PI Reference",
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
@@ -1109,16 +1278,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             if (OnRequestOpenTaxInvoiceForDeliveryNote == null)
             {
                 MessageBox.Show(
-                    "Tax Invoice navigation is not wired up.\n\n" +
-                    "This is a configuration error — restart the app.",
+                    "Tax Invoice navigation is not wired up.",
                     "Not Wired",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
                 return;
             }
 
-            // Target DN = the history entry the user right-clicked,
-            // OR the currently-loaded DN if button pressed without entry.
             var targetDnId = entry?.DeliveryNoteId ?? DeliveryNoteId;
             var targetStatus = entry?.Status ?? Status;
             var targetQty = entry?.DeliveredQty ?? TotalDeliveredQty;
@@ -1126,8 +1292,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             if (string.IsNullOrWhiteSpace(targetDnId))
             {
                 MessageBox.Show(
-                    "Cannot determine which DN to invoice.\n\n" +
-                    "Try right-clicking a specific history entry.",
+                    "Cannot determine which DN to invoice.",
                     "No DN Selected",
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
@@ -1137,8 +1302,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             if (targetQty <= 0)
             {
                 MessageBox.Show(
-                    $"DN '{targetDnId}' has 0 delivered qty.\n\n" +
-                    "Only DNs with at least 1 delivered piece can be invoiced.",
+                    $"DN '{targetDnId}' has 0 delivered qty.",
                     "Nothing to Invoice",
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
@@ -1147,15 +1311,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
             var confirm = MessageBox.Show(
                 $"Create Tax Invoice for this specific delivery?\n\n" +
-                $"DN         : {targetDnId}\n" +
-                $"Status     : {targetStatus}\n" +
-                $"Delivered  : {targetQty} pcs (from THIS DN only)\n" +
-                $"PI         : {ProformaId}\n" +
-                $"Customer   : {CustomerName}\n\n" +
-                "The invoice will include ONLY the pieces delivered\n" +
-                "on this specific DN — not the full PI qty.\n\n" +
-                "If a Draft invoice already exists for this PI,\n" +
-                "you'll be given the choice to open it or create new.",
+                $"DN        : {targetDnId}\n" +
+                $"Status    : {targetStatus}\n" +
+                $"Delivered : {targetQty} pcs (THIS DN only)\n" +
+                $"PI        : {ProformaId}\n" +
+                $"Customer  : {CustomerName}",
                 "Convert Single DN to Tax Invoice",
                 MessageBoxButton.OKCancel,
                 MessageBoxImage.Question);
@@ -1164,8 +1324,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
             try
             {
-                // Chat 14: pass DN ID (not PI ID) so Tax Invoice imports
-                // only this DN's delivered rows, not full PI.
                 await OnRequestOpenTaxInvoiceForDeliveryNote(targetDnId);
             }
             catch (Exception ex)
@@ -1185,46 +1343,43 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         private async Task ExportPdfAsync()
         {
             if (!EnsureLoaded(out var entity, out var snapshot)) return;
-
             var layout = new DeliveryNotePdfLayout(entity, snapshot);
             var engine = new PdfExportEngine();
-            var request = new ExportRequest
-            {
-                PromptForLocation = true,
-                OpenAfterSave = true
-            };
-            var result = await engine.ExportAsync(layout, request);
-            ShowExportResult(result, "PDF");
+            ShowExportResult(
+                await engine.ExportAsync(layout,
+                    new ExportRequest
+                    {
+                        PromptForLocation = true,
+                        OpenAfterSave = true
+                    }), "PDF");
         }
 
         private async Task ExportExcelAsync()
         {
             if (!EnsureLoaded(out var entity, out var snapshot)) return;
-
             var layout = new DeliveryNoteExcelLayout(entity, snapshot);
             var engine = new ExcelExportEngine();
-            var request = new ExportRequest
-            {
-                PromptForLocation = true,
-                OpenAfterSave = true
-            };
-            var result = await engine.ExportAsync(layout, request);
-            ShowExportResult(result, "Excel");
+            ShowExportResult(
+                await engine.ExportAsync(layout,
+                    new ExportRequest
+                    {
+                        PromptForLocation = true,
+                        OpenAfterSave = true
+                    }), "Excel");
         }
 
         private async Task ExportCsvAsync()
         {
             if (!EnsureLoaded(out var entity, out var snapshot)) return;
-
             var layout = new DeliveryNoteCsvLayout(entity, snapshot);
             var engine = new CsvExportEngine();
-            var request = new ExportRequest
-            {
-                PromptForLocation = true,
-                OpenAfterSave = true
-            };
-            var result = await engine.ExportAsync(layout, request);
-            ShowExportResult(result, "CSV");
+            ShowExportResult(
+                await engine.ExportAsync(layout,
+                    new ExportRequest
+                    {
+                        PromptForLocation = true,
+                        OpenAfterSave = true
+                    }), "CSV");
         }
 
         private bool EnsureLoaded(
@@ -1244,7 +1399,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             }
 
             entity = _entity;
-
             snapshot = _snapshot ?? new DeliveryNoteSnapshot
             {
                 Header = new DnHeaderSnapshot
@@ -1262,7 +1416,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     ProjectName = _entity.ProjectName
                 }
             };
-
             return true;
         }
 
@@ -1270,7 +1423,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             ExportResult result, string formatLabel)
         {
             if (result.Success || result.Cancelled) return;
-
             MessageBox.Show(
                 $"{formatLabel} export failed:\n\n{result.ErrorMessage}",
                 "Export Failed",
@@ -1291,7 +1443,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 .GetAttachmentsAsync(deliveryNoteId);
             var rows = list
                 .Select(a => new DnAttachmentRowViewModel(a)).ToList();
-            Attachments = new ObservableCollection<DnAttachmentRowViewModel>(rows);
+            Attachments =
+                new ObservableCollection<DnAttachmentRowViewModel>(rows);
 
             var historyRow = HistoryEntries.FirstOrDefault(h =>
                 string.Equals(h.DeliveryNoteId, deliveryNoteId,
@@ -1332,7 +1485,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 {
                     MessageBox.Show(
                         $"File is too large.\n\n" +
-                        $"Maximum size: {AttachmentLimits.MaxFileSizeDisplay}",
+                        $"Maximum: {AttachmentLimits.MaxFileSizeDisplay}",
                         "File Too Large",
                         MessageBoxButton.OK,
                         MessageBoxImage.Warning);
@@ -1345,13 +1498,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     Owner = Application.Current.MainWindow
                 };
                 if (renameDlg.ShowDialog() != true) return;
-                var finalName = renameDlg.ResultFileName;
 
                 IsSaving = true;
-
                 var entity = await _attachmentService
-                    .CopyImageAsync(dlg.FileName, _deliveryNoteId, finalName);
-
+                    .CopyImageAsync(
+                        dlg.FileName, _deliveryNoteId,
+                        renameDlg.ResultFileName);
                 await App.DeliveryNotes.AddAttachmentAsync(entity);
                 await LoadAttachmentsDirectlyAsync(_deliveryNoteId);
             }
@@ -1395,7 +1547,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 {
                     MessageBox.Show(
                         $"File is too large.\n\n" +
-                        $"Maximum size: {AttachmentLimits.MaxFileSizeDisplay}",
+                        $"Maximum: {AttachmentLimits.MaxFileSizeDisplay}",
                         "File Too Large",
                         MessageBoxButton.OK,
                         MessageBoxImage.Warning);
@@ -1408,13 +1560,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     Owner = Application.Current.MainWindow
                 };
                 if (renameDlg.ShowDialog() != true) return;
-                var finalName = renameDlg.ResultFileName;
 
                 IsSaving = true;
-
                 var entity = await _attachmentService
-                    .CopyPdfAsync(dlg.FileName, _deliveryNoteId, finalName);
-
+                    .CopyPdfAsync(
+                        dlg.FileName, _deliveryNoteId,
+                        renameDlg.ResultFileName);
                 await App.DeliveryNotes.AddAttachmentAsync(entity);
                 await LoadAttachmentsDirectlyAsync(_deliveryNoteId);
             }
@@ -1448,7 +1599,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
             var result = MessageBox.Show(
                 $"Delete attachment '{row.FileName}'?\n\n" +
-                "This will remove the file from disk and cannot be undone.",
+                "This cannot be undone.",
                 "Confirm Delete",
                 MessageBoxButton.YesNo,
                 MessageBoxImage.Warning);
@@ -1478,7 +1629,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         private void RecalculateTotals()
         {
             TotalOrderedQty = ItemRows.Sum(r => r.OrderedQty);
-            TotalPreviouslyDeliveredQty = ItemRows.Sum(r => r.PreviouslyDeliveredQty);
+            TotalPreviouslyDeliveredQty =
+                ItemRows.Sum(r => r.PreviouslyDeliveredQty);
             TotalDeliveredQty = ItemRows.Sum(r => r.DeliveredQty);
             TotalBalanceQty = ItemRows.Sum(r => r.BalanceQty);
         }
@@ -1514,6 +1666,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 _deliveredQty = Math.Max(0, Math.Min(value, max));
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(BalanceQty));
+                OnPropertyChanged(nameof(HasBalance));
                 DeliveredQtyChanged?.Invoke();
             }
         }
@@ -1539,9 +1692,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 : $"{W1}×{H1}";
 
         public bool HasBalance => BalanceQty > 0;
-
         public decimal Sqm => SqmCalculator.CalculatePanel(W1, H1);
-        public decimal TotalSqm => SqmCalculator.CalculateTotal(W1, H1, OrderedQty);
+        public decimal TotalSqm =>
+            SqmCalculator.CalculateTotal(W1, H1, OrderedQty);
 
         public DnItemRowViewModel(DeliveryNoteItem item)
         {
@@ -1562,6 +1715,13 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
     // ═════════════════════════════════════════════════════════════════════
     //  DN HISTORY ENTRY VIEWMODEL
+    //
+    //  CHAT 19 INVOICED:
+    //    HasTaxInvoice    — true when this DN has been invoiced
+    //    TaxInvoiceId     — Tax Invoice reference e.g. "TI-2026-001"
+    //    IsInvoiced       — convenience alias for HasTaxInvoice
+    //    InvoicedBadgeText — "✅ TI-2026-001" or "" for XAML binding
+    //    CanInvoice       — false when already invoiced or status not eligible
     // ═════════════════════════════════════════════════════════════════════
 
     public class DnHistoryEntryViewModel : ViewModelBase
@@ -1575,11 +1735,59 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         public string DriverName { get; }
         public string TypeIcon { get; }
         public string StatusBrushKey { get; }
-
         public int OrderedQty { get; }
         public int CumulativePrevQty { get; }
         public int CumulativeBalanceQty { get; }
         public int SequenceNumber { get; }
+
+        // ── CHAT 19 INVOICED ─────────────────────────────────────────────
+
+        /// <summary>
+        /// True when this DN has been converted to a Tax Invoice.
+        /// Populated from DeliveryHistoryEntry.HasTaxInvoice which is
+        /// set by DeliveryNoteRepository.GetDeliveryHistoryAsync().
+        /// Drives the invoiced badge in the history sidebar row.
+        /// </summary>
+        public bool HasTaxInvoice { get; }
+
+        /// <summary>
+        /// The Tax Invoice reference linked to this DN.
+        /// e.g. "TI-2026-001" — empty when not yet invoiced.
+        /// </summary>
+        public string TaxInvoiceId { get; }
+
+        /// <summary>Convenience alias — use in XAML where IsInvoiced reads naturally.</summary>
+        public bool IsInvoiced => HasTaxInvoice;
+
+        /// <summary>
+        /// Badge text for history sidebar row:
+        ///   "✅ TI-2026-001" — when invoiced
+        ///   ""               — when not yet invoiced
+        /// Bind to TextBlock.Text + Visibility.
+        /// </summary>
+        public string InvoicedBadgeText =>
+            HasTaxInvoice && !string.IsNullOrWhiteSpace(TaxInvoiceId)
+                ? $"✅ {TaxInvoiceId}"
+                : "";
+
+        /// <summary>
+        /// True when this DN can be invoiced:
+        ///   • Not already invoiced (HasTaxInvoice = false)
+        ///   • Status is Dispatched/Delivered/Signed/Received
+        /// Used to control "🧾 Tax Invoice" button enabled state in sidebar.
+        /// </summary>
+        public bool CanInvoice =>
+            !HasTaxInvoice && (
+                string.Equals(Status, "Dispatched",
+                    StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(Status, "Delivered",
+                    StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(Status, "Signed",
+                    StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(Status, "Received",
+                    StringComparison.OrdinalIgnoreCase));
+
+        // ── Standard properties ───────────────────────────────────────────
 
         private bool _isSelected;
         public bool IsSelected
@@ -1635,11 +1843,16 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             CumulativeBalanceQty = e.CumulativeBalanceQty;
             SequenceNumber = e.SequenceNumber;
 
+            // CHAT 19 INVOICED: map invoice state from history entry
+            // Set by DeliveryNoteRepository.GetDeliveryHistoryAsync()
+            // which reads HasTaxInvoice + TaxInvoiceId from DN record
+            HasTaxInvoice = e.HasTaxInvoice;
+            TaxInvoiceId = e.TaxInvoiceId ?? "";
+
             TypeIcon = e.DeliveryType switch
             {
                 "Rework" => "🔧",
                 "Return" => "↩️",
-                "Dummy" => "📌",
                 _ => "📦"
             };
 

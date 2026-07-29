@@ -14,10 +14,28 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
     /// Phase 10.5c: Added GetReturnedAsync() for the Returned tab.
     /// Phase 10.6 : Added attachment CRUD.
     /// Phase 10.6b: Added GetAttachmentCountAsync for per-sibling counts.
-    /// Phase 10.7 : Added GetPreviouslyDeliveredMapAsync for self-healing
-    ///              PREV column.
+    /// Phase 10.7 : Added GetPreviouslyDeliveredMapAsync for self-healing PREV.
     /// Phase 10.8b: DeliveryHistoryEntry carries cumulative timeline.
     /// Ship 8c-2  : Added GetSqmSummariesByJobOrderAsync.
+    ///
+    /// CHAT 19: Master DN system added.
+    ///   GetMasterDnsAsync            — list all Master DNs (Tab 6)
+    ///   GetMasterDnForJobOrderAsync  — load single Master DN for a JO
+    ///   CreateMasterDnAsync          — auto-called after JO insert
+    ///   UpdateMasterDnAsync          — recalculates after real DN dispatch
+    ///   BuildMasterDnIdAsync         — MDN-YYYY-NNN format
+    ///   GetAllAsync                  — now excludes Master DNs
+    ///   GetPreparedAsync             — now excludes Master DNs
+    ///   GetDeliveredAsync            — now excludes Master DNs
+    ///   HasAnyDeliveryAsync          — now excludes Master DNs
+    ///
+    /// CHAT 19 INVOICED:
+    ///   MarkAsInvoicedAsync          — marks single DN as invoiced after TI saved
+    ///   MarkMultipleAsInvoicedAsync  — marks multiple DNs as invoiced (Master Invoice)
+    ///   Both called by TaxInvoiceDetailViewModel.SaveAsync() after TI insert/update.
+    ///   Sets HasTaxInvoice = true and TaxInvoiceId on the DN record.
+    ///   Drives invoiced badge in DN list and history sidebar.
+    ///   Both are idempotent — safe to call multiple times.
     /// </summary>
     public interface IDeliveryNoteRepository
     {
@@ -28,12 +46,82 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         Task<SavedDeliveryNote?> GetByIdAsync(int id);
         Task<SavedDeliveryNote?> GetByDeliveryNoteIdAsync(string deliveryNoteId);
 
+        // ── CHAT 19 — Master DN retrieval ────────────────────────────────
+
+        /// <summary>
+        /// Returns the Master DN entity for a specific Job Order.
+        /// Returns null if no Master DN exists (pre-Chat 19 JOs).
+        /// </summary>
+        Task<SavedDeliveryNote?> GetMasterDnForJobOrderAsync(string jobOrderId);
+
+        /// <summary>
+        /// Returns all Master DNs for Tab 6 (Master DN list).
+        /// Ordered by UpdatedAt descending.
+        /// </summary>
+        Task<List<DeliveryNoteListItem>> GetMasterDnsAsync();
+
+        /// <summary>
+        /// Creates a Master DN for a Job Order.
+        /// Called automatically by JobOrderRepository.InsertAsync.
+        /// Guard: only one Master DN per JO — returns null if already exists.
+        /// </summary>
+        Task<SavedDeliveryNote?> CreateMasterDnAsync(
+            string jobOrderId,
+            string proformaId,
+            string customerName,
+            string projectName,
+            string masterDnId,
+            List<DeliveryNoteItem> items);
+
+        /// <summary>
+        /// Recalculates Master DN delivered/balance totals after a real
+        /// DN is dispatched. Updates PreviouslyDeliveredQty on each item
+        /// so SELECT ALL REMAINING shows correct balance pcs.
+        /// triggeredByDnId = the real DN that caused this update (audit).
+        /// </summary>
+        Task UpdateMasterDnAsync(string jobOrderId, string triggeredByDnId);
+
+        /// <summary>
+        /// Builds the Master DN ID from a JO ID.
+        /// Format: MDN-2026-001 (from JOB-2026-001).
+        /// </summary>
+        Task<string> BuildMasterDnIdAsync(string jobOrderId);
+
+        // ── CHAT 19 INVOICED — mark DNs as invoiced ──────────────────────
+
+        /// <summary>
+        /// Marks a single DN as invoiced after Tax Invoice is saved.
+        /// Sets HasTaxInvoice = true and TaxInvoiceId = taxInvoiceId.
+        /// Called by TaxInvoiceDetailViewModel.SaveAsync() after insert/update.
+        /// Idempotent — safe to call multiple times on same DN.
+        /// Only updates indexed columns — no snapshot rebuild needed.
+        /// </summary>
+        Task MarkAsInvoicedAsync(string deliveryNoteId, string taxInvoiceId);
+
+        /// <summary>
+        /// Marks multiple DNs as invoiced in one operation.
+        /// Used when a Master Invoice covers multiple sibling DNs.
+        /// All DNs in the list get the same taxInvoiceId.
+        /// deliveryNoteIds parsed from DeliveryNoteReference field (comma-separated).
+        /// Idempotent. Safe with empty list — no-ops gracefully.
+        /// </summary>
+        Task MarkMultipleAsInvoicedAsync(
+            IEnumerable<string> deliveryNoteIds,
+            string taxInvoiceId);
+
         // ── List retrieval ───────────────────────────────────────────────
 
+        /// <summary>CHAT 19: excludes Master DNs (IsMasterDn=true).</summary>
         Task<List<DeliveryNoteListItem>> GetAllAsync();
+
         Task<List<DeliveryNoteListItem>> GetByJobOrderIdAsync(string jobOrderId);
+
+        /// <summary>CHAT 19: excludes Master DNs from Draft tab.</summary>
         Task<List<DeliveryNoteListItem>> GetPreparedAsync();
+
+        /// <summary>CHAT 19: excludes Master DNs from Delivered tab.</summary>
         Task<List<DeliveryNoteListItem>> GetDeliveredAsync();
+
         Task<List<PendingQtySummary>> GetPendingQtyJobsAsync();
         Task<List<DeliveryNoteListItem>> GetReworkAsync();
         Task<List<DeliveryNoteListItem>> GetReturnedAsync();
@@ -50,9 +138,9 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         /// <summary>
         /// Returns a dictionary keyed by "specGroupNumber|serialNumber"
         /// whose value is the total DeliveredQty across all CONFIRMED
-        /// (non-Draft) sibling DNs for this job order, EXCLUDING the
-        /// DN identified by excludeDnId.
-        /// Key format: $"{specGroupNumber}|{serialNumber}"
+        /// (non-Draft) real (non-Dummy/Master) sibling DNs for this JO,
+        /// EXCLUDING the DN identified by excludeDnId.
+        /// CHAT 19: excludes Dummy/Master DNs from the map.
         /// </summary>
         Task<Dictionary<string, int>> GetPreviouslyDeliveredMapAsync(
             string jobOrderId, string excludeDnId);
@@ -61,15 +149,16 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
         /// <summary>
         /// Batch-computes SQM aggregates per Job Order.
-        /// Uses SqmCalculator (0.5 m² minimum per panel).
-        /// Returns dictionary keyed by JobOrderId.
+        /// CHAT 19: excludes Master DN items from calculation.
         /// </summary>
         Task<Dictionary<string, JobOrderSqmSummary>>
             GetSqmSummariesByJobOrderAsync(IEnumerable<string> jobOrderIds);
 
         // ── Numbering ────────────────────────────────────────────────────
 
+        /// <summary>CHAT 19: excludes Master DN (sequence=0) from MAX.</summary>
         Task<int> GetNextSequenceAsync(string jobOrderId);
+
         Task<string> BuildDeliveryNoteIdAsync(string jobOrderId, int sequence);
 
         // ── CRUD ─────────────────────────────────────────────────────────
@@ -81,6 +170,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         // ── Existence checks ─────────────────────────────────────────────
 
         Task<bool> ExistsByDeliveryNoteIdAsync(string deliveryNoteId);
+
+        /// <summary>CHAT 19: excludes Master DN from check.</summary>
         Task<bool> HasAnyDeliveryAsync(string jobOrderId);
 
         // ── Attachments (Phase 10.6) ─────────────────────────────────────
@@ -136,6 +227,12 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
     ///   CumulativePrevQty    — sum of DeliveredQty from all prior DNs
     ///   CumulativeBalanceQty — balance remaining AFTER this DN
     ///   SequenceNumber       — this DN's position in delivery chain
+    ///
+    /// CHAT 19: Master DN never appears in history entries.
+    ///
+    /// CHAT 19 INVOICED:
+    ///   HasTaxInvoice  — true when this DN has been invoiced
+    ///   TaxInvoiceId   — the Tax Invoice reference (e.g. TI-2026-001)
     /// </summary>
     public class DeliveryHistoryEntry
     {
@@ -147,14 +244,18 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         public System.DateTime DeliveryDate { get; set; }
         public string DriverName { get; set; } = "";
 
-        // Phase 10.8b — cumulative timeline
+        // Phase 10.8b
         public int OrderedQty { get; set; }
         public int CumulativePrevQty { get; set; }
         public int CumulativeBalanceQty { get; set; }
         public int SequenceNumber { get; set; }
+
+        // CHAT 19 INVOICED
+        public bool HasTaxInvoice { get; set; }
+        public string TaxInvoiceId { get; set; } = "";
     }
 
-    // ── Ship 8c-2 — Aggregated SQM per Job Order ────────────────────────
+    // ── Ship 8c-2 ────────────────────────────────────────────────────────
 
     /// <summary>
     /// Returned by GetSqmSummariesByJobOrderAsync.

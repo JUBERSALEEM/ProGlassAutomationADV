@@ -11,25 +11,14 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 {
     /// <summary>
     /// EF Core implementation of IDeliveryNoteRepository.
-    /// Each method creates a fresh DbContext (same pattern as JO + PI repos).
     ///
-    /// Phase 10.5c: Added GetReturnedAsync() for the Returned tab.
-    /// Phase 10.6 : Attachments managed independently of parent DN save.
-    /// Phase 10.6b: Added GetAttachmentCountAsync + batch variant.
-    /// Phase 10.7 : Fixed Balance double-count bug (Gotcha #40).
-    ///              Balance = Math.Max(0, TotalOrdered − TotalDelivered).
-    ///              Never sum per-DN BalanceQty snapshots across siblings.
-    ///              Added GetPreviouslyDeliveredMapAsync for self-healing PREV.
-    ///              ToListItem now maps TotalPreviouslyDeliveredQty,
-    ///              TaxInvoiceId, HasTaxInvoice (Improvements 6 + 7).
-    /// Phase 10.8b: GetDeliveryHistoryAsync now builds cumulative timeline
-    ///              (OrderedQty, CumulativePrevQty, CumulativeBalanceQty)
-    ///              per entry so DN detail history feed shows master-DN
-    ///              pattern instead of just per-DN qty.
-    /// Ship 8c-2  : GetSqmSummariesByJobOrderAsync — batch SQM aggregation
-    ///              per Job Order for the list view. Uses SqmCalculator
-    ///              (0.5 m² minimum per panel). Correct MAX/SUM math
-    ///              matching GetPendingQtyJobsAsync pattern.
+    /// CHAT 19: Master DN system added.
+    /// CHAT 19 INVOICED:
+    ///   MarkAsInvoicedAsync         — marks single DN invoiced after TI saved
+    ///   MarkMultipleAsInvoicedAsync — marks multiple DNs invoiced (Master Invoice)
+    ///   GetDeliveryHistoryAsync     — now maps HasTaxInvoice + TaxInvoiceId
+    ///                                 onto each DeliveryHistoryEntry so the
+    ///                                 history sidebar can show invoiced badges.
     /// </summary>
     public class DeliveryNoteRepository : IDeliveryNoteRepository
     {
@@ -60,12 +49,248 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 .FirstOrDefaultAsync(x => x.DeliveryNoteId == deliveryNoteId);
         }
 
+        // ── CHAT 19 — Master DN methods ──────────────────────────────────
+
+        public async Task<SavedDeliveryNote?> GetMasterDnForJobOrderAsync(
+            string jobOrderId)
+        {
+            using var ctx = new DeliveryNotesDbContext();
+            return await ctx.DeliveryNotes
+                .Include(x => x.Items)
+                .FirstOrDefaultAsync(x =>
+                    x.JobOrderId == jobOrderId &&
+                    x.IsMasterDn);
+        }
+
+        public async Task<List<DeliveryNoteListItem>> GetMasterDnsAsync()
+        {
+            using var ctx = new DeliveryNotesDbContext();
+            var entities = await ctx.DeliveryNotes
+                .Where(x => x.IsMasterDn)
+                .OrderByDescending(x => x.UpdatedAt)
+                .ToListAsync();
+            return entities.Select(ToListItem).ToList();
+        }
+
+        public async Task<SavedDeliveryNote?> CreateMasterDnAsync(
+            string jobOrderId,
+            string proformaId,
+            string customerName,
+            string projectName,
+            string masterDnId,
+            List<DeliveryNoteItem> items)
+        {
+            using var ctx = new DeliveryNotesDbContext();
+
+            bool exists = await ctx.DeliveryNotes
+                .AnyAsync(x => x.JobOrderId == jobOrderId && x.IsMasterDn);
+            if (exists) return null;
+
+            var now = DateTime.Now;
+            int totalQty = items.Sum(i => i.OrderedQty);
+
+            var masterDn = new SavedDeliveryNote
+            {
+                DeliveryNoteId = masterDnId,
+                JobOrderId = jobOrderId,
+                ProformaId = proformaId,
+                SequenceNumber = 0,
+                CustomerName = customerName,
+                ProjectName = projectName,
+                Status = "Draft",
+                DeliveryType = "Dummy",
+                IsMasterDn = true,
+                LastUpdatedFromDnId = "",
+                IsFoc = false,
+                DriverName = "",
+                VehicleNumber = "",
+                ReceiverName = "",
+                DeliveryDate = now,
+                DeliveryTime = now.ToString("HH:mm"),
+                Notes = "Master DN — auto-generated reference tracker",
+                TotalOrderedQty = totalQty,
+                TotalDeliveredQty = 0,
+                TotalBalanceQty = totalQty,
+                TotalPreviouslyDeliveredQty = 0,
+                TaxInvoiceId = "",
+                HasTaxInvoice = false,
+                FullSnapshotJson = "{}",
+                CreatedAt = now,
+                UpdatedAt = now,
+                Items = items
+            };
+
+            ctx.DeliveryNotes.Add(masterDn);
+            await ctx.SaveChangesAsync();
+            return masterDn;
+        }
+
+        public async Task UpdateMasterDnAsync(
+            string jobOrderId,
+            string triggeredByDnId)
+        {
+            using var ctx = new DeliveryNotesDbContext();
+
+            var masterDn = await ctx.DeliveryNotes
+                .Include(x => x.Items)
+                .FirstOrDefaultAsync(x =>
+                    x.JobOrderId == jobOrderId &&
+                    x.IsMasterDn);
+
+            if (masterDn == null) return;
+
+            var realDnIds = await ctx.DeliveryNotes
+                .Where(x => x.JobOrderId == jobOrderId &&
+                            !x.IsMasterDn &&
+                            x.DeliveryType != "Dummy")
+                .Select(x => x.DeliveryNoteId)
+                .ToListAsync();
+
+            var allRealItems = await ctx.DeliveryNoteItems
+                .Where(i => i.JobOrderId == jobOrderId &&
+                            realDnIds.Contains(i.DeliveryNoteId))
+                .ToListAsync();
+
+            var deliveredMap = allRealItems
+                .GroupBy(i => $"{i.SpecGroupNumber}|{i.SerialNumber}")
+                .ToDictionary(
+                    g => g.Key,
+                    g => g.Sum(i => i.DeliveredQty));
+
+            foreach (var masterItem in masterDn.Items)
+            {
+                var key = $"{masterItem.SpecGroupNumber}|{masterItem.SerialNumber}";
+                int totalDelivered =
+                    deliveredMap.TryGetValue(key, out var d) ? d : 0;
+
+                masterItem.PreviouslyDeliveredQty = totalDelivered;
+                masterItem.DeliveredQty = 0;
+                masterItem.BalanceQty = Math.Max(0,
+                    masterItem.OrderedQty - totalDelivered);
+            }
+
+            masterDn.TotalDeliveredQty =
+                masterDn.Items.Sum(i => i.PreviouslyDeliveredQty);
+            masterDn.TotalBalanceQty =
+                masterDn.Items.Sum(i => i.BalanceQty);
+            masterDn.TotalPreviouslyDeliveredQty =
+                masterDn.TotalDeliveredQty;
+            masterDn.LastUpdatedFromDnId = triggeredByDnId;
+            masterDn.UpdatedAt = DateTime.Now;
+
+            var existingItems = await ctx.DeliveryNoteItems
+                .Where(i => i.DeliveryNoteId == masterDn.DeliveryNoteId)
+                .ToListAsync();
+            ctx.DeliveryNoteItems.RemoveRange(existingItems);
+
+            masterDn.Attachments.Clear();
+            ctx.DeliveryNotes.Update(masterDn);
+            await ctx.SaveChangesAsync();
+        }
+
+        public async Task<string> BuildMasterDnIdAsync(string jobOrderId)
+        {
+            string core = jobOrderId.StartsWith(
+                "JOB-", StringComparison.OrdinalIgnoreCase)
+                ? jobOrderId.Substring(4)
+                : jobOrderId;
+
+            return await Task.FromResult($"MDN-{core}");
+        }
+
+        // ── CHAT 19 INVOICED — mark DNs as invoiced ──────────────────────
+
+        /// <summary>
+        /// Marks a single DN as invoiced after Tax Invoice is saved.
+        /// Sets HasTaxInvoice = true and TaxInvoiceId on the DN.
+        /// Only updates indexed columns — FullSnapshotJson NOT rebuilt
+        /// (snapshot is used for PDF/export only, not for invoiced state).
+        /// Idempotent — safe to call multiple times on same DN.
+        /// </summary>
+        public async Task MarkAsInvoicedAsync(
+            string deliveryNoteId,
+            string taxInvoiceId)
+        {
+            if (string.IsNullOrWhiteSpace(deliveryNoteId)) return;
+            if (string.IsNullOrWhiteSpace(taxInvoiceId)) return;
+
+            using var ctx = new DeliveryNotesDbContext();
+
+            var entity = await ctx.DeliveryNotes
+                .FirstOrDefaultAsync(x =>
+                    x.DeliveryNoteId == deliveryNoteId);
+
+            if (entity == null) return;
+
+            // Already marked with same TI — no-op
+            if (entity.HasTaxInvoice &&
+                string.Equals(entity.TaxInvoiceId, taxInvoiceId,
+                    StringComparison.OrdinalIgnoreCase))
+                return;
+
+            entity.HasTaxInvoice = true;
+            entity.TaxInvoiceId = taxInvoiceId;
+            entity.UpdatedAt = DateTime.Now;
+
+            await ctx.SaveChangesAsync();
+        }
+
+        /// <summary>
+        /// Marks multiple DNs as invoiced in one operation.
+        /// Used when a Master Invoice covers multiple sibling DNs.
+        /// deliveryNoteIds parsed from DeliveryNoteReference (comma-separated).
+        /// All DNs get the same taxInvoiceId.
+        /// Idempotent. Safe with empty list — no-ops gracefully.
+        /// Single SaveChangesAsync call for performance.
+        /// </summary>
+        public async Task MarkMultipleAsInvoicedAsync(
+            IEnumerable<string> deliveryNoteIds,
+            string taxInvoiceId)
+        {
+            if (string.IsNullOrWhiteSpace(taxInvoiceId)) return;
+
+            var idList = deliveryNoteIds
+                .Where(id => !string.IsNullOrWhiteSpace(id))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (idList.Count == 0) return;
+
+            using var ctx = new DeliveryNotesDbContext();
+
+            var entities = await ctx.DeliveryNotes
+                .Where(x => idList.Contains(x.DeliveryNoteId))
+                .ToListAsync();
+
+            if (entities.Count == 0) return;
+
+            var now = DateTime.Now;
+            bool anyChanged = false;
+
+            foreach (var entity in entities)
+            {
+                if (entity.HasTaxInvoice &&
+                    string.Equals(entity.TaxInvoiceId, taxInvoiceId,
+                        StringComparison.OrdinalIgnoreCase))
+                    continue;
+
+                entity.HasTaxInvoice = true;
+                entity.TaxInvoiceId = taxInvoiceId;
+                entity.UpdatedAt = now;
+                anyChanged = true;
+            }
+
+            if (anyChanged)
+                await ctx.SaveChangesAsync();
+        }
+
         // ── List retrieval ───────────────────────────────────────────────
 
         public async Task<List<DeliveryNoteListItem>> GetAllAsync()
         {
             using var ctx = new DeliveryNotesDbContext();
             var entities = await ctx.DeliveryNotes
+                .Where(x => !x.IsMasterDn)
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync();
             return entities.Select(ToListItem).ToList();
@@ -76,7 +301,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         {
             using var ctx = new DeliveryNotesDbContext();
             var entities = await ctx.DeliveryNotes
-                .Where(x => x.JobOrderId == jobOrderId)
+                .Where(x => x.JobOrderId == jobOrderId &&
+                            !x.IsMasterDn)
                 .OrderBy(x => x.SequenceNumber)
                 .ToListAsync();
             return entities.Select(ToListItem).ToList();
@@ -86,7 +312,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         {
             using var ctx = new DeliveryNotesDbContext();
             var entities = await ctx.DeliveryNotes
-                .Where(x => x.Status == "Draft")
+                .Where(x => x.Status == "Draft" &&
+                            !x.IsMasterDn)
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync();
             return entities.Select(ToListItem).ToList();
@@ -96,9 +323,10 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         {
             using var ctx = new DeliveryNotesDbContext();
             var entities = await ctx.DeliveryNotes
-                .Where(x => x.Status == "Delivered"
-                         || x.Status == "Signed"
-                         || x.Status == "Received")
+                .Where(x => (x.Status == "Delivered" ||
+                             x.Status == "Signed" ||
+                             x.Status == "Received") &&
+                            !x.IsMasterDn)
                 .OrderByDescending(x => x.DeliveryDate)
                 .ToListAsync();
             return entities.Select(ToListItem).ToList();
@@ -108,14 +336,15 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         {
             using var ctx = new DeliveryNotesDbContext();
 
-            // Phase 10.7 fix (Gotcha #40): compute balance per unique item,
-            // not by summing BalanceQty snapshots across sibling DNs.
-            // TotalOrdered   = max OrderedQty per unique (SpecGroup, Serial).
-            // TotalDelivered = sum of DeliveredQty across all DNs for that item.
-            // TotalBalance   = Math.Max(0, TotalOrdered − TotalDelivered).
+            var realDnIds = await ctx.DeliveryNotes
+                .Where(x => !x.IsMasterDn &&
+                            x.DeliveryType != "Dummy")
+                .Select(x => x.DeliveryNoteId)
+                .ToListAsync();
 
             var allItems = await ctx.DeliveryNoteItems
-                .Where(i => i.JobOrderId != null)
+                .Where(i => i.JobOrderId != null &&
+                            realDnIds.Contains(i.DeliveryNoteId))
                 .ToListAsync();
 
             var grouped = allItems
@@ -126,7 +355,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
             foreach (var joGroup in grouped)
             {
-                string joId = joGroup.Key;
+                string joId = joGroup.Key!;
 
                 var itemGroups = joGroup
                     .GroupBy(i => new { i.SpecGroupNumber, i.SerialNumber });
@@ -138,7 +367,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 if (totalBalance == 0) continue;
 
                 var latestDn = await ctx.DeliveryNotes
-                    .Where(x => x.JobOrderId == joId)
+                    .Where(x => x.JobOrderId == joId && !x.IsMasterDn)
                     .OrderByDescending(x => x.SequenceNumber)
                     .FirstOrDefaultAsync();
 
@@ -179,32 +408,54 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
         // ── Delivery history ─────────────────────────────────────────────
 
+        /// <summary>
+        /// CHAT 19 INVOICED FIX: Each DeliveryHistoryEntry now carries
+        /// HasTaxInvoice and TaxInvoiceId from the DN record.
+        /// This allows the history sidebar to show invoiced badge
+        /// per DN row without additional DB calls.
+        /// </summary>
         public async Task<DeliveryHistorySummary> GetDeliveryHistoryAsync(
             string jobOrderId)
         {
             using var ctx = new DeliveryNotesDbContext();
 
-            var items = await ctx.DeliveryNoteItems
-                .Where(i => i.JobOrderId == jobOrderId)
-                .ToListAsync();
-
-            var dns = await ctx.DeliveryNotes
-                .Where(x => x.JobOrderId == jobOrderId)
+            var allDns = await ctx.DeliveryNotes
+                .Where(x => x.JobOrderId == jobOrderId &&
+                            !x.IsMasterDn &&
+                            x.DeliveryType != "Dummy")
                 .OrderBy(x => x.SequenceNumber)
                 .ToListAsync();
 
-            // Phase 10.7 fix (Gotcha #40):
-            // TotalOrdered   = sum of max OrderedQty per unique (SpecGroup, Serial).
-            // TotalDelivered = sum of all DeliveredQty across every sibling DN.
-            // TotalBalance   = Math.Max(0, TotalOrdered − TotalDelivered).
+            var realDnIds = allDns.Select(x => x.DeliveryNoteId).ToList();
+
+            var items = await ctx.DeliveryNoteItems
+                .Where(i => i.JobOrderId == jobOrderId &&
+                            realDnIds.Contains(i.DeliveryNoteId))
+                .ToListAsync();
 
             var itemGroups = items
                 .GroupBy(i => new { i.SpecGroupNumber, i.SerialNumber })
                 .ToList();
 
-            int totalOrdered = itemGroups.Sum(g => g.Max(i => i.OrderedQty));
-            int totalDelivered = itemGroups.Sum(g => g.Sum(i => i.DeliveredQty));
+            int totalOrdered = itemGroups.Count > 0
+                ? itemGroups.Sum(g => g.Max(i => i.OrderedQty))
+                : 0;
+            int totalDelivered = itemGroups.Count > 0
+                ? itemGroups.Sum(g => g.Sum(i => i.DeliveredQty))
+                : 0;
             int totalBalance = Math.Max(0, totalOrdered - totalDelivered);
+
+            if (totalOrdered == 0)
+            {
+                var masterDn = await ctx.DeliveryNotes
+                    .FirstOrDefaultAsync(x =>
+                        x.JobOrderId == jobOrderId && x.IsMasterDn);
+                if (masterDn != null)
+                {
+                    totalOrdered = masterDn.TotalOrderedQty;
+                    totalBalance = totalOrdered;
+                }
+            }
 
             var summary = new DeliveryHistorySummary
             {
@@ -216,12 +467,12 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 TotalReturned = items.Sum(i => i.ReturnedQty)
             };
 
-            // Phase 10.8b — cumulative timeline
             int runningPrevTotal = 0;
 
-            foreach (var dn in dns)
+            foreach (var dn in allDns)
             {
-                var dnItems = items.Where(i => i.DeliveryNoteId == dn.DeliveryNoteId);
+                var dnItems = items
+                    .Where(i => i.DeliveryNoteId == dn.DeliveryNoteId);
                 int thisDnDelivered = dnItems.Sum(i => i.DeliveredQty);
 
                 int cumulativePrev = runningPrevTotal;
@@ -240,7 +491,12 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                     SequenceNumber = dn.SequenceNumber,
                     OrderedQty = totalOrdered,
                     CumulativePrevQty = cumulativePrev,
-                    CumulativeBalanceQty = cumulativeBalanceAfter
+                    CumulativeBalanceQty = cumulativeBalanceAfter,
+
+                    // CHAT 19 INVOICED FIX: map invoice state per DN
+                    // These drive the invoiced badge in the history sidebar
+                    HasTaxInvoice = dn.HasTaxInvoice,
+                    TaxInvoiceId = dn.TaxInvoiceId ?? ""
                 });
 
                 runningPrevTotal += thisDnDelivered;
@@ -258,7 +514,9 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
             var confirmedDnIds = await ctx.DeliveryNotes
                 .Where(x => x.JobOrderId == jobOrderId
-                         && x.Status != "Draft")
+                         && x.Status != "Draft"
+                         && !x.IsMasterDn
+                         && x.DeliveryType != "Dummy")
                 .Select(x => x.DeliveryNoteId)
                 .ToListAsync();
 
@@ -270,8 +528,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 .SumAsync(i => i.DeliveredQty);
         }
 
-        // ── Phase 10.7 — Self-healing PREV map ──────────────────────────
-
         public async Task<Dictionary<string, int>> GetPreviouslyDeliveredMapAsync(
             string jobOrderId, string excludeDnId)
         {
@@ -280,7 +536,9 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             var confirmedDnIds = await ctx.DeliveryNotes
                 .Where(x => x.JobOrderId == jobOrderId
                          && x.Status != "Draft"
-                         && x.DeliveryNoteId != excludeDnId)
+                         && x.DeliveryNoteId != excludeDnId
+                         && !x.IsMasterDn
+                         && x.DeliveryType != "Dummy")
                 .Select(x => x.DeliveryNoteId)
                 .ToListAsync();
 
@@ -292,31 +550,15 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                          && i.JobOrderId == jobOrderId)
                 .ToListAsync();
 
-            var map = items
+            return items
                 .GroupBy(i => $"{i.SpecGroupNumber}|{i.SerialNumber}")
                 .ToDictionary(
                     g => g.Key,
                     g => g.Sum(i => i.DeliveredQty));
-
-            return map;
         }
 
-        // ══════════════════════════════════════════════════════════════════
-        //  SHIP 8c-2 — SQM aggregation per Job Order (batch)
-        //
-        //  Called by DeliveryNoteListViewModel once per list load.
-        //  Returns aggregated SQM for every JO in the input list.
-        //
-        //  Math (matches GetPendingQtyJobsAsync pattern):
-        //    OrderedSqm   = Σ (Max(OrderedQty)  × panelSqm) per unique item
-        //    DeliveredSqm = Σ (Sum(DeliveredQty) × panelSqm) per unique item
-        //    BalanceSqm   = Max(0, OrderedSqm − DeliveredSqm)
-        //
-        //  panelSqm uses SqmCalculator (0.5 m² floor per panel).
-        //
-        //  "Unique item" = (SpecGroupNumber, SerialNumber) — same panel
-        //  can appear in multiple split DNs; we group them per JO.
-        // ══════════════════════════════════════════════════════════════════
+        // ── SQM aggregation ──────────────────────────────────────────────
+
         public async Task<Dictionary<string, JobOrderSqmSummary>>
             GetSqmSummariesByJobOrderAsync(IEnumerable<string> jobOrderIds)
         {
@@ -326,13 +568,20 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
             using var ctx = new DeliveryNotesDbContext();
 
+            var realDnIds = await ctx.DeliveryNotes
+                .Where(x => idList.Contains(x.JobOrderId) &&
+                            !x.IsMasterDn &&
+                            x.DeliveryType != "Dummy")
+                .Select(x => x.DeliveryNoteId)
+                .ToListAsync();
+
             var items = await ctx.DeliveryNoteItems
                 .Where(i => i.JobOrderId != null
-                         && idList.Contains(i.JobOrderId))
+                         && idList.Contains(i.JobOrderId)
+                         && realDnIds.Contains(i.DeliveryNoteId))
                 .ToListAsync();
 
             var result = new Dictionary<string, JobOrderSqmSummary>();
-
             var joGroups = items.GroupBy(i => i.JobOrderId!);
 
             foreach (var joGroup in joGroups)
@@ -345,15 +594,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
                 foreach (var itemGroup in uniqueItems)
                 {
-                    // All rows in this group are the same panel (W1/H1 identical).
                     var first = itemGroup.First();
-                    decimal panelSqm = SqmCalculator.CalculatePanel(first.W1, first.H1);
-
-                    // OrderedQty replicated across splits → MAX
+                    decimal panelSqm =
+                        SqmCalculator.CalculatePanel(first.W1, first.H1);
                     int maxOrdered = itemGroup.Max(i => i.OrderedQty);
-                    // DeliveredQty is per-split partial → SUM
                     int totalDelivered = itemGroup.Sum(i => i.DeliveredQty);
-
                     orderedSqm += panelSqm * maxOrdered;
                     deliveredSqm += panelSqm * totalDelivered;
                 }
@@ -376,7 +621,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         {
             using var ctx = new DeliveryNotesDbContext();
             var max = await ctx.DeliveryNotes
-                .Where(x => x.JobOrderId == jobOrderId)
+                .Where(x => x.JobOrderId == jobOrderId && !x.IsMasterDn)
                 .MaxAsync(x => (int?)x.SequenceNumber) ?? 0;
             return max + 1;
         }
@@ -384,7 +629,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         public async Task<string> BuildDeliveryNoteIdAsync(
             string jobOrderId, int sequence)
         {
-            string core = jobOrderId.StartsWith("JOB-", StringComparison.OrdinalIgnoreCase)
+            string core = jobOrderId.StartsWith(
+                "JOB-", StringComparison.OrdinalIgnoreCase)
                 ? jobOrderId.Substring(4)
                 : jobOrderId;
 
@@ -446,10 +692,10 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         {
             using var ctx = new DeliveryNotesDbContext();
             return await ctx.DeliveryNotes
-                .AnyAsync(x => x.JobOrderId == jobOrderId);
+                .AnyAsync(x => x.JobOrderId == jobOrderId && !x.IsMasterDn);
         }
 
-        // ── Attachments (Phase 10.6) ─────────────────────────────────────
+        // ── Attachments ──────────────────────────────────────────────────
 
         public async Task<List<DeliveryNoteAttachment>> GetAttachmentsAsync(
             string deliveryNoteId)
@@ -481,8 +727,6 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             ctx.DeliveryNoteAttachments.Remove(entity);
             await ctx.SaveChangesAsync();
         }
-
-        // ── Attachment counts (Phase 10.6b) ──────────────────────────────
 
         public async Task<int> GetAttachmentCountAsync(string deliveryNoteId)
         {
@@ -528,6 +772,7 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
                 Status = e.Status,
                 DeliveryType = e.DeliveryType,
                 IsFoc = e.IsFoc,
+                IsMasterDn = e.IsMasterDn,
                 DriverName = e.DriverName,
                 VehicleNumber = e.VehicleNumber,
                 TotalOrderedQty = e.TotalOrderedQty,

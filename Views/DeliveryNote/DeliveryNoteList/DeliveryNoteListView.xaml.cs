@@ -1,4 +1,5 @@
 ﻿using ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList;
+using System;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -7,6 +8,16 @@ using System.Windows.Media.Media3D;
 
 namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
 {
+    /// <summary>
+    /// Code-behind for DeliveryNoteListView.xaml.
+    ///
+    /// CHAT 19: Master DN Tab 6 removed. 6 tabs only.
+    /// FIX: OnGroupRowRightClick now includes full menu:
+    ///   📂 Open latest DN
+    ///   🔄 Change Status (submenu)
+    ///   🧾 Generate Master Tax Invoice
+    ///   🗑 Delete latest DN
+    /// </summary>
     public partial class DeliveryNoteListView : UserControl
     {
         private Button[] _tabButtons = null!;
@@ -20,10 +31,18 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
         {
             _tabButtons = new[]
             {
-                TabAll, TabPrepared, TabDelivered,
-                TabPending, TabRework, TabReturned
+                TabAll,       // 0
+                TabPrepared,  // 1
+                TabDelivered, // 2
+                TabPending,   // 3
+                TabRework,    // 4
+                TabReturned   // 5
             };
         }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  TAB CARD CLICK
+        // ═════════════════════════════════════════════════════════════════
 
         private void OnTabCardClick(object sender, RoutedEventArgs e)
         {
@@ -49,11 +68,13 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             var inactiveStyle = (Style)FindResource("TabCardInactiveStyle");
 
             for (int i = 0; i < _tabButtons.Length; i++)
-                _tabButtons[i].Style = i == newIndex ? activeStyle : inactiveStyle;
+                _tabButtons[i].Style = i == newIndex
+                    ? activeStyle
+                    : inactiveStyle;
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  Ship 8b — JO GROUP ROW HANDLERS
+        //  JO GROUP ROW — LEFT CLICK
         // ═════════════════════════════════════════════════════════════════
 
         private void OnGroupRowLeftClick(
@@ -64,8 +85,6 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
                 return;
             if (DataContext is not DeliveryNoteListViewModel vm) return;
 
-            // CRASH FIX: e.OriginalSource can be a Run (FrameworkContentElement)
-            // which is NOT a Visual. FindAncestor now handles this safely.
             if (e.OriginalSource is DependencyObject dep)
             {
                 if (FindAncestor<Button>(dep) != null) return;
@@ -74,6 +93,16 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             vm.OpenGroupCommand.Execute(group);
             e.Handled = true;
         }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  JO GROUP ROW — RIGHT CLICK (full menu restored)
+        //
+        //  Menu items:
+        //    📂 Open latest DN
+        //    🔄 Change Status → submenu per status
+        //    🧾 Generate Master Tax Invoice
+        //    🗑 Delete latest DN
+        // ═════════════════════════════════════════════════════════════════
 
         private void OnGroupRowRightClick(
             object sender, MouseButtonEventArgs e)
@@ -85,6 +114,7 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
 
             var menu = new ContextMenu();
 
+            // ── Open latest DN ────────────────────────────────────────
             var openItem = new MenuItem
             {
                 Header = $"📂  Open latest DN ({group.LatestDnId})"
@@ -95,27 +125,92 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
 
             menu.Items.Add(new Separator());
 
+            // ── Change Status submenu ─────────────────────────────────
+            var statusMenu = new MenuItem { Header = "🔄  Change Status" };
+            foreach (var status in new[]
+            {
+                "Draft", "Dispatched", "Delivered", "Signed", "Received"
+            })
+            {
+                var s = status;
+                var statusItem = new MenuItem { Header = s };
+                statusItem.Click += async (_, __) =>
+                {
+                    try
+                    {
+                        if (App.DeliveryNotes == null) return;
+
+                        var latestDn = await App.DeliveryNotes
+                            .GetByIdAsync(group.LatestDnDbId);
+                        if (latestDn == null) return;
+
+                        latestDn.Status = s;
+                        latestDn.UpdatedAt = DateTime.Now;
+                        await App.DeliveryNotes.UpdateAsync(latestDn);
+                        await vm.LoadAsync();
+                    }
+                    catch (Exception ex)
+                    {
+                        MessageBox.Show(
+                            $"Failed to change status:\n\n{ex.Message}",
+                            "Update Failed",
+                            MessageBoxButton.OK,
+                            MessageBoxImage.Error);
+                    }
+                };
+                statusMenu.Items.Add(statusItem);
+            }
+            menu.Items.Add(statusMenu);
+
+            menu.Items.Add(new Separator());
+
+            // ── Generate Master Tax Invoice ───────────────────────────
             var masterInvItem = new MenuItem
             {
                 Header = "🧾  Generate Master Tax Invoice",
-                IsEnabled = group.AllDelivered
+                IsEnabled = group.AnyDelivered
             };
             masterInvItem.Click += (_, __) =>
                 vm.GenerateMasterInvoiceCommand.Execute(group);
-            if (!group.AllDelivered)
+            if (!group.AnyDelivered)
             {
                 masterInvItem.ToolTip =
-                    "Available only when every split DN is " +
-                    "Delivered / Signed / Received.";
+                    "Available when at least one split DN is dispatched.";
             }
             menu.Items.Add(masterInvItem);
+
+            menu.Items.Add(new Separator());
+
+            // ── Delete latest DN ──────────────────────────────────────
+            var deleteItem = new MenuItem
+            {
+                Header = $"🗑  Delete latest DN ({group.LatestDnId})",
+                Foreground = Brushes.Firebrick
+            };
+            deleteItem.Click += (_, __) =>
+            {
+                // Find the row in AllItems and fire DeleteCommand
+                // VM.DeleteCommand guards against Master DN deletion
+                var latestRow = vm.AllItems
+                    .FirstOrDefault(r => r.Id == group.LatestDnDbId);
+
+                if (latestRow != null)
+                    vm.DeleteCommand.Execute(latestRow);
+                else
+                    MessageBox.Show(
+                        "Could not find the delivery note to delete.\n\n" +
+                        "Please refresh the list and try again.",
+                        "Not Found",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+            };
+            menu.Items.Add(deleteItem);
 
             menu.IsOpen = true;
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  DEPRECATED — per-DN row handlers (Ship 8b transition)
-        //  Safe to delete AFTER confirming no XAML uses DnRowTemplate.
+        //  LEGACY DN ROW — LEFT CLICK
         // ═════════════════════════════════════════════════════════════════
 
         private void OnRowLeftClick(object sender, MouseButtonEventArgs e)
@@ -133,6 +228,10 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             vm.SelectRowCommand.Execute(row);
             e.Handled = true;
         }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  LEGACY DN ROW — RIGHT CLICK
+        // ═════════════════════════════════════════════════════════════════
 
         private void OnRowRightClick(object sender, MouseButtonEventArgs e)
         {
@@ -165,7 +264,11 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
 
             menu.Items.Add(new Separator());
 
-            var deleteItem = new MenuItem { Header = "🗑  Delete" };
+            var deleteItem = new MenuItem
+            {
+                Header = "🗑  Delete",
+                Foreground = Brushes.Firebrick
+            };
             deleteItem.Click += (_, __) => vm.DeleteCommand.Execute(row);
             menu.Items.Add(deleteItem);
 
@@ -174,15 +277,6 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
 
         // ═════════════════════════════════════════════════════════════════
         //  CRASH FIX — FindAncestor safe for FrameworkContentElement
-        //
-        //  VisualTreeHelper.GetParent() only works on Visual/Visual3D.
-        //  When user clicks on a <Run> inside a <TextBlock>, the
-        //  e.OriginalSource is a Run (FrameworkContentElement), which
-        //  crashes VisualTreeHelper.GetParent().
-        //
-        //  Fix: If the starting element is not a Visual, walk the LOGICAL
-        //  tree first until we find a Visual (usually the parent TextBlock),
-        //  then continue up the VISUAL tree from there.
         // ═════════════════════════════════════════════════════════════════
 
         private static T? FindAncestor<T>(DependencyObject current)
@@ -192,8 +286,6 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             {
                 if (current is T t) return t;
 
-                // If current is not a Visual (e.g. Run, Span),
-                // walk the logical tree until we find a Visual
                 if (current is not Visual and not Visual3D)
                 {
                     current = LogicalTreeHelper.GetParent(current);

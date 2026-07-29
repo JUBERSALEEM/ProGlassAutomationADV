@@ -1191,6 +1191,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 }
 
                 var state = BuildWizardState();
+                string savedInvoiceNumber;
 
                 if (IsNewInvoice)
                 {
@@ -1218,6 +1219,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                     var saved = await App.TaxInvoices.InsertAsync(entity);
                     _editingId = saved.Id;
                     _editingInvoiceNumber = saved.InvoiceNumber;
+                    savedInvoiceNumber = saved.InvoiceNumber;
                     IsNewInvoice = false;
                     StatusMessage = $"✅ Saved as {saved.InvoiceNumber}";
                 }
@@ -1237,8 +1239,26 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                     updated.CreatedAt = entity.CreatedAt;
 
                     await App.TaxInvoices.UpdateAsync(updated);
+                    savedInvoiceNumber = entity.InvoiceNumber;
                     StatusMessage = $"✅ Updated {entity.InvoiceNumber}";
                 }
+
+                // ── CHAT 19 INVOICED: mark DNs as invoiced after TI saved ────────
+                //
+                // DeliveryNoteReference stores DN IDs in two formats:
+                //   Single DN : "DN-2026-001-01"
+                //   Multiple  : "DN-2026-001-01,DN-2026-001-02,DN-2026-001-03"
+                //
+                // We parse all IDs and mark each one as invoiced.
+                // MarkMultipleAsInvoicedAsync handles both single and multiple.
+                // It is idempotent — safe to call even if already marked.
+                // Only marks DNs that exist in the DB — missing IDs silently skipped.
+                //
+                // This fires regardless of Insert or Update so that:
+                //   a) Newly saved TI immediately marks DNs
+                //   b) Re-saving existing TI keeps DNs marked (idempotent)
+
+                await MarkDnsAsInvoicedAsync(savedInvoiceNumber);
 
                 // Chat 16: reload family sidebar after save
                 await LoadFamilyAsync(ProformaId);
@@ -1253,6 +1273,59 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             finally
             {
                 IsSaving = false;
+            }
+        }
+
+        /// <summary>
+        /// CHAT 19 INVOICED — marks all referenced DNs as invoiced.
+        /// Called after every successful TI save (insert or update).
+        ///
+        /// Parses DeliveryNoteReference field which may contain:
+        ///   "DN-2026-001-01"                          ← single DN
+        ///   "DN-2026-001-01,DN-2026-001-02"           ← multiple DNs (comma)
+        ///
+        /// Uses MarkMultipleAsInvoicedAsync which is:
+        ///   • Idempotent — safe to call multiple times
+        ///   • Batch — one DB call for all IDs
+        ///   • Null-safe — empty/blank IDs filtered before DB call
+        ///
+        /// Non-fatal: if DN marking fails, TI is already saved.
+        /// Error is logged to debug output only — no user-facing error.
+        /// </summary>
+        private async Task MarkDnsAsInvoicedAsync(string taxInvoiceId)
+        {
+            if (App.DeliveryNotes == null) return;
+            if (string.IsNullOrWhiteSpace(DeliveryNoteReference)) return;
+            if (string.IsNullOrWhiteSpace(taxInvoiceId)) return;
+
+            try
+            {
+                // Parse comma-separated DN IDs from DeliveryNoteReference
+                // Trim whitespace from each ID — handles "DN-001, DN-002" too
+                var dnIds = DeliveryNoteReference
+                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
+                    .Select(id => id.Trim())
+                    .Where(id => !string.IsNullOrWhiteSpace(id))
+                    .ToList();
+
+                if (dnIds.Count == 0) return;
+
+                // Mark all referenced DNs as invoiced in one DB call
+                await App.DeliveryNotes.MarkMultipleAsInvoicedAsync(
+                    dnIds, taxInvoiceId);
+
+                System.Diagnostics.Debug.WriteLine(
+                    $"[TaxInvoiceDetailVM] Marked {dnIds.Count} DN(s) as " +
+                    $"invoiced with TI '{taxInvoiceId}': " +
+                    string.Join(", ", dnIds));
+            }
+            catch (Exception ex)
+            {
+                // Non-fatal — TI is already saved successfully
+                // DN invoiced state will be corrected on next save
+                System.Diagnostics.Debug.WriteLine(
+                    $"[TaxInvoiceDetailVM] MarkDnsAsInvoicedAsync failed " +
+                    $"(non-fatal): {ex.Message}");
             }
         }
 

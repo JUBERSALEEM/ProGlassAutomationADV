@@ -7,13 +7,17 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
     /// columns (fast to load, no JSON deserialization for browsing).
     /// Full snapshot loaded only when user opens detail view.
     ///
-    /// BUG-06: Removed ViewModelBase inheritance — this is a pure POCO
-    ///         data transfer object. No UI binds directly to this class.
-    ///         It is always wrapped in DeliveryNoteRowViewModel which
-    ///         handles all INotifyPropertyChanged concerns.
+    /// BUG-06: Removed ViewModelBase inheritance — pure POCO DTO.
+    ///         Always wrapped in DeliveryNoteRowViewModel for UI binding.
     ///
     /// Phase 10.7: Added TotalPreviouslyDeliveredQty (Improvement 7).
     ///             Added TaxInvoiceId + HasTaxInvoice (Improvement 6).
+    ///
+    /// CHAT 19: Added IsMasterDn flag.
+    ///          Master DNs are hidden from normal tabs.
+    ///          Shown only in Tab 6 (Master DNs).
+    ///          IsMasterDn = true means DeliveryType = "Dummy" AND
+    ///          this record is the auto-generated reference tracker.
     /// </summary>
     public class DeliveryNoteListItem
     {
@@ -34,6 +38,18 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
         public string DriverName { get; set; } = "";
         public string VehicleNumber { get; set; } = "";
 
+        // ── CHAT 19 — Master DN flag ─────────────────────────────────────
+
+        /// <summary>
+        /// True when this item represents the Master DN for a Job Order.
+        /// Master DNs are auto-created when a JO is saved.
+        /// They are read-only reference trackers — never manually created.
+        /// They are excluded from all normal list tabs (0–5).
+        /// They appear ONLY in Tab 6 (Master DNs).
+        /// Populated by ToListItem() in DeliveryNoteRepository.
+        /// </summary>
+        public bool IsMasterDn { get; set; }
+
         // ── Quantity summary ─────────────────────────────────────────────
 
         public int TotalOrderedQty { get; set; }
@@ -41,7 +57,9 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
         public int TotalBalanceQty { get; set; }
 
         /// <summary>
-        /// Phase 10.7 (Improvement 7) — mirrors SavedDeliveryNote.TotalPreviouslyDeliveredQty.
+        /// Phase 10.7 (Improvement 7) — mirrors
+        /// SavedDeliveryNote.TotalPreviouslyDeliveredQty.
+        /// On Master DN: equals TotalDeliveredQty (sum of all real DNs).
         /// Populated by ToListItem() in the repository.
         /// </summary>
         public int TotalPreviouslyDeliveredQty { get; set; }
@@ -52,7 +70,7 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
 
-        // ── Tax Invoice link (Phase 19 prep — Improvement 6) ─────────────
+        // ── Tax Invoice link ─────────────────────────────────────────────
 
         /// <summary>
         /// Phase 10.7 placeholder — wired in Phase 19.
@@ -62,7 +80,6 @@ namespace ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote
 
         /// <summary>
         /// True when a Tax Invoice has been generated from this DN.
-        /// Phase 19 will set this when converting DN → Tax Invoice.
         /// </summary>
         public bool HasTaxInvoice { get; set; }
     }

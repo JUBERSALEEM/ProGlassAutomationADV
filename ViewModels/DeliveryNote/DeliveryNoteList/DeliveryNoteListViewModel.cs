@@ -19,21 +19,15 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
     /// ViewModel for the Delivery Note list landing page.
     ///
     /// 6 tabs: All | Prepared | Delivered | Pending Qty | Rework | Returned
-    /// 5 hero cards: dynamic — dataset stats or selected DN stats.
     ///
-    /// BUG-33: LoadTabAsync now refreshes _sqmCache on every tab switch.
-    /// BUG-35: Filter now applies to Tabs 1,2,4,5 not just Tab 0.
-    /// BUG-36: GenerateMasterInvoiceCommand canExecute re-evaluates correctly.
-    /// BUG-37: Using directive added — no more fragile full namespace path.
-    /// BUG-38: Row ViewModels split to DeliveryNoteListRowViewModels.cs.
-    /// BUG-39: Tab count badges use dedicated grouped count properties.
-    ///
-    /// CHAT 14 CHANGES:
-    ///   • Added OnRequestOpenTaxInvoiceForProforma callback (bubbles to shell VM)
-    ///   • GenerateMasterInvoiceCommand now fires callback with group.ProformaId
-    ///     (was placeholder MessageBox — now real navigation to Tax Invoice module)
-    ///   • GenerateInvoiceCommand (per-row) also fires callback with row.ProformaId
-    ///   • CanExecute checks: must have ProformaId AND row/group must be delivered
+    /// CHAT 19 CHANGES:
+    ///   • Master DN Tab 6 REMOVED — Master DN is internal only
+    ///   • MasterDnItems / MasterDnCount removed
+    ///   • OnOpenMasterDnRequested removed
+    ///   • OpenMasterDnCommand removed
+    ///   • GetMasterDnsAsync no longer called in LoadAsync
+    ///   • TypeFilterOptions keeps "Dummy" removed (Master DN internal)
+    ///   • DeleteAsync guards against Master DN deletion (safety)
     /// </summary>
     public class DeliveryNoteListViewModel : ViewModelBase
     {
@@ -41,14 +35,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
         public Action<int>? OnDeliveryNoteOpenRequested { get; set; }
         public Action<SavedJobOrder>? OnCreateDnFromJobOrder { get; set; }
-
-        /// <summary>
-        /// Chat 14 — fires when user clicks "Master Invoice" on a JO group row
-        /// OR "Generate Invoice" on a single DN row.
-        /// Argument = ProformaId (e.g. "PI-2026-001").
-        /// Shell VM (DeliveryNoteViewModel) subscribes and relays to MainViewModel,
-        /// which switches to Tax Invoice module and creates/opens invoice for that PI.
-        /// </summary>
         public Func<string, Task>? OnRequestOpenTaxInvoiceForProforma { get; set; }
 
         // ══════════════════════════════════════════════════════════════════
@@ -166,7 +152,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  TAB COLLECTIONS
+        //  TAB COLLECTIONS — 6 tabs only (no Master DN tab)
         // ══════════════════════════════════════════════════════════════════
 
         private ObservableCollection<DeliveryNoteRowViewModel> _allItems = new();
@@ -272,7 +258,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public IReadOnlyList<JobOrderGroupRowViewModel> ReturnedItemsGrouped
             => JobOrderGroupRowViewModel.GroupFrom(_returnedItems, _sqmCache);
 
-        // BUG-39: dedicated count properties for tab badges
         public int AllGroupedCount => AllItemsGrouped.Count;
         public int PreparedGroupedCount => PreparedItemsGrouped.Count;
         public int DeliveredGroupedCount => DeliveredItemsGrouped.Count;
@@ -292,7 +277,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 if (_totalCount == value) return;
                 _totalCount = value;
                 OnPropertyChanged();
-                if (_selectedRow == null) OnPropertyChanged(nameof(HeroCard1Value));
+                if (_selectedRow == null)
+                    OnPropertyChanged(nameof(HeroCard1Value));
             }
         }
 
@@ -305,7 +291,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 if (_pendingJobsCount == value) return;
                 _pendingJobsCount = value;
                 OnPropertyChanged();
-                if (_selectedRow == null) OnPropertyChanged(nameof(HeroCard2Value));
+                if (_selectedRow == null)
+                    OnPropertyChanged(nameof(HeroCard2Value));
             }
         }
 
@@ -318,7 +305,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 if (_reworkCount == value) return;
                 _reworkCount = value;
                 OnPropertyChanged();
-                if (_selectedRow == null) OnPropertyChanged(nameof(HeroCard3Value));
+                if (_selectedRow == null)
+                    OnPropertyChanged(nameof(HeroCard3Value));
             }
         }
 
@@ -331,7 +319,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 if (_returnedCount == value) return;
                 _returnedCount = value;
                 OnPropertyChanged();
-                if (_selectedRow == null) OnPropertyChanged(nameof(HeroCard4Value));
+                if (_selectedRow == null)
+                    OnPropertyChanged(nameof(HeroCard4Value));
             }
         }
 
@@ -344,7 +333,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 if (_deliveredTodayCount == value) return;
                 _deliveredTodayCount = value;
                 OnPropertyChanged();
-                if (_selectedRow == null) OnPropertyChanged(nameof(HeroCard5Value));
+                if (_selectedRow == null)
+                    OnPropertyChanged(nameof(HeroCard5Value));
             }
         }
 
@@ -440,12 +430,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             "Delivered", "Signed", "Received"
         };
 
+        // CHAT 19: Dummy removed — Master DN is internal, not in any list
         public List<string> TypeFilterOptions { get; } = new()
         {
-            "All Types", "Original", "Dummy", "Rework", "Return"
+            "All Types", "Original", "Rework", "Return"
         };
 
-        // Raw unfiltered lists for each tab
         private List<DeliveryNoteRowViewModel> _rawAll = new();
         private List<DeliveryNoteRowViewModel> _rawPrepared = new();
         private List<DeliveryNoteRowViewModel> _rawDelivered = new();
@@ -462,24 +452,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         public ICommand DeleteCommand { get; }
         public ICommand ChangeStatusCommand { get; }
         public ICommand CreateDnCommand { get; }
-
-        /// <summary>
-        /// Chat 14 — per-row invoice generation from single DN.
-        /// Fires OnRequestOpenTaxInvoiceForProforma with row.ProformaId.
-        /// CanExecute: row must be Delivered/Signed/Received AND have ProformaId.
-        /// </summary>
         public ICommand GenerateInvoiceCommand { get; }
-
         public ICommand OpenGroupCommand { get; }
-
-        /// <summary>
-        /// Chat 14 — Master invoice from grouped JO row (all splits at once).
-        /// Fires OnRequestOpenTaxInvoiceForProforma with group.ProformaId.
-        /// CanExecute: ALL splits delivered AND group has ProformaId.
-        /// </summary>
         public ICommand GenerateMasterInvoiceCommand { get; }
-
-        public ICommand SelectRowCommand2 { get; }
 
         // ══════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
@@ -524,12 +499,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             CreateDnCommand = new RelayCommand(
                 async _ => await OpenJobOrderPickerAsync());
 
-            // ═══════════════════════════════════════════════════════════════
-            //  CHAT 14 — GenerateInvoiceCommand (per-row)
-            //  Fires OnRequestOpenTaxInvoiceForProforma callback with row's PI.
-            //  Replaces the old placeholder MessageBox.
-            //  Fully wired to Tax Invoice module via shell VM → MainViewModel.
-            // ═══════════════════════════════════════════════════════════════
             GenerateInvoiceCommand = new RelayCommand(
                 execute: async param =>
                 {
@@ -548,16 +517,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                     OnDeliveryNoteOpenRequested?.Invoke(group.LatestDnDbId);
             });
 
-            // ═══════════════════════════════════════════════════════════════
-            //  CHAT 14 — GenerateMasterInvoiceCommand (per-JO group)
-            //  Fires OnRequestOpenTaxInvoiceForProforma callback with group's PI.
-            //  CanExecute: at least ONE split is Dispatched/Delivered/Signed/Received
-            //  AND group has valid PI.
-            //
-            //  REAL BUSINESS RULE: partial invoicing is standard in UAE glass.
-            //  Even a single dispatched shipment justifies an invoice.
-            //  Waiting for 100% delivery is impractical.
-            // ═══════════════════════════════════════════════════════════════
             GenerateMasterInvoiceCommand = new RelayCommand(
                 execute: async param =>
                 {
@@ -574,24 +533,17 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  CHAT 14 — TAX INVOICE REQUEST HELPER
-        //  Single point of truth for firing OnRequestOpenTaxInvoiceForProforma.
-        //  Validates PI presence, wiring, shows confirmation dialog.
-        //  Called by both GenerateInvoiceCommand (row) and
-        //  GenerateMasterInvoiceCommand (JO group).
+        //  TAX INVOICE REQUEST
         // ══════════════════════════════════════════════════════════════════
 
         private async Task FireTaxInvoiceRequestAsync(
-            string? proformaId,
-            string sourceRef)
+            string? proformaId, string sourceRef)
         {
             if (string.IsNullOrWhiteSpace(proformaId))
             {
                 MessageBox.Show(
-                    "Cannot create Tax Invoice — no Proforma Invoice reference.\n\n" +
-                    $"Source: {sourceRef}\n\n" +
-                    "This DN/JO has no linked PI. Ensure the parent Job Order\n" +
-                    "was created from a Proforma Invoice.",
+                    "Cannot create Tax Invoice — no PI reference.\n\n" +
+                    $"Source: {sourceRef}",
                     "No PI Reference",
                     MessageBoxButton.OK,
                     MessageBoxImage.Warning);
@@ -602,7 +554,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             {
                 MessageBox.Show(
                     "Tax Invoice navigation is not wired up.\n\n" +
-                    "This is a configuration error — please restart the app.",
+                    "Restart the app.",
                     "Not Wired",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
@@ -610,12 +562,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             }
 
             var confirm = MessageBox.Show(
-                $"Create Tax Invoice for this order?\n\n" +
+                $"Create Tax Invoice?\n\n" +
                 $"Source : {sourceRef}\n" +
-                $"PI     : {proformaId}\n\n" +
-                "You will be taken to the Tax Invoice module.\n" +
-                "If a Draft invoice already exists for this PI,\n" +
-                "you'll be given the choice to open it or create new.",
+                $"PI     : {proformaId}",
                 "Create Tax Invoice",
                 MessageBoxButton.OKCancel,
                 MessageBoxImage.Question);
@@ -653,10 +602,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             }
 
             List<SavedJobOrder> jobOrders;
-            try
-            {
-                jobOrders = await App.Jobs.GetAllAsync();
-            }
+            try { jobOrders = await App.Jobs.GetAllAsync(); }
             catch (Exception ex)
             {
                 MessageBox.Show(
@@ -711,6 +657,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                     return;
                 }
 
+                // 6 tabs only — no Master DN tab
                 var allTask = App.DeliveryNotes.GetAllAsync();
                 var prepTask = App.DeliveryNotes.GetPreparedAsync();
                 var delTask = App.DeliveryNotes.GetDeliveredAsync();
@@ -735,14 +682,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 var returnedItems = returnedTask.Result
                     .Select(x => new DeliveryNoteRowViewModel(x)).ToList();
 
-                // Store raw lists for filtering
                 _rawAll = allItems;
                 _rawPrepared = prepItems;
                 _rawDelivered = delItems;
                 _rawRework = reworkItems;
                 _rawReturned = returnedItems;
 
-                // BUG-33: batch-load SQM cache once per full load
                 var allJobOrderIds = allItems
                     .Select(x => x.JobOrderId)
                     .Where(id => !string.IsNullOrWhiteSpace(id))
@@ -752,12 +697,18 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 _sqmCache = await App.DeliveryNotes
                     .GetSqmSummariesByJobOrderAsync(allJobOrderIds);
 
-                AllItems = new ObservableCollection<DeliveryNoteRowViewModel>(allItems);
-                PreparedItems = new ObservableCollection<DeliveryNoteRowViewModel>(prepItems);
-                DeliveredItems = new ObservableCollection<DeliveryNoteRowViewModel>(delItems);
-                PendingItems = new ObservableCollection<PendingQtyRowViewModel>(pendingItems);
-                ReworkItems = new ObservableCollection<DeliveryNoteRowViewModel>(reworkItems);
-                ReturnedItems = new ObservableCollection<DeliveryNoteRowViewModel>(returnedItems);
+                AllItems =
+                    new ObservableCollection<DeliveryNoteRowViewModel>(allItems);
+                PreparedItems =
+                    new ObservableCollection<DeliveryNoteRowViewModel>(prepItems);
+                DeliveredItems =
+                    new ObservableCollection<DeliveryNoteRowViewModel>(delItems);
+                PendingItems =
+                    new ObservableCollection<PendingQtyRowViewModel>(pendingItems);
+                ReworkItems =
+                    new ObservableCollection<DeliveryNoteRowViewModel>(reworkItems);
+                ReturnedItems =
+                    new ObservableCollection<DeliveryNoteRowViewModel>(returnedItems);
 
                 TotalCount = allItems.Count;
                 PendingJobsCount = pendingItems.Count;
@@ -766,7 +717,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 DeliveredTodayCount = delItems.Count(x =>
                     x.DeliveryDate.Date == DateTime.Today);
 
-                // BUG-36: trigger canExecute re-evaluation after load
                 CommandManager.InvalidateRequerySuggested();
             }
             catch (Exception ex)
@@ -781,7 +731,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             }
         }
 
-        // BUG-33: LoadTabAsync now refreshes _sqmCache on every tab switch
         private async Task LoadTabAsync(int tabIndex)
         {
             if (App.DeliveryNotes == null) return;
@@ -793,47 +742,59 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                     case 1:
                         var prep = await App.DeliveryNotes.GetPreparedAsync();
                         _rawPrepared = prep
-                            .Select(x => new DeliveryNoteRowViewModel(x)).ToList();
+                            .Select(x => new DeliveryNoteRowViewModel(x))
+                            .ToList();
                         await RefreshSqmCacheAsync(_rawPrepared);
-                        PreparedItems = new ObservableCollection<DeliveryNoteRowViewModel>(
-                            _rawPrepared);
+                        PreparedItems =
+                            new ObservableCollection<DeliveryNoteRowViewModel>(
+                                _rawPrepared);
                         break;
 
                     case 2:
                         var del = await App.DeliveryNotes.GetDeliveredAsync();
                         _rawDelivered = del
-                            .Select(x => new DeliveryNoteRowViewModel(x)).ToList();
+                            .Select(x => new DeliveryNoteRowViewModel(x))
+                            .ToList();
                         await RefreshSqmCacheAsync(_rawDelivered);
-                        DeliveredItems = new ObservableCollection<DeliveryNoteRowViewModel>(
-                            _rawDelivered);
+                        DeliveredItems =
+                            new ObservableCollection<DeliveryNoteRowViewModel>(
+                                _rawDelivered);
                         break;
 
                     case 3:
-                        var pending = await App.DeliveryNotes.GetPendingQtyJobsAsync();
-                        PendingItems = new ObservableCollection<PendingQtyRowViewModel>(
-                            pending.Select(x => new PendingQtyRowViewModel(x)));
+                        var pending =
+                            await App.DeliveryNotes.GetPendingQtyJobsAsync();
+                        PendingItems =
+                            new ObservableCollection<PendingQtyRowViewModel>(
+                                pending.Select(x => new PendingQtyRowViewModel(x)));
                         PendingJobsCount = PendingItems.Count;
                         break;
 
                     case 4:
                         var rework = await App.DeliveryNotes.GetReworkAsync();
                         _rawRework = rework
-                            .Select(x => new DeliveryNoteRowViewModel(x)).ToList();
+                            .Select(x => new DeliveryNoteRowViewModel(x))
+                            .ToList();
                         await RefreshSqmCacheAsync(_rawRework);
-                        ReworkItems = new ObservableCollection<DeliveryNoteRowViewModel>(
-                            _rawRework);
+                        ReworkItems =
+                            new ObservableCollection<DeliveryNoteRowViewModel>(
+                                _rawRework);
                         ReworkCount = ReworkItems.Count;
                         break;
 
                     case 5:
                         var returned = await App.DeliveryNotes.GetReturnedAsync();
                         _rawReturned = returned
-                            .Select(x => new DeliveryNoteRowViewModel(x)).ToList();
+                            .Select(x => new DeliveryNoteRowViewModel(x))
+                            .ToList();
                         await RefreshSqmCacheAsync(_rawReturned);
-                        ReturnedItems = new ObservableCollection<DeliveryNoteRowViewModel>(
-                            _rawReturned);
+                        ReturnedItems =
+                            new ObservableCollection<DeliveryNoteRowViewModel>(
+                                _rawReturned);
                         ReturnedCount = ReturnedItems.Count;
                         break;
+
+                        // No case 6 — Master DN tab removed
                 }
             }
             catch (Exception ex)
@@ -846,7 +807,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
             }
         }
 
-        // BUG-33: refresh SQM cache for a set of rows
         private async Task RefreshSqmCacheAsync(
             List<DeliveryNoteRowViewModel> rows)
         {
@@ -868,7 +828,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  FILTER — BUG-35: now applies to all tabs not just Tab 0
+        //  FILTER
         // ══════════════════════════════════════════════════════════════════
 
         private void ApplyFilters()
@@ -934,6 +894,18 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
         private async Task DeleteAsync(DeliveryNoteRowViewModel row)
         {
+            // Safety guard — Master DNs must never be deleted from list
+            if (row.IsMasterDn)
+            {
+                MessageBox.Show(
+                    "Master DNs cannot be deleted manually.\n\n" +
+                    "They are managed automatically by the system.",
+                    "Cannot Delete Master DN",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
             var result = MessageBox.Show(
                 $"Delete delivery note '{row.DeliveryNoteId}'?\n\n" +
                 $"Customer: {row.CustomerName}\n" +
