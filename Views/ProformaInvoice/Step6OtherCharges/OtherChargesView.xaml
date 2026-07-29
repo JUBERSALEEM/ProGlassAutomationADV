@@ -2,13 +2,13 @@
 ═══════════════════════════════════════════════════════════════════════
 FILE: Views/ProformaInvoice/Step6OtherCharges/OtherChargesView.xaml
 ═══════════════════════════════════════════════════════════════════════
-CHAT 17 — PERFORMANCE + UI POLISH
-  PERF-01: Removed DropShadowEffect from Step Header Icon.
-  PERF-02: Removed DropShadowEffect from Metric Discovery Hub container.
-           Indigo BorderBrush + BorderThickness=1 preserved for emphasis.
-  UI-01:   Metric Hub section header icon → solid #4338CA / White.
-  All bindings, MultiDataTriggers, ComboBox visibility rules, and
-  Bug 4 / Bug 5 fixes preserved exactly.
+CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
+  PERF-01/02, UI-01, UI-02 preserved from prior deliveries.
+  UI-03:  "CHARGE BASIS" column now uses a Popup ToggleButton showing
+          two sections: SELECT SPECS (checkboxes) + SELECT METRIC (radio).
+          Toggle button displays summary: "Spec 1, 2 · LM1 · 89.00 lm".
+          Bound to OtherChargeRow.TargetSelection (SpecTargetSelection).
+  All bindings, Bug 4/5 fixes, MultiDataTriggers preserved.
 ═══════════════════════════════════════════════════════════════════════
 -->
 <UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges.OtherChargesView"
@@ -31,10 +31,6 @@ CHAT 17 — PERFORMANCE + UI POLISH
 
     <UserControl.Resources>
 
-        <!-- ══════════════════════════════════════════════════════════════
-             RATE NUMERIC INPUT — compact for table cells
-             Green when active (money editable), muted when inactive
-        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="RateInputStyle" TargetType="TextBox">
             <Setter Property="Background"                Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="Foreground"                Value="#047857"/>
@@ -50,30 +46,19 @@ CHAT 17 — PERFORMANCE + UI POLISH
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="B"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6"
-                                SnapsToDevicePixels="True">
-                            <ScrollViewer x:Name="PART_ContentHost"
-                                          Focusable="False"
-                                          HorizontalScrollBarVisibility="Hidden"
-                                          VerticalScrollBarVisibility="Hidden"
-                                          Margin="{TemplateBinding Padding}"
-                                          VerticalAlignment="Center"
-                                          Background="Transparent"/>
+                        <Border x:Name="B" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" SnapsToDevicePixels="True">
+                            <ScrollViewer x:Name="PART_ContentHost" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" Margin="{TemplateBinding Padding}" VerticalAlignment="Center" Background="Transparent"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="B" Property="BorderBrush" Value="#10B981"/>
                             </Trigger>
                             <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="B" Property="BorderBrush"     Value="#047857"/>
+                                <Setter TargetName="B" Property="BorderBrush" Value="#047857"/>
                                 <Setter TargetName="B" Property="BorderThickness" Value="2"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter Property="Foreground"          Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
                                 <Setter TargetName="B" Property="Opacity" Value="0.55"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -82,9 +67,6 @@ CHAT 17 — PERFORMANCE + UI POLISH
             </Setter>
         </Style>
 
-        <!-- ══════════════════════════════════════════════════════════════
-             CUSTOM POLISH INLINE INPUT — for description + manual qty
-        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="CustomInputStyle" TargetType="TextBox">
             <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
@@ -97,26 +79,15 @@ CHAT 17 — PERFORMANCE + UI POLISH
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="B"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6"
-                                SnapsToDevicePixels="True">
-                            <ScrollViewer x:Name="PART_ContentHost"
-                                          Focusable="False"
-                                          HorizontalScrollBarVisibility="Hidden"
-                                          VerticalScrollBarVisibility="Hidden"
-                                          Margin="{TemplateBinding Padding}"
-                                          VerticalAlignment="Center"
-                                          Background="Transparent"/>
+                        <Border x:Name="B" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" SnapsToDevicePixels="True">
+                            <ScrollViewer x:Name="PART_ContentHost" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" Margin="{TemplateBinding Padding}" VerticalAlignment="Center" Background="Transparent"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="B" Property="BorderBrush" Value="#6366F1"/>
                             </Trigger>
                             <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="B" Property="BorderBrush"     Value="#4338CA"/>
+                                <Setter TargetName="B" Property="BorderBrush" Value="#4338CA"/>
                                 <Setter TargetName="B" Property="BorderThickness" Value="2"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -125,9 +96,6 @@ CHAT 17 — PERFORMANCE + UI POLISH
             </Setter>
         </Style>
 
-        <!-- ══════════════════════════════════════════════════════════════
-             METRIC CARD — hub display cards
-        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="MetricCardStyle" TargetType="Border">
             <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
@@ -138,6 +106,62 @@ CHAT 17 — PERFORMANCE + UI POLISH
             <Setter Property="MinWidth"        Value="150"/>
         </Style>
 
+        <!-- Chat 17: Spec-target popup toggle button -->
+        <Style x:Key="SpecTargetToggleStyle" TargetType="ToggleButton">
+            <Setter Property="Height"                     Value="32"/>
+            <Setter Property="Background"                 Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground"                 Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness"            Value="1"/>
+            <Setter Property="BorderBrush"                Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="FontSize"                   Value="11"/>
+            <Setter Property="Padding"                    Value="10,0"/>
+            <Setter Property="Cursor"                     Value="Hand"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="VerticalContentAlignment"   Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="B"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="6"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <ContentPresenter Grid.Column="0"
+                                                  VerticalAlignment="Center"
+                                                  HorizontalAlignment="Left"/>
+                                <TextBlock Grid.Column="1"
+                                           Text="&#xE70D;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="9"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="6,0,0,0"/>
+                            </Grid>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="B" Property="BorderBrush" Value="#6366F1"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="B" Property="BorderBrush" Value="#4338CA"/>
+                                <Setter TargetName="B" Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="B" Property="Opacity" Value="0.55"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
@@ -145,215 +169,115 @@ CHAT 17 — PERFORMANCE + UI POLISH
                   Padding="24,20,32,20">
         <StackPanel>
 
-            <!-- ══════════════════════════════════════════════════════════
-                 STEP HEADER
-                 PERF-01: DropShadowEffect removed.
-            ══════════════════════════════════════════════════════════ -->
+            <!-- STEP HEADER (PERF-01 applied) -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                <Border Background="#4338CA"
-                        Width="44"
-                        Height="44"
-                        CornerRadius="12"
-                        VerticalAlignment="Center">
-                    <!-- Segoe MDL2 money / receipt icon -->
-                    <TextBlock Text="&#xE8C7;"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="20"
-                               Foreground="White"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
+                <Border Background="#4338CA" Width="44" Height="44" CornerRadius="12" VerticalAlignment="Center">
+                    <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
-
                 <StackPanel VerticalAlignment="Center" Margin="16,0,0,0">
-                    <TextBlock Text="{Binding Title}"
-                               FontSize="22"
-                               FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock Text="{Binding Subtitle}"
-                               FontSize="12"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               Margin="0,4,0,0"
-                               TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    <TextBlock Text="{Binding Subtitle}" FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,4,0,0" TextWrapping="Wrap"/>
                 </StackPanel>
             </StackPanel>
 
-            <!-- Divider -->
-            <Border Background="{DynamicResource BorderBrush}"
-                    Height="1"
-                    Margin="0,20,0,20"/>
+            <Border Background="{DynamicResource BorderBrush}" Height="1" Margin="0,20,0,20"/>
 
-            <!-- ══════════════════════════════════════════════════════════
-                 AUTOMATED METRIC DISCOVERY HUB
-                 PERF-02: DropShadowEffect removed. BorderBrush indigo kept.
-            ══════════════════════════════════════════════════════════ -->
-            <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    CornerRadius="14"
-                    Padding="18"
-                    BorderThickness="1"
-                    BorderBrush="#4338CA"
-                    Margin="0,0,0,18">
-
+            <!-- METRIC DISCOVERY HUB (PERF-02 + UI-01 applied) -->
+            <Border Background="{DynamicResource ModuleBackgroundBrush}" CornerRadius="14" Padding="18" BorderThickness="1" BorderBrush="#4338CA" Margin="0,0,0,18">
                 <StackPanel>
-
-                    <!-- Section title with icon badge — UI-01: solid #4338CA / White -->
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                        <Border Background="#4338CA"
-                                Width="28"
-                                Height="28"
-                                CornerRadius="8"
-                                VerticalAlignment="Center"
-                                Margin="0,0,10,0">
-                            <TextBlock Text="&#xE9D2;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="13"
-                                       Foreground="White"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
+                        <Border Background="#4338CA" Width="28" Height="28" CornerRadius="8" VerticalAlignment="Center" Margin="0,0,10,0">
+                            <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
-                            <TextBlock Text="Automated Metric Discovery Hub"
-                                       FontSize="13"
-                                       FontWeight="Bold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                            <TextBlock Text="Auto-calculated from your data grid rows"
-                                       FontSize="11"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       Margin="0,2,0,0"/>
+                            <TextBlock Text="Automated Metric Discovery Hub" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            <TextBlock Text="Auto-calculated from your data grid rows" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,2,0,0"/>
                         </StackPanel>
                     </StackPanel>
-
-                    <!-- Metrics row 1 — Glass LM + Pieces -->
                     <WrapPanel>
                         <Border Style="{StaticResource MetricCardStyle}">
                             <StackPanel>
                                 <TextBlock Text="TOTAL GLASS 1 (LM1)" FontSize="10" FontWeight="Bold" Foreground="#4338CA"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <TextBlock Text="{Binding MetricHub.TotalLm1, StringFormat={}{0:0.##}}"
-                                               FontSize="18" FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text=" lm" FontSize="11"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               VerticalAlignment="Bottom" Margin="4,0,0,3"/>
+                                    <TextBlock Text="{Binding MetricHub.TotalLm1, StringFormat={}{0:0.##}}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text=" lm" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Bottom" Margin="4,0,0,3"/>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
-
                         <Border Style="{StaticResource MetricCardStyle}">
                             <StackPanel>
                                 <TextBlock Text="TOTAL GLASS 2 (LM2)" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <TextBlock Text="{Binding MetricHub.TotalLm2, StringFormat={}{0:0.##}}"
-                                               FontSize="18" FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text=" lm" FontSize="11"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               VerticalAlignment="Bottom" Margin="4,0,0,3"/>
+                                    <TextBlock Text="{Binding MetricHub.TotalLm2, StringFormat={}{0:0.##}}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text=" lm" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Bottom" Margin="4,0,0,3"/>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
-
                         <Border Style="{StaticResource MetricCardStyle}">
                             <StackPanel>
                                 <TextBlock Text="COMBINED GLASS (LM)" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <TextBlock Text="{Binding MetricHub.CombinedLm, StringFormat={}{0:0.##}}"
-                                               FontSize="18" FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text=" lm" FontSize="11"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               VerticalAlignment="Bottom" Margin="4,0,0,3"/>
+                                    <TextBlock Text="{Binding MetricHub.CombinedLm, StringFormat={}{0:0.##}}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text=" lm" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Bottom" Margin="4,0,0,3"/>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
-
                         <Border Style="{StaticResource MetricCardStyle}">
                             <StackPanel>
                                 <TextBlock Text="TOTAL PIECES" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <TextBlock Text="{Binding MetricHub.TotalPieces}"
-                                               FontSize="18" FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text=" pcs" FontSize="11"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               VerticalAlignment="Bottom" Margin="4,0,0,3"/>
+                                    <TextBlock Text="{Binding MetricHub.TotalPieces}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text=" pcs" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Bottom" Margin="4,0,0,3"/>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
-
                         <Border Style="{StaticResource MetricCardStyle}">
                             <StackPanel>
                                 <TextBlock Text="DOUBLE GLASS (1+1)" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <TextBlock Text="{Binding MetricHub.DoubleGlassPieces}"
-                                               FontSize="18" FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text=" pcs" FontSize="11"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               VerticalAlignment="Bottom" Margin="4,0,0,3"/>
+                                    <TextBlock Text="{Binding MetricHub.DoubleGlassPieces}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text=" pcs" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Bottom" Margin="4,0,0,3"/>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
                     </WrapPanel>
-
-                    <!-- Metrics row 2 — SQM + refs -->
                     <WrapPanel Margin="0,6,0,0">
                         <Border Style="{StaticResource MetricCardStyle}">
                             <StackPanel>
                                 <TextBlock Text="AREA GLASS 1 (SQM1)" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <TextBlock Text="{Binding MetricHub.TotalSqm1, StringFormat={}{0:0.##}}"
-                                               FontSize="18" FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text=" sqm" FontSize="11"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               VerticalAlignment="Bottom" Margin="4,0,0,3"/>
+                                    <TextBlock Text="{Binding MetricHub.TotalSqm1, StringFormat={}{0:0.##}}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text=" sqm" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Bottom" Margin="4,0,0,3"/>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
-
                         <Border Style="{StaticResource MetricCardStyle}">
                             <StackPanel>
                                 <TextBlock Text="AREA GLASS 2 (SQM2)" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <TextBlock Text="{Binding MetricHub.TotalSqm2, StringFormat={}{0:0.##}}"
-                                               FontSize="18" FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text=" sqm" FontSize="11"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               VerticalAlignment="Bottom" Margin="4,0,0,3"/>
+                                    <TextBlock Text="{Binding MetricHub.TotalSqm2, StringFormat={}{0:0.##}}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text=" sqm" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Bottom" Margin="4,0,0,3"/>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
-
                         <Border Style="{StaticResource MetricCardStyle}">
                             <StackPanel>
                                 <TextBlock Text="COMBINED AREA (SQM)" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <TextBlock Text="{Binding MetricHub.CombinedSqm, StringFormat={}{0:0.##}}"
-                                               FontSize="18" FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text=" sqm" FontSize="11"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               VerticalAlignment="Bottom" Margin="4,0,0,3"/>
+                                    <TextBlock Text="{Binding MetricHub.CombinedSqm, StringFormat={}{0:0.##}}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text=" sqm" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Bottom" Margin="4,0,0,3"/>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
-
                         <Border Style="{StaticResource MetricCardStyle}">
                             <StackPanel>
                                 <TextBlock Text="DGU CAVITY AREA" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                                    <TextBlock Text="{Binding MetricHub.DguCavityArea, StringFormat={}{0:0.##}}"
-                                               FontSize="18" FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text=" sqm" FontSize="11"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               VerticalAlignment="Bottom" Margin="4,0,0,3"/>
+                                    <TextBlock Text="{Binding MetricHub.DguCavityArea, StringFormat={}{0:0.##}}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text=" sqm" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Bottom" Margin="4,0,0,3"/>
                                 </StackPanel>
                             </StackPanel>
                         </Border>
-
-                        <!-- Primary glass refs card -->
                         <Border Style="{StaticResource MetricCardStyle}" MinWidth="320" MaxWidth="520">
                             <StackPanel>
                                 <TextBlock Text="PRIMARY GLASS REFS" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -365,15 +289,8 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border Background="#EEF2FF"
-                                                    CornerRadius="6"
-                                                    Padding="10,4"
-                                                    Margin="0,0,4,4"
-                                                    ToolTip="{Binding}">
-                                                <TextBlock Text="{Binding}"
-                                                           FontSize="11"
-                                                           FontWeight="SemiBold"
-                                                           Foreground="#4338CA"/>
+                                            <Border Background="#EEF2FF" CornerRadius="6" Padding="10,4" Margin="0,0,4,4" ToolTip="{Binding}">
+                                                <TextBlock Text="{Binding}" FontSize="11" FontWeight="SemiBold" Foreground="#4338CA"/>
                                             </Border>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
@@ -384,111 +301,64 @@ CHAT 17 — PERFORMANCE + UI POLISH
                 </StackPanel>
             </Border>
 
-            <!-- ══════════════════════════════════════════════════════════
-                 ACTIVE WORKSHEET ROWS HEADER + TOTAL PILL
-            ══════════════════════════════════════════════════════════ -->
+            <!-- ACTIVE WORKSHEET HEADER -->
             <Grid Margin="0,0,0,12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Active Worksheet Rows"
-                               FontSize="14"
-                               FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock Text="These charges are calculated dynamically based on target variables selected by the user."
-                               FontSize="11"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               Margin="0,3,0,0"/>
+                    <TextBlock Text="Active Worksheet Rows" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    <TextBlock Text="Tick which specs each charge applies to, and pick which metric to sum." FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,3,0,0"/>
                 </StackPanel>
-
-                <Border Grid.Column="1"
-                        Background="#ECFDF5"
-                        BorderBrush="#A7F3D0"
-                        BorderThickness="1"
-                        CornerRadius="10"
-                        Padding="16,10"
-                        VerticalAlignment="Center">
+                <Border Grid.Column="1" Background="#ECFDF5" BorderBrush="#A7F3D0" BorderThickness="1" CornerRadius="10" Padding="16,10" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="Total Other Charges: "
-                                   FontSize="11"
-                                   FontWeight="SemiBold"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding TotalOtherCharges, StringFormat=AED {0:N2}}"
-                                   FontSize="14"
-                                   FontWeight="Bold"
-                                   Foreground="#047857"
-                                   VerticalAlignment="Center"/>
+                        <TextBlock Text="Total Other Charges: " FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding TotalOtherCharges, StringFormat=AED {0:N2}}" FontSize="14" FontWeight="Bold" Foreground="#047857" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Border>
             </Grid>
 
-            <!-- ══════════════════════════════════════════════════════════
-                 TABLE HEADER
-                 QTY / SQM column preserved (Bug 4 fix from Chat 7)
-            ══════════════════════════════════════════════════════════ -->
-            <Border Background="{DynamicResource MenuHoverBrush}"
-                    CornerRadius="8"
-                    Padding="12,10"
-                    Margin="0,0,0,4">
+            <!-- TABLE HEADER (UI-02: CHARGE BASIS) -->
+            <Border Background="{DynamicResource MenuHoverBrush}" CornerRadius="8" Padding="12,10" Margin="0,0,0,4">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="60"/>
                         <ColumnDefinition Width="2.6*"/>
-                        <ColumnDefinition Width="2.3*"/>
+                        <ColumnDefinition Width="2.6*"/>
                         <ColumnDefinition Width="1*"/>
                         <ColumnDefinition Width="1*"/>
-                        <ColumnDefinition Width="2*"/>
+                        <ColumnDefinition Width="1.8*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="ACTIVE"                          FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Column="0" Text="ACTIVE"                           FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
                     <TextBlock Grid.Column="1" Text="CHARGE ITEM &amp; DESCRIPTION"    FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                    <TextBlock Grid.Column="2" Text="TARGET SOURCE / POLISH TYPE"     FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                    <!-- Bug 4: was "METRIC QTY" — now shows QTY / SQM for unit clarity -->
-                    <TextBlock Grid.Column="3" Text="QTY / SQM"                        FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
-                    <TextBlock Grid.Column="4" Text="RATE (AED)"                       FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
-                    <TextBlock Grid.Column="5" Text="FORMULA &amp; RESULT (AED)"       FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Right"/>
+                    <TextBlock Grid.Column="2" Text="CHARGE BASIS (SPECS + METRIC)"    FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                    <TextBlock Grid.Column="3" Text="QTY / SQM"                         FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Column="4" Text="RATE (AED)"                        FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Column="5" Text="FORMULA &amp; RESULT (AED)"        FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SecondaryForegroundBrush}" HorizontalAlignment="Right"/>
                 </Grid>
             </Border>
 
-            <!-- ══════════════════════════════════════════════════════════
-                 CHARGE ROWS
-            ══════════════════════════════════════════════════════════ -->
+            <!-- CHARGE ROWS -->
             <ItemsControl ItemsSource="{Binding ChargeRows}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border BorderThickness="0,0,0,1"
-                                BorderBrush="{DynamicResource BorderBrush}"
-                                Padding="12,12"
-                                Margin="0,0,0,2">
+                        <Border BorderThickness="0,0,0,1" BorderBrush="{DynamicResource BorderBrush}" Padding="12,12" Margin="0,0,0,2">
                             <StackPanel>
-
-                                <!-- Main row -->
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="60"/>
                                         <ColumnDefinition Width="2.6*"/>
-                                        <ColumnDefinition Width="2.3*"/>
+                                        <ColumnDefinition Width="2.6*"/>
                                         <ColumnDefinition Width="1*"/>
                                         <ColumnDefinition Width="1*"/>
-                                        <ColumnDefinition Width="2*"/>
+                                        <ColumnDefinition Width="1.8*"/>
                                     </Grid.ColumnDefinitions>
 
-                                    <!-- Active checkbox -->
-                                    <CheckBox Grid.Column="0"
-                                              IsChecked="{Binding IsActive, Mode=TwoWay}"
-                                              HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"
-                                              Cursor="Hand"/>
+                                    <CheckBox Grid.Column="0" IsChecked="{Binding IsActive, Mode=TwoWay}" HorizontalAlignment="Center" VerticalAlignment="Center" Cursor="Hand"/>
 
-                                    <!-- Name + description -->
                                     <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="4,0,10,0">
-                                        <TextBlock Text="{Binding ChargeName}"
-                                                   FontSize="13"
-                                                   FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                        <TextBlock Text="{Binding ChargeName}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
                                                     <Style.Triggers>
@@ -500,78 +370,212 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                                 </Style>
                                             </TextBlock.Style>
                                         </TextBlock>
-                                        <TextBlock Text="{Binding Description}"
-                                                   FontSize="11"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   TextWrapping="Wrap"
-                                                   Margin="0,3,0,0"/>
+                                        <TextBlock Text="{Binding Description}" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap" Margin="0,3,0,0"/>
                                     </StackPanel>
 
-                                    <!-- Source dropdown (non-polish rows) -->
-                                    <ComboBox Grid.Column="2"
-                                              ItemsSource="{Binding AvailableSources}"
-                                              SelectedItem="{Binding SelectedSource, Mode=TwoWay}"
-                                              DisplayMemberPath="DisplayLabel"
-                                              IsEnabled="{Binding IsActive}"
-                                              Height="32"
-                                              VerticalContentAlignment="Center"
-                                              Margin="0,0,10,0">
-                                        <ComboBox.Style>
-                                            <Style TargetType="ComboBox">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsPolishRow}" Value="True">
+                                    <!--
+                                        CHAT 17 UI-03: Spec-target selector.
+                                        Column 2 holds either:
+                                          - Spec-target ToggleButton popup (non-polish rows)
+                                          - Polish sub-type dropdown ABOVE spec-target popup (polish rows)
+                                        Delivery rows show only a message.
+                                    -->
+                                    <Grid Grid.Column="2" Margin="0,0,10,0">
+                                        <!-- Delivery row info label -->
+                                        <TextBlock Text="Fixed 1 TRIP × Rate (per-invoice)"
+                                                   FontSize="11"
+                                                   FontStyle="Italic"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsDeliveryRow}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+
+                                        <!-- Non-delivery: stack polish sub-type (if polish) + spec-target popup -->
+                                        <StackPanel>
+                                            <StackPanel.Style>
+                                                <Style TargetType="StackPanel">
+                                                    <Setter Property="Visibility" Value="Visible"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsDeliveryRow}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </StackPanel.Style>
+
+                                            <!-- Polish sub-type dropdown (polish rows only, shown ABOVE spec target) -->
+                                            <ComboBox ItemsSource="{Binding AvailablePolishSubTypes}"
+                                                      SelectedItem="{Binding SelectedPolishSubType, Mode=TwoWay}"
+                                                      DisplayMemberPath="DisplayLabel"
+                                                      IsEnabled="{Binding IsActive}"
+                                                      Height="30"
+                                                      VerticalContentAlignment="Center"
+                                                      Margin="0,0,0,4">
+                                                <ComboBox.Style>
+                                                    <Style TargetType="ComboBox">
                                                         <Setter Property="Visibility" Value="Collapsed"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </ComboBox.Style>
-                                    </ComboBox>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsPolishRow}" Value="True">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </ComboBox.Style>
+                                            </ComboBox>
 
-                                    <!-- Polish sub-type dropdown (polish rows only) -->
-                                    <ComboBox Grid.Column="2"
-                                              ItemsSource="{Binding AvailablePolishSubTypes}"
-                                              SelectedItem="{Binding SelectedPolishSubType, Mode=TwoWay}"
-                                              DisplayMemberPath="DisplayLabel"
-                                              IsEnabled="{Binding IsActive}"
-                                              Height="32"
-                                              VerticalContentAlignment="Center"
-                                              Margin="0,0,10,0">
-                                        <ComboBox.Style>
-                                            <Style TargetType="ComboBox">
-                                                <Setter Property="Visibility" Value="Collapsed"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsPolishRow}" Value="True">
-                                                        <Setter Property="Visibility" Value="Visible"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </ComboBox.Style>
-                                    </ComboBox>
+                                            <!-- Spec-target popup ToggleButton -->
+                                            <ToggleButton x:Name="TargetToggle"
+                                                          Content="{Binding TargetSelection.SummaryText, FallbackValue='Select specs and metric...'}"
+                                                          Style="{StaticResource SpecTargetToggleStyle}"
+                                                          IsEnabled="{Binding IsActive}"/>
 
-                                    <!-- Metric qty badge — Deep Royal Blue -->
-                                    <Border Grid.Column="3"
-                                            Background="#DBEAFE"
-                                            CornerRadius="8"
-                                            Padding="10,5"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center">
+                                            <Popup IsOpen="{Binding IsChecked, ElementName=TargetToggle}"
+                                                   StaysOpen="False"
+                                                   PlacementTarget="{Binding ElementName=TargetToggle}"
+                                                   AllowsTransparency="True"
+                                                   PopupAnimation="Fade">
+                                                <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                                                        BorderBrush="#4338CA"
+                                                        BorderThickness="1.5"
+                                                        CornerRadius="10"
+                                                        Padding="14"
+                                                        Width="360"
+                                                        MaxHeight="480">
+                                                    <Border.Effect>
+                                                        <DropShadowEffect BlurRadius="18"
+                                                                          ShadowDepth="4"
+                                                                          Direction="270"
+                                                                          Color="Black"
+                                                                          Opacity="0.18"/>
+                                                    </Border.Effect>
+                                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                                        <StackPanel DataContext="{Binding TargetSelection}">
+
+                                                            <!-- SELECT SPECS section -->
+                                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                                                <TextBlock Text="&#xE762;"
+                                                                           FontFamily="Segoe MDL2 Assets"
+                                                                           FontSize="11"
+                                                                           Foreground="#4338CA"
+                                                                           VerticalAlignment="Center"
+                                                                           Margin="0,0,8,0"/>
+                                                                <TextBlock Text="SELECT SPECS"
+                                                                           FontSize="10"
+                                                                           FontWeight="Bold"
+                                                                           Foreground="#4338CA"
+                                                                           VerticalAlignment="Center"/>
+                                                            </StackPanel>
+
+                                                            <ItemsControl ItemsSource="{Binding AvailableSpecs}"
+                                                                          Margin="0,0,0,12">
+                                                                <ItemsControl.ItemTemplate>
+                                                                    <DataTemplate>
+                                                                        <CheckBox IsChecked="{Binding IsChecked, Mode=TwoWay}"
+                                                                                  Cursor="Hand"
+                                                                                  Margin="0,0,0,6"
+                                                                                  Content="{Binding DisplayName}"
+                                                                                  Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                                  FontSize="12"/>
+                                                                    </DataTemplate>
+                                                                </ItemsControl.ItemTemplate>
+                                                            </ItemsControl>
+
+                                                            <Border Height="1"
+                                                                    Background="{DynamicResource BorderBrush}"
+                                                                    Margin="0,0,0,12"/>
+
+                                                            <!-- SELECT METRIC section -->
+                                                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+                                                                <TextBlock Text="&#xE9D2;"
+                                                                           FontFamily="Segoe MDL2 Assets"
+                                                                           FontSize="11"
+                                                                           Foreground="#4338CA"
+                                                                           VerticalAlignment="Center"
+                                                                           Margin="0,0,8,0"/>
+                                                                <TextBlock Text="SELECT METRIC"
+                                                                           FontSize="10"
+                                                                           FontWeight="Bold"
+                                                                           Foreground="#4338CA"
+                                                                           VerticalAlignment="Center"/>
+                                                            </StackPanel>
+
+                                                            <ListBox ItemsSource="{Binding AvailableMetrics}"
+                                                                     SelectedItem="{Binding SelectedMetric, Mode=TwoWay}"
+                                                                     BorderThickness="0"
+                                                                     Background="Transparent"
+                                                                     Margin="0,0,0,12">
+                                                                <ListBox.ItemTemplate>
+                                                                    <DataTemplate>
+                                                                        <RadioButton IsChecked="{Binding IsSelected,
+                                                                                        RelativeSource={RelativeSource
+                                                                                            AncestorType=ListBoxItem}}"
+                                                                                     Content="{Binding DisplayName}"
+                                                                                     Cursor="Hand"
+                                                                                     Margin="0,4"
+                                                                                     Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                                     FontSize="12"/>
+                                                                    </DataTemplate>
+                                                                </ListBox.ItemTemplate>
+                                                                <ListBox.ItemContainerStyle>
+                                                                    <Style TargetType="ListBoxItem">
+                                                                        <Setter Property="Padding" Value="0"/>
+                                                                        <Setter Property="Background" Value="Transparent"/>
+                                                                        <Setter Property="BorderThickness" Value="0"/>
+                                                                        <Setter Property="Template">
+                                                                            <Setter.Value>
+                                                                                <ControlTemplate TargetType="ListBoxItem">
+                                                                                    <ContentPresenter/>
+                                                                                </ControlTemplate>
+                                                                            </Setter.Value>
+                                                                        </Setter>
+                                                                    </Style>
+                                                                </ListBox.ItemContainerStyle>
+                                                            </ListBox>
+
+                                                            <Border Height="1"
+                                                                    Background="{DynamicResource BorderBrush}"
+                                                                    Margin="0,0,0,10"/>
+
+                                                            <!-- RESULT preview -->
+                                                            <StackPanel Orientation="Horizontal">
+                                                                <TextBlock Text="RESULT:"
+                                                                           FontSize="10"
+                                                                           FontWeight="Bold"
+                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                           VerticalAlignment="Center"
+                                                                           Margin="0,0,10,0"/>
+                                                                <TextBlock Text="{Binding SummaryText}"
+                                                                           FontSize="11"
+                                                                           FontWeight="Bold"
+                                                                           Foreground="#4338CA"
+                                                                           VerticalAlignment="Center"/>
+                                                            </StackPanel>
+                                                        </StackPanel>
+                                                    </ScrollViewer>
+                                                </Border>
+                                            </Popup>
+                                        </StackPanel>
+                                    </Grid>
+
+                                    <!-- Metric qty badge -->
+                                    <Border Grid.Column="3" Background="#DBEAFE" CornerRadius="8" Padding="10,5" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="{Binding MetricQty, StringFormat={}{0:0.###}}"
-                                                       FontSize="12"
-                                                       FontWeight="Bold"
-                                                       Foreground="#1E40AF"/>
+                                            <TextBlock Text="{Binding MetricQty, StringFormat={}{0:0.###}}" FontSize="12" FontWeight="Bold" Foreground="#1E40AF"/>
                                             <TextBlock Text=" "/>
-                                            <TextBlock Text="{Binding Unit}"
-                                                       FontSize="10"
-                                                       Foreground="#1E40AF"
-                                                       Opacity="0.75"
-                                                       VerticalAlignment="Bottom"
-                                                       Margin="0,0,0,1"/>
+                                            <TextBlock Text="{Binding Unit}" FontSize="10" Foreground="#1E40AF" Opacity="0.75" VerticalAlignment="Bottom" Margin="0,0,0,1"/>
                                         </StackPanel>
                                     </Border>
 
-                                    <!-- Rate input (Bug 5 preserved) -->
+                                    <!-- Rate -->
                                     <TextBox Grid.Column="4"
                                              Text="{Binding Rate, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"
                                              Style="{StaticResource RateInputStyle}"
@@ -580,7 +584,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                              HorizontalAlignment="Center"
                                              VerticalAlignment="Center"/>
 
-                                    <!-- Formula & result -->
+                                    <!-- Formula display -->
                                     <TextBlock Grid.Column="5"
                                                Text="{Binding FormulaDisplay}"
                                                FontSize="11"
@@ -603,26 +607,17 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                     </TextBlock>
                                 </Grid>
 
-                                <!-- ══════════════════════════════════════
-                                     CUSTOM POLISH INLINE EDITOR
-                                     BUG FIX: was hardcoded #151E2C (broke dark mode)
-                                     Now uses indigo tint — theme-safe
-                                ══════════════════════════════════════ -->
-                                <Border Background="#EEF2FF"
-                                        CornerRadius="10"
-                                        Padding="14,12"
-                                        Margin="60,10,0,0"
-                                        BorderThickness="1"
-                                        BorderBrush="#C7D2FE">
+                                <!-- Custom Polish inline editor -->
+                                <Border Background="#EEF2FF" CornerRadius="10" Padding="14,12" Margin="60,10,0,0" BorderThickness="1" BorderBrush="#C7D2FE">
                                     <Border.Style>
                                         <Style TargetType="Border">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                             <Style.Triggers>
                                                 <MultiDataTrigger>
                                                     <MultiDataTrigger.Conditions>
-                                                        <Condition Binding="{Binding IsPolishRow}"     Value="True"/>
-                                                        <Condition Binding="{Binding IsCustomPolish}"  Value="True"/>
-                                                        <Condition Binding="{Binding IsActive}"        Value="True"/>
+                                                        <Condition Binding="{Binding IsPolishRow}" Value="True"/>
+                                                        <Condition Binding="{Binding IsCustomPolish}" Value="True"/>
+                                                        <Condition Binding="{Binding IsActive}" Value="True"/>
                                                     </MultiDataTrigger.Conditions>
                                                     <Setter Property="Visibility" Value="Visible"/>
                                                 </MultiDataTrigger>
@@ -636,70 +631,25 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0"
-                                                   Text="CUSTOM DESCRIPTION:"
-                                                   FontSize="10"
-                                                   FontWeight="Bold"
-                                                   Foreground="#4338CA"
-                                                   VerticalAlignment="Center"
-                                                   Margin="0,0,10,0"/>
-                                        <TextBox Grid.Column="1"
-                                                 Text="{Binding CustomPolishDescription, UpdateSourceTrigger=PropertyChanged}"
-                                                 Style="{StaticResource CustomInputStyle}"
-                                                 Margin="0,0,14,0"/>
-                                        <TextBlock Grid.Column="2"
-                                                   Text="MANUAL QTY (lm):"
-                                                   FontSize="10"
-                                                   FontWeight="Bold"
-                                                   Foreground="#4338CA"
-                                                   VerticalAlignment="Center"
-                                                   Margin="0,0,10,0"/>
-                                        <!-- Bug 5: AcceptDecimals preserved -->
-                                        <TextBox Grid.Column="3"
-                                                 Text="{Binding CustomPolishQty, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.###}}"
-                                                 Style="{StaticResource CustomInputStyle}"
-                                                 beh:TextBoxBehaviors.AcceptDecimals="True"
-                                                 MinWidth="90"/>
+                                        <TextBlock Grid.Column="0" Text="CUSTOM DESCRIPTION:" FontSize="10" FontWeight="Bold" Foreground="#4338CA" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                        <TextBox Grid.Column="1" Text="{Binding CustomPolishDescription, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CustomInputStyle}" Margin="0,0,14,0"/>
+                                        <TextBlock Grid.Column="2" Text="MANUAL QTY (lm):" FontSize="10" FontWeight="Bold" Foreground="#4338CA" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                        <TextBox Grid.Column="3" Text="{Binding CustomPolishQty, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.###}}" Style="{StaticResource CustomInputStyle}" beh:TextBoxBehaviors.AcceptDecimals="True" MinWidth="90"/>
                                     </Grid>
                                 </Border>
-
                             </StackPanel>
                         </Border>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
 
-            <!-- ══════════════════════════════════════════════════════════
-                 PHASE 7.11c — GLASS WASTAGES SECTION
-            ══════════════════════════════════════════════════════════ -->
             <wastages:WastagesSectionView DataContext="{Binding WastagesSection}"/>
-
-            <!-- ══════════════════════════════════════════════════════════
-                 PHASE 7.11d — CUSTOM MANUAL CHARGES SECTION
-            ══════════════════════════════════════════════════════════ -->
             <custom:CustomChargesSectionView DataContext="{Binding CustomChargesSection}"/>
 
-            <!-- ══════════════════════════════════════════════════════════
-                 PHASE STATUS NOTE
-            ══════════════════════════════════════════════════════════ -->
-            <Border Background="#EEF2FF"
-                    BorderBrush="#C7D2FE"
-                    BorderThickness="1"
-                    CornerRadius="10"
-                    Padding="14,10"
-                    Margin="0,30,0,20"
-                    HorizontalAlignment="Left">
+            <Border Background="#EEF2FF" BorderBrush="#C7D2FE" BorderThickness="1" CornerRadius="10" Padding="14,10" Margin="0,30,0,20" HorizontalAlignment="Left">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE930;"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="14"
-                               Foreground="#4338CA"
-                               VerticalAlignment="Center"
-                               Margin="0,0,10,0"/>
-                    <TextBlock FontSize="11"
-                               Foreground="#4338CA"
-                               TextWrapping="Wrap"
-                               VerticalAlignment="Center">
+                    <TextBlock Text="&#xE930;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#4338CA" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock FontSize="11" Foreground="#4338CA" TextWrapping="Wrap" VerticalAlignment="Center">
                         <Run FontWeight="Bold">Step 6 Complete.</Run>
                         <Run>All predefined charges, polish sub-types, color-aggregated wastages, and manual custom charges are implemented and integrated into the total.</Run>
                     </TextBlock>

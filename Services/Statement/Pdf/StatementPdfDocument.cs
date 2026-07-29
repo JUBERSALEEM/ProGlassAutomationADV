@@ -1,35 +1,32 @@
 ﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Statement/Pdf/StatementPdfDocument.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Account Statement / Sales Report (Chat 16)
+// MODULE: Account Statement / Sales Report
 //
-// FIXES vs PREVIOUS VERSION:
-//   1. using SkiaSharp; — now works because SkiaSharp 2.88.8 is in .csproj
-//   2. Canvas callback: QuestPDF 2024.12.2 Canvas callback signature is:
-//      .Canvas((canvas, size) => { })
-//      where canvas is typed as SkiaSharp.SKCanvas directly.
-//      The cast "if (canvas is not SKCanvas sk)" is WRONG —
-//      canvas IS already SKCanvas. Just use it directly.
-//   3. RenderAgingBars signature: parameter is SKCanvas (not object).
-//      Remove the cast entirely.
+// ROOT CAUSE (found by reading debug output properly):
+//   RenderStatementHeader used AutoItem() for filter summary text.
+//   AutoItem takes exactly what it needs — no shrinking allowed.
+//   The filter summary "Company: X | Customer: Y | Project: Z |
+//   Salesman: W | Status: A, B, C" is often 700+ pixels on one line.
+//   When container is 507px, AutoItem demanded more than available,
+//   forcing RelativeItem into negative width → CRASH.
+//
+// FIX:
+//   Filter summary now on its OWN row below period, using full width
+//   with proper text wrapping. No more Row + AutoItem conflict.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.Statement;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
-using SkiaSharp;
 using System;
-using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
-using System.Windows;
+using System.Text;
 
 namespace ProGlassAutomation.Services.Statement.Pdf
 {
-    /// <summary>
-    /// QuestPDF IDocument implementation for Account Statement.
-    /// Implements IDocument directly — GeneratePdf() works without wrapper.
-    /// </summary>
     public class StatementPdfDocument : IDocument
     {
         // ── Brand colors ──────────────────────────────────────────────────
@@ -50,8 +47,6 @@ namespace ProGlassAutomation.Services.Statement.Pdf
         {
             _snap = snap ?? throw new ArgumentNullException(nameof(snap));
         }
-
-        // ── IDocument ─────────────────────────────────────────────────────
 
         public DocumentMetadata GetMetadata() => new()
         {
@@ -79,84 +74,36 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                      .FontSize(9)
                      .FontColor(DARK));
 
-                page.Header().Element(RenderPageHeader);
                 page.Content().Element(RenderContent);
                 page.Footer().Element(RenderFooter);
             });
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        //  PAGE HEADER
-        // ═════════════════════════════════════════════════════════════════
-
-        private void RenderPageHeader(IContainer container)
-        {
-            container
-                .PaddingBottom(8)
-                .Column(col =>
-                {
-                    col.Item()
-                       .Background(ACCENT)
-                       .PaddingHorizontal(14).PaddingVertical(8)
-                       .Row(row =>
-                       {
-                           row.RelativeItem().Column(c =>
-                           {
-                               c.Item()
-                                .Text("ACCOUNT STATEMENT")
-                                .FontSize(14).Bold().FontColor(WHITE);
-                               c.Item().PaddingTop(2)
-                                .Text(_snap.Header.Title)
-                                .FontSize(9).FontColor("#C7D2FE");
-                           });
-
-                           row.AutoItem().AlignRight().Column(c =>
-                           {
-                               c.Item().AlignRight()
-                                .Text(_snap.Header.StatementNumber)
-                                .FontSize(13).Bold().FontColor(WHITE);
-                               c.Item().PaddingTop(2).AlignRight()
-                                .Text("Generated: " +
-                                      _snap.Header.GeneratedAt
-                                           .ToString("dd MMM yyyy  HH:mm"))
-                                .FontSize(8).FontColor("#C7D2FE");
-                           });
-                       });
-
-                    col.Item()
-                       .Background(TABLE_HDR)
-                       .PaddingHorizontal(14).PaddingVertical(5)
-                       .Row(row =>
-                       {
-                           row.RelativeItem()
-                              .Text("Period: " + _snap.Header.PeriodDisplay)
-                              .FontSize(8).FontColor("#94A3B8");
-                           row.AutoItem().AlignRight()
-                              .Text(_snap.Header.FilterSummary)
-                              .FontSize(8).FontColor("#94A3B8");
-                       });
-                });
-        }
-
-        // ═════════════════════════════════════════════════════════════════
-        //  MAIN CONTENT
-        // ═════════════════════════════════════════════════════════════════
-
         private void RenderContent(IContainer container)
         {
             container.Column(col =>
             {
-                col.Item().PaddingTop(8).Element(RenderCustomerBlock);
+                col.Item().Element(RenderStatementHeader);
+
+                col.Item().PaddingTop(10).Element(RenderCustomerBlock);
+
                 col.Item().PaddingTop(10).PaddingBottom(6)
                    .LineHorizontal(1).LineColor(LINE);
+
                 col.Item().Element(RenderInvoiceTable);
+
                 col.Item().PaddingTop(8).PaddingBottom(8)
                    .LineHorizontal(1).LineColor(LINE);
+
                 col.Item().Element(RenderFinancialSummary);
+
                 col.Item().PaddingTop(10).PaddingBottom(10)
                    .LineHorizontal(1).LineColor(LINE);
+
                 col.Item().Element(RenderAgingAnalysis);
+
                 col.Item().PaddingTop(16).Element(RenderSignatureBlock);
+
                 col.Item().PaddingTop(10)
                    .BorderTop(1).BorderColor(LINE).PaddingTop(6)
                    .Text("This statement is computer-generated. " +
@@ -166,8 +113,78 @@ namespace ProGlassAutomation.Services.Statement.Pdf
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  CUSTOMER BLOCK
+        //  STATEMENT HEADER — ROOT CAUSE FIX
+        //
+        //  OLD (crashed):
+        //    Row with RelativeItem (period) + AutoItem (filter summary)
+        //    Filter summary was 759px wide on single line.
+        //    AutoItem could not shrink → RelativeItem went negative → CRASH.
+        //
+        //  NEW (works):
+        //    Period bar on its own line.
+        //    Filter summary on its OWN line below, wraps naturally,
+        //    no Row conflict, no AutoItem overflow.
         // ═════════════════════════════════════════════════════════════════
+
+        private void RenderStatementHeader(IContainer container)
+        {
+            container.Column(col =>
+            {
+                // ── Row 1: Title bar (unchanged — works fine) ─────────────
+                col.Item()
+                   .Background(ACCENT)
+                   .PaddingHorizontal(14).PaddingVertical(8)
+                   .Row(row =>
+                   {
+                       row.RelativeItem().Column(c =>
+                       {
+                           c.Item()
+                            .Text("ACCOUNT STATEMENT")
+                            .FontSize(14).Bold().FontColor(WHITE);
+                           c.Item().PaddingTop(2)
+                            .Text(_snap.Header.Title ?? "")
+                            .FontSize(9).FontColor("#C7D2FE");
+                       });
+
+                       row.AutoItem().AlignRight().Column(c =>
+                       {
+                           c.Item().AlignRight()
+                            .Text(_snap.Header.StatementNumber ?? "")
+                            .FontSize(13).Bold().FontColor(WHITE);
+                           c.Item().PaddingTop(2).AlignRight()
+                            .Text("Generated: " +
+                                  _snap.Header.GeneratedAt
+                                       .ToString("dd MMM yyyy  HH:mm"))
+                            .FontSize(8).FontColor("#C7D2FE");
+                       });
+                   });
+
+                // ── Row 2: Meta strip — Period + Filter Summary ───────────
+                // FIX: Split into a Column so filter summary can wrap
+                // to multiple lines instead of trying to fit on one line
+                // and overflowing horizontally.
+                col.Item()
+                   .Background(TABLE_HDR)
+                   .PaddingHorizontal(14).PaddingVertical(6)
+                   .Column(meta =>
+                   {
+                       // Period — short text, safe as single line
+                       meta.Item()
+                           .Text("Period: " + _snap.Header.PeriodDisplay)
+                           .FontSize(8).FontColor("#94A3B8");
+
+                       // Filter summary — long text, wraps naturally
+                       // NOT inside a Row with AutoItem → no width conflict
+                       string filterSummary = _snap.Header.FilterSummary ?? "";
+                       if (!string.IsNullOrWhiteSpace(filterSummary))
+                       {
+                           meta.Item().PaddingTop(3)
+                               .Text(filterSummary)
+                               .FontSize(8).FontColor("#94A3B8");
+                       }
+                   });
+            });
+        }
 
         private void RenderCustomerBlock(IContainer container)
         {
@@ -182,7 +199,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                         col.Item().Text("FROM / SUPPLIER")
                            .FontSize(8).Bold().FontColor(MUTED);
                         col.Item().PaddingTop(4)
-                           .Text(_snap.CustomerInfo.CompanyName)
+                           .Text(_snap.CustomerInfo.CompanyName ?? "")
                            .FontSize(11).Bold().FontColor(DARK);
                         if (!string.IsNullOrWhiteSpace(
                                 _snap.CustomerInfo.SalesmanName))
@@ -200,7 +217,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                         col.Item().Text("BILL TO / CUSTOMER")
                            .FontSize(8).Bold().FontColor(MUTED);
                         col.Item().PaddingTop(4)
-                           .Text(_snap.CustomerInfo.CustomerName)
+                           .Text(_snap.CustomerInfo.CustomerName ?? "")
                            .FontSize(11).Bold().FontColor(DARK);
                         if (!string.IsNullOrWhiteSpace(
                                 _snap.CustomerInfo.ProjectName))
@@ -211,10 +228,6 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                     });
                 });
         }
-
-        // ═════════════════════════════════════════════════════════════════
-        //  INVOICE TABLE
-        // ═════════════════════════════════════════════════════════════════
 
         private void RenderInvoiceTable(IContainer container)
         {
@@ -266,10 +279,10 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                         string balColor = inv.Balance > 0
                             ? (inv.IsOverdue ? RED : AMBER) : GREEN;
 
-                        AddCell(table, inv.InvoiceNumber, bg,
+                        AddCell(table, inv.InvoiceNumber ?? "", bg,
                             bold: true, color: ACCENT);
                         AddCell(table, inv.IssueDateDisplay, bg);
-                        AddCell(table, inv.ProformaId, bg, color: MUTED);
+                        AddCell(table, inv.ProformaId ?? "", bg, color: MUTED);
                         AddCell(table,
                             string.IsNullOrWhiteSpace(inv.DeliveryNoteRef)
                                 ? "—" : inv.DeliveryNoteRef,
@@ -281,7 +294,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                             inv.Balance > 0
                                 ? $"AED {inv.Balance:N2}" : "PAID",
                             bg, bold: inv.Balance > 0, color: balColor);
-                        AddCellCenter(table, inv.Status, bg,
+                        AddCellCenter(table, inv.Status ?? "", bg,
                             color: statusColor, bold: true);
                     }
                 });
@@ -333,17 +346,13 @@ namespace ProGlassAutomation.Services.Statement.Pdf
             });
         }
 
-        // ═════════════════════════════════════════════════════════════════
-        //  FINANCIAL SUMMARY
-        // ═════════════════════════════════════════════════════════════════
-
         private void RenderFinancialSummary(IContainer container)
         {
             var fin = _snap.Financial;
 
             container.Row(row =>
             {
-                row.RelativeItem().Column(col =>
+                row.RelativeItem(2).Column(col =>
                 {
                     col.Item().Text("FINANCIAL SUMMARY")
                        .FontSize(10).Bold().FontColor(DARK);
@@ -378,22 +387,25 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                     });
                 });
 
-                row.ConstantItem(24);
+                row.ConstantItem(20);
 
-                row.ConstantItem(200).AlignMiddle().Column(col =>
+                row.RelativeItem(1).Column(col =>
                 {
-                    col.Item().Background(ACCENT).Padding(16).Column(inner =>
-                    {
-                        inner.Item().AlignCenter()
-                             .Text("TOTAL OUTSTANDING")
-                             .FontSize(9).Bold().FontColor("#C7D2FE");
-                        inner.Item().PaddingTop(6).AlignCenter()
-                             .Text($"AED {fin.TotalOutstanding:N2}")
-                             .FontSize(18).Bold().FontColor(WHITE);
-                        inner.Item().PaddingTop(4).AlignCenter()
-                             .Text($"{fin.TotalInvoiceCount} Invoice(s)")
-                             .FontSize(8).FontColor("#C7D2FE");
-                    });
+                    col.Item()
+                       .Background(ACCENT)
+                       .Padding(14)
+                       .Column(inner =>
+                       {
+                           inner.Item().AlignCenter()
+                                .Text("TOTAL OUTSTANDING")
+                                .FontSize(9).Bold().FontColor("#C7D2FE");
+                           inner.Item().PaddingTop(6).AlignCenter()
+                                .Text($"AED {fin.TotalOutstanding:N2}")
+                                .FontSize(16).Bold().FontColor(WHITE);
+                           inner.Item().PaddingTop(4).AlignCenter()
+                                .Text($"{fin.TotalInvoiceCount} Invoice(s)")
+                                .FontSize(8).FontColor("#C7D2FE");
+                       });
 
                     if (fin.OverdueAmount > 0)
                     {
@@ -405,16 +417,12 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                                     .FontSize(8).Bold().FontColor(WHITE);
                                inner.Item().PaddingTop(4).AlignCenter()
                                     .Text($"AED {fin.OverdueAmount:N2}")
-                                    .FontSize(13).Bold().FontColor(WHITE);
+                                    .FontSize(12).Bold().FontColor(WHITE);
                            });
                     }
                 });
             });
         }
-
-        // ═════════════════════════════════════════════════════════════════════
-        //  AGING ANALYSIS
-        // ═════════════════════════════════════════════════════════════════════
 
         private void RenderAgingAnalysis(IContainer container)
         {
@@ -433,13 +441,8 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                    .Padding(12)
                    .Column(inner =>
                    {
-                       // FIX: QuestPDF 2024.12.2 passes canvas as object.
-                       // Cast explicitly to SkiaSharp.SKCanvas.
-                       inner.Item().Height(80).Canvas((canvas, size) =>
-                       {
-                           var sk = (SkiaSharp.SKCanvas)canvas;
-                           RenderAgingBars(sk, size, aging, total);
-                       });
+                       string svg = BuildAgingChartSvg(aging, total);
+                       inner.Item().Svg(svg);
 
                        inner.Item().PaddingTop(6).Table(t =>
                        {
@@ -454,11 +457,11 @@ namespace ProGlassAutomation.Services.Statement.Pdf
 
                            var buckets = new[]
                            {
-                       ("Current",    aging.Current,    GREEN),
-                       ("0-30 Days",  aging.Days0To30,  AMBER),
-                       ("31-60 Days", aging.Days31To60, AMBER),
-                       ("61-90 Days", aging.Days61To90, RED),
-                       ("90+ Days",   aging.Days90Plus, RED)
+                               ("Current",    aging.Current,    GREEN),
+                               ("0-30 Days",  aging.Days0To30,  AMBER),
+                               ("31-60 Days", aging.Days31To60, AMBER),
+                               ("61-90 Days", aging.Days61To90, RED),
+                               ("90+ Days",   aging.Days90Plus, RED)
                            };
 
                            foreach (var (label, _, _) in buckets)
@@ -486,40 +489,38 @@ namespace ProGlassAutomation.Services.Statement.Pdf
             });
         }
 
-        /// <summary>
-        /// Renders aging bars using SkiaSharp.
-        /// Parameter is SkiaSharp.SKCanvas — cast done at call site.
-        /// </summary>
-        private static void RenderAgingBars(
-            SkiaSharp.SKCanvas canvas,
-            QuestPDF.Infrastructure.Size size,
+        private static string BuildAgingChartSvg(
             StatementAgingBuckets aging,
             decimal total)
         {
-            float w = (float)size.Width;
-            float h = (float)size.Height;
-            float barW = w / 5f;
+            var inv = CultureInfo.InvariantCulture;
+
+            const int viewW = 1000;
+            const int viewH = 100;
+            const int baselineY = viewH - 6;
+            const int maxBarH = viewH - 12;
+
+            float barW = viewW / 5f;
             float pad = barW * 0.2f;
-            float maxH = h - 8f;
+            float bw = barW - pad * 2f;
 
             var buckets = new[]
             {
-        (aging.Current,    SkiaSharp.SKColor.Parse(GREEN)),
-        (aging.Days0To30,  SkiaSharp.SKColor.Parse(AMBER)),
-        (aging.Days31To60, SkiaSharp.SKColor.Parse(AMBER)),
-        (aging.Days61To90, SkiaSharp.SKColor.Parse(RED)),
-        (aging.Days90Plus, SkiaSharp.SKColor.Parse(RED))
-    };
-
-            // Baseline
-            using var linePaint = new SkiaSharp.SKPaint
-            {
-                Color = SkiaSharp.SKColor.Parse(LINE),
-                StrokeWidth = 1f,
-                IsAntialias = true,
-                IsStroke = true
+                (Amount: aging.Current,    Color: GREEN),
+                (Amount: aging.Days0To30,  Color: AMBER),
+                (Amount: aging.Days31To60, Color: AMBER),
+                (Amount: aging.Days61To90, Color: RED),
+                (Amount: aging.Days90Plus, Color: RED)
             };
-            canvas.DrawLine(0, h - 4, w, h - 4, linePaint);
+
+            var sb = new StringBuilder();
+            sb.Append("<svg xmlns='http://www.w3.org/2000/svg' ");
+            sb.Append($"viewBox='0 0 {viewW} {viewH}' ");
+            sb.Append("preserveAspectRatio='xMidYMid meet'>");
+
+            sb.Append($"<line x1='0' y1='{baselineY.ToString(inv)}' ");
+            sb.Append($"x2='{viewW.ToString(inv)}' y2='{baselineY.ToString(inv)}' ");
+            sb.Append($"stroke='{LINE}' stroke-width='1' />");
 
             for (int i = 0; i < buckets.Length; i++)
             {
@@ -527,25 +528,22 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                 if (total <= 0m || amount <= 0m) continue;
 
                 float ratio = (float)(amount / total);
-                float barH = maxH * ratio;
+                float barH = maxBarH * ratio;
                 float x = i * barW + pad;
-                float bw = barW - pad * 2f;
-                float y = h - 4f - barH;
+                float y = baselineY - barH;
 
-                using var paint = new SkiaSharp.SKPaint
-                {
-                    Color = color,
-                    IsAntialias = true
-                };
-
-                var rect = new SkiaSharp.SKRect(x, y, x + bw, h - 4f);
-                canvas.DrawRoundRect(rect, 3f, 3f, paint);
+                sb.Append("<rect ");
+                sb.Append($"x='{x.ToString("0.##", inv)}' ");
+                sb.Append($"y='{y.ToString("0.##", inv)}' ");
+                sb.Append($"width='{bw.ToString("0.##", inv)}' ");
+                sb.Append($"height='{barH.ToString("0.##", inv)}' ");
+                sb.Append("rx='4' ry='4' ");
+                sb.Append($"fill='{color}' />");
             }
-        }
 
-        // ═════════════════════════════════════════════════════════════════
-        //  SIGNATURE BLOCK
-        // ═════════════════════════════════════════════════════════════════
+            sb.Append("</svg>");
+            return sb.ToString();
+        }
 
         private void RenderSignatureBlock(IContainer container)
         {
@@ -558,8 +556,9 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                        col.Item().Text("PREPARED BY")
                           .FontSize(9).Bold().FontColor(ACCENT);
                        col.Item().PaddingTop(4)
-                          .Text(_snap.CustomerInfo.SalesmanName.Length > 0
-                              ? _snap.CustomerInfo.SalesmanName : "—")
+                          .Text(!string.IsNullOrWhiteSpace(
+                                    _snap.CustomerInfo.SalesmanName)
+                                ? _snap.CustomerInfo.SalesmanName : "—")
                           .FontSize(10).SemiBold().FontColor(DARK);
                        col.Item().PaddingTop(16)
                           .BorderBottom(1).BorderColor(LINE)
@@ -579,21 +578,24 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                            r.AutoItem().Text("Name: ")
                             .FontSize(9).FontColor(MUTED);
                            r.RelativeItem().PaddingLeft(4)
-                            .BorderBottom(1).BorderColor(LINE).Height(1);
+                            .BorderBottom(1).BorderColor(LINE)
+                            .Text(" ").FontSize(9);
                        });
                        col.Item().PaddingTop(8).Row(r =>
                        {
                            r.AutoItem().Text("Signature: ")
                             .FontSize(9).FontColor(MUTED);
                            r.RelativeItem().PaddingLeft(4)
-                            .BorderBottom(1).BorderColor(LINE).Height(1);
+                            .BorderBottom(1).BorderColor(LINE)
+                            .Text(" ").FontSize(9);
                        });
                        col.Item().PaddingTop(8).Row(r =>
                        {
                            r.AutoItem().Text("Date: ")
                             .FontSize(9).FontColor(MUTED);
                            r.RelativeItem().PaddingLeft(4)
-                            .BorderBottom(1).BorderColor(LINE).Height(1);
+                            .BorderBottom(1).BorderColor(LINE)
+                            .Text(" ").FontSize(9);
                        });
                        col.Item().PaddingTop(6)
                           .Text("Company Stamp / Seal")
@@ -601,10 +603,6 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                    });
             });
         }
-
-        // ═════════════════════════════════════════════════════════════════
-        //  PAGE FOOTER
-        // ═════════════════════════════════════════════════════════════════
 
         private void RenderFooter(IContainer container)
         {
@@ -614,7 +612,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                 .Row(row =>
                 {
                     row.RelativeItem()
-                       .Text(_snap.Header.StatementNumber)
+                       .Text(_snap.Header.StatementNumber ?? "")
                        .FontSize(8).FontColor(MUTED);
 
                     row.AutoItem().AlignCenter().Text(t =>
@@ -635,7 +633,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
         //  HELPERS
         // ═════════════════════════════════════════════════════════════════
 
-        private static string GetStatusColor(string status) => status switch
+        private static string GetStatusColor(string? status) => (status ?? "") switch
         {
             "Paid" => GREEN,
             "PartiallyPaid" => GREEN,

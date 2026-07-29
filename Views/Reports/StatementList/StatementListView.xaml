@@ -24,7 +24,6 @@
                 Margin="24,16,24,0"
                 CornerRadius="14"
                 ClipToBounds="True">
-            <!-- Deep indigo solid background -->
             <Border Background="#3730A3" Padding="24,20">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -33,7 +32,6 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Icon block -->
                     <Border Grid.Column="0"
                             Width="56" Height="56"
                             Background="#4338CA"
@@ -47,7 +45,6 @@
                                    VerticalAlignment="Center"/>
                     </Border>
 
-                    <!-- Title -->
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="SALES REPORT"
                                    FontSize="10"
@@ -64,7 +61,6 @@
                                    Margin="0,4,0,0"/>
                     </StackPanel>
 
-                    <!-- Color dots + button -->
                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
                         <StackPanel Orientation="Horizontal"
                                     HorizontalAlignment="Right"
@@ -127,7 +123,6 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <!-- STATEMENTS — solid indigo -->
             <Border Grid.Column="0"
                     Background="#4338CA"
                     CornerRadius="12"
@@ -148,7 +143,6 @@
                 </StackPanel>
             </Border>
 
-            <!-- TOTAL INVOICED — solid green -->
             <Border Grid.Column="2"
                     Background="#047857"
                     CornerRadius="12"
@@ -169,7 +163,6 @@
                 </StackPanel>
             </Border>
 
-            <!-- OUTSTANDING — solid amber -->
             <Border Grid.Column="4"
                     Background="#B45309"
                     CornerRadius="12"
@@ -190,7 +183,6 @@
                 </StackPanel>
             </Border>
 
-            <!-- OVERDUE — solid red when has overdue, neutral otherwise -->
             <Border Grid.Column="6" CornerRadius="12" Padding="16,14">
                 <Border.Style>
                     <Style TargetType="Border">
@@ -268,7 +260,6 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- Search input -->
                 <Border Grid.Column="0"
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource BorderBrush}"
@@ -282,7 +273,6 @@
                             <ColumnDefinition Width="36"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- Solid indigo search icon block -->
                         <Border Grid.Column="0"
                                 Background="#4338CA"
                                 CornerRadius="10,0,0,10">
@@ -350,7 +340,6 @@
                     </Grid>
                 </Border>
 
-                <!-- Refresh — solid indigo -->
                 <Button Grid.Column="2"
                         Command="{Binding RefreshCommand}"
                         Height="38"
@@ -446,7 +435,6 @@
         <!-- ══ ROW 4 — CONTENT ══ -->
         <Grid Grid.Row="4" Margin="24,8,24,16">
 
-            <!-- LOADING STATE -->
             <Border Background="#4338CA"
                     CornerRadius="14"
                     Visibility="{Binding IsLoading,
@@ -478,7 +466,6 @@
                 </StackPanel>
             </Border>
 
-            <!-- EMPTY STATE -->
             <Border Background="{DynamicResource SideMenuBackgroundBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="1"
@@ -490,7 +477,6 @@
                             MaxWidth="420"
                             Margin="0,48,0,48">
 
-                    <!-- 4-color grid icon -->
                     <Border Width="80" Height="80"
                             CornerRadius="18"
                             HorizontalAlignment="Center"
@@ -558,7 +544,6 @@
                 </StackPanel>
             </Border>
 
-            <!-- LIST -->
             <ListView ItemsSource="{Binding Rows}"
                       SelectedItem="{Binding SelectedRow}"
                       Background="Transparent"
@@ -619,7 +604,6 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <!-- Left accent bar — indigo or red -->
                                 <Border Grid.Column="0" CornerRadius="12,0,0,12">
                                     <Border.Style>
                                         <Style TargetType="Border">
@@ -637,25 +621,23 @@
                                 <!-- COL 1: Statement info -->
                                 <Border Grid.Column="1" Padding="16,14,12,14">
                                     <StackPanel>
-                                        <!-- Number + subtitle -->
                                         <StackPanel Orientation="Horizontal"
                                                     Margin="0,0,0,7">
-                                            <TextBlock Text="{Binding StatementNumber}"
+                                            <TextBlock Text="{Binding StatementNumber, Mode=OneWay}"
                                                        FontSize="13"
                                                        FontWeight="Bold"
                                                        Foreground="#4338CA"/>
                                             <TextBlock Text="  /  "
                                                        FontSize="13"
                                                        Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                            <TextBlock Text="{Binding SubTitle}"
+                                            <TextBlock Text="{Binding SubTitle, Mode=OneWay}"
                                                        FontSize="13"
                                                        FontWeight="SemiBold"
                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                         </StackPanel>
 
-                                        <!-- Meta row -->
                                         <StackPanel Orientation="Horizontal">
-                                            <!-- Invoice count badge — solid indigo -->
+                                            <!-- FIX: Invoice count badge Runs need Mode=OneWay -->
                                             <Border Background="#4338CA"
                                                     CornerRadius="6"
                                                     Padding="8,3"
@@ -663,18 +645,17 @@
                                                 <TextBlock FontSize="10"
                                                            FontWeight="Bold"
                                                            Foreground="White">
-                                                    <Run Text="{Binding InvoiceCount}"/>
+                                                    <Run Text="{Binding InvoiceCount, Mode=OneWay}"/>
                                                     <Run Text=" inv"/>
                                                 </TextBlock>
                                             </Border>
 
-                                            <TextBlock Text="{Binding CreatedAtDisplay}"
+                                            <TextBlock Text="{Binding CreatedAtDisplay, Mode=OneWay}"
                                                        FontSize="11"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                        VerticalAlignment="Center"
                                                        Margin="0,0,8,0"/>
 
-                                            <!-- Attachments badge — solid green -->
                                             <Border Background="#047857"
                                                     CornerRadius="6"
                                                     Padding="8,3"
@@ -689,7 +670,7 @@
                                     </StackPanel>
                                 </Border>
 
-                                <!-- COL 2: Invoiced — solid green block -->
+                                <!-- COL 2: Invoiced -->
                                 <Border Grid.Column="2"
                                         Background="#047857"
                                         Margin="0,10,8,10"
@@ -701,14 +682,14 @@
                                                    FontWeight="Bold"
                                                    Foreground="#6EE7B7"
                                                    Margin="0,0,0,4"/>
-                                        <TextBlock Text="{Binding TotalInvoicedDisplay}"
+                                        <TextBlock Text="{Binding TotalInvoicedDisplay, Mode=OneWay}"
                                                    FontSize="13"
                                                    FontWeight="Bold"
                                                    Foreground="White"/>
                                     </StackPanel>
                                 </Border>
 
-                                <!-- COL 3: Outstanding — solid amber block -->
+                                <!-- COL 3: Outstanding -->
                                 <Border Grid.Column="3"
                                         Background="#B45309"
                                         Margin="0,10,8,10"
@@ -720,10 +701,11 @@
                                                    FontWeight="Bold"
                                                    Foreground="#FCD34D"
                                                    Margin="0,0,0,4"/>
-                                        <TextBlock Text="{Binding TotalOutstandingDisplay}"
+                                        <TextBlock Text="{Binding TotalOutstandingDisplay, Mode=OneWay}"
                                                    FontSize="13"
                                                    FontWeight="Bold"
                                                    Foreground="White"/>
+                                        <!-- FIX: Overdue Runs need Mode=OneWay -->
                                         <TextBlock Visibility="{Binding HasOverdue,
                                                        Converter={StaticResource BoolToVisibilityConverter}}"
                                                    FontSize="10"
@@ -731,7 +713,7 @@
                                                    Foreground="#FDE68A"
                                                    Margin="0,4,0,0">
                                             <Run Text="Overdue "/>
-                                            <Run Text="{Binding OverdueAmountDisplay}"/>
+                                            <Run Text="{Binding OverdueAmountDisplay, Mode=OneWay}"/>
                                         </TextBlock>
                                     </StackPanel>
                                 </Border>
@@ -775,7 +757,6 @@
                                     <StackPanel Orientation="Horizontal"
                                                 VerticalAlignment="Center">
 
-                                        <!-- PDF — solid indigo -->
                                         <Button Command="{Binding DataContext.OpenPdfCommand,
                                                     RelativeSource={RelativeSource AncestorType=ListView}}"
                                                 CommandParameter="{Binding}"
@@ -816,7 +797,6 @@
                                             </Button.Template>
                                         </Button>
 
-                                        <!-- Edit — solid amber -->
                                         <Button Command="{Binding DataContext.EditStatementCommand,
                                                     RelativeSource={RelativeSource AncestorType=ListView}}"
                                                 CommandParameter="{Binding}"
@@ -853,7 +833,6 @@
                                             </Button.Template>
                                         </Button>
 
-                                        <!-- Delete — solid red -->
                                         <Button Command="{Binding DataContext.DeleteStatementCommand,
                                                     RelativeSource={RelativeSource AncestorType=ListView}}"
                                                 CommandParameter="{Binding}"

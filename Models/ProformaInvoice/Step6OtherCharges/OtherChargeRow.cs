@@ -6,16 +6,27 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
 {
     /// <summary>
     /// One row in the Other Charges worksheet.
-    /// Bound to UI checkbox + dropdown + rate input + formula display.
+    /// Bound to UI checkbox + spec-target selector + rate input + formula display.
+    ///
+    /// CHAT 17 — Per-Spec Targeting (Two-Part Selector):
+    ///   OLD: SelectedSource (single GridSourceOption from flat list)
+    ///   NEW: TargetSelection (SpecTargetSelection — multi-select specs + metric)
+    ///
+    ///   The OLD SelectedSource property is KEPT for backward compatibility
+    ///   (existing saved invoices may deserialize into it), but MetricQty
+    ///   now reads from TargetSelection.ComputedValue instead.
+    ///   OnSourceValueChanged is retained so any legacy code that assigns
+    ///   SelectedSource still gets proper change tracking.
     ///
     /// Special behaviour for TemplateKey == "POLISH":
     ///   - Uses PolishSubType instead of AvailableSources
+    ///   - ALSO uses TargetSelection for per-spec filtering (Chat 17 A2 pattern)
     ///   - MetricQty is calculated from raw spec-group row dimensions per sub-type
     ///   - Custom sub-type shows extra description + manual qty inputs
     ///
     /// Special behaviour for TemplateKey == "DELIVERY" (Chat 7 Bug 4c hack):
     ///   - Always renders as 1 TRIP × Rate (per-invoice pricing)
-    ///   - Ignores SelectedSource dropdown value
+    ///   - Ignores TargetSelection value
     ///   - Matches PDF/Excel export behavior
     ///   - For multi-trip billing: use Custom Charges section instead
     ///   - Proper fix (PER_ROUND source + editable qty) planned for Chat 8
@@ -31,7 +42,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
         /// <summary>Short description shown under the name.</summary>
         public string Description { get; set; } = "";
 
-        /// <summary>Unit type — Sqm / Lm / Qty. Filters the Grid Source dropdown.</summary>
+        /// <summary>Unit type — Sqm / Lm / Qty. Filters the metric options.</summary>
         public OtherChargeUnit Unit { get; set; }
 
         /// <summary>True if this is a Polish row (activates sub-type UI).</summary>
@@ -40,7 +51,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
         /// <summary>
         /// True if this is a Delivery row (Chat 7 Bug 4c hack).
         /// When true, MetricQty is hardcoded to 1 (per-trip pricing).
-        /// User's SelectedSource dropdown value is ignored.
+        /// User's TargetSelection is ignored.
         /// </summary>
         public bool IsDeliveryRow => TemplateKey == "DELIVERY";
 
@@ -59,13 +70,64 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
             }
         }
 
-        // ── Grid source (target) — for non-polish rows ─────────────────────
+        // ── Spec-target selection (Chat 17 — NEW) ──────────────────────
 
-        /// <summary>Available options filtered by Unit type. Not used for Polish rows.</summary>
+        private SpecTargetSelection? _targetSelection;
+
+        /// <summary>
+        /// Two-part spec-target selector: which specs (checkboxes) + which
+        /// metric (radio). Set by OtherChargesViewModel after row construction.
+        /// Row subscribes to ComputedValue changes for live MetricQty updates.
+        /// </summary>
+        public SpecTargetSelection? TargetSelection
+        {
+            get => _targetSelection;
+            set
+            {
+                if (_targetSelection == value) return;
+
+                if (_targetSelection != null)
+                    _targetSelection.PropertyChanged -= OnTargetSelectionChanged;
+
+                _targetSelection = value;
+
+                if (_targetSelection != null)
+                    _targetSelection.PropertyChanged += OnTargetSelectionChanged;
+
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(MetricQty));
+                Recalculate();
+            }
+        }
+
+        private void OnTargetSelectionChanged(
+            object? sender, System.ComponentModel.PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(SpecTargetSelection.ComputedValue))
+            {
+                OnPropertyChanged(nameof(MetricQty));
+                Recalculate();
+            }
+        }
+
+        // ── Legacy grid source — for backward compat with old snapshots ────
+
+        /// <summary>
+        /// LEGACY: Available options filtered by Unit type. Kept for
+        /// serialization/deserialization compatibility with older invoices.
+        /// Not used by MetricQty in Chat 17 — TargetSelection is used instead.
+        /// </summary>
         public ObservableCollection<GridSourceOption> AvailableSources { get; } = new();
 
-        private GridSourceOption _selectedSource;
-        public GridSourceOption SelectedSource
+        private GridSourceOption? _selectedSource;
+
+        /// <summary>
+        /// LEGACY: The chosen source. Kept for backward compat.
+        /// MetricQty no longer reads from this. Change tracking is retained
+        /// so any legacy code path that still assigns this value still works
+        /// without silent failures.
+        /// </summary>
+        public GridSourceOption? SelectedSource
         {
             get => _selectedSource;
             set
@@ -81,18 +143,16 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
                     _selectedSource.PropertyChanged += OnSourceValueChanged;
 
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(MetricQty));
-                Recalculate();
             }
         }
 
-        private void OnSourceValueChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
+        private void OnSourceValueChanged(
+            object? sender, System.ComponentModel.PropertyChangedEventArgs e)
         {
-            if (e.PropertyName == nameof(GridSourceOption.Value))
-            {
-                OnPropertyChanged(nameof(MetricQty));
-                Recalculate();
-            }
+            // LEGACY: preserved for safety. Chat 17 MetricQty uses
+            // TargetSelection, not SelectedSource, so nothing needs
+            // to fire here anymore. Kept as a no-op subscription so
+            // future refactors can wire it back if needed.
         }
 
         // ── Polish-specific state ──────────────────────────────────────────
@@ -100,8 +160,8 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
         /// <summary>Available polish sub-types (populated once).</summary>
         public ObservableCollection<PolishSubTypeMeta> AvailablePolishSubTypes { get; } = new();
 
-        private PolishSubTypeMeta _selectedPolishSubType;
-        public PolishSubTypeMeta SelectedPolishSubType
+        private PolishSubTypeMeta? _selectedPolishSubType;
+        public PolishSubTypeMeta? SelectedPolishSubType
         {
             get => _selectedPolishSubType;
             set
@@ -124,7 +184,13 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
         public string CustomPolishDescription
         {
             get => _customPolishDescription;
-            set { if (_customPolishDescription == value) return; _customPolishDescription = value; OnPropertyChanged(); OnPropertyChanged(nameof(FormulaDisplay)); }
+            set
+            {
+                if (_customPolishDescription == value) return;
+                _customPolishDescription = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(FormulaDisplay));
+            }
         }
 
         /// <summary>User-typed manual qty for Custom polish.</summary>
@@ -144,17 +210,30 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
 
         /// <summary>
         /// For Polish rows: this value is calculated externally by
-        /// OtherChargesViewModel and pushed in via SetCalculatedPolishQty().
-        /// Non-Custom sub-types get a computed LM based on the sub-type formula.
+        /// OtherChargesViewModel.RecalculatePolishRowsImmediate() and
+        /// pushed in via SetCalculatedPolishQty().
+        /// Non-Custom sub-types get a computed LM based on the sub-type
+        /// formula applied across all glass rows in the spec groups.
         /// </summary>
         private decimal _calculatedPolishQty;
         public decimal CalculatedPolishQty
         {
             get => _calculatedPolishQty;
-            private set { if (_calculatedPolishQty == value) return; _calculatedPolishQty = value; OnPropertyChanged(); OnPropertyChanged(nameof(MetricQty)); Recalculate(); }
+            private set
+            {
+                if (_calculatedPolishQty == value) return;
+                _calculatedPolishQty = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(MetricQty));
+                Recalculate();
+            }
         }
 
-        /// <summary>Called by OtherChargesViewModel when spec groups / dimensions change.</summary>
+        /// <summary>
+        /// Called externally by OtherChargesViewModel when spec groups
+        /// or dimensions change. Pushes a newly-computed polish LM into
+        /// this row so MetricQty reflects the latest calc.
+        /// </summary>
         public void SetCalculatedPolishQty(decimal value)
         {
             CalculatedPolishQty = value;
@@ -163,30 +242,34 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
         // ── Metric qty (unified accessor) ──────────────────────────────────
 
         /// <summary>
-        /// Live quantity read from either:
-        ///   - 1m                    (DELIVERY — Chat 7 Bug 4c hack)
-        ///   - SelectedSource.Value  (normal rows)
-        ///   - CustomPolishQty       (Polish + Custom)
-        ///   - CalculatedPolishQty   (Polish + predefined sub-type)
+        /// Live quantity read from one of these sources depending on row type:
+        ///   - IsDeliveryRow   → 1m (Chat 7 Bug 4c hack — per-invoice)
+        ///   - IsPolishRow + IsCustomPolish → CustomPolishQty (user manual)
+        ///   - IsPolishRow + predefined sub-type → CalculatedPolishQty (auto)
+        ///   - Everything else → TargetSelection.ComputedValue (Chat 17)
+        ///
+        /// ═══════════════ Bug 4c (Chat 7) — QUICK HACK ═══════════════
+        /// DELIVERY is per-invoice, not per-piece — always = 1 trip.
+        /// Ignores TargetSelection value entirely.
+        /// Matches PDF/Excel export behavior.
+        /// For multi-trip billing: user should use Custom Charges section.
+        /// Proper fix (PER_ROUND source + editable qty) planned for Chat 8.
+        /// ══════════════════════════════════════════════════════════════
         /// </summary>
         public decimal MetricQty
         {
             get
             {
-                // ═══════════════ Bug 4c (Chat 7) — QUICK HACK ═══════════════
-                // DELIVERY is per-invoice, not per-piece — always = 1 trip.
-                // Ignore SelectedSource dropdown value.
-                // Matches PDF/Excel export behavior.
-                // For multi-trip billing: user should use Custom Charges section.
-                // Proper fix (PER_ROUND source + editable qty) planned for Chat 8.
-                // ══════════════════════════════════════════════════════════════
                 if (IsDeliveryRow) return 1m;
 
                 if (IsPolishRow)
                 {
-                    return IsCustomPolish ? _customPolishQty : _calculatedPolishQty;
+                    return IsCustomPolish
+                        ? _customPolishQty
+                        : _calculatedPolishQty;
                 }
-                return _selectedSource?.Value ?? 0m;
+
+                return _targetSelection?.ComputedValue ?? 0m;
             }
         }
 
@@ -211,13 +294,22 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
         public decimal ResultAmount
         {
             get => _resultAmount;
-            private set { if (_resultAmount == value) return; _resultAmount = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_resultAmount == value) return;
+                _resultAmount = value;
+                OnPropertyChanged();
+            }
         }
 
         /// <summary>
-        /// Full formula display, e.g. "303.33 LM × 6.00 AED = 1,819.98 AED (W1 H1 PERIMETER (LM1))"
-        /// For Polish + Custom: uses CustomPolishDescription as hint.
-        /// For Delivery: shows "1 TRIP × Rate = Amount (PER TRIP - FIXED)"
+        /// Full formula display for the RESULT column.
+        /// Examples:
+        ///   Normal:  "89.00 LM × 6.00 AED = 534.00 AED (Spec 1, 2 · LM1 · 89.00 lm)"
+        ///   Polish:  "45.20 LM × 6.00 AED = 271.20 AED (ALL SIDE POLISH)"
+        ///   Custom:  "12.50 LM × 8.00 AED = 100.00 AED (SPECIAL BEVELED EDGE)"
+        ///   Delivery:"1 TRIP × 150.00 AED = 150.00 AED (PER TRIP - FIXED)"
+        ///   Inactive:"DISABLED"
         /// </summary>
         public string FormulaDisplay
         {
@@ -253,10 +345,10 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
                 }
                 else
                 {
-                    if (_selectedSource == null) return "DISABLED";
-                    hint = string.IsNullOrEmpty(_selectedSource.FormulaHint)
+                    // Chat 17: hint sourced from TargetSelection summary
+                    hint = _targetSelection == null
                         ? ""
-                        : $" ({_selectedSource.FormulaHint})";
+                        : $"({_targetSelection.SummaryText})";
                 }
 
                 return $"{MetricQty:0.##} {unitLabel} × {Rate:0.##} AED = {ResultAmount:N2} AED {hint}".Trim();
@@ -271,7 +363,10 @@ namespace ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges
             OnPropertyChanged(nameof(FormulaDisplay));
         }
 
-        /// <summary>Called externally when parent VM wants a manual refresh (e.g. after AvailableSources rebuild).</summary>
+        /// <summary>
+        /// Called externally when parent VM wants a manual refresh
+        /// (e.g. after TargetSelection specs or metric values change).
+        /// </summary>
         public void ForceRefresh()
         {
             OnPropertyChanged(nameof(MetricQty));

@@ -14,27 +14,19 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
     /// <summary>
     /// IPdfLayout implementation for Tax Invoice.
     ///
+    /// CHAT 17 CRITICAL FIXES:
+    ///   1. RenderFinancialSummary: removed .Width(320) fixed width.
+    ///      Replaced with proper Row(2/1 split) layout — no measurement
+    ///      conflict when this document is embedded/merged into a
+    ///      Statement PDF pipeline.
+    ///   2. RenderSignatureBlocks: removed .Height(1) on signature
+    ///      underlines — BorderBottom(1) alone renders the line.
+    ///      .Height(1) inside a Row causes measurement pass conflicts.
+    ///
     /// UAE VAT RULES:
     ///   VAT = 5% applied to AfterDiscount
     ///   TRN = 15 digits, printed prominently
     ///   Currency = AED only
-    ///
-    /// LAYOUT (A4 Portrait):
-    ///   1. Full-width invoice metadata strip (title bar + 4 cols + ribbon)
-    ///   2. Supplier block | Customer block
-    ///   3. Invoice references (PI ref, DN ref, PO number, due date)
-    ///   4. Spec group tables (glass items with Rate + Value columns)
-    ///   5. Financial summary (Subtotal, Discount, VAT, Grand Total)
-    ///   6. Amount in words
-    ///   7. Bank details
-    ///   8. Signature blocks
-    ///
-    /// FIXES APPLIED:
-    ///   • Column alignment: Group Total + Glass Items Total use Table()
-    ///     with matching data-row column widths → totals sit under Qty,
-    ///     T.SQM, Value columns.
-    ///   • Empty space fix: Invoice badge now spans full page width with
-    ///     4-column metadata layout instead of narrow right-aligned box.
     /// </summary>
     public class TaxInvoicePdfDocument : IPdfLayout
     {
@@ -144,16 +136,6 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
         //  SECTION RENDERERS
         // ════════════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Full-width invoice metadata strip.
-        /// Structure:
-        ///   • Title bar: "TAX INVOICE" + invoice number (accent background)
-        ///   • 4-column metadata: Invoice No | Issue Date | Due Date | Status
-        ///   • Optional partial-invoice ribbon (amber, full-width)
-        ///
-        /// Replaces the old narrow right-aligned badge that left ugly
-        /// empty space on the left side of the page.
-        /// </summary>
         private void RenderInvoiceBadge(IContainer container)
         {
             container
@@ -161,7 +143,6 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                 .Background(LIGHT_BG)
                 .Column(strip =>
                 {
-                    // ── Title bar ────────────────────────────────────────
                     strip.Item()
                         .Background(ACCENT)
                         .PaddingHorizontal(12).PaddingVertical(6)
@@ -177,12 +158,10 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                                 .FontSize(12).Bold().FontColor(WHITE);
                         });
 
-                    // ── 4-column metadata row (spans full width) ─────────
                     strip.Item()
                         .PaddingHorizontal(12).PaddingVertical(8)
                         .Row(metaRow =>
                         {
-                            // Column 1: Invoice No
                             metaRow.RelativeItem().Column(c =>
                             {
                                 c.Item().Text("INVOICE NO")
@@ -192,7 +171,6 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                                     .FontSize(10).SemiBold().FontColor(DARK);
                             });
 
-                            // Column 2: Issue Date
                             metaRow.RelativeItem().Column(c =>
                             {
                                 c.Item().Text("ISSUE DATE")
@@ -202,7 +180,6 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                                     .FontSize(10).SemiBold().FontColor(DARK);
                             });
 
-                            // Column 3: Due Date (red if overdue)
                             metaRow.RelativeItem().Column(c =>
                             {
                                 c.Item().Text("DUE DATE")
@@ -213,7 +190,6 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                                     .FontColor(_ctx.IsOverdue ? RED : DARK);
                             });
 
-                            // Column 4: Status
                             metaRow.RelativeItem().Column(c =>
                             {
                                 c.Item().Text("STATUS")
@@ -225,7 +201,6 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                             });
                         });
 
-                    // ── Optional partial invoice ribbon (full-width) ─────
                     if (_ctx.IsPartial)
                     {
                         strip.Item()
@@ -239,10 +214,6 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                 });
         }
 
-        /// <summary>
-        /// Returns color for invoice status pill.
-        /// Green = paid, Red = overdue/cancelled, Amber = issued, Dark = draft
-        /// </summary>
         private static string GetStatusColor(string status) => status switch
         {
             "Paid" => GREEN,
@@ -291,7 +262,6 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                 .Padding(8)
                 .Row(row =>
                 {
-                    // PI Reference
                     row.RelativeItem().Column(col =>
                     {
                         col.Item().Text("PI REFERENCE")
@@ -300,7 +270,6 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                             .FontSize(10).SemiBold().FontColor(DARK);
                     });
 
-                    // DN Reference
                     if (!string.IsNullOrWhiteSpace(_ctx.DeliveryNoteRef))
                     {
                         row.RelativeItem().Column(col =>
@@ -312,7 +281,6 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                         });
                     }
 
-                    // PO Number
                     if (!string.IsNullOrWhiteSpace(_ctx.PurchaseOrderNumber))
                     {
                         row.RelativeItem().Column(col =>
@@ -324,7 +292,6 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                         });
                     }
 
-                    // Payment Terms
                     row.RelativeItem().Column(col =>
                     {
                         col.Item().Text("PAYMENT TERMS")
@@ -339,14 +306,12 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
         {
             container.PaddingBottom(10).Column(col =>
             {
-                // Group header
                 col.Item()
                     .Background(ACCENT)
                     .PaddingHorizontal(8).PaddingVertical(5)
                     .Text($"SPECIFICATION {group.GroupNumber}: {group.GroupName}")
                     .FontSize(10).Bold().FontColor(Colors.White);
 
-                // Column headers + data rows
                 col.Item().Table(table =>
                 {
                     table.ColumnsDefinition(c =>
@@ -364,7 +329,6 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                         c.RelativeColumn(0.95f);
                     });
 
-                    // Header row
                     table.Header(header =>
                     {
                         foreach (var h in new[]
@@ -381,7 +345,6 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                         }
                     });
 
-                    // Data rows
                     bool altRow = false;
                     foreach (var row in group.Rows)
                     {
@@ -412,63 +375,51 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                     }
                 });
 
-                // ─────────────────────────────────────────────────────────
-                // Group footer — column-aligned under Qty / T.SQM / Value
-                // Uses Table() with SAME column widths as data rows above
-                // so numeric totals land directly under their columns.
-                // ─────────────────────────────────────────────────────────
                 col.Item()
                     .Background(LIGHT_BG)
                     .BorderBottom(1).BorderColor(LINE)
                     .Table(footer =>
                     {
-                        // MUST match the data table column widths exactly
                         footer.ColumnsDefinition(c =>
                         {
-                            c.ConstantColumn(24);    // #
-                            c.RelativeColumn(1.6f);  // Glass Ref (label spans here)
-                            c.ConstantColumn(36);    // W1
-                            c.ConstantColumn(36);    // H1
-                            c.ConstantColumn(32);    // W2
-                            c.ConstantColumn(32);    // H2
-                            c.ConstantColumn(30);    // Qty  ← total
-                            c.RelativeColumn(0.75f); // SQM
-                            c.RelativeColumn(0.85f); // T.SQM ← total
-                            c.RelativeColumn(0.80f); // Rate
-                            c.RelativeColumn(0.95f); // Value ← total
+                            c.ConstantColumn(24);
+                            c.RelativeColumn(1.6f);
+                            c.ConstantColumn(36);
+                            c.ConstantColumn(36);
+                            c.ConstantColumn(32);
+                            c.ConstantColumn(32);
+                            c.ConstantColumn(30);
+                            c.RelativeColumn(0.75f);
+                            c.RelativeColumn(0.85f);
+                            c.RelativeColumn(0.80f);
+                            c.RelativeColumn(0.95f);
                         });
 
-                        // Label spans columns 1-6 (# through H2)
                         footer.Cell().ColumnSpan(6)
                             .PaddingHorizontal(6).PaddingVertical(6)
                             .Text("GROUP TOTAL:")
                             .FontSize(9).Bold().FontColor(ACCENT);
 
-                        // Qty total — under Qty column
                         footer.Cell()
                             .PaddingHorizontal(4).PaddingVertical(6)
                             .AlignRight()
                             .Text(group.TotalQty.ToString())
                             .FontSize(9).Bold().FontColor(ACCENT);
 
-                        // SQM unit column — empty for group total
                         footer.Cell()
                             .PaddingHorizontal(4).PaddingVertical(6)
                             .Text("");
 
-                        // Total SQM — under T.SQM column
                         footer.Cell()
                             .PaddingHorizontal(4).PaddingVertical(6)
                             .AlignRight()
                             .Text(group.TotalSqm.ToString("0.000"))
                             .FontSize(9).Bold().FontColor(ACCENT);
 
-                        // Rate column — empty
                         footer.Cell()
                             .PaddingHorizontal(4).PaddingVertical(6)
                             .Text("");
 
-                        // Value total — under Value column
                         footer.Cell()
                             .PaddingHorizontal(4).PaddingVertical(6)
                             .AlignRight()
@@ -484,61 +435,50 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
             decimal totalSqm = _ctx.SpecGroups.Sum(g => g.TotalSqm);
             decimal totalValue = _ctx.SpecGroups.Sum(g => g.TotalValue);
 
-            // ─────────────────────────────────────────────────────────
-            // Grand total — column-aligned under Qty / T.SQM / Value
-            // Same Table() strategy as group footer above.
-            // ─────────────────────────────────────────────────────────
             container.PaddingBottom(6)
                 .Background(ACCENT)
                 .Table(footer =>
                 {
-                    // MUST match the data table column widths exactly
                     footer.ColumnsDefinition(c =>
                     {
-                        c.ConstantColumn(24);    // #
-                        c.RelativeColumn(1.6f);  // Glass Ref (label spans here)
-                        c.ConstantColumn(36);    // W1
-                        c.ConstantColumn(36);    // H1
-                        c.ConstantColumn(32);    // W2
-                        c.ConstantColumn(32);    // H2
-                        c.ConstantColumn(30);    // Qty  ← grand total
-                        c.RelativeColumn(0.75f); // SQM
-                        c.RelativeColumn(0.85f); // T.SQM ← grand total
-                        c.RelativeColumn(0.80f); // Rate
-                        c.RelativeColumn(0.95f); // Value ← grand total
+                        c.ConstantColumn(24);
+                        c.RelativeColumn(1.6f);
+                        c.ConstantColumn(36);
+                        c.ConstantColumn(36);
+                        c.ConstantColumn(32);
+                        c.ConstantColumn(32);
+                        c.ConstantColumn(30);
+                        c.RelativeColumn(0.75f);
+                        c.RelativeColumn(0.85f);
+                        c.RelativeColumn(0.80f);
+                        c.RelativeColumn(0.95f);
                     });
 
-                    // Label spans columns 1-6 (# through H2)
                     footer.Cell().ColumnSpan(6)
                         .PaddingHorizontal(6).PaddingVertical(7)
                         .Text("GLASS ITEMS TOTAL:")
                         .FontSize(10).Bold().FontColor(Colors.White);
 
-                    // Qty grand total
                     footer.Cell()
                         .PaddingHorizontal(4).PaddingVertical(7)
                         .AlignRight()
                         .Text(totalQty.ToString())
                         .FontSize(10).Bold().FontColor(Colors.White);
 
-                    // SQM unit column — empty
                     footer.Cell()
                         .PaddingHorizontal(4).PaddingVertical(7)
                         .Text("");
 
-                    // T.SQM grand total
                     footer.Cell()
                         .PaddingHorizontal(4).PaddingVertical(7)
                         .AlignRight()
                         .Text(totalSqm.ToString("0.000"))
                         .FontSize(10).Bold().FontColor(Colors.White);
 
-                    // Rate column — empty
                     footer.Cell()
                         .PaddingHorizontal(4).PaddingVertical(7)
                         .Text("");
 
-                    // Value grand total
                     footer.Cell()
                         .PaddingHorizontal(4).PaddingVertical(7)
                         .AlignRight()
@@ -547,65 +487,76 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                 });
         }
 
+        // ═════════════════════════════════════════════════════════════════
+        //  FINANCIAL SUMMARY — CHAT 17 FIX
+        //  Removed .Width(320) fixed constraint.
+        //  Now uses Row(2 relative parts) — flex layout, no crash.
+        // ═════════════════════════════════════════════════════════════════
+
         private void RenderFinancialSummary(IContainer container)
         {
             container
                 .PaddingTop(10)
                 .BorderTop(1).BorderColor(LINE)
                 .PaddingTop(10)
-                .AlignRight().Width(320)
-                .Column(col =>
+                .Row(outer =>
                 {
-                    AddSummaryRow(col, "Subtotal:",
-                        $"AED {_ctx.Subtotal:N2}");
+                    // Left spacer — pushes summary to right side
+                    outer.RelativeItem(1);
 
-                    if (_ctx.DiscountAmount > 0)
+                    // Right side — summary content (flex, not fixed width)
+                    outer.RelativeItem(1).Column(col =>
                     {
-                        AddSummaryRow(col,
-                            $"Discount ({_ctx.DiscountPercent:0.##}%):",
-                            $"- AED {_ctx.DiscountAmount:N2}",
-                            color: AMBER);
-                    }
+                        AddSummaryRow(col, "Subtotal:",
+                            $"AED {_ctx.Subtotal:N2}");
 
-                    AddSummaryRow(col, "After Discount:",
-                        $"AED {_ctx.AfterDiscount:N2}");
-
-                    col.Item().PaddingVertical(3)
-                        .LineHorizontal(1).LineColor(LINE);
-
-                    AddSummaryRow(col, "UAE VAT (5%):",
-                        $"AED {_ctx.VatAmount:N2}",
-                        size: 10);
-
-                    col.Item().PaddingTop(6)
-                        .Background(ACCENT)
-                        .PaddingHorizontal(12).PaddingVertical(8)
-                        .Row(r =>
+                        if (_ctx.DiscountAmount > 0)
                         {
-                            r.RelativeItem()
-                                .Text("GRAND TOTAL (VAT INCLUSIVE):")
-                                .FontSize(11).Bold().FontColor(Colors.White);
-                            r.AutoItem()
-                                .Text($"AED {_ctx.GrandTotal:N2}")
-                                .FontSize(13).Bold().FontColor(Colors.White);
-                        });
+                            AddSummaryRow(col,
+                                $"Discount ({_ctx.DiscountPercent:0.##}%):",
+                                $"- AED {_ctx.DiscountAmount:N2}",
+                                color: AMBER);
+                        }
 
-                    // Previously invoiced + balance (for partial invoices)
-                    if (_ctx.IsPartial && _ctx.PreviouslyInvoiced > 0)
-                    {
-                        col.Item().PaddingTop(6).Column(partial =>
+                        AddSummaryRow(col, "After Discount:",
+                            $"AED {_ctx.AfterDiscount:N2}");
+
+                        col.Item().PaddingVertical(3)
+                            .LineHorizontal(1).LineColor(LINE);
+
+                        AddSummaryRow(col, "UAE VAT (5%):",
+                            $"AED {_ctx.VatAmount:N2}",
+                            size: 10);
+
+                        col.Item().PaddingTop(6)
+                            .Background(ACCENT)
+                            .PaddingHorizontal(12).PaddingVertical(8)
+                            .Row(r =>
+                            {
+                                r.RelativeItem()
+                                    .Text("GRAND TOTAL (VAT INCLUSIVE):")
+                                    .FontSize(10).Bold().FontColor(Colors.White);
+                                r.AutoItem()
+                                    .Text($"AED {_ctx.GrandTotal:N2}")
+                                    .FontSize(12).Bold().FontColor(Colors.White);
+                            });
+
+                        if (_ctx.IsPartial && _ctx.PreviouslyInvoiced > 0)
                         {
-                            AddSummaryRow(partial,
-                                "Previously Invoiced:",
-                                $"AED {_ctx.PreviouslyInvoiced:N2}",
-                                color: MUTED);
+                            col.Item().PaddingTop(6).Column(partial =>
+                            {
+                                AddSummaryRow(partial,
+                                    "Previously Invoiced:",
+                                    $"AED {_ctx.PreviouslyInvoiced:N2}",
+                                    color: MUTED);
 
-                            AddSummaryRow(partial,
-                                "Remaining Balance:",
-                                $"AED {_ctx.RemainingBalance:N2}",
-                                bold: true, color: AMBER);
-                        });
-                    }
+                                AddSummaryRow(partial,
+                                    "Remaining Balance:",
+                                    $"AED {_ctx.RemainingBalance:N2}",
+                                    bold: true, color: AMBER);
+                            });
+                        }
+                    });
                 });
         }
 
@@ -674,6 +625,14 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
             });
         }
 
+        // ═════════════════════════════════════════════════════════════════
+        //  SIGNATURE BLOCKS — CHAT 17 FIX
+        //  Removed .Height(1) on signature underlines.
+        //  BorderBottom(1) alone renders the line without measurement crash.
+        //  Added Text(" ") as content since BorderBottom needs content
+        //  to have measurable height.
+        // ═════════════════════════════════════════════════════════════════
+
         private void RenderSignatureBlocks(IContainer container)
         {
             container.Row(row =>
@@ -711,13 +670,15 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                         col.Item().Text("CUSTOMER ACKNOWLEDGEMENT")
                             .FontSize(9).Bold().FontColor(ACCENT);
 
+                        // FIX: Removed .Height(1) — replaced with Text(" ")
+                        // which gives BorderBottom something measurable.
                         col.Item().PaddingTop(4).Row(r =>
                         {
                             r.AutoItem().Text("Name: ")
                                 .FontSize(9).FontColor(MUTED);
                             r.RelativeItem().PaddingLeft(6)
                                 .BorderBottom(1).BorderColor(LINE)
-                                .Height(1);
+                                .Text(" ").FontSize(9);
                         });
 
                         col.Item().PaddingTop(6).Row(r =>
@@ -726,7 +687,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                                 .FontSize(9).FontColor(MUTED);
                             r.RelativeItem().PaddingLeft(6)
                                 .BorderBottom(1).BorderColor(LINE)
-                                .Height(1);
+                                .Text(" ").FontSize(9);
                         });
 
                         col.Item().PaddingTop(6).Row(r =>
@@ -735,7 +696,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                                 .FontSize(9).FontColor(MUTED);
                             r.RelativeItem().PaddingLeft(6)
                                 .BorderBottom(1).BorderColor(LINE)
-                                .Height(1);
+                                .Text(" ").FontSize(9);
                         });
 
                         col.Item().PaddingTop(6)
@@ -755,8 +716,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
         {
             var ctx = new TaxInvoiceRenderCtx
             {
-                // Invoice identity
-                InvoiceNumber = entity.InvoiceNumber,
+                InvoiceNumber = entity.InvoiceNumber ?? "",
                 IssueDateDisplay = entity.IssueDate == default
                     ? "—" : entity.IssueDate.ToString("dd MMM yyyy"),
                 DueDateDisplay = entity.DueDate == default
@@ -766,98 +726,95 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                     && entity.Status != "Paid"
                     && entity.Status != "Cancelled"
                     && entity.Status != "Void",
-                Status = entity.Status,
+                Status = entity.Status ?? "",
                 IsPartial = string.Equals(entity.InvoiceType,
                     "Partial", StringComparison.OrdinalIgnoreCase),
-                SequenceLetter = entity.SequenceLetter,
+                SequenceLetter = entity.SequenceLetter ?? "",
 
-                // Company (supplier)
-                CompanyName = snap.Company.CompanyName,
-                CompanyTrn = snap.Company.CompanyTrn,
-                CompanyLocation = snap.Company.CompanyLocation,
-                CompanyPhone = snap.Company.CompanyPhone,
-                CompanyEmail = snap.Company.CompanyEmail,
+                CompanyName = snap.Company?.CompanyName ?? "",
+                CompanyTrn = snap.Company?.CompanyTrn ?? "",
+                CompanyLocation = snap.Company?.CompanyLocation ?? "",
+                CompanyPhone = snap.Company?.CompanyPhone ?? "",
+                CompanyEmail = snap.Company?.CompanyEmail ?? "",
 
-                // Customer
-                CustomerName = snap.Customer.CustomerName,
-                CustomerTrn = snap.Customer.CustomerTrn,
-                ContactPerson = snap.Customer.ContactPerson,
+                CustomerName = snap.Customer?.CustomerName ?? "",
+                CustomerTrn = snap.Customer?.CustomerTrn ?? "",
+                ContactPerson = snap.Customer?.ContactPerson ?? "",
 
-                // Project
-                ProjectName = snap.Project.ProjectName,
-                ProjectLocation = snap.Project.ProjectLocation,
+                ProjectName = snap.Project?.ProjectName ?? "",
+                ProjectLocation = snap.Project?.ProjectLocation ?? "",
 
-                // References
-                ProformaId = snap.Header.ProformaId,
-                DeliveryNoteRef = snap.Header.DeliveryNoteReference,
-                PurchaseOrderNumber = snap.Header.PurchaseOrderNumber,
-                PaymentTerms = snap.Bank.PaymentTerms,
+                ProformaId = snap.Header?.ProformaId ?? "",
+                DeliveryNoteRef = snap.Header?.DeliveryNoteReference ?? "",
+                PurchaseOrderNumber = snap.Header?.PurchaseOrderNumber ?? "",
+                PaymentTerms = snap.Bank?.PaymentTerms ?? "",
 
-                // Financials
-                Subtotal = snap.Financial.Subtotal,
-                DiscountPercent = snap.Financial.DiscountPercent,
-                DiscountAmount = snap.Financial.DiscountAmount,
-                AfterDiscount = snap.Financial.AfterDiscount,
-                VatAmount = snap.Financial.VatAmount,
-                GrandTotal = snap.Financial.GrandTotal,
-                PreviouslyInvoiced = snap.Financial.PreviouslyInvoicedTotal,
-                RemainingBalance = snap.Financial.RemainingBalance,
+                Subtotal = snap.Financial?.Subtotal ?? 0,
+                DiscountPercent = snap.Financial?.DiscountPercent ?? 0,
+                DiscountAmount = snap.Financial?.DiscountAmount ?? 0,
+                AfterDiscount = snap.Financial?.AfterDiscount ?? 0,
+                VatAmount = snap.Financial?.VatAmount ?? 0,
+                GrandTotal = snap.Financial?.GrandTotal ?? 0,
+                PreviouslyInvoiced = snap.Financial?.PreviouslyInvoicedTotal ?? 0,
+                RemainingBalance = snap.Financial?.RemainingBalance ?? 0,
 
-                // Bank
-                BankName = snap.Bank.BankName,
-                BankAccountNumber = snap.Bank.BankAccountNumber,
-                Iban = snap.Bank.Iban,
-                SwiftCode = snap.Bank.SwiftCode,
-                PaymentNotes = snap.Bank.PaymentNotes,
+                BankName = snap.Bank?.BankName ?? "",
+                BankAccountNumber = snap.Bank?.BankAccountNumber ?? "",
+                Iban = snap.Bank?.Iban ?? "",
+                SwiftCode = snap.Bank?.SwiftCode ?? "",
+                PaymentNotes = snap.Bank?.PaymentNotes ?? "",
 
-                // Prepared by
-                PreparedByName = snap.PreparedBy.Name,
-                PreparedByTitle = snap.PreparedBy.Title
+                PreparedByName = snap.PreparedBy?.Name ?? "",
+                PreparedByTitle = snap.PreparedBy?.Title ?? ""
             };
 
-            // Build spec groups from snapshot
-            foreach (var g in snap.SpecGroups)
+            if (snap.SpecGroups != null)
             {
-                var group = new InvRenderSpecGroup
+                foreach (var g in snap.SpecGroups)
                 {
-                    GroupNumber = g.GroupNumber,
-                    GroupName = !string.IsNullOrWhiteSpace(g.SpecName)
-                        ? g.SpecName
-                        : (!string.IsNullOrWhiteSpace(g.GroupName)
-                            ? g.GroupName
-                            : $"Spec Group {g.GroupNumber}")
-                };
-
-                foreach (var r in g.Rows)
-                {
-                    // Recompute from snapshot dimensions for accuracy
-                    decimal sqm = SqmCalculator.CalculatePanel(r.W1, r.H1);
-                    decimal totalSqm = Math.Round(sqm * r.Qty, 3);
-                    decimal value = Math.Round(r.Rate * r.Qty * sqm, 2);
-
-                    group.Rows.Add(new InvRenderRow
+                    var group = new InvRenderSpecGroup
                     {
-                        Serial = r.SerialNumber,
-                        GlassRef = r.GlassRef,
-                        W1 = r.W1,
-                        H1 = r.H1,
-                        W2 = r.W2,
-                        H2 = r.H2,
-                        Qty = r.Qty,
-                        Sqm = sqm,
-                        TotalSqm = totalSqm,
-                        Rate = r.Rate,
-                        Value = value
-                    });
+                        GroupNumber = g.GroupNumber,
+                        GroupName = !string.IsNullOrWhiteSpace(g.SpecName)
+                            ? g.SpecName
+                            : (!string.IsNullOrWhiteSpace(g.GroupName)
+                                ? g.GroupName
+                                : $"Spec Group {g.GroupNumber}")
+                    };
 
-                    group.TotalQty += r.Qty;
-                    group.TotalSqm += totalSqm;
-                    group.TotalValue += value;
+                    if (g.Rows != null)
+                    {
+                        foreach (var r in g.Rows)
+                        {
+                            decimal sqm = SqmCalculator.CalculatePanel(r.W1, r.H1);
+                            decimal totalSqm = Math.Round(sqm * r.Qty, 3);
+                            decimal value = Math.Round(r.Rate * r.Qty * sqm, 2);
+
+                            group.Rows.Add(new InvRenderRow
+                            {
+                                Serial = r.SerialNumber,
+                                GlassRef = r.GlassRef ?? "",
+                                W1 = r.W1,
+                                H1 = r.H1,
+                                W2 = r.W2,
+                                H2 = r.H2,
+                                Qty = r.Qty,
+                                Sqm = sqm,
+                                TotalSqm = totalSqm,
+                                Rate = r.Rate,
+                                Value = value
+                            });
+
+                            group.TotalQty += r.Qty;
+                            group.TotalSqm += totalSqm;
+                            group.TotalValue += value;
+                        }
+                    }
+
+                    group.TotalSqm = Math.Round(group.TotalSqm, 3);
+                    group.TotalValue = Math.Round(group.TotalValue, 2);
+                    ctx.SpecGroups.Add(group);
                 }
-
-                group.TotalSqm = Math.Round(group.TotalSqm, 3);
-                group.TotalValue = Math.Round(group.TotalValue, 2);
-                ctx.SpecGroups.Add(group);
             }
 
             return ctx;
@@ -943,7 +900,6 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
 
         private sealed class TaxInvoiceRenderCtx
         {
-            // Invoice identity
             public string InvoiceNumber { get; set; } = "";
             public string IssueDateDisplay { get; set; } = "";
             public string DueDateDisplay { get; set; } = "";
@@ -952,29 +908,24 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
             public bool IsPartial { get; set; }
             public string SequenceLetter { get; set; } = "";
 
-            // Company
             public string CompanyName { get; set; } = "";
             public string CompanyTrn { get; set; } = "";
             public string CompanyLocation { get; set; } = "";
             public string CompanyPhone { get; set; } = "";
             public string CompanyEmail { get; set; } = "";
 
-            // Customer
             public string CustomerName { get; set; } = "";
             public string CustomerTrn { get; set; } = "";
             public string ContactPerson { get; set; } = "";
 
-            // Project
             public string ProjectName { get; set; } = "";
             public string ProjectLocation { get; set; } = "";
 
-            // References
             public string ProformaId { get; set; } = "";
             public string DeliveryNoteRef { get; set; } = "";
             public string PurchaseOrderNumber { get; set; } = "";
             public string PaymentTerms { get; set; } = "";
 
-            // Financials
             public decimal Subtotal { get; set; }
             public decimal DiscountPercent { get; set; }
             public decimal DiscountAmount { get; set; }
@@ -984,18 +935,15 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
             public decimal PreviouslyInvoiced { get; set; }
             public decimal RemainingBalance { get; set; }
 
-            // Bank
             public string BankName { get; set; } = "";
             public string BankAccountNumber { get; set; } = "";
             public string Iban { get; set; } = "";
             public string SwiftCode { get; set; } = "";
             public string PaymentNotes { get; set; } = "";
 
-            // Prepared by
             public string PreparedByName { get; set; } = "";
             public string PreparedByTitle { get; set; } = "";
 
-            // Spec groups
             public List<InvRenderSpecGroup> SpecGroups { get; } = new();
         }
 

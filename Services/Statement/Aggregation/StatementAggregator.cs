@@ -1,33 +1,30 @@
 ﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Statement/Aggregation/StatementAggregator.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Account Statement / Sales Report (Chat 16)
+// MODULE: Account Statement / Sales Report (Chat 16 + Chat 17 fixes)
 //
-// FIX vs PREVIOUS VERSION:
-//   • Removed BuildStrongAsync (duplicate entry point)
-//   • Removed ApplyIndexedFilters stub (returned empty list — caused
-//     BuildAsync to ALWAYS return null — critical bug)
-//   • Removed ApplySalesmanFilterAsync stub (dynamic, never called)
-//   • Removed TaxInvoiceListItemInternal dead class
-//   • BuildAsync now contains ALL real logic directly (no delegation)
-//   • Single clean public entry point: BuildAsync()
+// CHAT 17 FIXES:
+//   1. FILTER NULL SAFETY (SafeContains helper)
+//      Root cause of "No invoices match" bug on Company/Customer/Project.
+//      NULL fields no longer crash the LINQ Where clause.
 //
-// QUERY STRATEGY:
-//   1. Load all TaxInvoiceListItems via GetAllAsync() (lightweight)
-//   2. Apply indexed-column filters in memory
-//   3. For salesman filter: parse FullSnapshotJson.PreparedBy.Name
-//   4. Batch-load attachment counts (single query)
-//   5. Per-invoice: load attachment type flags (SignedPI / SignedDN)
-//   6. Build StatementInvoiceRows with DaysOverdue
-//   7. Compute StatementFinancialSummary
-//   8. Compute StatementAgingBuckets (DueDate basis — UAE AR standard)
+//   2. SALESMAN FILTER MULTI-PATH SEARCH
+//      Root cause of "No invoices match" when salesman selected.
+//      Tax Invoice snapshot may store salesman at DIFFERENT paths:
+//        Path 1: snapshot.PreparedBy.Name (if invoice creator set it)
+//        Path 2: parent PI's Client.SalesRepresentative
+//                (falls back to Proforma Invoice snapshot)
+//      Both paths are searched — matches EITHER = include invoice.
+//
+//   3. NAMESPACE FIX
+//      TaxInvoiceListItem lives in Models.TaxInvoice.SavedTaxInvoice.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.Statement;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
-using ProGlassAutomation.Services.TaxInvoice.Repository;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -41,72 +38,75 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
     /// </summary>
     public class StatementAggregator
     {
-        // ── JSON options ──────────────────────────────────────────────────
         private static readonly JsonSerializerOptions _jsonOpts = new()
         {
-            PropertyNameCaseInsensitive = true
+            PropertyNameCaseInsensitive = true,
+            AllowTrailingCommas = true
         };
 
         // ═════════════════════════════════════════════════════════════════
-        //  PUBLIC ENTRY POINT — single method, all real logic here
+        //  PUBLIC ENTRY POINT
         // ═════════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Builds a complete StatementSnapshot by applying the given filter
-        /// across Tax Invoice data.
-        /// Returns null if no invoices match the filter.
-        /// Must be called from a background thread (Task.Run).
-        /// </summary>
         public async Task<StatementSnapshot?> BuildAsync(
             StatementFilter filter,
             string statementNumber)
         {
-            // ── Step 1: Load all invoices (lightweight list items) ─────────
+            // ── Step 1: Load all invoices ─────────────────────────────────
             var allItems = await App.TaxInvoices.GetAllAsync();
 
-            if (allItems == null || allItems.Count == 0)
-                return null;
+            Debug.WriteLine($"[Aggregator] Loaded {allItems?.Count ?? 0} " +
+                            "invoices from DB");
 
-            // ── Step 2: Apply indexed-column filters in memory ────────────
+            if (allItems == null || allItems.Count == 0)
+            {
+                Debug.WriteLine("[Aggregator] DB is empty");
+                return null;
+            }
+
+            // ── Step 2: Indexed-column filters ────────────────────────────
             var filtered = ApplyFilters(allItems, filter);
 
-            // ── Step 3: Salesman filter (requires snapshot JSON parse) ─────
+            Debug.WriteLine($"[Aggregator] After indexed filters: " +
+                            $"{filtered.Count} invoices");
+
+            // ── Step 3: Salesman filter (multi-path JSON search) ──────────
             if (!string.IsNullOrWhiteSpace(filter.SalesmanName))
             {
                 filtered = await ApplySalesmanFilterAsync(
                     filtered, filter.SalesmanName);
+
+                Debug.WriteLine($"[Aggregator] After salesman filter: " +
+                                $"{filtered.Count} invoices");
             }
 
             if (filtered.Count == 0)
+            {
+                Debug.WriteLine("[Aggregator] No invoices matched filters");
                 return null;
+            }
 
-            // ── Step 4: Batch-load attachment counts ──────────────────────
+            // ── Step 4: Attachment counts ─────────────────────────────────
             var invoiceNumbers = filtered
-                .Select(i => i.InvoiceNumber)
+                .Select(i => i.InvoiceNumber ?? "")
+                .Where(n => !string.IsNullOrWhiteSpace(n))
                 .ToList();
 
             var attachmentCounts = await App.TaxInvoices
                 .GetAttachmentCountsAsync(invoiceNumbers);
 
-            // ── Step 5: Load attachment type flags ────────────────────────
+            // ── Step 5: Attachment type flags ─────────────────────────────
             var attachmentFlags = await LoadAttachmentFlagsAsync(
                 invoiceNumbers);
 
-            // ── Step 6: Build invoice rows ────────────────────────────────
+            // ── Step 6-10: Build rows + financial + aging + assemble ──────
             var today = DateTime.Today;
             var rows = BuildInvoiceRows(
                 filtered, attachmentCounts, attachmentFlags, today);
-
-            // ── Step 7: Financial summary ─────────────────────────────────
             var financial = BuildFinancialSummary(rows);
-
-            // ── Step 8: Aging buckets ─────────────────────────────────────
             var aging = BuildAgingBuckets(rows, today);
-
-            // ── Step 9: Customer info block ───────────────────────────────
             var customerInfo = BuildCustomerInfo(filtered, filter);
 
-            // ── Step 10: Assemble snapshot ────────────────────────────────
             return new StatementSnapshot
             {
                 Header = new StatementHeader
@@ -126,87 +126,99 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  FILTER APPLICATION
+        //  FILTER APPLICATION — NULL-SAFE
         // ═════════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Applies all indexed-column filters in memory.
-        /// No JSON parsing — uses TaxInvoiceListItem fields only.
-        /// Confirmed field names from TaxInvoiceRepository.ToListItem().
-        /// </summary>
         private static List<TaxInvoiceListItem> ApplyFilters(
             List<TaxInvoiceListItem> items,
             StatementFilter filter)
         {
             IEnumerable<TaxInvoiceListItem> q = items;
 
-            // Company (case-insensitive contains)
             if (!string.IsNullOrWhiteSpace(filter.CompanyName))
             {
-                string cn = filter.CompanyName.Trim().ToLower();
-                q = q.Where(i =>
-                    i.CompanyName.ToLower().Contains(cn));
+                string needle = filter.CompanyName;
+                q = q.Where(i => SafeContains(i.CompanyName, needle));
             }
 
-            // Customer (case-insensitive contains)
             if (!string.IsNullOrWhiteSpace(filter.CustomerName))
             {
-                string cu = filter.CustomerName.Trim().ToLower();
-                q = q.Where(i =>
-                    i.CustomerName.ToLower().Contains(cu));
+                string needle = filter.CustomerName;
+                q = q.Where(i => SafeContains(i.CustomerName, needle));
             }
 
-            // Project (case-insensitive contains)
             if (!string.IsNullOrWhiteSpace(filter.ProjectName))
             {
-                string pr = filter.ProjectName.Trim().ToLower();
-                q = q.Where(i =>
-                    i.ProjectName.ToLower().Contains(pr));
+                string needle = filter.ProjectName;
+                q = q.Where(i => SafeContains(i.ProjectName, needle));
             }
 
-            // Date from — IssueDate >= DateFrom
             if (filter.DateFrom.HasValue)
             {
                 var df = filter.DateFrom.Value.Date;
                 q = q.Where(i => i.IssueDate.Date >= df);
             }
 
-            // Date to — IssueDate <= DateTo
             if (filter.DateTo.HasValue)
             {
                 var dt = filter.DateTo.Value.Date;
                 q = q.Where(i => i.IssueDate.Date <= dt);
             }
 
-            // Status multi-select — empty list = all statuses included
-            if (filter.Statuses.Count > 0)
+            if (filter.Statuses != null && filter.Statuses.Count > 0)
             {
                 var statuses = filter.Statuses
-                    .Select(s => s.ToLower())
+                    .Where(s => !string.IsNullOrWhiteSpace(s))
+                    .Select(s => s.Trim().ToLowerInvariant())
                     .ToHashSet();
-                q = q.Where(i =>
-                    statuses.Contains(i.Status.ToLower()));
+
+                if (statuses.Count > 0)
+                {
+                    q = q.Where(i =>
+                        statuses.Contains(
+                            (i.Status ?? "").Trim().ToLowerInvariant()));
+                }
             }
 
-            // Sort oldest first for statement readability
             return q.OrderBy(i => i.IssueDate).ToList();
         }
 
+        private static bool SafeContains(string? haystack, string? needle)
+        {
+            if (string.IsNullOrWhiteSpace(needle)) return true;
+            if (string.IsNullOrEmpty(haystack)) return false;
+
+            return haystack
+                .Trim()
+                .Contains(needle.Trim(),
+                          StringComparison.OrdinalIgnoreCase);
+        }
+
         // ═════════════════════════════════════════════════════════════════
-        //  SALESMAN FILTER
+        //  SALESMAN FILTER — MULTI-PATH SEARCH (Chat 17 FIX)
         // ═════════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Loads full snapshots to check PreparedBy.Name field.
-        /// Only invoked when filter.SalesmanName is set.
-        /// Processed in chunks of 10 to limit SQLite pressure.
+        /// Searches for salesman name across MULTIPLE JSON paths in
+        /// BOTH the Tax Invoice snapshot AND its parent Proforma Invoice.
+        ///
+        /// SEARCH PATHS (in order):
+        ///   1. TaxInvoice.PreparedBy.Name         (invoice creator)
+        ///   2. TaxInvoice.Customer.ContactPerson  (customer contact)
+        ///   3. TaxInvoice.Bank.PaymentNotes       (fallback)
+        ///   4. PI.Client.SalesRepresentative      (original salesman)
+        ///   5. PI.PreparedBy.Name                 (PI preparer)
+        ///
+        /// If ANY path contains the salesman name → include the invoice.
+        /// This handles legacy invoices where PreparedBy was empty but
+        /// the salesman was set on the PI.
         /// </summary>
         private static async Task<List<TaxInvoiceListItem>>
             ApplySalesmanFilterAsync(
                 List<TaxInvoiceListItem> items,
                 string salesmanName)
         {
-            string lower = salesmanName.Trim().ToLower();
+            string needle = salesmanName.Trim();
             var result = new List<TaxInvoiceListItem>();
             const int chunk = 10;
 
@@ -218,40 +230,33 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                 {
                     try
                     {
-                        var full = await App.TaxInvoices
-                            .GetByInvoiceNumberAsync(item.InvoiceNumber);
+                        // ── Path A: Search Tax Invoice snapshot ──────────
+                        bool foundInInvoice = await SearchSalesmanInTaxInvoice(
+                            item.InvoiceNumber, needle);
 
-                        if (full == null)
-                            return (item, false);
-
-                        // No snapshot → include (safe fallback)
-                        if (string.IsNullOrWhiteSpace(full.FullSnapshotJson)
-                            || full.FullSnapshotJson == "{}")
+                        if (foundInInvoice)
                             return (item, true);
 
-                        // Parse PreparedBy.Name from snapshot JSON
-                        using var doc = JsonDocument.Parse(
-                            full.FullSnapshotJson,
-                            new JsonDocumentOptions
-                            {
-                                AllowTrailingCommas = true
-                            });
-
-                        if (doc.RootElement.TryGetProperty(
-                                "PreparedBy", out var pb) &&
-                            pb.TryGetProperty("Name", out var nameEl))
+                        // ── Path B: Fallback to parent PI snapshot ───────
+                        if (!string.IsNullOrWhiteSpace(item.ProformaId))
                         {
-                            string name = nameEl.GetString() ?? "";
-                            return (item,
-                                name.ToLower().Contains(lower));
+                            bool foundInPi = await SearchSalesmanInProformaInvoice(
+                                item.ProformaId, needle);
+
+                            if (foundInPi)
+                                return (item, true);
                         }
 
                         return (item, false);
                     }
-                    catch
+                    catch (Exception ex)
                     {
-                        // Parse error → include item (safe fallback)
-                        return (item, true);
+                        Debug.WriteLine($"[Aggregator] Salesman search " +
+                                        $"error on {item.InvoiceNumber}: " +
+                                        $"{ex.Message}");
+                        // Safe fallback: exclude on error to prevent
+                        // false positives (senior ERP behavior)
+                        return (item, false);
                     }
                 });
 
@@ -264,14 +269,181 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
             return result;
         }
 
+        /// <summary>
+        /// Searches Tax Invoice's own snapshot JSON for the salesman name.
+        /// Checks: PreparedBy.Name, Customer.ContactPerson, Bank.PaymentNotes.
+        /// Returns TRUE if found in ANY of these paths.
+        /// </summary>
+        private static async Task<bool> SearchSalesmanInTaxInvoice(
+            string invoiceNumber,
+            string needle)
+        {
+            if (string.IsNullOrWhiteSpace(invoiceNumber)) return false;
+
+            try
+            {
+                var full = await App.TaxInvoices
+                    .GetByInvoiceNumberAsync(invoiceNumber);
+
+                if (full == null) return false;
+
+                if (string.IsNullOrWhiteSpace(full.FullSnapshotJson)
+                    || full.FullSnapshotJson == "{}")
+                    return false;
+
+                using var doc = JsonDocument.Parse(
+                    full.FullSnapshotJson,
+                    new JsonDocumentOptions
+                    {
+                        AllowTrailingCommas = true
+                    });
+
+                var root = doc.RootElement;
+
+                // Path 1: PreparedBy.Name
+                string? preparedBy = TryReadString(root, "PreparedBy", "Name");
+                if (SafeContains(preparedBy, needle))
+                {
+                    Debug.WriteLine($"[Aggregator] Salesman match " +
+                                    $"{invoiceNumber} → PreparedBy.Name");
+                    return true;
+                }
+
+                // Path 2: Customer.ContactPerson
+                string? contact = TryReadString(root, "Customer", "ContactPerson");
+                if (SafeContains(contact, needle))
+                {
+                    Debug.WriteLine($"[Aggregator] Salesman match " +
+                                    $"{invoiceNumber} → Customer.ContactPerson");
+                    return true;
+                }
+
+                // Path 3: Bank.PaymentNotes (some invoices store here)
+                string? notes = TryReadString(root, "Bank", "PaymentNotes");
+                if (SafeContains(notes, needle))
+                {
+                    Debug.WriteLine($"[Aggregator] Salesman match " +
+                                    $"{invoiceNumber} → Bank.PaymentNotes");
+                    return true;
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[Aggregator] TaxInvoice JSON parse " +
+                                $"error {invoiceNumber}: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Searches parent Proforma Invoice snapshot for the salesman name.
+        /// PI is the ORIGINAL source of salesman assignment — most invoices
+        /// have this populated even if the Tax Invoice's PreparedBy is empty.
+        /// Checks: Client.SalesRepresentative, PreparedBy.Name.
+        /// </summary>
+        private static async Task<bool> SearchSalesmanInProformaInvoice(
+            string proformaId,
+            string needle)
+        {
+            if (string.IsNullOrWhiteSpace(proformaId)) return false;
+
+            try
+            {
+                var pi = await App.Invoices.GetByProformaIdAsync(proformaId);
+
+                if (pi == null) return false;
+
+                if (string.IsNullOrWhiteSpace(pi.FullSnapshotJson)
+                    || pi.FullSnapshotJson == "{}")
+                    return false;
+
+                using var doc = JsonDocument.Parse(
+                    pi.FullSnapshotJson,
+                    new JsonDocumentOptions
+                    {
+                        AllowTrailingCommas = true
+                    });
+
+                var root = doc.RootElement;
+
+                // Path 1: Client.SalesRepresentative (most common)
+                string? salesRep = TryReadString(root, "Client", "SalesRepresentative");
+                if (SafeContains(salesRep, needle))
+                {
+                    Debug.WriteLine($"[Aggregator] Salesman match via PI " +
+                                    $"{proformaId} → Client.SalesRepresentative");
+                    return true;
+                }
+
+                // Path 2: PI's own PreparedBy.Name
+                string? preparedBy = TryReadString(root, "PreparedBy", "Name");
+                if (SafeContains(preparedBy, needle))
+                {
+                    Debug.WriteLine($"[Aggregator] Salesman match via PI " +
+                                    $"{proformaId} → PreparedBy.Name");
+                    return true;
+                }
+
+                // Path 3: Client.DocumentPreparedBy
+                string? docPrep = TryReadString(root, "Client", "DocumentPreparedBy");
+                if (SafeContains(docPrep, needle))
+                {
+                    Debug.WriteLine($"[Aggregator] Salesman match via PI " +
+                                    $"{proformaId} → Client.DocumentPreparedBy");
+                    return true;
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[Aggregator] PI JSON parse error " +
+                                $"{proformaId}: {ex.Message}");
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Safely reads a nested JSON string property.
+        /// Returns null if any part of the path is missing or wrong type.
+        /// Never throws — always returns null on any error.
+        /// </summary>
+        private static string? TryReadString(
+            JsonElement root,
+            string parent,
+            string child)
+        {
+            try
+            {
+                if (root.ValueKind != JsonValueKind.Object)
+                    return null;
+
+                if (!root.TryGetProperty(parent, out var parentEl))
+                    return null;
+
+                if (parentEl.ValueKind != JsonValueKind.Object)
+                    return null;
+
+                if (!parentEl.TryGetProperty(child, out var childEl))
+                    return null;
+
+                if (childEl.ValueKind != JsonValueKind.String)
+                    return null;
+
+                return childEl.GetString();
+            }
+            catch
+            {
+                return null;
+            }
+        }
+
         // ═════════════════════════════════════════════════════════════════
         //  ATTACHMENT FLAGS
         // ═════════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Loads HasSignedPi + HasSignedDn flags for each invoice number.
-        /// Processed concurrently in chunks of 10.
-        /// </summary>
         private static async Task<Dictionary<string, AttachmentFlags>>
             LoadAttachmentFlagsAsync(List<string> invoiceNumbers)
         {
@@ -319,11 +491,6 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
         //  ROW BUILDER
         // ═════════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Builds StatementInvoiceRow list from filtered TaxInvoiceListItems.
-        /// Computes DaysOverdue and PaidAmount per row.
-        /// PaidAmount: Paid = GrandTotal (fully paid), all others = 0.
-        /// </summary>
         private static List<StatementInvoiceRow> BuildInvoiceRows(
             List<TaxInvoiceListItem> items,
             Dictionary<string, int> attachmentCounts,
@@ -334,11 +501,12 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
 
             foreach (var item in items)
             {
-                // ── Days overdue ──────────────────────────────────────────
+                string status = item.Status ?? "";
+
                 bool isPaidOrClosed =
-                    item.Status == "Paid" ||
-                    item.Status == "Cancelled" ||
-                    item.Status == "Void";
+                    status == "Paid" ||
+                    status == "Cancelled" ||
+                    status == "Void";
 
                 int daysOverdue = 0;
                 if (!isPaidOrClosed &&
@@ -348,24 +516,21 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                     daysOverdue = (today - item.DueDate.Date).Days;
                 }
 
-                // ── Paid amount ───────────────────────────────────────────
                 decimal paidAmount =
-                    item.Status == "Paid" ? item.GrandTotal : 0m;
+                    status == "Paid" ? item.GrandTotal : 0m;
 
-                // ── Attachment flags ──────────────────────────────────────
-                attachmentCounts.TryGetValue(
-                    item.InvoiceNumber, out int attCount);
-                attachmentFlags.TryGetValue(
-                    item.InvoiceNumber, out var flags);
+                string invNum = item.InvoiceNumber ?? "";
+                attachmentCounts.TryGetValue(invNum, out int attCount);
+                attachmentFlags.TryGetValue(invNum, out var flags);
 
                 rows.Add(new StatementInvoiceRow
                 {
-                    InvoiceNumber = item.InvoiceNumber,
-                    ProformaId = item.ProformaId,
-                    DeliveryNoteRef = item.DeliveryNoteReference,
-                    PurchaseOrderNumber = item.PurchaseOrderNumber,
-                    InvoiceType = item.InvoiceType,
-                    Status = item.Status,
+                    InvoiceNumber = invNum,
+                    ProformaId = item.ProformaId ?? "",
+                    DeliveryNoteRef = item.DeliveryNoteReference ?? "",
+                    PurchaseOrderNumber = item.PurchaseOrderNumber ?? "",
+                    InvoiceType = item.InvoiceType ?? "",
+                    Status = status,
                     IssueDate = item.IssueDate,
                     DueDate = item.DueDate,
                     TotalQty = item.TotalQty,
@@ -413,10 +578,6 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
         //  AGING BUCKETS
         // ═════════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Buckets outstanding balance by days past DueDate.
-        /// Paid/Cancelled/Void rows have Balance = 0 → contribute nothing.
-        /// </summary>
         private static StatementAgingBuckets BuildAgingBuckets(
             List<StatementInvoiceRow> rows,
             DateTime today)
@@ -428,7 +589,6 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                 decimal balance = row.Balance;
                 if (balance <= 0m) continue;
 
-                // Not yet due
                 if (row.DueDate == default ||
                     row.DueDate.Date >= today)
                 {
@@ -436,7 +596,6 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                     continue;
                 }
 
-                // Past due — bucket by DaysOverdue
                 int days = row.DaysOverdue;
                 if (days <= 30) b.Days0To30 += balance;
                 else if (days <= 60) b.Days31To60 += balance;
@@ -457,11 +616,6 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
         //  CUSTOMER INFO
         // ═════════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Builds customer info block from filter + first matching invoice.
-        /// Filter values take priority (user-specified).
-        /// Falls back to first invoice row for unspecified fields.
-        /// </summary>
         private static StatementCustomerInfo BuildCustomerInfo(
             List<TaxInvoiceListItem> filtered,
             StatementFilter filter)
@@ -472,13 +626,13 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
             {
                 CompanyName = !string.IsNullOrWhiteSpace(filter.CompanyName)
                                    ? filter.CompanyName
-                                   : first.CompanyName,
+                                   : (first.CompanyName ?? ""),
                 CustomerName = !string.IsNullOrWhiteSpace(filter.CustomerName)
                                    ? filter.CustomerName
-                                   : first.CustomerName,
+                                   : (first.CustomerName ?? ""),
                 ProjectName = !string.IsNullOrWhiteSpace(filter.ProjectName)
                                    ? filter.ProjectName
-                                   : first.ProjectName,
+                                   : (first.ProjectName ?? ""),
                 SalesmanName = filter.SalesmanName ?? "",
                 ContactPerson = ""
             };
@@ -488,10 +642,6 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
         //  PRIVATE TYPES
         // ═════════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Attachment type presence flags for one invoice.
-        /// Built from GetAttachmentsAsync result.
-        /// </summary>
         private sealed class AttachmentFlags
         {
             public bool HasSignedPi { get; init; }
