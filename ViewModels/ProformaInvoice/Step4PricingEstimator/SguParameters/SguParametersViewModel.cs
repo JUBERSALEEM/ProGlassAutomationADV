@@ -6,6 +6,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
     /// ViewModel for SGU (Single Glass Unit) parameter panel.
     /// Handles thickness, color, treatment, pricing factors,
     /// processing treatments, and live rate calculation.
+    ///
+    /// FIX 1: GeneratedSpecName no longer appends " Glass" —
+    ///        TreatmentOptions already contain "Glass" suffix
+    ///        (e.g. "FT Glass") producing correct "6mm Clear FT Glass".
+    ///        Polish suffix appended when not "None (Standard)".
+    ///
+    /// FIX 2: PolishOptions expanded to cover real UAE glass industry
+    ///        fabrication types — holes, cutouts, DWG refs, edge polish.
     /// </summary>
     public class SguParametersViewModel : ViewModelBase
     {
@@ -90,19 +98,49 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
         public string SelectedPolishOption
         {
             get => _selectedPolishOption;
-            set { _selectedPolishOption = value; OnPropertyChanged(); }
+            set
+            {
+                _selectedPolishOption = value;
+                OnPropertyChanged();
+                // FIX 1: polish also affects the generated spec name
+                OnPropertyChanged(nameof(GeneratedSpecName));
+            }
         }
 
         // ===================== Auto-Generated Spec Name =====================
 
         /// <summary>
         /// Human-readable spec name auto-built from current parameters.
-        /// Format: "{Thickness} {Color} {Treatment} Glass"
-        /// Example: "6mm Clear FT Glass"
+        /// Format: "{Thickness} {Color} {Treatment}[ {Polish}]"
+        /// Examples:
+        ///   Base:            "6mm Clear FT Glass"
+        ///   With polish:     "6mm Clear FT Glass With Fanhole"
+        ///   With DWG ref:    "6mm Clear FT Glass With Holes As Per DWG"
         /// Saved to specifications.db when user clicks APPLY in main VM.
+        ///
+        /// FIX 1: No longer appends redundant " Glass" — TreatmentOptions
+        ///        already contain "Glass" suffix (e.g. "FT Glass").
+        /// FIX 2: Polish suffix appended only when meaningful
+        ///        (skipped for "None (Standard)").
         /// </summary>
-        public string GeneratedSpecName =>
-            $"{SelectedThickness} {GlassColor} {SelectedTreatment} Glass";
+        public string GeneratedSpecName
+        {
+            get
+            {
+                string baseName =
+                    $"{SelectedThickness} {GlassColor} {SelectedTreatment}"
+                    .Trim();
+
+                // Append polish suffix only when it adds meaning
+                if (!string.IsNullOrWhiteSpace(SelectedPolishOption) &&
+                    SelectedPolishOption != "None (Standard)")
+                {
+                    baseName += $" {SelectedPolishOption}";
+                }
+
+                return baseName;
+            }
+        }
 
         // === Dropdown Options ===
 
@@ -132,14 +170,51 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
             "Heat Soaked"
         };
 
+        /// <summary>
+        /// UAE glass industry standard fabrication options.
+        /// Selected value is appended to spec name when != "None (Standard)".
+        /// Grouped logically:
+        ///   • Default            : None (Standard)
+        ///   • Edge finishes      : Polished Edges, Beveled, Mitring
+        ///   • Surface treatments : Frosted, Sandblasted
+        ///   • Fabrication holes  : Fanhole, Holes, Holes & Cutouts, Cutouts
+        ///   • Polish variants    : All Side, Both Height Side
+        ///   • DWG references     : "As Per DWG" suffix variants
+        /// </summary>
         public List<string> PolishOptions { get; } = new List<string>
         {
+            // Default
             "None (Standard)",
+
+            // Edge finishes
             "Polished Edges",
             "Beveled Edges",
             "Mitring (45° Bevel)",
+
+            // Surface treatments
             "Frosted",
-            "Sandblasted"
+            "Sandblasted",
+
+            // Fabrication — Fanhole
+            "With Fanhole",
+            "With Fanhole As Per DWG",
+
+            // Fabrication — Holes
+            "With Holes",
+            "With Holes As Per DWG",
+
+            // Fabrication — Holes + Cutouts
+            "With Holes And Cutouts",
+            "With Holes And Cutouts As Per DWG",
+
+            // Fabrication — Cutouts
+            "With Cutouts",
+            "With Cutouts As Per DWG",
+
+            // Polish variants
+            "With All Side Polish",
+            "With Both Height Side Polish",
+            "With Both Height Side Polish As Per DWG"
         };
 
         public SguParametersViewModel()
