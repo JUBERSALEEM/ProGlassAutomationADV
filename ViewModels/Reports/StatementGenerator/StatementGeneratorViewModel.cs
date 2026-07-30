@@ -417,32 +417,62 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
                     foreach (var c in companies
                         .Select(c => c.CompanyName)
                         .Where(n => !string.IsNullOrWhiteSpace(n))
-                        .Distinct())
+                        .Distinct()
+                        .OrderBy(n => n))
                         Companies.Add(c);
 
                     Customers.Clear();
                     foreach (var c in clients
                         .Select(c => c.CustomerName)
                         .Where(n => !string.IsNullOrWhiteSpace(n))
-                        .Distinct())
+                        .Distinct()
+                        .OrderBy(n => n))
                         Customers.Add(c);
 
                     Projects.Clear();
                     foreach (var p in projects
-                        .Select(p => p.ProjectIdentifierName)
+                        .Select(p => !string.IsNullOrWhiteSpace(p.ProjectContractNo)
+                            ? p.ProjectContractNo.Trim()
+                            : (p.ProjectIdentifierName?.Trim() ?? ""))
                         .Where(n => !string.IsNullOrWhiteSpace(n))
-                        .Distinct())
+                        .Distinct()
+                        .OrderBy(n => n))
                         Projects.Add(p);
 
                     Salesmen.Clear();
                     foreach (var s in salesmen
                         .Select(s => s.Name)
                         .Where(n => !string.IsNullOrWhiteSpace(n))
-                        .Distinct())
+                        .Distinct()
+                        .OrderBy(n => n))
                         Salesmen.Add(s);
                 });
             }
-            catch { }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[StatementGenerator] Master data load failed: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Runs an async data load with isolated error handling.
+        /// Returns null on failure — caller checks null before using.
+        /// Never throws — ensures other concurrent loads complete.
+        /// </summary>
+        private static async Task<List<T>?> SafeLoadAsync<T>(
+            Func<Task<List<T>>> loader)
+        {
+            try
+            {
+                return await loader();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[StatementGenerator] Master data load failed: {ex.Message}");
+                return null;
+            }
         }
 
         // ═════════════════════════════════════════════════════════════════
@@ -762,6 +792,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             IncludeAttachments = _includeAttachments,
             IncludeDnDetails = _includeDnDetails
         };
+
 
         private void ClearFilters()
         {

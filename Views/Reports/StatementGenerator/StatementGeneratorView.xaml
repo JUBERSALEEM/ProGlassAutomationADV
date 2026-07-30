@@ -257,10 +257,28 @@
                                                        VerticalAlignment="Center"/>
                                         </StackPanel>
 
+                                        <!-- CHAT 20: Correct business hierarchy order:
+                                             Company → Salesman → Customer → Project
+                                             Company determines available salesmen.
+                                             Salesman determines managed customers.
+                                             Customer determines associated projects. -->
+
                                         <TextBlock Text="Company"
                                                    Style="{StaticResource FilterLabelStyle}"/>
                                         <ComboBox ItemsSource="{Binding Companies}"
                                                   Text="{Binding FilterCompany,
+                                                      UpdateSourceTrigger=PropertyChanged}"
+                                                  IsEditable="True"
+                                                  Height="38" FontSize="12"
+                                                  Background="{DynamicResource SideMenuBackgroundBrush}"
+                                                  Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                  BorderBrush="{DynamicResource BorderBrush}"
+                                                  Margin="0,0,0,10"/>
+
+                                        <TextBlock Text="Salesman"
+                                                   Style="{StaticResource FilterLabelStyle}"/>
+                                        <ComboBox ItemsSource="{Binding Salesmen}"
+                                                  Text="{Binding FilterSalesman,
                                                       UpdateSourceTrigger=PropertyChanged}"
                                                   IsEditable="True"
                                                   Height="38" FontSize="12"
@@ -285,18 +303,6 @@
                                                    Style="{StaticResource FilterLabelStyle}"/>
                                         <ComboBox ItemsSource="{Binding Projects}"
                                                   Text="{Binding FilterProject,
-                                                      UpdateSourceTrigger=PropertyChanged}"
-                                                  IsEditable="True"
-                                                  Height="38" FontSize="12"
-                                                  Background="{DynamicResource SideMenuBackgroundBrush}"
-                                                  Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                  BorderBrush="{DynamicResource BorderBrush}"
-                                                  Margin="0,0,0,10"/>
-
-                                        <TextBlock Text="Salesman"
-                                                   Style="{StaticResource FilterLabelStyle}"/>
-                                        <ComboBox ItemsSource="{Binding Salesmen}"
-                                                  Text="{Binding FilterSalesman,
                                                       UpdateSourceTrigger=PropertyChanged}"
                                                   IsEditable="True"
                                                   Height="38" FontSize="12"

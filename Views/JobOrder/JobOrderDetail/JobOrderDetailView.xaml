@@ -285,31 +285,51 @@
                     </Grid>
 
                     <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                            BorderBrush="{DynamicResource BorderBrush}"
-                            BorderThickness="1" CornerRadius="12"
-                            Padding="16,14" Margin="0,0,0,14"
-                            SnapsToDevicePixels="True">
+        BorderBrush="{DynamicResource BorderBrush}"
+        BorderThickness="1" CornerRadius="12"
+        Padding="16,14" Margin="0,0,0,14"
+        SnapsToDevicePixels="True">
                         <StackPanel>
                             <TextBlock Text="PROJECT"
-                                       Style="{StaticResource CardLabelStyle}"
-                                       Margin="0,0,0,8"/>
-                            <Grid>
+                   Style="{StaticResource CardLabelStyle}"
+                   Margin="0,0,0,8"/>
+
+                            <!-- Row 1: Project Identifier Name | Project Name / No -->
+                            <Grid Margin="0,0,0,10">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="16"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
+
                                 <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Project Name" Style="{StaticResource ReadOnlyLabelStyle}"/>
-                                    <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectIdentifierName, FallbackValue=—}"
-                                               Style="{StaticResource ReadOnlyFieldStyle}"/>
+                                    <TextBlock Text="Project Identifier Name"
+                           Style="{StaticResource ReadOnlyLabelStyle}"/>
+                                    <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectIdentifierName,
+                                FallbackValue=—}"
+                           Style="{StaticResource ReadOnlyFieldStyle}"
+                           TextWrapping="Wrap"/>
                                 </StackPanel>
+
                                 <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Contract No" Style="{StaticResource ReadOnlyLabelStyle}"/>
-                                    <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectContractNo, FallbackValue=—}"
-                                               Style="{StaticResource ReadOnlyFieldStyle}"/>
+                                    <TextBlock Text="Project Name / No"
+                           Style="{StaticResource ReadOnlyLabelStyle}"/>
+                                    <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectContractNo,
+                                FallbackValue=—}"
+                           Style="{StaticResource ReadOnlyFieldStyle}"
+                           TextWrapping="Wrap"/>
                                 </StackPanel>
                             </Grid>
+
+                            <!-- Row 2: Project Reference (full width) -->
+                            <StackPanel>
+                                <TextBlock Text="Project Reference"
+                       Style="{StaticResource ReadOnlyLabelStyle}"/>
+                                <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectReference,
+                            FallbackValue=—}"
+                       Style="{StaticResource ReadOnlyFieldStyle}"
+                       TextWrapping="Wrap"/>
+                            </StackPanel>
                         </StackPanel>
                     </Border>
 

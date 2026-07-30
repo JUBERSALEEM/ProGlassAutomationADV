@@ -26,6 +26,12 @@ namespace ProGlassAutomation.Services.JobOrder.Export
     /// - Discount lines
     ///
     /// This is a production instruction, not a customer document.
+    ///
+    /// CHAT 20 FIX:
+    ///   - Client block now uses correct Step 3 labels:
+    ///     "Project Identifier Name", "Project Name / No", "Project Reference"
+    ///   - ProjectReference field now displayed (was missing)
+    ///   - ResolveReference prefers ProjectReference (most descriptive)
     /// </summary>
     public class JobOrderPdfLayout : IPdfLayout
     {
@@ -182,12 +188,22 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                                 .FontSize(DocumentStyle.FontSizeSmall)
                                 .FontColor(DocumentStyle.ColorMuted);
 
+                        // CHAT 20 FIX: Labels corrected to match Step 3 exactly.
+                        // Previous labels "Project" and "Contract" were misleading
+                        // — they didn't match what user sees in Step 3.
+
                         if (!string.IsNullOrWhiteSpace(_invoice.Project?.ProjectIdentifierName))
-                            col.Item().Text($"Project: {_invoice.Project.ProjectIdentifierName}")
+                            col.Item().Text($"Project Identifier Name: {_invoice.Project.ProjectIdentifierName}")
                                 .FontSize(DocumentStyle.FontSizeSmall);
 
                         if (!string.IsNullOrWhiteSpace(_invoice.Project?.ProjectContractNo))
-                            col.Item().Text($"Contract: {_invoice.Project.ProjectContractNo}")
+                            col.Item().Text($"Project Name / No: {_invoice.Project.ProjectContractNo}")
+                                .FontSize(DocumentStyle.FontSizeSmall);
+
+                        // CHAT 20 FIX: Project Reference field added (was missing).
+                        // This is the descriptive text like "HOUSE FOR IMAD HABIB".
+                        if (!string.IsNullOrWhiteSpace(_invoice.Project?.ProjectReference))
+                            col.Item().Text($"Project Reference: {_invoice.Project.ProjectReference}")
                                 .FontSize(DocumentStyle.FontSizeSmall);
 
                         if (!string.IsNullOrWhiteSpace(_invoice.Project?.LpoNumber))
@@ -441,10 +457,22 @@ namespace ProGlassAutomation.Services.JobOrder.Export
         }
 
         // ── Helpers ──────────────────────────────────────────────────
+
+        /// <summary>
+        /// Resolves the reference text used in the PDF letterhead subtitle.
+        /// CHAT 20 FIX: Prefer ProjectReference (most descriptive) first.
+        /// Falls back through the other project fields in decreasing order
+        /// of descriptiveness.
+        /// </summary>
         private string ResolveReference()
         {
             var proj = _invoice.Project;
             if (proj == null) return string.Empty;
+
+            // CHAT 20: ProjectReference first — most descriptive text
+            // like "HOUSE FOR IMAD HABIB".
+            if (!string.IsNullOrWhiteSpace(proj.ProjectReference))
+                return proj.ProjectReference;
 
             if (!string.IsNullOrWhiteSpace(proj.ProjectIdentifierName))
                 return proj.ProjectIdentifierName;

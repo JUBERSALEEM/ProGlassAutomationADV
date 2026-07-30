@@ -727,12 +727,47 @@
                                                TextTrimming="CharacterEllipsis"
                                                MaxWidth="400"/>
                                 </StackPanel>
-                                <TextBlock Text="{Binding ProjectName}"
-                                           FontSize="12" FontWeight="SemiBold"
-                                           Foreground="#EAFFFFFF"
-                                           Margin="0,4,0,0"
-                                           TextTrimming="CharacterEllipsis"
-                                           MaxWidth="500"/>
+                                <!-- CHAT 20: Show project identifier + contract no in hero strip.
+     ProjectIdentifierName is the short name (e.g. "IMAD HABIB").
+     ProjectContractNo shown after separator if available. -->
+                                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                                    <TextBlock Text="{Binding ProjectIdentifierName}"
+               FontSize="12" FontWeight="SemiBold"
+               Foreground="#EAFFFFFF"
+               TextTrimming="CharacterEllipsis"
+               MaxWidth="250"/>
+                                    <TextBlock Text="  ·  "
+               FontSize="12"
+               Foreground="#77FFFFFF"
+               VerticalAlignment="Center">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ProjectContractNo}" Value="">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                    <TextBlock Text="{Binding ProjectContractNo}"
+               FontSize="11" FontWeight="SemiBold"
+               Foreground="#CCFFFFFF"
+               TextTrimming="CharacterEllipsis"
+               MaxWidth="250">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding ProjectContractNo}" Value="">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+                                </StackPanel>
                                 <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                                     <TextBlock Text="PI: " FontSize="10" FontWeight="Bold"
                                                Foreground="#CCFFFFFF" VerticalAlignment="Center"/>
@@ -871,6 +906,51 @@
                                 </StackPanel>
                             </Grid>
 
+                            <!-- CHAT 20: Row 2.5 — Bank Account Number + Payment Notes -->
+                            <Grid Margin="0,0,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="14"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="14"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="14"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="BANK ACCOUNT NUMBER"/>
+                                    <TextBox Text="{Binding BankAccountNumber,
+                                                   UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="12"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="PAYMENT NOTES"/>
+                                    <TextBox Text="{Binding PaymentNotes,
+                                                   UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="12"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="4">
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="COMPANY ADDRESS"/>
+                                    <TextBox Text="{Binding CompanyAddress,
+                                                   UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="12"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="6">
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="COMPANY LOCATION"/>
+                                    <TextBox Text="{Binding CompanyLocation,
+                                                   UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="12"/>
+                                </StackPanel>
+                            </Grid>
+
                             <!-- Row 3: Customer, Customer TRN, Contact, Discount -->
                             <Grid Margin="0,0,0,12">
                                 <Grid.ColumnDefinitions>
@@ -958,6 +1038,51 @@
                                     <TextBlock Style="{StaticResource FieldLabelStyle}"
                                                Text="PREPARED BY TITLE"/>
                                     <TextBox Text="{Binding PreparedByTitle,
+                                                   UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="12"/>
+                                </StackPanel>
+                            </Grid>
+
+                            <!-- CHAT 20: Row 5 — Project fields (aligned with PI Step 3) -->
+                            <Grid Margin="0,12,0,0">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="14"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="14"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="14"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="PROJECT IDENTIFIER NAME"/>
+                                    <TextBox Text="{Binding ProjectIdentifierName,
+                                                   UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="12"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="2">
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="PROJECT NAME / NO"/>
+                                    <TextBox Text="{Binding ProjectContractNo,
+                                                   UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="12"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="4">
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="PROJECT REFERENCE"/>
+                                    <TextBox Text="{Binding ProjectReference,
+                                                   UpdateSourceTrigger=PropertyChanged}"
+                                             FontSize="12"/>
+                                </StackPanel>
+
+                                <StackPanel Grid.Column="6">
+                                    <TextBlock Style="{StaticResource FieldLabelStyle}"
+                                               Text="SITE / DELIVERY LOCATION"/>
+                                    <TextBox Text="{Binding SiteDeliveryLocation,
                                                    UpdateSourceTrigger=PropertyChanged}"
                                              FontSize="12"/>
                                 </StackPanel>

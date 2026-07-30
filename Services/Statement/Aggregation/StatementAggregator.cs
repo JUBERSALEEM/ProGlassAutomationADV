@@ -70,6 +70,18 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
             Debug.WriteLine($"[Aggregator] After indexed filters: " +
                             $"{filtered.Count} invoices");
 
+            // ── Step 2b: Project filter (JSON search — handles old + new field names) ──
+            if (!string.IsNullOrWhiteSpace(filter.ProjectName))
+            {
+                filtered = await ApplyProjectFilterAsync(
+                    filtered, filter.ProjectName);
+
+                Debug.WriteLine($"[Aggregator] After project filter: " +
+                                $"{filtered.Count} invoices");
+            }
+
+
+
             // ── Step 3: Salesman filter (multi-path JSON search) ──────────
             if (!string.IsNullOrWhiteSpace(filter.SalesmanName))
             {
@@ -85,6 +97,8 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                 Debug.WriteLine("[Aggregator] No invoices matched filters");
                 return null;
             }
+
+
 
             // ── Step 4: Attachment counts ─────────────────────────────────
             var invoiceNumbers = filtered
@@ -147,11 +161,14 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                 q = q.Where(i => SafeContains(i.CustomerName, needle));
             }
 
-            if (!string.IsNullOrWhiteSpace(filter.ProjectName))
-            {
-                string needle = filter.ProjectName;
-                q = q.Where(i => SafeContains(i.ProjectName, needle));
-            }
+            // CHAT 20: Project filter REMOVED from indexed filters.
+            // Moved to Step 2b (post-filter JSON search) because:
+            //   - Old TIs store ProjectIdentifierName in entity.ProjectName
+            //   - New TIs store ProjectContractNo in entity.ProjectName
+            //   - Dropdown shows ProjectContractNo from masterdata
+            //   - The two values may be completely different strings
+            //   - Only reliable match is searching the full snapshot JSON
+            // See ApplyProjectFilterAsync below.
 
             if (filter.DateFrom.HasValue)
             {
@@ -192,6 +209,67 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                 .Trim()
                 .Contains(needle.Trim(),
                           StringComparison.OrdinalIgnoreCase);
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  PROJECT FILTER — JSON SEARCH (Chat 20)
+        //
+        //  Searches for project name across:
+        //    1. Indexed entity.ProjectName column (fast — bidirectional)
+        //    2. Full snapshot JSON (fallback — catches all field names:
+        //       ProjectIdentifierName, ProjectContractNo, ProjectReference)
+        //
+        //  This handles the mismatch between old TIs (entity stores
+        //  ProjectIdentifierName) and new TIs (entity stores ProjectContractNo)
+        //  where the dropdown shows ProjectContractNo from masterdata.
+        // ═════════════════════════════════════════════════════════════════
+
+        private static async Task<List<TaxInvoiceListItem>>
+    ApplyProjectFilterAsync(
+        List<TaxInvoiceListItem> items,
+        string projectName)
+        {
+            string needle = projectName.Trim();
+            var result = new List<TaxInvoiceListItem>();
+
+            foreach (var item in items)
+            {
+                // Fast path: check indexed column first (bidirectional)
+                if (SafeContains(item.ProjectName, needle) ||
+                    SafeContains(needle, item.ProjectName))
+                {
+                    result.Add(item);
+                    continue;
+                }
+
+                // Slow path: search snapshot JSON for any project field match
+                try
+                {
+                    // Use GetByIdAsync which we KNOW exists (used by LoadAsync)
+                    var full = await App.TaxInvoices.GetByIdAsync(item.Id);
+
+                    if (full != null &&
+                        !string.IsNullOrWhiteSpace(full.FullSnapshotJson) &&
+                        full.FullSnapshotJson != "{}")
+                    {
+                        if (full.FullSnapshotJson.Contains(
+                                needle, StringComparison.OrdinalIgnoreCase))
+                        {
+                            result.Add(item);
+                            continue;
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Debug.WriteLine($"[Aggregator] Project JSON search " +
+                                    $"error on {item.InvoiceNumber}: {ex.Message}");
+                    // On error, INCLUDE the item (don't silently exclude)
+                    result.Add(item);
+                }
+            }
+
+            return result;
         }
 
         // ═════════════════════════════════════════════════════════════════

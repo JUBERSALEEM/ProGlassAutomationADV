@@ -97,6 +97,12 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
             });
 
             content.Item().PaddingTop(8).PaddingBottom(8)
+    .LineHorizontal(1).LineColor(LINE);
+
+            // 2b. Project details — dedicated section
+            content.Item().Element(RenderProjectBlock);
+
+            content.Item().PaddingTop(6).PaddingBottom(6)
                 .LineHorizontal(1).LineColor(LINE);
 
             // 3. Invoice references bar
@@ -249,10 +255,73 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
 
                 AddLabelValue(col, "Customer:", _ctx.CustomerName);
                 AddLabelValue(col, "Customer TRN:", _ctx.CustomerTrn);
-                AddLabelValue(col, "Project:", _ctx.ProjectName);
-                AddLabelValue(col, "Location:", _ctx.ProjectLocation);
                 AddLabelValue(col, "Contact:", _ctx.ContactPerson);
+
+                if (!string.IsNullOrWhiteSpace(_ctx.CustomerAddress))
+                    AddLabelValue(col, "Address:", _ctx.CustomerAddress);
             });
+        }
+
+        /// <summary>
+        /// CHAT 20: Dedicated project section — separated from customer block
+        /// for professional layout. Shows all 4 project fields in a bordered
+        /// card with indigo accent header.
+        /// </summary>
+        private void RenderProjectBlock(IContainer container)
+        {
+            // Skip entire section if no project data at all
+            bool hasAnyProjectData =
+                !string.IsNullOrWhiteSpace(_ctx.ProjectIdentifierName) ||
+                !string.IsNullOrWhiteSpace(_ctx.ProjectContractNo) ||
+                !string.IsNullOrWhiteSpace(_ctx.ProjectReference) ||
+                !string.IsNullOrWhiteSpace(_ctx.SiteDeliveryLocation);
+
+            if (!hasAnyProjectData) return;
+
+            container
+                .Border(1).BorderColor(LINE)
+                .Column(col =>
+                {
+                    // Section header — indigo accent bar
+                    col.Item()
+                        .Background(ACCENT)
+                        .PaddingHorizontal(10).PaddingVertical(5)
+                        .Text("PROJECT DETAILS")
+                        .FontSize(9).Bold().FontColor(WHITE);
+
+                    // Project fields — 2-column layout for balanced spacing
+                    col.Item()
+                        .Background(LIGHT_BG)
+                        .Padding(10)
+                        .Row(row =>
+                        {
+                            // Left column
+                            row.RelativeItem().Column(left =>
+                            {
+                                if (!string.IsNullOrWhiteSpace(_ctx.ProjectIdentifierName))
+                                    AddLabelValue(left, "Project Identifier Name:",
+                                        _ctx.ProjectIdentifierName);
+
+                                if (!string.IsNullOrWhiteSpace(_ctx.ProjectContractNo))
+                                    AddLabelValue(left, "Project Name / No:",
+                                        _ctx.ProjectContractNo);
+                            });
+
+                            row.ConstantItem(20);
+
+                            // Right column
+                            row.RelativeItem().Column(right =>
+                            {
+                                if (!string.IsNullOrWhiteSpace(_ctx.ProjectReference))
+                                    AddLabelValue(right, "Project Reference:",
+                                        _ctx.ProjectReference);
+
+                                if (!string.IsNullOrWhiteSpace(_ctx.SiteDeliveryLocation))
+                                    AddLabelValue(right, "Site / Delivery Location:",
+                                        _ctx.SiteDeliveryLocation);
+                            });
+                        });
+                });
         }
 
         private void RenderReferencesBar(IContainer container)
@@ -740,9 +809,22 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                 CustomerName = snap.Customer?.CustomerName ?? "",
                 CustomerTrn = snap.Customer?.CustomerTrn ?? "",
                 ContactPerson = snap.Customer?.ContactPerson ?? "",
+                CustomerAddress = snap.Customer?.CustomerAddress ?? "",
 
-                ProjectName = snap.Project?.ProjectName ?? "",
-                ProjectLocation = snap.Project?.ProjectLocation ?? "",
+                // CHAT 20: Read new fields first, fall back to legacy fields
+                // for invoices saved before the field rename.
+#pragma warning disable CS0612
+                ProjectIdentifierName = !string.IsNullOrWhiteSpace(snap.Project?.ProjectIdentifierName)
+                    ? snap.Project.ProjectIdentifierName
+                    : snap.Project?.ProjectName ?? "",
+
+                ProjectContractNo = snap.Project?.ProjectContractNo ?? "",
+                ProjectReference = snap.Project?.ProjectReference ?? "",
+
+                SiteDeliveryLocation = !string.IsNullOrWhiteSpace(snap.Project?.SiteDeliveryLocation)
+                    ? snap.Project.SiteDeliveryLocation
+                    : snap.Project?.ProjectLocation ?? "",
+#pragma warning restore CS0612
 
                 ProformaId = snap.Header?.ProformaId ?? "",
                 DeliveryNoteRef = snap.Header?.DeliveryNoteReference ?? "",
@@ -917,9 +999,12 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
             public string CustomerName { get; set; } = "";
             public string CustomerTrn { get; set; } = "";
             public string ContactPerson { get; set; } = "";
+            public string CustomerAddress { get; set; } = "";
 
-            public string ProjectName { get; set; } = "";
-            public string ProjectLocation { get; set; } = "";
+            public string ProjectIdentifierName { get; set; } = "";
+            public string ProjectContractNo { get; set; } = "";
+            public string ProjectReference { get; set; } = "";
+            public string SiteDeliveryLocation { get; set; } = "";
 
             public string ProformaId { get; set; } = "";
             public string DeliveryNoteRef { get; set; } = "";

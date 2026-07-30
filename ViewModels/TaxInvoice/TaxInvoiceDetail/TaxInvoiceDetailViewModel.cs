@@ -216,17 +216,45 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         public string ContactPerson
         { get => _contactPerson; set { _contactPerson = value; OnPropertyChanged(); } }
 
-        private string _projectName = "";
-        public string ProjectName
-        { get => _projectName; set { _projectName = value; OnPropertyChanged(); } }
+        // ── Project (CHAT 20: aligned with Proforma Invoice naming) ──────
+        //
+        // Previously: ProjectName, ProjectLocation, ProjectReference (3 fields)
+        // Now:        ProjectIdentifierName, ProjectContractNo, ProjectReference,
+        //             SiteDeliveryLocation (4 fields)
+        //
+        // Matches PI ProjectSnapshot exactly — no data loss on PI → TI import.
 
-        private string _projectLocation = "";
-        public string ProjectLocation
-        { get => _projectLocation; set { _projectLocation = value; OnPropertyChanged(); } }
+        private string _projectIdentifierName = "";
+        /// <summary>
+        /// Short project designation (e.g. "IMAD HABIB").
+        /// Matches PI ProjectIdentifierName.
+        /// </summary>
+        public string ProjectIdentifierName
+        { get => _projectIdentifierName; set { _projectIdentifierName = value; OnPropertyChanged(); } }
+
+        private string _projectContractNo = "";
+        /// <summary>
+        /// Project number with name (e.g. "428 IMAD HABIB").
+        /// Matches PI ProjectContractNo.
+        /// </summary>
+        public string ProjectContractNo
+        { get => _projectContractNo; set { _projectContractNo = value; OnPropertyChanged(); } }
 
         private string _projectReference = "";
+        /// <summary>
+        /// Full descriptive reference (e.g. "HOUSE FOR IMAD HABIB").
+        /// Matches PI ProjectReference.
+        /// </summary>
         public string ProjectReference
         { get => _projectReference; set { _projectReference = value; OnPropertyChanged(); } }
+
+        private string _siteDeliveryLocation = "";
+        /// <summary>
+        /// Site or delivery address (e.g. "AJMAN").
+        /// Matches PI SiteDeliveryLocation.
+        /// </summary>
+        public string SiteDeliveryLocation
+        { get => _siteDeliveryLocation; set { _siteDeliveryLocation = value; OnPropertyChanged(); } }
 
         private string _bankName = "";
         public string BankName
@@ -1038,14 +1066,15 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 ContactPerson = piSnapshot.Client.AttentionExecutiveName;
             }
 
+            // CHAT 20: All 5 PI project fields → 4 TI project properties, 1:1.
+            // No data loss. No field collapsing. LPO maps to PurchaseOrderNumber
+            // (LPO = PO in UAE glass industry — same concept, different terminology).
             if (piSnapshot.Project != null)
             {
-                ProjectName = piSnapshot.Project.ProjectIdentifierName;
-                ProjectLocation = piSnapshot.Project.SiteDeliveryLocation;
-                ProjectReference =
-                    !string.IsNullOrWhiteSpace(piSnapshot.Project.ProjectReference)
-                        ? piSnapshot.Project.ProjectReference
-                        : piSnapshot.Project.ProjectContractNo;
+                ProjectIdentifierName = piSnapshot.Project.ProjectIdentifierName;
+                ProjectContractNo = piSnapshot.Project.ProjectContractNo;
+                ProjectReference = piSnapshot.Project.ProjectReference;
+                SiteDeliveryLocation = piSnapshot.Project.SiteDeliveryLocation;
                 PurchaseOrderNumber = piSnapshot.Project.LpoNumber;
             }
 
@@ -1627,9 +1656,11 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             CustomerPhone = CustomerPhone,
             CustomerEmail = CustomerEmail,
             ContactPerson = ContactPerson,
-            ProjectName = ProjectName,
-            ProjectLocation = ProjectLocation,
+            // CHAT 20: 4-field project section aligned with PI.
+            ProjectIdentifierName = ProjectIdentifierName,
+            ProjectContractNo = ProjectContractNo,
             ProjectReference = ProjectReference,
+            SiteDeliveryLocation = SiteDeliveryLocation,
             DiscountPercent = DiscountPercent,
             ProformaTotal = ProformaTotal,
             PreviouslyInvoicedTotal = PreviouslyInvoicedTotal,
@@ -1704,9 +1735,22 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             _customerEmail = snap.Customer.CustomerEmail;
             _contactPerson = snap.Customer.ContactPerson;
 
-            _projectName = snap.Project.ProjectName;
-            _projectLocation = snap.Project.ProjectLocation;
+            // CHAT 20: Restore new fields with legacy migration.
+            // New saved invoices have ProjectIdentifierName populated.
+            // Old saved invoices have only ProjectName (legacy field).
+            // If new field is empty, fall back to legacy value — no data loss.
+#pragma warning disable CS0612 // Suppress [Obsolete] warnings for migration reads
+            _projectIdentifierName = !string.IsNullOrWhiteSpace(snap.Project.ProjectIdentifierName)
+                ? snap.Project.ProjectIdentifierName
+                : snap.Project.ProjectName;     // ← legacy fallback
+
+            _projectContractNo = snap.Project.ProjectContractNo;
             _projectReference = snap.Project.ProjectReference;
+
+            _siteDeliveryLocation = !string.IsNullOrWhiteSpace(snap.Project.SiteDeliveryLocation)
+                ? snap.Project.SiteDeliveryLocation
+                : snap.Project.ProjectLocation;  // ← legacy fallback
+#pragma warning restore CS0612
 
             _bankName = snap.Bank.BankName;
             _bankAccountNumber = snap.Bank.BankAccountNumber;
@@ -1802,7 +1846,9 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             CompanyLocation = ""; CompanyPhone = ""; CompanyEmail = "";
             CustomerName = ""; CustomerTrn = ""; CustomerAddress = "";
             CustomerPhone = ""; CustomerEmail = ""; ContactPerson = "";
-            ProjectName = ""; ProjectLocation = ""; ProjectReference = "";
+            // CHAT 20: 4-field project reset
+            ProjectIdentifierName = ""; ProjectContractNo = "";
+            ProjectReference = ""; SiteDeliveryLocation = "";
             BankName = ""; BankAccountNumber = ""; Iban = "";
             SwiftCode = ""; PaymentNotes = "";
             PreparedByName = ""; PreparedByTitle = ""; PreparedByDepartment = "";

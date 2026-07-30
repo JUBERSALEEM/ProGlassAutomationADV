@@ -17,6 +17,14 @@ namespace ProGlassAutomation.Services.JobOrder.Export
     ///   Sheet 3: Production Notes — cutting instructions + internal notes
     ///
     /// No pricing in any sheet.
+    ///
+    /// CHAT 20 FIX:
+    ///   - Summary PROJECT block labels corrected to match Step 3 exactly:
+    ///       "Project Name"  → "Project Identifier Name"
+    ///       "Contract No"   → "Project Name / No"
+    ///       (new)           → "Project Reference"
+    ///   - Column 1 widened 22 → 26 to accommodate new longer labels.
+    ///   - ResolveReference prefers ProjectReference (most descriptive).
     /// </summary>
     public class JobOrderExcelLayout : IExcelLayout
     {
@@ -94,9 +102,14 @@ namespace ProGlassAutomation.Services.JobOrder.Export
             r++;
 
             // Project block
+            // CHAT 20 FIX: Labels corrected to match Step 3 exactly.
+            // Previous labels "Project Name" and "Contract No" were misleading
+            // — they didn't match what user sees in Step 3.
+            // Also added Project Reference row (was completely missing).
             SectionHeader(ws, r, "PROJECT"); r++;
-            LabelValue(ws, r++, "Project Name", _invoice.Project?.ProjectIdentifierName ?? "");
-            LabelValue(ws, r++, "Contract No", _invoice.Project?.ProjectContractNo ?? "");
+            LabelValue(ws, r++, "Project Identifier Name", _invoice.Project?.ProjectIdentifierName ?? "");
+            LabelValue(ws, r++, "Project Name / No", _invoice.Project?.ProjectContractNo ?? "");
+            LabelValue(ws, r++, "Project Reference", _invoice.Project?.ProjectReference ?? "");
             LabelValue(ws, r++, "LPO Number", _invoice.Project?.LpoNumber ?? "");
             LabelValue(ws, r++, "Site Location", _invoice.Project?.SiteDeliveryLocation ?? "");
             r++;
@@ -121,8 +134,9 @@ namespace ProGlassAutomation.Services.JobOrder.Export
             LabelValue(ws, r++, "Total Specs", totalSpecs.ToString());
             LabelValue(ws, r++, "Total Pieces", totalPieces.ToString());
 
-            // Column widths
-            ws.Column(1).Width = 22;
+            // Column widths — CHAT 20: widened Column 1 from 22 to 26 to
+            // accommodate longer labels like "Project Identifier Name".
+            ws.Column(1).Width = 26;
             ws.Column(2).Width = 50;
         }
 
@@ -321,10 +335,21 @@ namespace ProGlassAutomation.Services.JobOrder.Export
             return delivery.Value.Date < DateTime.Today;
         }
 
+        /// <summary>
+        /// Resolves the reference text used in export metadata.
+        /// CHAT 20 FIX: Prefer ProjectReference (most descriptive) first.
+        /// Falls back through the other project fields in decreasing order
+        /// of descriptiveness.
+        /// </summary>
         private string ResolveReference()
         {
             var proj = _invoice.Project;
             if (proj == null) return string.Empty;
+
+            // CHAT 20: ProjectReference first — most descriptive text
+            // like "HOUSE FOR IMAD HABIB".
+            if (!string.IsNullOrWhiteSpace(proj.ProjectReference))
+                return proj.ProjectReference;
 
             if (!string.IsNullOrWhiteSpace(proj.ProjectIdentifierName))
                 return proj.ProjectIdentifierName;

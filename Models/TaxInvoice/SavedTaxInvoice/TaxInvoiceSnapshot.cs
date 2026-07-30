@@ -23,6 +23,23 @@ namespace ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice
     ///   AttachmentSnapshots carry base64-encoded signed PI + DN PDFs.
     ///   Statement generator iterates Attachments, decodes bytes, appends
     ///   as pages to the combined QuestPDF output document.
+    ///
+    /// CHAT 20 CHANGE — PROJECT FIELDS ALIGNED WITH PROFORMA INVOICE:
+    ///   Previously TI stored only ProjectName, ProjectLocation, ProjectReference —
+    ///   which was insufficient to preserve the full 5-field project model from PI.
+    ///   PI → TI conversion silently lost ProjectContractNo and forced
+    ///   ProjectReference to hold either PI.ProjectReference OR PI.ProjectContractNo
+    ///   (never both).
+    ///
+    ///   Now InvProjectSnapshot mirrors PI ProjectSnapshot exactly:
+    ///     ProjectIdentifierName, ProjectContractNo, ProjectReference,
+    ///     SiteDeliveryLocation
+    ///
+    ///   Legacy fields ProjectName and ProjectLocation are kept marked [Obsolete]
+    ///   for backward-compatible deserialization of existing saved invoices.
+    ///   New saves populate only the new fields — old fields default to empty.
+    ///   Load-time migration in TaxInvoiceDetailViewModel.RestoreFromSnapshot
+    ///   uses legacy values as fallback when new fields are empty.
     /// </summary>
     public class TaxInvoiceSnapshot
     {
@@ -151,13 +168,72 @@ namespace ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice
 
     // ════════════════════════════════════════════════════════════════════════
     //  PROJECT — project identification
+    //
+    //  CHAT 20 CHANGE:
+    //    Extended from 3 fields to 4 fields to match Proforma Invoice model.
+    //    Legacy ProjectName + ProjectLocation kept [Obsolete] for backward
+    //    compatibility with existing saved invoices.
+    //
+    //  Field-to-field mapping (PI ProjectSnapshot → this InvProjectSnapshot):
+    //    PI.ProjectIdentifierName → ProjectIdentifierName   (NEW)
+    //    PI.ProjectContractNo     → ProjectContractNo       (NEW)
+    //    PI.ProjectReference      → ProjectReference        (unchanged)
+    //    PI.SiteDeliveryLocation  → SiteDeliveryLocation    (NEW)
+    //    PI.LpoNumber             → InvHeaderSnapshot.PurchaseOrderNumber
+    //                               (LPO = PO in UAE glass industry)
     // ════════════════════════════════════════════════════════════════════════
 
     public class InvProjectSnapshot
     {
-        public string ProjectName { get; set; } = "";
-        public string ProjectLocation { get; set; } = "";
+        // ── Current fields (aligned with Proforma Invoice) ──────────────
+
+        /// <summary>
+        /// Short project designation (e.g. "IMAD HABIB").
+        /// Matches PI ProjectIdentifierName.
+        /// </summary>
+        public string ProjectIdentifierName { get; set; } = "";
+
+        /// <summary>
+        /// Project number with name (e.g. "428 IMAD HABIB").
+        /// Matches PI ProjectContractNo.
+        /// </summary>
+        public string ProjectContractNo { get; set; } = "";
+
+        /// <summary>
+        /// Full descriptive reference (e.g. "HOUSE FOR IMAD HABIB").
+        /// Matches PI ProjectReference.
+        /// </summary>
         public string ProjectReference { get; set; } = "";
+
+        /// <summary>
+        /// Site or delivery address (e.g. "AJMAN").
+        /// Matches PI SiteDeliveryLocation.
+        /// </summary>
+        public string SiteDeliveryLocation { get; set; } = "";
+
+        // ── Legacy fields (backward compatibility only) ─────────────────
+        //
+        // Old saved invoices in the DB have these fields populated.
+        // Deserializer will fill them from legacy JSON automatically.
+        // On load, TaxInvoiceDetailViewModel.RestoreFromSnapshot uses them
+        // as fallback when new fields are empty (migration).
+        // New saves leave these empty — clean cut going forward.
+
+        /// <summary>
+        /// LEGACY — do not use in new code. Use ProjectIdentifierName instead.
+        /// Kept as public property so System.Text.Json deserializes old JSON
+        /// without dropping data. Migrated to ProjectIdentifierName on load.
+        /// </summary>
+        [Obsolete("Use ProjectIdentifierName. Kept for legacy JSON deserialization.")]
+        public string ProjectName { get; set; } = "";
+
+        /// <summary>
+        /// LEGACY — do not use in new code. Use SiteDeliveryLocation instead.
+        /// Kept as public property so System.Text.Json deserializes old JSON
+        /// without dropping data. Migrated to SiteDeliveryLocation on load.
+        /// </summary>
+        [Obsolete("Use SiteDeliveryLocation. Kept for legacy JSON deserialization.")]
+        public string ProjectLocation { get; set; } = "";
     }
 
     // ════════════════════════════════════════════════════════════════════════

@@ -15,6 +15,22 @@ namespace ProGlassAutomation.Services.JobOrder.Export
     /// the file is machine-parseable.
     ///
     /// Header row includes the Overdue flag column per Q2.
+    ///
+    /// CHAT 20 FIX:
+    ///   - Ambiguous "Project" column renamed to precise
+    ///     "ProjectIdentifierName" (matches Step 3 field name).
+    ///   - Added missing project fields:
+    ///       ProjectNameNo    (was: ProjectContractNo — not exported)
+    ///       ProjectReference (new field from Chat 15 — not exported)
+    ///       LpoNumber        (was not exported)
+    ///   - ResolveReference prefers ProjectReference (most descriptive).
+    ///
+    /// SCHEMA CHANGE NOTE (Option A):
+    ///   The CSV column previously named "Project" has been renamed to
+    ///   "ProjectIdentifierName" for precision. External systems
+    ///   consuming this CSV will need to update their column mappings.
+    ///   Three new columns added at the same position for full project
+    ///   context: ProjectNameNo, ProjectReference, LpoNumber.
     /// </summary>
     public class JobOrderCsvLayout : ICsvLayout
     {
@@ -42,10 +58,14 @@ namespace ProGlassAutomation.Services.JobOrder.Export
         public void WriteRows(CsvWriter writer)
         {
             // Header row
+            // CHAT 20: Column names are now precise and match Step 3 fields.
             writer.WriteField("JobOrderId");
             writer.WriteField("SourceProformaId");
             writer.WriteField("Customer");
-            writer.WriteField("Project");
+            writer.WriteField("ProjectIdentifierName");   // CHAT 20: was "Project"
+            writer.WriteField("ProjectNameNo");           // CHAT 20: NEW
+            writer.WriteField("ProjectReference");        // CHAT 20: NEW
+            writer.WriteField("LpoNumber");               // CHAT 20: NEW
             writer.WriteField("Status");
             writer.WriteField("Priority");
             writer.WriteField("DeliveryDate");
@@ -62,10 +82,17 @@ namespace ProGlassAutomation.Services.JobOrder.Export
             writer.WriteField("Qty");
             writer.NextRecord();
 
+            // Read all project fields — one per invoice, replicated per row
             string jobId = _entity.JobOrderId ?? "";
             string sourcePi = _snapshot.SourceProformaId ?? "";
             string customer = _invoice.Client?.CustomerName ?? "";
-            string project = _invoice.Project?.ProjectIdentifierName ?? "";
+
+            // CHAT 20: All three project fields captured now.
+            string projectIdentifier = _invoice.Project?.ProjectIdentifierName ?? "";
+            string projectNameNo = _invoice.Project?.ProjectContractNo ?? "";
+            string projectReference = _invoice.Project?.ProjectReference ?? "";
+            string lpoNumber = _invoice.Project?.LpoNumber ?? "";
+
             string status = _snapshot.Production?.Status ?? "Draft";
             string priority = _snapshot.Production?.Priority ?? "Medium";
             string deliveryStr = _snapshot.Production?.DeliveryDate.HasValue == true
@@ -85,7 +112,10 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                     writer.WriteField(jobId);
                     writer.WriteField(sourcePi);
                     writer.WriteField(customer);
-                    writer.WriteField(project);
+                    writer.WriteField(projectIdentifier);
+                    writer.WriteField(projectNameNo);
+                    writer.WriteField(projectReference);
+                    writer.WriteField(lpoNumber);
                     writer.WriteField(status);
                     writer.WriteField(priority);
                     writer.WriteField(deliveryStr);
@@ -117,10 +147,21 @@ namespace ProGlassAutomation.Services.JobOrder.Export
             return delivery.Value.Date < DateTime.Today;
         }
 
+        /// <summary>
+        /// Resolves the reference text used in export metadata.
+        /// CHAT 20 FIX: Prefer ProjectReference (most descriptive) first.
+        /// Falls back through the other project fields in decreasing order
+        /// of descriptiveness.
+        /// </summary>
         private string ResolveReference()
         {
             var proj = _invoice.Project;
             if (proj == null) return string.Empty;
+
+            // CHAT 20: ProjectReference first — most descriptive text
+            // like "HOUSE FOR IMAD HABIB".
+            if (!string.IsNullOrWhiteSpace(proj.ProjectReference))
+                return proj.ProjectReference;
 
             if (!string.IsNullOrWhiteSpace(proj.ProjectIdentifierName))
                 return proj.ProjectIdentifierName;

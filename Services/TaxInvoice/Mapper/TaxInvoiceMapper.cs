@@ -40,6 +40,19 @@ namespace ProGlassAutomation.Services.TaxInvoice.Mapper
     /// AMOUNT IN WORDS:
     ///   GrandTotalInWords computed by AmountToWords() utility.
     ///   Pre-computed at save time — not recalculated on every render.
+    ///
+    /// CHAT 20 CHANGE — PROJECT FIELDS ALIGNED WITH PI:
+    ///   InvWizardState.Project section now uses 4 fields matching PI:
+    ///     ProjectIdentifierName, ProjectContractNo, ProjectReference,
+    ///     SiteDeliveryLocation
+    ///
+    ///   Old ProjectName / ProjectLocation removed from state
+    ///   (state is transient — no backward compat needed for wizard state).
+    ///
+    ///   BuildSnapshot writes new fields into InvProjectSnapshot.
+    ///   Obsolete ProjectName / ProjectLocation in snapshot stay empty
+    ///   on new saves. Legacy invoices retain their values via
+    ///   [Obsolete]-marked properties in the snapshot model.
     /// </summary>
     public static class TaxInvoiceMapper
     {
@@ -86,6 +99,11 @@ namespace ProGlassAutomation.Services.TaxInvoice.Mapper
             decimal totalSqm = Math.Round(items.Sum(i => i.TotalSqm), 3);
 
             // ── Build entity ──────────────────────────────────────────────
+            //
+            // CHAT 20: entity.ProjectName is the indexed list-view column.
+            // Populated from the new ProjectIdentifierName field.
+            // This keeps the list view (SELECT ProjectName FROM ...) working
+            // without schema changes to the EF entity.
             var entity = new SavedTaxInvoice
             {
                 InvoiceNumber = invoiceNumber,
@@ -98,7 +116,11 @@ namespace ProGlassAutomation.Services.TaxInvoice.Mapper
                 SequenceNumber = sequenceNumber,
                 Status = state.Status,
                 CustomerName = state.CustomerName,
-                ProjectName = state.ProjectName,
+                // Store ProjectContractNo in entity.ProjectName for Statement filter matching.
+                // Falls back to ProjectIdentifierName if ContractNo is empty.
+                ProjectName = !string.IsNullOrWhiteSpace(state.ProjectContractNo)
+                    ? state.ProjectContractNo
+                    : state.ProjectIdentifierName,
                 CompanyName = state.CompanyName,
                 CompanyTrn = state.CompanyTrn,
                 IssueDate = state.IssueDate == default ? now : state.IssueDate,
@@ -236,6 +258,12 @@ namespace ProGlassAutomation.Services.TaxInvoice.Mapper
 
         // ════════════════════════════════════════════════════════════════════
         //  PRIVATE — snapshot builder
+        //
+        //  CHAT 20: Project snapshot now populated from new 4-field wizard
+        //  state. Legacy ProjectName / ProjectLocation fields on the snapshot
+        //  are NOT written by new saves — they stay empty (default).
+        //  They exist on the snapshot type only for backward-compat
+        //  deserialization of pre-Chat-20 saved invoices.
         // ════════════════════════════════════════════════════════════════════
 
         private static TaxInvoiceSnapshot BuildSnapshot(
@@ -325,12 +353,19 @@ namespace ProGlassAutomation.Services.TaxInvoice.Mapper
                     CustomerEmail = state.CustomerEmail,
                     ContactPerson = state.ContactPerson
                 },
+
+                // CHAT 20: 4-field project snapshot aligned with Proforma Invoice.
+                // Legacy ProjectName / ProjectLocation left at default ("")
+                // — they exist on the type only for backward-compat
+                // deserialization of pre-Chat-20 saved invoices.
                 Project = new InvProjectSnapshot
                 {
-                    ProjectName = state.ProjectName,
-                    ProjectLocation = state.ProjectLocation,
-                    ProjectReference = state.ProjectReference
+                    ProjectIdentifierName = state.ProjectIdentifierName,
+                    ProjectContractNo = state.ProjectContractNo,
+                    ProjectReference = state.ProjectReference,
+                    SiteDeliveryLocation = state.SiteDeliveryLocation
                 },
+
                 SpecGroups = specGroups,
                 Financial = new InvFinancialSnapshot
                 {
@@ -431,6 +466,10 @@ namespace ProGlassAutomation.Services.TaxInvoice.Mapper
     // ════════════════════════════════════════════════════════════════════════
     //  WIZARD STATE — passed from ViewModel to Mapper
     //  Pure POCO — no WPF types. Populated by TaxInvoiceDetailViewModel.
+    //
+    //  CHAT 20: Project section now has 4 fields matching Proforma Invoice.
+    //  Old ProjectName / ProjectLocation removed — state is transient,
+    //  no backward compat needed. ViewModel must populate new field names.
     // ════════════════════════════════════════════════════════════════════════
 
     /// <summary>
@@ -467,10 +506,24 @@ namespace ProGlassAutomation.Services.TaxInvoice.Mapper
         public string CustomerEmail { get; set; } = "";
         public string ContactPerson { get; set; } = "";
 
-        // Project
-        public string ProjectName { get; set; } = "";
-        public string ProjectLocation { get; set; } = "";
+        // ── Project (CHAT 20: aligned with Proforma Invoice) ────────────
+        //
+        // These 4 fields exactly mirror PI's ProjectSnapshot naming.
+        // Set by TaxInvoiceDetailViewModel.BuildWizardState().
+        //
+        // Field-to-PDF-label mapping:
+        //   ProjectIdentifierName → "Project Identifier Name:"
+        //   ProjectContractNo     → "Project Name / No:"
+        //   ProjectReference      → "Project Reference:"
+        //   SiteDeliveryLocation  → "Site / Delivery Location:"
+        //
+        // Old ProjectName / ProjectLocation removed — no backward compat
+        // needed on state (state is transient, created fresh each save).
+
+        public string ProjectIdentifierName { get; set; } = "";
+        public string ProjectContractNo { get; set; } = "";
         public string ProjectReference { get; set; } = "";
+        public string SiteDeliveryLocation { get; set; } = "";
 
         // Financials
         public decimal DiscountPercent { get; set; }
