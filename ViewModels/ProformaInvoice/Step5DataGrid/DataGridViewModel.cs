@@ -1,22 +1,27 @@
 ﻿// ╔══════════════════════════════════════════════════════════════════════════╗
 // ║  ViewModels/ProformaInvoice/Step5DataGrid/DataGridViewModel.cs           ║
 // ║                                                                          ║
-// ║  CHAT 13 HOTFIX-5 (proper fix): CollectionView.Filter                    ║
+// ║  CHAT 20 FINAL — Multi-row selection + persistent Find/Replace.         ║
 // ║                                                                          ║
-// ║    ROOT CAUSE OF TYPING BUG:                                             ║
-// ║    Previously, FilteredSpecs was an ObservableCollection that got        ║
-// ║    Cleared and re-Add()ed on every keystroke. WPF's editable ComboBox    ║
-// ║    reacted to ItemsSource churn by resynchronizing Text ⇄ SelectedItem, ║
-// ║    which wiped user input and selection state mid-typing.                ║
+// ║  NEW IN THIS VERSION:                                                    ║
+// ║    SEL-01: IsSelected property on GlassItemRow (row highlight state)    ║
+// ║    SEL-02: SpecGroup implements 6 new IExcelPasteable methods:          ║
+// ║              ClearRowSelection, SelectAllRows, SetRowSelection,          ║
+// ║              SelectRowRange, GetSelectedRows, FillDownAcrossRows        ║
+// ║    FIND-01: ExecuteOpenFind uses callback pattern (persistent dialog)   ║
+// ║    FIND-02: ExecuteOpenFindReplace uses callback pattern                ║
+// ║    PRICE-01: ImportedPrice set from spec on FIRST pick, preserved       ║
+// ║               thereafter — user can edit BaseRate without losing it     ║
+// ║    PRICE-02: AddNewSpecGroup defaults to 0m (spec selection sets price) ║
 // ║                                                                          ║
-// ║    FIX:                                                                  ║
-// ║    FilteredSpecs is now an ICollectionView with a Filter predicate.     ║
-// ║    Typing triggers view.Refresh() — items are HIDDEN/SHOWN in place,    ║
-// ║    the source collection is never mutated. WPF's ComboBox stays quiet.  ║
-// ║                                                                          ║
-// ║  HOTFIX-4 (preserved): Autocomplete + glass type auto-switch             ║
-// ║  HOTFIX-1 (preserved): BaseRate propagates to all rows                   ║
-// ║  Chat 12 Session 2 (preserved): BUG-46/47/48/49/50/51                    ║
+// ║  PRESERVED FROM PREVIOUS:                                                ║
+// ║    ✅ Deferred row addition via DispatcherPriority.Loaded                ║
+// ║    ✅ AddRows / RemoveRow / FindNext / FindAndReplace / FillDown         ║
+// ║    ✅ IsHighlighted + HighlightRow (yellow flash)                        ║
+// ║    ✅ Paste engine (cursor-column-aware, AddRangeSilent)                 ║
+// ║    ✅ HOTFIX-5 spec autocomplete, HOTFIX-4 glass type auto-switch       ║
+// ║    ✅ HOTFIX-1 BaseRate propagation to rows                              ║
+// ║    ✅ Global Ctrl+F/H commands on DataGridViewModel                      ║
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
 using ProGlassAutomation.Behaviors;
@@ -40,89 +45,196 @@ using System.Windows.Threading;
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 {
     // ════════════════════════════════════════════════════════════════════════
+    // GRID COLUMN INDEX CONSTANTS
+    // ════════════════════════════════════════════════════════════════════════
+
+    public static class GridColumnIndex
+    {
+        public const int GlassRef = 0;
+        public const int W1 = 1;
+        public const int H1 = 2;
+        public const int W2 = 3;
+        public const int H2 = 4;
+        public const int Qty = 5;
+        public const int Rate = 6;
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
     // CLASS: GlassItemRow
     // ════════════════════════════════════════════════════════════════════════
 
     public class GlassItemRow : ViewModelBase
     {
-        private const decimal MIN_SQM = 0.5m;
+        // ── Serial number ──────────────────────────────────────────────────
 
         private int _serialNumber;
         public int SerialNumber
         {
             get => _serialNumber;
-            set { if (_serialNumber == value) return; _serialNumber = value; OnPropertyChanged(); }
+            set
+            {
+                if (_serialNumber == value) return;
+                _serialNumber = value;
+                OnPropertyChanged();
+            }
         }
+
+        // ── GlassRef ───────────────────────────────────────────────────────
 
         private string _glassRef = "";
         public string GlassRef
         {
             get => _glassRef;
-            set { if (_glassRef == value) return; _glassRef = value; OnPropertyChanged(); }
+            set
+            {
+                if (_glassRef == value) return;
+                _glassRef = value;
+                OnPropertyChanged();
+            }
         }
+
+        // ── Dimensions ────────────────────────────────────────────────────
 
         private int _w1;
         public int W1
         {
             get => _w1;
-            set { if (_w1 == value) return; _w1 = value; OnPropertyChanged(); RecalculateAll(); }
+            set
+            {
+                if (_w1 == value) return;
+                _w1 = value;
+                OnPropertyChanged();
+                RecalculateAll();
+            }
         }
 
         private int _h1;
         public int H1
         {
             get => _h1;
-            set { if (_h1 == value) return; _h1 = value; OnPropertyChanged(); RecalculateAll(); }
+            set
+            {
+                if (_h1 == value) return;
+                _h1 = value;
+                OnPropertyChanged();
+                RecalculateAll();
+            }
         }
 
         private int _w2;
         public int W2
         {
             get => _w2;
-            set { if (_w2 == value) return; _w2 = value; OnPropertyChanged(); RecalculateAll(); }
+            set
+            {
+                if (_w2 == value) return;
+                _w2 = value;
+                OnPropertyChanged();
+                RecalculateAll();
+            }
         }
 
         private int _h2;
         public int H2
         {
             get => _h2;
-            set { if (_h2 == value) return; _h2 = value; OnPropertyChanged(); RecalculateAll(); }
+            set
+            {
+                if (_h2 == value) return;
+                _h2 = value;
+                OnPropertyChanged();
+                RecalculateAll();
+            }
         }
 
         private int _qty = 1;
         public int Qty
         {
             get => _qty;
-            set { if (_qty == value) return; _qty = value; OnPropertyChanged(); RecalculateAll(); }
+            set
+            {
+                if (_qty == value) return;
+                _qty = value;
+                OnPropertyChanged();
+                RecalculateAll();
+            }
         }
+
+        // ── Calculated outputs ────────────────────────────────────────────
 
         private decimal _sqm1;
         public decimal Sqm1
         {
             get => _sqm1;
-            private set { if (_sqm1 == value) return; _sqm1 = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_sqm1 == value) return;
+                _sqm1 = value;
+                OnPropertyChanged();
+            }
         }
 
         private decimal _totalSqm;
         public decimal TotalSqm
         {
             get => _totalSqm;
-            private set { if (_totalSqm == value) return; _totalSqm = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_totalSqm == value) return;
+                _totalSqm = value;
+                OnPropertyChanged();
+            }
         }
 
         private decimal _sqm2;
         public decimal Sqm2
         {
             get => _sqm2;
-            private set { if (_sqm2 == value) return; _sqm2 = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_sqm2 == value) return;
+                _sqm2 = value;
+                OnPropertyChanged();
+            }
         }
 
         private decimal _totalSqm2;
         public decimal TotalSqm2
         {
             get => _totalSqm2;
-            private set { if (_totalSqm2 == value) return; _totalSqm2 = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_totalSqm2 == value) return;
+                _totalSqm2 = value;
+                OnPropertyChanged();
+            }
         }
+
+        private decimal _lm1;
+        public decimal Lm1
+        {
+            get => _lm1;
+            private set
+            {
+                if (_lm1 == value) return;
+                _lm1 = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private decimal _lm2;
+        public decimal Lm2
+        {
+            get => _lm2;
+            private set
+            {
+                if (_lm2 == value) return;
+                _lm2 = value;
+                OnPropertyChanged();
+            }
+        }
+
+        // ── Rate and Value ────────────────────────────────────────────────
 
         private decimal _rate;
         public decimal Rate
@@ -132,8 +244,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             {
                 if (_rate == value) return;
                 _rate = value;
-                OnPropertyChanged();
                 _value = Math.Round(_sqm1 * _qty * _rate, 2);
+                OnPropertyChanged();
                 OnPropertyChanged(nameof(Value));
             }
         }
@@ -142,29 +254,30 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         public decimal Value
         {
             get => _value;
-            private set { if (_value == value) return; _value = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_value == value) return;
+                _value = value;
+                OnPropertyChanged();
+            }
         }
 
-        private decimal _lm1;
-        public decimal Lm1
-        {
-            get => _lm1;
-            private set { if (_lm1 == value) return; _lm1 = value; OnPropertyChanged(); }
-        }
-
-        private decimal _lm2;
-        public decimal Lm2
-        {
-            get => _lm2;
-            private set { if (_lm2 == value) return; _lm2 = value; OnPropertyChanged(); }
-        }
+        // ── Perimeter factor ──────────────────────────────────────────────
 
         private int _perimeterFactor = 2;
         public int PerimeterFactor
         {
             get => _perimeterFactor;
-            set { if (_perimeterFactor == value) return; _perimeterFactor = value; OnPropertyChanged(); RecalculateAll(); }
+            set
+            {
+                if (_perimeterFactor == value) return;
+                _perimeterFactor = value;
+                OnPropertyChanged();
+                RecalculateAll();
+            }
         }
+
+        // ── Flags ─────────────────────────────────────────────────────────
 
         internal bool SuppressRateAutoAdjust { get; set; } = false;
 
@@ -172,22 +285,66 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             string.IsNullOrWhiteSpace(_glassRef) &&
             _w1 == 0 && _h1 == 0 && _w2 == 0 && _h2 == 0;
 
+        // ── Highlight state (transient — for Find visual feedback) ─────
+
+        private bool _isHighlighted;
+        /// <summary>
+        /// Transient visual highlight — set true briefly by SpecGroup.HighlightRow
+        /// when Find locates this row. Cleared automatically after ~2 seconds.
+        /// Bound to row background via DataTrigger for yellow flash.
+        /// </summary>
+        public bool IsHighlighted
+        {
+            get => _isHighlighted;
+            set
+            {
+                if (_isHighlighted == value) return;
+                _isHighlighted = value;
+                OnPropertyChanged();
+            }
+        }
+
+        // ── Selection state (for multi-row Ctrl+D fill down) ──────────
+
+        private bool _isSelected;
+        /// <summary>
+        /// True when this row is part of the current selection.
+        /// Set by DataGridNavigationBehavior via SpecGroup.SetRowSelection.
+        /// Bound to row background via DataTrigger for blue selection highlight.
+        /// Cleared by clicking on a TextBox, clicking empty area, or pressing Escape.
+        /// </summary>
+        public bool IsSelected
+        {
+            get => _isSelected;
+            set
+            {
+                if (_isSelected == value) return;
+                _isSelected = value;
+                OnPropertyChanged();
+            }
+        }
+
+        // ── Calculations ──────────────────────────────────────────────────
+
         public void RecalculateAll()
         {
             decimal newSqm1 = _w1 > 0 && _h1 > 0
-                ? SqmCalculator.CalculatePanel(_w1, _h1)
-                : 0m;
+                ? SqmCalculator.CalculatePanel(_w1, _h1) : 0m;
             decimal newTotalSqm = Math.Round(newSqm1 * _qty, 3);
 
             decimal newSqm2 = _w2 > 0 && _h2 > 0
-                ? SqmCalculator.CalculatePanel(_w2, _h2)
-                : 0m;
+                ? SqmCalculator.CalculatePanel(_w2, _h2) : 0m;
             decimal newTotalSqm2 = Math.Round(newSqm2 * _qty, 3);
 
             decimal newLm1 = _w1 > 0 && _h1 > 0
-                ? Math.Round(((decimal)_w1 + _h1) / 1000m * _perimeterFactor * _qty, 3) : 0m;
+                ? Math.Round(
+                    ((decimal)_w1 + _h1) / 1000m * _perimeterFactor * _qty, 3)
+                : 0m;
             decimal newLm2 = _w2 > 0 && _h2 > 0
-                ? Math.Round(((decimal)_w2 + _h2) / 1000m * _perimeterFactor * _qty, 3) : 0m;
+                ? Math.Round(
+                    ((decimal)_w2 + _h2) / 1000m * _perimeterFactor * _qty, 3)
+                : 0m;
+
             decimal newValue = Math.Round(newSqm1 * _qty * _rate, 2);
 
             _sqm1 = newSqm1;
@@ -208,8 +365,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         }
 
         public void SetAllSilent(
-            string glassRef, int w1, int h1, int w2, int h2,
-            int qty, int perimeterFactor, decimal rate)
+            string glassRef,
+            int w1, int h1,
+            int w2, int h2,
+            int qty,
+            int perimeterFactor,
+            decimal rate)
         {
             _glassRef = glassRef;
             _w1 = w1;
@@ -220,16 +381,105 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             _perimeterFactor = perimeterFactor;
             _rate = rate;
 
-            _sqm1 = _w1 > 0 && _h1 > 0 ? SqmCalculator.CalculatePanel(_w1, _h1) : 0m;
+            _sqm1 = _w1 > 0 && _h1 > 0
+                ? SqmCalculator.CalculatePanel(_w1, _h1) : 0m;
             _totalSqm = Math.Round(_sqm1 * _qty, 3);
 
-            _sqm2 = _w2 > 0 && _h2 > 0 ? SqmCalculator.CalculatePanel(_w2, _h2) : 0m;
+            _sqm2 = _w2 > 0 && _h2 > 0
+                ? SqmCalculator.CalculatePanel(_w2, _h2) : 0m;
             _totalSqm2 = Math.Round(_sqm2 * _qty, 3);
 
             _lm1 = _w1 > 0 && _h1 > 0
-                ? Math.Round(((decimal)_w1 + _h1) / 1000m * _perimeterFactor * _qty, 3) : 0m;
+                ? Math.Round(
+                    ((decimal)_w1 + _h1) / 1000m * _perimeterFactor * _qty, 3)
+                : 0m;
             _lm2 = _w2 > 0 && _h2 > 0
-                ? Math.Round(((decimal)_w2 + _h2) / 1000m * _perimeterFactor * _qty, 3) : 0m;
+                ? Math.Round(
+                    ((decimal)_w2 + _h2) / 1000m * _perimeterFactor * _qty, 3)
+                : 0m;
+
+            _value = Math.Round(_sqm1 * _qty * _rate, 2);
+        }
+
+        public void ApplyColumnValues(
+            Dictionary<int, string> columnValues,
+            int perimeterFactor,
+            decimal surchargeRate,
+            decimal baseRate)
+        {
+            foreach (var kv in columnValues)
+            {
+                switch (kv.Key)
+                {
+                    case GridColumnIndex.GlassRef:
+                        _glassRef = kv.Value ?? "";
+                        break;
+
+                    case GridColumnIndex.W1:
+                        if (int.TryParse(CleanNum(kv.Value), out int w1))
+                            _w1 = w1;
+                        break;
+
+                    case GridColumnIndex.H1:
+                        if (int.TryParse(CleanNum(kv.Value), out int h1))
+                            _h1 = h1;
+                        break;
+
+                    case GridColumnIndex.W2:
+                        if (int.TryParse(CleanNum(kv.Value), out int w2))
+                            _w2 = w2;
+                        break;
+
+                    case GridColumnIndex.H2:
+                        if (int.TryParse(CleanNum(kv.Value), out int h2))
+                            _h2 = h2;
+                        break;
+
+                    case GridColumnIndex.Qty:
+                        if (int.TryParse(CleanNum(kv.Value), out int qty)
+                            && qty > 0)
+                            _qty = qty;
+                        break;
+
+                    case GridColumnIndex.Rate:
+                        if (decimal.TryParse(
+                                CleanNum(kv.Value),
+                                System.Globalization.NumberStyles.Any,
+                                System.Globalization.CultureInfo.InvariantCulture,
+                                out decimal rate)
+                            && rate > 0)
+                        {
+                            _rate = rate;
+                        }
+                        break;
+                }
+            }
+
+            _perimeterFactor = perimeterFactor;
+
+            _sqm1 = _w1 > 0 && _h1 > 0
+                ? SqmCalculator.CalculatePanel(_w1, _h1) : 0m;
+            _totalSqm = Math.Round(_sqm1 * _qty, 3);
+
+            _sqm2 = _w2 > 0 && _h2 > 0
+                ? SqmCalculator.CalculatePanel(_w2, _h2) : 0m;
+            _totalSqm2 = Math.Round(_sqm2 * _qty, 3);
+
+            _lm1 = _w1 > 0 && _h1 > 0
+                ? Math.Round(
+                    ((decimal)_w1 + _h1) / 1000m * _perimeterFactor * _qty, 3)
+                : 0m;
+            _lm2 = _w2 > 0 && _h2 > 0
+                ? Math.Round(
+                    ((decimal)_w2 + _h2) / 1000m * _perimeterFactor * _qty, 3)
+                : 0m;
+
+            if (!SuppressRateAutoAdjust &&
+                !columnValues.ContainsKey(GridColumnIndex.Rate))
+            {
+                _rate = _sqm1 >= 4m ? surchargeRate : baseRate;
+            }
+
             _value = Math.Round(_sqm1 * _qty * _rate, 2);
         }
 
@@ -237,13 +487,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         {
             var dispatcher = Application.Current?.Dispatcher;
             if (dispatcher == null || dispatcher.CheckAccess())
-            {
                 FireAllChangedCore();
-            }
             else
-            {
-                dispatcher.InvokeAsync(FireAllChangedCore, DispatcherPriority.Background);
-            }
+                dispatcher.InvokeAsync(
+                    FireAllChangedCore, DispatcherPriority.Background);
         }
 
         private void FireAllChangedCore()
@@ -264,6 +511,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             OnPropertyChanged(nameof(Rate));
             OnPropertyChanged(nameof(Value));
         }
+
+        // ── Private helpers ───────────────────────────────────────────────
+
+        private static string CleanNum(string s) =>
+            s?.Trim().Replace(",", "").Replace(" ", "") ?? "0";
     }
 
     // ════════════════════════════════════════════════════════════════════════
@@ -272,31 +524,25 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
 
     public class SpecGroup : ViewModelBase, IExcelPasteable
     {
-        // ══════════════════════════════════════════════════════════════════
-        //  SPEC SOURCE STORAGE
-        //
-        //  _specSource is the master ObservableCollection that ALL loaded
-        //  specs live in (current glass type + fallback all-types union).
-        //  FilteredSpecs is an ICollectionView over this source with a
-        //  live Filter predicate — items are HIDDEN, not removed, so WPF's
-        //  editable ComboBox doesn't wipe user input.
-        // ══════════════════════════════════════════════════════════════════
         private readonly ObservableCollection<SavedSpecification> _specSource = new();
         private ICollectionView _filteredSpecsView;
         private HashSet<string> _sourceKeys = new(StringComparer.OrdinalIgnoreCase);
-
-        // Track whether we've already loaded all-glass-types (fallback set)
         private bool _allTypeSpecsMerged = false;
-
-        // Guards
         private bool _isAutoSwitchingGlassType = false;
         private bool _isProgrammaticSpecChange = false;
+
+        // ── Group identity ─────────────────────────────────────────────────
 
         private int _groupNumber;
         public int GroupNumber
         {
             get => _groupNumber;
-            set { if (_groupNumber == value) return; _groupNumber = value; OnPropertyChanged(); }
+            set
+            {
+                if (_groupNumber == value) return;
+                _groupNumber = value;
+                OnPropertyChanged();
+            }
         }
 
         private string _groupName = "";
@@ -304,6 +550,25 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         {
             get => _groupName;
             set { _groupName = value; OnPropertyChanged(); }
+        }
+
+        // ── PRICING ───────────────────────────────────────────────────────
+
+        private decimal _importedPrice;
+        /// <summary>
+        /// Fixed reference price imported from Step 4 (Spec &amp; Price Generator).
+        /// Set ONCE on first spec pick — preserved thereafter even if user
+        /// manually edits BaseRate. Displayed read-only in UI.
+        /// </summary>
+        public decimal ImportedPrice
+        {
+            get => _importedPrice;
+            set
+            {
+                if (_importedPrice == value) return;
+                _importedPrice = value;
+                OnPropertyChanged();
+            }
         }
 
         private decimal _baseRate;
@@ -315,7 +580,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 if (_baseRate == value) return;
                 _baseRate = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(EffectiveRate));
+                OnPropertyChanged(nameof(SurchargeRate));
                 UpdateAllRowRates();
             }
         }
@@ -329,17 +594,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 if (_surchargePercent == value) return;
                 _surchargePercent = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(EffectiveRate));
+                OnPropertyChanged(nameof(SurchargeRate));
                 UpdateAllRowRates();
             }
         }
 
-        public decimal EffectiveRate =>
+        public decimal SurchargeRate =>
             Math.Round(_baseRate * (1m + (_surchargePercent / 100m)), 2);
 
         public string SpecDisplayName => !string.IsNullOrWhiteSpace(SelectedSpecName)
             ? SelectedSpecName
             : (GroupName ?? $"Spec Group {GroupNumber}");
+
+        // ── Glass type ────────────────────────────────────────────────────
 
         private string _selectedGlassType = "";
         public string SelectedGlassType
@@ -355,10 +622,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════
-        //  SelectedSpecName — the COMMITTED spec name (used for rate lookup,
-        //  display, invoice output).
-        // ══════════════════════════════════════════════════════════════════
+        // ── Spec autocomplete ─────────────────────────────────────────────
+
         private string _selectedSpecName = "";
         public string SelectedSpecName
         {
@@ -366,26 +631,31 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             set
             {
                 var newValue = value ?? "";
-                if (string.Equals(_selectedSpecName, newValue, StringComparison.Ordinal)) return;
+                if (string.Equals(
+                        _selectedSpecName, newValue,
+                        StringComparison.Ordinal)) return;
 
                 _selectedSpecName = newValue;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(SpecDisplayName));
 
-                // Sync from EXTERNAL sets (e.g., loading a saved invoice)
                 if (!_isProgrammaticSpecChange)
                 {
                     _isProgrammaticSpecChange = true;
                     try
                     {
-                        if (!string.Equals(_specTypedText, newValue, StringComparison.Ordinal))
+                        if (!string.Equals(
+                                _specTypedText, newValue,
+                                StringComparison.Ordinal))
                         {
                             _specTypedText = newValue;
                             OnPropertyChanged(nameof(SpecTypedText));
                         }
 
                         var match = _specSource.FirstOrDefault(s =>
-                            string.Equals(s.SpecName, newValue, StringComparison.OrdinalIgnoreCase));
+                            string.Equals(
+                                s.SpecName, newValue,
+                                StringComparison.OrdinalIgnoreCase));
 
                         if (!ReferenceEquals(_selectedSpecItem, match))
                         {
@@ -393,20 +663,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                             OnPropertyChanged(nameof(SelectedSpecItem));
                         }
                     }
-                    finally
-                    {
-                        _isProgrammaticSpecChange = false;
-                    }
+                    finally { _isProgrammaticSpecChange = false; }
                 }
 
                 TryAutoFillRate();
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════
-        //  SpecTypedText — text user is currently typing in the ComboBox.
-        //  Drives the Filter predicate. Distinct from SelectedSpecName.
-        // ══════════════════════════════════════════════════════════════════
         private string _specTypedText = "";
         public string SpecTypedText
         {
@@ -414,33 +677,28 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             set
             {
                 var newValue = value ?? "";
-                if (string.Equals(_specTypedText, newValue, StringComparison.Ordinal)) return;
+                if (string.Equals(
+                        _specTypedText, newValue,
+                        StringComparison.Ordinal)) return;
 
                 _specTypedText = newValue;
                 OnPropertyChanged();
 
                 if (_isProgrammaticSpecChange) return;
 
-                // Refresh the filter — items get hidden/shown, source not mutated
                 _filteredSpecsView?.Refresh();
+                IsSpecDropdownOpen =
+                    !string.IsNullOrEmpty(_specTypedText) && ViewHasAnyItems();
 
-                // Auto-open dropdown when user has typed something meaningful
-                // and the filter has matches available.
-                IsSpecDropdownOpen = !string.IsNullOrEmpty(_specTypedText)
-                                     && ViewHasAnyItems();
-
-                // If current-type filter shows zero results, load all-types
-                // and refresh again. Only triggers ONCE per session.
                 if (!string.IsNullOrEmpty(_specTypedText) &&
-                    !_allTypeSpecsMerged &&
-                    !ViewHasAnyItems())
+                    !_allTypeSpecsMerged && !ViewHasAnyItems())
                 {
                     _ = LoadAllTypesFallbackAsync();
                 }
 
-                // Commit path — exact match of typed text to a spec in source
                 var exact = _specSource.FirstOrDefault(s =>
-                    string.Equals(s.SpecName, _specTypedText,
+                    string.Equals(
+                        s.SpecName, _specTypedText,
                         StringComparison.OrdinalIgnoreCase));
 
                 _isProgrammaticSpecChange = true;
@@ -460,7 +718,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     }
                     else
                     {
-                        // Free-text mode: commit typed text as selected name
                         _selectedSpecName = _specTypedText;
                         OnPropertyChanged(nameof(SelectedSpecName));
                         OnPropertyChanged(nameof(SpecDisplayName));
@@ -472,16 +729,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                         }
                     }
                 }
-                finally
-                {
-                    _isProgrammaticSpecChange = false;
-                }
+                finally { _isProgrammaticSpecChange = false; }
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════
-        //  SelectedSpecItem — bound to ComboBox.SelectedItem
-        // ══════════════════════════════════════════════════════════════════
         private SavedSpecification _selectedSpecItem;
         public SavedSpecification SelectedSpecItem
         {
@@ -505,20 +756,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     OnPropertyChanged(nameof(SpecDisplayName));
 
                     IsSpecDropdownOpen = false;
-
                     TryAutoFillRate();
                     HandleSpecCommit(value.SpecName);
                 }
-                finally
-                {
-                    _isProgrammaticSpecChange = false;
-                }
+                finally { _isProgrammaticSpecChange = false; }
             }
         }
 
-        // ══════════════════════════════════════════════════════════════════
-        //  IsSpecDropdownOpen — VM-controlled dropdown visibility
-        // ══════════════════════════════════════════════════════════════════
         private bool _isSpecDropdownOpen;
         public bool IsSpecDropdownOpen
         {
@@ -531,127 +775,207 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
         }
 
-        /// <summary>
-        /// ICollectionView bound to the ComboBox ItemsSource.
-        /// Filter runs against _specTypedText via SpecFilterPredicate.
-        /// The underlying _specSource is stable — filtering hides items
-        /// rather than removing them, so WPF ComboBox stays quiet.
-        /// </summary>
         public ICollectionView FilteredSpecs => _filteredSpecsView;
 
-        public ObservableCollection<GlassItemRow> ItemRows { get; } = new();
+        // ── ItemRows ──────────────────────────────────────────────────────
 
-        // ── Paste progress ─────────────────────────────────────────────
+        public BulkObservableCollection<GlassItemRow> ItemRows { get; } = new();
+
+        // ── Bulk row generation ───────────────────────────────────────────
+
+        private string _bulkRowCountText = "";
+        public string BulkRowCountText
+        {
+            get => _bulkRowCountText;
+            set
+            {
+                if (_bulkRowCountText == value) return;
+                _bulkRowCountText = value;
+                OnPropertyChanged();
+            }
+        }
+
+        // ── Paste progress ────────────────────────────────────────────────
 
         private bool _isPasting;
         public bool IsPasting
         {
             get => _isPasting;
-            private set { if (_isPasting == value) return; _isPasting = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_isPasting == value) return;
+                _isPasting = value;
+                OnPropertyChanged();
+            }
         }
 
         private int _pasteProgress;
         public int PasteProgress
         {
             get => _pasteProgress;
-            private set { if (_pasteProgress == value) return; _pasteProgress = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_pasteProgress == value) return;
+                _pasteProgress = value;
+                OnPropertyChanged();
+            }
         }
 
         private string _pasteStatusText = "";
         public string PasteStatusText
         {
             get => _pasteStatusText;
-            private set { if (_pasteStatusText == value) return; _pasteStatusText = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_pasteStatusText == value) return;
+                _pasteStatusText = value;
+                OnPropertyChanged();
+            }
         }
 
-        // ── Toast ──────────────────────────────────────────────────────
+        // ── Toast ─────────────────────────────────────────────────────────
 
         private bool _isToastVisible;
         public bool IsToastVisible
         {
             get => _isToastVisible;
-            private set { if (_isToastVisible == value) return; _isToastVisible = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_isToastVisible == value) return;
+                _isToastVisible = value;
+                OnPropertyChanged();
+            }
         }
 
         private string _toastMessage = "";
         public string ToastMessage
         {
             get => _toastMessage;
-            private set { if (_toastMessage == value) return; _toastMessage = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_toastMessage == value) return;
+                _toastMessage = value;
+                OnPropertyChanged();
+            }
         }
 
         private bool _toastIsError;
         public bool ToastIsError
         {
             get => _toastIsError;
-            private set { if (_toastIsError == value) return; _toastIsError = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_toastIsError == value) return;
+                _toastIsError = value;
+                OnPropertyChanged();
+            }
         }
 
-        // ── Footer totals ──────────────────────────────────────────────
+        // ── Footer totals ─────────────────────────────────────────────────
 
         private int _totalRows;
         public int TotalRows
         {
             get => _totalRows;
-            private set { if (_totalRows == value) return; _totalRows = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_totalRows == value) return;
+                _totalRows = value;
+                OnPropertyChanged();
+            }
         }
 
         private int _footerTotalQty;
         public int FooterTotalQty
         {
             get => _footerTotalQty;
-            private set { if (_footerTotalQty == value) return; _footerTotalQty = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_footerTotalQty == value) return;
+                _footerTotalQty = value;
+                OnPropertyChanged();
+            }
         }
 
         private decimal _footerTotalSqm;
         public decimal FooterTotalSqm
         {
             get => _footerTotalSqm;
-            private set { if (_footerTotalSqm == value) return; _footerTotalSqm = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_footerTotalSqm == value) return;
+                _footerTotalSqm = value;
+                OnPropertyChanged();
+            }
         }
 
         private decimal _footerTotalSqm2;
         public decimal FooterTotalSqm2
         {
             get => _footerTotalSqm2;
-            private set { if (_footerTotalSqm2 == value) return; _footerTotalSqm2 = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_footerTotalSqm2 == value) return;
+                _footerTotalSqm2 = value;
+                OnPropertyChanged();
+            }
         }
 
         private decimal _footerTotalLm1;
         public decimal FooterTotalLm1
         {
             get => _footerTotalLm1;
-            private set { if (_footerTotalLm1 == value) return; _footerTotalLm1 = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_footerTotalLm1 == value) return;
+                _footerTotalLm1 = value;
+                OnPropertyChanged();
+            }
         }
 
         private decimal _footerTotalLm2;
         public decimal FooterTotalLm2
         {
             get => _footerTotalLm2;
-            private set { if (_footerTotalLm2 == value) return; _footerTotalLm2 = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_footerTotalLm2 == value) return;
+                _footerTotalLm2 = value;
+                OnPropertyChanged();
+            }
         }
 
         private decimal _footerTotalValue;
         public decimal FooterTotalValue
         {
             get => _footerTotalValue;
-            private set { if (_footerTotalValue == value) return; _footerTotalValue = value; OnPropertyChanged(); }
+            private set
+            {
+                if (_footerTotalValue == value) return;
+                _footerTotalValue = value;
+                OnPropertyChanged();
+            }
         }
 
-        // ── Commands ────────────────────────────────────────────────────
+        // ── Commands ──────────────────────────────────────────────────────
 
         public ICommand AddRowCommand { get; }
         public ICommand RemoveRowCommand { get; }
         public ICommand PasteExcelCommand { get; }
+        public ICommand GenerateRowsCommand { get; }
+        public ICommand OpenFindCommand { get; }
+        public ICommand OpenFindReplaceCommand { get; }
 
         private bool _isBulkAdding = false;
 
+        // ══════════════════════════════════════════════════════════════════
+        //  CONSTRUCTOR
+        // ══════════════════════════════════════════════════════════════════
+
         public SpecGroup()
         {
-            // Build the CollectionView over the stable source collection
             _filteredSpecsView = CollectionViewSource.GetDefaultView(_specSource);
             _filteredSpecsView.Filter = SpecFilterPredicate;
-            OnPropertyChanged(nameof(FilteredSpecs));
 
             ItemRows.CollectionChanged += OnItemRowsChanged;
 
@@ -666,47 +990,485 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 }
             });
 
-            PasteExcelCommand = new RelayCommand(_ => _ = PasteFromClipboardAsync());
+            PasteExcelCommand = new RelayCommand(
+                _ => _ = PasteFromClipboardAsync());
+
+            GenerateRowsCommand = new RelayCommand(
+                _ => ExecuteGenerateRows());
+
+            OpenFindCommand = new RelayCommand(
+                _ => ExecuteOpenFind());
+
+            OpenFindReplaceCommand = new RelayCommand(
+                _ => ExecuteOpenFindReplace());
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  Filter predicate — case-insensitive Contains match on SpecName
-        //  against the current SpecTypedText.
-        //  Empty typed text → show everything.
+        //  IEXCELPASTEABLE IMPLEMENTATION — CORE
         // ══════════════════════════════════════════════════════════════════
+
+        public void PasteFromText(
+            string clipboardText,
+            object startRowContext = null,
+            int startColumnIndex = 0)
+        {
+            _ = PasteFromTextAsync(clipboardText, startRowContext, startColumnIndex);
+        }
+
+        public void AddRows(int count)
+        {
+            if (count <= 0) return;
+            if (count > 10_000) count = 10_000;
+
+            int factor = _selectedGlassType == "LAM" ? 4 : 2;
+            var newRows = new List<GlassItemRow>(count);
+
+            for (int i = 0; i < count; i++)
+            {
+                newRows.Add(new GlassItemRow
+                {
+                    SerialNumber = 0,
+                    GlassRef = "",
+                    Qty = 1,
+                    Rate = SurchargeRate,
+                    PerimeterFactor = factor
+                });
+            }
+
+            _isBulkAdding = true;
+            try
+            {
+                ItemRows.AddRangeSilent(newRows);
+
+                foreach (var row in newRows)
+                    row.PropertyChanged += OnRowChanged;
+            }
+            finally
+            {
+                _isBulkAdding = false;
+                TotalRows = ItemRows.Count;
+                RenumberRows();
+                RecalculateFooter();
+            }
+
+            ItemRows.RaiseReset();
+        }
+
+        public void RemoveRow(object rowContext)
+        {
+            if (rowContext is not GlassItemRow row) return;
+            row.PropertyChanged -= OnRowChanged;
+            ItemRows.Remove(row);
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  IEXCELPASTEABLE — FIND / REPLACE
+        // ══════════════════════════════════════════════════════════════════
+
+        public object FindNext(string searchText, object fromRowContext)
+        {
+            if (string.IsNullOrWhiteSpace(searchText)) return null;
+
+            var term = searchText.Trim();
+            int startIdx = 0;
+
+            if (fromRowContext is GlassItemRow fromRow)
+            {
+                int idx = ItemRows.IndexOf(fromRow);
+                if (idx >= 0) startIdx = idx + 1;
+            }
+
+            for (int i = startIdx; i < ItemRows.Count; i++)
+            {
+                if (RowMatchesSearch(ItemRows[i], term))
+                    return ItemRows[i];
+            }
+
+            return null;
+        }
+
+        private static bool RowMatchesSearch(GlassItemRow row, string term)
+        {
+            if (row.GlassRef.IndexOf(term, StringComparison.OrdinalIgnoreCase) >= 0)
+                return true;
+            if (row.W1.ToString().Contains(term)) return true;
+            if (row.H1.ToString().Contains(term)) return true;
+            if (row.W2.ToString().Contains(term)) return true;
+            if (row.H2.ToString().Contains(term)) return true;
+            if (row.Qty.ToString().Contains(term)) return true;
+            if (row.Rate.ToString(
+                    System.Globalization.CultureInfo.InvariantCulture)
+                    .Contains(term)) return true;
+            return false;
+        }
+
+        public int FindAndReplace(string findText, string replaceText)
+        {
+            if (string.IsNullOrWhiteSpace(findText)) return 0;
+
+            int count = 0;
+            var replace = replaceText ?? "";
+
+            foreach (var row in ItemRows)
+            {
+                if (row.GlassRef.IndexOf(
+                        findText, StringComparison.OrdinalIgnoreCase) >= 0)
+                {
+                    row.GlassRef = System.Text.RegularExpressions.Regex.Replace(
+                        row.GlassRef,
+                        System.Text.RegularExpressions.Regex.Escape(findText),
+                        replace,
+                        System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                    count++;
+                }
+
+                if (row.W1.ToString() == findText &&
+                    int.TryParse(replace, out int newW1))
+                { row.W1 = newW1; count++; }
+
+                if (row.H1.ToString() == findText &&
+                    int.TryParse(replace, out int newH1))
+                { row.H1 = newH1; count++; }
+
+                if (row.W2.ToString() == findText &&
+                    int.TryParse(replace, out int newW2))
+                { row.W2 = newW2; count++; }
+
+                if (row.H2.ToString() == findText &&
+                    int.TryParse(replace, out int newH2))
+                { row.H2 = newH2; count++; }
+
+                if (row.Qty.ToString() == findText &&
+                    int.TryParse(replace, out int newQty) && newQty > 0)
+                { row.Qty = newQty; count++; }
+            }
+
+            if (count > 0)
+            {
+                ItemRows.RaiseReset();
+            }
+
+            return count;
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  IEXCELPASTEABLE — FILL DOWN
+        // ══════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Single-column fill down. Copies focused column value from row above
+        /// targetRow into targetRow. Used when 0 or 1 row is selected.
+        /// </summary>
+        public void FillDown(object targetRowContext, int columnIndex)
+        {
+            if (targetRowContext is not GlassItemRow targetRow) return;
+
+            int targetIdx = ItemRows.IndexOf(targetRow);
+            if (targetIdx <= 0) return;
+
+            var sourceRow = ItemRows[targetIdx - 1];
+
+            switch (columnIndex)
+            {
+                case GridColumnIndex.GlassRef:
+                    targetRow.GlassRef = sourceRow.GlassRef;
+                    break;
+                case GridColumnIndex.W1:
+                    targetRow.W1 = sourceRow.W1;
+                    break;
+                case GridColumnIndex.H1:
+                    targetRow.H1 = sourceRow.H1;
+                    break;
+                case GridColumnIndex.W2:
+                    targetRow.W2 = sourceRow.W2;
+                    break;
+                case GridColumnIndex.H2:
+                    targetRow.H2 = sourceRow.H2;
+                    break;
+                case GridColumnIndex.Qty:
+                    targetRow.Qty = sourceRow.Qty;
+                    break;
+                case GridColumnIndex.Rate:
+                    targetRow.Rate = sourceRow.Rate;
+                    break;
+            }
+        }
+
+        /// <summary>
+        /// Multi-row fill down.
+        /// Copies source row's writable columns (GlassRef, W1, H1, W2, H2, Qty)
+        /// into ALL target rows.
+        /// Rate is excluded — it is auto-calculated by row logic based on Sqm1.
+        /// Called by Ctrl+D when 2+ rows are selected.
+        /// </summary>
+        public void FillDownAcrossRows(object sourceRow, List<object> targetRows)
+        {
+            if (sourceRow is not GlassItemRow src) return;
+            if (targetRows == null || targetRows.Count == 0) return;
+
+            _isBulkAdding = true;
+            try
+            {
+                foreach (var t in targetRows)
+                {
+                    if (t is not GlassItemRow target) continue;
+                    if (ReferenceEquals(target, src)) continue;
+
+                    // Copy writable columns only.
+                    // Setters trigger RecalculateAll on each target row.
+                    target.GlassRef = src.GlassRef;
+                    target.W1 = src.W1;
+                    target.H1 = src.H1;
+                    target.W2 = src.W2;
+                    target.H2 = src.H2;
+                    target.Qty = src.Qty;
+                }
+            }
+            finally
+            {
+                _isBulkAdding = false;
+
+                // Apply Rate auto-adjust for each target row after bulk fill.
+                // OnRowChanged was suppressed during the loop by _isBulkAdding,
+                // so we manually apply the same rate logic here to ensure
+                // target rows get the correct rate based on their new Sqm1.
+                foreach (var t in targetRows)
+                {
+                    if (t is not GlassItemRow target) continue;
+                    if (ReferenceEquals(target, src)) continue;
+                    if (target.SuppressRateAutoAdjust) continue;
+
+                    var targetRate = target.Sqm1 >= 4m ? SurchargeRate : BaseRate;
+                    if (target.Rate != targetRate)
+                        target.Rate = targetRate;
+                }
+
+                RecalculateFooter();
+            }
+
+            // Single Reset — batches all UI updates after multi-row change
+            ItemRows.RaiseReset();
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  IEXCELPASTEABLE — SELECTION SUPPORT
+        // ══════════════════════════════════════════════════════════════════
+
+        /// <summary>Clears IsSelected on all rows.</summary>
+        public void ClearRowSelection()
+        {
+            foreach (var row in ItemRows)
+                row.IsSelected = false;
+        }
+
+        /// <summary>Sets IsSelected=true on all rows in this group.</summary>
+        public void SelectAllRows()
+        {
+            foreach (var row in ItemRows)
+                row.IsSelected = true;
+        }
+
+        /// <summary>Sets IsSelected on a specific row.</summary>
+        public void SetRowSelection(object rowContext, bool isSelected)
+        {
+            if (rowContext is not GlassItemRow row) return;
+            row.IsSelected = isSelected;
+        }
+
+        /// <summary>
+        /// Selects rows from anchorRow to targetRow (inclusive).
+        /// Clears selection outside this range.
+        /// Range order is normalised — works whether anchor is before or after target.
+        /// </summary>
+        public void SelectRowRange(object anchorRow, object targetRow)
+        {
+            if (anchorRow is not GlassItemRow anchor) return;
+            if (targetRow is not GlassItemRow target) return;
+
+            int anchorIdx = ItemRows.IndexOf(anchor);
+            int targetIdx = ItemRows.IndexOf(target);
+
+            if (anchorIdx < 0 || targetIdx < 0) return;
+
+            int start = Math.Min(anchorIdx, targetIdx);
+            int end = Math.Max(anchorIdx, targetIdx);
+
+            for (int i = 0; i < ItemRows.Count; i++)
+            {
+                ItemRows[i].IsSelected = (i >= start && i <= end);
+            }
+        }
+
+        /// <summary>
+        /// Returns currently selected rows in original collection order.
+        /// </summary>
+        public List<object> GetSelectedRows()
+        {
+            var result = new List<object>();
+            foreach (var row in ItemRows)
+            {
+                if (row.IsSelected)
+                    result.Add(row);
+            }
+            return result;
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  HIGHLIGHT ROW — 2 second yellow flash after Find match
+        // ══════════════════════════════════════════════════════════════════
+
+        public void HighlightRow(object rowContext)
+        {
+            if (rowContext is not GlassItemRow row) return;
+
+            var dispatcher = Application.Current?.Dispatcher;
+            if (dispatcher == null) return;
+
+            dispatcher.InvokeAsync(() =>
+            {
+                row.IsHighlighted = true;
+
+                var timer = new DispatcherTimer
+                {
+                    Interval = TimeSpan.FromMilliseconds(2000)
+                };
+
+                EventHandler tickHandler = null;
+                tickHandler = (s, e) =>
+                {
+                    row.IsHighlighted = false;
+                    if (s is DispatcherTimer t)
+                    {
+                        t.Stop();
+                        t.Tick -= tickHandler;
+                    }
+                };
+
+                timer.Tick += tickHandler;
+                timer.Start();
+
+            }, DispatcherPriority.Background);
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  GENERATE ROWS
+        // ══════════════════════════════════════════════════════════════════
+
+        private void ExecuteGenerateRows()
+        {
+            var text = (_bulkRowCountText ?? "").Trim();
+
+            if (!int.TryParse(text, out int count) || count <= 0)
+            {
+                _ = ShowToastAsync(
+                    "⚠  Please enter a valid number of rows to generate.",
+                    isError: true);
+                return;
+            }
+
+            if (count > 10_000)
+            {
+                _ = ShowToastAsync(
+                    "⚠  Maximum 10,000 rows per spec group. " +
+                    "Please use import for larger datasets.",
+                    isError: true);
+                return;
+            }
+
+            AddRows(count);
+            BulkRowCountText = "";
+
+            _ = ShowToastAsync($"✓  {count} row(s) generated successfully.");
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  FIND / REPLACE HANDLERS — persistent dialogs via callback pattern
+        // ══════════════════════════════════════════════════════════════════
+
+        private void ExecuteOpenFind()
+        {
+            object lastFoundRow = null;
+
+            ProGlassAutomation.Behaviors.FindReplaceDialog.Show(
+                isReplace: false,
+                onFindNext: (searchText) =>
+                {
+                    if (string.IsNullOrWhiteSpace(searchText)) return;
+
+                    var foundRow = FindNext(searchText, lastFoundRow);
+
+                    // Wrap around
+                    if (foundRow == null && lastFoundRow != null)
+                        foundRow = FindNext(searchText, null);
+
+                    if (foundRow == null)
+                    {
+                        _ = ShowToastAsync(
+                            $"No rows found containing \"{searchText}\".",
+                            isError: true);
+                        lastFoundRow = null;
+                    }
+                    else
+                    {
+                        HighlightRow(foundRow);
+                        _ = ShowToastAsync($"✓  Found match — highlighted.");
+                        lastFoundRow = foundRow;
+                    }
+                });
+        }
+
+        private void ExecuteOpenFindReplace()
+        {
+            ProGlassAutomation.Behaviors.FindReplaceDialog.Show(
+                isReplace: true,
+                onFindNext: null,
+                onReplaceAll: (findText, replaceText) =>
+                {
+                    if (string.IsNullOrWhiteSpace(findText)) return;
+
+                    int count = FindAndReplace(findText, replaceText ?? "");
+
+                    _ = ShowToastAsync(
+                        count > 0
+                            ? $"✓  Replaced {count} occurrence(s) successfully."
+                            : "No matches found.",
+                        isError: count == 0);
+                });
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  FILTER PREDICATE
+        // ══════════════════════════════════════════════════════════════════
+
         private bool SpecFilterPredicate(object item)
         {
             if (item is not SavedSpecification spec) return false;
-
             var typed = _specTypedText?.Trim() ?? "";
             if (string.IsNullOrEmpty(typed)) return true;
-
             if (string.IsNullOrEmpty(spec.SpecName)) return false;
-
-            return spec.SpecName.IndexOf(typed, StringComparison.OrdinalIgnoreCase) >= 0;
+            return spec.SpecName.IndexOf(
+                typed, StringComparison.OrdinalIgnoreCase) >= 0;
         }
 
         private bool ViewHasAnyItems()
         {
             if (_filteredSpecsView == null) return false;
-            var e = _filteredSpecsView.GetEnumerator();
-            return e.MoveNext();
+            var enumerator = _filteredSpecsView.GetEnumerator();
+            return enumerator.MoveNext();
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  LOAD SPECS — populates _specSource for the CURRENT glass type.
-        //  Called on Glass Type change. Preserves user's typed text when
-        //  the load is a side-effect of auto-switching (not a manual change).
+        //  LOAD SPECS
         // ══════════════════════════════════════════════════════════════════
+
         public async Task LoadSpecsAsync()
         {
-            // Clear source + reset fallback flag
             _specSource.Clear();
             _sourceKeys.Clear();
             _allTypeSpecsMerged = false;
 
-            // Reset typed text ONLY when this is a manual glass type change
-            if (!_isAutoSwitchingGlassType && !string.IsNullOrEmpty(_specTypedText))
+            if (!_isAutoSwitchingGlassType &&
+                !string.IsNullOrEmpty(_specTypedText))
             {
                 _isProgrammaticSpecChange = true;
                 try
@@ -714,10 +1476,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     _specTypedText = "";
                     OnPropertyChanged(nameof(SpecTypedText));
                 }
-                finally
-                {
-                    _isProgrammaticSpecChange = false;
-                }
+                finally { _isProgrammaticSpecChange = false; }
             }
 
             if (string.IsNullOrWhiteSpace(_selectedGlassType) || App.Specs == null)
@@ -746,14 +1505,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
         }
 
-        // Back-compat shim for callers using the old sync name
         public async Task LoadFilteredSpecsAsync() => await LoadSpecsAsync();
         internal void LoadFilteredSpecs() => _ = LoadSpecsAsync();
 
-        // ══════════════════════════════════════════════════════════════════
-        //  FALLBACK — merge specs from all other glass types into _specSource
-        //  when current-type search returns zero. One-time per session.
-        // ══════════════════════════════════════════════════════════════════
         private async Task LoadAllTypesFallbackAsync()
         {
             if (_allTypeSpecsMerged || App.Specs == null) return;
@@ -763,8 +1517,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             {
                 foreach (var type in new[] { "SGU", "DGU", "LAM", "DGU+LAM" })
                 {
-                    if (string.Equals(type, _selectedGlassType, StringComparison.OrdinalIgnoreCase))
-                        continue;   // already loaded
+                    if (string.Equals(
+                            type, _selectedGlassType,
+                            StringComparison.OrdinalIgnoreCase))
+                        continue;
 
                     var specs = await App.Specs.GetAllAsync(type);
                     if (specs == null) continue;
@@ -778,10 +1534,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 }
 
                 _filteredSpecsView?.Refresh();
-
-                // Re-open dropdown if the newly merged items now match
-                IsSpecDropdownOpen = !string.IsNullOrEmpty(_specTypedText)
-                                     && ViewHasAnyItems();
+                IsSpecDropdownOpen =
+                    !string.IsNullOrEmpty(_specTypedText) && ViewHasAnyItems();
             }
             catch (Exception ex)
             {
@@ -790,8 +1544,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         }
 
         // ══════════════════════════════════════════════════════════════════
-        //  HandleSpecCommit — glass type detection + silent auto-switch
+        //  SPEC COMMIT + GLASS TYPE AUTO-SWITCH
         // ══════════════════════════════════════════════════════════════════
+
         private void HandleSpecCommit(string specName)
         {
             if (string.IsNullOrWhiteSpace(specName)) return;
@@ -807,7 +1562,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 return;
             }
 
-            if (!string.Equals(detected, _selectedGlassType, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(
+                    detected, _selectedGlassType,
+                    StringComparison.OrdinalIgnoreCase))
             {
                 _isAutoSwitchingGlassType = true;
                 try
@@ -818,32 +1575,49 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                     UpdatePerimeterFactors();
 
                     _ = ShowToastAsync(
-                        $"✓  Auto-switched glass type: {previous} → {detected} (based on spec)");
+                        $"✓  Auto-switched glass type: {previous} → {detected}");
 
                     _ = LoadSpecsAsync();
                 }
-                finally
-                {
-                    _isAutoSwitchingGlassType = false;
-                }
+                finally { _isAutoSwitchingGlassType = false; }
             }
         }
 
+        /// <summary>
+        /// When a spec is picked from autocomplete, sets BaseRate from the
+        /// spec's PricePerSqm. Also sets ImportedPrice on FIRST pick (when
+        /// ImportedPrice is still 0m) — this preserves the imported reference
+        /// even if user later manually edits BaseRate.
+        /// </summary>
         private void TryAutoFillRate()
         {
             if (string.IsNullOrWhiteSpace(_selectedSpecName)) return;
 
             var match = _specSource.FirstOrDefault(s =>
-                string.Equals(s.SpecName, _selectedSpecName, StringComparison.OrdinalIgnoreCase));
+                string.Equals(
+                    s.SpecName, _selectedSpecName,
+                    StringComparison.OrdinalIgnoreCase));
 
-            if (match != null) BaseRate = match.PricePerSqm;
+            if (match != null)
+            {
+                // Set ImportedPrice ONCE — first time a spec is picked.
+                // This preserves the original imported reference even if
+                // the user later edits BaseRate manually.
+                if (_importedPrice == 0m)
+                {
+                    ImportedPrice = match.PricePerSqm;
+                }
+
+                BaseRate = match.PricePerSqm;
+            }
         }
 
         // ══════════════════════════════════════════════════════════════════
         //  COLLECTION HANDLERS
         // ══════════════════════════════════════════════════════════════════
 
-        private void OnItemRowsChanged(object s, NotifyCollectionChangedEventArgs e)
+        private void OnItemRowsChanged(
+            object s, NotifyCollectionChangedEventArgs e)
         {
             if (e.OldItems != null)
                 foreach (GlassItemRow r in e.OldItems)
@@ -864,12 +1638,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         {
             if (_isBulkAdding) return;
 
-            if (e.PropertyName is nameof(GlassItemRow.Qty)
-                or nameof(GlassItemRow.TotalSqm)
-                or nameof(GlassItemRow.TotalSqm2)
-                or nameof(GlassItemRow.Lm1)
-                or nameof(GlassItemRow.Lm2)
-                or nameof(GlassItemRow.Value))
+            if (e.PropertyName is
+                nameof(GlassItemRow.Qty) or
+                nameof(GlassItemRow.TotalSqm) or
+                nameof(GlassItemRow.TotalSqm2) or
+                nameof(GlassItemRow.Lm1) or
+                nameof(GlassItemRow.Lm2) or
+                nameof(GlassItemRow.Value))
             {
                 RecalculateFooter();
             }
@@ -878,10 +1653,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 && s is GlassItemRow row
                 && !row.SuppressRateAutoAdjust)
             {
-                bool rateIsManaged = row.Rate == BaseRate || row.Rate == EffectiveRate;
-                if (!rateIsManaged) return;
-
-                var targetRate = row.Sqm1 >= 4m ? EffectiveRate : BaseRate;
+                var targetRate = row.Sqm1 >= 4m ? SurchargeRate : BaseRate;
                 if (row.Rate != targetRate)
                     row.Rate = targetRate;
             }
@@ -901,7 +1673,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
 
             int qty = 0;
-            decimal sqm = 0m, sqm2 = 0m, lm1 = 0m, lm2 = 0m, val = 0m;
+            decimal sqm = 0m, sqm2 = 0m,
+                    lm1 = 0m, lm2 = 0m, val = 0m;
 
             foreach (var r in ItemRows)
             {
@@ -921,6 +1694,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             FooterTotalValue = Math.Round(val, 2);
         }
 
+        // ══════════════════════════════════════════════════════════════════
+        //  ROW MANAGEMENT
+        // ══════════════════════════════════════════════════════════════════
+
         private void AddNewRow()
         {
             var row = new GlassItemRow
@@ -928,53 +1705,44 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 SerialNumber = ItemRows.Count + 1,
                 GlassRef = "",
                 Qty = 1,
-                Rate = EffectiveRate,
+                Rate = SurchargeRate,
                 PerimeterFactor = _selectedGlassType == "LAM" ? 4 : 2
             };
             ItemRows.Add(row);
         }
 
-        public void AddRows(int count)
+        // ══════════════════════════════════════════════════════════════════
+        //  PASTE ENGINE
+        // ══════════════════════════════════════════════════════════════════
+
+        private async Task PasteFromClipboardAsync()
         {
-            _isBulkAdding = true;
-            try
-            {
-                int factor = _selectedGlassType == "LAM" ? 4 : 2;
-                for (int i = 0; i < count; i++)
-                {
-                    ItemRows.Add(new GlassItemRow
-                    {
-                        SerialNumber = 0,
-                        GlassRef = "",
-                        Qty = 1,
-                        Rate = EffectiveRate,
-                        PerimeterFactor = factor
-                    });
-                }
-            }
-            finally
-            {
-                _isBulkAdding = false;
-                TotalRows = ItemRows.Count;
-                RenumberRows();
-                RecalculateFooter();
-            }
+            await ShowToastAsync(
+                "⚠  Please click on the cell where you want to start " +
+                "pasting, then press Ctrl+V.",
+                isError: true);
         }
 
-        public void PasteFromText(string clipboardText, object startRowContext = null)
+        private async Task PasteFromTextAsync(
+            string clipboardText,
+            object startRowContext,
+            int startColumnIndex)
         {
-            _ = PasteFromTextAsync(clipboardText, startRowContext);
-        }
+            if (startColumnIndex < 0)
+            {
+                await ShowToastAsync(
+                    "⚠  Please click on the cell where you want to start " +
+                    "pasting before pressing Ctrl+V.",
+                    isError: true);
+                return;
+            }
 
-        private async Task PasteFromTextAsync(string clipboardText, object startRowContext = null)
-        {
             if (string.IsNullOrWhiteSpace(clipboardText)) return;
 
-            List<(string glassRef, int w1, int h1, int w2, int h2, int qty)> parsed;
-
+            List<string[]> rawRows;
             try
             {
-                parsed = await Task.Run(() => ParseClipboardText(clipboardText));
+                rawRows = await Task.Run(() => SplitClipboardRows(clipboardText));
             }
             catch (Exception ex)
             {
@@ -982,34 +1750,40 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 return;
             }
 
-            if (parsed.Count == 0)
+            if (rawRows.Count == 0)
             {
-                await ShowToastAsync(
-                    "No valid rows found in clipboard. " +
-                    "Expected: GlassRef  W1  H1  [W2  H2]  [Qty]  (tab-separated)",
+                await ShowToastAsync("No valid rows found in clipboard.",
                     isError: true);
                 return;
             }
 
-            bool showProgress = parsed.Count >= 200;
+            if (startColumnIndex > GridColumnIndex.Rate)
+            {
+                await ShowToastAsync(
+                    "⚠  Cannot paste into a read-only column.",
+                    isError: true);
+                return;
+            }
+
+            bool showProgress = rawRows.Count >= 10;
             if (showProgress)
             {
                 IsPasting = true;
                 PasteProgress = 0;
-                PasteStatusText = $"Preparing {parsed.Count} rows…";
-                await Task.Delay(16);
+                PasteStatusText = $"Preparing {rawRows.Count} rows…";
+                await Task.Yield();
             }
 
             int startIdx = -1;
             if (startRowContext is GlassItemRow anchorRow)
             {
                 int anchorIdx = ItemRows.IndexOf(anchorRow);
-                if (anchorIdx >= 0 && anchorRow.IsEmpty)
+                if (anchorIdx >= 0)
                     startIdx = anchorIdx;
             }
 
             int factor = _selectedGlassType == "LAM" ? 4 : 2;
-            var touchedRows = new List<GlassItemRow>(parsed.Count);
+            var newAppendRows = new List<GlassItemRow>();
 
             _isBulkAdding = true;
             try
@@ -1019,50 +1793,60 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 if (startIdx >= 0)
                 {
                     for (int i = startIdx;
-                         i < ItemRows.Count && parsedIdx < parsed.Count;
+                         i < ItemRows.Count && parsedIdx < rawRows.Count;
                          i++, parsedIdx++)
                     {
-                        var (glassRef, w1, h1, w2, h2, qty) = parsed[parsedIdx];
-                        var existingRow = ItemRows[i];
+                        var columnValues = BuildColumnValues(
+                            rawRows[parsedIdx], startColumnIndex);
 
-                        existingRow.SetAllSilent(glassRef, w1, h1, w2, h2, qty, factor, EffectiveRate);
-
-                        decimal correctRate = existingRow.Sqm1 >= 4m ? EffectiveRate : BaseRate;
-                        if (existingRow.Rate != correctRate)
-                            existingRow.SetAllSilent(glassRef, w1, h1, w2, h2, qty, factor, correctRate);
-
-                        touchedRows.Add(existingRow);
+                        ItemRows[i].ApplyColumnValues(
+                            columnValues, factor, SurchargeRate, BaseRate);
 
                         if (showProgress && parsedIdx % 50 == 0)
                         {
-                            PasteProgress = (int)((double)parsedIdx / parsed.Count * 100);
-                            PasteStatusText = $"Processing row {parsedIdx} of {parsed.Count}…";
-                            await Task.Delay(1);
+                            PasteProgress =
+                                (int)((double)parsedIdx / rawRows.Count * 80);
+                            PasteStatusText =
+                                $"Applying row {parsedIdx + 1} of {rawRows.Count}…";
+                            await Task.Yield();
                         }
                     }
                 }
 
-                while (parsedIdx < parsed.Count)
+                while (parsedIdx < rawRows.Count)
                 {
-                    var (glassRef, w1, h1, w2, h2, qty) = parsed[parsedIdx];
-                    var row = new GlassItemRow();
+                    var row = new GlassItemRow
+                    {
+                        Qty = 1,
+                        Rate = SurchargeRate,
+                        PerimeterFactor = factor
+                    };
 
-                    row.SetAllSilent(glassRef, w1, h1, w2, h2, qty, factor, EffectiveRate);
+                    var columnValues = BuildColumnValues(
+                        rawRows[parsedIdx], startColumnIndex);
 
-                    decimal correctRate = row.Sqm1 >= 4m ? EffectiveRate : BaseRate;
-                    if (row.Rate != correctRate)
-                        row.SetAllSilent(glassRef, w1, h1, w2, h2, qty, factor, correctRate);
+                    row.ApplyColumnValues(
+                        columnValues, factor, SurchargeRate, BaseRate);
 
-                    ItemRows.Add(row);
-                    touchedRows.Add(row);
+                    newAppendRows.Add(row);
                     parsedIdx++;
 
                     if (showProgress && parsedIdx % 50 == 0)
                     {
-                        PasteProgress = (int)((double)parsedIdx / parsed.Count * 100);
-                        PasteStatusText = $"Adding row {parsedIdx} of {parsed.Count}…";
-                        await Task.Delay(1);
+                        PasteProgress =
+                            (int)((double)parsedIdx / rawRows.Count * 80);
+                        PasteStatusText =
+                            $"Building row {parsedIdx} of {rawRows.Count}…";
+                        await Task.Yield();
                     }
+                }
+
+                if (newAppendRows.Count > 0)
+                {
+                    ItemRows.AddRangeSilent(newAppendRows);
+
+                    foreach (var row in newAppendRows)
+                        row.PropertyChanged += OnRowChanged;
                 }
             }
             finally
@@ -1077,96 +1861,84 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             if (showProgress)
             {
                 PasteProgress = 90;
-                PasteStatusText = "Updating display…";
-                await Task.Delay(16);
+                PasteStatusText = "Refreshing display…";
+                await Task.Yield();
             }
 
-            foreach (var row in touchedRows)
-                row.FireAllChanged();
+            ItemRows.RaiseReset();
 
             if (showProgress)
             {
                 PasteProgress = 100;
-                PasteStatusText = $"✓ {parsed.Count} rows ready.";
-                await Task.Delay(400);
+                PasteStatusText = $"✓  {rawRows.Count} row(s) ready.";
+                await Task.Yield();
                 IsPasting = false;
                 PasteProgress = 0;
                 PasteStatusText = "";
             }
 
-            await ShowToastAsync($"✓ Pasted {parsed.Count} row(s) successfully.");
+            await ShowToastAsync($"✓  Pasted {rawRows.Count} row(s) successfully.");
         }
 
-        private static List<(string glassRef, int w1, int h1, int w2, int h2, int qty)>
-            ParseClipboardText(string clipboardText)
+        // ══════════════════════════════════════════════════════════════════
+        //  CLIPBOARD PARSING
+        // ══════════════════════════════════════════════════════════════════
+
+        private static List<string[]> SplitClipboardRows(string clipboardText)
         {
             var lines = clipboardText.Split(
-                new[] { '\r', '\n' }, StringSplitOptions.RemoveEmptyEntries);
+                new[] { "\r\n", "\r", "\n" },
+                StringSplitOptions.RemoveEmptyEntries);
 
-            var result = new List<(string, int, int, int, int, int)>(lines.Length);
+            var result = new List<string[]>(lines.Length);
 
             foreach (var line in lines)
             {
-                string[] parts = line.Contains('\t')
-                    ? line.Split('\t')
-                    : line.Trim().Split(
-                        new[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                var parts = line.Split('\t');
 
-                if (parts.Length == 0) continue;
+                bool hasContent = false;
+                foreach (var p in parts)
+                {
+                    if (!string.IsNullOrWhiteSpace(p))
+                    {
+                        hasContent = true;
+                        break;
+                    }
+                }
 
-                string glassRef = parts.Length >= 1 ? parts[0].Trim() : "";
-                int w1 = parts.Length >= 2 && int.TryParse(CleanNum(parts[1]), out int _w1) ? _w1 : 0;
-                int h1 = parts.Length >= 3 && int.TryParse(CleanNum(parts[2]), out int _h1) ? _h1 : 0;
-                int w2 = parts.Length >= 4 && int.TryParse(CleanNum(parts[3]), out int _w2) ? _w2 : 0;
-                int h2 = parts.Length >= 5 && int.TryParse(CleanNum(parts[4]), out int _h2) ? _h2 : 0;
-                int qty = parts.Length >= 6 && int.TryParse(CleanNum(parts[5]), out int _qty) ? _qty : 1;
-                if (qty <= 0) qty = 1;
-
-                result.Add((glassRef, w1, h1, w2, h2, qty));
+                if (hasContent)
+                    result.Add(parts);
             }
 
             return result;
         }
 
-        private async Task PasteFromClipboardAsync()
+        private static Dictionary<int, string> BuildColumnValues(
+            string[] clipboardRow,
+            int startColumnIndex)
         {
-            string text;
+            var result = new Dictionary<int, string>();
 
-            try
+            for (int clipCol = 0; clipCol < clipboardRow.Length; clipCol++)
             {
-                if (!Clipboard.ContainsText())
-                {
-                    await ShowToastAsync("Clipboard is empty.", isError: true);
-                    return;
-                }
-
-                text = Clipboard.GetText();
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[SpecGroup.PasteFromClipboard] Clipboard read failed: {ex.Message}");
-                await ShowToastAsync(
-                    "Cannot read clipboard right now — another app may be using it. " +
-                    "Wait a second and try again.",
-                    isError: true);
-                return;
+                int gridCol = startColumnIndex + clipCol;
+                if (gridCol > GridColumnIndex.Rate) break;
+                result[gridCol] = clipboardRow[clipCol]?.Trim() ?? "";
             }
 
-            GlassItemRow firstEmpty = null;
-            foreach (var r in ItemRows)
-            {
-                if (r.IsEmpty) { firstEmpty = r; break; }
-            }
-
-            await PasteFromTextAsync(text, firstEmpty);
+            return result;
         }
 
-        private Task ShowToastAsync(string message, bool isError = false)
+        // ══════════════════════════════════════════════════════════════════
+        //  HELPERS
+        // ══════════════════════════════════════════════════════════════════
+
+        private async Task ShowToastAsync(string message, bool isError = false)
         {
             var dispatcher = Application.Current?.Dispatcher;
-            if (dispatcher == null) return Task.CompletedTask;
+            if (dispatcher == null) return;
 
-            return dispatcher.InvokeAsync(() =>
+            await dispatcher.InvokeAsync(() =>
             {
                 ToastMessage = message;
                 ToastIsError = isError;
@@ -1182,26 +1954,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 {
                     IsToastVisible = false;
                     ToastMessage = "";
-
                     if (s is DispatcherTimer t)
                     {
                         t.Stop();
                         t.Tick -= tickHandler;
                     }
                 };
+
                 timer.Tick += tickHandler;
                 timer.Start();
 
-            }, DispatcherPriority.Background).Task;
+            }, DispatcherPriority.Background);
         }
-
-        private static string CleanNum(string s) =>
-            s?.Trim()
-              .Replace(",", "")
-              .Replace(" ", "")
-              .Replace("–", "")
-              .Replace("-", "")
-              ?? "0";
 
         private void RenumberRows()
         {
@@ -1216,14 +1980,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 row.PerimeterFactor = factor;
         }
 
-        // HOTFIX-1: Always propagate rate to all rows (unless flagged)
         private void UpdateAllRowRates()
         {
             foreach (var row in ItemRows)
             {
                 if (row.SuppressRateAutoAdjust) continue;
-
-                var targetRate = row.Sqm1 >= 4m ? EffectiveRate : BaseRate;
+                var targetRate = row.Sqm1 >= 4m ? SurchargeRate : BaseRate;
                 if (row.Rate != targetRate)
                     row.Rate = targetRate;
             }
@@ -1237,51 +1999,88 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
     public class DataGridViewModel : ViewModelBase
     {
         public string Title { get; } = "SPECIFICATION SUB-GROUPS";
-        public string Subtitle { get; } = "Specify the number of unique glass specifications in this proforma.";
+        public string Subtitle { get; } =
+            "Specify the number of unique glass specifications in this proforma.";
 
         public List<string> GlassTypeOptions { get; } =
             new() { "SGU", "DGU", "LAM", "DGU+LAM" };
 
         public ObservableCollection<SpecGroup> SpecGroups { get; }
+
         public int TotalSpecGroups => SpecGroups?.Count ?? 0;
 
         public ICommand AddSpecGroupCommand { get; }
         public ICommand RemoveSpecGroupCommand { get; }
+        public ICommand OpenGlobalFindCommand { get; }
+        public ICommand OpenGlobalFindReplaceCommand { get; }
 
         public GrandTotalSummaryViewModel SummaryViewModel { get; }
 
         public DataGridViewModel()
         {
-            SpecGroups = new();
+            SpecGroups = new ObservableCollection<SpecGroup>();
             SpecGroups.CollectionChanged += (s, e) =>
                 OnPropertyChanged(nameof(TotalSpecGroups));
 
-            AddNewSpecGroup();
+            AddSpecGroupCommand = new RelayCommand(
+                _ => AddNewSpecGroup());
 
-            AddSpecGroupCommand = new RelayCommand(_ => AddNewSpecGroup());
-
-            RemoveSpecGroupCommand = new RelayCommand(p =>
-            {
-                if (p is SpecGroup g && SpecGroups.Count > 1)
+            RemoveSpecGroupCommand = new RelayCommand(
+                p =>
                 {
-                    SpecGroups.Remove(g);
-                    RenumberGroups();
-                }
+                    if (p is SpecGroup g)
+                    {
+                        SpecGroups.Remove(g);
+                        RenumberGroups();
+                    }
+                },
+                p => SpecGroups.Count > 1
+            );
+
+            // Global Ctrl+F / Ctrl+H — route to first spec group.
+            OpenGlobalFindCommand = new RelayCommand(_ =>
+            {
+                var firstGroup = SpecGroups.FirstOrDefault();
+                firstGroup?.OpenFindCommand.Execute(null);
+            });
+
+            OpenGlobalFindReplaceCommand = new RelayCommand(_ =>
+            {
+                var firstGroup = SpecGroups.FirstOrDefault();
+                firstGroup?.OpenFindReplaceCommand.Execute(null);
             });
 
             SummaryViewModel = new GrandTotalSummaryViewModel(SpecGroups);
+
+            AddNewSpecGroup();
         }
 
+        /// <summary>
+        /// Creates a new spec group with zero defaults.
+        /// ImportedPrice and BaseRate stay at 0 until user picks a spec —
+        /// the spec's PricePerSqm sets both (ImportedPrice preserved thereafter
+        /// even if user manually edits BaseRate).
+        /// </summary>
         private void AddNewSpecGroup()
         {
-            SpecGroups.Add(new SpecGroup
+            var group = new SpecGroup
             {
                 GroupNumber = SpecGroups.Count + 1,
                 GroupName = $"Spec Group {SpecGroups.Count + 1}",
-                BaseRate = 150m,
+                // Zero defaults — spec selection populates ImportedPrice + BaseRate.
+                ImportedPrice = 0m,
+                BaseRate = 0m,
                 SurchargePercent = 0m,
                 SelectedGlassType = "SGU"
-            });
+            };
+
+            SpecGroups.Add(group);
+
+            // Deferred row addition — ensures ListView is bound before
+            // the CollectionChanged event fires for the new row.
+            Application.Current?.Dispatcher.InvokeAsync(
+                () => group.AddRowCommand.Execute(null),
+                DispatcherPriority.Loaded);
         }
 
         private void RenumberGroups()
