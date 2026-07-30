@@ -1,7 +1,24 @@
 ﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/ProformaInvoice/ProformaInvoiceRepository/ProformaInvoiceMapper.cs
 // ═══════════════════════════════════════════════════════════════════════
-// CHAT 15 — PROJECT REFERENCE FIELD ADDED
+// CHAT 20 — PER-SPEC TARGETING PERSISTENCE
+//
+//   BuildSnapshot: writes TargetSelection.SelectedMetric.Key and
+//                  TargetSelection.AvailableSpecs.Where(IsChecked).
+//                  Select(SpecGroupNumber) to snapshot.
+//
+//   RestoreOtherCharges: after existing restore of row properties,
+//                        apply saved metric key and checked spec numbers
+//                        to row.TargetSelection.
+//
+//   Restore order preserved: Step 5 SpecGroups → Step 6 charges.
+//   By the time charges restore runs, TargetSelection.AvailableSpecs
+//   is populated (via SyncTargetSelectionsFromHub triggered by Step 5).
+//   We just override defaults with saved state.
+//
+//   Backward compatibility: null/empty saved fields → defaults apply.
+//
+// PREVIOUS: CHAT 15 — PROJECT REFERENCE FIELD ADDED
 //   3 precise changes:
 //     1. BuildSnapshot: ProjectSnapshot gains ProjectReference
 //     2. RestoreWizardFromSnapshot: project.ProjectReference restored
@@ -24,6 +41,7 @@ using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.InvoiceMai
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.PrintableInvoice;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsAndConditions;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
@@ -43,6 +61,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
     /// PHASE 14: Auto-save hook — fire-and-forget to masterdata.db.
     /// CHAT 15:  Step swap (Step2=Client, Step3=Project).
     ///           ProjectReference field added.
+    /// CHAT 20:  Per-spec targeting persistence (SelectedMetricKey +
+    ///           CheckedSpecGroupNumbers on PredefinedChargeSnapshot).
     /// </summary>
     public static class ProformaInvoiceMapper
     {
@@ -244,18 +264,37 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             }
 
             // Step 6 — predefined charges
+            //
+            // CHAT 20: SelectedMetricKey and CheckedSpecGroupNumbers are
+            // written from row.TargetSelection. Delivery rows and rows
+            // without a TargetSelection get empty defaults.
             foreach (var charge in otherCharges.ChargeRows)
             {
-                snap.OtherCharges.PredefinedCharges.Add(new PredefinedChargeSnapshot
+                var chargeSnap = new PredefinedChargeSnapshot
                 {
                     TemplateKey = charge.TemplateKey ?? "",
                     IsActive = charge.IsActive,
-                    SelectedSourceKey = charge.SelectedSource?.Key ?? "",
+                    SelectedSourceKey = "",   // legacy field — new saves leave empty
                     Rate = charge.Rate,
                     PolishSubType = charge.SelectedPolishSubType?.Type.ToString() ?? "",
                     CustomPolishDescription = charge.CustomPolishDescription ?? "",
                     CustomPolishQty = charge.CustomPolishQty
-                });
+                };
+
+                // CHAT 20: Save per-spec targeting state
+                if (charge.TargetSelection != null)
+                {
+                    chargeSnap.SelectedMetricKey =
+                        charge.TargetSelection.SelectedMetric?.Key ?? "";
+
+                    chargeSnap.CheckedSpecGroupNumbers =
+                        charge.TargetSelection.AvailableSpecs
+                            .Where(s => s.IsChecked)
+                            .Select(s => s.SpecGroupNumber)
+                            .ToList();
+                }
+
+                snap.OtherCharges.PredefinedCharges.Add(chargeSnap);
             }
 
             // Step 6 — wastages
@@ -385,6 +424,10 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             }
 
             // ── Step 5: DataGrid ───────────────────────────────────────
+            // Restoring Step 5 populates SpecGroups → triggers MetricHub
+            // refresh → SyncTargetSelectionsFromHub creates AvailableSpecs
+            // with all-checked defaults. Step 6 restore below then
+            // overrides those defaults with saved per-spec state.
             RestoreDataGrid(snap, dataGrid);
 
             // ── Step 6: Other Charges ──────────────────────────────────
@@ -476,6 +519,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     row.IsActive = cSnap.IsActive;
                     row.Rate = cSnap.Rate;
 
+                    // Legacy: SelectedSource restore (pre-Chat 17 invoices)
                     if (!row.IsPolishRow
                         && !string.IsNullOrWhiteSpace(cSnap.SelectedSourceKey))
                     {
@@ -496,6 +540,56 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                         }
                         row.CustomPolishDescription = cSnap.CustomPolishDescription ?? "";
                         row.CustomPolishQty = cSnap.CustomPolishQty;
+                    }
+
+                    // ══════════════════════════════════════════════════════
+                    // CHAT 20: Restore per-spec targeting state.
+                    //
+                    // By this point row.TargetSelection.AvailableSpecs is
+                    // already populated (with all-checked defaults) because
+                    // RestoreDataGrid triggered MetricHub → sync above.
+                    //
+                    // We override:
+                    //   • SelectedMetric — if a saved metric key exists
+                    //   • IsChecked      — apply saved checked list;
+                    //                      uncheck everything else
+                    //
+                    // Backward compatibility:
+                    //   • Empty SelectedMetricKey → skip metric restore
+                    //     (row keeps whatever sync set as default)
+                    //   • Null/empty CheckedSpecGroupNumbers → skip checkbox
+                    //     restore (row keeps default all-checked state).
+                    //     This is exactly how old invoices used to behave.
+                    // ══════════════════════════════════════════════════════
+                    if (row.TargetSelection != null)
+                    {
+                        // Restore selected metric
+                        if (!string.IsNullOrWhiteSpace(cSnap.SelectedMetricKey))
+                        {
+                            var metric = row.TargetSelection.AvailableMetrics
+                                .FirstOrDefault(m => m.Key == cSnap.SelectedMetricKey);
+                            if (metric != null)
+                                row.TargetSelection.SelectedMetric = metric;
+                        }
+
+                        // Restore per-spec checked state — only if saved list exists
+                        if (cSnap.CheckedSpecGroupNumbers != null
+                            && cSnap.CheckedSpecGroupNumbers.Count > 0)
+                        {
+                            // Build lookup for O(1) membership test
+                            var checkedSet = new HashSet<int>(
+                                cSnap.CheckedSpecGroupNumbers);
+
+                            // Apply saved state — uncheck any not in saved list
+                            foreach (var spec in row.TargetSelection.AvailableSpecs)
+                            {
+                                spec.IsChecked = checkedSet.Contains(
+                                    spec.SpecGroupNumber);
+                            }
+                        }
+                        // else: leave TargetSelection with default all-checked
+                        //       state (matches pre-Chat 20 behaviour for
+                        //       legacy invoices without saved spec state).
                     }
                 }
             }

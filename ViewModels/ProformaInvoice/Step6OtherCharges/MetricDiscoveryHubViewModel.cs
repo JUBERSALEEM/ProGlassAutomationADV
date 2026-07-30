@@ -1,20 +1,37 @@
 ﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/ProformaInvoice/Step6OtherCharges/MetricDiscoveryHubViewModel.cs
 // ═══════════════════════════════════════════════════════════════════════
-// CHAT 17 — PER-SPEC TARGETING REFACTOR
+// CHAT 20 — RESET BUG FIX
 //
-//   ADDED: PerSpecMetrics (ObservableCollection<SpecGroupMetric>)
-//          Populated on every Refresh() — one entry per spec group
-//          with individually computed LM1/LM2/SQM1/SQM2/QTY.
+//   ROOT CAUSE OF "OTHER CHARGES RESETTING":
+//     Previous Refresh() called PerSpecMetrics.Clear() then Add() × N.
+//     Each Clear() fired CollectionChanged(Reset), triggering
+//     OtherChargesViewModel.SyncTargetSelectionsFromHub() to run
+//     against an EMPTY collection — which destroyed all user
+//     spec-checkbox selections.
+//     Every keystroke in Step 5 wiped Step 6 selections.
+//
+//   FIX:
+//     Refresh() now updates PerSpecMetrics IN-PLACE.
+//     Existing SpecGroupMetric objects are mutated to reflect new values.
+//     Only truly new spec groups trigger CollectionChanged(Add).
+//     Only truly removed spec groups trigger CollectionChanged(Remove).
+//     Metric-value updates fire NO CollectionChanged event.
+//
+//   RESULT:
+//     User's spec-target selections in Step 6 survive Step 5 edits.
+//     Sync only runs when spec group set genuinely changes.
 //
 //   PRESERVED:
-//     All existing global aggregates (TotalLm1, TotalSqm1, etc.)
+//     All global aggregate properties (TotalLm1, TotalSqm1, etc.)
 //     PrimaryGlassRefs collection
-//     All event subscription patterns (CollectionChanged + PropertyChanged)
+//     BuildSpecDisplayName helper
+//     All existing event subscription patterns
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 using System.ComponentModel;
@@ -25,8 +42,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
     /// Read-only stats widget at the top of Step 6.
     /// Live-aggregates key metrics from the DataGrid (Step 5).
     ///
-    /// Chat 17: Now also exposes PerSpecMetrics — per-spec-group breakdown
-    /// used by OtherChargesViewModel to build per-spec dropdown options.
+    /// CHAT 20 FIX: PerSpecMetrics is now updated IN-PLACE — no more
+    /// Clear+Rebuild churn that was destroying user spec selections
+    /// downstream in OtherChargesViewModel.
     /// </summary>
     public class MetricDiscoveryHubViewModel : ViewModelBase
     {
@@ -99,13 +117,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
 
         public ObservableCollection<string> PrimaryGlassRefs { get; } = new();
 
-        // ── Per-spec metrics (Chat 17 — NEW) ────────────────────────────
-
-        /// <summary>
-        /// One entry per spec group with individually computed metrics.
-        /// Rebuilt on every Refresh(). Consumed by OtherChargesViewModel
-        /// to build the per-spec "Charge Basis" dropdown options.
-        /// </summary>
+        // ── Per-spec metrics ────────────────────────────────────────────
+        //
+        // CHAT 20: Updated in-place by Refresh() instead of cleared+rebuilt.
+        // CollectionChanged fires ONLY for genuine add/remove operations.
+        // Metric value updates on existing entries do NOT fire CollectionChanged.
+        //
+        // Consumers (OtherChargesViewModel) should:
+        //   - Subscribe to CollectionChanged for spec add/remove events
+        //   - Read values fresh from AvailableSpecs whenever they need them
+        //     (no need to react to individual metric changes)
+        //
         public ObservableCollection<SpecGroupMetric> PerSpecMetrics { get; } = new();
 
         // ── Constructor ────────────────────────────────────────────────────
@@ -154,15 +176,33 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
             }
         }
 
-        // ── Aggregation ────────────────────────────────────────────────────
+        // ═══════════════════════════════════════════════════════════════════
+        //  AGGREGATION — IN-PLACE UPDATE
+        // ═══════════════════════════════════════════════════════════════════
 
+        /// <summary>
+        /// Recomputes all metrics from the current spec groups.
+        ///
+        /// CHAT 20 FIX: PerSpecMetrics is updated IN-PLACE:
+        ///   • Existing entries are matched by SpecGroupNumber and
+        ///     have their properties updated (no CollectionChanged fired)
+        ///   • New spec groups are appended (CollectionChanged.Add fires)
+        ///   • Deleted spec groups are removed (CollectionChanged.Remove fires)
+        ///
+        /// This preserves downstream consumer state — specifically the
+        /// user's spec-checkbox selections in OtherChargesViewModel that
+        /// were previously being destroyed by Clear+Rebuild churn.
+        /// </summary>
         public void Refresh()
         {
             decimal lm1 = 0m, lm2 = 0m, sqm1 = 0m, sqm2 = 0m, dguArea = 0m;
             int qty = 0, doubleQty = 0;
 
             PrimaryGlassRefs.Clear();
-            PerSpecMetrics.Clear();
+
+            // Track which SpecGroupNumbers exist in the current source
+            // so we can remove PerSpecMetrics entries that no longer exist.
+            var currentGroupNumbers = new HashSet<int>();
 
             foreach (var g in _specGroups)
             {
@@ -171,20 +211,45 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                     g.SelectedGlassType == "LAM" ||
                     g.SelectedGlassType == "DGU+LAM";
 
-                // ── Per-spec metric (Chat 17) ──────────────────────────
-                var specMetric = new SpecGroupMetric
+                currentGroupNumbers.Add(g.GroupNumber);
+
+                // ── Per-spec metric — IN-PLACE UPDATE ──────────────────
+                // Find existing metric entry for this spec group.
+                // If exists → update its properties (no CollectionChanged fires)
+                // If missing → create and add (CollectionChanged.Add fires)
+                var existing = FindMetricByGroupNumber(g.GroupNumber);
+                if (existing != null)
                 {
-                    SpecGroupNumber = g.GroupNumber,
-                    SpecDisplayName = BuildSpecDisplayName(g),
-                    GlassType = g.SelectedGlassType ?? "",
-                    IsDoubleGlass = isDoubleGlass,
-                    Lm1 = System.Math.Round(g.FooterTotalLm1, 2),
-                    Lm2 = System.Math.Round(g.FooterTotalLm2, 2),
-                    Sqm1 = System.Math.Round(g.FooterTotalSqm, 2),
-                    Sqm2 = System.Math.Round(g.FooterTotalSqm2, 2),
-                    Qty = g.FooterTotalQty
-                };
-                PerSpecMetrics.Add(specMetric);
+                    // Update in place — property setters may or may not
+                    // fire PropertyChanged (depends on SpecGroupMetric impl).
+                    // Consumers should read values fresh when needed.
+                    existing.SpecDisplayName = BuildSpecDisplayName(g);
+                    existing.GlassType = g.SelectedGlassType ?? "";
+                    existing.IsDoubleGlass = isDoubleGlass;
+                    existing.Lm1 = System.Math.Round(g.FooterTotalLm1, 2);
+                    existing.Lm2 = System.Math.Round(g.FooterTotalLm2, 2);
+                    existing.Sqm1 = System.Math.Round(g.FooterTotalSqm, 2);
+                    existing.Sqm2 = System.Math.Round(g.FooterTotalSqm2, 2);
+                    existing.Qty = g.FooterTotalQty;
+                }
+                else
+                {
+                    // New spec group — create and append.
+                    // This is the ONLY path that fires CollectionChanged.Add.
+                    var specMetric = new SpecGroupMetric
+                    {
+                        SpecGroupNumber = g.GroupNumber,
+                        SpecDisplayName = BuildSpecDisplayName(g),
+                        GlassType = g.SelectedGlassType ?? "",
+                        IsDoubleGlass = isDoubleGlass,
+                        Lm1 = System.Math.Round(g.FooterTotalLm1, 2),
+                        Lm2 = System.Math.Round(g.FooterTotalLm2, 2),
+                        Sqm1 = System.Math.Round(g.FooterTotalSqm, 2),
+                        Sqm2 = System.Math.Round(g.FooterTotalSqm2, 2),
+                        Qty = g.FooterTotalQty
+                    };
+                    PerSpecMetrics.Add(specMetric);
+                }
 
                 // ── Global aggregation (unchanged) ─────────────────────
                 lm1 += g.FooterTotalLm1;
@@ -210,6 +275,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
                 }
             }
 
+            // ── Remove metrics for spec groups that no longer exist ────
+            // Iterate from end to avoid index shifts during removal.
+            // This fires CollectionChanged.Remove for each actually-removed item.
+            for (int i = PerSpecMetrics.Count - 1; i >= 0; i--)
+            {
+                if (!currentGroupNumbers.Contains(PerSpecMetrics[i].SpecGroupNumber))
+                {
+                    PerSpecMetrics.RemoveAt(i);
+                }
+            }
+
+            // ── Global aggregate property assignments ──────────────────
             TotalLm1 = System.Math.Round(lm1, 2);
             TotalLm2 = System.Math.Round(lm2, 2);
             CombinedLm = System.Math.Round(lm1 + lm2, 2);
@@ -219,6 +296,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges
             DguCavityArea = System.Math.Round(dguArea, 2);
             TotalPieces = qty;
             DoubleGlassPieces = doubleQty;
+        }
+
+        /// <summary>
+        /// Linear search for a metric entry by SpecGroupNumber.
+        /// Collection is typically 1-10 items — linear scan is optimal.
+        /// </summary>
+        private SpecGroupMetric FindMetricByGroupNumber(int groupNumber)
+        {
+            foreach (var metric in PerSpecMetrics)
+            {
+                if (metric.SpecGroupNumber == groupNumber)
+                    return metric;
+            }
+            return null;
         }
 
         /// <summary>

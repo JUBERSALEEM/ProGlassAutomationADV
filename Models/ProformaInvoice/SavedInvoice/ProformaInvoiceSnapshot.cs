@@ -1,14 +1,21 @@
 ﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: Models/ProformaInvoice/SavedInvoice/ProformaInvoiceSnapshot.cs
 // ═══════════════════════════════════════════════════════════════════════
-// CHAT 15 — PROJECT REFERENCE FIELD ADDED
-//   NEW: ProjectSnapshot.ProjectReference field
-//   All other snapshot classes preserved EXACTLY.
+// CHAT 20 — PER-SPEC TARGETING PERSISTENCE
 //
-// JSON BACKWARD COMPATIBILITY:
-//   Old invoices without ProjectReference in JSON will deserialize
-//   to empty string (System.Text.Json default). No migration needed
-//   for proforma invoices — they load fine with empty reference.
+//   PredefinedChargeSnapshot gains 2 new fields:
+//     • SelectedMetricKey        — which metric radio was selected
+//     • CheckedSpecGroupNumbers  — which specs were checked
+//
+//   Old JSON without these fields deserialize to defaults:
+//     SelectedMetricKey        → "" (System.Text.Json string default)
+//     CheckedSpecGroupNumbers  → null (mapper handles null gracefully)
+//
+//   Backward compatibility: 100% — old invoices load unchanged.
+//
+// PREVIOUS: CHAT 15 — PROJECT REFERENCE FIELD ADDED
+//   ProjectSnapshot.ProjectReference field
+//   All other snapshot classes preserved EXACTLY.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -28,6 +35,7 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
     /// BUG-03: PolishSubType documented.
     ///
     /// CHAT 15: ProjectSnapshot.ProjectReference added.
+    /// CHAT 20: PredefinedChargeSnapshot per-spec targeting fields added.
     /// </summary>
     public class ProformaInvoiceSnapshot
     {
@@ -149,11 +157,28 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public List<CustomChargeSnapshot> CustomCharges { get; set; } = new();
     }
 
+    /// <summary>
+    /// Predefined charge snapshot.
+    ///
+    /// CHAT 20 additions for per-spec targeting persistence:
+    ///   • SelectedMetricKey        — which metric radio was selected
+    ///   • CheckedSpecGroupNumbers  — which specs were ticked
+    ///
+    /// Old JSON files without these fields will deserialize to:
+    ///   • SelectedMetricKey       → "" (skip metric restore)
+    ///   • CheckedSpecGroupNumbers → null (skip checkbox restore — defaults apply)
+    /// </summary>
     public class PredefinedChargeSnapshot
     {
         public string TemplateKey { get; set; } = "";
         public bool IsActive { get; set; }
+
+        /// <summary>
+        /// Legacy field from pre-Chat 17 single-source system.
+        /// Preserved for backward compatibility. New saves may leave empty.
+        /// </summary>
         public string SelectedSourceKey { get; set; } = "";
+
         public decimal Rate { get; set; }
 
         /// <summary>
@@ -163,6 +188,22 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string PolishSubType { get; set; } = "";
         public string CustomPolishDescription { get; set; } = "";
         public decimal CustomPolishQty { get; set; }
+
+        /// <summary>
+        /// CHAT 20: The metric key selected in the row's spec-target popup.
+        /// Values match SpecTargetSelection.AvailableMetrics[].Key
+        /// (e.g. "LM1", "SQM1", "QTY", "LM_COMBINED", etc.)
+        /// Empty on legacy invoices — restore skips metric selection.
+        /// </summary>
+        public string SelectedMetricKey { get; set; } = "";
+
+        /// <summary>
+        /// CHAT 20: SpecGroupNumbers of specs that were CHECKED in the
+        /// row's spec-target popup. Others were unchecked.
+        /// Null on legacy invoices — restore skips checkbox state
+        /// and TargetSelection retains its default all-checked state.
+        /// </summary>
+        public List<int> CheckedSpecGroupNumbers { get; set; } = new();
     }
 
     public class WastageRowSnapshot
