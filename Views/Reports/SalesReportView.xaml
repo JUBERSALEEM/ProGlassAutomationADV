@@ -1,12 +1,19 @@
 ﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Reports/SalesReportView.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Account Statement / Sales Report (Chat 16)
+     MODULE: Account Statement / Sales Report (Chat 16 + Chat 21)
 
      PURPOSE:
        Shell view. Toggles between StatementListView and
        StatementGeneratorView based on SalesReportViewModel.ShowList.
        Mirrors TaxInvoiceView.xaml pattern (Chat 14).
+
+     CHAT 21 CHANGE:
+       xmlns:vGen namespace updated from
+         ...StatementGenerator
+       to
+         ...StatementGenerator.Shell
+       Because StatementGeneratorView class moved to Shell subfolder.
 
      PERFORMANCE:
        TextOptions + UseLayoutRounding on root UserControl.
@@ -20,7 +27,7 @@
     xmlns:vmList="clr-namespace:ProGlassAutomation.ViewModels.Reports.StatementList"
     xmlns:vmGen="clr-namespace:ProGlassAutomation.ViewModels.Reports.StatementGenerator"
     xmlns:vList="clr-namespace:ProGlassAutomation.Views.Reports.StatementList"
-    xmlns:vGen="clr-namespace:ProGlassAutomation.Views.Reports.StatementGenerator"
+    xmlns:vGen="clr-namespace:ProGlassAutomation.Views.Reports.StatementGenerator.Shell"
     FontFamily="Segoe UI"
     TextOptions.TextFormattingMode="Display"
     TextOptions.TextRenderingMode="ClearType"

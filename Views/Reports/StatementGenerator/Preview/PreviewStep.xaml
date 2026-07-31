@@ -1,0 +1,999 @@
+﻿<!-- ═══════════════════════════════════════════════════════════════
+     FILE: Views/Reports/StatementGenerator/Preview/PreviewStep.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Statement Generator — Wizard Step 2: PREVIEW (Chat 22 v3)
+
+     CHAT 22 v3 ADDITIONS:
+       + New Row 7 — Reconciliation Section (per-PI expandable cards)
+       + Shows Ordered/Delivered/Invoiced/Balance across PI/DN/TI
+       + Red highlighting for OVER-INVOICED families (critical bug)
+       + Auto-hides if no reconciliation data
+       + Section header has color-coded status alert
+
+     PRESERVED FROM CHAT 21:
+       + All 6 KPI cards
+       + Invoice list with checkboxes + selection
+       + Aging analysis + footer summary
+       + Select All / Deselect All bulk actions
+
+     BINDINGS ADDED:
+       PreviewVM.ReconciliationSummaries      (ObservableCollection)
+       PreviewVM.HasAnyReconciliation         (visibility toggle)
+       PreviewVM.HasAnyOverInvoicing          (red alert)
+       PreviewVM.ReconciliationHeaderDisplay  (summary text)
+       PreviewVM.ReconciliationHeaderIcon     (status emoji)
+       PreviewVM.ReconciliationHeaderColorHex (bg color)
+
+     PER-CARD BINDINGS (OrderReconciliationSummary):
+       ProformaId, OverallIcon, OverallColorHex
+       TotalOrderedQty, TotalDeliveredQty, TotalInvoicedQty,
+       TotalBalanceQty, TotalInvoiceVsDeliveryDiff
+       SummaryDisplay, TotalsDisplay
+       HasOverInvoicing, HasDiscrepancies
+       Rows (List<OrderReconciliationRow>)
+═══════════════════════════════════════════════════════════════ -->
+<UserControl
+    x:Class="ProGlassAutomation.Views.Reports.StatementGenerator.Preview.PreviewStep"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:ProGlassAutomation.ViewModels.Reports.StatementGenerator"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance Type=vm:StatementGeneratorViewModel, IsDesignTimeCreatable=False}"
+    FontFamily="Segoe UI"
+    TextOptions.TextFormattingMode="Display"
+    TextOptions.TextRenderingMode="ClearType"
+    TextOptions.TextHintingMode="Fixed"
+    UseLayoutRounding="True"
+    SnapsToDevicePixels="True">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  CanContentScroll="False"
+                  PanningMode="VerticalOnly"
+                  behaviors:SmoothScrollBehavior.IsEnabled="True">
+
+        <Grid Margin="32,24,32,24">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Row 0: Step title -->
+                <RowDefinition Height="Auto"/>
+                <!-- Row 1: KPI cards row -->
+                <RowDefinition Height="16"/>
+                <!-- Row 2: spacer -->
+                <RowDefinition Height="Auto"/>
+                <!-- Row 3: Invoice list card -->
+                <RowDefinition Height="16"/>
+                <!-- Row 4: spacer -->
+                <RowDefinition Height="Auto"/>
+                <!-- Row 5: Aging + footer summary -->
+                <RowDefinition Height="16"/>
+                <!-- Row 6: spacer (Chat 22 v3) -->
+                <RowDefinition Height="Auto"/>
+                <!-- Row 7: RECONCILIATION SECTION (Chat 22 v3) -->
+            </Grid.RowDefinitions>
+
+            <!-- ═══ ROW 0 — STEP TITLE + SUBTITLE + BULK ACTIONS ═══ -->
+            <Grid Grid.Row="0" Margin="0,0,0,20">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="Review &amp; Select Invoices"
+                               Style="{StaticResource StepTitleStyle}"/>
+                    <TextBlock Style="{StaticResource StepSubtitleStyle}"
+                               Margin="0,0,0,0">
+                        <Run Text="{Binding PreviewVM.SelectionSummaryDisplay, Mode=OneWay}"
+                             FontWeight="Bold"
+                             Foreground="#8B5CF6"/>
+                        <Run Text=" — Uncheck any invoice you want to exclude from the statement."/>
+                    </TextBlock>
+                </StackPanel>
+
+                <StackPanel Grid.Column="1"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <Button Command="{Binding SelectAllCommand}"
+                            Height="36" Padding="14,0"
+                            Cursor="Hand" BorderThickness="0"
+                            Margin="0,0,8,0">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd" CornerRadius="8"
+                                        Padding="{TemplateBinding Padding}">
+                                    <Border.Background>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                            <GradientStop Color="#8B5CF6" Offset="0"/>
+                                            <GradientStop Color="#EC4899" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Border.Background>
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="✓ " FontSize="12" FontWeight="Bold"
+                                                   Foreground="White" VerticalAlignment="Center"/>
+                                        <TextBlock Text="Select All" FontSize="12" FontWeight="Bold"
+                                                   Foreground="White" VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Opacity" Value="0.9"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+
+                    <Button Command="{Binding DeselectAllCommand}"
+                            Height="36" Padding="14,0"
+                            Cursor="Hand" BorderThickness="0">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd"
+                                        Background="{DynamicResource ModuleBackgroundBrush}"
+                                        BorderBrush="{DynamicResource BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="8"
+                                        Padding="{TemplateBinding Padding}">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="✕ " FontSize="12" FontWeight="Bold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   VerticalAlignment="Center"/>
+                                        <TextBlock Text="Deselect"
+                                                   FontSize="12" FontWeight="Bold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="BorderBrush" Value="#B91C1C"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
+                </StackPanel>
+            </Grid>
+
+            <!-- ═══ ROW 1 — 6 KPI CARDS ═══ -->
+            <Grid Grid.Row="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0"
+                        Background="#EEF2FF"
+                        BorderBrush="#C7D2FE"
+                        BorderThickness="1"
+                        CornerRadius="12" Padding="14,12"
+                        MinHeight="76">
+                    <StackPanel>
+                        <TextBlock Text="INVOICED" FontSize="9" FontWeight="Bold"
+                                   Foreground="#4338CA"/>
+                        <TextBlock Text="{Binding PreviewVM.TotalInvoicedDisplay}"
+                                   FontSize="15" FontWeight="Bold"
+                                   Foreground="#1E1B4B"
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="2"
+                        Background="#F5F3FF"
+                        BorderBrush="#DDD6FE"
+                        BorderThickness="1"
+                        CornerRadius="12" Padding="14,12"
+                        MinHeight="76">
+                    <StackPanel>
+                        <TextBlock Text="VAT" FontSize="9" FontWeight="Bold"
+                                   Foreground="#6D28D9"/>
+                        <TextBlock Text="{Binding PreviewVM.TotalVatDisplay}"
+                                   FontSize="15" FontWeight="Bold"
+                                   Foreground="#3B0764"
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="4"
+                        Background="#F0FDF4"
+                        BorderBrush="#BBF7D0"
+                        BorderThickness="1"
+                        CornerRadius="12" Padding="14,12"
+                        MinHeight="76">
+                    <StackPanel>
+                        <TextBlock Text="PAID" FontSize="9" FontWeight="Bold"
+                                   Foreground="#047857"/>
+                        <TextBlock Text="{Binding PreviewVM.TotalPaidDisplay}"
+                                   FontSize="15" FontWeight="Bold"
+                                   Foreground="#052E16"
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="6"
+                        Background="#FFFBEB"
+                        BorderBrush="#FDE68A"
+                        BorderThickness="1"
+                        CornerRadius="12" Padding="14,12"
+                        MinHeight="76">
+                    <StackPanel>
+                        <TextBlock Text="OUTSTANDING" FontSize="9" FontWeight="Bold"
+                                   Foreground="#B45309"/>
+                        <TextBlock Text="{Binding PreviewVM.TotalOutstandingDisplay}"
+                                   FontSize="15" FontWeight="Bold"
+                                   Foreground="#451A03"
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="8"
+                        Background="#FEF2F2"
+                        BorderBrush="#FECACA"
+                        BorderThickness="1"
+                        CornerRadius="12" Padding="14,12"
+                        MinHeight="76">
+                    <StackPanel>
+                        <TextBlock Text="OVERDUE" FontSize="9" FontWeight="Bold"
+                                   Foreground="#B91C1C"/>
+                        <TextBlock Text="{Binding PreviewVM.OverdueAmountDisplay}"
+                                   FontSize="15" FontWeight="Bold"
+                                   Foreground="#450A0A"
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+                <Border Grid.Column="10"
+                        Background="#EFF6FF"
+                        BorderBrush="#BFDBFE"
+                        BorderThickness="1"
+                        CornerRadius="12" Padding="14,12"
+                        MinHeight="76">
+                    <StackPanel>
+                        <TextBlock Text="ATTACHMENTS" FontSize="9" FontWeight="Bold"
+                                   Foreground="#1D4ED8"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
+                            <TextBlock Text="{Binding PreviewVM.SelectedAttachmentCount}"
+                                       FontSize="15" FontWeight="Bold"
+                                       Foreground="#1E1B4B"/>
+                            <TextBlock Text=" files" FontSize="11"
+                                       Foreground="#1E40AF"
+                                       VerticalAlignment="Center"
+                                       Margin="4,2,0,0"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+            </Grid>
+
+            <!-- ═══ ROW 3 — INVOICE LIST CARD ═══ -->
+            <Border Grid.Row="3" Style="{StaticResource WizardCardStyle}" Padding="0"
+                    MinHeight="300">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <!-- Column headers -->
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource MenuHoverBrush}"
+                            CornerRadius="12,12,0,0"
+                            Padding="20,10"
+                            BorderThickness="0,0,0,1"
+                            BorderBrush="{DynamicResource BorderBrush}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <TextBlock Grid.Column="0" Text="✓" FontSize="11" FontWeight="Bold"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Margin="0,0,14,0" MinWidth="14"/>
+                            <TextBlock Grid.Column="1" Text="INVOICE" FontSize="10" FontWeight="Bold"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                            <TextBlock Grid.Column="2" Text="STATUS" FontSize="10" FontWeight="Bold"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       HorizontalAlignment="Center" Margin="12,0" MinWidth="70"/>
+                            <TextBlock Grid.Column="3" Text="DUE" FontSize="10" FontWeight="Bold"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Margin="12,0" MinWidth="90"/>
+                            <TextBlock Grid.Column="4" Text="TOTAL AED" FontSize="10" FontWeight="Bold"
+                                       Foreground="#047857"
+                                       HorizontalAlignment="Right"
+                                       Margin="12,0" MinWidth="110"/>
+                            <TextBlock Grid.Column="5" Text="BALANCE" FontSize="10" FontWeight="Bold"
+                                       Foreground="#B45309"
+                                       HorizontalAlignment="Right"
+                                       Margin="12,0,0,0" MinWidth="110"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- Scrollable invoice list -->
+                    <ListView Grid.Row="1"
+                              ItemsSource="{Binding PreviewVM.Rows}"
+                              Background="Transparent"
+                              BorderThickness="0"
+                              HorizontalContentAlignment="Stretch"
+                              Padding="20,12,20,12"
+                              MaxHeight="500"
+                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                              VirtualizingPanel.IsVirtualizing="True"
+                              VirtualizingPanel.VirtualizationMode="Recycling"
+                              VirtualizingPanel.ScrollUnit="Pixel"
+                              ScrollViewer.CanContentScroll="False"
+                              behaviors:SmoothScrollBehavior.IsEnabled="True">
+
+                        <ListView.ItemContainerStyle>
+                            <Style TargetType="ListViewItem">
+                                <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Padding" Value="0"/>
+                                <Setter Property="Margin" Value="0,0,0,6"/>
+                                <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="ListViewItem">
+                                            <ContentPresenter/>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                            </Style>
+                        </ListView.ItemContainerStyle>
+
+                        <ListView.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderThickness="1"
+                                        CornerRadius="10"
+                                        Padding="14,12"
+                                        ClipToBounds="True">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                            <Setter Property="Opacity" Value="1.0"/>
+                                            <Style.Triggers>
+                                                <MultiDataTrigger>
+                                                    <MultiDataTrigger.Conditions>
+                                                        <Condition Binding="{Binding IsSelected}" Value="False"/>
+                                                        <Condition Binding="{Binding IsMouseOver,
+                                                            RelativeSource={RelativeSource Self}}" Value="False"/>
+                                                    </MultiDataTrigger.Conditions>
+                                                    <Setter Property="Opacity" Value="0.45"/>
+                                                </MultiDataTrigger>
+                                                <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                    <Setter Property="Background" Value="#FAF5FF"/>
+                                                    <Setter Property="BorderBrush" Value="#DDD6FE"/>
+                                                </DataTrigger>
+                                                <!-- CHAT 22 v3: OVER-INVOICED alert border -->
+                                                <DataTrigger Binding="{Binding IsOverInvoiced}" Value="True">
+                                                    <Setter Property="BorderBrush" Value="#B91C1C"/>
+                                                    <Setter Property="BorderThickness" Value="2"/>
+                                                </DataTrigger>
+                                                <Trigger Property="IsMouseOver" Value="True">
+                                                    <Setter Property="BorderBrush" Value="#8B5CF6"/>
+                                                    <Setter Property="Opacity" Value="1.0"/>
+                                                </Trigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <CheckBox Grid.Column="0"
+                                                  IsChecked="{Binding IsSelected}"
+                                                  VerticalAlignment="Center"
+                                                  Margin="0,0,14,0"
+                                                  Cursor="Hand"/>
+
+                                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="{Binding InvoiceNumber, Mode=OneWay}"
+                                                           FontSize="13" FontWeight="Bold"
+                                                           Foreground="#4338CA"/>
+                                                <!-- CHAT 22 v3: Reconciliation status badge -->
+                                                <TextBlock Text="{Binding ReconciliationBadgeIcon, Mode=OneWay}"
+                                                           FontSize="12"
+                                                           VerticalAlignment="Center"
+                                                           Margin="8,0,0,0"
+                                                           ToolTip="{Binding ReconciliationTooltip, Mode=OneWay}"/>
+                                            </StackPanel>
+                                            <TextBlock Text="{Binding InvoiceType, Mode=OneWay}"
+                                                       FontSize="10"
+                                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                                       Margin="0,2,0,0"/>
+                                        </StackPanel>
+
+                                        <Border Grid.Column="2"
+                                                CornerRadius="6"
+                                                Padding="10,4"
+                                                Margin="12,0"
+                                                VerticalAlignment="Center"
+                                                MinWidth="70"
+                                                Background="{Binding StatusColor,
+                                                    Converter={StaticResource ColorStringConverter}}">
+                                            <TextBlock Text="{Binding Status, Mode=OneWay}"
+                                                       FontSize="10" FontWeight="Bold"
+                                                       Foreground="White"
+                                                       HorizontalAlignment="Center"/>
+                                        </Border>
+
+                                        <StackPanel Grid.Column="3"
+                                                    VerticalAlignment="Center"
+                                                    Margin="12,0"
+                                                    MinWidth="90">
+                                            <TextBlock Text="DUE" FontSize="9" FontWeight="Bold"
+                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                            <TextBlock Text="{Binding DueDateDisplay, Mode=OneWay}"
+                                                       FontSize="11"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       Margin="0,2,0,0"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="4"
+                                                    VerticalAlignment="Center"
+                                                    Margin="12,0"
+                                                    MinWidth="110">
+                                            <TextBlock Text="TOTAL AED" FontSize="9" FontWeight="Bold"
+                                                       Foreground="#047857"
+                                                       HorizontalAlignment="Right"/>
+                                            <TextBlock Text="{Binding GrandTotalDisplay, Mode=OneWay}"
+                                                       FontSize="12" FontWeight="Bold"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                       HorizontalAlignment="Right" Margin="0,2,0,0"/>
+                                        </StackPanel>
+
+                                        <StackPanel Grid.Column="5"
+                                                    VerticalAlignment="Center"
+                                                    Margin="12,0,0,0"
+                                                    MinWidth="110">
+                                            <TextBlock Text="BALANCE" FontSize="9" FontWeight="Bold"
+                                                       Foreground="#B45309"
+                                                       HorizontalAlignment="Right"/>
+                                            <TextBlock Text="{Binding BalanceDisplay, Mode=OneWay}"
+                                                       FontSize="12" FontWeight="Bold"
+                                                       HorizontalAlignment="Right" Margin="0,2,0,0"
+                                                       Foreground="{Binding BalanceColor,
+                                                           Converter={StaticResource ColorStringConverter}}"/>
+                                        </StackPanel>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ListView.ItemTemplate>
+                    </ListView>
+                </Grid>
+            </Border>
+
+            <!-- ═══ ROW 5 — AGING ANALYSIS + FOOTER SUMMARY ═══ -->
+            <Border Grid.Row="5" Style="{StaticResource WizardCardStyle}" Padding="20,16">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="10"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="12"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <StackPanel Grid.Row="0" Orientation="Horizontal">
+                        <TextBlock Text="📈  " FontSize="14"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text="Aging Analysis"
+                                   FontSize="13" FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Text="  ·  Outstanding amounts by days past due"
+                                   FontSize="11"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+
+                    <ItemsControl Grid.Row="2" ItemsSource="{Binding PreviewVM.AgingBars}">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <UniformGrid Rows="1"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="4,0"
+                                        CornerRadius="10"
+                                        Padding="14,12"
+                                        Background="{DynamicResource ModuleBackgroundBrush}"
+                                        BorderThickness="1"
+                                        BorderBrush="{Binding Color,
+                                            Converter={StaticResource ColorStringConverter}}">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <Ellipse Width="10" Height="10"
+                                                 HorizontalAlignment="Center"
+                                                 Margin="0,0,0,6"
+                                                 Fill="{Binding Color,
+                                                     Converter={StaticResource ColorStringConverter}}"/>
+                                        <TextBlock Text="{Binding Label}"
+                                                   FontSize="10" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   HorizontalAlignment="Center"/>
+                                        <TextBlock Text="{Binding AmountDisplay}"
+                                                   FontSize="13" FontWeight="Bold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   HorizontalAlignment="Center"
+                                                   Margin="0,4,0,0"/>
+                                        <TextBlock Text="{Binding PercentDisplay}"
+                                                   FontSize="10"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                   HorizontalAlignment="Center"
+                                                   Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                    <Border Grid.Row="4"
+                            Background="{DynamicResource MenuHoverBrush}"
+                            CornerRadius="8"
+                            Padding="14,10">
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock FontSize="12"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       VerticalAlignment="Center">
+                                <Run Text="Total Qty:"/>
+                                <Run Text="{Binding PreviewVM.TotalQty, Mode=OneWay}"
+                                     FontWeight="Bold"
+                                     Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                <Run Text=" units  ·  Total Area:"/>
+                                <Run Text="{Binding PreviewVM.TotalSqmDisplay, Mode=OneWay}"
+                                     FontWeight="Bold"
+                                     Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            </TextBlock>
+                            <TextBlock Text="  ·  " FontSize="12"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       VerticalAlignment="Center"/>
+                            <TextBlock Text="{Binding PreviewVM.SelectionSummaryDisplay}"
+                                       FontSize="12" FontWeight="Bold"
+                                       Foreground="#8B5CF6"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- ═══════════════════════════════════════════════════════════
+                 ROW 7 — CHAT 22 v3 — RECONCILIATION SECTION
+                 Auto-hides if no reconciliation data.
+                 Shows per-PI cards with Ordered/Delivered/Invoiced/Balance.
+                 Cards expand to show line-item detail table.
+            ═══════════════════════════════════════════════════════════ -->
+            <Border Grid.Row="7"
+                    Style="{StaticResource WizardCardStyle}"
+                    Padding="0"
+                    Visibility="{Binding PreviewVM.HasAnyReconciliation,
+                        Converter={StaticResource BoolToVisibilityConverter}}">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <!-- Header -->
+                        <RowDefinition Height="Auto"/>
+                        <!-- Cards list -->
+                    </Grid.RowDefinitions>
+
+                    <!-- ══ Section Header ══ -->
+                    <Border Grid.Row="0"
+                            CornerRadius="12,12,0,0"
+                            Padding="20,14"
+                            Background="{Binding PreviewVM.ReconciliationHeaderColorHex,
+                                Converter={StaticResource ColorStringConverter}}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <!-- Icon -->
+                            <Border Grid.Column="0"
+                                    Width="36" Height="36"
+                                    Background="#FFFFFF33"
+                                    CornerRadius="9"
+                                    VerticalAlignment="Center"
+                                    Margin="0,0,14,0">
+                                <TextBlock Text="{Binding PreviewVM.ReconciliationHeaderIcon}"
+                                           FontSize="18"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+
+                            <!-- Title + summary -->
+                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                <TextBlock Text="Order Fulfillment Reconciliation"
+                                           FontSize="15" FontWeight="Bold"
+                                           Foreground="White"/>
+                                <TextBlock Text="{Binding PreviewVM.ReconciliationHeaderDisplay}"
+                                           FontSize="11"
+                                           Foreground="#FFFFFFDD"
+                                           Margin="0,3,0,0"/>
+                            </StackPanel>
+
+                            <!-- Info hint -->
+                            <TextBlock Grid.Column="2"
+                                       Text="Cross-check of PI Ordered vs DN Delivered vs TI Invoiced"
+                                       FontSize="10"
+                                       FontStyle="Italic"
+                                       Foreground="#FFFFFFAA"
+                                       VerticalAlignment="Center"/>
+                        </Grid>
+                    </Border>
+
+                    <!-- ══ Reconciliation Cards ══ -->
+                    <ItemsControl Grid.Row="1"
+                                  ItemsSource="{Binding PreviewVM.ReconciliationSummaries}"
+                                  Margin="16,16,16,16">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Margin="0,0,0,10"
+                                        CornerRadius="10"
+                                        BorderThickness="1"
+                                        Padding="0">
+                                    <Border.Style>
+                                        <Style TargetType="Border">
+                                            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding HasOverInvoicing}" Value="True">
+                                                    <Setter Property="Background" Value="#FEF2F2"/>
+                                                    <Setter Property="BorderBrush" Value="#B91C1C"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding HasUnderInvoicing}" Value="True">
+                                                    <Setter Property="Background" Value="#EFF6FF"/>
+                                                    <Setter Property="BorderBrush" Value="#1D4ED8"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding AllMatched}" Value="True">
+                                                    <Setter Property="Background" Value="#F0FDF4"/>
+                                                    <Setter Property="BorderBrush" Value="#047857"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </Border.Style>
+
+                                    <Grid>
+                                        <Grid.RowDefinitions>
+                                            <RowDefinition Height="Auto"/>
+                                            <!-- Summary row -->
+                                            <RowDefinition Height="Auto"/>
+                                            <!-- Detail table (always visible, compact) -->
+                                        </Grid.RowDefinitions>
+
+                                        <!-- ══ Card Summary Row ══ -->
+                                        <Grid Grid.Row="0" Margin="16,12,16,10">
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <!-- Status icon -->
+                                            <TextBlock Grid.Column="0"
+                                                       Text="{Binding OverallIcon}"
+                                                       FontSize="20"
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,0,12,0"/>
+
+                                            <!-- PI ID + summary text -->
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding ProformaId}"
+                                                           FontSize="14" FontWeight="Bold"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                <TextBlock Text="{Binding SummaryDisplay}"
+                                                           FontSize="10"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           Margin="0,2,0,0"/>
+                                            </StackPanel>
+
+                                            <!-- Totals pills (Ordered/Delivered/Invoiced/Balance) -->
+                                            <StackPanel Grid.Column="3"
+                                                        Orientation="Horizontal"
+                                                        VerticalAlignment="Center">
+
+                                                <Border Background="#EEF2FF"
+                                                        BorderBrush="#C7D2FE"
+                                                        BorderThickness="1"
+                                                        CornerRadius="8"
+                                                        Padding="10,6"
+                                                        Margin="0,0,6,0"
+                                                        ToolTip="Total ordered on Proforma Invoice">
+                                                    <StackPanel>
+                                                        <TextBlock Text="ORDERED"
+                                                                   FontSize="8" FontWeight="Bold"
+                                                                   Foreground="#4338CA"/>
+                                                        <TextBlock Text="{Binding TotalOrderedQty}"
+                                                                   FontSize="13" FontWeight="Bold"
+                                                                   Foreground="#1E1B4B"
+                                                                   HorizontalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Border>
+
+                                                <Border Background="#F0FDF4"
+                                                        BorderBrush="#BBF7D0"
+                                                        BorderThickness="1"
+                                                        CornerRadius="8"
+                                                        Padding="10,6"
+                                                        Margin="0,0,6,0"
+                                                        ToolTip="Total delivered across all Delivery Notes">
+                                                    <StackPanel>
+                                                        <TextBlock Text="DELIVERED"
+                                                                   FontSize="8" FontWeight="Bold"
+                                                                   Foreground="#047857"/>
+                                                        <TextBlock Text="{Binding TotalDeliveredQty}"
+                                                                   FontSize="13" FontWeight="Bold"
+                                                                   Foreground="#052E16"
+                                                                   HorizontalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Border>
+
+                                                <Border Background="#FFFBEB"
+                                                        BorderBrush="#FDE68A"
+                                                        BorderThickness="1"
+                                                        CornerRadius="8"
+                                                        Padding="10,6"
+                                                        Margin="0,0,6,0"
+                                                        ToolTip="Balance pending delivery">
+                                                    <StackPanel>
+                                                        <TextBlock Text="BALANCE"
+                                                                   FontSize="8" FontWeight="Bold"
+                                                                   Foreground="#B45309"/>
+                                                        <TextBlock Text="{Binding TotalBalanceQty}"
+                                                                   FontSize="13" FontWeight="Bold"
+                                                                   Foreground="#451A03"
+                                                                   HorizontalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Border>
+
+                                                <Border Background="#F5F3FF"
+                                                        BorderBrush="#DDD6FE"
+                                                        BorderThickness="1"
+                                                        CornerRadius="8"
+                                                        Padding="10,6"
+                                                        Margin="0,0,6,0"
+                                                        ToolTip="Total invoiced across all Tax Invoices">
+                                                    <StackPanel>
+                                                        <TextBlock Text="INVOICED"
+                                                                   FontSize="8" FontWeight="Bold"
+                                                                   Foreground="#6D28D9"/>
+                                                        <TextBlock Text="{Binding TotalInvoicedQty}"
+                                                                   FontSize="13" FontWeight="Bold"
+                                                                   Foreground="#3B0764"
+                                                                   HorizontalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Border>
+
+                                                <!-- Diff pill (red if positive = over-invoiced) -->
+                                                <Border BorderThickness="1"
+                                                        CornerRadius="8"
+                                                        Padding="10,6"
+                                                        ToolTip="Invoiced minus Delivered (positive = over-invoiced)">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background" Value="#F9FAFB"/>
+                                                            <Setter Property="BorderBrush" Value="#D1D5DB"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding HasOverInvoicing}" Value="True">
+                                                                    <Setter Property="Background" Value="#FEE2E2"/>
+                                                                    <Setter Property="BorderBrush" Value="#B91C1C"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding HasUnderInvoicing}" Value="True">
+                                                                    <Setter Property="Background" Value="#DBEAFE"/>
+                                                                    <Setter Property="BorderBrush" Value="#1D4ED8"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <StackPanel>
+                                                        <TextBlock Text="DIFF"
+                                                                   FontSize="8" FontWeight="Bold"
+                                                                   Foreground="#374151"/>
+                                                        <TextBlock Text="{Binding TotalInvoiceVsDeliveryDiff}"
+                                                                   FontSize="13" FontWeight="Bold"
+                                                                   Foreground="#111827"
+                                                                   HorizontalAlignment="Center"/>
+                                                    </StackPanel>
+                                                </Border>
+                                            </StackPanel>
+                                        </Grid>
+
+                                        <!-- ══ Line-Item Detail Table ══ -->
+                                        <Border Grid.Row="1"
+                                                Background="#FFFFFF88"
+                                                BorderThickness="0,1,0,0"
+                                                BorderBrush="{DynamicResource BorderBrush}"
+                                                Padding="16,10,16,14">
+                                            <Grid>
+                                                <Grid.RowDefinitions>
+                                                    <RowDefinition Height="Auto"/>
+                                                    <!-- Table header -->
+                                                    <RowDefinition Height="Auto"/>
+                                                    <!-- Rows -->
+                                                </Grid.RowDefinitions>
+
+                                                <!-- Table header -->
+                                                <Grid Grid.Row="0" Margin="0,0,0,6">
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="80"/>
+                                                        <ColumnDefinition Width="40"/>
+                                                        <ColumnDefinition Width="40"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="70"/>
+                                                        <ColumnDefinition Width="70"/>
+                                                        <ColumnDefinition Width="70"/>
+                                                        <ColumnDefinition Width="70"/>
+                                                        <ColumnDefinition Width="60"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <TextBlock Grid.Column="0" Text="REF"
+                                                               FontSize="9" FontWeight="Bold"
+                                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                    <TextBlock Grid.Column="1" Text="SPEC"
+                                                               FontSize="9" FontWeight="Bold"
+                                                               Foreground="{DynamicResource MutedForegroundBrush}"
+                                                               HorizontalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="2" Text="S/N"
+                                                               FontSize="9" FontWeight="Bold"
+                                                               Foreground="{DynamicResource MutedForegroundBrush}"
+                                                               HorizontalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="3" Text="DIMENSIONS"
+                                                               FontSize="9" FontWeight="Bold"
+                                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                    <TextBlock Grid.Column="4" Text="ORDERED"
+                                                               FontSize="9" FontWeight="Bold"
+                                                               Foreground="#4338CA"
+                                                               HorizontalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="5" Text="DELIVERED"
+                                                               FontSize="9" FontWeight="Bold"
+                                                               Foreground="#047857"
+                                                               HorizontalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="6" Text="BALANCE"
+                                                               FontSize="9" FontWeight="Bold"
+                                                               Foreground="#B45309"
+                                                               HorizontalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="7" Text="INVOICED"
+                                                               FontSize="9" FontWeight="Bold"
+                                                               Foreground="#6D28D9"
+                                                               HorizontalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="8" Text="DIFF"
+                                                               FontSize="9" FontWeight="Bold"
+                                                               Foreground="{DynamicResource MutedForegroundBrush}"
+                                                               HorizontalAlignment="Center"/>
+                                                    <TextBlock Grid.Column="9" Text="STATUS"
+                                                               FontSize="9" FontWeight="Bold"
+                                                               Foreground="{DynamicResource MutedForegroundBrush}"
+                                                               Margin="12,0,0,0"/>
+                                                </Grid>
+
+                                                <!-- Line item rows -->
+                                                <ItemsControl Grid.Row="1"
+                                                              ItemsSource="{Binding Rows}">
+                                                    <ItemsControl.ItemTemplate>
+                                                        <DataTemplate>
+                                                            <Border BorderThickness="0,1,0,0"
+                                                                    BorderBrush="{DynamicResource BorderBrush}"
+                                                                    Padding="0,6,0,6">
+                                                                <Grid>
+                                                                    <Grid.ColumnDefinitions>
+                                                                        <ColumnDefinition Width="80"/>
+                                                                        <ColumnDefinition Width="40"/>
+                                                                        <ColumnDefinition Width="40"/>
+                                                                        <ColumnDefinition Width="*"/>
+                                                                        <ColumnDefinition Width="70"/>
+                                                                        <ColumnDefinition Width="70"/>
+                                                                        <ColumnDefinition Width="70"/>
+                                                                        <ColumnDefinition Width="70"/>
+                                                                        <ColumnDefinition Width="60"/>
+                                                                        <ColumnDefinition Width="Auto"/>
+                                                                    </Grid.ColumnDefinitions>
+
+                                                                    <TextBlock Grid.Column="0"
+                                                                               Text="{Binding GlassRef}"
+                                                                               FontSize="11" FontWeight="SemiBold"
+                                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                                               VerticalAlignment="Center"/>
+                                                                    <TextBlock Grid.Column="1"
+                                                                               Text="{Binding SpecGroupNumber}"
+                                                                               FontSize="11"
+                                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                               HorizontalAlignment="Center"
+                                                                               VerticalAlignment="Center"/>
+                                                                    <TextBlock Grid.Column="2"
+                                                                               Text="{Binding SerialNumber}"
+                                                                               FontSize="11"
+                                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                               HorizontalAlignment="Center"
+                                                                               VerticalAlignment="Center"/>
+                                                                    <TextBlock Grid.Column="3"
+                                                                               Text="{Binding DimensionDisplay}"
+                                                                               FontSize="11"
+                                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                                               VerticalAlignment="Center"/>
+                                                                    <TextBlock Grid.Column="4"
+                                                                               Text="{Binding OrderedQty}"
+                                                                               FontSize="12" FontWeight="Bold"
+                                                                               Foreground="#4338CA"
+                                                                               HorizontalAlignment="Center"
+                                                                               VerticalAlignment="Center"/>
+                                                                    <TextBlock Grid.Column="5"
+                                                                               Text="{Binding DeliveredQty}"
+                                                                               FontSize="12" FontWeight="Bold"
+                                                                               Foreground="#047857"
+                                                                               HorizontalAlignment="Center"
+                                                                               VerticalAlignment="Center"/>
+                                                                    <TextBlock Grid.Column="6"
+                                                                               Text="{Binding BalanceQty}"
+                                                                               FontSize="12" FontWeight="Bold"
+                                                                               Foreground="#B45309"
+                                                                               HorizontalAlignment="Center"
+                                                                               VerticalAlignment="Center"/>
+                                                                    <TextBlock Grid.Column="7"
+                                                                               Text="{Binding InvoicedQty}"
+                                                                               FontSize="12" FontWeight="Bold"
+                                                                               Foreground="#6D28D9"
+                                                                               HorizontalAlignment="Center"
+                                                                               VerticalAlignment="Center"/>
+                                                                    <TextBlock Grid.Column="8"
+                                                                               Text="{Binding InvoiceVsDeliveryDiff}"
+                                                                               FontSize="12" FontWeight="Bold"
+                                                                               Foreground="{Binding StatusColorHex,
+                                                                                   Converter={StaticResource ColorStringConverter}}"
+                                                                               HorizontalAlignment="Center"
+                                                                               VerticalAlignment="Center"/>
+                                                                    <StackPanel Grid.Column="9"
+                                                                                Orientation="Horizontal"
+                                                                                VerticalAlignment="Center"
+                                                                                Margin="12,0,0,0">
+                                                                        <TextBlock Text="{Binding StatusIcon}"
+                                                                                   FontSize="12"
+                                                                                   VerticalAlignment="Center"/>
+                                                                        <TextBlock Text="{Binding StatusLabel}"
+                                                                                   FontSize="10" FontWeight="SemiBold"
+                                                                                   Foreground="{Binding StatusColorHex,
+                                                                                       Converter={StaticResource ColorStringConverter}}"
+                                                                                   VerticalAlignment="Center"
+                                                                                   Margin="4,0,0,0"/>
+                                                                    </StackPanel>
+                                                                </Grid>
+                                                            </Border>
+                                                        </DataTemplate>
+                                                    </ItemsControl.ItemTemplate>
+                                                </ItemsControl>
+                                            </Grid>
+                                        </Border>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </Grid>
+            </Border>
+
+        </Grid>
+    </ScrollViewer>
+</UserControl>

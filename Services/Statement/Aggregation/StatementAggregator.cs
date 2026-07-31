@@ -1,27 +1,38 @@
 ﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Statement/Aggregation/StatementAggregator.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Account Statement / Sales Report (Chat 16 + Chat 17 fixes)
+// MODULE: Account Statement / Sales Report (Chat 22 v3 — Reconciliation)
 //
-// CHAT 17 FIXES:
-//   1. FILTER NULL SAFETY (SafeContains helper)
-//      Root cause of "No invoices match" bug on Company/Customer/Project.
-//      NULL fields no longer crash the LINQ Where clause.
+// CHAT 22 v3 CHANGES:
+//   NEW:
+//     • _reconciliationService field (stateless, one instance per aggregator)
+//     • Step 5.5 in BuildAsync — builds reconciliation for all unique PIs
+//     • BuildReconciliationMapAsync — batch reconciliation loader
+//     • AttachReconciliationToRows — populates row.Reconciliation
 //
-//   2. SALESMAN FILTER MULTI-PATH SEARCH
-//      Root cause of "No invoices match" when salesman selected.
-//      Tax Invoice snapshot may store salesman at DIFFERENT paths:
-//        Path 1: snapshot.PreparedBy.Name (if invoice creator set it)
-//        Path 2: parent PI's Client.SalesRepresentative
-//                (falls back to Proforma Invoice snapshot)
-//      Both paths are searched — matches EITHER = include invoice.
+//   REQUIRES:
+//     • StatementInvoiceRow (in StatementSnapshot.cs) must have:
+//         public OrderReconciliationSummary? Reconciliation { get; set; }
+//     • Namespace ProGlassAutomation.Models.Statement.Reconciliation
+//     • Namespace ProGlassAutomation.Services.Statement.Reconciliation
 //
-//   3. NAMESPACE FIX
-//      TaxInvoiceListItem lives in Models.TaxInvoice.SavedTaxInvoice.
+// PRESERVED FROM CHAT 20:
+//   • All Chat 17 filter fixes (null-safe, salesman multi-path)
+//   • Chat 20 project filter JSON search (post-query fallback)
+//   • All existing method signatures + bindings
+//
+// PERFORMANCE:
+//   Reconciliation runs AFTER filtering — only for TIs in the final result.
+//   Unique PI IDs are deduplicated before loading (batch pattern).
+//   For a statement with 100 TIs across 20 PIs → 20 reconciliation loads,
+//   not 100. Each PI's reconciliation is computed once and reused for
+//   every TI in that family.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.Statement;
+using ProGlassAutomation.Models.Statement.Reconciliation;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
+using ProGlassAutomation.Services.Statement.Reconciliation;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -35,6 +46,9 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
     /// Builds a StatementSnapshot from cross-module data sources.
     /// Single public entry point: BuildAsync().
     /// Called by StatementGeneratorViewModel on a background thread.
+    ///
+    /// CHAT 22 v3: Now also builds per-line reconciliation showing
+    /// Ordered (PI) vs Delivered (DN) vs Invoiced (TI) quantities.
     /// </summary>
     public class StatementAggregator
     {
@@ -43,6 +57,10 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
             PropertyNameCaseInsensitive = true,
             AllowTrailingCommas = true
         };
+
+        // ── Reconciliation service (Chat 22 v3) ──────────────────────────
+        // Stateless — one instance per aggregator is safe and cheap.
+        private readonly OrderReconciliationService _reconciliationService = new();
 
         // ═════════════════════════════════════════════════════════════════
         //  PUBLIC ENTRY POINT
@@ -70,7 +88,7 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
             Debug.WriteLine($"[Aggregator] After indexed filters: " +
                             $"{filtered.Count} invoices");
 
-            // ── Step 2b: Project filter (JSON search — handles old + new field names) ──
+            // ── Step 2b: Project filter (JSON search) ─────────────────────
             if (!string.IsNullOrWhiteSpace(filter.ProjectName))
             {
                 filtered = await ApplyProjectFilterAsync(
@@ -79,8 +97,6 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                 Debug.WriteLine($"[Aggregator] After project filter: " +
                                 $"{filtered.Count} invoices");
             }
-
-
 
             // ── Step 3: Salesman filter (multi-path JSON search) ──────────
             if (!string.IsNullOrWhiteSpace(filter.SalesmanName))
@@ -98,8 +114,6 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                 return null;
             }
 
-
-
             // ── Step 4: Attachment counts ─────────────────────────────────
             var invoiceNumbers = filtered
                 .Select(i => i.InvoiceNumber ?? "")
@@ -113,10 +127,23 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
             var attachmentFlags = await LoadAttachmentFlagsAsync(
                 invoiceNumbers);
 
+            // ── Step 5.5: RECONCILIATION (Chat 22 v3) ★ NEW ★ ─────────────
+            // Build reconciliation for all unique Proforma IDs in the
+            // filtered result. Batch-loaded so each PI is processed once
+            // even if multiple TIs belong to the same PI family.
+            var reconciliationMap = await BuildReconciliationMapAsync(filtered);
+
+            Debug.WriteLine($"[Aggregator] Reconciliation built for " +
+                            $"{reconciliationMap.Count} PI families");
+
             // ── Step 6-10: Build rows + financial + aging + assemble ──────
             var today = DateTime.Today;
             var rows = BuildInvoiceRows(
                 filtered, attachmentCounts, attachmentFlags, today);
+
+            // Attach reconciliation summaries to each row (Chat 22 v3)
+            AttachReconciliationToRows(rows, reconciliationMap);
+
             var financial = BuildFinancialSummary(rows);
             var aging = BuildAgingBuckets(rows, today);
             var customerInfo = BuildCustomerInfo(filtered, filter);
@@ -137,6 +164,92 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                 Aging = aging,
                 InvoiceRows = rows
             };
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  RECONCILIATION LOADER (Chat 22 v3)
+        // ═════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Builds reconciliation summaries for every unique Proforma ID
+        /// present in the filtered invoice list.
+        ///
+        /// DEDUPLICATION:
+        ///   If 5 TaxInvoices share the same ProformaId (partial invoicing),
+        ///   only ONE reconciliation load happens — the same summary is
+        ///   attached to all 5 rows later in AttachReconciliationToRows.
+        ///
+        /// Never throws — errors within reconciliation service are
+        /// logged internally and return empty summaries.
+        /// </summary>
+        private async Task<Dictionary<string, OrderReconciliationSummary>>
+            BuildReconciliationMapAsync(List<TaxInvoiceListItem> filtered)
+        {
+            // Extract unique, non-empty Proforma IDs from filtered invoices
+            var proformaIds = filtered
+                .Select(i => i.ProformaId ?? "")
+                .Where(pid => !string.IsNullOrWhiteSpace(pid))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (proformaIds.Count == 0)
+            {
+                Debug.WriteLine("[Aggregator] No PIs to reconcile");
+                return new Dictionary<string, OrderReconciliationSummary>(
+                    StringComparer.OrdinalIgnoreCase);
+            }
+
+            Debug.WriteLine($"[Aggregator] Reconciling {proformaIds.Count} " +
+                            "unique PI families…");
+
+            try
+            {
+                return await _reconciliationService.BuildBatchAsync(proformaIds);
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[Aggregator] Reconciliation batch failed: " +
+                                $"{ex.Message}");
+                // Return empty map — statement still generates, just no
+                // reconciliation data. Preview UI degrades gracefully.
+                return new Dictionary<string, OrderReconciliationSummary>(
+                    StringComparer.OrdinalIgnoreCase);
+            }
+        }
+
+        /// <summary>
+        /// Attaches the reconciliation summary to each StatementInvoiceRow
+        /// by looking up its ProformaId in the pre-built map.
+        ///
+        /// Rows without a ProformaId or with no matching reconciliation
+        /// keep row.Reconciliation = null. UI code must null-check.
+        /// </summary>
+        private static void AttachReconciliationToRows(
+            List<StatementInvoiceRow> rows,
+            Dictionary<string, OrderReconciliationSummary> reconciliationMap)
+        {
+            if (rows == null || reconciliationMap == null) return;
+
+            int attachedCount = 0;
+            int discrepancyCount = 0;
+
+            foreach (var row in rows)
+            {
+                string pid = row.ProformaId ?? "";
+                if (string.IsNullOrWhiteSpace(pid)) continue;
+
+                if (reconciliationMap.TryGetValue(pid, out var summary))
+                {
+                    row.Reconciliation = summary;
+                    attachedCount++;
+
+                    if (summary.HasDiscrepancies) discrepancyCount++;
+                }
+            }
+
+            Debug.WriteLine($"[Aggregator] Attached reconciliation to " +
+                            $"{attachedCount}/{rows.Count} rows " +
+                            $"({discrepancyCount} with discrepancies)");
         }
 
         // ═════════════════════════════════════════════════════════════════
@@ -162,13 +275,7 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
             }
 
             // CHAT 20: Project filter REMOVED from indexed filters.
-            // Moved to Step 2b (post-filter JSON search) because:
-            //   - Old TIs store ProjectIdentifierName in entity.ProjectName
-            //   - New TIs store ProjectContractNo in entity.ProjectName
-            //   - Dropdown shows ProjectContractNo from masterdata
-            //   - The two values may be completely different strings
-            //   - Only reliable match is searching the full snapshot JSON
-            // See ApplyProjectFilterAsync below.
+            // Moved to Step 2b (post-filter JSON search).
 
             if (filter.DateFrom.HasValue)
             {
@@ -213,21 +320,12 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
 
         // ═════════════════════════════════════════════════════════════════
         //  PROJECT FILTER — JSON SEARCH (Chat 20)
-        //
-        //  Searches for project name across:
-        //    1. Indexed entity.ProjectName column (fast — bidirectional)
-        //    2. Full snapshot JSON (fallback — catches all field names:
-        //       ProjectIdentifierName, ProjectContractNo, ProjectReference)
-        //
-        //  This handles the mismatch between old TIs (entity stores
-        //  ProjectIdentifierName) and new TIs (entity stores ProjectContractNo)
-        //  where the dropdown shows ProjectContractNo from masterdata.
         // ═════════════════════════════════════════════════════════════════
 
         private static async Task<List<TaxInvoiceListItem>>
-    ApplyProjectFilterAsync(
-        List<TaxInvoiceListItem> items,
-        string projectName)
+            ApplyProjectFilterAsync(
+                List<TaxInvoiceListItem> items,
+                string projectName)
         {
             string needle = projectName.Trim();
             var result = new List<TaxInvoiceListItem>();
@@ -245,7 +343,6 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                 // Slow path: search snapshot JSON for any project field match
                 try
                 {
-                    // Use GetByIdAsync which we KNOW exists (used by LoadAsync)
                     var full = await App.TaxInvoices.GetByIdAsync(item.Id);
 
                     if (full != null &&
@@ -273,24 +370,9 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  SALESMAN FILTER — MULTI-PATH SEARCH (Chat 17 FIX)
+        //  SALESMAN FILTER — MULTI-PATH SEARCH (Chat 17)
         // ═════════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Searches for salesman name across MULTIPLE JSON paths in
-        /// BOTH the Tax Invoice snapshot AND its parent Proforma Invoice.
-        ///
-        /// SEARCH PATHS (in order):
-        ///   1. TaxInvoice.PreparedBy.Name         (invoice creator)
-        ///   2. TaxInvoice.Customer.ContactPerson  (customer contact)
-        ///   3. TaxInvoice.Bank.PaymentNotes       (fallback)
-        ///   4. PI.Client.SalesRepresentative      (original salesman)
-        ///   5. PI.PreparedBy.Name                 (PI preparer)
-        ///
-        /// If ANY path contains the salesman name → include the invoice.
-        /// This handles legacy invoices where PreparedBy was empty but
-        /// the salesman was set on the PI.
-        /// </summary>
         private static async Task<List<TaxInvoiceListItem>>
             ApplySalesmanFilterAsync(
                 List<TaxInvoiceListItem> items,
@@ -308,14 +390,14 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                 {
                     try
                     {
-                        // ── Path A: Search Tax Invoice snapshot ──────────
+                        // Path A: Search Tax Invoice snapshot
                         bool foundInInvoice = await SearchSalesmanInTaxInvoice(
                             item.InvoiceNumber, needle);
 
                         if (foundInInvoice)
                             return (item, true);
 
-                        // ── Path B: Fallback to parent PI snapshot ───────
+                        // Path B: Fallback to parent PI snapshot
                         if (!string.IsNullOrWhiteSpace(item.ProformaId))
                         {
                             bool foundInPi = await SearchSalesmanInProformaInvoice(
@@ -332,8 +414,6 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                         Debug.WriteLine($"[Aggregator] Salesman search " +
                                         $"error on {item.InvoiceNumber}: " +
                                         $"{ex.Message}");
-                        // Safe fallback: exclude on error to prevent
-                        // false positives (senior ERP behavior)
                         return (item, false);
                     }
                 });
@@ -347,11 +427,6 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
             return result;
         }
 
-        /// <summary>
-        /// Searches Tax Invoice's own snapshot JSON for the salesman name.
-        /// Checks: PreparedBy.Name, Customer.ContactPerson, Bank.PaymentNotes.
-        /// Returns TRUE if found in ANY of these paths.
-        /// </summary>
         private static async Task<bool> SearchSalesmanInTaxInvoice(
             string invoiceNumber,
             string needle)
@@ -378,7 +453,6 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
 
                 var root = doc.RootElement;
 
-                // Path 1: PreparedBy.Name
                 string? preparedBy = TryReadString(root, "PreparedBy", "Name");
                 if (SafeContains(preparedBy, needle))
                 {
@@ -387,7 +461,6 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                     return true;
                 }
 
-                // Path 2: Customer.ContactPerson
                 string? contact = TryReadString(root, "Customer", "ContactPerson");
                 if (SafeContains(contact, needle))
                 {
@@ -396,7 +469,6 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                     return true;
                 }
 
-                // Path 3: Bank.PaymentNotes (some invoices store here)
                 string? notes = TryReadString(root, "Bank", "PaymentNotes");
                 if (SafeContains(notes, needle))
                 {
@@ -415,12 +487,6 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
             }
         }
 
-        /// <summary>
-        /// Searches parent Proforma Invoice snapshot for the salesman name.
-        /// PI is the ORIGINAL source of salesman assignment — most invoices
-        /// have this populated even if the Tax Invoice's PreparedBy is empty.
-        /// Checks: Client.SalesRepresentative, PreparedBy.Name.
-        /// </summary>
         private static async Task<bool> SearchSalesmanInProformaInvoice(
             string proformaId,
             string needle)
@@ -446,7 +512,6 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
 
                 var root = doc.RootElement;
 
-                // Path 1: Client.SalesRepresentative (most common)
                 string? salesRep = TryReadString(root, "Client", "SalesRepresentative");
                 if (SafeContains(salesRep, needle))
                 {
@@ -455,7 +520,6 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                     return true;
                 }
 
-                // Path 2: PI's own PreparedBy.Name
                 string? preparedBy = TryReadString(root, "PreparedBy", "Name");
                 if (SafeContains(preparedBy, needle))
                 {
@@ -464,7 +528,6 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                     return true;
                 }
 
-                // Path 3: Client.DocumentPreparedBy
                 string? docPrep = TryReadString(root, "Client", "DocumentPreparedBy");
                 if (SafeContains(docPrep, needle))
                 {
@@ -483,11 +546,6 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
             }
         }
 
-        /// <summary>
-        /// Safely reads a nested JSON string property.
-        /// Returns null if any part of the path is missing or wrong type.
-        /// Never throws — always returns null on any error.
-        /// </summary>
         private static string? TryReadString(
             JsonElement root,
             string parent,
@@ -621,6 +679,8 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
                     HasSignedPi = flags?.HasSignedPi ?? false,
                     HasSignedDn = flags?.HasSignedDn ?? false,
                     AttachmentCount = attCount
+                    // Reconciliation is attached in AttachReconciliationToRows
+                    // after all rows are built.
                 });
             }
 
@@ -698,19 +758,20 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
             List<TaxInvoiceListItem> filtered,
             StatementFilter filter)
         {
-            var first = filtered.First();
+            // Defensive: FirstOrDefault instead of First (Chat 22 hardening)
+            var first = filtered.FirstOrDefault();
 
             return new StatementCustomerInfo
             {
                 CompanyName = !string.IsNullOrWhiteSpace(filter.CompanyName)
                                    ? filter.CompanyName
-                                   : (first.CompanyName ?? ""),
+                                   : (first?.CompanyName ?? ""),
                 CustomerName = !string.IsNullOrWhiteSpace(filter.CustomerName)
                                    ? filter.CustomerName
-                                   : (first.CustomerName ?? ""),
+                                   : (first?.CustomerName ?? ""),
                 ProjectName = !string.IsNullOrWhiteSpace(filter.ProjectName)
                                    ? filter.ProjectName
-                                   : (first.ProjectName ?? ""),
+                                   : (first?.ProjectName ?? ""),
                 SalesmanName = filter.SalesmanName ?? "",
                 ContactPerson = ""
             };

@@ -1,0 +1,878 @@
+﻿<!-- ═══════════════════════════════════════════════════════════════
+     FILE: Views/Reports/StatementGenerator/Review/ReviewStep.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Statement Generator — Wizard Step 4: REVIEW (Chat 21 v3)
+
+     PURPOSE:
+       Final step of the wizard. Shows PDF generation result,
+       provides download options, and lets user browse the PDF
+       structure via 3 tabs (Merged / Balance / Alerts).
+
+     WHEN THIS STEP IS SHOWN:
+       CurrentStep = 4 (auto-set when pipeline completes in Step 3)
+
+     WHAT USER SEES:
+       ● Big success/warning banner with outcome + elapsed time
+       ● Prominent PDF file card with metadata
+       ● Download PDF (large green button, primary action)
+       ● Copy Path button (secondary action)
+       ● 3-tab PDF section browser (Merged / Balance / Alerts)
+       ● Statistics footer (total sections, warnings, errors)
+
+     WHEN USER CLICKS FINISH:
+       VM sets CurrentStep back to a reset state.
+       VM.OnStatementSaved fires → SalesReportVM switches to list view.
+       List refreshes to show the newly-generated statement.
+
+     BINDINGS (all from parent StatementGeneratorViewModel):
+       LastWorkflowStatusText, IsLastWorkflowComplete,
+       LastPdfFileName, LastPdfSize, LastPdfPageInfo,
+       LastPdfGenerationDisplay, HasLastPdf,
+       DownloadLastPdfCommand, CopyPdfPathCommand,
+       MergedPdfSections, BalancePdfSections, AlertsPdfSections,
+       MergedSectionCount, BalanceSectionCount, AlertsSectionCount,
+       ActivePdfTab, ShowMergedTab, ShowBalanceTab, ShowAlertsTab,
+       SelectMergedTabCommand, SelectBalanceTabCommand, SelectAlertsTabCommand,
+       WarningCount, ErrorCount, WarningSummaryDisplay
+═══════════════════════════════════════════════════════════════ -->
+<UserControl
+    x:Class="ProGlassAutomation.Views.Reports.StatementGenerator.Review.ReviewStep"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:vm="clr-namespace:ProGlassAutomation.ViewModels.Reports.StatementGenerator"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance Type=vm:StatementGeneratorViewModel, IsDesignTimeCreatable=False}"
+    FontFamily="Segoe UI"
+    TextOptions.TextFormattingMode="Display"
+    TextOptions.TextRenderingMode="ClearType"
+    TextOptions.TextHintingMode="Fixed"
+    UseLayoutRounding="True"
+    SnapsToDevicePixels="True">
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  behaviors:SmoothScrollBehavior.IsEnabled="True">
+
+        <Grid Margin="32,24,32,32">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <!-- Step title -->
+                <RowDefinition Height="Auto"/>
+                <!-- Success banner -->
+                <RowDefinition Height="20"/>
+                <RowDefinition Height="Auto"/>
+                <!-- 2-column: PDF card + Section browser -->
+                <RowDefinition Height="16"/>
+                <RowDefinition Height="Auto"/>
+                <!-- Statistics footer -->
+            </Grid.RowDefinitions>
+
+            <!-- ═══ STEP TITLE ═══ -->
+            <StackPanel Grid.Row="0" Margin="0,0,0,20">
+                <TextBlock Text="Statement Ready"
+                           Style="{StaticResource StepTitleStyle}"/>
+                <TextBlock Text="Your merged PDF report has been generated. Download it, review the contents, or click Finish to return to the statement list."
+                           Style="{StaticResource StepSubtitleStyle}"/>
+            </StackPanel>
+
+            <!-- ═══ SUCCESS/WARNING BANNER ═══ -->
+            <Border Grid.Row="1"
+                    CornerRadius="14"
+                    Padding="24,20">
+                <Border.Style>
+                    <Style TargetType="Border">
+                        <!-- Default = success green -->
+                        <Setter Property="Background">
+                            <Setter.Value>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                    <GradientStop Color="#047857" Offset="0"/>
+                                    <GradientStop Color="#10B981" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Setter.Value>
+                        </Setter>
+                        <Setter Property="Effect">
+                            <Setter.Value>
+                                <DropShadowEffect BlurRadius="20" ShadowDepth="4"
+                                                  Opacity="0.15" Color="#047857"/>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <!-- Amber gradient if completed with warnings -->
+                            <DataTrigger Binding="{Binding IsLastWorkflowComplete}" Value="False">
+                                <Setter Property="Background">
+                                    <Setter.Value>
+                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                            <GradientStop Color="#B45309" Offset="0"/>
+                                            <GradientStop Color="#F59E0B" Offset="1"/>
+                                        </LinearGradientBrush>
+                                    </Setter.Value>
+                                </Setter>
+                                <Setter Property="Effect">
+                                    <Setter.Value>
+                                        <DropShadowEffect BlurRadius="20" ShadowDepth="4"
+                                                          Opacity="0.15" Color="#B45309"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="20"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- Big success/warning icon -->
+                    <Border Grid.Column="0"
+                            Width="64" Height="64"
+                            Background="#FFFFFF33"
+                            CornerRadius="16"
+                            VerticalAlignment="Center">
+                        <TextBlock FontSize="32" FontWeight="Bold"
+                                   Foreground="White"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text" Value="✓"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsLastWorkflowComplete}" Value="False">
+                                            <Setter Property="Text" Value="⚠"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Border>
+
+                    <!-- Status text -->
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding LastWorkflowStatusText}"
+                                   FontSize="22" FontWeight="Bold"
+                                   Foreground="White"/>
+                        <TextBlock Text="{Binding LastPdfGenerationDisplay}"
+                                   FontSize="13"
+                                   Foreground="#FFFFFFCC"
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+
+                    <!-- Warning count badge (only if warnings exist) -->
+                    <Border Grid.Column="3"
+                            Background="#FFFFFF33"
+                            CornerRadius="10"
+                            Padding="14,8"
+                            VerticalAlignment="Center"
+                            Visibility="{Binding IsLastWorkflowComplete,
+                                Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                        <StackPanel>
+                            <TextBlock Text="WARNINGS"
+                                       FontSize="9" FontWeight="Bold"
+                                       Foreground="#FFFFFFCC"/>
+                            <TextBlock Text="{Binding WarningSummaryDisplay}"
+                                       FontSize="12" FontWeight="Bold"
+                                       Foreground="White"
+                                       Margin="0,3,0,0"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
+            </Border>
+
+            <!-- ═══ 2-COLUMN: PDF FILE CARD + SECTION BROWSER ═══ -->
+            <Grid Grid.Row="3">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.1*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="1.4*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- ═════════════════════════════════════════════════
+                     LEFT: PDF FILE CARD
+                ═════════════════════════════════════════════════ -->
+                <Border Grid.Column="0" Style="{StaticResource WizardCardStyle}" Padding="0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Header with green gradient -->
+                        <Border Grid.Row="0"
+                                CornerRadius="12,12,0,0"
+                                Padding="24,20">
+                            <Border.Background>
+                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                    <GradientStop Color="#047857" Offset="0"/>
+                                    <GradientStop Color="#10B981" Offset="1"/>
+                                </LinearGradientBrush>
+                            </Border.Background>
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="40" Height="40"
+                                        Background="#FFFFFF33"
+                                        CornerRadius="10"
+                                        Margin="0,0,14,0">
+                                    <TextBlock Text="📄"
+                                               FontSize="20"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="MERGED PDF REPORT"
+                                               FontSize="10" FontWeight="Bold"
+                                               Foreground="#A7F3D0"/>
+                                    <TextBlock Text="Ready for Download"
+                                               FontSize="15" FontWeight="Bold"
+                                               Foreground="White"
+                                               Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Giant PDF icon + filename -->
+                        <StackPanel Grid.Row="1"
+                                    Margin="24,32,24,24"
+                                    HorizontalAlignment="Center">
+                            <Border Width="96" Height="120"
+                                    CornerRadius="12"
+                                    HorizontalAlignment="Center"
+                                    Margin="0,0,0,20">
+                                <Border.Background>
+                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                        <GradientStop Color="#DC2626" Offset="0"/>
+                                        <GradientStop Color="#B91C1C" Offset="1"/>
+                                    </LinearGradientBrush>
+                                </Border.Background>
+                                <Border.Effect>
+                                    <DropShadowEffect BlurRadius="14" ShadowDepth="4"
+                                                      Opacity="0.25" Color="#B91C1C"/>
+                                </Border.Effect>
+                                <Grid>
+                                    <TextBlock Text="PDF"
+                                               FontSize="24" FontWeight="Black"
+                                               Foreground="White"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                    <Border Width="24" Height="24"
+                                            Background="White"
+                                            CornerRadius="0,0,0,8"
+                                            HorizontalAlignment="Right"
+                                            VerticalAlignment="Top">
+                                        <TextBlock Text="📎"
+                                                   FontSize="12"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                    </Border>
+                                </Grid>
+                            </Border>
+
+                            <TextBlock Text="{Binding LastPdfFileName}"
+                                       FontSize="14" FontWeight="Bold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                       HorizontalAlignment="Center"
+                                       TextTrimming="CharacterEllipsis"
+                                       MaxWidth="360"/>
+
+                            <StackPanel Orientation="Horizontal"
+                                        HorizontalAlignment="Center"
+                                        Margin="0,10,0,0">
+                                <Border Background="#EEF2FF"
+                                        BorderBrush="#C7D2FE"
+                                        BorderThickness="1"
+                                        CornerRadius="6"
+                                        Padding="8,4"
+                                        Margin="0,0,6,0">
+                                    <TextBlock Text="{Binding LastPdfPageInfo}"
+                                               FontSize="11" FontWeight="SemiBold"
+                                               Foreground="#4338CA"/>
+                                </Border>
+                                <Border Background="#F5F3FF"
+                                        BorderBrush="#DDD6FE"
+                                        BorderThickness="1"
+                                        CornerRadius="6"
+                                        Padding="8,4">
+                                    <TextBlock Text="{Binding LastPdfSize}"
+                                               FontSize="11" FontWeight="SemiBold"
+                                               Foreground="#6D28D9"/>
+                                </Border>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- Download button (primary, big) -->
+                        <Button Grid.Row="2"
+                                Command="{Binding DownloadLastPdfCommand}"
+                                Height="52" Margin="24,0,24,12"
+                                Cursor="Hand" BorderThickness="0">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="bd" CornerRadius="12">
+                                        <Border.Background>
+                                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                <GradientStop Color="#047857" Offset="0"/>
+                                                <GradientStop Color="#10B981" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Border.Background>
+                                        <Border.Effect>
+                                            <DropShadowEffect BlurRadius="10" ShadowDepth="3"
+                                                              Opacity="0.3" Color="#047857"/>
+                                        </Border.Effect>
+                                        <StackPanel Orientation="Horizontal"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center">
+                                            <TextBlock Text="⬇" FontSize="18" FontWeight="Bold"
+                                                       Foreground="White"
+                                                       Margin="0,0,10,0"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="Download PDF"
+                                                       FontSize="14" FontWeight="Bold"
+                                                       Foreground="White"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="Opacity" Value="0.92"/>
+                                        </Trigger>
+                                        <Trigger Property="IsPressed" Value="True">
+                                            <Setter TargetName="bd" Property="Opacity" Value="0.8"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+
+                        <!-- Copy Path button (secondary) -->
+                        <Button Grid.Row="3"
+                                Command="{Binding CopyPdfPathCommand}"
+                                Height="40" Margin="24,0,24,24"
+                                Cursor="Hand" BorderThickness="0">
+                            <Button.Template>
+                                <ControlTemplate TargetType="Button">
+                                    <Border x:Name="bd"
+                                            Background="{DynamicResource ModuleBackgroundBrush}"
+                                            BorderBrush="{DynamicResource BorderBrush}"
+                                            BorderThickness="1"
+                                            CornerRadius="10">
+                                        <StackPanel Orientation="Horizontal"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center">
+                                            <TextBlock Text="📋 " FontSize="12"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="Copy File Path"
+                                                       FontSize="12" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                    </Border>
+                                    <ControlTemplate.Triggers>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="bd" Property="BorderBrush" Value="#8B5CF6"/>
+                                            <Setter TargetName="bd" Property="Background"
+                                                    Value="{DynamicResource MenuHoverBrush}"/>
+                                        </Trigger>
+                                    </ControlTemplate.Triggers>
+                                </ControlTemplate>
+                            </Button.Template>
+                        </Button>
+                    </Grid>
+                </Border>
+
+                <!-- ═════════════════════════════════════════════════
+                     RIGHT: PDF SECTION BROWSER
+                ═════════════════════════════════════════════════ -->
+                <Border Grid.Column="2" Style="{StaticResource WizardCardStyle}" Padding="0">
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Header -->
+                        <Border Grid.Row="0" Style="{StaticResource WizardCardHeaderStyle}">
+                            <StackPanel Orientation="Horizontal">
+                                <Border Width="36" Height="36"
+                                        Background="#FFFFFF33"
+                                        CornerRadius="9"
+                                        Margin="0,0,14,0">
+                                    <TextBlock Text="📚"
+                                               FontSize="17"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel VerticalAlignment="Center">
+                                    <TextBlock Text="PDF Section Browser"
+                                               FontSize="15" FontWeight="Bold"
+                                               Foreground="White"/>
+                                    <TextBlock Text="Browse what's inside your merged report"
+                                               FontSize="11"
+                                               Foreground="#C7D2FE"
+                                               Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Tabs -->
+                        <Border Grid.Row="1"
+                                BorderThickness="0,0,0,1"
+                                BorderBrush="{DynamicResource BorderBrush}"
+                                Padding="16,10">
+                            <StackPanel Orientation="Horizontal">
+
+                                <!-- Merged tab -->
+                                <Button Command="{Binding SelectMergedTabCommand}"
+                                        Height="36" Padding="14,0" Margin="0,0,6,0"
+                                        Cursor="Hand" BorderThickness="0">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="bd" CornerRadius="8"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="Transparent"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding ShowMergedTab}" Value="True">
+                                                                <Setter Property="Background">
+                                                                    <Setter.Value>
+                                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                                            <GradientStop Color="#047857" Offset="0"/>
+                                                                            <GradientStop Color="#10B981" Offset="1"/>
+                                                                        </LinearGradientBrush>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="📄 Merged  " FontSize="12" FontWeight="Bold"
+                                                               VerticalAlignment="Center">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Foreground"
+                                                                        Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding ShowMergedTab}" Value="True">
+                                                                        <Setter Property="Foreground" Value="White"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                    <Border CornerRadius="8" Padding="6,1"
+                                                            VerticalAlignment="Center">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Background"
+                                                                        Value="{DynamicResource MenuHoverBrush}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding ShowMergedTab}" Value="True">
+                                                                        <Setter Property="Background" Value="#FFFFFF33"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock Text="{Binding MergedSectionCount}"
+                                                                   FontSize="10" FontWeight="Bold">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Foreground"
+                                                                            Value="{DynamicResource MutedForegroundBrush}"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding ShowMergedTab}" Value="True">
+                                                                            <Setter Property="Foreground" Value="White"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Border>
+                                                </StackPanel>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+
+                                <!-- Balance tab -->
+                                <Button Command="{Binding SelectBalanceTabCommand}"
+                                        Height="36" Padding="14,0" Margin="0,0,6,0"
+                                        Cursor="Hand" BorderThickness="0">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="bd" CornerRadius="8"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="Transparent"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding ShowBalanceTab}" Value="True">
+                                                                <Setter Property="Background">
+                                                                    <Setter.Value>
+                                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                                            <GradientStop Color="#1D4ED8" Offset="0"/>
+                                                                            <GradientStop Color="#3B82F6" Offset="1"/>
+                                                                        </LinearGradientBrush>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="⚖ Balance  " FontSize="12" FontWeight="Bold"
+                                                               VerticalAlignment="Center">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Foreground"
+                                                                        Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding ShowBalanceTab}" Value="True">
+                                                                        <Setter Property="Foreground" Value="White"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                    <Border CornerRadius="8" Padding="6,1"
+                                                            VerticalAlignment="Center">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Background"
+                                                                        Value="{DynamicResource MenuHoverBrush}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding ShowBalanceTab}" Value="True">
+                                                                        <Setter Property="Background" Value="#FFFFFF33"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock Text="{Binding BalanceSectionCount}"
+                                                                   FontSize="10" FontWeight="Bold">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Foreground"
+                                                                            Value="{DynamicResource MutedForegroundBrush}"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding ShowBalanceTab}" Value="True">
+                                                                            <Setter Property="Foreground" Value="White"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Border>
+                                                </StackPanel>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+
+                                <!-- Alerts tab -->
+                                <Button Command="{Binding SelectAlertsTabCommand}"
+                                        Height="36" Padding="14,0"
+                                        Cursor="Hand" BorderThickness="0">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border x:Name="bd" CornerRadius="8"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="Transparent"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding ShowAlertsTab}" Value="True">
+                                                                <Setter Property="Background">
+                                                                    <Setter.Value>
+                                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                                                            <GradientStop Color="#B45309" Offset="0"/>
+                                                                            <GradientStop Color="#F59E0B" Offset="1"/>
+                                                                        </LinearGradientBrush>
+                                                                    </Setter.Value>
+                                                                </Setter>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <StackPanel Orientation="Horizontal">
+                                                    <TextBlock Text="⚠ Alerts  " FontSize="12" FontWeight="Bold"
+                                                               VerticalAlignment="Center">
+                                                        <TextBlock.Style>
+                                                            <Style TargetType="TextBlock">
+                                                                <Setter Property="Foreground"
+                                                                        Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding ShowAlertsTab}" Value="True">
+                                                                        <Setter Property="Foreground" Value="White"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </TextBlock.Style>
+                                                    </TextBlock>
+                                                    <Border CornerRadius="8" Padding="6,1"
+                                                            VerticalAlignment="Center">
+                                                        <Border.Style>
+                                                            <Style TargetType="Border">
+                                                                <Setter Property="Background"
+                                                                        Value="{DynamicResource MenuHoverBrush}"/>
+                                                                <Style.Triggers>
+                                                                    <DataTrigger Binding="{Binding ShowAlertsTab}" Value="True">
+                                                                        <Setter Property="Background" Value="#FFFFFF33"/>
+                                                                    </DataTrigger>
+                                                                </Style.Triggers>
+                                                            </Style>
+                                                        </Border.Style>
+                                                        <TextBlock Text="{Binding AlertsSectionCount}"
+                                                                   FontSize="10" FontWeight="Bold">
+                                                            <TextBlock.Style>
+                                                                <Style TargetType="TextBlock">
+                                                                    <Setter Property="Foreground"
+                                                                            Value="{DynamicResource MutedForegroundBrush}"/>
+                                                                    <Style.Triggers>
+                                                                        <DataTrigger Binding="{Binding ShowAlertsTab}" Value="True">
+                                                                            <Setter Property="Foreground" Value="White"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </TextBlock.Style>
+                                                        </TextBlock>
+                                                    </Border>
+                                                </StackPanel>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Section list (scrollable) -->
+                        <ScrollViewer Grid.Row="2"
+                                      Padding="16,12,16,16"
+                                      MaxHeight="440"
+                                      VerticalScrollBarVisibility="Auto"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      behaviors:SmoothScrollBehavior.IsEnabled="True">
+                            <Grid>
+                                <!-- Merged tab content -->
+                                <ItemsControl ItemsSource="{Binding MergedPdfSections}"
+                                              Visibility="{Binding ShowMergedTab,
+                                                  Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                                                    BorderBrush="{DynamicResource BorderBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="10"
+                                                    Padding="14,12"
+                                                    Margin="0,0,0,6">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Grid.Column="0"
+                                                            Width="34" Height="34"
+                                                            CornerRadius="8"
+                                                            Margin="0,0,12,0"
+                                                            VerticalAlignment="Center"
+                                                            Background="{Binding IconColorHex,
+                                                                Converter={StaticResource ColorStringConverter}}">
+                                                        <TextBlock Text="{Binding Icon}" FontSize="15"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Title}"
+                                                                   FontSize="13" FontWeight="SemiBold"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                        <TextBlock Text="{Binding PageInfo}"
+                                                                   FontSize="11"
+                                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                                   Margin="0,2,0,0"/>
+                                                    </StackPanel>
+                                                    <Border Grid.Column="2"
+                                                            CornerRadius="6" Padding="8,3"
+                                                            VerticalAlignment="Center"
+                                                            Visibility="{Binding HasStatus,
+                                                                Converter={StaticResource BoolToVisibilityConverter}}"
+                                                            Background="{Binding StatusColorHex,
+                                                                Converter={StaticResource ColorStringConverter}}">
+                                                        <TextBlock Text="{Binding StatusLabel}"
+                                                                   FontSize="9" FontWeight="Bold"
+                                                                   Foreground="White"/>
+                                                    </Border>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <!-- Balance tab content -->
+                                <ItemsControl ItemsSource="{Binding BalancePdfSections}"
+                                              Visibility="{Binding ShowBalanceTab,
+                                                  Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                                                    BorderBrush="{DynamicResource BorderBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="10"
+                                                    Padding="14,12"
+                                                    Margin="0,0,0,6">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Grid.Column="0"
+                                                            Width="34" Height="34"
+                                                            CornerRadius="8"
+                                                            Margin="0,0,12,0"
+                                                            VerticalAlignment="Center"
+                                                            Background="{Binding IconColorHex,
+                                                                Converter={StaticResource ColorStringConverter}}">
+                                                        <TextBlock Text="{Binding Icon}" FontSize="15"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Title}"
+                                                                   FontSize="13" FontWeight="SemiBold"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                        <TextBlock Text="{Binding PageInfo}"
+                                                                   FontSize="11"
+                                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                                   Margin="0,2,0,0"/>
+                                                    </StackPanel>
+                                                    <Border Grid.Column="2"
+                                                            CornerRadius="6" Padding="8,3"
+                                                            VerticalAlignment="Center"
+                                                            Visibility="{Binding HasStatus,
+                                                                Converter={StaticResource BoolToVisibilityConverter}}"
+                                                            Background="{Binding StatusColorHex,
+                                                                Converter={StaticResource ColorStringConverter}}">
+                                                        <TextBlock Text="{Binding StatusLabel}"
+                                                                   FontSize="9" FontWeight="Bold"
+                                                                   Foreground="White"/>
+                                                    </Border>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+
+                                <!-- Alerts tab content -->
+                                <ItemsControl ItemsSource="{Binding AlertsPdfSections}"
+                                              Visibility="{Binding ShowAlertsTab,
+                                                  Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <ItemsControl.ItemTemplate>
+                                        <DataTemplate>
+                                            <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                                                    BorderBrush="{DynamicResource BorderBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="10"
+                                                    Padding="14,12"
+                                                    Margin="0,0,0,6">
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+                                                    <Border Grid.Column="0"
+                                                            Width="34" Height="34"
+                                                            CornerRadius="8"
+                                                            Margin="0,0,12,0"
+                                                            VerticalAlignment="Center"
+                                                            Background="{Binding IconColorHex,
+                                                                Converter={StaticResource ColorStringConverter}}">
+                                                        <TextBlock Text="{Binding Icon}" FontSize="15"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"/>
+                                                    </Border>
+                                                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                                                        <TextBlock Text="{Binding Title}"
+                                                                   FontSize="13" FontWeight="SemiBold"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                        <TextBlock Text="{Binding PageInfo}"
+                                                                   FontSize="11"
+                                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                                   Margin="0,2,0,0"/>
+                                                    </StackPanel>
+                                                    <Border Grid.Column="2"
+                                                            CornerRadius="6" Padding="8,3"
+                                                            VerticalAlignment="Center"
+                                                            Visibility="{Binding HasStatus,
+                                                                Converter={StaticResource BoolToVisibilityConverter}}"
+                                                            Background="{Binding StatusColorHex,
+                                                                Converter={StaticResource ColorStringConverter}}">
+                                                        <TextBlock Text="{Binding StatusLabel}"
+                                                                   FontSize="9" FontWeight="Bold"
+                                                                   Foreground="White"/>
+                                                    </Border>
+                                                </Grid>
+                                            </Border>
+                                        </DataTemplate>
+                                    </ItemsControl.ItemTemplate>
+                                </ItemsControl>
+                            </Grid>
+                        </ScrollViewer>
+                    </Grid>
+                </Border>
+            </Grid>
+
+            <!-- ═══ STATISTICS FOOTER ═══ -->
+            <Border Grid.Row="5"
+                    Background="{DynamicResource ModuleBackgroundBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Padding="20,14">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="📊 " FontSize="14" VerticalAlignment="Center"/>
+                        <TextBlock FontSize="12"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   VerticalAlignment="Center">
+                            <Run Text="Report includes"/>
+                            <Run Text="{Binding MergedSectionCount, Mode=OneWay}"
+                                 FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            <Run Text="sections"/>
+                            <Run Text=" · "/>
+                            <Run Text="{Binding ErrorCount, Mode=OneWay}"
+                                 FontWeight="Bold" Foreground="#B91C1C"/>
+                            <Run Text="errors · "/>
+                            <Run Text="{Binding WarningCount, Mode=OneWay}"
+                                 FontWeight="Bold" Foreground="#B45309"/>
+                            <Run Text="warnings"/>
+                        </TextBlock>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="1"
+                                Orientation="Horizontal"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="✓ All processing complete"
+                                   FontSize="12" FontWeight="SemiBold"
+                                   Foreground="#047857"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
+
+        </Grid>
+    </ScrollViewer>
+</UserControl>

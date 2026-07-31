@@ -1,0 +1,607 @@
+﻿<!-- ═══════════════════════════════════════════════════════════════
+     FILE: Views/Reports/StatementGenerator/Shell/StatementGeneratorView.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Statement Generator — Wizard Shell (Chat 22 v3 — Clickable Stepper)
+
+     CHAT 22 v3 CHANGES:
+       ✂ Each step badge is now a Button bound to GoToStepCommand
+       ✂ CommandParameter="1..4" identifies target step
+       ✂ IsEnabled bound to VM.CanNavigateToStepX gate
+       ✂ StepBadgeButtonStyle provides:
+           - Hover feedback (hardcoded #F5F3FF — theme-safe)
+           - Pressed feedback (hardcoded #E9E5FF — theme-safe)
+           - Disabled state (0.45 opacity + Arrow cursor)
+           - Zero focus rectangle noise
+       ✂ Badge visual states use IsStepXActive + IsStepXComplete
+           - Idle: gray
+           - Complete: green with ✓
+           - Active: indigo with glow (LAST — overrides Complete when both true)
+
+     THEME COMPATIBILITY:
+       ✓ No dependency on MenuHoverBrush (may not exist in all themes)
+       ✓ Uses hardcoded lavender hover (works in both light and dark)
+       ✓ All other brushes use DynamicResource (theme-aware)
+
+     VERIFIED VM BINDINGS PRESENT:
+       CurrentStep, GoToStepCommand
+       CanNavigateToStep1..4, IsStep1..4Active, IsStep1..4Complete
+       CancelCommand, PreviousStepCommand, NextStepCommand
+       CanGoPrevious, ShowNextButton, ShowGenerateButton, ShowFinishButton
+
+     ZERO regressions on footer + step content grid.
+═══════════════════════════════════════════════════════════════ -->
+<UserControl
+    x:Class="ProGlassAutomation.Views.Reports.StatementGenerator.Shell.StatementGeneratorView"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    xmlns:filter="clr-namespace:ProGlassAutomation.Views.Reports.StatementGenerator.Filter"
+    xmlns:preview="clr-namespace:ProGlassAutomation.Views.Reports.StatementGenerator.Preview"
+    xmlns:pipeline="clr-namespace:ProGlassAutomation.Views.Reports.StatementGenerator.Pipeline"
+    xmlns:review="clr-namespace:ProGlassAutomation.Views.Reports.StatementGenerator.Review"
+    xmlns:vm="clr-namespace:ProGlassAutomation.ViewModels.Reports.StatementGenerator"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance Type=vm:StatementGeneratorViewModel, IsDesignTimeCreatable=False}"
+    FontFamily="Segoe UI"
+    TextOptions.TextFormattingMode="Display"
+    TextOptions.TextRenderingMode="ClearType"
+    TextOptions.TextHintingMode="Fixed"
+    UseLayoutRounding="True"
+    SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+
+        <!-- ═══════════════════════════════════════════════════════
+             LOCAL — Clickable step badge button.
+             Wraps a badge + label as a single clickable region.
+             Hover/pressed use safe hardcoded lavenders (theme-agnostic).
+        ═══════════════════════════════════════════════════════ -->
+        <Style x:Key="StepBadgeButtonStyle" TargetType="Button">
+            <Setter Property="Background"          Value="Transparent"/>
+            <Setter Property="BorderThickness"     Value="0"/>
+            <Setter Property="Padding"             Value="10,4"/>
+            <Setter Property="Cursor"              Value="Hand"/>
+            <Setter Property="FocusVisualStyle"    Value="{x:Null}"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="hoverBg"
+                                Background="Transparent"
+                                CornerRadius="10"
+                                Padding="{TemplateBinding Padding}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="hoverBg" Property="Background" Value="#F5F3FF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="hoverBg" Property="Background" Value="#E9E5FF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.45"/>
+                    <Setter Property="Cursor"  Value="Arrow"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="76"/>
+            <!-- Stepper -->
+            <RowDefinition Height="*"/>
+            <!-- Step content -->
+            <RowDefinition Height="62"/>
+            <!-- Footer nav -->
+        </Grid.RowDefinitions>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             ROW 0 — STEPPER BAR (clickable badges)
+        ═══════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="0"
+                Background="{DynamicResource ModuleBackgroundBrush}"
+                BorderThickness="0,0,0,1"
+                BorderBrush="{DynamicResource BorderBrush}">
+            <Grid Margin="20,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="38"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="38"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- Centered stepper -->
+                <Grid Grid.Column="1"
+                      HorizontalAlignment="Center"
+                      VerticalAlignment="Center"
+                      MinWidth="620" MaxWidth="840">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <!-- ══ STEP 1 — FILTERS ══ -->
+                    <Button Grid.Column="0"
+                            Style="{StaticResource StepBadgeButtonStyle}"
+                            Command="{Binding GoToStepCommand}"
+                            CommandParameter="1"
+                            IsEnabled="{Binding CanNavigateToStep1}"
+                            ToolTip="Step 1 — Configure Filters">
+                        <StackPanel HorizontalAlignment="Center">
+                            <Border CacheMode="BitmapCache">
+                                <Border.Style>
+                                    <Style TargetType="Border" BasedOn="{StaticResource StepNumberBadgeStyle}">
+                                        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsStep1Complete}" Value="True">
+                                                <Setter Property="Background" Value="#10B981"/>
+                                                <Setter Property="BorderBrush" Value="#10B981"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsStep1Active}" Value="True">
+                                                <Setter Property="Background" Value="#4338CA"/>
+                                                <Setter Property="BorderBrush" Value="#4338CA"/>
+                                                <Setter Property="Effect">
+                                                    <Setter.Value>
+                                                        <DropShadowEffect BlurRadius="6" ShadowDepth="0"
+                                                                          Opacity="0.5" Color="#4338CA"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           FontSize="12" FontWeight="Bold">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="1"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsStep1Complete}" Value="True">
+                                                    <Setter Property="Text" Value="✓"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsStep1Active}" Value="True">
+                                                    <Setter Property="Text" Value="1"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Border>
+                            <TextBlock Text="Filters">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource StepLabelStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsStep1Complete}" Value="True">
+                                                <Setter Property="Foreground" Value="#047857"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsStep1Active}" Value="True">
+                                                <Setter Property="Foreground" Value="#4338CA"/>
+                                                <Setter Property="FontWeight" Value="Bold"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- ══ Connector 1→2 ══ -->
+                    <Border Grid.Column="1">
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource StepperConnectorStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsStep1Complete}" Value="True">
+                                        <Setter Property="Background" Value="#10B981"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                    </Border>
+
+                    <!-- ══ STEP 2 — PREVIEW ══ -->
+                    <Button Grid.Column="2"
+                            Style="{StaticResource StepBadgeButtonStyle}"
+                            Command="{Binding GoToStepCommand}"
+                            CommandParameter="2"
+                            IsEnabled="{Binding CanNavigateToStep2}"
+                            ToolTip="Step 2 — Preview Invoices">
+                        <StackPanel HorizontalAlignment="Center">
+                            <Border CacheMode="BitmapCache">
+                                <Border.Style>
+                                    <Style TargetType="Border" BasedOn="{StaticResource StepNumberBadgeStyle}">
+                                        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsStep2Complete}" Value="True">
+                                                <Setter Property="Background" Value="#10B981"/>
+                                                <Setter Property="BorderBrush" Value="#10B981"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsStep2Active}" Value="True">
+                                                <Setter Property="Background" Value="#4338CA"/>
+                                                <Setter Property="BorderBrush" Value="#4338CA"/>
+                                                <Setter Property="Effect">
+                                                    <Setter.Value>
+                                                        <DropShadowEffect BlurRadius="6" ShadowDepth="0"
+                                                                          Opacity="0.5" Color="#4338CA"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           FontSize="12" FontWeight="Bold">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="2"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsStep2Complete}" Value="True">
+                                                    <Setter Property="Text" Value="✓"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsStep2Active}" Value="True">
+                                                    <Setter Property="Text" Value="2"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Border>
+                            <TextBlock Text="Preview">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource StepLabelStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsStep2Complete}" Value="True">
+                                                <Setter Property="Foreground" Value="#047857"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsStep2Active}" Value="True">
+                                                <Setter Property="Foreground" Value="#4338CA"/>
+                                                <Setter Property="FontWeight" Value="Bold"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- ══ Connector 2→3 ══ -->
+                    <Border Grid.Column="3">
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource StepperConnectorStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsStep2Complete}" Value="True">
+                                        <Setter Property="Background" Value="#10B981"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                    </Border>
+
+                    <!-- ══ STEP 3 — EXECUTE ══ -->
+                    <Button Grid.Column="4"
+                            Style="{StaticResource StepBadgeButtonStyle}"
+                            Command="{Binding GoToStepCommand}"
+                            CommandParameter="3"
+                            IsEnabled="{Binding CanNavigateToStep3}"
+                            ToolTip="Step 3 — Execute Pipeline">
+                        <StackPanel HorizontalAlignment="Center">
+                            <Border CacheMode="BitmapCache">
+                                <Border.Style>
+                                    <Style TargetType="Border" BasedOn="{StaticResource StepNumberBadgeStyle}">
+                                        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsStep3Complete}" Value="True">
+                                                <Setter Property="Background" Value="#10B981"/>
+                                                <Setter Property="BorderBrush" Value="#10B981"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsStep3Active}" Value="True">
+                                                <Setter Property="Background" Value="#4338CA"/>
+                                                <Setter Property="BorderBrush" Value="#4338CA"/>
+                                                <Setter Property="Effect">
+                                                    <Setter.Value>
+                                                        <DropShadowEffect BlurRadius="6" ShadowDepth="0"
+                                                                          Opacity="0.5" Color="#4338CA"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           FontSize="12" FontWeight="Bold">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="3"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsStep3Complete}" Value="True">
+                                                    <Setter Property="Text" Value="✓"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsStep3Active}" Value="True">
+                                                    <Setter Property="Text" Value="3"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Border>
+                            <TextBlock Text="Execute">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource StepLabelStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsStep3Complete}" Value="True">
+                                                <Setter Property="Foreground" Value="#047857"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsStep3Active}" Value="True">
+                                                <Setter Property="Foreground" Value="#4338CA"/>
+                                                <Setter Property="FontWeight" Value="Bold"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Button>
+
+                    <!-- ══ Connector 3→4 ══ -->
+                    <Border Grid.Column="5">
+                        <Border.Style>
+                            <Style TargetType="Border" BasedOn="{StaticResource StepperConnectorStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsStep3Complete}" Value="True">
+                                        <Setter Property="Background" Value="#10B981"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                    </Border>
+
+                    <!-- ══ STEP 4 — REVIEW ══ -->
+                    <Button Grid.Column="6"
+                            Style="{StaticResource StepBadgeButtonStyle}"
+                            Command="{Binding GoToStepCommand}"
+                            CommandParameter="4"
+                            IsEnabled="{Binding CanNavigateToStep4}"
+                            ToolTip="Step 4 — Review Results">
+                        <StackPanel HorizontalAlignment="Center">
+                            <Border CacheMode="BitmapCache">
+                                <Border.Style>
+                                    <Style TargetType="Border" BasedOn="{StaticResource StepNumberBadgeStyle}">
+                                        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsStep4Complete}" Value="True">
+                                                <Setter Property="Background" Value="#10B981"/>
+                                                <Setter Property="BorderBrush" Value="#10B981"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsStep4Active}" Value="True">
+                                                <Setter Property="Background" Value="#4338CA"/>
+                                                <Setter Property="BorderBrush" Value="#4338CA"/>
+                                                <Setter Property="Effect">
+                                                    <Setter.Value>
+                                                        <DropShadowEffect BlurRadius="6" ShadowDepth="0"
+                                                                          Opacity="0.5" Color="#4338CA"/>
+                                                    </Setter.Value>
+                                                </Setter>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           FontSize="12" FontWeight="Bold">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Text" Value="4"/>
+                                            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding IsStep4Complete}" Value="True">
+                                                    <Setter Property="Text" Value="✓"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </DataTrigger>
+                                                <DataTrigger Binding="{Binding IsStep4Active}" Value="True">
+                                                    <Setter Property="Text" Value="4"/>
+                                                    <Setter Property="Foreground" Value="White"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Border>
+                            <TextBlock Text="Review">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock" BasedOn="{StaticResource StepLabelStyle}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsStep4Complete}" Value="True">
+                                                <Setter Property="Foreground" Value="#047857"/>
+                                            </DataTrigger>
+                                            <DataTrigger Binding="{Binding IsStep4Active}" Value="True">
+                                                <Setter Property="Foreground" Value="#4338CA"/>
+                                                <Setter Property="FontWeight" Value="Bold"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Button>
+                </Grid>
+
+                <!-- Close ✕ button (top-right corner) -->
+                <Button Grid.Column="2"
+                        Command="{Binding CancelCommand}"
+                        Width="38" Height="38"
+                        Cursor="Hand" BorderThickness="0"
+                        Background="Transparent"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        FocusVisualStyle="{x:Null}"
+                        ToolTip="Cancel and return to statement list">
+                    <Button.Template>
+                        <ControlTemplate TargetType="Button">
+                            <Border x:Name="bd"
+                                    Background="Transparent"
+                                    CornerRadius="8"
+                                    Width="32" Height="32"
+                                    SnapsToDevicePixels="True">
+                                <TextBlock x:Name="ic"
+                                           Text="✕"
+                                           FontSize="14" FontWeight="Bold"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <ControlTemplate.Triggers>
+                                <Trigger Property="IsMouseOver" Value="True">
+                                    <Setter TargetName="bd" Property="Background" Value="#FEF2F2"/>
+                                    <Setter TargetName="ic" Property="Foreground" Value="#B91C1C"/>
+                                </Trigger>
+                                <Trigger Property="IsPressed" Value="True">
+                                    <Setter TargetName="bd" Property="Background" Value="#FEE2E2"/>
+                                </Trigger>
+                            </ControlTemplate.Triggers>
+                        </ControlTemplate>
+                    </Button.Template>
+                </Button>
+            </Grid>
+        </Border>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             ROW 1 — STEP CONTENT
+        ═══════════════════════════════════════════════════════════ -->
+        <Grid Grid.Row="1"
+              Background="{DynamicResource WindowBackgroundBrush}"
+              UseLayoutRounding="True"
+              SnapsToDevicePixels="True">
+
+            <filter:FilterStep>
+                <filter:FilterStep.Style>
+                    <Style TargetType="filter:FilterStep">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CurrentStep}" Value="1">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </filter:FilterStep.Style>
+            </filter:FilterStep>
+
+            <preview:PreviewStep>
+                <preview:PreviewStep.Style>
+                    <Style TargetType="preview:PreviewStep">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CurrentStep}" Value="2">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </preview:PreviewStep.Style>
+            </preview:PreviewStep>
+
+            <pipeline:ExecuteStep>
+                <pipeline:ExecuteStep.Style>
+                    <Style TargetType="pipeline:ExecuteStep">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CurrentStep}" Value="3">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </pipeline:ExecuteStep.Style>
+            </pipeline:ExecuteStep>
+
+            <review:ReviewStep>
+                <review:ReviewStep.Style>
+                    <Style TargetType="review:ReviewStep">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding CurrentStep}" Value="4">
+                                <Setter Property="Visibility" Value="Visible"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </review:ReviewStep.Style>
+            </review:ReviewStep>
+        </Grid>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             ROW 2 — FOOTER NAVIGATION
+        ═══════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="2"
+                Background="{DynamicResource ModuleBackgroundBrush}"
+                BorderThickness="0,1,0,0"
+                BorderBrush="{DynamicResource BorderBrush}">
+            <Grid Margin="20,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Button Grid.Column="0"
+                        Command="{Binding CancelCommand}"
+                        Style="{StaticResource NavButtonDangerStyle}"
+                        Content="Cancel"
+                        VerticalAlignment="Center"/>
+
+                <StackPanel Grid.Column="2"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+
+                    <Button Command="{Binding PreviousStepCommand}"
+                            Style="{StaticResource NavButtonSecondaryStyle}"
+                            Content="← Previous"
+                            Margin="0,0,10,0"
+                            Visibility="{Binding CanGoPrevious,
+                                Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                    <Button Command="{Binding NextStepCommand}"
+                            Style="{StaticResource NavButtonPrimaryStyle}"
+                            Content="Next Step  →"
+                            Visibility="{Binding ShowNextButton,
+                                Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                    <Button Command="{Binding NextStepCommand}"
+                            Style="{StaticResource NavButtonPrimaryStyle}"
+                            Content="⚡  Generate Statement"
+                            Visibility="{Binding ShowGenerateButton,
+                                Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                    <Button Command="{Binding NextStepCommand}"
+                            Style="{StaticResource NavButtonSuccessStyle}"
+                            Content="✓  Finish"
+                            Visibility="{Binding ShowFinishButton,
+                                Converter={StaticResource BoolToVisibilityConverter}}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </Grid>
+</UserControl>

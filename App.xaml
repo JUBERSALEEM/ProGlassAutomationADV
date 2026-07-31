@@ -12,14 +12,23 @@
                 <ResourceDictionary Source="pack://application:,,,/Themes/LightTheme.xaml"/>
 
                 <!-- ── Shared style dictionaries (order matters for BasedOn chains) ── -->
-                <!-- Typography has no dependencies — load first -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/TypographyStyles.xaml"/>
-                <!-- Icon badges reference theme brushes only -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/IconBadgeStyles.xaml"/>
-                <!-- Pills reference theme brushes + typography -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/PillStyles.xaml"/>
-                <!-- Cards reference theme brushes + BrushKeyConverter (registered below) -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/CardStyles.xaml"/>
+
+                <!-- ═══════════════════════════════════════════════════════════════
+                     CHAT 21 v3 — Statement Generator WIZARD shared styles
+                     Registered globally so all 4 wizard step UserControls
+                     (Filter/Preview/Execute/Review) can reference:
+                       StepTitleStyle, StepSubtitleStyle, StepNumberBadgeStyle,
+                       StepLabelStyle, StepperConnectorStyle, WizardCardStyle,
+                       WizardCardHeaderStyle, NavButton*Style, FieldLabelStyle,
+                       SectionSubHeaderStyle, FormComboBoxStyle, OptionCardStyle,
+                       MetricCardStyle
+                     via {StaticResource ...} without duplication.
+                ═══════════════════════════════════════════════════════════════ -->
+                <ResourceDictionary Source="/Views/Reports/StatementGenerator/Styles/WizardStyles.xaml"/>
 
             </ResourceDictionary.MergedDictionaries>
 

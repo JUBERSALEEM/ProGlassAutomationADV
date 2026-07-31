@@ -3,7 +3,16 @@
 // PROJECT: ProGlassAutomation
 // MODULE: Account Statement / Sales Report — Workflow Engine
 //
-// CHAT 18 CHANGES:
+// CHAT 22 v3 ADDITIONS:
+//   • Step 3 — Per-DN line-item reconciliation logging
+//     Shows Ordered/Prev Delivered/This DN/Balance/Invoiced per line
+//     Flags over-invoicing at earliest possible pipeline stage
+//     Uses cached PI + TI data (loaded once, reused per DN)
+//   • Step 6 — Line-item reconciliation via OrderReconciliationService
+//     Populates WorkflowResult.ReconciliationSummaries
+//     Adds warnings for over-invoiced/under-invoiced items
+//
+// CHAT 18 PRESERVED:
 //   BUG 1 FIX: Step 7 — loads TI attachments from DB after PDF regen.
 //   BUG 2 FIX: Step 4 — partial delivery → MarkWarning (not Success).
 //   BUG 3 FIX: Step 8 — tiAttCount included in sections total.
@@ -12,10 +21,13 @@
 //              both subfolders). Full debug logging on every file check.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Models.Statement;
+using ProGlassAutomation.Models.Statement.Reconciliation;
 using ProGlassAutomation.Models.Statement.Workflow;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Services.Statement.Aggregation;
+using ProGlassAutomation.Services.Statement.Reconciliation;
 using ProGlassAutomation.Services.TaxInvoice.Pdf;
 using System;
 using System.Collections.Generic;
@@ -46,6 +58,9 @@ namespace ProGlassAutomation.Services.Statement.Workflow
         };
 
         private readonly StatementAggregator _aggregator;
+
+        // CHAT 22 v3: Reconciliation service for Step 6 line-item cross-check
+        private readonly OrderReconciliationService _reconciliationService;
 
         // Valid DN types to include — all others are skipped
         private static readonly HashSet<string> ValidDeliveryTypes = new(
@@ -78,6 +93,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
         public StatementWorkflowEngine()
         {
             _aggregator = new StatementAggregator();
+            _reconciliationService = new OrderReconciliationService();
 
             Steps = new List<WorkflowStepState>
             {
@@ -344,14 +360,18 @@ namespace ProGlassAutomation.Services.Statement.Workflow
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  STEP 3 — READ DELIVERY NOTES (skip Dummy/Rework/Return)
+        //  STEP 3 — READ DELIVERY NOTES + LINE-ITEM RECONCILIATION
+        //  (Chat 22 v3 — skip Dummy/Rework/Return)
         //
         //  BUG 4 FIX: DN attachment file resolution — 3-strategy fallback:
         //    Strategy 1: Use stored FilePath directly (if file exists)
         //    Strategy 2: Rebuild path from known AppData folder structure
-        //                (Attachments\Images\{DnId}\{filename})
         //    Strategy 3: Search both Images + PDFs subfolders by filename
-        //  Full debug logging on every file check for diagnosis.
+        //
+        //  CHAT 22 v3 ENHANCEMENT:
+        //    Per-DN line-item reconciliation shown in log.
+        //    Cached PI + TI invoiced map (loaded once, reused per DN).
+        //    Flags over-invoicing at DN-processing time (earliest detection).
         // ═════════════════════════════════════════════════════════════════
 
         private async Task Step3_ReadDeliveryNotes(
@@ -396,11 +416,35 @@ namespace ProGlassAutomation.Services.Statement.Workflow
             step.AddDetail($"📁 Attachment root: {DnAttachmentRoot}");
             await Task.Delay(150);
 
+            // ── CHAT 22 v3 — Pre-load PI line-item data + TI invoiced map ─
+            // Load ONCE, reuse for every DN in this JO. Massive perf win
+            // when JO has many DNs (avoids reloading same PI + TIs N times).
+            var piLineMap = await LoadPiLineMapAsync(proformaId, step);
+            var invoicedMap = await LoadInvoicedMapForStep3Async(
+                proformaId, step);
+
+            bool hasReconciliationData = piLineMap != null &&
+                                          piLineMap.Count > 0;
+
+            if (hasReconciliationData)
+            {
+                step.AddDetail(
+                    $"📊 Reconciliation data loaded: " +
+                    $"{piLineMap!.Count} PI line(s), " +
+                    $"{invoicedMap.Count} invoiced entry(s)");
+                await Task.Delay(100);
+            }
+
             int totalDelivered = 0;
             int includedCount = 0;
             int skippedCount = 0;
             int withAttachments = 0;
             int withoutAttachments = 0;
+
+            // Running total of delivered qty per line across processed DNs
+            // (so we can compute "previously delivered" for each DN in order)
+            var runningDeliveredMap = new Dictionary<string, int>(
+                StringComparer.OrdinalIgnoreCase);
 
             foreach (var dn in dnList)
             {
@@ -551,6 +595,23 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                         $"({dn.TotalDeliveredQty} pcs)");
                 }
 
+                // ═════════════════════════════════════════════════════════
+                //  CHAT 22 v3 — Per-DN Line-Item Reconciliation
+                //  Loads THIS DN's own items, shows per-line breakdown
+                //  cross-referenced with PI ordered + running delivered
+                //  + total invoiced. Detects over-invoicing per DN.
+                // ═════════════════════════════════════════════════════════
+
+                if (hasReconciliationData)
+                {
+                    await LogDnLineReconciliation(
+                        dn.DeliveryNoteId,
+                        piLineMap!,
+                        invoicedMap,
+                        runningDeliveredMap,
+                        step);
+                }
+
                 result.SignedDeliveryNotes.Add(dnAtt);
                 await Task.Delay(100);
             }
@@ -569,6 +630,299 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                     $" · {withoutAttachments} missing attachment(s)");
             else
                 step.MarkSuccess(summary + " · All attachments ✓");
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  CHAT 22 v3 — RECONCILIATION HELPERS FOR STEP 3
+        // ═════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Loads PI line items (spec, serial, glass ref, ordered qty)
+        /// into a dictionary keyed by "specGroupNumber|serialNumber".
+        /// Returns null if PI not found or has no line items.
+        /// Called ONCE per Step 3 run, cached for all DN iterations.
+        /// </summary>
+        private static async Task<Dictionary<string, PiLineInfo>?>
+            LoadPiLineMapAsync(string proformaId, WorkflowStepState step)
+        {
+            if (string.IsNullOrWhiteSpace(proformaId)) return null;
+
+            try
+            {
+                var pi = await App.Invoices.GetByProformaIdAsync(proformaId);
+                if (pi == null)
+                {
+                    step.AddDetail(
+                        $"⚠ Reconciliation: PI {proformaId} not found");
+                    return null;
+                }
+
+                if (string.IsNullOrWhiteSpace(pi.FullSnapshotJson) ||
+                    pi.FullSnapshotJson == "{}")
+                {
+                    step.AddDetail(
+                        $"⚠ Reconciliation: PI {proformaId} has no snapshot");
+                    return null;
+                }
+
+                var snapshot = JsonSerializer.Deserialize<ProformaInvoiceSnapshot>(
+                    pi.FullSnapshotJson, _jsonOpts);
+
+                if (snapshot?.SpecGroups == null ||
+                    snapshot.SpecGroups.Count == 0)
+                {
+                    return null;
+                }
+
+                var map = new Dictionary<string, PiLineInfo>(
+                    StringComparer.OrdinalIgnoreCase);
+
+                foreach (var spec in snapshot.SpecGroups)
+                {
+                    if (spec.ItemRows == null) continue;
+
+                    foreach (var row in spec.ItemRows)
+                    {
+                        string key = $"{spec.GroupNumber}|{row.SerialNumber}";
+                        map[key] = new PiLineInfo
+                        {
+                            SpecGroupNumber = spec.GroupNumber,
+                            SerialNumber = row.SerialNumber,
+                            GlassRef = row.GlassRef ?? "",
+                            OrderedQty = row.Qty
+                        };
+                    }
+                }
+
+                return map;
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(
+                    $"[Workflow] PI line map load error: {ex.Message}");
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// Sums invoiced qty per line item across ALL non-cancelled TIs
+        /// for a proforma family. Returns dictionary keyed by
+        /// "specGroupNumber|serialNumber".
+        /// Called ONCE per Step 3 run.
+        /// </summary>
+        private static async Task<Dictionary<string, int>>
+            LoadInvoicedMapForStep3Async(
+                string proformaId, WorkflowStepState step)
+        {
+            var map = new Dictionary<string, int>(
+                StringComparer.OrdinalIgnoreCase);
+
+            if (string.IsNullOrWhiteSpace(proformaId)) return map;
+
+            try
+            {
+                var tis = await App.TaxInvoices
+                    .GetByProformaIdAsync(proformaId);
+
+                if (tis == null || tis.Count == 0) return map;
+
+                var activeStatuses = new HashSet<string>(
+                    StringComparer.OrdinalIgnoreCase)
+                { "Issued", "Paid", "PartiallyPaid", "Overdue" };
+
+                var activeTis = tis
+                    .Where(ti => activeStatuses.Contains(ti.Status ?? ""))
+                    .ToList();
+
+                foreach (var tiListItem in activeTis)
+                {
+                    try
+                    {
+                        var fullTi = await App.TaxInvoices
+                            .GetByInvoiceNumberAsync(
+                                tiListItem.InvoiceNumber);
+
+                        if (fullTi?.Items == null) continue;
+
+                        foreach (var item in fullTi.Items)
+                        {
+                            var key = $"{item.SpecGroupNumber}|" +
+                                      $"{item.SerialNumber}";
+
+                            if (map.ContainsKey(key))
+                                map[key] += item.Qty;
+                            else
+                                map[key] = item.Qty;
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine(
+                            $"[Workflow] TI load error " +
+                            $"{tiListItem.InvoiceNumber}: {ex.Message}");
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(
+                    $"[Workflow] Invoiced map load error: {ex.Message}");
+            }
+
+            return map;
+        }
+
+        /// <summary>
+        /// Logs per-line reconciliation for ONE DN.
+        /// Loads DN's own item rows, cross-references with cached PI + TI
+        /// data plus the running-delivered map (which tracks cumulative
+        /// deliveries across previously-processed DNs in this Step 3 run).
+        /// Updates the running-delivered map after logging.
+        /// Adds Step 3 warnings for over-invoiced/over-delivered lines.
+        /// </summary>
+        private async Task LogDnLineReconciliation(
+            string deliveryNoteId,
+            Dictionary<string, PiLineInfo> piLineMap,
+            Dictionary<string, int> invoicedMap,
+            Dictionary<string, int> runningDeliveredMap,
+            WorkflowStepState step)
+        {
+            try
+            {
+                var dnEntity = await App.DeliveryNotes
+                    .GetByDeliveryNoteIdAsync(deliveryNoteId);
+
+                if (dnEntity?.Items == null || dnEntity.Items.Count == 0)
+                {
+                    step.AddDetail(
+                        $"    (no line items in this DN)");
+                    return;
+                }
+
+                step.AddDetail("");
+                step.AddDetail(
+                    $"    ── Line-Item Reconciliation for {deliveryNoteId} ──");
+
+                int overInvoicedCount = 0;
+                int overDeliveredCount = 0;
+
+                foreach (var item in dnEntity.Items
+                    .OrderBy(i => i.SpecGroupNumber)
+                    .ThenBy(i => i.SerialNumber))
+                {
+                    string key = $"{item.SpecGroupNumber}|" +
+                                 $"{item.SerialNumber}";
+
+                    // Get PI ordered qty
+                    if (!piLineMap.TryGetValue(key, out var piLine))
+                    {
+                        step.AddDetail(
+                            $"      ⚠ Spec {item.SpecGroupNumber}, " +
+                            $"S/N {item.SerialNumber}: " +
+                            $"not found in PI");
+                        continue;
+                    }
+
+                    int ordered = piLine.OrderedQty;
+                    int previouslyDelivered =
+                        runningDeliveredMap.TryGetValue(key, out int prev)
+                            ? prev : 0;
+                    int thisDn = item.DeliveredQty;
+                    int cumulativeDelivered = previouslyDelivered + thisDn;
+                    int balance = Math.Max(0, ordered - cumulativeDelivered);
+                    int invoiced = invoicedMap.TryGetValue(key, out int inv)
+                        ? inv : 0;
+                    int diff = invoiced - cumulativeDelivered;
+
+                    // Determine per-line status icon
+                    string statusIcon;
+                    if (diff > 0)
+                    {
+                        statusIcon = "🔴 OVER-INVOICED";
+                        overInvoicedCount++;
+                    }
+                    else if (cumulativeDelivered > ordered)
+                    {
+                        statusIcon = "🟠 OVER-DELIVERED";
+                        overDeliveredCount++;
+                    }
+                    else if (balance == 0 && diff == 0)
+                    {
+                        statusIcon = "✅ OK";
+                    }
+                    else if (balance > 0)
+                    {
+                        statusIcon = "🟡 partial";
+                    }
+                    else
+                    {
+                        statusIcon = "🔵 under-invoiced";
+                    }
+
+                    step.AddDetail(
+                        $"      {piLine.GlassRef} " +
+                        $"(Spec {item.SpecGroupNumber}, " +
+                        $"S/N {item.SerialNumber}):");
+                    step.AddDetail(
+                        $"        📦 PI Ordered:        {ordered} pc" +
+                        (ordered == 1 ? "" : "s"));
+                    step.AddDetail(
+                        $"        📋 Prev Delivered:    {previouslyDelivered} pc" +
+                        (previouslyDelivered == 1 ? "" : "s"));
+                    step.AddDetail(
+                        $"        🚚 This DN Delivers:  {thisDn} pc" +
+                        (thisDn == 1 ? "" : "s"));
+                    step.AddDetail(
+                        $"        📊 Balance Remaining: {balance} pc" +
+                        (balance == 1 ? "" : "s"));
+                    step.AddDetail(
+                        $"        🧾 Total Invoiced:    {invoiced} pc" +
+                        (invoiced == 1 ? "" : "s") +
+                        (diff > 0 ? $"  ⚠ EXCEEDS delivered by {diff}!" : ""));
+                    step.AddDetail(
+                        $"        💡 Status:            {statusIcon}");
+
+                    await Task.Delay(50);
+
+                    // Update running delivered map for next DN's calculation
+                    runningDeliveredMap[key] = cumulativeDelivered;
+                }
+
+                // Add warnings for critical issues
+                if (overInvoicedCount > 0)
+                {
+                    step.AddWarning(
+                        $"DN {deliveryNoteId}: {overInvoicedCount} line(s) " +
+                        $"OVER-INVOICED (invoiced more than delivered)");
+                }
+
+                if (overDeliveredCount > 0)
+                {
+                    step.AddWarning(
+                        $"DN {deliveryNoteId}: {overDeliveredCount} line(s) " +
+                        $"over-delivered (exceeds PI ordered qty)");
+                }
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine(
+                    $"[Workflow] DN reconciliation error " +
+                    $"{deliveryNoteId}: {ex.Message}");
+                step.AddDetail(
+                    $"    ⚠ Reconciliation failed: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Internal DTO for PI line items used by Step 3 reconciliation.
+        /// Populated by LoadPiLineMapAsync.
+        /// </summary>
+        private sealed class PiLineInfo
+        {
+            public int SpecGroupNumber { get; init; }
+            public int SerialNumber { get; init; }
+            public string GlassRef { get; init; } = "";
+            public int OrderedQty { get; init; }
         }
 
         // ─────────────────────────────────────────────────────────────────
@@ -806,7 +1160,16 @@ namespace ProGlassAutomation.Services.Statement.Workflow
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  STEP 6 — CROSS-MATCH COVERAGE
+        //  STEP 6 — CROSS-MATCH COVERAGE + RECONCILIATION (Chat 22 v3)
+        //
+        //  Two-part check:
+        //    Part A (existing): DN-level coverage — is each DN invoiced?
+        //    Part B (Chat 22 v3): Line-item reconciliation — for each
+        //                          glass row, cross-reference PI/DN/TI
+        //                          quantities and flag over-invoicing.
+        //
+        //  Populates result.ReconciliationSummaries with per-PI data
+        //  so the Review step can display it in the warnings feed.
         // ═════════════════════════════════════════════════════════════════
 
         private async Task Step6_CrossMatchCoverage(WorkflowResult result)
@@ -829,6 +1192,8 @@ namespace ProGlassAutomation.Services.Statement.Workflow
             step.AddDetail($"🧾 Invoiced:   {invoiced} pcs");
             step.AddDetail($"❓ Uninvoiced: {uninvoiced} pcs");
             await Task.Delay(200);
+
+            // ── PART A: DN-level coverage check (existing) ────────────────
 
             var invoicedDnRefs = new HashSet<string>(
                 StringComparer.OrdinalIgnoreCase);
@@ -878,18 +1243,178 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                 }
             }
 
-            if (result.UninvoicedDeliveryNotes.Count > 0)
+            // ═══════════════════════════════════════════════════════════════
+            //  PART B: LINE-ITEM RECONCILIATION (Chat 22 v3)
+            //  Cross-reference PI ordered qty vs DN delivered qty vs
+            //  TI invoiced qty per line item. Flag over-invoicing.
+            // ═══════════════════════════════════════════════════════════════
+
+            step.AddDetail("");
+            step.AddDetail("── Line-Item Reconciliation ──");
+            await Task.Delay(150);
+
+            // Extract unique Proforma IDs from the snapshot
+            var uniqueProformas = result.Snapshot.InvoiceRows
+                .Select(r => r.ProformaId ?? "")
+                .Where(pid => !string.IsNullOrWhiteSpace(pid))
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            if (uniqueProformas.Count == 0)
             {
-                step.AddWarning(
-                    $"{result.UninvoicedDeliveryNotes.Count} DN(s) " +
-                    "not invoiced");
-                step.MarkWarning(
-                    $"{result.UninvoicedDeliveryNotes.Count} " +
-                    "uninvoiced DN(s)");
+                step.AddDetail("  ⚠ No PI references — skipping reconciliation");
             }
             else
             {
-                step.MarkSuccess("All delivered items are invoiced ✓");
+                step.AddDetail(
+                    $"  🔍 Reconciling {uniqueProformas.Count} PI family(s)...");
+                await Task.Delay(150);
+
+                int totalOverInvoicedLines = 0;
+                int totalUnderInvoicedLines = 0;
+                int totalPartialLines = 0;
+                int totalMatchedLines = 0;
+
+                foreach (var proformaId in uniqueProformas)
+                {
+                    OrderReconciliationSummary summary;
+
+                    try
+                    {
+                        summary = await _reconciliationService
+                            .BuildForProformaAsync(proformaId);
+                    }
+                    catch (Exception ex)
+                    {
+                        step.AddDetail(
+                            $"  ⚠ {proformaId}: reconciliation failed " +
+                            $"({ex.Message})");
+                        continue;
+                    }
+
+                    // Store summary in workflow result for Review step access
+                    result.ReconciliationSummaries.Add(summary);
+
+                    if (!summary.HasProformaData)
+                    {
+                        step.AddDetail(
+                            $"  ⚠ {proformaId}: PI data unavailable");
+                        continue;
+                    }
+
+                    // Aggregate counts
+                    totalOverInvoicedLines += summary.OverInvoicedCount;
+                    totalUnderInvoicedLines += summary.UnderInvoicedCount;
+                    totalPartialLines += summary.PartialDeliveryCount;
+                    totalMatchedLines += summary.MatchedCount;
+
+                    // Log PI-level summary
+                    step.AddDetail(
+                        $"  {summary.OverallIcon} {proformaId}: " +
+                        $"O:{summary.TotalOrderedQty}  " +
+                        $"D:{summary.TotalDeliveredQty}  " +
+                        $"I:{summary.TotalInvoicedQty}  " +
+                        $"→ {summary.SummaryDisplay}");
+
+                    // Detail: log ONLY problem lines (skip matched to reduce noise)
+                    foreach (var row in summary.Rows.Where(r =>
+                        r.Status != ReconciliationStatus.FullyMatched &&
+                        r.Status != ReconciliationStatus.NotYetStarted))
+                    {
+                        string diffText = row.InvoiceVsDeliveryDiff > 0
+                            ? $"+{row.InvoiceVsDeliveryDiff}"
+                            : row.InvoiceVsDeliveryDiff.ToString();
+
+                        step.AddDetail(
+                            $"    {row.StatusIcon} " +
+                            $"{row.GlassRef} " +
+                            $"(Spec {row.SpecGroupNumber}, Row {row.SerialNumber}): " +
+                            $"Ordered={row.OrderedQty}, " +
+                            $"Delivered={row.DeliveredQty}, " +
+                            $"Invoiced={row.InvoicedQty} " +
+                            $"→ {row.StatusLabel} ({diffText})");
+                        await Task.Delay(60);
+                    }
+
+                    // Add step-level warnings for over-invoiced items
+                    if (summary.HasOverInvoicing)
+                    {
+                        step.AddWarning(
+                            $"{proformaId}: {summary.OverInvoicedCount} " +
+                            $"line(s) OVER-INVOICED — investigate immediately");
+                    }
+
+                    if (summary.HasUnderInvoicing)
+                    {
+                        step.AddWarning(
+                            $"{proformaId}: {summary.UnderInvoicedCount} " +
+                            $"line(s) under-invoiced — revenue leakage risk");
+                    }
+
+                    await Task.Delay(100);
+                }
+
+                // ── Final reconciliation summary line ──────────────────────
+                step.AddDetail("");
+                var summaryParts = new List<string>();
+                if (totalMatchedLines > 0)
+                    summaryParts.Add($"{totalMatchedLines} matched");
+                if (totalPartialLines > 0)
+                    summaryParts.Add($"{totalPartialLines} partial");
+                if (totalUnderInvoicedLines > 0)
+                    summaryParts.Add($"{totalUnderInvoicedLines} under-invoiced");
+                if (totalOverInvoicedLines > 0)
+                    summaryParts.Add(
+                        $"{totalOverInvoicedLines} 🔴 OVER-INVOICED");
+
+                step.AddDetail(
+                    $"  📊 Reconciliation: " +
+                    (summaryParts.Count > 0
+                        ? string.Join(" · ", summaryParts)
+                        : "no data"));
+            }
+
+            await Task.Delay(150);
+
+            // ═══════════════════════════════════════════════════════════════
+            //  FINAL STEP OUTCOME
+            //  Priority: OVER-INVOICED (critical) > uninvoiced DNs > success
+            // ═══════════════════════════════════════════════════════════════
+
+            bool hasOverInvoicing = result.HasOverInvoicing;
+            bool hasUninvoicedDns = result.UninvoicedDeliveryNotes.Count > 0;
+
+            if (hasOverInvoicing)
+            {
+                // Critical: over-invoicing detected
+                int overCount = result.TotalOverInvoicedLineCount;
+                string msg =
+                    $"🔴 {overCount} line(s) OVER-INVOICED";
+
+                if (hasUninvoicedDns)
+                    msg += $" · {result.UninvoicedDeliveryNotes.Count} uninvoiced DN(s)";
+
+                step.MarkWarning(msg);
+            }
+            else if (hasUninvoicedDns)
+            {
+                // Some DNs not invoiced (existing behavior)
+                step.AddWarning(
+                    $"{result.UninvoicedDeliveryNotes.Count} DN(s) not invoiced");
+                step.MarkWarning(
+                    $"{result.UninvoicedDeliveryNotes.Count} uninvoiced DN(s)");
+            }
+            else if (result.HasReconciliationDiscrepancies)
+            {
+                // Minor: partial delivery or under-invoicing (not critical)
+                step.MarkWarning(
+                    "All DNs invoiced · Minor reconciliation notes above");
+            }
+            else
+            {
+                // Full success
+                step.MarkSuccess(
+                    "All delivered items invoiced · Reconciliation clean ✓");
             }
         }
 

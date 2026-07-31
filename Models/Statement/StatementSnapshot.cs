@@ -19,6 +19,7 @@
 //     └── StatementAgingBuckets    — 5 aging buckets
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Models.Statement.Reconciliation;
 using System;
 using System.Collections.Generic;
 
@@ -132,6 +133,39 @@ namespace ProGlassAutomation.Models.Statement
         public bool IsOverdue =>
             DueDate != default && DueDate < DateTime.Today &&
             Status != "Paid" && Status != "Cancelled" && Status != "Void";
+
+        // ── Order Reconciliation (Chat 22 v3) ─────────────────────────────
+
+        /// <summary>
+        /// Cross-referenced PI/DN/TI quantities for this invoice's PI family.
+        /// Null if not yet computed or if ProformaId is empty/missing.
+        /// Populated by StatementAggregator.AttachReconciliationToRows during
+        /// statement generation. Persisted in FullSnapshotJson automatically.
+        /// Old saved statements (pre-Chat 22) will have this as null.
+        /// </summary>
+        public OrderReconciliationSummary? Reconciliation { get; set; }
+
+        /// <summary>
+        /// Convenience flag — true when reconciliation data is available.
+        /// UI can use this to show/hide the reconciliation section.
+        /// </summary>
+        public bool HasReconciliation => Reconciliation != null;
+
+        /// <summary>
+        /// Convenience flag — true when this invoice's PI family has
+        /// any billing discrepancy (over-invoiced, under-invoiced, etc.).
+        /// UI can use this to show a red dot or warning indicator.
+        /// </summary>
+        public bool HasReconciliationIssue =>
+            Reconciliation != null && Reconciliation.HasDiscrepancies;
+
+        /// <summary>
+        /// Convenience flag — true when this invoice is OVER-INVOICED.
+        /// This is the critical bug scenario: billed more than delivered.
+        /// UI should highlight these rows in RED.
+        /// </summary>
+        public bool IsOverInvoiced =>
+            Reconciliation != null && Reconciliation.HasOverInvoicing;
     }
 
     // ─────────────────────────────────────────────────────────────────────

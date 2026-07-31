@@ -3,7 +3,14 @@
 // PROJECT: ProGlassAutomation
 // MODULE: Account Statement / Sales Report — Workflow Engine
 //
-// CHAT 18 CHANGES:
+// CHAT 22 v3 ADDITIONS:
+//   • ReconciliationSummaries — per-PI line-item reconciliation results
+//   • HasOverInvoicing — convenience flag for critical bug detection
+//   • HasReconciliationDiscrepancies — flag for any billing discrepancy
+//   • TotalOverInvoicedLineCount — badge count for UI display
+//   • TotalUnderInvoicedLineCount — badge count for UI display
+//
+// CHAT 18 CHANGES (PRESERVED):
 //   BUG 1 FIX: WorkflowTaxInvoicePdf.Attachments — new field holds
 //              TI attachment bytes+names loaded from DB in Step 7.
 //   BUG 3 FIX: WorkflowTaxInvoicePdf.AttachmentFileCount — computed
@@ -11,7 +18,9 @@
 //   BUG 3 FIX: TotalAttachmentCount — now includes TI attachment counts.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Models.Statement.Reconciliation;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace ProGlassAutomation.Models.Statement.Workflow
 {
@@ -123,6 +132,60 @@ namespace ProGlassAutomation.Models.Statement.Workflow
         /// </summary>
         public List<UninvoicedDeliveryNote> UninvoicedDeliveryNotes
         { get; set; } = new();
+
+        // ═════════════════════════════════════════════════════════════════
+        //  CHAT 22 v3 — LINE-ITEM RECONCILIATION DATA
+        // ═════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Per-PI reconciliation summaries produced during Step 6.
+        /// One entry per unique Proforma ID in the statement.
+        /// Contains line-item breakdown of Ordered vs Delivered vs Invoiced
+        /// with per-row status (FullyMatched, OverInvoiced, etc.).
+        ///
+        /// Populated by StatementWorkflowEngine.Step6_CrossMatchCoverage
+        /// via OrderReconciliationService.BuildForProformaAsync().
+        ///
+        /// Empty list when no PIs matched or reconciliation service failed.
+        /// UI (Review step, Preview step, PDF exporter) can iterate this
+        /// to display detailed line-item analysis with color coding.
+        /// </summary>
+        public List<OrderReconciliationSummary> ReconciliationSummaries
+        { get; set; } = new();
+
+        /// <summary>
+        /// True when ANY line item across ANY PI is OVER-INVOICED
+        /// (billed for more units than actually delivered).
+        ///
+        /// ★ CRITICAL FLAG — this is the primary bug scenario the
+        /// reconciliation feature was built to detect. UI should
+        /// use this to trigger RED alerts / warning banners.
+        /// </summary>
+        public bool HasOverInvoicing =>
+            ReconciliationSummaries.Any(s => s.HasOverInvoicing);
+
+        /// <summary>
+        /// True when ANY line item has any kind of billing discrepancy
+        /// (over-invoiced, under-invoiced, over-delivered, etc.).
+        /// Broader than HasOverInvoicing — catches all non-matched states.
+        /// </summary>
+        public bool HasReconciliationDiscrepancies =>
+            ReconciliationSummaries.Any(s => s.HasDiscrepancies);
+
+        /// <summary>
+        /// Total count of over-invoiced line items across all PI families.
+        /// Used for badge display: "3 lines OVER-INVOICED".
+        /// </summary>
+        public int TotalOverInvoicedLineCount =>
+            ReconciliationSummaries.Sum(s => s.OverInvoicedCount);
+
+        /// <summary>
+        /// Total count of under-invoiced line items across all PI families.
+        /// Under-invoiced = delivered but not yet billed (revenue leakage).
+        /// Used for badge display: "2 lines under-invoiced".
+        /// </summary>
+        public int TotalUnderInvoicedLineCount =>
+            ReconciliationSummaries.Sum(s => s.UnderInvoicedCount);
 
         // ── Helpers ───────────────────────────────────────────────────────
 

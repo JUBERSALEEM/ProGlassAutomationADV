@@ -1,21 +1,23 @@
 ﻿// ═══════════════════════════════════════════════════════════════════════
-// FILE: Views/Reports/StatementGenerator/StatementGeneratorView.xaml.cs
+// FILE: Views/Reports/StatementGenerator/Review/ReviewStep.xaml.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Account Statement / Sales Report (Chat 16)
+// MODULE: Statement Generator — Wizard Step 4: REVIEW (Chat 21 v3)
 //
-// NOTE:
-//   PreviewVM is exposed on StatementGeneratorViewModel as a public
-//   property — bound directly in XAML via {Binding PreviewVM.XXX}.
-//   No code-behind wiring needed.
+// PURPOSE:
+//   Code-behind for the Review step. Minimal — fully data-driven
+//   via bindings to StatementGeneratorViewModel.
+//
+// DATA CONTEXT:
+//   Automatically inherited from parent Shell's DataContext.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System.Windows.Controls;
 
-namespace ProGlassAutomation.Views.Reports.StatementGenerator
+namespace ProGlassAutomation.Views.Reports.StatementGenerator.Review
 {
-    public partial class StatementGeneratorView : UserControl
+    public partial class ReviewStep : UserControl
     {
-        public StatementGeneratorView()
+        public ReviewStep()
         {
             InitializeComponent();
         }

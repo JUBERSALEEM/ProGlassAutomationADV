@@ -1,29 +1,31 @@
 ﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Reports/StatementGenerator/StatementGeneratorViewModel2.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Account Statement / Sales Report (Chat 16 + Chat 17 workflow redesign)
+// MODULE: Account Statement / Sales Report (Chat 22 v3 — Reconciliation UI)
 //
-// PURPOSE:
-//   Part 2 of 2 — Preview results + selection + aging + KPIs.
+// CHAT 22 v3 ADDITIONS:
+//   • PreviewRowViewModel gains 4 pass-through reconciliation properties:
+//       - Reconciliation           → the summary object (nullable)
+//       - HasReconciliation        → convenience bool
+//       - HasReconciliationIssue   → convenience bool
+//       - IsOverInvoiced           → critical bug flag
 //
-// CHAT 17 ADDITIONS:
-//   1. PreviewRowViewModel.IsSelected — bool, default TRUE
-//      Notifies parent VM when changed → live selection counts update
-//   2. StatementPreviewViewModel.SelectionChanged event
-//      Parent VM subscribes to update counters
-//   3. Selection counters:
-//        SelectedCount            — how many invoices checked
-//        SelectedInvoicedDisplay  — sum of GrandTotal of selected
-//        SelectedOutstandingDisplay — sum of Balance of selected
-//        SelectedAttachmentCount  — total attachments to be merged
-//        SelectionSummaryDisplay  — "3 of 5 invoices · 6 attachments"
-//   4. Helper methods:
-//        SelectAll()   — check all rows
-//        DeselectAll() — uncheck all rows
-//        GetSelectedInvoiceNumbers() — for PDF export filter
+//   • StatementPreviewViewModel gains:
+//       - ReconciliationSummaries collection (unique per PI)
+//       - HasAnyReconciliation flag
+//       - HasAnyOverInvoicing flag (dashboard alert)
+//       - ReconciliationHeaderDisplay (compact status line)
+//       - RebuildReconciliationSummaries() private helper
+//
+//   Aggregation deduplicates by ProformaId — if 5 TIs share one PI,
+//   only ONE ReconciliationSummary appears in the collection.
+//
+// CHAT 17 PRESERVED:
+//   All selection tracking, aging bars, KPI display logic unchanged.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.Statement;
+using ProGlassAutomation.Models.Statement.Reconciliation;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -38,6 +40,9 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
         // ── Aging bars ────────────────────────────────────────────────────
         public ObservableCollection<AgingBarViewModel> AgingBars { get; } = new();
+
+        // ── CHAT 22 v3 — Reconciliation summaries (unique per PI) ─────────
+        public ObservableCollection<OrderReconciliationSummary> ReconciliationSummaries { get; } = new();
 
         // ── Financial KPIs (all invoices in preview) ──────────────────────
         private decimal _totalInvoiced;
@@ -77,14 +82,9 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  SELECTION STATE — CHAT 17 NEW
+        //  SELECTION STATE — CHAT 17
         // ═════════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Fired whenever any row's IsSelected changes.
-        /// StatementGeneratorViewModel subscribes to update its
-        /// CanExecute state on the Generate command.
-        /// </summary>
         public event Action? SelectionChanged;
 
         private int _selectedCount;
@@ -102,10 +102,6 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
         public int SelectedAttachmentCount => _selectedAttachmentCount;
 
-        /// <summary>
-        /// Human-readable summary shown in the selection toolbar.
-        /// Example: "3 of 5 invoices selected · 6 attachments to include"
-        /// </summary>
         public string SelectionSummaryDisplay
         {
             get
@@ -125,26 +121,98 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             }
         }
 
-        /// <summary>True when at least one invoice is selected.</summary>
         public bool HasSelection => _selectedCount > 0;
-
-        /// <summary>True when all rows are selected (for Select All toggle).</summary>
-        public bool AllSelected
-            => Rows.Count > 0 && _selectedCount == Rows.Count;
-
-        /// <summary>True when NO rows are selected.</summary>
+        public bool AllSelected => Rows.Count > 0 && _selectedCount == Rows.Count;
         public bool NoneSelected => _selectedCount == 0;
+
+        // ═════════════════════════════════════════════════════════════════
+        //  RECONCILIATION DISPLAY HELPERS (Chat 22 v3)
+        // ═════════════════════════════════════════════════════════════════
+
+        /// <summary>True when at least one PI in the preview has reconciliation data.</summary>
+        public bool HasAnyReconciliation => ReconciliationSummaries.Count > 0;
+
+        /// <summary>True when ANY PI in the preview has over-invoicing. Dashboard alert flag.</summary>
+        public bool HasAnyOverInvoicing =>
+            ReconciliationSummaries.Any(s => s.HasOverInvoicing);
+
+        /// <summary>True when ANY PI has any kind of discrepancy.</summary>
+        public bool HasAnyDiscrepancy =>
+            ReconciliationSummaries.Any(s => s.HasDiscrepancies);
+
+        /// <summary>Count of PIs with over-invoicing (the critical bug).</summary>
+        public int OverInvoicingCount =>
+            ReconciliationSummaries.Count(s => s.HasOverInvoicing);
+
+        /// <summary>Count of PIs with under-invoicing (revenue leakage).</summary>
+        public int UnderInvoicingCount =>
+            ReconciliationSummaries.Count(s => s.HasUnderInvoicing);
+
+        /// <summary>Count of PIs with pending delivery balance.</summary>
+        public int PendingDeliveryCount =>
+            ReconciliationSummaries.Count(s => s.HasPendingDelivery);
+
+        /// <summary>Count of PIs fully matched (green).</summary>
+        public int FullyMatchedCount =>
+            ReconciliationSummaries.Count(s => s.AllMatched);
+
+        /// <summary>
+        /// Compact header line for the reconciliation section.
+        /// e.g. "5 orders  ·  3 matched  ·  1 OVER-INVOICED  ·  1 pending delivery"
+        /// </summary>
+        public string ReconciliationHeaderDisplay
+        {
+            get
+            {
+                int total = ReconciliationSummaries.Count;
+                if (total == 0) return "No reconciliation data available";
+
+                var parts = new List<string>
+                {
+                    $"{total} order{(total == 1 ? "" : "s")}"
+                };
+
+                if (FullyMatchedCount > 0)
+                    parts.Add($"{FullyMatchedCount} matched");
+                if (OverInvoicingCount > 0)
+                    parts.Add($"{OverInvoicingCount} OVER-INVOICED");
+                if (UnderInvoicingCount > 0)
+                    parts.Add($"{UnderInvoicingCount} under-invoiced");
+                if (PendingDeliveryCount > 0)
+                    parts.Add($"{PendingDeliveryCount} pending delivery");
+
+                return string.Join("  ·  ", parts);
+            }
+        }
+
+        /// <summary>Header background color hex — red if any over-invoicing.</summary>
+        public string ReconciliationHeaderColorHex
+        {
+            get
+            {
+                if (HasAnyOverInvoicing) return "#B91C1C";      // Red
+                if (HasAnyDiscrepancy) return "#B45309";        // Amber
+                if (HasAnyReconciliation) return "#047857";     // Green
+                return "#6B7280";                                // Gray
+            }
+        }
+
+        /// <summary>Header icon — matches worst status.</summary>
+        public string ReconciliationHeaderIcon
+        {
+            get
+            {
+                if (HasAnyOverInvoicing) return "🔴";
+                if (HasAnyDiscrepancy) return "🟡";
+                if (HasAnyReconciliation) return "✅";
+                return "⚪";
+            }
+        }
 
         // ═════════════════════════════════════════════════════════════════
         //  UPDATE FROM SNAPSHOT
         // ═════════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Called by StatementGeneratorViewModel after preview completes.
-        /// Rebuilds all observable collections from the new snapshot.
-        /// All rows start SELECTED by default (senior ERP UX standard).
-        /// Must be called on UI thread.
-        /// </summary>
         public void UpdateFromSnapshot(StatementSnapshot? snapshot)
         {
             // Detach event handlers from OLD rows before clearing
@@ -153,6 +221,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
             Rows.Clear();
             AgingBars.Clear();
+            ReconciliationSummaries.Clear();   // Chat 22 v3
 
             if (snapshot == null)
             {
@@ -207,6 +276,9 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             AgingBars.Add(new AgingBarViewModel(
                 "90+ Days", aging.Days90Plus, total, "#B91C1C"));
 
+            // ── CHAT 22 v3 — Rebuild reconciliation summaries ─────────────
+            RebuildReconciliationSummaries();
+
             // ── Recompute selection counters (all selected by default) ─────
             RecomputeSelection();
 
@@ -216,10 +288,60 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  SELECTION COMMANDS (invoked by view/parent VM)
+        //  RECONCILIATION AGGREGATION (Chat 22 v3)
         // ═════════════════════════════════════════════════════════════════
 
-        /// <summary>Marks every row as selected.</summary>
+        /// <summary>
+        /// Extracts unique reconciliation summaries from the preview rows.
+        /// Multiple invoices sharing the same ProformaId contribute ONE
+        /// summary. Sort order:
+        ///   1. Over-invoiced (RED) first  ← user's attention needed
+        ///   2. Under-invoiced (BLUE)
+        ///   3. Pending delivery (AMBER)
+        ///   4. Fully matched (GREEN)
+        ///   5. Not started (GRAY)
+        ///   Alphabetical within same status.
+        /// </summary>
+        private void RebuildReconciliationSummaries()
+        {
+            ReconciliationSummaries.Clear();
+
+            if (Rows.Count == 0) return;
+
+            // Extract unique reconciliation summaries by ProformaId
+            var uniqueSummaries = Rows
+                .Where(r => r.Reconciliation != null)
+                .Select(r => r.Reconciliation!)
+                .GroupBy(s => s.ProformaId, StringComparer.OrdinalIgnoreCase)
+                .Select(g => g.First())
+                .ToList();
+
+            // Sort: worst status first (over-invoiced grabs attention)
+            var sorted = uniqueSummaries
+                .OrderBy(s => StatusSortOrder(s.OverallStatus))
+                .ThenBy(s => s.ProformaId, StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            foreach (var summary in sorted)
+                ReconciliationSummaries.Add(summary);
+        }
+
+        /// <summary>Sort priority — lower = more urgent = shown first.</summary>
+        private static int StatusSortOrder(ReconciliationStatus status) => status switch
+        {
+            ReconciliationStatus.OverInvoiced => 1,  // Most critical
+            ReconciliationStatus.UnderInvoiced => 2,
+            ReconciliationStatus.OverDelivered => 3,
+            ReconciliationStatus.PartialDelivery => 4,
+            ReconciliationStatus.FullyMatched => 5,
+            ReconciliationStatus.NotYetStarted => 6,
+            _ => 7
+        };
+
+        // ═════════════════════════════════════════════════════════════════
+        //  SELECTION COMMANDS
+        // ═════════════════════════════════════════════════════════════════
+
         public void SelectAll()
         {
             foreach (var row in Rows)
@@ -230,7 +352,6 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             SelectionChanged?.Invoke();
         }
 
-        /// <summary>Marks every row as deselected.</summary>
         public void DeselectAll()
         {
             foreach (var row in Rows)
@@ -241,10 +362,6 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             SelectionChanged?.Invoke();
         }
 
-        /// <summary>
-        /// Returns invoice numbers of currently selected rows.
-        /// Used by StatementPdfExporter to filter which invoices to include.
-        /// </summary>
         public List<string> GetSelectedInvoiceNumbers()
         {
             return Rows
@@ -284,11 +401,13 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
     /// One row in the preview invoice list.
     /// Wraps StatementInvoiceRow for XAML binding.
     ///
-    /// CHAT 17 ADDITIONS:
-    ///   • IsSelected — two-way bindable, default TRUE
-    ///   • IsSelectedSilent — updates without firing event (for bulk ops)
-    ///   • SelectionChanged event — notifies parent VM on change
-    ///   • RawGrandTotal / RawBalance — decimal accessors for summation
+    /// CHAT 22 v3 ADDITIONS:
+    ///   • Reconciliation           → pass-through to _row.Reconciliation
+    ///   • HasReconciliation        → convenience flag for UI show/hide
+    ///   • HasReconciliationIssue   → true if any discrepancy in family
+    ///   • IsOverInvoiced           → true if THE critical bug (RED)
+    ///   • ReconciliationBadgeIcon  → emoji for compact display
+    ///   • ReconciliationTooltip    → hover text summary
     /// </summary>
     public class PreviewRowViewModel : ViewModelBase
     {
@@ -300,22 +419,13 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  SELECTION (Chat 17)
+        //  SELECTION
         // ═════════════════════════════════════════════════════════════════
 
-        /// <summary>
-        /// Fires when IsSelected changes.
-        /// Parent StatementPreviewViewModel subscribes to update counts.
-        /// </summary>
         public event Action? SelectionChanged;
 
         private bool _isSelected = true;
 
-        /// <summary>
-        /// Two-way bindable selection state.
-        /// Setting this fires SelectionChanged event → parent recalculates.
-        /// Use IsSelectedSilent for bulk operations (Select All / None).
-        /// </summary>
         public bool IsSelected
         {
             get => _isSelected;
@@ -328,11 +438,6 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             }
         }
 
-        /// <summary>
-        /// Sets IsSelected WITHOUT firing SelectionChanged.
-        /// Used by SelectAll() / DeselectAll() to avoid N event fires.
-        /// The bulk operation manually calls RecomputeSelection() once.
-        /// </summary>
         public bool IsSelectedSilent
         {
             get => _isSelected;
@@ -345,7 +450,7 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  DISPLAY PROPERTIES (all read-only, wrap the row model)
+        //  DISPLAY PROPERTIES (wrap the row model)
         // ═════════════════════════════════════════════════════════════════
 
         public string InvoiceNumber => _row.InvoiceNumber ?? "";
@@ -407,16 +512,78 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
         public string BalanceColor =>
             _row.Balance <= 0 ? "#047857" :
             _row.IsOverdue ? "#B91C1C" : "#B45309";
+
+        // ═════════════════════════════════════════════════════════════════
+        //  RECONCILIATION PASS-THROUGH (Chat 22 v3)
+        // ═════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Full reconciliation summary for this invoice's PI family.
+        /// Null if backend didn't compute reconciliation for this row
+        /// (missing PI data, deleted PI, or empty ProformaId).
+        /// </summary>
+        public OrderReconciliationSummary? Reconciliation => _row.Reconciliation;
+
+        /// <summary>True when reconciliation data is available for display.</summary>
+        public bool HasReconciliation => _row.HasReconciliation;
+
+        /// <summary>True when this row's PI has any billing discrepancy.</summary>
+        public bool HasReconciliationIssue => _row.HasReconciliationIssue;
+
+        /// <summary>
+        /// True when this row's PI is OVER-INVOICED (billed more than delivered).
+        /// ★ THE CRITICAL FLAG — use for red highlighting in the invoice grid.
+        /// </summary>
+        public bool IsOverInvoiced => _row.IsOverInvoiced;
+
+        /// <summary>
+        /// Compact status icon for showing next to the invoice in the grid.
+        /// Empty string if no reconciliation data.
+        /// </summary>
+        public string ReconciliationBadgeIcon
+        {
+            get
+            {
+                if (!HasReconciliation) return "";
+                return Reconciliation!.OverallIcon;
+            }
+        }
+
+        /// <summary>
+        /// Reconciliation status color hex — for tinting rows/badges.
+        /// Returns transparent-neutral if no reconciliation data.
+        /// </summary>
+        public string ReconciliationColorHex
+        {
+            get
+            {
+                if (!HasReconciliation) return "#00000000";  // Transparent
+                return Reconciliation!.OverallColorHex;
+            }
+        }
+
+        /// <summary>
+        /// Hover tooltip text summarizing the reconciliation.
+        /// e.g. "PI-2026-001 — 1 OVER-INVOICED · Ordered: 2, Delivered: 1, Invoiced: 2"
+        /// </summary>
+        public string ReconciliationTooltip
+        {
+            get
+            {
+                if (!HasReconciliation) return "";
+
+                var s = Reconciliation!;
+                return $"{s.ProformaId}\n" +
+                       $"{s.SummaryDisplay}\n" +
+                       $"{s.TotalsDisplay}";
+            }
+        }
     }
 
     // ═════════════════════════════════════════════════════════════════════
     //  AGING BAR VIEWMODEL
     // ═════════════════════════════════════════════════════════════════════
 
-    /// <summary>
-    /// One bar in the aging analysis visual.
-    /// WidthPercent drives the bar width via PercentToWidthConverter.
-    /// </summary>
     public class AgingBarViewModel : ViewModelBase
     {
         public string Label { get; }

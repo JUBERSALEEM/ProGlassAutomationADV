@@ -37,8 +37,6 @@
 
 	<!-- ═══════════════════════════════════════════════════════════
 	     Phase 8.3 — Explicit registration for Controls folder
-	     Uses Update (not Include) — SDK already auto-includes.
-	     Update only sets build properties on already-included files.
 	═══════════════════════════════════════════════════════════ -->
 	<ItemGroup>
 		<Page Update="Controls\**\*.xaml">
@@ -64,11 +62,7 @@
 	</ItemGroup>
 
 	<!-- ═══════════════════════════════════════════════════════════
-	     Chat 16 — Set build properties on new Chat 16 XAML files.
-	     Uses Update (not Include) — SDK auto-includes all .xaml
-	     and .cs files in project directory by default.
-	     Update ensures correct Generator + DependentUpon linkage
-	     so XAML designer recognizes the code-behind correctly.
+	     Chat 16 — Sales Report + Statement List
 	═══════════════════════════════════════════════════════════ -->
 	<ItemGroup>
 		<Page Update="Views\Reports\SalesReportView.xaml">
@@ -89,15 +83,6 @@
 			<SubType>Code</SubType>
 		</Compile>
 
-		<Page Update="Views\Reports\StatementGenerator\StatementGeneratorView.xaml">
-			<Generator>MSBuild:Compile</Generator>
-			<SubType>Designer</SubType>
-		</Page>
-		<Compile Update="Views\Reports\StatementGenerator\StatementGeneratorView.xaml.cs">
-			<DependentUpon>StatementGeneratorView.xaml</DependentUpon>
-			<SubType>Code</SubType>
-		</Compile>
-
 		<Page Update="Views\Dashboard\Statement\StDashboardView.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>
@@ -106,6 +91,83 @@
 			<DependentUpon>StDashboardView.xaml</DependentUpon>
 			<SubType>Code</SubType>
 		</Compile>
+	</ItemGroup>
+
+	<!-- ═══════════════════════════════════════════════════════════
+	     Chat 21 v3 — Statement Generator WIZARD (4 steps)
+	     
+	     Folder structure:
+	       Views/Reports/StatementGenerator/
+	         Shell/     → Wizard shell (composition root)
+	         Filter/    → Step 1: Configure filters
+	         Preview/   → Step 2: Select invoices
+	         Pipeline/  → Step 3: Execute pipeline (live)
+	         Review/    → Step 4: Review & download PDF
+	         Styles/    → Wizard-specific shared styles
+	     
+	     DELETED in v3:
+	       Hero/ folder (marketing content, no place in ERP)
+	       *Section.xaml files (renamed to *Step.xaml)
+	       StatementGeneratorStyles.xaml (renamed to WizardStyles.xaml)
+	═══════════════════════════════════════════════════════════ -->
+	<ItemGroup>
+
+		<!-- Shell (wizard composition root) -->
+		<Page Update="Views\Reports\StatementGenerator\Shell\StatementGeneratorView.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\StatementGenerator\Shell\StatementGeneratorView.xaml.cs">
+			<DependentUpon>StatementGeneratorView.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<!-- Step 1: Filter -->
+		<Page Update="Views\Reports\StatementGenerator\Filter\FilterStep.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\StatementGenerator\Filter\FilterStep.xaml.cs">
+			<DependentUpon>FilterStep.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<!-- Step 2: Preview -->
+		<Page Update="Views\Reports\StatementGenerator\Preview\PreviewStep.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\StatementGenerator\Preview\PreviewStep.xaml.cs">
+			<DependentUpon>PreviewStep.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<!-- Step 3: Execute (Pipeline) -->
+		<Page Update="Views\Reports\StatementGenerator\Pipeline\ExecuteStep.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\StatementGenerator\Pipeline\ExecuteStep.xaml.cs">
+			<DependentUpon>ExecuteStep.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<!-- Step 4: Review -->
+		<Page Update="Views\Reports\StatementGenerator\Review\ReviewStep.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+		<Compile Update="Views\Reports\StatementGenerator\Review\ReviewStep.xaml.cs">
+			<DependentUpon>ReviewStep.xaml</DependentUpon>
+			<SubType>Code</SubType>
+		</Compile>
+
+		<!-- Shared wizard styles resource dictionary -->
+		<Page Update="Views\Reports\StatementGenerator\Styles\WizardStyles.xaml">
+			<Generator>MSBuild:Compile</Generator>
+			<SubType>Designer</SubType>
+		</Page>
+
 	</ItemGroup>
 
 </Project>

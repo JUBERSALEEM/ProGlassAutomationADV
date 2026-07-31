@@ -1,7 +1,7 @@
 ﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Statement/Repository/StatementRepository.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Account Statement / Sales Report (Chat 16)
+// MODULE: Account Statement / Sales Report (Chat 16 + Chat 21 v2 fix)
 //
 // FIXES vs PHASE 2 VERSION:
 //   1. GetByIdAsync: now uses Include(s => s.LineItems) — nav prop exists.
@@ -13,6 +13,18 @@
 //      after ToListAsync() on in-memory results.
 //   5. GetNextStatementNumberAsync: uses year-scoped prefix count
 //      with zero-padding to D3 (STMT-2026-001 format confirmed).
+//
+// CHAT 21 v2 FIX:
+//   ★ GetNextStatementNumberAsync REWRITTEN to use MAX-based logic
+//     instead of COUNT-based. The old COUNT+1 approach caused
+//     UNIQUE constraint collisions when previous save attempts
+//     failed (leaving gaps in the sequence but incrementing COUNT
+//     out of sync with actual data).
+//
+//     NEW: Extracts numeric suffix from all existing statement
+//     numbers for the current year, finds the MAX, returns MAX+1.
+//     This guarantees no collision because we base the next number
+//     on actual persisted data, not on a count that may diverge.
 //
 // THREAD SAFETY:
 //   New DbContext per operation (not shared singleton).
@@ -118,22 +130,61 @@ namespace ProGlassAutomation.Services.Statement.Repository
             return entities.Select(ToListItem).ToList();
         }
 
-        // ── Numbering ─────────────────────────────────────────────────────
+        // ═════════════════════════════════════════════════════════════════
+        //  NUMBERING (Chat 21 v2 — collision-proof MAX-based logic)
+        // ═════════════════════════════════════════════════════════════════
 
+        /// <summary>
+        /// Returns the next available statement number for the current year.
+        /// Format: STMT-YYYY-NNN (zero-padded 3-digit sequence).
+        ///
+        /// COLLISION-PROOF DESIGN:
+        ///   Uses MAX(existing suffix) + 1 instead of COUNT + 1.
+        ///   This prevents "UNIQUE constraint failed" errors when:
+        ///     • A previous InsertAsync failed mid-transaction
+        ///     • Numbers were manually inserted out of sequence
+        ///     • Records were deleted, leaving gaps
+        ///
+        ///   Example scenario:
+        ///     DB has: STMT-2026-001, STMT-2026-002
+        ///     (STMT-2026-003 attempt failed — never persisted)
+        ///     OLD logic: count(2) + 1 → "STMT-2026-003" → collision!
+        ///     NEW logic: max(2) + 1  → "STMT-2026-003" → succeeds
+        ///     After success: max(3) + 1 → "STMT-2026-004"
+        ///
+        /// FIRST OF YEAR:
+        ///   If no statements exist for current year, returns "STMT-YYYY-001".
+        /// </summary>
         public async Task<string> GetNextStatementNumberAsync()
         {
             await using var ctx = new StatementDbContext();
             int year = DateTime.Now.Year;
             string prefix = $"STMT-{year}-";
 
-            // Count existing statements for this calendar year
-            // Uses StartsWith on the indexed StatementNumber column
-            int count = await ctx.Statements
+            // Fetch all existing statement numbers for this year.
+            // Uses StartsWith on the indexed StatementNumber column (fast).
+            var existingNumbers = await ctx.Statements
                 .AsNoTracking()
-                .CountAsync(s => s.StatementNumber.StartsWith(prefix));
+                .Where(s => s.StatementNumber.StartsWith(prefix))
+                .Select(s => s.StatementNumber)
+                .ToListAsync();
 
-            // Zero-padded 3-digit sequence: STMT-2026-001
-            return $"{prefix}{(count + 1):D3}";
+            // Find the MAX numeric suffix across all existing numbers.
+            // Parses "STMT-2026-005" → 5, "STMT-2026-012" → 12, etc.
+            // Any unparseable entry is skipped (defensive).
+            int maxSeq = 0;
+            foreach (var num in existingNumbers)
+            {
+                if (num.Length <= prefix.Length) continue;
+
+                string suffix = num.Substring(prefix.Length);
+                if (int.TryParse(suffix, out int seq) && seq > maxSeq)
+                    maxSeq = seq;
+            }
+
+            // Return MAX + 1 with zero-padded 3-digit format.
+            // Example: max=7 → "STMT-2026-008"
+            return $"{prefix}{(maxSeq + 1):D3}";
         }
 
         // ── CRUD ──────────────────────────────────────────────────────────
