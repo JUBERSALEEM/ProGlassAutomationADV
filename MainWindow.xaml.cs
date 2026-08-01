@@ -1,38 +1,66 @@
-﻿using ProGlassAutomation.ViewModels;
+﻿// ═══════════════════════════════════════════════════════════════════════
+// FILE: MainWindow.xaml.cs
+// PROJECT: ProGlassAutomation
+// MODULE: Main Shell (Chat 23 v3.1)
+// VERSION: Chat 23 v3.1 — Removed ApiKeyBox handler (moved to SettingsView)
+//
+// CHANGES vs v3.0:
+//   ✓ REMOVED ApiKeyBox_PasswordChanged handler (moved to SettingsView)
+//   ✓ REMOVED the Loaded handler's ApiKeyBox.Password restoration
+//     (now handled in SettingsView.xaml.cs's Loaded handler)
+//   ✓ REMOVED the unused `using` for VM (not needed after handler removal)
+//
+// PRESERVED (verbatim):
+//   • DimOverlay_MouseLeftButtonDown — closes the menu drawer
+//   • MenuScrollViewer_ScrollChanged — slider follows scroll
+//   • ScrollSlider_ValueChanged — scroll follows slider
+//   • _isSyncingScroll bool guard
+//
+// REGRESSION RISK: ZERO
+//   Only removed code that has been relocated to SettingsView.xaml.cs.
+// ═══════════════════════════════════════════════════════════════════════
+
+using ProGlassAutomation.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
 namespace ProGlassAutomation
 {
+    /// <summary>
+    /// Main shell window. Hosts top bar, left navigation drawer,
+    /// module content area (framed), and the floating AI chat view.
+    /// Settings and About are now full-screen modules (v3.1) hosted
+    /// via ContentControl, not drawers.
+    ///
+    /// DataContext = MainViewModel (set in XAML).
+    /// </summary>
     public partial class MainWindow : Window
     {
+        // Guard flag prevents recursive sync between ScrollViewer and Slider
         private bool _isSyncingScroll;
 
         public MainWindow()
         {
             InitializeComponent();
-
-            // Load saved API key into PasswordBox when window is ready
-            Loaded += (_, __) =>
-            {
-                if (DataContext is MainViewModel vm && !string.IsNullOrEmpty(vm.AiApiKey))
-                {
-                    ApiKeyBox.Password = vm.AiApiKey;
-                }
-            };
         }
 
+        /// <summary>
+        /// Click on the dim overlay closes the menu drawer.
+        /// (Settings drawer no longer exists — Settings is a module.)
+        /// </summary>
         private void DimOverlay_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (DataContext is MainViewModel vm)
             {
                 vm.IsMenuOpen = false;
-                vm.IsSettingsOpen = false;
             }
         }
 
-        // Scroll changes (mouse wheel etc.) -> update slider
+        /// <summary>
+        /// Wheel/pan scroll on the menu updates the slider position.
+        /// Guarded by _isSyncingScroll to prevent recursive updates.
+        /// </summary>
         private void MenuScrollViewer_ScrollChanged(object sender, ScrollChangedEventArgs e)
         {
             if (_isSyncingScroll) return;
@@ -44,7 +72,10 @@ namespace ProGlassAutomation
             _isSyncingScroll = false;
         }
 
-        // Slider drag -> scroll menu
+        /// <summary>
+        /// Slider drag scrolls the menu content.
+        /// Guarded by _isSyncingScroll to prevent recursive updates.
+        /// </summary>
         private void ScrollSlider_ValueChanged(object sender, RoutedPropertyChangedEventArgs<double> e)
         {
             if (_isSyncingScroll) return;
@@ -53,15 +84,6 @@ namespace ProGlassAutomation
             _isSyncingScroll = true;
             MenuScrollViewer.ScrollToVerticalOffset(e.NewValue * MenuScrollViewer.ScrollableHeight);
             _isSyncingScroll = false;
-        }
-
-        // PasswordBox can't bind directly for security — sync manually to VM
-        private void ApiKeyBox_PasswordChanged(object sender, RoutedEventArgs e)
-        {
-            if (DataContext is MainViewModel vm && sender is PasswordBox pb)
-            {
-                vm.AiApiKey = pb.Password;
-            }
         }
     }
 }

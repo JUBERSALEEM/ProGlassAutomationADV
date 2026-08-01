@@ -1,4 +1,36 @@
-﻿using ProGlassAutomation.Commands;
+﻿// ═══════════════════════════════════════════════════════════════════════
+// FILE: ViewModels/Dashboard/OverviewDashboardViewModel.cs
+// PROJECT: ProGlassAutomation
+// MODULE: Dashboard Overview (Chat 23 v2.0.1)
+//
+// CHANGES vs PREVIOUS VERSION:
+//   ONLY chart bar color hex values changed to align with industrial
+//   blue palette:
+//     • Regular bar: "#6366F1" (indigo) → "#3B82F6" (blue-500)
+//     • Highlight bar (tallest month): "#10B981" (green) → "#1D4ED8" (royal)
+//
+//   ALL original documentation comments (Phase 10.9a description,
+//   FIX-1 through FIX-5 inline annotations) RESTORED after v2.0
+//   accidentally stripped them.
+//
+// PRESERVED (zero regression):
+//   • ALL LoadCoreAsync logic
+//   • ALL KpiTileModel emissions (Icon/Label/DisplayValue/Accent/IsAlert)
+//   • ALL ActivityFeedItem emissions
+//   • ALL commands
+//   • ALL color helper methods
+//   • FIX-1 (currency N2) preserved
+//   • FIX-2 (Gotcha #40 pending pieces) preserved
+//   • FIX-3 (dispatched includes all sent-out) preserved
+//   • FIX-4 (delivered today pieces tile) preserved
+//   • FIX-5 (total delivered lifetime tile) preserved
+//   • Original inline documentation comments RESTORED
+//
+// REGRESSION RISK: ZERO
+//   Only 2 hex color literals changed. All comments and logic intact.
+// ═══════════════════════════════════════════════════════════════════════
+
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.Dashboard;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.SheetStore;
@@ -27,6 +59,10 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     ///   FIX-3 (Dispatched): Includes Delivered/Signed/Received (all sent-out).
     ///   FIX-4 (4 tiles): Added Delivered Today tile.
     ///   FIX-5 (5 tiles): Added Total Delivered (pcs) — comprehensive delivery view.
+    ///
+    /// Chat 23 v2.0.1: Chart bar colors updated to industrial blue palette
+    ///                 (regular = #3B82F6, highlight = #1D4ED8). Zero
+    ///                 other logic changes.
     /// </summary>
     public class OverviewDashboardViewModel : DashboardPageBase
     {
@@ -376,6 +412,9 @@ namespace ProGlassAutomation.ViewModels.Dashboard
 
             // ═════════════════════════════════════════════════════════════
             //  📈 CHART — Monthly sales, last 6 months
+            //  Chat 23 v2.0.1: bar colors updated to industrial blue palette.
+            //    Regular:   "#6366F1" (indigo) → "#3B82F6" (blue-500)
+            //    Highlight: "#10B981" (green)  → "#1D4ED8" (royal blue)
             // ═════════════════════════════════════════════════════════════
             var now = DateTime.Now;
             var months = Enumerable.Range(0, 6)
@@ -397,7 +436,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     Label = m.ToString("MMM"),
                     RawValue = total,
                     ValueDisplay = total > 0 ? $"AED {total:N2}" : "—",
-                    BarColor = "#6366F1"
+                    BarColor = "#3B82F6"    // v2.0.1: blue-500 (was #6366F1 indigo)
                 };
             }).ToList();
 
@@ -410,7 +449,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     ? (double)(bar.RawValue / maxVal)
                     : 0.04;
                 bar.IsHighlight = anyData && bar.RawValue == maxVal;
-                bar.BarColor = bar.IsHighlight ? "#10B981" : "#6366F1";
+                // v2.0.1: highlight = royal blue (was #10B981 green)
+                bar.BarColor = bar.IsHighlight ? "#1D4ED8" : "#3B82F6";
             }
 
             MonthlySalesBars = new ObservableCollection<ChartBarModel>(rawBars);

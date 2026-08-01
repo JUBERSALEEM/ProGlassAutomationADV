@@ -2,6 +2,7 @@
 // FILE: ViewModels/Dashboard/TaxInvoice/TiDashboard/TiDashboardViewModel.cs
 // PROJECT: ProGlassAutomation
 // NAMESPACE: ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard
+// VERSION: Chat 23 v2.5.1 — Industrial blue chart palette
 //
 // PURPOSE:
 //   Dashboard sub-page ViewModel for the Tax Invoice tab.
@@ -27,6 +28,26 @@
 //   • LoadCoreAsync() calls service, then normalizes chart data
 //   • OnThemeChanged() rebuilds ObservableCollections for brush refresh
 //   • KPI tiles use same KpiTileModel as Overview (already in Models/Dashboard)
+//
+// CHANGES vs previous version:
+//   Chat 23 v2.5.1: ONLY revenue chart bar hex colors changed to align
+//   with industrial blue palette (matches OverviewDashboardViewModel v2.0.1):
+//     • Regular bar:   "#6366F1" (indigo)        → "#3B82F6" (blue-500)
+//     • Highlight bar: "#10B981" (emerald green) → "#1D4ED8" (royal blue)
+//
+//   ZERO other logic changes. All original documentation comments
+//   preserved verbatim (v2.5 accidentally stripped them — restored here).
+//
+// FLAG FOR LATER:
+//   Cannot verify brush keys emitted by TaxInvoiceMetricsService for:
+//     RecentInvoiceItem.StatusColor
+//     RecentInvoiceItem.TintColor
+//     AgingBracket.SeverityColor
+//     AgingBracket.TintColor
+//   If the service emits "RedBrush"/"AmberBrush"/"GreenBrush"/"PurpleBrush"
+//   (all MISSING from LightTheme.xaml v1.6), status pills and severity
+//   bars render TRANSPARENT — same silent bug that JoDashboard and
+//   DnDashboard had. To verify/fix, share TaxInvoiceMetricsService.cs.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
@@ -507,12 +528,16 @@ namespace ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard
         // ═════════════════════════════════════════════════════════════════
         //  PRIVATE: NORMALIZE REVENUE BARS
         //  Mirrors OverviewDashboardViewModel chart normalization exactly.
+        //  Chat 23 v2.5.1: bar colors updated to industrial blue palette.
+        //    Regular:   "#6366F1" (indigo) → "#3B82F6" (blue-500)
+        //    Highlight: "#10B981" (emerald green) → "#1D4ED8" (royal blue)
+        //  Matches Overview + PiDashboard chart palette exactly.
         // ═════════════════════════════════════════════════════════════════
 
         /// <summary>
         /// Sets NormalizedHeight (0.0–1.0), IsHighlight, and BarColor
-        /// on each MonthlyRevenuePoint. Highest month = 1.0 + emerald.
-        /// Zero months = 0.04 stub + indigo.
+        /// on each MonthlyRevenuePoint. Highest month = 1.0 + royal blue.
+        /// Zero months = 0.04 stub + blue-500.
         /// </summary>
         private static void NormalizeRevenueBars(List<MonthlyRevenuePoint> points)
         {
@@ -529,8 +554,9 @@ namespace ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard
 
                 p.IsHighlight = anyData && p.TotalInvoiced == maxVal;
 
-                // Emerald for highlight, indigo for others
-                p.BarColor = p.IsHighlight ? "#10B981" : "#6366F1";
+                // v2.5.1: royal blue for highlight, blue-500 for regular
+                // (was emerald #10B981 highlight, indigo #6366F1 regular)
+                p.BarColor = p.IsHighlight ? "#1D4ED8" : "#3B82F6";
             }
         }
     }

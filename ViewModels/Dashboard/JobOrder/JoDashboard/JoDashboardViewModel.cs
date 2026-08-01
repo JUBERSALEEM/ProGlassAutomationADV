@@ -1,4 +1,41 @@
-﻿using ProGlassAutomation.Models.Dashboard;
+﻿// ═══════════════════════════════════════════════════════════════════════
+// FILE: ViewModels/Dashboard/JobOrder/JoDashboard/JoDashboardViewModel.cs
+// PROJECT: ProGlassAutomation
+// MODULE: Job Order Dashboard (Chat 23 v2.5)
+//
+// BUG FIX vs PREVIOUS VERSION:
+//   Previous VM emitted brush KEYS that DO NOT EXIST in LightTheme /
+//   DarkTheme, causing BrushKeyConverter to return null → badges and
+//   status pills rendered TRANSPARENT or with unpredictable fallback.
+//
+//   Corrections:
+//     • "AmberBrush"   → "WarningBrush"   (theme has WarningBrush)
+//     • "GreenBrush"   → "SuccessBrush"   (theme has SuccessBrush)
+//     • "RedBrush"     → "DangerBrush"    (theme has DangerBrush)
+//     • "PurpleBrush"  → "InfoBrush"      (no PurpleBrush in theme;
+//                                          InfoBrush blue reads as
+//                                          "shipped/delivered" semantic)
+//
+//   Confirmed against LightTheme.xaml v1.6 which exposes exactly:
+//     AccentBrush, AccentHoverBrush, AccentDarkBrush, AccentLightBrush,
+//     SuccessBrush, WarningBrush, DangerBrush, InfoBrush, NeutralBrush
+//     (+ Tint* variants for backgrounds)
+//
+// PRESERVED (zero regression):
+//   • All KpiCardModel emissions (structure unchanged)
+//   • All ChartBarModel emissions (semantic status/priority colors
+//     preserved as hex — those are for bar CHART colors, not brush keys)
+//   • All ActivityFeedItem emissions
+//   • LoadCoreAsync business logic
+//   • OnThemeChanged override
+//   • BuildFeedItem helper
+//   • All status/priority constants
+//
+// REGRESSION RISK: NONE (this is a BUG FIX — replaces broken keys
+// with working keys. Broken keys were silently rendering fallback.)
+// ═══════════════════════════════════════════════════════════════════════
+
+using ProGlassAutomation.Models.Dashboard;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using System;
 using System.Collections.Generic;
@@ -139,6 +176,9 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
                                         && j.Status != StatusDelivered);
 
             // ── KPI cards ────────────────────────────────────────────
+            //   v2.5 BUG FIX: theme-correct brush keys
+            //     AmberBrush→WarningBrush, GreenBrush→SuccessBrush,
+            //     RedBrush→DangerBrush
             _kpiCards = new List<KpiCardModel>
             {
                 new KpiCardModel
@@ -154,7 +194,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
                     Icon         = "⚙️",
                     Title        = "In Production",
                     DisplayValue = inProd.ToString("N0"),
-                    BadgeColor   = "AmberBrush",
+                    BadgeColor   = "WarningBrush",     // v2.5: was "AmberBrush" (missing key)
                     TintColor    = "TintAmberBrush"
                 },
                 new KpiCardModel
@@ -162,7 +202,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
                     Icon         = "✅",
                     Title        = "Completed",
                     DisplayValue = completed.ToString("N0"),
-                    BadgeColor   = "GreenBrush",
+                    BadgeColor   = "SuccessBrush",     // v2.5: was "GreenBrush" (missing key)
                     TintColor    = "TintGreenBrush"
                 },
                 new KpiCardModel
@@ -170,12 +210,14 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
                     Icon         = "⚠️",
                     Title        = "Overdue",
                     DisplayValue = overdue.ToString("N0"),
-                    BadgeColor   = "RedBrush",
+                    BadgeColor   = "DangerBrush",      // v2.5: was "RedBrush" (missing key)
                     TintColor    = "TintRedBrush"
                 }
             };
 
             // ── Status distribution ──────────────────────────────────
+            // SEMANTIC bar chart colors (hex) — universal invoice-like
+            // semantics for job status. Not brush keys, not theme-swappable.
             var statusDefs = new[]
             {
                 (Label: "Draft",         Key: StatusDraft,        BarColor: "#6B7280"),
@@ -202,6 +244,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
             }).ToList();
 
             // ── Priority breakdown ────────────────────────────────────
+            // SEMANTIC bar chart colors (hex) — universal traffic-light
+            // semantics: High=red, Medium=amber, Low=green.
             var priorityDefs = new[]
             {
                 (Label: "High",   Key: PriorityHigh,   BarColor: "#EF4444"),
@@ -253,6 +297,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
         }
 
         // ── Feed item builder ─────────────────────────────────────────
+        //   v2.5 BUG FIX: theme-correct brush keys for status pills.
         private static ActivityFeedItem BuildFeedItem(
             SavedJobOrder job,
             DateTime today)
@@ -274,15 +319,19 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
                     _ => job.Status.ToUpperInvariant()
                 };
 
+            // v2.5: theme brush keys corrected
+            //   was "RedBrush" / "AmberBrush" / "GreenBrush" / "PurpleBrush" — all MISSING
+            //   now "DangerBrush" / "WarningBrush" / "SuccessBrush" / "InfoBrush"
+            //   (InfoBrush blue = "shipped/delivered" semantic — no PurpleBrush in theme)
             string statusColor = isOverdue
-                ? "RedBrush"
+                ? "DangerBrush"
                 : job.Status switch
                 {
                     StatusDraft => "MutedForegroundBrush",
                     StatusReleased => "AccentBrush",
-                    StatusInProduction => "AmberBrush",
-                    StatusCompleted => "GreenBrush",
-                    StatusDelivered => "PurpleBrush",
+                    StatusInProduction => "WarningBrush",
+                    StatusCompleted => "SuccessBrush",
+                    StatusDelivered => "InfoBrush",
                     _ => "MutedForegroundBrush"
                 };
 

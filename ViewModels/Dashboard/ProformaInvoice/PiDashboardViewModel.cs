@@ -1,4 +1,37 @@
-﻿using ProGlassAutomation.Models.Dashboard;
+﻿// ═══════════════════════════════════════════════════════════════════════
+// FILE: ViewModels/Dashboard/PiDashboardViewModel.cs
+// PROJECT: ProGlassAutomation
+// MODULE: Proforma Invoice Dashboard (Chat 23 v2.2)
+//
+// CHANGES vs PREVIOUS VERSION:
+//   Customer palette color rotation aligned with industrial blue theme:
+//     • custColors[0]: "#6366F1" (indigo) → "#1D4ED8" (royal blue)
+//     • custColors[1]: "#10B981" (green)  → "#0369A1" (teal-blue)
+//   Amber, blue-500, pink kept for visual distinctness across top 5.
+//
+//   Status bar palette KEPT AS-IS — those are SEMANTIC colors:
+//     Draft=#6B7280 (gray), Sent=#3B82F6 (blue),
+//     Approved=#10B981 (green — success semantic),
+//     Rejected=#EF4444 (red — danger semantic).
+//   These MUST remain green/red because they convey status meaning.
+//
+//   KPI card colors KEPT AS-IS — already correctly semantic:
+//     Total=blue, Approved=green (semantic), Sent=blue, Draft=gray.
+//
+// PRESERVED (zero regression):
+//   • All KpiCardModel emissions
+//   • All ChartBarModel emissions
+//   • All LoadCoreAsync logic
+//   • OnThemeChanged override
+//   • All phase comments (8.2a, 8.2e, 8.2f)
+//   • Eq helper
+//
+// REGRESSION RISK: LOW
+//   Only 2 hex values changed in customer palette. Zero logic touched.
+//   All semantic colors (Approved green, Rejected red) preserved.
+// ═══════════════════════════════════════════════════════════════════════
+
+using ProGlassAutomation.Models.Dashboard;
 using System;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -14,6 +47,9 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     /// Phase 8.2e: BadgeColor and TintColor use theme brush KEY names.
     /// Phase 8.2f: Overrides OnThemeChanged() to force re-notify KpiCards
     ///             so WPF rebuilds card templates instantly on theme swap.
+    /// Chat 23 v2.2: Customer palette green/indigo → blue family for
+    ///               industrial theme alignment. Status bars + KPI cards
+    ///               kept semantic (Approved=green, Rejected=red).
     /// </summary>
     public class PiDashboardViewModel : DashboardPageBase
     {
@@ -76,7 +112,11 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 .Where(i => Eq(i.Status, "Sent"))
                 .Sum(i => i.GrandTotalVatInclusive);
 
-            // ── KPI cards (theme brush keys) ──────────────────────────────
+            // ── KPI cards (theme brush keys — colors are semantic) ───────
+            //   Total = informational blue
+            //   Approved = SUCCESS GREEN (universal semantic — kept)
+            //   Sent = informational blue
+            //   Draft = neutral gray
             KpiCards = new ObservableCollection<KpiCardModel>
             {
                 new KpiCardModel
@@ -90,6 +130,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 },
                 new KpiCardModel
                 {
+                    // Approved = SUCCESS semantic → green kept intentionally
                     Icon         = "✅",
                     Title        = "Approved",
                     DisplayValue = approvedCount.ToString("N0"),
@@ -117,7 +158,10 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 }
             };
 
-            // ── status distribution bars (chart hex accents) ──────────────
+            // ── status distribution bars ─────────────────────────────────
+            // SEMANTIC COLORS — do NOT change:
+            //   Draft=gray, Sent=blue, Approved=green (success),
+            //   Rejected=red (danger). Universal invoice status semantic.
             var statusData = new[]
             {
                 (Label: "Draft",    Count: draftCount,    Color: "#6B7280"),
@@ -158,9 +202,14 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 ? topCustomers.Max(g => g.Total)
                 : 1m;
 
+            // Chat 23 v2.2: customer palette aligned with industrial blue theme.
+            //   Old: "#6366F1" (indigo), "#10B981" (green), "#F59E0B", "#3B82F6", "#EC4899"
+            //   New: "#1D4ED8" (royal), "#0369A1" (teal-blue), "#F59E0B", "#3B82F6", "#EC4899"
+            // Amber + pink kept for visual distinctness across top 5 customers.
+            // NOT semantic — just visual rotation for chart readability.
             string[] custColors =
             {
-                "#6366F1", "#10B981", "#F59E0B", "#3B82F6", "#EC4899"
+                "#1D4ED8", "#0369A1", "#F59E0B", "#3B82F6", "#EC4899"
             };
 
             TopCustomerBars = new ObservableCollection<ChartBarModel>(

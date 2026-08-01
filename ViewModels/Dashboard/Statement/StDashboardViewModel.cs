@@ -1,17 +1,28 @@
 ﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Dashboard/Statement/StDashboardViewModel.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Account Statement / Sales Report (Chat 16)
+// MODULE: Account Statement / Sales Report (Chat 23 v1.1)
 //
-// FIX vs PREVIOUS VERSION:
-//   1. Removed override LoadAsync() — DashboardPageBase.LoadAsync()
-//      is NOT virtual. It is the public entry point with reentrancy guard.
-//   2. Implemented LoadCoreAsync() — this is the abstract method that
-//      DashboardPageBase.LoadAsync() calls internally after setting
-//      IsLoading=true and clearing errors.
-//   3. Removed duplicate IsLoading property — DashboardPageBase already
-//      owns IsLoading. Using base class property directly.
-//   4. App.Statements null-guard preserved from previous fix.
+// CHANGES vs PREVIOUS VERSION:
+//   1. RecentStatementItem: added Index property (int, 1-based serial no)
+//   2. LoadCoreAsync(): projection uses .Select((item, i) => ...) to
+//      assign Index = i + 1 during list building.
+//   3. Nothing else changed. Zero logic changes to load flow, KPIs,
+//      commands, or dispatcher pattern.
+//
+// PRESERVED (zero regression):
+//   • LoadCoreAsync signature (base class contract)
+//   • All KPI backing fields + display properties
+//   • App.Statements null guard
+//   • Task.Run background load pattern
+//   • Dispatcher.Invoke UI thread updates
+//   • OnPropertyChanged(string.Empty) batch notify
+//   • All 3 commands (NavigateTo pattern)
+//   • IsEmpty guard logic (_isLoaded && !IsLoading && count==0)
+//
+// REGRESSION RISK: ZERO
+//   New property on POCO — no consumer impact.
+//   Projection change adds index — existing property values unchanged.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
@@ -134,11 +145,15 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
             decimal totalOverdue = items.Sum(i => i.OverdueAmount);
 
             // ── Recent 5 statements ───────────────────────────────────────
+            // CHAT 23 v1.1: .Select((item, i) => ...) provides 1-based
+            // Index for serial-number badge in the UI. Ordering is
+            // OrderByDescending(CreatedAt) so #1 = newest, #2 = next, etc.
             var recent = items
                 .OrderByDescending(i => i.CreatedAt)
                 .Take(5)
-                .Select(i => new RecentStatementItem
+                .Select((i, idx) => new RecentStatementItem
                 {
+                    Index = idx + 1,   // 1-based serial number
                     StatementNumber = i.StatementNumber,
                     Title = i.Title,
                     SubTitle = i.SubTitle,
@@ -180,9 +195,17 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
     /// <summary>
     /// One row in the dashboard recent statements list.
     /// POCO — no INotifyPropertyChanged needed (list rebuilt on each load).
+    /// CHAT 23 v1.1: added Index (1-based serial number for row badge).
     /// </summary>
     public class RecentStatementItem
     {
+        /// <summary>
+        /// 1-based serial number displayed as "#1", "#2", etc.
+        /// Assigned during VM projection — reflects display order,
+        /// not database ID.
+        /// </summary>
+        public int Index { get; init; }
+
         public string StatementNumber { get; init; } = "";
         public string Title { get; init; } = "";
         public string SubTitle { get; init; } = "";

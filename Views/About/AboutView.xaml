@@ -1,247 +1,743 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.About.AboutView"
+﻿<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/About/AboutView.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: About (Chat 23 v3.0)
+     VERSION: Chat 23 v3.0 — Removed duplicate Stats grid
+
+     CHANGES vs v2.9.1:
+       ✓ REMOVED the At-a-Glance Stats ItemsControl (4-tile grid) that
+         sat directly below the hero. It duplicated the numeric info
+         already shown in the hero LeftPillars/RightPillars (both
+         displayed "8 MODULES", "5 DATABASES", "AI").
+       ✓ REMOVED unused StatTileStyle resource
+       ✓ REMOVED unused StatTileTemplate DataTemplate
+       ✓ Result: cleaner vertical rhythm — hero → About → Workflow
+         → Modules → Tech → Capabilities → Footer. No repetition.
+
+     PRESERVED (zero regression):
+       • Hero triptych (LeftPillars / center / RightPillars)
+       • ALL other bindings and templates
+       • ALL other cards (About, Workflow, Modules, Tech, Capabilities)
+       • Email handler
+       • Ambient cached Canvas, SharedBitmapCache, SmoothScrollBehavior
+       • Blue palette (9 shades)
+       • Card style variants
+       • Workflow-per-card layout
+       • Capabilities split rows
+       • Professional footer
+       • IsHitTestVisible optimizations
+       • Focusable="False" on Grid + ScrollViewer
+
+     REGRESSION RISK: ZERO
+       Purely a removal of duplicating content. No bindings touched.
+       No layout of remaining sections changed.
+═══════════════════════════════════════════════════════════════════════ -->
+
+<UserControl x:Class="ProGlassAutomation.Views.About.AboutView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
+             TextOptions.TextHintingMode="Fixed"
+             RenderOptions.BitmapScalingMode="HighQuality"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
 
-        <Style x:Key="CardStyle" TargetType="Border">
-            <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
+        <!-- ═══════════════════════════════════════════════════════════════
+             AMBIENT
+        ═══════════════════════════════════════════════════════════════ -->
+
+        <LinearGradientBrush x:Key="AmbientBg"
+                             StartPoint="0,0" EndPoint="1,1"
+                             po:Freeze="True">
+            <GradientStop Color="#E8F0FE" Offset="0.0"/>
+            <GradientStop Color="#DBE7F9" Offset="0.5"/>
+            <GradientStop Color="#C7D9F0" Offset="1.0"/>
+        </LinearGradientBrush>
+
+        <RadialGradientBrush x:Key="Blob1"
+                             Center="0.85,0.10"
+                             GradientOrigin="0.85,0.10"
+                             RadiusX="0.4" RadiusY="0.4"
+                             po:Freeze="True">
+            <GradientStop Color="#3B82F640" Offset="0.0"/>
+            <GradientStop Color="#3B82F600" Offset="1.0"/>
+        </RadialGradientBrush>
+
+        <RadialGradientBrush x:Key="Blob2"
+                             Center="0.10,0.85"
+                             GradientOrigin="0.10,0.85"
+                             RadiusX="0.35" RadiusY="0.35"
+                             po:Freeze="True">
+            <GradientStop Color="#1E40AF30" Offset="0.0"/>
+            <GradientStop Color="#1E40AF00" Offset="1.0"/>
+        </RadialGradientBrush>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             SHARED BITMAP CACHE
+        ═══════════════════════════════════════════════════════════════ -->
+        <BitmapCache x:Key="SharedBitmapCache"
+                     RenderAtScale="1"
+                     EnableClearType="False"/>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             BLUE PALETTE
+        ═══════════════════════════════════════════════════════════════ -->
+
+        <SolidColorBrush x:Key="Sky"       Color="#EFF6FF" po:Freeze="True"/>
+        <SolidColorBrush x:Key="Ice"       Color="#DBEAFE" po:Freeze="True"/>
+        <SolidColorBrush x:Key="Frost"     Color="#BFDBFE" po:Freeze="True"/>
+        <SolidColorBrush x:Key="Cerulean"  Color="#93C5FD" po:Freeze="True"/>
+        <SolidColorBrush x:Key="Azure"     Color="#60A5FA" po:Freeze="True"/>
+        <SolidColorBrush x:Key="Sapphire"  Color="#3B82F6" po:Freeze="True"/>
+        <SolidColorBrush x:Key="Royal"     Color="#1D4ED8" po:Freeze="True"/>
+        <SolidColorBrush x:Key="Navy"      Color="#1E3A8A" po:Freeze="True"/>
+        <SolidColorBrush x:Key="Steel"     Color="#475569" po:Freeze="True"/>
+
+        <SolidColorBrush x:Key="SecondaryTextBrush"
+                         Color="#64748B"
+                         po:Freeze="True"/>
+
+        <SolidColorBrush x:Key="MutedTextBrush"
+                         Color="#94A3B8"
+                         po:Freeze="True"/>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             CARD BACKGROUND GRADIENTS
+        ═══════════════════════════════════════════════════════════════ -->
+
+        <LinearGradientBrush x:Key="CardBgLight"
+                             StartPoint="0,0" EndPoint="0,1"
+                             po:Freeze="True">
+            <GradientStop Color="#FFFFFF" Offset="0.0"/>
+            <GradientStop Color="#F4F8FE" Offset="1.0"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="CardBgMedium"
+                             StartPoint="0,0" EndPoint="0,1"
+                             po:Freeze="True">
+            <GradientStop Color="#F5F9FF" Offset="0.0"/>
+            <GradientStop Color="#E8F0FE" Offset="1.0"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="CardBgAccent"
+                             StartPoint="0,0" EndPoint="0,1"
+                             po:Freeze="True">
+            <GradientStop Color="#EFF6FF" Offset="0.0"/>
+            <GradientStop Color="#DBEAFE" Offset="1.0"/>
+        </LinearGradientBrush>
+
+        <SolidColorBrush x:Key="CardBorderLight"
+                         Color="#C4D6ED"
+                         po:Freeze="True"/>
+
+        <SolidColorBrush x:Key="CardBorderMedium"
+                         Color="#93B4E8"
+                         po:Freeze="True"/>
+
+        <LinearGradientBrush x:Key="HeroBrandGradient"
+                             StartPoint="0,0" EndPoint="1,1"
+                             po:Freeze="True">
+            <GradientStop Color="#1E3A8A" Offset="0"/>
+            <GradientStop Color="#1D4ED8" Offset="1"/>
+        </LinearGradientBrush>
+
+        <SolidColorBrush x:Key="ActiveBadgeBg"
+                         Color="#DBEAFE"
+                         po:Freeze="True"/>
+
+        <SolidColorBrush x:Key="ActiveBadgeText"
+                         Color="#1D4ED8"
+                         po:Freeze="True"/>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             CARD STYLES
+        ═══════════════════════════════════════════════════════════════ -->
+
+        <Style x:Key="CardStyleLight" TargetType="Border">
+            <Setter Property="Background"      Value="{StaticResource CardBgLight}"/>
+            <Setter Property="BorderBrush"     Value="{StaticResource CardBorderLight}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius"    Value="12"/>
-            <Setter Property="Padding"         Value="24,20"/>
+            <Setter Property="CornerRadius"    Value="16"/>
+            <Setter Property="Padding"         Value="28,24"/>
             <Setter Property="Margin"          Value="0,0,0,20"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
+        <Style x:Key="CardStyleMedium" TargetType="Border">
+            <Setter Property="Background"      Value="{StaticResource CardBgMedium}"/>
+            <Setter Property="BorderBrush"     Value="{StaticResource CardBorderMedium}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius"    Value="16"/>
+            <Setter Property="Padding"         Value="28,24"/>
+            <Setter Property="Margin"          Value="0,0,0,20"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <Style x:Key="CardStyleAccent" TargetType="Border">
+            <Setter Property="Background"      Value="{StaticResource CardBgAccent}"/>
+            <Setter Property="BorderBrush"     Value="{StaticResource Cerulean}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius"    Value="16"/>
+            <Setter Property="Padding"         Value="28,24"/>
+            <Setter Property="Margin"          Value="0,0,0,20"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <Style x:Key="HeroCardStyle" TargetType="Border"
+               BasedOn="{StaticResource CardStyleMedium}">
+            <Setter Property="Padding" Value="32,36"/>
+            <Setter Property="CornerRadius" Value="20"/>
+        </Style>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             TYPOGRAPHY
+        ═══════════════════════════════════════════════════════════════ -->
+
         <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
             <Setter Property="FontSize"   Value="18"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#4338CA"/>
+            <Setter Property="Foreground" Value="{StaticResource Navy}"/>
             <Setter Property="Margin"     Value="0,0,0,6"/>
+            <Setter Property="IsHitTestVisible" Value="False"/>
         </Style>
 
         <Style x:Key="SectionSubtitleStyle" TargetType="TextBlock">
             <Setter Property="FontSize"   Value="12"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Foreground" Value="{StaticResource SecondaryTextBrush}"/>
             <Setter Property="Margin"     Value="0,0,0,20"/>
+            <Setter Property="IsHitTestVisible" Value="False"/>
+        </Style>
+
+        <Style x:Key="SubHeadingStyle" TargetType="TextBlock">
+            <Setter Property="FontSize"   Value="13"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{StaticResource Royal}"/>
+            <Setter Property="Margin"     Value="0,16,0,8"/>
+            <Setter Property="IsHitTestVisible" Value="False"/>
+        </Style>
+
+        <Style x:Key="WorkflowGroupLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize"   Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{StaticResource Navy}"/>
+            <Setter Property="Margin"     Value="0,4,0,8"/>
+            <Setter Property="IsHitTestVisible" Value="False"/>
         </Style>
 
         <Style x:Key="InfoLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="11"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
-            <Setter Property="Margin"     Value="0,0,0,6"/>
+            <Setter Property="FontSize"   Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{StaticResource MutedTextBrush}"/>
+            <Setter Property="Margin"     Value="0,0,0,4"/>
         </Style>
 
         <Style x:Key="InfoValueStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"     Value="14"/>
-            <Setter Property="FontWeight"   Value="SemiBold"/>
+            <Setter Property="FontSize"     Value="13"/>
+            <Setter Property="FontWeight"   Value="Bold"/>
             <Setter Property="Foreground"   Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="TextWrapping" Value="Wrap"/>
         </Style>
 
-        <Style x:Key="WorkflowNodeStyle" TargetType="Border">
-            <Setter Property="CornerRadius"    Value="8"/>
-            <Setter Property="Padding"         Value="10,8"/>
-            <Setter Property="MinWidth"        Value="120"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
+        <!-- ═══════════════════════════════════════════════════════════════
+             DATA TEMPLATES
+        ═══════════════════════════════════════════════════════════════ -->
 
-        <Style x:Key="ModuleChipStyle" TargetType="Border">
-            <Setter Property="CornerRadius"    Value="12"/>
-            <Setter Property="Padding"         Value="16,14"/>
-            <Setter Property="Margin"          Value="4"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Background"      Value="{DynamicResource MenuHoverBrush}"/>
-            <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
-        </Style>
+        <!-- HERO PILLAR -->
+        <DataTemplate x:Key="HeroPillarTemplate">
+            <Border CornerRadius="12"
+                    Padding="14,12"
+                    Margin="0,0,0,10"
+                    MinWidth="120"
+                    BorderThickness="1"
+                    Background="{StaticResource Sky}"
+                    BorderBrush="{StaticResource Frost}"
+                    SnapsToDevicePixels="True">
+                <StackPanel HorizontalAlignment="Center">
+                    <TextBlock Text="{Binding Icon}"
+                               FontSize="22"
+                               HorizontalAlignment="Center"
+                               IsHitTestVisible="False"/>
+                    <TextBlock Text="{Binding Value}"
+                               FontSize="15"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               Margin="0,4,0,0"
+                               Foreground="{StaticResource Navy}"
+                               IsHitTestVisible="False"/>
+                    <TextBlock Text="{Binding Label}"
+                               FontSize="9"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Center"
+                               Margin="0,2,0,0"
+                               Foreground="{StaticResource Royal}"
+                               IsHitTestVisible="False"/>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
 
-        <Style x:Key="StatTileStyle" TargetType="Border">
-            <Setter Property="CornerRadius"    Value="12"/>
-            <Setter Property="Padding"         Value="16,14"/>
-            <Setter Property="Margin"          Value="4"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
+        <!-- MODULE CHIP -->
+        <DataTemplate x:Key="ModuleChipTemplate">
+            <Border CornerRadius="12"
+                    Padding="16,14"
+                    Margin="6"
+                    BorderThickness="1"
+                    Background="{StaticResource Sky}"
+                    BorderBrush="{StaticResource Frost}"
+                    SnapsToDevicePixels="True">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBlock Grid.Column="0"
+                               Text="{Binding Icon}"
+                               FontSize="24"
+                               VerticalAlignment="Center"
+                               IsHitTestVisible="False"/>
+
+                    <StackPanel Grid.Column="1"
+                                Margin="14,0,10,0"
+                                VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Name}"
+                                   FontSize="14"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   IsHitTestVisible="False"/>
+                        <TextBlock Text="{Binding Description}"
+                                   FontSize="11"
+                                   Foreground="{StaticResource SecondaryTextBrush}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,2,0,0"
+                                   IsHitTestVisible="False"/>
+                    </StackPanel>
+
+                    <Border Grid.Column="2"
+                            Background="{StaticResource ActiveBadgeBg}"
+                            CornerRadius="8"
+                            Padding="8,3"
+                            VerticalAlignment="Center"
+                            SnapsToDevicePixels="True">
+                        <TextBlock Text="ACTIVE"
+                                   FontSize="9"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource ActiveBadgeText}"
+                                   IsHitTestVisible="False"/>
+                    </Border>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <!-- TECH STACK ITEM -->
+        <DataTemplate x:Key="TechItemTemplate">
+            <Border CornerRadius="10"
+                    Padding="14,12"
+                    Margin="6"
+                    BorderThickness="1"
+                    Background="{StaticResource Sky}"
+                    BorderBrush="{StaticResource Frost}"
+                    SnapsToDevicePixels="True">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="{Binding Icon}"
+                               FontSize="20"
+                               VerticalAlignment="Center"
+                               Margin="0,0,12,0"
+                               IsHitTestVisible="False"/>
+                    <StackPanel VerticalAlignment="Center">
+                        <TextBlock Text="{Binding Label}"
+                                   Style="{StaticResource InfoLabelStyle}"
+                                   IsHitTestVisible="False"/>
+                        <TextBlock Text="{Binding Value}"
+                                   Style="{StaticResource InfoValueStyle}"
+                                   IsHitTestVisible="False"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- CAPABILITY CARD -->
+        <DataTemplate x:Key="CapabilityCardTemplate">
+            <Border CornerRadius="14"
+                    Padding="20,20"
+                    Margin="8"
+                    MinWidth="230"
+                    MaxWidth="280"
+                    BorderThickness="1"
+                    Background="{StaticResource CardBgLight}"
+                    BorderBrush="{StaticResource CardBorderMedium}"
+                    SnapsToDevicePixels="True">
+                <StackPanel HorizontalAlignment="Center">
+                    <Border Width="52" Height="52"
+                            CornerRadius="14"
+                            Background="{StaticResource Sky}"
+                            HorizontalAlignment="Center"
+                            SnapsToDevicePixels="True">
+                        <TextBlock Text="{Binding Icon}"
+                                   FontSize="26"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   IsHitTestVisible="False"/>
+                    </Border>
+
+                    <TextBlock Text="{Binding Title}"
+                               FontSize="14"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               Margin="0,12,0,6"
+                               IsHitTestVisible="False"/>
+
+                    <TextBlock Text="{Binding Description}"
+                               FontSize="11"
+                               Foreground="{StaticResource SecondaryTextBrush}"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               IsHitTestVisible="False"/>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
+
+        <!-- WORKFLOW STAGE CARD -->
+        <DataTemplate x:Key="WorkflowCardTemplate">
+            <Border CornerRadius="14"
+                    Padding="20,20"
+                    Margin="8"
+                    MinWidth="200"
+                    MaxWidth="240"
+                    BorderThickness="1"
+                    Background="{StaticResource CardBgLight}"
+                    BorderBrush="{StaticResource CardBorderMedium}"
+                    SnapsToDevicePixels="True">
+                <StackPanel HorizontalAlignment="Center">
+                    <Border Width="48" Height="48"
+                            CornerRadius="12"
+                            Background="{StaticResource Sky}"
+                            HorizontalAlignment="Center"
+                            SnapsToDevicePixels="True">
+                        <TextBlock Text="{Binding Icon}"
+                                   FontSize="24"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   IsHitTestVisible="False"/>
+                    </Border>
+
+                    <TextBlock Text="{Binding Name}"
+                               FontSize="13"
+                               FontWeight="Bold"
+                               Foreground="{StaticResource Navy}"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               Margin="0,10,0,4"
+                               IsHitTestVisible="False"/>
+
+                    <TextBlock Text="{Binding Description}"
+                               FontSize="11"
+                               Foreground="{StaticResource SecondaryTextBrush}"
+                               HorizontalAlignment="Center"
+                               TextAlignment="Center"
+                               TextWrapping="Wrap"
+                               IsHitTestVisible="False"/>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
 
     </UserControl.Resources>
 
-    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+    <!-- ═══════════════════════════════════════════════════════════════
+         ROOT
+    ═══════════════════════════════════════════════════════════════ -->
+    <Grid Background="#F5F9FF"
+          Focusable="False">
+
+        <Canvas Panel.ZIndex="0"
+                IsHitTestVisible="False"
+                CacheMode="BitmapCache">
+            <Rectangle Fill="{StaticResource AmbientBg}"
+                       Width="{Binding ActualWidth,
+                           RelativeSource={RelativeSource
+                               AncestorType=Canvas}}"
+                       Height="{Binding ActualHeight,
+                           RelativeSource={RelativeSource
+                               AncestorType=Canvas}}"/>
+            <Rectangle Fill="{StaticResource Blob1}"
+                       RenderOptions.EdgeMode="Aliased"
+                       Width="{Binding ActualWidth,
+                           RelativeSource={RelativeSource
+                               AncestorType=Canvas}}"
+                       Height="{Binding ActualHeight,
+                           RelativeSource={RelativeSource
+                               AncestorType=Canvas}}"/>
+            <Rectangle Fill="{StaticResource Blob2}"
+                       RenderOptions.EdgeMode="Aliased"
+                       Width="{Binding ActualWidth,
+                           RelativeSource={RelativeSource
+                               AncestorType=Canvas}}"
+                       Height="{Binding ActualHeight,
+                           RelativeSource={RelativeSource
+                               AncestorType=Canvas}}"/>
+        </Canvas>
+
         <ScrollViewer x:Name="RootScrollViewer"
+                      Panel.ZIndex="1"
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled"
                       CanContentScroll="False"
                       IsDeferredScrollingEnabled="False"
-                      PanningMode="None"
-                      Focusable="True"
+                      PanningMode="VerticalOnly"
+                      Focusable="False"
                       FocusVisualStyle="{x:Null}"
+                      Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
             <StackPanel Margin="40,40,40,40">
 
                 <!-- ═══════════════════════════════════════════════════════
-                     HERO HEADER
+                     HERO CARD — v2.9.1 triptych with centered side pillars
                 ═══════════════════════════════════════════════════════ -->
-                <StackPanel HorizontalAlignment="Center" Margin="0,0,0,32">
+                <Border Style="{StaticResource HeroCardStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                    <Border Width="130" Height="130"
-                            CornerRadius="24"
-                            HorizontalAlignment="Center">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#4338CA" Offset="0"/>
-                                <GradientStop Color="#6366F1" Offset="1"/>
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <Border.CacheMode>
-                            <BitmapCache RenderAtScale="1" EnableClearType="False"/>
-                        </Border.CacheMode>
-                        <TextBlock Text="PG"
-                                   Foreground="White"
-                                   FontSize="54"
-                                   FontWeight="Bold"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"/>
-                    </Border>
+                        <!-- LEFT PILLARS COLUMN -->
+                        <ItemsControl Grid.Column="0"
+                                      ItemsSource="{Binding LeftPillars}"
+                                      ItemTemplate="{StaticResource HeroPillarTemplate}"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
 
-                    <TextBlock Text="{Binding AppName}"
-                               FontSize="42"
-                               FontWeight="Bold"
-                               HorizontalAlignment="Center"
-                               Margin="0,24,0,0"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                        <!-- CENTERED HERO CONTENT -->
+                        <StackPanel Grid.Column="1"
+                                    HorizontalAlignment="Center">
 
-                    <TextBlock Text="{Binding AppTagline}"
-                               FontSize="16"
-                               HorizontalAlignment="Center"
-                               Margin="0,8,0,0"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                            <Border Width="130" Height="130"
+                                    CornerRadius="26"
+                                    HorizontalAlignment="Center"
+                                    Background="{StaticResource HeroBrandGradient}"
+                                    CacheMode="{StaticResource SharedBitmapCache}">
+                                <TextBlock Text="PG"
+                                           Foreground="White"
+                                           FontSize="54"
+                                           FontWeight="Bold"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"
+                                           IsHitTestVisible="False"/>
+                            </Border>
 
-                    <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center"
-                                Margin="0,16,0,0">
-                        <Border Background="{DynamicResource AccentBrush}"
-                                CornerRadius="14"
-                                Padding="16,8"
-                                Margin="0,0,8,0">
-                            <TextBlock Text="{Binding Version}"
-                                       FontSize="12"
+                            <TextBlock Text="{Binding AppName}"
+                                       FontSize="38"
                                        FontWeight="Bold"
-                                       Foreground="White"/>
-                        </Border>
-                        <Border Background="#EEF2FF"
-                                BorderBrush="#4338CA"
-                                BorderThickness="1"
-                                CornerRadius="14"
-                                Padding="16,8">
-                            <TextBlock Text="Enterprise Edition"
-                                       FontSize="12"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,24,0,0"
+                                       Foreground="{StaticResource Navy}"
+                                       IsHitTestVisible="False"/>
+
+                            <TextBlock Text="{Binding AppTagline}"
+                                       FontSize="15"
+                                       HorizontalAlignment="Center"
+                                       Margin="0,8,0,0"
+                                       Foreground="{StaticResource SecondaryTextBrush}"
+                                       TextAlignment="Center"
+                                       IsHitTestVisible="False"/>
+
+                            <StackPanel Orientation="Horizontal"
+                                        HorizontalAlignment="Center"
+                                        Margin="0,18,0,0">
+                                <Border CornerRadius="14"
+                                        Padding="16,8"
+                                        Margin="0,0,8,0"
+                                        SnapsToDevicePixels="True"
+                                        Background="{StaticResource Royal}">
+                                    <TextBlock Text="{Binding Version}"
+                                               FontSize="12"
+                                               FontWeight="Bold"
+                                               Foreground="White"
+                                               IsHitTestVisible="False"/>
+                                </Border>
+                                <Border Background="{StaticResource Sky}"
+                                        BorderBrush="{StaticResource Royal}"
+                                        BorderThickness="1"
+                                        CornerRadius="14"
+                                        Padding="16,8"
+                                        SnapsToDevicePixels="True">
+                                    <TextBlock Text="Enterprise Edition"
+                                               FontSize="12"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource Royal}"
+                                               IsHitTestVisible="False"/>
+                                </Border>
+                            </StackPanel>
+
+                            <Border Height="1"
+                                    Width="240"
+                                    Margin="0,28,0,24"
+                                    Background="{StaticResource CardBorderLight}"
+                                    IsHitTestVisible="False"/>
+
+                            <TextBlock Text="DEVELOPED BY"
+                                       FontSize="10"
                                        FontWeight="Bold"
-                                       Foreground="#4338CA"/>
-                        </Border>
-                    </StackPanel>
-                </StackPanel>
+                                       HorizontalAlignment="Center"
+                                       Foreground="{StaticResource MutedTextBrush}"
+                                       IsHitTestVisible="False"/>
+
+                            <StackPanel Orientation="Horizontal"
+                                        HorizontalAlignment="Center"
+                                        Margin="0,12,0,0">
+                                <Border Width="52" Height="52"
+                                        CornerRadius="26"
+                                        VerticalAlignment="Center"
+                                        Background="{StaticResource HeroBrandGradient}"
+                                        CacheMode="{StaticResource SharedBitmapCache}">
+                                    <TextBlock Text="JS"
+                                               Foreground="White"
+                                               FontSize="20"
+                                               FontWeight="Bold"
+                                               HorizontalAlignment="Center"
+                                               VerticalAlignment="Center"
+                                               IsHitTestVisible="False"/>
+                                </Border>
+
+                                <StackPanel VerticalAlignment="Center"
+                                            Margin="14,0,0,0">
+                                    <TextBlock Text="{Binding DeveloperName}"
+                                               FontSize="17"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               IsHitTestVisible="False"/>
+                                    <TextBlock Text="{Binding Country}"
+                                               FontSize="12"
+                                               Foreground="{StaticResource SecondaryTextBrush}"
+                                               Margin="0,2,0,0"
+                                               IsHitTestVisible="False"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <Border CornerRadius="20"
+                                    Padding="18,10"
+                                    Margin="0,16,0,0"
+                                    HorizontalAlignment="Center"
+                                    Cursor="Hand"
+                                    SnapsToDevicePixels="True"
+                                    Background="{StaticResource Sky}"
+                                    BorderBrush="{StaticResource Royal}"
+                                    BorderThickness="1"
+                                    MouseLeftButtonDown="Email_MouseLeftButtonDown">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="✉"
+                                               FontSize="14"
+                                               VerticalAlignment="Center"
+                                               Foreground="{StaticResource Royal}"
+                                               Margin="0,0,8,0"/>
+                                    <TextBlock Text="{Binding Email}"
+                                               FontSize="13"
+                                               FontWeight="Bold"
+                                               Foreground="{StaticResource Royal}"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+
+                        </StackPanel>
+
+                        <!-- RIGHT PILLARS COLUMN -->
+                        <ItemsControl Grid.Column="2"
+                                      ItemsSource="{Binding RightPillars}"
+                                      ItemTemplate="{StaticResource HeroPillarTemplate}"
+                                      HorizontalAlignment="Center"
+                                      VerticalAlignment="Center"/>
+
+                    </Grid>
+                </Border>
 
                 <!-- ═══════════════════════════════════════════════════════
-                     AT-A-GLANCE STATS
+                     v3.0: Stats grid REMOVED (duplicated hero pillar info)
                 ═══════════════════════════════════════════════════════ -->
-                <Grid Margin="0,0,0,20">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Border Grid.Column="0" Style="{StaticResource StatTileStyle}"
-                            Background="#ECFDF5" BorderBrush="#A7F3D0">
-                        <StackPanel>
-                            <TextBlock Text="🧩" FontSize="20"/>
-                            <TextBlock Text="8" FontSize="28" FontWeight="Bold"
-                                       Foreground="#047857" Margin="0,4,0,0"/>
-                            <TextBlock Text="MODULES SHIPPED" FontSize="10"
-                                       FontWeight="Bold" Foreground="#047857"
-                                       Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Grid.Column="1" Style="{StaticResource StatTileStyle}"
-                            Background="#EFF6FF" BorderBrush="#BFDBFE">
-                        <StackPanel>
-                            <TextBlock Text="💾" FontSize="20"/>
-                            <TextBlock Text="5" FontSize="28" FontWeight="Bold"
-                                       Foreground="#1E40AF" Margin="0,4,0,0"/>
-                            <TextBlock Text="ISOLATED DATABASES" FontSize="10"
-                                       FontWeight="Bold" Foreground="#1E40AF"
-                                       Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Grid.Column="2" Style="{StaticResource StatTileStyle}"
-                            Background="#FFFBEB" BorderBrush="#FDE68A">
-                        <StackPanel>
-                            <TextBlock Text="📤" FontSize="20"/>
-                            <TextBlock Text="3" FontSize="28" FontWeight="Bold"
-                                       Foreground="#B45309" Margin="0,4,0,0"/>
-                            <TextBlock Text="EXPORT FORMATS" FontSize="10"
-                                       FontWeight="Bold" Foreground="#B45309"
-                                       Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </Border>
-
-                    <Border Grid.Column="3" Style="{StaticResource StatTileStyle}"
-                            Background="#EEF2FF" BorderBrush="#C7D2FE">
-                        <StackPanel>
-                            <TextBlock Text="🤖" FontSize="20"/>
-                            <TextBlock Text="AI" FontSize="28" FontWeight="Bold"
-                                       Foreground="#4338CA" Margin="0,4,0,0"/>
-                            <TextBlock Text="GEMINI POWERED" FontSize="10"
-                                       FontWeight="Bold" Foreground="#4338CA"
-                                       Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </Border>
-                </Grid>
 
                 <!-- ═══════════════════════════════════════════════════════
-                     ABOUT THE APP
+                     ABOUT — 5 detailed subsections
                 ═══════════════════════════════════════════════════════ -->
-                <Border Style="{StaticResource CardStyle}">
+                <Border Style="{StaticResource CardStyleLight}">
                     <StackPanel>
                         <TextBlock Text="About ProGlass Automation"
                                    Style="{StaticResource SectionTitleStyle}"/>
                         <TextBlock Text="Purpose-built ERP for UAE glass manufacturing"
                                    Style="{StaticResource SectionSubtitleStyle}"/>
 
+                        <TextBlock Text="OVERVIEW"
+                                   Style="{StaticResource SubHeadingStyle}"/>
                         <TextBlock TextWrapping="Wrap"
                                    LineHeight="24"
                                    FontSize="14"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}">
                             <Run Text="ProGlass Automation is a purpose-built Windows desktop application designed specifically for "/>
-                            <Run Text="UAE-based glass manufacturing companies" FontWeight="SemiBold"/>
+                            <Run Text="UAE-based glass manufacturing companies" FontWeight="Bold"/>
                             <Run Text=". It replaces spreadsheet-driven workflows with a fully integrated system covering raw material inventory, quoting, production planning, delivery tracking, and financial reporting — all in one place."/>
+                        </TextBlock>
+
+                        <TextBlock Text="ENGINEERING PRINCIPLES"
+                                   Style="{StaticResource SubHeadingStyle}"/>
+                        <TextBlock TextWrapping="Wrap"
+                                   LineHeight="24"
+                                   FontSize="14"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}">
+                            <Run Text="The system is engineered around three core principles:"/>
                             <LineBreak/><LineBreak/>
-                            <Run Text="The system is engineered around three principles: "/>
-                            <Run Text="deterministic calculations" FontWeight="SemiBold"/>
-                            <Run Text=" (every formula produces the same result every time), "/>
-                            <Run Text="modular isolation" FontWeight="SemiBold"/>
-                            <Run Text=" (each business domain has its own database and cannot corrupt another), and "/>
-                            <Run Text="AI-safe architecture" FontWeight="SemiBold"/>
-                            <Run Text=" (strict conventions ensure the codebase remains extensible for years)."/>
+                            <Run Text="• Deterministic calculations —" FontWeight="Bold"/>
+                            <Run Text=" every formula produces the same result every time, with no hidden state or race conditions. Financial and production totals are always reproducible."/>
                             <LineBreak/><LineBreak/>
-                            <Run Text="All monetary values in AED. UAE 5% VAT built-in with zero-rated export support. Standalone .exe deployment — no cloud dependencies, no subscription fees, no data leaves your machine."/>
+                            <Run Text="• Modular isolation —" FontWeight="Bold"/>
+                            <Run Text=" each business domain (Sheet Store, Proforma Invoice, Job Order, Delivery Note, Tax Invoice) has its own database. A bug in one module cannot corrupt data in another."/>
+                            <LineBreak/><LineBreak/>
+                            <Run Text="• AI-safe architecture —" FontWeight="Bold"/>
+                            <Run Text=" strict MVVM conventions, naming rules, and code organization ensure the codebase remains extensible and maintainable for years — whether extended by a human or an AI assistant."/>
+                        </TextBlock>
+
+                        <TextBlock Text="FINANCIAL &amp; COMPLIANCE"
+                                   Style="{StaticResource SubHeadingStyle}"/>
+                        <TextBlock TextWrapping="Wrap"
+                                   LineHeight="24"
+                                   FontSize="14"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}">
+                            <Run Text="All monetary values are stored and displayed in "/>
+                            <Run Text="AED (UAE Dirham)" FontWeight="Bold"/>
+                            <Run Text=" with full precision. UAE 5% VAT is built in with zero-rated export support and full audit trails on every calculation. Tax invoices comply with FTA (Federal Tax Authority) format requirements including sequential numbering, VAT registration number, and mandatory bilingual field labels."/>
+                        </TextBlock>
+
+                        <TextBlock Text="DATA OWNERSHIP &amp; DEPLOYMENT"
+                                   Style="{StaticResource SubHeadingStyle}"/>
+                        <TextBlock TextWrapping="Wrap"
+                                   LineHeight="24"
+                                   FontSize="14"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}">
+                            <Run Text="Standalone .exe deployment — no cloud dependencies, no subscription fees, no data leaves your machine. All customer records, invoices, delivery photos, and financial data remain on your local Windows PC, backed up automatically on each application exit (last 7 database copies retained). Perfect for offline factory environments and full data-sovereignty requirements."/>
+                        </TextBlock>
+
+                        <TextBlock Text="EXTENSIBILITY &amp; FUTURE"
+                                   Style="{StaticResource SubHeadingStyle}"/>
+                        <TextBlock TextWrapping="Wrap"
+                                   LineHeight="24"
+                                   FontSize="14"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}">
+                            <Run Text="The current release ships with 8 active modules covering the full production lifecycle. Upcoming production-stage modules (Cutting, Holes/Cutouts, Polish, Edge Deletion, Mitring, Tempering, Pairing, Doubling/DGU) will slot into the existing shell without any database migration. Optional AI Assistant (Google Gemini) provides in-app glass-industry expertise and workflow guidance — fully user-controlled, disable-able, and using only user-provided API keys."/>
                         </TextBlock>
                     </StackPanel>
                 </Border>
 
                 <!-- ═══════════════════════════════════════════════════════
-                     WORKFLOW DIAGRAM
+                     END-TO-END PRODUCTION WORKFLOW
                 ═══════════════════════════════════════════════════════ -->
-                <Border Style="{StaticResource CardStyle}">
+                <Border Style="{StaticResource CardStyleMedium}">
                     <StackPanel>
                         <TextBlock Text="End-to-End Production Workflow"
                                    Style="{StaticResource SectionTitleStyle}"/>
@@ -249,570 +745,140 @@
                                    Style="{StaticResource SectionSubtitleStyle}"/>
 
                         <TextBlock Text="SALES CYCLE"
-                                   FontSize="10" FontWeight="Bold"
-                                   Foreground="#4338CA"
-                                   Margin="0,4,0,8"/>
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center"
-                                    Margin="0,0,0,20">
-
-                            <Border Style="{StaticResource WorkflowNodeStyle}"
-                                    Background="#ECFDF5" BorderBrush="#A7F3D0">
-                                <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="📦" FontSize="18"
-                                               HorizontalAlignment="Center"/>
-                                    <TextBlock Text="Sheet Store"
-                                               FontSize="11" FontWeight="Bold"
-                                               Foreground="#047857"
-                                               HorizontalAlignment="Center"
-                                               Margin="0,4,0,0"/>
-                                </StackPanel>
-                            </Border>
-
-                            <TextBlock Text="→" FontSize="20" VerticalAlignment="Center"
-                                       Margin="8,0"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-
-                            <Border Style="{StaticResource WorkflowNodeStyle}"
-                                    Background="#EFF6FF" BorderBrush="#BFDBFE">
-                                <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="📄" FontSize="18"
-                                               HorizontalAlignment="Center"/>
-                                    <TextBlock Text="Proforma Invoice"
-                                               FontSize="11" FontWeight="Bold"
-                                               Foreground="#1E40AF"
-                                               HorizontalAlignment="Center"
-                                               Margin="0,4,0,0"/>
-                                </StackPanel>
-                            </Border>
-
-                            <TextBlock Text="→" FontSize="20" VerticalAlignment="Center"
-                                       Margin="8,0"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-
-                            <Border Style="{StaticResource WorkflowNodeStyle}"
-                                    Background="#FFFBEB" BorderBrush="#FDE68A">
-                                <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="🏭" FontSize="18"
-                                               HorizontalAlignment="Center"/>
-                                    <TextBlock Text="Job Order"
-                                               FontSize="11" FontWeight="Bold"
-                                               Foreground="#B45309"
-                                               HorizontalAlignment="Center"
-                                               Margin="0,4,0,0"/>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
+                                   Style="{StaticResource WorkflowGroupLabelStyle}"/>
+                        <ItemsControl ItemsSource="{Binding SalesCycle}"
+                                      ItemTemplate="{StaticResource WorkflowCardTemplate}"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,0,0,16">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"
+                                                HorizontalAlignment="Center"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
 
                         <TextBlock Text="PRODUCTION STAGES (upcoming)"
-                                   FontSize="10" FontWeight="Bold"
-                                   Foreground="#B45309"
-                                   Margin="0,4,0,8"/>
-                        <WrapPanel HorizontalAlignment="Center"
-                                   Margin="0,0,0,20">
-
-                            <Border Style="{StaticResource WorkflowNodeStyle}"
-                                    Background="{DynamicResource MenuHoverBrush}"
-                                    BorderBrush="{DynamicResource BorderBrush}"
-                                    Margin="4">
-                                <TextBlock Text="Cutting" FontSize="11" FontWeight="SemiBold"
-                                           HorizontalAlignment="Center"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            </Border>
-                            <Border Style="{StaticResource WorkflowNodeStyle}"
-                                    Background="{DynamicResource MenuHoverBrush}"
-                                    BorderBrush="{DynamicResource BorderBrush}"
-                                    Margin="4">
-                                <TextBlock Text="Holes / Cutouts" FontSize="11" FontWeight="SemiBold"
-                                           HorizontalAlignment="Center"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            </Border>
-                            <Border Style="{StaticResource WorkflowNodeStyle}"
-                                    Background="{DynamicResource MenuHoverBrush}"
-                                    BorderBrush="{DynamicResource BorderBrush}"
-                                    Margin="4">
-                                <TextBlock Text="Polish" FontSize="11" FontWeight="SemiBold"
-                                           HorizontalAlignment="Center"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            </Border>
-                            <Border Style="{StaticResource WorkflowNodeStyle}"
-                                    Background="{DynamicResource MenuHoverBrush}"
-                                    BorderBrush="{DynamicResource BorderBrush}"
-                                    Margin="4">
-                                <TextBlock Text="Edge Deletion" FontSize="11" FontWeight="SemiBold"
-                                           HorizontalAlignment="Center"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            </Border>
-                            <Border Style="{StaticResource WorkflowNodeStyle}"
-                                    Background="{DynamicResource MenuHoverBrush}"
-                                    BorderBrush="{DynamicResource BorderBrush}"
-                                    Margin="4">
-                                <TextBlock Text="Mitring" FontSize="11" FontWeight="SemiBold"
-                                           HorizontalAlignment="Center"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            </Border>
-                            <Border Style="{StaticResource WorkflowNodeStyle}"
-                                    Background="{DynamicResource MenuHoverBrush}"
-                                    BorderBrush="{DynamicResource BorderBrush}"
-                                    Margin="4">
-                                <TextBlock Text="Tempering" FontSize="11" FontWeight="SemiBold"
-                                           HorizontalAlignment="Center"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            </Border>
-                            <Border Style="{StaticResource WorkflowNodeStyle}"
-                                    Background="{DynamicResource MenuHoverBrush}"
-                                    BorderBrush="{DynamicResource BorderBrush}"
-                                    Margin="4">
-                                <TextBlock Text="Pairing" FontSize="11" FontWeight="SemiBold"
-                                           HorizontalAlignment="Center"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            </Border>
-                            <Border Style="{StaticResource WorkflowNodeStyle}"
-                                    Background="{DynamicResource MenuHoverBrush}"
-                                    BorderBrush="{DynamicResource BorderBrush}"
-                                    Margin="4">
-                                <TextBlock Text="Doubling / DGU" FontSize="11" FontWeight="SemiBold"
-                                           HorizontalAlignment="Center"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            </Border>
-                        </WrapPanel>
+                                   Style="{StaticResource WorkflowGroupLabelStyle}"/>
+                        <ItemsControl ItemsSource="{Binding ProductionStages}"
+                                      ItemTemplate="{StaticResource WorkflowCardTemplate}"
+                                      Margin="0,0,0,16">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Rows="2" Columns="4"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
 
                         <TextBlock Text="DISPATCH &amp; BILLING"
-                                   FontSize="10" FontWeight="Bold"
-                                   Foreground="#4338CA"
-                                   Margin="0,4,0,8"/>
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center">
-
-                            <Border Style="{StaticResource WorkflowNodeStyle}"
-                                    Background="#FFFBEB" BorderBrush="#FDE68A">
-                                <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="🚚" FontSize="18"
-                                               HorizontalAlignment="Center"/>
-                                    <TextBlock Text="Delivery Note"
-                                               FontSize="11" FontWeight="Bold"
-                                               Foreground="#B45309"
-                                               HorizontalAlignment="Center"
-                                               Margin="0,4,0,0"/>
-                                </StackPanel>
-                            </Border>
-
-                            <TextBlock Text="→" FontSize="20" VerticalAlignment="Center"
-                                       Margin="8,0"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-
-                            <Border Style="{StaticResource WorkflowNodeStyle}"
-                                    Background="#FEF2F2" BorderBrush="#FECACA">
-                                <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="🧾" FontSize="18"
-                                               HorizontalAlignment="Center"/>
-                                    <TextBlock Text="Tax Invoice"
-                                               FontSize="11" FontWeight="Bold"
-                                               Foreground="#B91C1C"
-                                               HorizontalAlignment="Center"
-                                               Margin="0,4,0,0"/>
-                                </StackPanel>
-                            </Border>
-
-                            <TextBlock Text="→" FontSize="20" VerticalAlignment="Center"
-                                       Margin="8,0"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-
-                            <Border Style="{StaticResource WorkflowNodeStyle}"
-                                    Background="#ECFDF5" BorderBrush="#A7F3D0">
-                                <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="📊" FontSize="18"
-                                               HorizontalAlignment="Center"/>
-                                    <TextBlock Text="Sales Report"
-                                               FontSize="11" FontWeight="Bold"
-                                               Foreground="#047857"
-                                               HorizontalAlignment="Center"
-                                               Margin="0,4,0,0"/>
-                                </StackPanel>
-                            </Border>
-                        </StackPanel>
+                                   Style="{StaticResource WorkflowGroupLabelStyle}"/>
+                        <ItemsControl ItemsSource="{Binding DispatchBilling}"
+                                      ItemTemplate="{StaticResource WorkflowCardTemplate}"
+                                      HorizontalAlignment="Center">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"
+                                                HorizontalAlignment="Center"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
                     </StackPanel>
                 </Border>
 
                 <!-- ═══════════════════════════════════════════════════════
                      ACTIVE MODULES
                 ═══════════════════════════════════════════════════════ -->
-                <Border Style="{StaticResource CardStyle}">
+                <Border Style="{StaticResource CardStyleLight}">
                     <StackPanel>
                         <TextBlock Text="Active Modules"
                                    Style="{StaticResource SectionTitleStyle}"/>
                         <TextBlock Text="Fully functional and battle-tested — ready for daily use"
                                    Style="{StaticResource SectionSubtitleStyle}"/>
 
-                        <UniformGrid Rows="4" Columns="2">
-
-                            <Border Style="{StaticResource ModuleChipStyle}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="📦" FontSize="22" VerticalAlignment="Center"/>
-                                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                        <TextBlock Text="Sheet Store"
-                                                   FontSize="14" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                        <TextBlock Text="Raw glass inventory · SQM pricing · Buy/Use tracking"
-                                                   FontSize="11"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </Border>
-
-                            <Border Style="{StaticResource ModuleChipStyle}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="📄" FontSize="22" VerticalAlignment="Center"/>
-                                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                        <TextBlock Text="Proforma Invoice"
-                                                   FontSize="14" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                        <TextBlock Text="7-step wizard · SGU/DGU/LAM · Excel-like paste"
-                                                   FontSize="11"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </Border>
-
-                            <Border Style="{StaticResource ModuleChipStyle}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🏭" FontSize="22" VerticalAlignment="Center"/>
-                                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                        <TextBlock Text="Job Order"
-                                                   FontSize="14" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                        <TextBlock Text="Convert PI · Priority · Status tracking · Factory sheet"
-                                                   FontSize="11"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </Border>
-
-                            <Border Style="{StaticResource ModuleChipStyle}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🚚" FontSize="22" VerticalAlignment="Center"/>
-                                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                        <TextBlock Text="Delivery Note"
-                                                   FontSize="14" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                        <TextBlock Text="Partial deliveries · Sibling chain · Photo proof"
-                                                   FontSize="11"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </Border>
-
-                            <Border Style="{StaticResource ModuleChipStyle}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="📊" FontSize="22" VerticalAlignment="Center"/>
-                                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                        <TextBlock Text="Multi-page Dashboard"
-                                                   FontSize="14" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                        <TextBlock Text="Real-time KPIs · Activity feed · Cross-module stats"
-                                                   FontSize="11"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </Border>
-
-                            <Border Style="{StaticResource ModuleChipStyle}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="📤" FontSize="22" VerticalAlignment="Center"/>
-                                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                        <TextBlock Text="Shared Export Engine"
-                                                   FontSize="14" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                        <TextBlock Text="PDF (QuestPDF) · Excel (ClosedXML) · CSV · Print"
-                                                   FontSize="11"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </Border>
-
-                            <Border Style="{StaticResource ModuleChipStyle}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🤖" FontSize="22" VerticalAlignment="Center"/>
-                                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                        <TextBlock Text="AI Assistant"
-                                                   FontSize="14" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                        <TextBlock Text="Gemini-powered · Glass industry expertise · Chat"
-                                                   FontSize="11"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </Border>
-
-                            <Border Style="{StaticResource ModuleChipStyle}">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="🎨" FontSize="22" VerticalAlignment="Center"/>
-                                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
-                                        <TextBlock Text="Light + Dark Themes"
-                                                   FontSize="14" FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                        <TextBlock Text="Instant swap · 25 brushes · Design system foundation"
-                                                   FontSize="11"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </Border>
-                        </UniformGrid>
+                        <ItemsControl ItemsSource="{Binding Modules}"
+                                      ItemTemplate="{StaticResource ModuleChipTemplate}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Rows="4" Columns="2"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
                     </StackPanel>
                 </Border>
 
                 <!-- ═══════════════════════════════════════════════════════
                      TECHNOLOGY STACK
                 ═══════════════════════════════════════════════════════ -->
-                <Border Style="{StaticResource CardStyle}">
+                <Border Style="{StaticResource CardStyleMedium}">
                     <StackPanel>
                         <TextBlock Text="Technology Stack"
                                    Style="{StaticResource SectionTitleStyle}"/>
                         <TextBlock Text="Built on battle-tested Microsoft + open-source technology"
                                    Style="{StaticResource SectionSubtitleStyle}"/>
 
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-                            <Grid.RowDefinitions>
-                                <RowDefinition Height="Auto"/>
-                                <RowDefinition Height="Auto"/>
-                            </Grid.RowDefinitions>
-
-                            <StackPanel Grid.Column="0" Grid.Row="0" Margin="0,0,20,20">
-                                <TextBlock Text="PLATFORM" Style="{StaticResource InfoLabelStyle}"/>
-                                <TextBlock Text=".NET 8 · WPF" Style="{StaticResource InfoValueStyle}"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Column="1" Grid.Row="0" Margin="0,0,20,20">
-                                <TextBlock Text="DATABASE" Style="{StaticResource InfoLabelStyle}"/>
-                                <TextBlock Text="SQLite · EF Core 8" Style="{StaticResource InfoValueStyle}"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Column="2" Grid.Row="0" Margin="0,0,20,20">
-                                <TextBlock Text="PATTERN" Style="{StaticResource InfoLabelStyle}"/>
-                                <TextBlock Text="MVVM Strict" Style="{StaticResource InfoValueStyle}"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Column="3" Grid.Row="0" Margin="0,0,0,20">
-                                <TextBlock Text="LANGUAGE" Style="{StaticResource InfoLabelStyle}"/>
-                                <TextBlock Text="C# 9+" Style="{StaticResource InfoValueStyle}"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Column="0" Grid.Row="1" Margin="0,0,20,0">
-                                <TextBlock Text="PDF ENGINE" Style="{StaticResource InfoLabelStyle}"/>
-                                <TextBlock Text="QuestPDF 2024.12" Style="{StaticResource InfoValueStyle}"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Column="1" Grid.Row="1" Margin="0,0,20,0">
-                                <TextBlock Text="EXCEL ENGINE" Style="{StaticResource InfoLabelStyle}"/>
-                                <TextBlock Text="ClosedXML 0.105" Style="{StaticResource InfoValueStyle}"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Column="2" Grid.Row="1" Margin="0,0,20,0">
-                                <TextBlock Text="CSV ENGINE" Style="{StaticResource InfoLabelStyle}"/>
-                                <TextBlock Text="CsvHelper 33.1" Style="{StaticResource InfoValueStyle}"/>
-                            </StackPanel>
-
-                            <StackPanel Grid.Column="3" Grid.Row="1">
-                                <TextBlock Text="AI PROVIDER" Style="{StaticResource InfoLabelStyle}"/>
-                                <TextBlock Text="Google Gemini" Style="{StaticResource InfoValueStyle}"/>
-                            </StackPanel>
-                        </Grid>
+                        <ItemsControl ItemsSource="{Binding TechStack}"
+                                      ItemTemplate="{StaticResource TechItemTemplate}">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <UniformGrid Rows="2" Columns="4"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
                     </StackPanel>
                 </Border>
 
                 <!-- ═══════════════════════════════════════════════════════
                      KEY CAPABILITIES
                 ═══════════════════════════════════════════════════════ -->
-                <Border Style="{StaticResource CardStyle}">
+                <Border Style="{StaticResource CardStyleAccent}">
                     <StackPanel>
                         <TextBlock Text="Key Capabilities"
                                    Style="{StaticResource SectionTitleStyle}"/>
                         <TextBlock Text="What sets ProGlass Automation apart"
                                    Style="{StaticResource SectionSubtitleStyle}"/>
 
-                        <UniformGrid Rows="3" Columns="2">
-                            <StackPanel Orientation="Horizontal" Margin="0,8,20,12">
-                                <TextBlock Text="✅" FontSize="18" VerticalAlignment="Top"/>
-                                <StackPanel Margin="10,0,0,0">
-                                    <TextBlock Text="Deterministic Calculations"
-                                               FontSize="13" FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text="Every formula produces the same result every time. No hidden state."
-                                               FontSize="11"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               TextWrapping="Wrap"/>
-                                </StackPanel>
-                            </StackPanel>
+                        <ItemsControl ItemsSource="{Binding CapabilitiesTop}"
+                                      ItemTemplate="{StaticResource CapabilityCardTemplate}"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,4,0,4">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"
+                                                HorizontalAlignment="Center"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
 
-                            <StackPanel Orientation="Horizontal" Margin="0,8,20,12">
-                                <TextBlock Text="✅" FontSize="18" VerticalAlignment="Top"/>
-                                <StackPanel Margin="10,0,0,0">
-                                    <TextBlock Text="Excel-Like Data Entry"
-                                               FontSize="13" FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text="Paste 150+ rows from Excel · Tab/Enter navigation · Auto-numbering"
-                                               FontSize="11"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               TextWrapping="Wrap"/>
-                                </StackPanel>
-                            </StackPanel>
-
-                            <StackPanel Orientation="Horizontal" Margin="0,8,20,12">
-                                <TextBlock Text="✅" FontSize="18" VerticalAlignment="Top"/>
-                                <StackPanel Margin="10,0,0,0">
-                                    <TextBlock Text="Sibling Delivery Chain"
-                                               FontSize="13" FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text="Track partial deliveries · Auto-create Dummy DNs for balance qty"
-                                               FontSize="11"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               TextWrapping="Wrap"/>
-                                </StackPanel>
-                            </StackPanel>
-
-                            <StackPanel Orientation="Horizontal" Margin="0,8,20,12">
-                                <TextBlock Text="✅" FontSize="18" VerticalAlignment="Top"/>
-                                <StackPanel Margin="10,0,0,0">
-                                    <TextBlock Text="Photo Proof of Delivery"
-                                               FontSize="13" FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text="Attach signed copies + site photos to every delivery note"
-                                               FontSize="11"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               TextWrapping="Wrap"/>
-                                </StackPanel>
-                            </StackPanel>
-
-                            <StackPanel Orientation="Horizontal" Margin="0,8,20,12">
-                                <TextBlock Text="✅" FontSize="18" VerticalAlignment="Top"/>
-                                <StackPanel Margin="10,0,0,0">
-                                    <TextBlock Text="Instant Theme Swap"
-                                               FontSize="13" FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text="Light + Dark modes with 25-brush palette — swap without reload"
-                                               FontSize="11"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               TextWrapping="Wrap"/>
-                                </StackPanel>
-                            </StackPanel>
-
-                            <StackPanel Orientation="Horizontal" Margin="0,8,20,12">
-                                <TextBlock Text="✅" FontSize="18" VerticalAlignment="Top"/>
-                                <StackPanel Margin="10,0,0,0">
-                                    <TextBlock Text="Auto Backup on Exit"
-                                               FontSize="13" FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <TextBlock Text="Keeps last 7 database copies · Never lose a day of work"
-                                               FontSize="11"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               TextWrapping="Wrap"/>
-                                </StackPanel>
-                            </StackPanel>
-                        </UniformGrid>
+                        <ItemsControl ItemsSource="{Binding CapabilitiesBottom}"
+                                      ItemTemplate="{StaticResource CapabilityCardTemplate}"
+                                      HorizontalAlignment="Center"
+                                      Margin="0,12,0,4">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <StackPanel Orientation="Horizontal"
+                                                HorizontalAlignment="Center"/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
+                        </ItemsControl>
                     </StackPanel>
                 </Border>
 
                 <!-- ═══════════════════════════════════════════════════════
-                     DEVELOPER INFO
-                ═══════════════════════════════════════════════════════ -->
-                <Border Style="{StaticResource CardStyle}">
-                    <StackPanel>
-                        <TextBlock Text="Developer Information"
-                                   Style="{StaticResource SectionTitleStyle}"/>
-                        <TextBlock Text="Built and maintained by a single dedicated engineer"
-                                   Style="{StaticResource SectionSubtitleStyle}"/>
-
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="Auto"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <Border Grid.Column="0"
-                                    Width="72" Height="72"
-                                    CornerRadius="36"
-                                    Margin="0,0,20,0">
-                                <Border.Background>
-                                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                        <GradientStop Color="#4338CA" Offset="0"/>
-                                        <GradientStop Color="#6366F1" Offset="1"/>
-                                    </LinearGradientBrush>
-                                </Border.Background>
-                                <Border.CacheMode>
-                                    <BitmapCache RenderAtScale="1" EnableClearType="False"/>
-                                </Border.CacheMode>
-                                <TextBlock Text="JS"
-                                           Foreground="White"
-                                           FontSize="28"
-                                           FontWeight="Bold"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"/>
-                            </Border>
-
-                            <Grid Grid.Column="1">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-
-                                <StackPanel Grid.Column="0" Margin="0,0,20,0">
-                                    <TextBlock Text="DEVELOPER"
-                                               Style="{StaticResource InfoLabelStyle}"/>
-                                    <TextBlock Text="{Binding DeveloperName}"
-                                               Style="{StaticResource InfoValueStyle}"/>
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="1" Margin="0,0,20,0">
-                                    <TextBlock Text="COUNTRY"
-                                               Style="{StaticResource InfoLabelStyle}"/>
-                                    <TextBlock Text="{Binding Country}"
-                                               Style="{StaticResource InfoValueStyle}"/>
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="EMAIL"
-                                               Style="{StaticResource InfoLabelStyle}"/>
-                                    <TextBlock Style="{StaticResource InfoValueStyle}"
-                                               Foreground="{DynamicResource AccentBrush}"
-                                               Cursor="Hand"
-                                               TextDecorations="Underline"
-                                               MouseLeftButtonDown="Email_MouseLeftButtonDown"
-                                               Text="{Binding Email}"/>
-                                </StackPanel>
-                            </Grid>
-                        </Grid>
-                    </StackPanel>
-                </Border>
-
-                <!-- ═══════════════════════════════════════════════════════
-                     FOOTER
+                     PROFESSIONAL FOOTER
                 ═══════════════════════════════════════════════════════ -->
                 <StackPanel HorizontalAlignment="Center" Margin="0,10,0,20">
-                    <TextBlock Text="Made with ❤ in India · For UAE glass manufacturers"
+                    <TextBlock Text="ProGlass Automation — Enterprise ERP for UAE glass manufacturing"
                                FontSize="12"
-                               FontWeight="SemiBold"
+                               FontWeight="Bold"
                                HorizontalAlignment="Center"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                               Foreground="{StaticResource Navy}"
+                               IsHitTestVisible="False"/>
                     <TextBlock Text="{Binding Copyright}"
                                FontSize="11"
                                HorizontalAlignment="Center"
                                Margin="0,6,0,0"
-                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                               Foreground="{StaticResource MutedTextBrush}"
+                               IsHitTestVisible="False"/>
                 </StackPanel>
 
             </StackPanel>

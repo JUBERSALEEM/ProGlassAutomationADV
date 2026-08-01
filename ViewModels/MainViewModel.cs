@@ -1,6 +1,45 @@
-﻿using ProGlassAutomation.Commands;
-using ProGlassAutomation.Services;
-using ProGlassAutomation.Services.AI.AIConfig;
+﻿// ═══════════════════════════════════════════════════════════════════════
+// FILE: ViewModels/MainViewModel.cs
+// PROJECT: ProGlassAutomation
+// MODULE: Main Shell (Chat 23 v3.1)
+// VERSION: Chat 23 v3.1 — Extracted settings into SettingsViewModel
+//
+// CHANGES vs v3.0:
+//   ✓ ADDED SettingsVM (new SettingsViewModel instance)
+//   ✓ ADDED ShowSettingsCommand — navigates to Settings module
+//     (matches ShowAboutCommand pattern)
+//   ✓ ADDED "Settings" case in Navigate() switch
+//   ✓ REMOVED IsSettingsOpen property (no longer a drawer)
+//   ✓ REMOVED ToggleSettingsCommand (replaced by ShowSettingsCommand)
+//   ✓ REMOVED IsDarkTheme property (moved to SettingsViewModel)
+//   ✓ REMOVED IsAiEnabled property (moved to SettingsViewModel)
+//   ✓ REMOVED AiApiKey property (moved to SettingsViewModel)
+//   ✓ REMOVED AiTestStatus property (moved to SettingsViewModel)
+//   ✓ REMOVED TestAiConnectionCommand (moved to SettingsViewModel)
+//   ✓ REMOVED ToggleThemeCommand (was unused; theme toggled via
+//     SettingsViewModel.IsDarkTheme setter directly)
+//
+// PRESERVED (zero regression):
+//   • All 17 module VM properties
+//   • CurrentViewModel property
+//   • IsMenuOpen property
+//   • ToggleMenuCommand
+//   • NavigateCommand
+//   • ShowAboutCommand
+//   • Dashboard callbacks (NavigateTo, TriggerNewInvoice)
+//   • Phase 10.5 JO→DN navigation
+//   • Chat 14 dual-path DN→TaxInvoice navigation
+//   • AboutVM instance
+//   • AiChatVM instance
+//   • Default landing on DashboardVM
+//
+// REGRESSION RISK: LOW
+//   Settings extraction is clean — nothing outside MainViewModel
+//   referenced the removed properties (only the right drawer XAML,
+//   which is also removed in this delivery).
+// ═══════════════════════════════════════════════════════════════════════
+
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.ViewModels.About;
 using ProGlassAutomation.ViewModels.AI;
 using ProGlassAutomation.ViewModels.Dashboard;
@@ -10,23 +49,34 @@ using ProGlassAutomation.ViewModels.Optimization;
 using ProGlassAutomation.ViewModels.ProformaInvoice;
 using ProGlassAutomation.ViewModels.Production;
 using ProGlassAutomation.ViewModels.Reports;
+using ProGlassAutomation.ViewModels.Settings;
 using ProGlassAutomation.ViewModels.SheetStore;
 using ProGlassAutomation.ViewModels.TaxInvoice;
 using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels
 {
+    /// <summary>
+    /// Root view-model for the main shell window.
+    /// Owns every module VM, manages the left-drawer menu state,
+    /// and coordinates cross-module navigation callbacks.
+    ///
+    /// v3.1: Theme + AI settings extracted into <see cref="SettingsViewModel"/>.
+    /// This VM no longer owns any settings state — it just navigates to
+    /// the Settings module when the gear button is clicked.
+    /// </summary>
     public class MainViewModel : ViewModelBase
     {
         private ViewModelBase _currentViewModel;
         private bool _isMenuOpen;
-        private bool _isSettingsOpen;
-        private string _aiTestStatus;
 
         // ── modules ───────────────────────────────────────────────────────
         public DashboardViewModel DashboardVM { get; }
         public ProformaInvoiceViewModel ProformaInvoiceVM { get; }
         public AboutViewModel AboutVM { get; } = new AboutViewModel();
+
+        // v3.1: NEW Settings module
+        public SettingsViewModel SettingsVM { get; } = new SettingsViewModel();
 
         // ── AI chat ───────────────────────────────────────────────────────
         public AiChatViewModel AiChatVM { get; }
@@ -54,70 +104,29 @@ namespace ProGlassAutomation.ViewModels
             set { if (_currentViewModel == value) return; _currentViewModel = value; OnPropertyChanged(); }
         }
 
+        /// <summary>
+        /// True while the left navigation drawer is visible.
+        /// The dim overlay behind the drawer is bound to this property.
+        /// </summary>
         public bool IsMenuOpen
         {
             get => _isMenuOpen;
             set { if (_isMenuOpen == value) return; _isMenuOpen = value; OnPropertyChanged(); }
         }
 
-        public bool IsSettingsOpen
-        {
-            get => _isSettingsOpen;
-            set { if (_isSettingsOpen == value) return; _isSettingsOpen = value; OnPropertyChanged(); }
-        }
-
-        public bool IsDarkTheme
-        {
-            get => ThemeManager.CurrentTheme == AppTheme.Dark;
-            set
-            {
-                ThemeManager.ApplyTheme(value ? AppTheme.Dark : AppTheme.Light);
-                OnPropertyChanged();
-            }
-        }
-
-        // ── AI settings ───────────────────────────────────────────────────
-        public bool IsAiEnabled
-        {
-            get => App.Config?.Ai?.Enabled ?? false;
-            set
-            {
-                if (App.Config?.Ai != null)
-                {
-                    App.Config.Ai.Enabled = value;
-                    ConfigService.Save(App.Config);
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public string AiApiKey
-        {
-            get => App.Config?.Ai?.ApiKey ?? string.Empty;
-            set
-            {
-                if (App.Config?.Ai != null)
-                {
-                    App.Config.Ai.ApiKey = value;
-                    ConfigService.Save(App.Config);
-                    OnPropertyChanged();
-                }
-            }
-        }
-
-        public string AiTestStatus
-        {
-            get => _aiTestStatus;
-            set { if (_aiTestStatus == value) return; _aiTestStatus = value; OnPropertyChanged(); }
-        }
-
         // ── commands ──────────────────────────────────────────────────────
+
+        /// <summary>Toggles the left navigation drawer.</summary>
         public ICommand ToggleMenuCommand { get; }
-        public ICommand ToggleSettingsCommand { get; }
+
+        /// <summary>Navigates to a module by string key.</summary>
         public ICommand NavigateCommand { get; }
-        public ICommand ToggleThemeCommand { get; }
+
+        /// <summary>Navigates to the About page.</summary>
         public ICommand ShowAboutCommand { get; }
-        public ICommand TestAiConnectionCommand { get; }
+
+        /// <summary>v3.1: Navigates to the Settings page (was toggle drawer).</summary>
+        public ICommand ShowSettingsCommand { get; }
 
         // ═════════════════════════════════════════════════════════════════
         public MainViewModel()
@@ -150,8 +159,6 @@ namespace ProGlassAutomation.ViewModels
             // ══════════════════════════════════════════════════════════════
 
             // Path 1: DN List "Master Invoice" on JO group row
-            //   → aggregates delivered qty across ALL sibling DNs
-            //   → creates Master Invoice covering all delivered pieces
             DeliveryNoteVM.OnRequestOpenTaxInvoiceForMasterFromProforma =
                 async proformaId =>
                 {
@@ -160,8 +167,6 @@ namespace ProGlassAutomation.ViewModels
                 };
 
             // Path 2: DN Detail "Convert to Tax Invoice" on history entry
-            //   → uses ONLY that specific DN's delivered qty
-            //   → creates Partial Invoice with just that DN's rows
             DeliveryNoteVM.OnRequestOpenTaxInvoiceForDeliveryNote =
                 async deliveryNoteId =>
                 {
@@ -173,37 +178,21 @@ namespace ProGlassAutomation.ViewModels
             ToggleMenuCommand = new RelayCommand(_ =>
             {
                 IsMenuOpen = !IsMenuOpen;
-                if (IsMenuOpen) IsSettingsOpen = false;
-            });
-
-            ToggleSettingsCommand = new RelayCommand(_ =>
-            {
-                IsSettingsOpen = !IsSettingsOpen;
-                if (IsSettingsOpen) IsMenuOpen = false;
             });
 
             NavigateCommand = new RelayCommand(Navigate);
-            ToggleThemeCommand = new RelayCommand(_ => { IsDarkTheme = !IsDarkTheme; });
 
             ShowAboutCommand = new RelayCommand(_ =>
             {
                 CurrentViewModel = AboutVM;
                 IsMenuOpen = false;
-                IsSettingsOpen = false;
             });
 
-            TestAiConnectionCommand = new RelayCommand(async _ =>
+            // v3.1: Settings now navigates like About (was drawer toggle)
+            ShowSettingsCommand = new RelayCommand(_ =>
             {
-                if (App.Ai == null)
-                {
-                    AiTestStatus = "✗ AI service not initialized.";
-                    return;
-                }
-                AiTestStatus = "Testing...";
-                var result = await App.Ai.TestConnectionAsync();
-                AiTestStatus = result.Success
-                    ? "✓ " + result.Message
-                    : "✗ " + result.Message;
+                CurrentViewModel = SettingsVM;
+                IsMenuOpen = false;
             });
 
             // default landing page
@@ -232,6 +221,9 @@ namespace ProGlassAutomation.ViewModels
                 case "TaxInvoice": CurrentViewModel = TaxInvoiceVM; break;
                 case "SalesReport": CurrentViewModel = SalesReportVM; break;
                 case "About": CurrentViewModel = AboutVM; break;
+
+                // v3.1: NEW Settings navigation
+                case "Settings": CurrentViewModel = SettingsVM; break;
             }
             IsMenuOpen = false;
         }

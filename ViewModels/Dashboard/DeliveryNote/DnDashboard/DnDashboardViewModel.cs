@@ -1,4 +1,29 @@
-﻿using ProGlassAutomation.Models.Dashboard;
+﻿// ═══════════════════════════════════════════════════════════════════════
+// FILE: ViewModels/Dashboard/DeliveryNote/DnDashboard/DnDashboardViewModel.cs
+// PROJECT: ProGlassAutomation
+// MODULE: Delivery Note Dashboard (Chat 23 v2.5)
+//
+// BUG FIX vs PREVIOUS VERSION:
+//   Previous VM emitted brush KEYS that DO NOT EXIST in LightTheme /
+//   DarkTheme (v1.6), causing BrushKeyConverter to return null →
+//   badges and status pills rendered TRANSPARENT.
+//
+//   Corrections:
+//     • "AmberBrush"   → "WarningBrush"   (theme has WarningBrush)
+//     • "GreenBrush"   → "SuccessBrush"   (theme has SuccessBrush)
+//     • "RedBrush"     → "DangerBrush"    (theme has DangerBrush)
+//     • "PurpleBrush"  → "InfoBrush"      (no PurpleBrush in theme;
+//                                          InfoBrush blue = "received"
+//                                          semantic — matches JoDashboard
+//                                          v2.5 mapping for Delivered)
+//
+// PRESERVED (zero regression):
+//   • ALL logic, GOTCHA #40 fix, business rules
+//   • ALL bar chart hex colors (semantic — status/type distribution)
+//   • ALL structure and comments
+// ═══════════════════════════════════════════════════════════════════════
+
+using ProGlassAutomation.Models.Dashboard;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using System;
 using System.Collections.Generic;
@@ -22,6 +47,9 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
     /// GOTCHA #40 (CRITICAL): Never sum TotalBalanceQty across DNs!
     /// Each DN stores a point-in-time snapshot — summing double-counts.
     /// Use GetPendingQtyJobsAsync() which correctly computes per-JO balance.
+    ///
+    /// Chat 23 v2.5: theme brush keys corrected (AmberBrush→WarningBrush,
+    /// GreenBrush→SuccessBrush, RedBrush→DangerBrush, PurpleBrush→InfoBrush).
     /// </summary>
     public class DnDashboardViewModel : DashboardPageBase
     {
@@ -189,6 +217,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
                 d.DeliveryType == TypeReturn);
 
             // ── KPI cards ────────────────────────────────────────────
+            //   v2.5 BUG FIX: theme-correct brush keys
             _kpiCards = new List<KpiCardModel>
             {
                 new KpiCardModel
@@ -204,7 +233,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
                     Icon         = "✅",
                     Title        = "Delivered Today",
                     DisplayValue = deliveredToday.ToString("N0"),
-                    BadgeColor   = "GreenBrush",
+                    BadgeColor   = "SuccessBrush",     // v2.5: was "GreenBrush" (missing key)
                     TintColor    = "TintGreenBrush"
                 },
                 new KpiCardModel
@@ -212,7 +241,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
                     Icon         = "⏳",
                     Title        = "Pending Balance (pcs)",
                     DisplayValue = pendingBalance.ToString("N0"),
-                    BadgeColor   = "AmberBrush",
+                    BadgeColor   = "WarningBrush",     // v2.5: was "AmberBrush" (missing key)
                     TintColor    = "TintAmberBrush"
                 },
                 new KpiCardModel
@@ -220,12 +249,13 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
                     Icon         = "🔧",
                     Title        = "Rework + Returned",
                     DisplayValue = reworkReturned.ToString("N0"),
-                    BadgeColor   = "RedBrush",
+                    BadgeColor   = "DangerBrush",      // v2.5: was "RedBrush" (missing key)
                     TintColor    = "TintRedBrush"
                 }
             };
 
             // ── Status distribution ──────────────────────────────────
+            // SEMANTIC bar chart hex colors — universal DN status.
             var statusDefs = new[]
             {
                 (Label: "Draft",      Key: StatusDraft,      BarColor: "#6B7280"),
@@ -252,6 +282,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
             }).ToList();
 
             // ── Type distribution ────────────────────────────────────
+            // SEMANTIC bar chart hex colors — universal type semantic.
             var typeDefs = new[]
             {
                 (Label: "Original", Key: TypeOriginal, BarColor: "#4338CA"),
@@ -304,6 +335,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
         }
 
         // ── Feed item builder ─────────────────────────────────────────
+        //   v2.5 BUG FIX: theme-correct brush keys for status pills.
         private static ActivityFeedItem BuildFeedItem(DeliveryNoteListItem dn)
         {
             string statusLabel = dn.Status switch
@@ -316,13 +348,16 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
                 _ => dn.Status.ToUpperInvariant()
             };
 
+            // v2.5: theme brush keys corrected
+            //   was "AmberBrush" / "GreenBrush" / "PurpleBrush" — all MISSING
+            //   now "WarningBrush" / "SuccessBrush" / "InfoBrush"
             string statusColor = dn.Status switch
             {
                 StatusDraft => "MutedForegroundBrush",
-                StatusDispatched => "AmberBrush",
-                StatusDelivered => "GreenBrush",
+                StatusDispatched => "WarningBrush",
+                StatusDelivered => "SuccessBrush",
                 StatusSigned => "AccentBrush",
-                StatusReceived => "PurpleBrush",
+                StatusReceived => "InfoBrush",
                 _ => "MutedForegroundBrush"
             };
 

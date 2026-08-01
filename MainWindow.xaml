@@ -1,10 +1,53 @@
-﻿<Window x:Class="ProGlassAutomation.MainWindow"
+﻿<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: MainWindow.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Main Shell (Chat 23 v3.1)
+     VERSION: Chat 23 v3.1 — Settings extracted + sidebar pill hover
+
+     CHANGES vs v3.0:
+       ✓ REMOVED right settings drawer entirely (~200 lines of XAML)
+       ✓ REMOVED settings-related styles that were only used in the
+         drawer (ModernToggleSwitch, SettingsSectionHeaderStyle,
+         SettingsSecondaryButtonStyle, SettingsPrimaryButtonStyle)
+         — now live inside SettingsView.xaml as local resources
+       ✓ Settings gear button on top bar now navigates to Settings
+         MODULE (like About) instead of toggling a drawer
+       ✓ Added DataTemplate mapping SettingsViewModel → SettingsView
+       ✓ Sidebar items redesigned with PILL hover (per user request):
+           • 4px left accent bar appears on hover
+           • Background switches to tinted blue
+           • CornerRadius 8 → 12 for softer pill feel
+       ✓ Dim overlay still triggers on IsMenuOpen (settings no longer
+         uses drawer, so IsSettingsOpen data trigger removed from overlay)
+
+     PRESERVED (zero regression):
+       • All 17 DataTemplate module mappings (+ new SettingsView)
+       • Top bar layout (hamburger + logo + MODULE badge + settings/about icons)
+       • Left drawer navigation menu (all 17 sidebar items)
+       • Menu scroll ↔ slider sync (MenuScrollViewer + ScrollSlider names)
+       • Glassy slider + thumb styles
+       • Module frame border (from v3.0)
+       • Ambient blue palette + frozen shadows/gradients
+       • AI chat view floats above everything (Panel.ZIndex=200)
+       • All code-behind handler names + signatures (except ApiKey handler
+         which moves to SettingsView with same name)
+
+     REGRESSION RISK: LOW
+       Right drawer removal is clean — nothing else referenced it.
+       Settings gear button re-wired to NavigateCommand("Settings").
+       ApiKeyBox moved to SettingsView with its own handler.
+═══════════════════════════════════════════════════════════════════════ -->
+
+<Window x:Class="ProGlassAutomation.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
+        xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
         xmlns:vm="clr-namespace:ProGlassAutomation.ViewModels"
         xmlns:vmDashboard="clr-namespace:ProGlassAutomation.ViewModels.Dashboard"
         xmlns:vmProforma="clr-namespace:ProGlassAutomation.ViewModels.ProformaInvoice"
         xmlns:vmAbout="clr-namespace:ProGlassAutomation.ViewModels.About"
+        xmlns:vmSettings="clr-namespace:ProGlassAutomation.ViewModels.Settings"
         xmlns:vmSheetStore="clr-namespace:ProGlassAutomation.ViewModels.SheetStore"
         xmlns:vmJobOrder="clr-namespace:ProGlassAutomation.ViewModels.JobOrder"
         xmlns:vmOptimization="clr-namespace:ProGlassAutomation.ViewModels.Optimization"
@@ -15,6 +58,7 @@
         xmlns:viewsDashboard="clr-namespace:ProGlassAutomation.Views.Dashboard"
         xmlns:viewsProforma="clr-namespace:ProGlassAutomation.Views.ProformaInvoice"
         xmlns:viewsAbout="clr-namespace:ProGlassAutomation.Views.About"
+        xmlns:viewsSettings="clr-namespace:ProGlassAutomation.Views.Settings"
         xmlns:viewsSheetStore="clr-namespace:ProGlassAutomation.Views.SheetStore"
         xmlns:viewsJobOrder="clr-namespace:ProGlassAutomation.Views.JobOrder"
         xmlns:viewsOptimization="clr-namespace:ProGlassAutomation.Views.Optimization"
@@ -34,6 +78,7 @@
         TextOptions.TextFormattingMode="Display"
         TextOptions.TextRenderingMode="ClearType"
         TextOptions.TextHintingMode="Fixed"
+        RenderOptions.BitmapScalingMode="HighQuality"
         UseLayoutRounding="True"
         SnapsToDevicePixels="True">
 
@@ -42,7 +87,68 @@
     </Window.DataContext>
 
     <Window.Resources>
-        <!-- ============ ViewModel -> View mappings ============ -->
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             INDUSTRIAL BLUE PALETTE (frozen once)
+        ═══════════════════════════════════════════════════════════════ -->
+
+        <SolidColorBrush x:Key="Navy"     Color="#1E3A8A" po:Freeze="True"/>
+        <SolidColorBrush x:Key="Royal"    Color="#1D4ED8" po:Freeze="True"/>
+        <SolidColorBrush x:Key="Sapphire" Color="#3B82F6" po:Freeze="True"/>
+        <SolidColorBrush x:Key="Ice"      Color="#DBEAFE" po:Freeze="True"/>
+        <SolidColorBrush x:Key="Frost"    Color="#BFDBFE" po:Freeze="True"/>
+        <SolidColorBrush x:Key="ModuleFrameBorder"
+                         Color="#C4D6ED" po:Freeze="True"/>
+
+        <LinearGradientBrush x:Key="LogoBrandGradient"
+                             StartPoint="0,0" EndPoint="1,1"
+                             po:Freeze="True">
+            <GradientStop Color="#1E3A8A" Offset="0"/>
+            <GradientStop Color="#1D4ED8" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="SliderTrackFillGradient"
+                             StartPoint="0,0" EndPoint="0,1"
+                             po:Freeze="True">
+            <GradientStop Color="#1D4ED8" Offset="0"/>
+            <GradientStop Color="#3B82F6" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="SliderThumbInnerGradient"
+                             StartPoint="0,0" EndPoint="1,1"
+                             po:Freeze="True">
+            <GradientStop Color="#1D4ED8" Offset="0"/>
+            <GradientStop Color="#3B82F6" Offset="1"/>
+        </LinearGradientBrush>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             SHARED FROZEN SHADOWS
+        ═══════════════════════════════════════════════════════════════ -->
+
+        <DropShadowEffect x:Key="TopBarShadow"
+                          BlurRadius="8" ShadowDepth="2"
+                          Opacity="0.15" Color="Black" Direction="270"
+                          po:Freeze="True"/>
+
+        <DropShadowEffect x:Key="LogoGlow"
+                          BlurRadius="8" ShadowDepth="0"
+                          Opacity="0.35" Color="#1D4ED8"
+                          po:Freeze="True"/>
+
+        <DropShadowEffect x:Key="StatusDotGlow"
+                          BlurRadius="4" ShadowDepth="0"
+                          Opacity="0.9" Color="#3B82F6"
+                          po:Freeze="True"/>
+
+        <DropShadowEffect x:Key="DrawerLeftShadow"
+                          BlurRadius="24" ShadowDepth="4"
+                          Opacity="0.2" Color="Black" Direction="0"
+                          po:Freeze="True"/>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             ViewModel → View mappings (17 modules + About + Settings)
+        ═══════════════════════════════════════════════════════════════ -->
+
         <DataTemplate DataType="{x:Type vmDashboard:DashboardViewModel}">
             <viewsDashboard:DashboardView/>
         </DataTemplate>
@@ -52,6 +158,12 @@
         <DataTemplate DataType="{x:Type vmAbout:AboutViewModel}">
             <viewsAbout:AboutView/>
         </DataTemplate>
+
+        <!-- NEW v3.1: Settings module mapping -->
+        <DataTemplate DataType="{x:Type vmSettings:SettingsViewModel}">
+            <viewsSettings:SettingsView/>
+        </DataTemplate>
+
         <DataTemplate DataType="{x:Type vmSheetStore:SheetStoreViewModel}">
             <viewsSheetStore:SheetStoreView/>
         </DataTemplate>
@@ -95,7 +207,10 @@
             <viewsReports:SalesReportView/>
         </DataTemplate>
 
-        <!-- ============ TOP BAR ICON BUTTON ============ -->
+        <!-- ═══════════════════════════════════════════════════════════════
+             TOP BAR ICON BUTTON
+        ═══════════════════════════════════════════════════════════════ -->
+
         <Style x:Key="TopBarIconButtonStyle" TargetType="Button">
             <Setter Property="Width" Value="40"/>
             <Setter Property="Height" Value="40"/>
@@ -106,12 +221,14 @@
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="border"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="8">
+                                CornerRadius="8"
+                                SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
                         </Border>
@@ -130,36 +247,61 @@
             </Setter>
         </Style>
 
-        <!-- ============ SIDEBAR ITEM STYLES ============ -->
+        <!-- ═══════════════════════════════════════════════════════════════
+             SIDEBAR ITEM — v3.1 PILL HOVER (per user request)
+             Left accent bar (4px) appears on hover + tinted bg + rounded 12
+        ═══════════════════════════════════════════════════════════════ -->
+
         <Style x:Key="SidebarGroupHeaderStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="10"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground"
                     Value="{DynamicResource MutedForegroundBrush}"/>
             <Setter Property="Margin" Value="22,20,0,8"/>
+            <Setter Property="IsHitTestVisible" Value="False"/>
         </Style>
 
         <ControlTemplate x:Key="SidebarItemTemplate" TargetType="Button">
-            <Border x:Name="border"
-                    Background="{TemplateBinding Background}"
-                    CornerRadius="8"
-                    Padding="16,0">
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                    <TextBlock Text="{TemplateBinding Tag}"
-                               FontSize="15"
-                               VerticalAlignment="Center"
-                               Foreground="{DynamicResource AccentBrush}"/>
-                    <TextBlock Text="{TemplateBinding Content}"
-                               Margin="14,0,0,0"
-                               FontSize="13" FontWeight="SemiBold"
-                               VerticalAlignment="Center"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                </StackPanel>
-            </Border>
+            <Grid>
+                <!-- v3.1: pill container -->
+                <Border x:Name="border"
+                        Background="{TemplateBinding Background}"
+                        CornerRadius="12"
+                        Padding="16,0"
+                        SnapsToDevicePixels="True">
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="{TemplateBinding Tag}"
+                                   FontSize="15"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource AccentBrush}"/>
+                        <TextBlock Text="{TemplateBinding Content}"
+                                   Margin="14,0,0,0"
+                                   FontSize="13" FontWeight="SemiBold"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- v3.1: 4px left accent bar (visible on hover only) -->
+                <Border x:Name="accentBar"
+                        Width="4"
+                        HorizontalAlignment="Left"
+                        VerticalAlignment="Stretch"
+                        Margin="0,8,0,8"
+                        CornerRadius="2"
+                        Background="{DynamicResource AccentBrush}"
+                        Opacity="0"
+                        IsHitTestVisible="False"
+                        SnapsToDevicePixels="True"/>
+            </Grid>
             <ControlTemplate.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter TargetName="border" Property="Background"
                             Value="{DynamicResource MenuHoverBrush}"/>
+                    <Setter TargetName="accentBar" Property="Opacity" Value="1"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter TargetName="border" Property="Opacity" Value="0.8"/>
                 </Trigger>
             </ControlTemplate.Triggers>
         </ControlTemplate>
@@ -167,7 +309,7 @@
         <Style x:Key="SidebarItemStyle" TargetType="Button">
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Margin" Value="10,3,10,3"/>
-            <Setter Property="Height" Value="40"/>
+            <Setter Property="Height" Value="42"/>
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
@@ -175,9 +317,10 @@
                     Value="{StaticResource SidebarItemTemplate}"/>
         </Style>
 
-        <!-- =========================================================== -->
-        <!-- GLASSY VERTICAL SLIDER                                        -->
-        <!-- =========================================================== -->
+        <!-- ═══════════════════════════════════════════════════════════════
+             GLASSY VERTICAL SLIDER
+        ═══════════════════════════════════════════════════════════════ -->
+
         <Style x:Key="GlassySliderThumbStyle" TargetType="Thumb">
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Template">
@@ -185,15 +328,8 @@
                     <ControlTemplate TargetType="Thumb">
                         <Grid>
                             <Ellipse Width="22" Height="22" Fill="White"/>
-                            <Ellipse Width="8" Height="8">
-                                <Ellipse.Fill>
-                                    <LinearGradientBrush StartPoint="0,0"
-                                                         EndPoint="1,1">
-                                        <GradientStop Color="#8B5CF6" Offset="0"/>
-                                        <GradientStop Color="#EC4899" Offset="1"/>
-                                    </LinearGradientBrush>
-                                </Ellipse.Fill>
-                            </Ellipse>
+                            <Ellipse Width="8" Height="8"
+                                     Fill="{StaticResource SliderThumbInnerGradient}"/>
                         </Grid>
                     </ControlTemplate>
                 </Setter.Value>
@@ -231,17 +367,10 @@
                                 </Grid.RowDefinitions>
                                 <Border Grid.Row="0" Width="14"
                                         CornerRadius="7,7,0,0"
+                                        Background="{StaticResource SliderTrackFillGradient}"
                                         Height="{Binding ElementName=PART_Track,
                                             Path=Thumb.ActualHeight,
-                                            FallbackValue=22}">
-                                    <Border.Background>
-                                        <LinearGradientBrush StartPoint="0,0"
-                                                             EndPoint="0,1">
-                                            <GradientStop Color="#8B5CF6" Offset="0"/>
-                                            <GradientStop Color="#EC4899" Offset="1"/>
-                                        </LinearGradientBrush>
-                                    </Border.Background>
-                                </Border>
+                                            FallbackValue=22}"/>
                             </Grid>
                             <Track x:Name="PART_Track" IsDirectionReversed="True">
                                 <Track.DecreaseRepeatButton>
@@ -264,203 +393,6 @@
             </Setter>
         </Style>
 
-        <!-- =========================================================== -->
-        <!-- MODERN iOS-STYLE TOGGLE SWITCH                               -->
-        <!-- =========================================================== -->
-        <Style x:Key="ModernToggleSwitch" TargetType="ToggleButton">
-            <Setter Property="Width" Value="56"/>
-            <Setter Property="Height" Value="28"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Background" Value="#CBD5E1"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ToggleButton">
-                        <Grid>
-                            <Border x:Name="Track"
-                                    CornerRadius="14"
-                                    Background="{TemplateBinding Background}">
-                                <Border.Effect>
-                                    <DropShadowEffect BlurRadius="3" ShadowDepth="0"
-                                                      Opacity="0.15" Color="Black"/>
-                                </Border.Effect>
-                            </Border>
-                            <TextBlock x:Name="OffLabel" Text="OFF"
-                                       FontSize="9" FontWeight="Bold"
-                                       Foreground="White"
-                                       HorizontalAlignment="Right"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,9,0"/>
-                            <TextBlock x:Name="OnLabel" Text="ON"
-                                       FontSize="9" FontWeight="Bold"
-                                       Foreground="White"
-                                       HorizontalAlignment="Left"
-                                       VerticalAlignment="Center"
-                                       Margin="9,0,0,0"
-                                       Opacity="0"/>
-                            <Ellipse x:Name="Thumb"
-                                     Width="22" Height="22" Fill="White"
-                                     HorizontalAlignment="Left"
-                                     Margin="3,0,0,0">
-                                <Ellipse.Effect>
-                                    <DropShadowEffect BlurRadius="4" ShadowDepth="1"
-                                                      Opacity="0.3" Color="Black"/>
-                                </Ellipse.Effect>
-                                <Ellipse.RenderTransform>
-                                    <TranslateTransform x:Name="ThumbTransform" X="0"/>
-                                </Ellipse.RenderTransform>
-                            </Ellipse>
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Trigger.EnterActions>
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation
-                                                Storyboard.TargetName="ThumbTransform"
-                                                Storyboard.TargetProperty="X"
-                                                To="28" Duration="0:0:0.2">
-                                                <DoubleAnimation.EasingFunction>
-                                                    <CubicEase EasingMode="EaseOut"/>
-                                                </DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
-                                            <DoubleAnimation
-                                                Storyboard.TargetName="OffLabel"
-                                                Storyboard.TargetProperty="Opacity"
-                                                To="0" Duration="0:0:0.15"/>
-                                            <DoubleAnimation
-                                                Storyboard.TargetName="OnLabel"
-                                                Storyboard.TargetProperty="Opacity"
-                                                To="1" Duration="0:0:0.15"/>
-                                            <ColorAnimation
-                                                Storyboard.TargetName="Track"
-                                                Storyboard.TargetProperty=
-                                                    "(Border.Background).(SolidColorBrush.Color)"
-                                                To="#10B981" Duration="0:0:0.2"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </Trigger.EnterActions>
-                                <Trigger.ExitActions>
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation
-                                                Storyboard.TargetName="ThumbTransform"
-                                                Storyboard.TargetProperty="X"
-                                                To="0" Duration="0:0:0.2">
-                                                <DoubleAnimation.EasingFunction>
-                                                    <CubicEase EasingMode="EaseOut"/>
-                                                </DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
-                                            <DoubleAnimation
-                                                Storyboard.TargetName="OffLabel"
-                                                Storyboard.TargetProperty="Opacity"
-                                                To="1" Duration="0:0:0.15"/>
-                                            <DoubleAnimation
-                                                Storyboard.TargetName="OnLabel"
-                                                Storyboard.TargetProperty="Opacity"
-                                                To="0" Duration="0:0:0.15"/>
-                                            <ColorAnimation
-                                                Storyboard.TargetName="Track"
-                                                Storyboard.TargetProperty=
-                                                    "(Border.Background).(SolidColorBrush.Color)"
-                                                To="#CBD5E1" Duration="0:0:0.2"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </Trigger.ExitActions>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Track" Property="Opacity" Value="0.9"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- ============ SETTINGS SECTION HEADER ============ -->
-        <Style x:Key="SettingsSectionHeaderStyle" TargetType="TextBlock">
-            <Setter Property="FontSize" Value="10"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground"
-                    Value="{DynamicResource MutedForegroundBrush}"/>
-            <Setter Property="Margin" Value="0,0,0,10"/>
-        </Style>
-
-        <!-- ============ SETTINGS SECONDARY BUTTON ============ -->
-        <Style x:Key="SettingsSecondaryButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="38"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Background"
-                    Value="{DynamicResource MenuHoverBrush}"/>
-            <Setter Property="Foreground"
-                    Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="BorderBrush"
-                    Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border"
-                                Background="{TemplateBinding Background}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                CornerRadius="8"
-                                Padding="16,0">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="BorderBrush"
-                                        Value="{DynamicResource AccentBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Opacity"
-                                        Value="0.85"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- ============ SETTINGS PRIMARY BUTTON ============ -->
-        <Style x:Key="SettingsPrimaryButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Background"
-                    Value="{DynamicResource AccentBrush}"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="border"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="8"
-                                Padding="16,0">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Opacity"
-                                        Value="0.9"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Opacity"
-                                        Value="0.8"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
     </Window.Resources>
 
     <Grid>
@@ -476,11 +408,9 @@
                 Background="{DynamicResource SideMenuBackgroundBrush}"
                 BorderThickness="0,0,0,1"
                 BorderBrush="{DynamicResource BorderBrush}"
-                Panel.ZIndex="50">
-            <Border.Effect>
-                <DropShadowEffect BlurRadius="8" ShadowDepth="2"
-                                  Opacity="0.15" Color="Black" Direction="270"/>
-            </Border.Effect>
+                Panel.ZIndex="50"
+                Effect="{StaticResource TopBarShadow}"
+                SnapsToDevicePixels="True">
 
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -504,67 +434,66 @@
                             Orientation="Horizontal"
                             VerticalAlignment="Center"
                             Margin="8,0,0,0">
-                    <Grid Width="36" Height="36" VerticalAlignment="Center">
-                        <Grid.Effect>
-                            <DropShadowEffect BlurRadius="8" ShadowDepth="0"
-                                              Opacity="0.35" Color="#4338CA"/>
-                        </Grid.Effect>
-                        <Border CornerRadius="8">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#4338CA" Offset="0"/>
-                                    <GradientStop Color="#6366F1" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                        </Border>
+                    <Grid Width="36" Height="36"
+                          VerticalAlignment="Center"
+                          Effect="{StaticResource LogoGlow}">
+                        <Border CornerRadius="8"
+                                Background="{StaticResource LogoBrandGradient}"
+                                SnapsToDevicePixels="True"/>
                         <Path Stroke="White" StrokeThickness="1.8"
                               Fill="#33FFFFFF"
                               Data="M 18,7 L 27,18 L 18,29 L 9,18 Z"
-                              StrokeLineJoin="Round"/>
+                              StrokeLineJoin="Round"
+                              IsHitTestVisible="False"/>
                         <Path Stroke="White" StrokeThickness="1" Opacity="0.8"
                               Data="M 18,7 L 18,29 M 9,18 L 27,18"
-                              StrokeLineJoin="Round"/>
-                        <Ellipse Width="5" Height="5" Fill="#10B981"
+                              StrokeLineJoin="Round"
+                              IsHitTestVisible="False"/>
+                        <Ellipse Width="5" Height="5"
+                                 Fill="{StaticResource Sapphire}"
                                  HorizontalAlignment="Right"
                                  VerticalAlignment="Top"
-                                 Margin="0,3,3,0">
-                            <Ellipse.Effect>
-                                <DropShadowEffect BlurRadius="4" ShadowDepth="0"
-                                                  Opacity="0.9" Color="#10B981"/>
-                            </Ellipse.Effect>
-                        </Ellipse>
+                                 Margin="0,3,3,0"
+                                 Effect="{StaticResource StatusDotGlow}"
+                                 IsHitTestVisible="False"/>
                     </Grid>
                     <StackPanel VerticalAlignment="Center" Margin="10,0,0,0">
                         <TextBlock Text="PROGLASS"
                                    FontSize="15" FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   IsHitTestVisible="False"/>
                         <TextBlock Text="AUTOMATION"
                                    FontSize="9" FontWeight="SemiBold"
                                    Foreground="{DynamicResource AccentBrush}"
-                                   Margin="0,-2,0,0"/>
+                                   Margin="0,-2,0,0"
+                                   IsHitTestVisible="False"/>
                     </StackPanel>
                 </StackPanel>
 
-                <!-- Module Badge -->
+                <!-- MODULE badge -->
                 <Border Grid.Column="2"
-                        Background="#047857"
+                        Background="{StaticResource Royal}"
                         CornerRadius="12"
                         Padding="12,4"
                         VerticalAlignment="Center"
-                        Margin="20,0,0,0">
+                        Margin="20,0,0,0"
+                        SnapsToDevicePixels="True">
                     <TextBlock Text="MODULE"
                                FontSize="11" FontWeight="Bold"
-                               Foreground="White"/>
+                               Foreground="White"
+                               IsHitTestVisible="False"/>
                 </Border>
 
-                <!-- Right: Settings + About -->
+                <!-- Right: Settings + About
+                     v3.1: Settings button now navigates to Settings module
+                     via ShowSettingsCommand (like ShowAboutCommand) -->
                 <StackPanel Grid.Column="4"
                             Orientation="Horizontal"
                             VerticalAlignment="Center"
                             Margin="0,0,8,0">
                     <Button Style="{StaticResource TopBarIconButtonStyle}"
                             Content="&#9881;" FontSize="20"
-                            Command="{Binding ToggleSettingsCommand}"
+                            Command="{Binding ShowSettingsCommand}"
                             ToolTip="Settings"
                             Margin="0,0,4,0"/>
                     <Button Style="{StaticResource TopBarIconButtonStyle}"
@@ -581,12 +510,19 @@
         ══════════════════════════════════════════════════════ -->
         <Grid Grid.Row="1">
 
-            <!-- Current module -->
-            <Border Background="{DynamicResource ModuleBackgroundBrush}">
+            <!-- Framed module container (v3.0 preserved) -->
+            <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                    BorderBrush="{StaticResource ModuleFrameBorder}"
+                    BorderThickness="1"
+                    CornerRadius="12"
+                    Margin="12,12,12,12"
+                    ClipToBounds="True"
+                    SnapsToDevicePixels="True">
                 <ContentControl Content="{Binding CurrentViewModel}"/>
             </Border>
 
-            <!-- Dim overlay -->
+            <!-- Dim overlay — only triggers on IsMenuOpen now
+                 (settings is a module, not a drawer, so no IsSettingsOpen trigger) -->
             <Rectangle Fill="Black" Opacity="0.45"
                        MouseLeftButtonDown="DimOverlay_MouseLeftButtonDown">
                 <Rectangle.Style>
@@ -597,44 +533,19 @@
                                          Value="True">
                                 <Setter Property="Visibility" Value="Visible"/>
                             </DataTrigger>
-                            <DataTrigger Binding="{Binding IsSettingsOpen}"
-                                         Value="True">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Rectangle.Style>
             </Rectangle>
 
-            <!-- ════════════════════════════════════════════════
-                 LEFT DRAWER — NAVIGATION MENU
-                 NEW ORDER:
-                   MAIN        → Dashboard
-                   INVENTORY   → Sheet Store
-                   SALES       → Proforma Invoice
-                                 Job Order
-                   PRODUCTION  → Optimization
-                                 Cutting
-                                 Holes & Cutouts
-                                 Polish
-                                 Edge Deletion
-                                 Mitring
-                                 Tempering
-                                 Pairing
-                                 Doubling / Lamination
-                   DISPATCH    → Delivery Note
-                                 Tax Invoice
-                   REPORTS     → Sales Report
-            ════════════════════════════════════════════════ -->
+            <!-- LEFT DRAWER — NAVIGATION MENU -->
             <Border Width="290"
                     HorizontalAlignment="Left"
                     Background="{DynamicResource SideMenuBackgroundBrush}"
                     CornerRadius="0,16,16,0"
-                    Panel.ZIndex="10">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="24" ShadowDepth="4"
-                                      Opacity="0.2" Color="Black" Direction="0"/>
-                </Border.Effect>
+                    Panel.ZIndex="10"
+                    Effect="{StaticResource DrawerLeftShadow}"
+                    SnapsToDevicePixels="True">
                 <Border.Style>
                     <Style TargetType="Border">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -658,10 +569,14 @@
                                   VerticalScrollBarVisibility="Hidden"
                                   HorizontalScrollBarVisibility="Disabled"
                                   CanContentScroll="False"
+                                  IsDeferredScrollingEnabled="False"
+                                  PanningMode="VerticalOnly"
+                                  Focusable="False"
+                                  FocusVisualStyle="{x:Null}"
+                                  behaviors:SmoothScrollBehavior.IsEnabled="True"
                                   ScrollChanged="MenuScrollViewer_ScrollChanged">
                         <StackPanel Margin="0,20,0,20">
 
-                            <!-- ─── MAIN ─── -->
                             <TextBlock Text="MAIN"
                                        Style="{StaticResource SidebarGroupHeaderStyle}"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
@@ -669,7 +584,6 @@
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="Dashboard"/>
 
-                            <!-- ─── INVENTORY ─── -->
                             <TextBlock Text="INVENTORY"
                                        Style="{StaticResource SidebarGroupHeaderStyle}"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
@@ -677,7 +591,6 @@
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="SheetStore"/>
 
-                            <!-- ─── SALES ─── -->
                             <TextBlock Text="SALES"
                                        Style="{StaticResource SidebarGroupHeaderStyle}"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
@@ -689,7 +602,6 @@
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="JobOrder"/>
 
-                            <!-- ─── PRODUCTION ─── -->
                             <TextBlock Text="PRODUCTION"
                                        Style="{StaticResource SidebarGroupHeaderStyle}"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
@@ -729,7 +641,6 @@
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="DoublingLamination"/>
 
-                            <!-- ─── DISPATCH ─── -->
                             <TextBlock Text="DISPATCH"
                                        Style="{StaticResource SidebarGroupHeaderStyle}"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
@@ -741,7 +652,6 @@
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="TaxInvoice"/>
 
-                            <!-- ─── REPORTS ─── -->
                             <TextBlock Text="REPORTS"
                                        Style="{StaticResource SidebarGroupHeaderStyle}"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
@@ -762,125 +672,9 @@
                 </Grid>
             </Border>
 
-            <!-- ============ RIGHT DRAWER (SETTINGS) ============ -->
-            <Border Width="320"
-                    HorizontalAlignment="Right"
-                    Background="{DynamicResource SideMenuBackgroundBrush}"
-                    CornerRadius="16,0,0,16"
-                    Panel.ZIndex="10">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="24" ShadowDepth="4"
-                                      Opacity="0.2" Color="Black" Direction="180"/>
-                </Border.Effect>
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsSettingsOpen}"
-                                         Value="True">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-
-                <ScrollViewer VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Disabled">
-                    <StackPanel Margin="24,24,24,24">
-
-                        <TextBlock Text="SETTINGS"
-                                   FontSize="14" FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   Margin="0,0,0,24"/>
-
-                        <!-- APPEARANCE -->
-                        <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                                CornerRadius="12" Padding="16" Margin="0,0,0,16">
-                            <StackPanel>
-                                <TextBlock Text="APPEARANCE"
-                                           Style="{StaticResource SettingsSectionHeaderStyle}"/>
-                                <DockPanel>
-                                    <StackPanel Orientation="Horizontal"
-                                                VerticalAlignment="Center">
-                                        <TextBlock Text="☀" FontSize="16"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   VerticalAlignment="Center"
-                                                   Margin="0,0,8,0"/>
-                                        <TextBlock Text="Dark Mode"
-                                                   FontSize="14" FontWeight="SemiBold"
-                                                   VerticalAlignment="Center"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    </StackPanel>
-                                    <ToggleButton HorizontalAlignment="Right"
-                                                  IsChecked="{Binding IsDarkTheme,
-                                                      Mode=TwoWay}"
-                                                  Style="{StaticResource ModernToggleSwitch}"/>
-                                </DockPanel>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- AI ASSISTANT -->
-                        <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                                CornerRadius="12" Padding="16" Margin="0,0,0,16">
-                            <StackPanel>
-                                <TextBlock Text="AI ASSISTANT"
-                                           Style="{StaticResource SettingsSectionHeaderStyle}"/>
-
-                                <DockPanel Margin="0,0,0,16">
-                                    <StackPanel Orientation="Horizontal"
-                                                VerticalAlignment="Center">
-                                        <TextBlock Text="🤖" FontSize="16"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   VerticalAlignment="Center"
-                                                   Margin="0,0,8,0"/>
-                                        <TextBlock Text="Enable AI"
-                                                   FontSize="14" FontWeight="SemiBold"
-                                                   VerticalAlignment="Center"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    </StackPanel>
-                                    <ToggleButton HorizontalAlignment="Right"
-                                                  IsChecked="{Binding IsAiEnabled,
-                                                      Mode=TwoWay}"
-                                                  Style="{StaticResource ModernToggleSwitch}"/>
-                                </DockPanel>
-
-                                <TextBlock Text="GEMINI API KEY"
-                                           FontSize="11" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource MutedForegroundBrush}"
-                                           Margin="0,0,0,6"/>
-                                <PasswordBox x:Name="ApiKeyBox"
-                                             Height="38" FontSize="12"
-                                             Padding="10,8"
-                                             PasswordChanged="ApiKeyBox_PasswordChanged"
-                                             Background="{DynamicResource MenuHoverBrush}"
-                                             Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                             BorderThickness="1"
-                                             BorderBrush="{DynamicResource BorderBrush}"/>
-                                <TextBlock Text="Get free key at aistudio.google.com"
-                                           FontSize="10" FontStyle="Italic"
-                                           Foreground="{DynamicResource MutedForegroundBrush}"
-                                           Margin="0,6,0,12"/>
-
-                                <Button Content="TEST CONNECTION"
-                                        Style="{StaticResource SettingsSecondaryButtonStyle}"
-                                        Command="{Binding TestAiConnectionCommand}"
-                                        Margin="0,0,0,8"/>
-                                <TextBlock Text="{Binding AiTestStatus}"
-                                           FontSize="11" FontWeight="SemiBold"
-                                           TextWrapping="Wrap"
-                                           Foreground="{DynamicResource AccentBrush}"
-                                           Margin="0,4,0,0"/>
-                            </StackPanel>
-                        </Border>
-
-                        <Button Content="CLOSE SETTINGS"
-                                Style="{StaticResource SettingsPrimaryButtonStyle}"
-                                Command="{Binding ToggleSettingsCommand}"
-                                Margin="0,8,0,0"/>
-
-                    </StackPanel>
-                </ScrollViewer>
-            </Border>
+            <!-- v3.1: RIGHT DRAWER (SETTINGS) REMOVED
+                 Settings is now a full-screen module. Gear button in top bar
+                 navigates to it via ShowSettingsCommand. -->
 
             <!-- AI CHAT -->
             <viewsAi:AiChatView DataContext="{Binding AiChatVM}"

@@ -1,4 +1,28 @@
-﻿using ProGlassAutomation.Models.Dashboard;
+﻿// ═══════════════════════════════════════════════════════════════════════
+// FILE: ViewModels/Dashboard/SheetStoreDashboardViewModel.cs
+// PROJECT: ProGlassAutomation
+// MODULE: Sheet Store Dashboard (Chat 23 v2.1)
+//
+// CHANGES vs PREVIOUS VERSION:
+//   Color palette aligned with industrial blue theme:
+//     • CategoryColors: "#10B981" (green) → "#0369A1" (teal-blue)
+//     • Inventory Value card: SuccessBrush/TintGreenBrush → AccentBrush/TintIndigoBrush
+//       (financial informational metric → blue-family, not green)
+//   Low/Out-of-Stock card KEEPS semantic Success/Danger (health status).
+//
+// PRESERVED (zero regression):
+//   • All KpiCardModel emissions (Icon/Title/DisplayValue/BadgeColor/
+//     TintColor/SubLabel/IsAlert)
+//   • All ChartBarModel emissions
+//   • All LoadCoreAsync logic
+//   • OnThemeChanged override
+//   • All phase comments (8.2a, 8.2e, 8.2f)
+//
+// REGRESSION RISK: LOW
+//   Only color hex/brush-key values changed. Zero logic touched.
+// ═══════════════════════════════════════════════════════════════════════
+
+using ProGlassAutomation.Models.Dashboard;
 using ProGlassAutomation.Services.SheetStore;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -14,6 +38,10 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     /// Phase 8.2e: BadgeColor and TintColor use theme brush KEY names.
     /// Phase 8.2f: Overrides OnThemeChanged() to force re-notify KpiCards
     ///             so WPF rebuilds card templates instantly on theme swap.
+    /// Chat 23 v2.1: Industrial blue palette alignment.
+    ///     • CategoryColors green slot → teal-blue.
+    ///     • Inventory Value card colors green → blue (financial info metric).
+    ///     • Low/Out-of-Stock KEEPS semantic green/red (health status).
     /// </summary>
     public class SheetStoreDashboardViewModel : DashboardPageBase
     {
@@ -50,9 +78,14 @@ namespace ProGlassAutomation.ViewModels.Dashboard
 
         private readonly ISheetStoreRepository _sheetRepo = new SheetStoreRepository();
 
+        // Chat 23 v2.1: green slot replaced with teal-blue for industrial palette.
+        //   Old: "#6366F1", "#10B981" (green), "#F59E0B", "#3B82F6", "#EC4899", "#8B5CF6"
+        //   New: "#1D4ED8", "#0369A1" (teal-blue), "#F59E0B", "#3B82F6", "#EC4899", "#8B5CF6"
+        // Amber kept (physical volume semantic). Pink + Violet kept (visual
+        // distinctness across 6+ categories).
         private static readonly string[] CategoryColors =
         {
-            "#6366F1", "#10B981", "#F59E0B",
+            "#1D4ED8", "#0369A1", "#F59E0B",
             "#3B82F6", "#EC4899", "#8B5CF6"
         };
 
@@ -82,15 +115,20 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 },
                 new KpiCardModel
                 {
+                    // Chat 23 v2.1: Inventory Value = financial informational metric.
+                    // Was SuccessBrush/TintGreenBrush (green). Now AccentBrush/
+                    // TintIndigoBrush (industrial blue). Green reserved for
+                    // health/success semantic states (see Low/Out card below).
                     Icon         = "💎",
                     Title        = "Inventory Value",
                     DisplayValue = $"AED {totalValue:N0}",
-                    BadgeColor   = "SuccessBrush",
-                    TintColor    = "TintGreenBrush",
+                    BadgeColor   = "AccentBrush",
+                    TintColor    = "TintIndigoBrush",
                     SubLabel     = "Balance sheets at sell price"
                 },
                 new KpiCardModel
                 {
+                    // Amber preserved — physical volume metric, warehouse semantic.
                     Icon         = "📐",
                     Title        = "Available SQM",
                     DisplayValue = $"{totalSqm:N1} m²",
@@ -100,6 +138,8 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 },
                 new KpiCardModel
                 {
+                    // Low/Out KEEPS semantic green (healthy) / red (alert).
+                    // This is a health-status metric, not a brand-color slot.
                     Icon         = lowStockCount > 0 ? "⚠️" : "✅",
                     Title        = "Low / Out of Stock",
                     DisplayValue = $"{lowStockCount} / {outOfStock}",

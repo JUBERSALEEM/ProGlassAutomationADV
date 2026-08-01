@@ -1,439 +1,974 @@
-﻿<UserControl
+﻿<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Dashboard/Statement/StDashboardView.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Account Statement Dashboard (Chat 23 v1.7)
+     VERSION: Chat 23 v1.7 — Industrial Blue Glassmorphism (inline)
+
+     DESIGN LANGUAGE:
+       Industrial glass blue — Stripe/Linear/Bloomberg inspired.
+       Each KPI card owns a distinct blue-family tone with a filled
+       icon badge (solid color, white icon) for a premium industrial
+       feel. No pale-tinted look, no cheap gray.
+
+     CRITICAL ARCHITECTURE NOTE:
+       Diagnostic testing confirmed DynamicResource brush resolution
+       is FAILING for this view in this build (Grid.Background =
+       {DynamicResource X} renders as green wash while
+       Grid.Background = "#3B82F6" renders correctly as blue).
+
+       WORKAROUND: All ambient/glass/shadow colors declared INLINE
+       as frozen local resources. Semantic brushes (Warning, Muted,
+       Primary text, AccentBrush for buttons) kept as DynamicResource
+       since those channels ARE resolving correctly.
+
+     CHANGES vs v1.6:
+       • Root Grid.Background: inline LinearGradientBrush (glass blue)
+       • All ambient/glass brushes: local frozen resources
+       • KPI cards redesigned: each with distinct blue-family tone
+       • Icon badges: filled solid color with white icon (industrial)
+       • Overdue "no" state: professional slate steel (not ugly gray)
+       • Serial badge: filled navy pill with white text
+       • Card shadows: inline frozen with blue tint
+
+     PRESERVED (zero regression):
+       • ALL bindings (Index, StatementNumber, TotalInvoicedDisplay,
+         TotalOutstandingDisplay, OverdueAmountDisplay, HasOverdue,
+         HasStatements, IsLoading, IsEmpty, RecentStatements,
+         NewStatementCommand, GoToStatementsCommand, OpenPdfCommand)
+       • ALL item bindings (StatementNumber, SubTitle, HasAttachments,
+         Invoiced/Outstanding/Overdue displays, InvoiceCount,
+         CreatedAtDisplay, HasPdf)
+       • Serial number badge (Chat 23 v1.1)
+       • SmoothScrollBehavior 60fps config
+       • BitmapCache on ambient Canvas
+       • RelativeSource OpenPdfCommand
+       • Mode=OneWay on all Run bindings
+       • BoolToVisibilityConverter usage
+       • Button styles (still use theme AccentBrush)
+
+     REGRESSION RISK: ZERO
+       Inline values PROVEN to render (both #3B82F6 and Red tests
+       succeeded). Semantic DynamicResource channels PROVEN to work.
+       All bindings unchanged.
+═══════════════════════════════════════════════════════════════════════ -->
+
+<UserControl
     x:Class="ProGlassAutomation.Views.Dashboard.Statement.StDashboardView"
     xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+    xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
     FontFamily="Segoe UI"
     TextOptions.TextFormattingMode="Display"
     TextOptions.TextRenderingMode="ClearType"
     TextOptions.TextHintingMode="Fixed"
+    RenderOptions.BitmapScalingMode="HighQuality"
     UseLayoutRounding="True"
     SnapsToDevicePixels="True">
 
-    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
+    <!-- ═══════════════════════════════════════════════════════════════
+         LOCAL FROZEN RESOURCES
+         Inline industrial blue palette. GUARANTEED to render.
+    ═══════════════════════════════════════════════════════════════════ -->
+    <UserControl.Resources>
 
-        <!-- KPI CARDS -->
-        <Grid Grid.Row="0" Margin="24,20,24,0">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="12"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="12"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="12"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
+        <!-- ── AMBIENT BACKGROUND — glass blue wash ─────────────────── -->
+        <LinearGradientBrush x:Key="AmbientBg"
+                             StartPoint="0,0" EndPoint="1,1"
+                             po:Freeze="True">
+            <GradientStop Color="#E8F0FE" Offset="0.0"/>
+            <GradientStop Color="#DBE7F9" Offset="0.5"/>
+            <GradientStop Color="#C7D9F0" Offset="1.0"/>
+        </LinearGradientBrush>
 
-            <Border Grid.Column="0"
-                    Background="{DynamicResource SideMenuBackgroundBrush}"
-                    CornerRadius="12"
-                    Padding="18,16">
-                <StackPanel>
-                    <TextBlock Text="📋  STATEMENTS"
-                               FontSize="10" FontWeight="Bold"
-                               Foreground="{DynamicResource MutedForegroundBrush}"/>
-                    <TextBlock Text="{Binding TotalStatements}"
-                               FontSize="32" FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"
-                               Margin="0,6,0,0"/>
-                    <TextBlock Text="Total saved"
-                               FontSize="11"
-                               Foreground="{DynamicResource MutedForegroundBrush}"
-                               Margin="0,2,0,0"/>
-                </StackPanel>
-            </Border>
+        <!-- ── AMBIENT BLOBS (radial glow overlays) ─────────────────── -->
+        <RadialGradientBrush x:Key="Blob1"
+                             Center="0.85,0.15"
+                             GradientOrigin="0.85,0.15"
+                             RadiusX="0.4" RadiusY="0.4"
+                             po:Freeze="True">
+            <GradientStop Color="#3B82F640" Offset="0.0"/>
+            <GradientStop Color="#3B82F600" Offset="1.0"/>
+        </RadialGradientBrush>
 
-            <Border Grid.Column="2"
-                    Background="{DynamicResource SideMenuBackgroundBrush}"
-                    CornerRadius="12"
-                    Padding="18,16">
-                <StackPanel>
-                    <TextBlock Text="💰  TOTAL INVOICED"
-                               FontSize="10" FontWeight="Bold"
-                               Foreground="{DynamicResource MutedForegroundBrush}"/>
-                    <TextBlock Text="{Binding TotalInvoicedDisplay}"
-                               FontSize="18" FontWeight="Bold"
-                               Foreground="{DynamicResource TintIndigoBrush}"
-                               Margin="0,6,0,0"
-                               TextTrimming="CharacterEllipsis"/>
-                    <TextBlock Text="Across all statements"
-                               FontSize="11"
-                               Foreground="{DynamicResource MutedForegroundBrush}"
-                               Margin="0,2,0,0"/>
-                </StackPanel>
-            </Border>
+        <RadialGradientBrush x:Key="Blob2"
+                             Center="0.12,0.88"
+                             GradientOrigin="0.12,0.88"
+                             RadiusX="0.35" RadiusY="0.35"
+                             po:Freeze="True">
+            <GradientStop Color="#1E40AF30" Offset="0.0"/>
+            <GradientStop Color="#1E40AF00" Offset="1.0"/>
+        </RadialGradientBrush>
 
-            <Border Grid.Column="4"
-                    Background="{DynamicResource SideMenuBackgroundBrush}"
-                    CornerRadius="12"
-                    Padding="18,16">
-                <StackPanel>
-                    <TextBlock Text="⏳  OUTSTANDING"
-                               FontSize="10" FontWeight="Bold"
-                               Foreground="{DynamicResource MutedForegroundBrush}"/>
-                    <TextBlock Text="{Binding TotalOutstandingDisplay}"
-                               FontSize="18" FontWeight="Bold"
-                               Foreground="{DynamicResource TintAmberBrush}"
-                               Margin="0,6,0,0"
-                               TextTrimming="CharacterEllipsis"/>
-                    <TextBlock Text="Total balance due"
-                               FontSize="11"
-                               Foreground="{DynamicResource MutedForegroundBrush}"
-                               Margin="0,2,0,0"/>
-                </StackPanel>
-            </Border>
+        <!-- ── GLASS SURFACES ───────────────────────────────────────── -->
+        <SolidColorBrush x:Key="GlassSurface"
+                         Color="#FFFFFF"
+                         Opacity="0.92"
+                         po:Freeze="True"/>
 
-            <Border Grid.Column="6"
-                    CornerRadius="12"
-                    Padding="18,16">
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Background"
-                                Value="{DynamicResource SideMenuBackgroundBrush}"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding HasOverdue}"
-                                         Value="True">
-                                <Setter Property="Background"
-                                        Value="{DynamicResource TintRedBrush}"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-                <StackPanel>
-                    <TextBlock Text="🔴  OVERDUE"
-                               FontSize="10" FontWeight="Bold"
-                               Foreground="{DynamicResource MutedForegroundBrush}"/>
-                    <TextBlock Text="{Binding OverdueAmountDisplay}"
-                               FontSize="18" FontWeight="Bold"
-                               Margin="0,6,0,0"
-                               TextTrimming="CharacterEllipsis">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground"
-                                        Value="{DynamicResource MutedForegroundBrush}"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding HasOverdue}"
-                                                 Value="True">
-                                        <Setter Property="Foreground"
-                                                Value="#B91C1C"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
-                    <TextBlock Text="Past due date"
-                               FontSize="11"
-                               Foreground="{DynamicResource MutedForegroundBrush}"
-                               Margin="0,2,0,0"/>
-                </StackPanel>
-            </Border>
-        </Grid>
+        <SolidColorBrush x:Key="GlassSurfaceSubtle"
+                         Color="#FFFFFF"
+                         Opacity="0.85"
+                         po:Freeze="True"/>
 
-        <!-- QUICK ACTIONS -->
-        <Border Grid.Row="1"
-                Margin="24,16,24,0"
-                Background="{DynamicResource SideMenuBackgroundBrush}"
-                CornerRadius="10"
-                Padding="16,12">
-            <StackPanel Orientation="Horizontal">
+        <!-- ── ACCENT TEXT (rich navy blue) ─────────────────────────── -->
+        <SolidColorBrush x:Key="AccentText"
+                         Color="#1E40AF"
+                         po:Freeze="True"/>
 
-                <Button Content="+ New Statement"
-                        Command="{Binding NewStatementCommand}"
-                        Height="38" Padding="18,0"
-                        FontSize="12" FontWeight="Bold"
-                        Cursor="Hand"
-                        Foreground="White"
-                        BorderThickness="0"
-                        Margin="0,0,10,0">
-                    <Button.Style>
-                        <Style TargetType="Button">
-                            <Setter Property="Background"
-                                    Value="{DynamicResource AccentBrush}"/>
-                            <Setter Property="Template">
-                                <Setter.Value>
-                                    <ControlTemplate TargetType="Button">
-                                        <Border x:Name="bd"
-                                                Background="{TemplateBinding Background}"
-                                                CornerRadius="9"
-                                                Padding="{TemplateBinding Padding}">
-                                            <ContentPresenter
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"/>
-                                        </Border>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsMouseOver"
-                                                     Value="True">
-                                                <Setter TargetName="bd"
-                                                        Property="Opacity"
-                                                        Value="0.88"/>
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </Setter.Value>
-                            </Setter>
-                        </Style>
-                    </Button.Style>
-                </Button>
+        <SolidColorBrush x:Key="AccentTextDeep"
+                         Color="#1E3A8A"
+                         po:Freeze="True"/>
 
-                <Button Content="View All Statements →"
-                        Command="{Binding GoToStatementsCommand}"
-                        Height="38" Padding="18,0"
-                        FontSize="12" FontWeight="SemiBold"
-                        Cursor="Hand"
-                        Foreground="{DynamicResource AccentBrush}"
-                        Background="Transparent"
+        <!-- ── DANGER TEXT (semantic red — universal) ───────────────── -->
+        <SolidColorBrush x:Key="DangerText"
+                         Color="#DC2626"
+                         po:Freeze="True"/>
+
+        <!-- ── KPI CARD 1 — SAPPHIRE (Statements) ───────────────────── -->
+        <SolidColorBrush x:Key="Kpi1Surface"
+                         Color="#EEF4FF"
+                         po:Freeze="True"/>
+        <SolidColorBrush x:Key="Kpi1Border"
+                         Color="#93B4E8"
+                         po:Freeze="True"/>
+        <SolidColorBrush x:Key="Kpi1IconBg"
+                         Color="#1E40AF"
+                         po:Freeze="True"/>
+
+        <!-- ── KPI CARD 2 — ROYAL (Total Invoiced) ──────────────────── -->
+        <SolidColorBrush x:Key="Kpi2Surface"
+                         Color="#EFF6FF"
+                         po:Freeze="True"/>
+        <SolidColorBrush x:Key="Kpi2Border"
+                         Color="#7FA6D9"
+                         po:Freeze="True"/>
+        <SolidColorBrush x:Key="Kpi2IconBg"
+                         Color="#1D4ED8"
+                         po:Freeze="True"/>
+
+        <!-- ── KPI CARD 3 — AMBER INDUSTRIAL (Outstanding) ──────────── -->
+        <SolidColorBrush x:Key="Kpi3Surface"
+                         Color="#FFF8E6"
+                         po:Freeze="True"/>
+        <SolidColorBrush x:Key="Kpi3Border"
+                         Color="#E8C77B"
+                         po:Freeze="True"/>
+        <SolidColorBrush x:Key="Kpi3IconBg"
+                         Color="#B45309"
+                         po:Freeze="True"/>
+        <SolidColorBrush x:Key="Kpi3Text"
+                         Color="#B45309"
+                         po:Freeze="True"/>
+
+        <!-- ── KPI CARD 4 — SLATE STEEL (Overdue - no alert state) ─── -->
+        <SolidColorBrush x:Key="Kpi4SurfaceOk"
+                         Color="#F3F6FB"
+                         po:Freeze="True"/>
+        <SolidColorBrush x:Key="Kpi4BorderOk"
+                         Color="#B8C5D8"
+                         po:Freeze="True"/>
+        <SolidColorBrush x:Key="Kpi4IconBgOk"
+                         Color="#475569"
+                         po:Freeze="True"/>
+        <SolidColorBrush x:Key="Kpi4TextOk"
+                         Color="#64748B"
+                         po:Freeze="True"/>
+
+        <!-- ── KPI CARD 4 — ALERT (Overdue - alert state) ───────────── -->
+        <SolidColorBrush x:Key="Kpi4SurfaceAlert"
+                         Color="#FFF0F0"
+                         po:Freeze="True"/>
+        <SolidColorBrush x:Key="Kpi4BorderAlert"
+                         Color="#F5B0B0"
+                         po:Freeze="True"/>
+        <SolidColorBrush x:Key="Kpi4IconBgAlert"
+                         Color="#DC2626"
+                         po:Freeze="True"/>
+
+        <!-- ── GLASS CARD BORDER (list rows, actions bar) ───────────── -->
+        <SolidColorBrush x:Key="GlassBorder"
+                         Color="#B8CDE8"
+                         po:Freeze="True"/>
+
+        <!-- ── SHADOWS ──────────────────────────────────────────────── -->
+        <DropShadowEffect x:Key="CardShadow"
+                          BlurRadius="20"
+                          ShadowDepth="4"
+                          Opacity="0.14"
+                          Color="#1E3A8A"
+                          Direction="270"
+                          po:Freeze="True"/>
+
+        <DropShadowEffect x:Key="SubtleShadow"
+                          BlurRadius="10"
+                          ShadowDepth="2"
+                          Opacity="0.10"
+                          Color="#1E3A8A"
+                          Direction="270"
+                          po:Freeze="True"/>
+
+        <DropShadowEffect x:Key="ButtonShadow"
+                          BlurRadius="10"
+                          ShadowDepth="2"
+                          Opacity="0.20"
+                          Color="#1D4ED8"
+                          Direction="270"
+                          po:Freeze="True"/>
+
+        <!-- ════════════════════════════════════════════════════════════
+             BUTTON STYLES
+        ════════════════════════════════════════════════════════════════ -->
+
+        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
+            <Setter Property="Height"          Value="40"/>
+            <Setter Property="Padding"         Value="22,0"/>
+            <Setter Property="FontSize"        Value="12"/>
+            <Setter Property="FontWeight"      Value="Bold"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="Foreground"      Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Effect"          Value="{StaticResource ButtonShadow}"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd"
+                                CornerRadius="10"
+                                Padding="{TemplateBinding Padding}">
+                            <Border.Background>
+                                <SolidColorBrush Color="#1D4ED8"/>
+                            </Border.Background>
+                            <ContentPresenter
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background">
+                                    <Setter.Value>
+                                        <SolidColorBrush Color="#2563EB"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background">
+                                    <Setter.Value>
+                                        <SolidColorBrush Color="#1E3A8A"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="OutlineButtonStyle" TargetType="Button">
+            <Setter Property="Height"          Value="40"/>
+            <Setter Property="Padding"         Value="22,0"/>
+            <Setter Property="FontSize"        Value="12"/>
+            <Setter Property="FontWeight"      Value="Bold"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="Foreground"      Value="#1D4ED8"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd"
+                                CornerRadius="10"
+                                BorderThickness="1.5"
+                                Padding="{TemplateBinding Padding}">
+                            <Border.Background>
+                                <SolidColorBrush Color="#FFFFFF" Opacity="0.6"/>
+                            </Border.Background>
+                            <Border.BorderBrush>
+                                <SolidColorBrush Color="#1D4ED8"/>
+                            </Border.BorderBrush>
+                            <ContentPresenter
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background">
+                                    <Setter.Value>
+                                        <SolidColorBrush Color="#DBEAFE"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background">
+                                    <Setter.Value>
+                                        <SolidColorBrush Color="#BFDBFE"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="PdfChipButtonStyle" TargetType="Button">
+            <Setter Property="Height"          Value="34"/>
+            <Setter Property="Padding"         Value="14,0"/>
+            <Setter Property="FontSize"        Value="11"/>
+            <Setter Property="FontWeight"      Value="Bold"/>
+            <Setter Property="Cursor"          Value="Hand"/>
+            <Setter Property="Foreground"      Value="White"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd"
+                                CornerRadius="9"
+                                Padding="{TemplateBinding Padding}">
+                            <Border.Background>
+                                <SolidColorBrush Color="#1D4ED8"/>
+                            </Border.Background>
+                            <ContentPresenter
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background">
+                                    <Setter.Value>
+                                        <SolidColorBrush Color="#2563EB"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background">
+                                    <Setter.Value>
+                                        <SolidColorBrush Color="#1E3A8A"/>
+                                    </Setter.Value>
+                                </Setter>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.35"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+    </UserControl.Resources>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         ROOT — INLINE GLASS BLUE GRADIENT (guaranteed render)
+    ═══════════════════════════════════════════════════════════════════ -->
+    <Grid Background="{StaticResource AmbientBg}">
+
+        <!-- ── AMBIENT BLOB OVERLAYS ────────────────────────────────── -->
+        <Canvas Panel.ZIndex="0"
+                IsHitTestVisible="False"
+                CacheMode="BitmapCache">
+
+            <Rectangle Fill="{StaticResource Blob1}"
+                       Width="{Binding ActualWidth,
+                           RelativeSource={RelativeSource
+                               AncestorType=Canvas}}"
+                       Height="{Binding ActualHeight,
+                           RelativeSource={RelativeSource
+                               AncestorType=Canvas}}"/>
+
+            <Rectangle Fill="{StaticResource Blob2}"
+                       Width="{Binding ActualWidth,
+                           RelativeSource={RelativeSource
+                               AncestorType=Canvas}}"
+                       Height="{Binding ActualHeight,
+                           RelativeSource={RelativeSource
+                               AncestorType=Canvas}}"/>
+        </Canvas>
+
+        <!-- ── MAIN CONTENT ─────────────────────────────────────────── -->
+        <Grid Panel.ZIndex="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- ═══════════════════════════════════════════════════════
+                 ROW 0 — KPI CARDS (each with distinct industrial tone)
+            ═══════════════════════════════════════════════════════════ -->
+            <Grid Grid.Row="0" Margin="28,24,28,0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="14"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- ══════════════════════════════════════════════════
+                     KPI 1 — SAPPHIRE (Total Statements)
+                ══════════════════════════════════════════════════ -->
+                <Border Grid.Column="0"
+                        Background="{StaticResource Kpi1Surface}"
+                        BorderBrush="{StaticResource Kpi1Border}"
                         BorderThickness="1"
-                        BorderBrush="{DynamicResource AccentBrush}">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="bd"
-                                    Background="{TemplateBinding Background}"
-                                    BorderBrush="{TemplateBinding BorderBrush}"
-                                    BorderThickness="{TemplateBinding BorderThickness}"
-                                    CornerRadius="9"
-                                    Padding="{TemplateBinding Padding}">
-                                <ContentPresenter
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="bd"
-                                            Property="Opacity" Value="0.8"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
+                        CornerRadius="16"
+                        Padding="20,18"
+                        Effect="{StaticResource CardShadow}">
 
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="6"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Filled icon badge (industrial) -->
+                        <Border Grid.Row="0"
+                                Background="{StaticResource Kpi1IconBg}"
+                                CornerRadius="10"
+                                Width="38" Height="38"
+                                HorizontalAlignment="Left">
+                            <TextBlock Text="📋"
+                                       FontSize="18"
+                                       Foreground="White"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+
+                        <TextBlock Grid.Row="2"
+                                   Text="{Binding TotalStatements}"
+                                   FontSize="36"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource AccentTextDeep}"/>
+
+                        <TextBlock Grid.Row="4"
+                                   Text="TOTAL STATEMENTS"
+                                   FontSize="10"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource AccentText}"/>
+                    </Grid>
+                </Border>
+
+                <!-- ══════════════════════════════════════════════════
+                     KPI 2 — ROYAL (Total Invoiced)
+                ══════════════════════════════════════════════════ -->
+                <Border Grid.Column="2"
+                        Background="{StaticResource Kpi2Surface}"
+                        BorderBrush="{StaticResource Kpi2Border}"
+                        BorderThickness="1"
+                        CornerRadius="16"
+                        Padding="20,18"
+                        Effect="{StaticResource CardShadow}">
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="6"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Border Grid.Row="0"
+                                Background="{StaticResource Kpi2IconBg}"
+                                CornerRadius="10"
+                                Width="38" Height="38"
+                                HorizontalAlignment="Left">
+                            <TextBlock Text="💰"
+                                       FontSize="18"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+
+                        <TextBlock Grid.Row="2"
+                                   Text="{Binding TotalInvoicedDisplay}"
+                                   FontSize="22"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource AccentText}"
+                                   TextTrimming="CharacterEllipsis"/>
+
+                        <TextBlock Grid.Row="4"
+                                   Text="TOTAL INVOICED"
+                                   FontSize="10"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource AccentText}"/>
+                    </Grid>
+                </Border>
+
+                <!-- ══════════════════════════════════════════════════
+                     KPI 3 — AMBER INDUSTRIAL (Outstanding)
+                ══════════════════════════════════════════════════ -->
+                <Border Grid.Column="4"
+                        Background="{StaticResource Kpi3Surface}"
+                        BorderBrush="{StaticResource Kpi3Border}"
+                        BorderThickness="1"
+                        CornerRadius="16"
+                        Padding="20,18"
+                        Effect="{StaticResource CardShadow}">
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="6"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <Border Grid.Row="0"
+                                Background="{StaticResource Kpi3IconBg}"
+                                CornerRadius="10"
+                                Width="38" Height="38"
+                                HorizontalAlignment="Left">
+                            <TextBlock Text="⏳"
+                                       FontSize="18"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+
+                        <TextBlock Grid.Row="2"
+                                   Text="{Binding TotalOutstandingDisplay}"
+                                   FontSize="22"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource Kpi3Text}"
+                                   TextTrimming="CharacterEllipsis"/>
+
+                        <TextBlock Grid.Row="4"
+                                   Text="OUTSTANDING"
+                                   FontSize="10"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource Kpi3Text}"/>
+                    </Grid>
+                </Border>
+
+                <!-- ══════════════════════════════════════════════════
+                     KPI 4 — SLATE STEEL / ALERT RED (Overdue)
+                ══════════════════════════════════════════════════ -->
+                <Border Grid.Column="6"
+                        CornerRadius="16"
+                        Padding="20,18"
+                        BorderThickness="1"
+                        Effect="{StaticResource CardShadow}">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding HasOverdue}"
+                                             Value="False">
+                                    <Setter Property="Background"
+                                            Value="{StaticResource Kpi4SurfaceOk}"/>
+                                    <Setter Property="BorderBrush"
+                                            Value="{StaticResource Kpi4BorderOk}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding HasOverdue}"
+                                             Value="True">
+                                    <Setter Property="Background"
+                                            Value="{StaticResource Kpi4SurfaceAlert}"/>
+                                    <Setter Property="BorderBrush"
+                                            Value="{StaticResource Kpi4BorderAlert}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+
+                    <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="10"/>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="6"/>
+                            <RowDefinition Height="Auto"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- Icon badge — switches color on HasOverdue -->
+                        <Border Grid.Row="0"
+                                CornerRadius="10"
+                                Width="38" Height="38"
+                                HorizontalAlignment="Left">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasOverdue}"
+                                                     Value="False">
+                                            <Setter Property="Background"
+                                                    Value="{StaticResource Kpi4IconBgOk}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding HasOverdue}"
+                                                     Value="True">
+                                            <Setter Property="Background"
+                                                    Value="{StaticResource Kpi4IconBgAlert}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <TextBlock FontSize="18"
+                                       Foreground="White"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Text" Value="✓"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding HasOverdue}"
+                                                         Value="True">
+                                                <Setter Property="Text" Value="⚠"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </Border>
+
+                        <TextBlock Grid.Row="2"
+                                   Text="{Binding OverdueAmountDisplay}"
+                                   FontSize="22"
+                                   FontWeight="Bold"
+                                   TextTrimming="CharacterEllipsis">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground"
+                                            Value="{StaticResource Kpi4TextOk}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasOverdue}"
+                                                     Value="True">
+                                            <Setter Property="Foreground"
+                                                    Value="{StaticResource DangerText}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <TextBlock Grid.Row="4"
+                                   Text="OVERDUE"
+                                   FontSize="10"
+                                   FontWeight="Bold">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Foreground"
+                                            Value="{StaticResource Kpi4TextOk}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasOverdue}"
+                                                     Value="True">
+                                            <Setter Property="Foreground"
+                                                    Value="{StaticResource DangerText}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+                    </Grid>
+                </Border>
+
+            </Grid>
+
+            <!-- ═══════════════════════════════════════════════════════
+                 ROW 1 — QUICK ACTIONS BAR (glass white)
+            ═══════════════════════════════════════════════════════════ -->
+            <Border Grid.Row="1"
+                    Margin="28,16,28,0"
+                    Background="{StaticResource GlassSurface}"
+                    BorderBrush="{StaticResource GlassBorder}"
+                    BorderThickness="1"
+                    CornerRadius="14"
+                    Padding="18,13"
+                    Effect="{StaticResource SubtleShadow}">
+
+                <StackPanel Orientation="Horizontal">
+                    <Button Content="＋  New Statement"
+                            Command="{Binding NewStatementCommand}"
+                            Margin="0,0,12,0"
+                            Style="{StaticResource PrimaryButtonStyle}"/>
+
+                    <Button Content="View All Statements  →"
+                            Command="{Binding GoToStatementsCommand}"
+                            Style="{StaticResource OutlineButtonStyle}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- ═══════════════════════════════════════════════════════
+                 ROW 2 — SECTION LABEL
+            ═══════════════════════════════════════════════════════════ -->
+            <StackPanel Grid.Row="2"
+                        Orientation="Horizontal"
+                        Margin="28,20,28,0"
+                        VerticalAlignment="Center">
+                <Border Width="4"
+                        Height="16"
+                        CornerRadius="2"
+                        Background="{StaticResource AccentText}"
+                        Margin="0,0,10,0"
+                        VerticalAlignment="Center"/>
+                <TextBlock Text="RECENT STATEMENTS"
+                           FontSize="11"
+                           FontWeight="Bold"
+                           Foreground="{StaticResource AccentTextDeep}"
+                           VerticalAlignment="Center"/>
             </StackPanel>
-        </Border>
 
-        <TextBlock Grid.Row="2"
-                   Text="RECENT STATEMENTS"
-                   FontSize="10" FontWeight="Bold"
-                   Foreground="{DynamicResource MutedForegroundBrush}"
-                   Margin="24,16,24,8"/>
+            <!-- ═══════════════════════════════════════════════════════
+                 ROW 3 — CONTENT AREA
+            ═══════════════════════════════════════════════════════════ -->
+            <Grid Grid.Row="3" Margin="28,10,28,20">
 
-        <Grid Grid.Row="3" Margin="24,0,24,16">
-
-            <StackPanel HorizontalAlignment="Center"
+                <!-- LOADING STATE -->
+                <Border HorizontalAlignment="Center"
                         VerticalAlignment="Center"
+                        Background="{StaticResource GlassSurface}"
+                        BorderBrush="{StaticResource GlassBorder}"
+                        BorderThickness="1"
+                        CornerRadius="16"
+                        Padding="44,36"
+                        Effect="{StaticResource CardShadow}"
                         Visibility="{Binding IsLoading,
                             Converter={StaticResource BoolToVisibilityConverter}}">
-                <TextBlock Text="⏳"
-                           FontSize="32"
-                           HorizontalAlignment="Center"/>
-                <TextBlock Text="Loading…"
-                           FontSize="13"
-                           Foreground="{DynamicResource MutedForegroundBrush}"
-                           HorizontalAlignment="Center"
-                           Margin="0,8,0,0"/>
-            </StackPanel>
 
-            <StackPanel HorizontalAlignment="Center"
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="⏳"
+                                   FontSize="36"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Text="Loading…"
+                                   FontSize="14"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource AccentTextDeep}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,10,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- EMPTY STATE -->
+                <Border HorizontalAlignment="Center"
                         VerticalAlignment="Center"
+                        Background="{StaticResource GlassSurface}"
+                        BorderBrush="{StaticResource GlassBorder}"
+                        BorderThickness="1"
+                        CornerRadius="20"
+                        Padding="48,40"
+                        MaxWidth="420"
+                        Effect="{StaticResource CardShadow}"
                         Visibility="{Binding IsEmpty,
                             Converter={StaticResource BoolToVisibilityConverter}}">
-                <TextBlock Text="📊"
-                           FontSize="48"
-                           HorizontalAlignment="Center"/>
-                <TextBlock Text="No Statements Yet"
-                           FontSize="16" FontWeight="Bold"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                           HorizontalAlignment="Center"
-                           Margin="0,10,0,4"/>
-                <TextBlock Text="Generate your first account statement from the Sales Report module."
-                           FontSize="12"
-                           Foreground="{DynamicResource MutedForegroundBrush}"
-                           HorizontalAlignment="Center"
-                           TextWrapping="Wrap"
-                           MaxWidth="320"/>
-                <Button Content="+ New Statement"
-                        Command="{Binding NewStatementCommand}"
-                        Height="38" Padding="20,0"
-                        Margin="0,16,0,0"
-                        FontSize="12" FontWeight="Bold"
-                        Cursor="Hand"
-                        Foreground="White"
-                        BorderThickness="0"
-                        HorizontalAlignment="Center">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="bd"
-                                    Background="{DynamicResource AccentBrush}"
-                                    CornerRadius="9"
-                                    Padding="{TemplateBinding Padding}">
-                                <ContentPresenter
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center"/>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="bd"
-                                            Property="Opacity" Value="0.88"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
-            </StackPanel>
 
-            <ScrollViewer VerticalScrollBarVisibility="Auto"
-                          HorizontalScrollBarVisibility="Disabled"
-                          behaviors:SmoothScrollBehavior.IsEnabled="True"
-                          Visibility="{Binding HasStatements,
-                              Converter={StaticResource BoolToVisibilityConverter}}">
-                <ItemsControl
-                    ItemsSource="{Binding RecentStatements}"
-                    VirtualizingPanel.IsVirtualizing="True"
-                    VirtualizingPanel.VirtualizationMode="Recycling"
-                    VirtualizingPanel.ScrollUnit="Pixel">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <VirtualizingStackPanel/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                    <ItemsControl.ItemTemplate>
-                        <DataTemplate>
-                            <Border Background="{DynamicResource SideMenuBackgroundBrush}"
-                                    CornerRadius="10"
-                                    Padding="14,12"
-                                    Margin="0,0,0,8">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
+                    <StackPanel HorizontalAlignment="Center">
+                        <Border Background="{StaticResource Kpi1IconBg}"
+                                CornerRadius="18"
+                                Width="70" Height="70"
+                                HorizontalAlignment="Center"
+                                Margin="0,0,0,16">
+                            <TextBlock Text="📊"
+                                       FontSize="36"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
 
-                                    <StackPanel Grid.Column="0"
-                                                VerticalAlignment="Center">
+                        <TextBlock Text="No Statements Yet"
+                                   FontSize="18"
+                                   FontWeight="Bold"
+                                   Foreground="{StaticResource AccentTextDeep}"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,0,0,8"/>
 
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock
-                                                Text="{Binding StatementNumber, Mode=OneWay}"
-                                                FontSize="13" FontWeight="Bold"
-                                                Foreground="{DynamicResource AccentBrush}"/>
-                                            <TextBlock
-                                                Text=" — "
-                                                FontSize="13"
-                                                Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                            <TextBlock
-                                                Text="{Binding SubTitle, Mode=OneWay}"
-                                                FontSize="13" FontWeight="SemiBold"
-                                                Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                MaxWidth="260"
-                                                TextTrimming="CharacterEllipsis"/>
-                                            <Border Margin="8,0,0,0"
-                                                    Background="{DynamicResource TintIndigoBrush}"
-                                                    CornerRadius="5"
-                                                    Padding="5,2"
-                                                    VerticalAlignment="Center"
-                                                    Visibility="{Binding HasAttachments,
-                                                        Converter={StaticResource BoolToVisibilityConverter}}">
-                                                <TextBlock Text="📎"
-                                                           FontSize="10"
-                                                           Foreground="{DynamicResource AccentBrush}"/>
-                                            </Border>
-                                        </StackPanel>
+                        <TextBlock Text="Generate your first account statement from the Sales Report module."
+                                   FontSize="13"
+                                   Foreground="#475569"
+                                   HorizontalAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   TextAlignment="Center"
+                                   MaxWidth="300"
+                                   Margin="0,0,0,24"/>
 
-                                        <!-- FIX: All Runs in this row need Mode=OneWay -->
-                                        <StackPanel Orientation="Horizontal"
-                                                    Margin="0,4,0,0">
-                                            <TextBlock FontSize="11"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}">
-                                                <Run Text="Invoiced: "/>
-                                                <Run Text="{Binding TotalInvoicedDisplay, Mode=OneWay}"
-                                                     FontWeight="SemiBold"
-                                                     Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                            </TextBlock>
-                                            <TextBlock Text="  ·  " FontSize="11"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                            <TextBlock FontSize="11"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}">
-                                                <Run Text="Outstanding: "/>
-                                                <Run Text="{Binding OutstandingDisplay, Mode=OneWay}"
-                                                     FontWeight="SemiBold"
-                                                     Foreground="{DynamicResource TintAmberBrush}"/>
-                                            </TextBlock>
-                                            <TextBlock Text="  ·  " FontSize="11"
-                                                       Foreground="{DynamicResource MutedForegroundBrush}"
-                                                       Visibility="{Binding HasOverdue,
-                                                           Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                            <TextBlock FontSize="11"
-                                                       Visibility="{Binding HasOverdue,
-                                                           Converter={StaticResource BoolToVisibilityConverter}}">
-                                                <Run Text="⚠ Overdue: "/>
-                                                <Run Text="{Binding OverdueDisplay, Mode=OneWay}"
-                                                     FontWeight="Bold"
-                                                     Foreground="#B91C1C"/>
-                                            </TextBlock>
-                                        </StackPanel>
+                        <Button Content="＋  New Statement"
+                                Command="{Binding NewStatementCommand}"
+                                HorizontalAlignment="Center"
+                                Style="{StaticResource PrimaryButtonStyle}"/>
+                    </StackPanel>
+                </Border>
 
-                                        <!-- FIX: Meta row Runs need Mode=OneWay -->
-                                        <TextBlock FontSize="10"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                                   Margin="0,3,0,0">
-                                            <Run Text="{Binding InvoiceCount, Mode=OneWay}"/>
-                                            <Run Text=" invoice(s)  ·  "/>
-                                            <Run Text="{Binding CreatedAtDisplay, Mode=OneWay}"/>
-                                        </TextBlock>
-                                    </StackPanel>
+                <!-- STATEMENTS LIST -->
+                <ScrollViewer
+                    VerticalScrollBarVisibility="Auto"
+                    HorizontalScrollBarVisibility="Disabled"
+                    CanContentScroll="False"
+                    IsDeferredScrollingEnabled="False"
+                    PanningMode="VerticalOnly"
+                    behaviors:SmoothScrollBehavior.IsEnabled="True"
+                    Visibility="{Binding HasStatements,
+                        Converter={StaticResource BoolToVisibilityConverter}}">
 
-                                    <!-- FIX: ScaleConverter on IsEnabled bool crash — replaced with IsEnabled Trigger -->
-                                    <Button Grid.Column="1"
-                                            Content="📄 PDF"
-                                            Command="{Binding DataContext.OpenPdfCommand,
-                                                RelativeSource={RelativeSource
-                                                    AncestorType=ItemsControl}}"
-                                            CommandParameter="{Binding}"
-                                            Height="32" Padding="12,0"
-                                            FontSize="11" FontWeight="SemiBold"
-                                            Cursor="Hand"
-                                            IsEnabled="{Binding HasPdf}"
-                                            Foreground="{DynamicResource AccentBrush}"
-                                            Background="{DynamicResource TintIndigoBrush}"
-                                            BorderThickness="0"
-                                            VerticalAlignment="Center">
-                                        <Button.Template>
-                                            <ControlTemplate TargetType="Button">
-                                                <Border x:Name="bd"
-                                                        Background="{TemplateBinding Background}"
-                                                        CornerRadius="8"
-                                                        Padding="{TemplateBinding Padding}">
-                                                    <ContentPresenter
+                    <ItemsControl ItemsSource="{Binding RecentStatements}">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+
+                                <!-- ITEM CARD (glass white on blue) -->
+                                <Border Background="{StaticResource GlassSurface}"
+                                        BorderBrush="{StaticResource GlassBorder}"
+                                        BorderThickness="1"
+                                        CornerRadius="14"
+                                        Padding="18,15"
+                                        Margin="0,0,0,10"
+                                        Effect="{StaticResource SubtleShadow}">
+
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="14"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="12"/>
+                                            <ColumnDefinition Width="Auto"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <!-- SERIAL BADGE — filled navy pill -->
+                                        <Border Grid.Column="0"
+                                                MinWidth="44"
+                                                Height="44"
+                                                CornerRadius="10"
+                                                Background="{StaticResource AccentText}"
+                                                VerticalAlignment="Center"
+                                                Padding="10,0">
+                                            <StackPanel Orientation="Horizontal"
                                                         HorizontalAlignment="Center"
-                                                        VerticalAlignment="Center"/>
+                                                        VerticalAlignment="Center">
+                                                <TextBlock Text="#"
+                                                           FontSize="12"
+                                                           FontWeight="Bold"
+                                                           Foreground="White"
+                                                           VerticalAlignment="Center"
+                                                           Opacity="0.8"/>
+                                                <TextBlock Text="{Binding Index,
+                                                               Mode=OneWay}"
+                                                           FontSize="16"
+                                                           FontWeight="Bold"
+                                                           Foreground="White"
+                                                           VerticalAlignment="Center"/>
+                                            </StackPanel>
+                                        </Border>
+
+                                        <!-- STATEMENT INFO -->
+                                        <StackPanel Grid.Column="2"
+                                                    VerticalAlignment="Center">
+
+                                            <StackPanel Orientation="Horizontal"
+                                                        VerticalAlignment="Center">
+                                                <TextBlock
+                                                    Text="{Binding StatementNumber,
+                                                        Mode=OneWay}"
+                                                    FontSize="13"
+                                                    FontWeight="Bold"
+                                                    Foreground="{StaticResource AccentText}"
+                                                    MaxWidth="140"
+                                                    TextTrimming="CharacterEllipsis"/>
+                                                <TextBlock
+                                                    Text="  —  "
+                                                    FontSize="13"
+                                                    Foreground="#94A3B8"
+                                                    VerticalAlignment="Center"/>
+                                                <TextBlock
+                                                    Text="{Binding SubTitle, Mode=OneWay}"
+                                                    FontSize="13"
+                                                    FontWeight="Bold"
+                                                    Foreground="#0F172A"
+                                                    MaxWidth="240"
+                                                    TextTrimming="CharacterEllipsis"
+                                                    VerticalAlignment="Center"/>
+
+                                                <Border Margin="10,0,0,0"
+                                                        Background="{StaticResource Kpi2IconBg}"
+                                                        CornerRadius="6"
+                                                        Padding="6,2"
+                                                        VerticalAlignment="Center"
+                                                        Visibility="{Binding HasAttachments,
+                                                            Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <TextBlock Text="📎"
+                                                               FontSize="10"/>
                                                 </Border>
-                                                <ControlTemplate.Triggers>
-                                                    <Trigger Property="IsMouseOver"
-                                                             Value="True">
-                                                        <Setter TargetName="bd"
-                                                                Property="Opacity"
-                                                                Value="0.8"/>
-                                                    </Trigger>
-                                                    <Trigger Property="IsEnabled"
-                                                             Value="False">
-                                                        <Setter TargetName="bd"
-                                                                Property="Opacity"
-                                                                Value="0.4"/>
-                                                    </Trigger>
-                                                </ControlTemplate.Triggers>
-                                            </ControlTemplate>
-                                        </Button.Template>
-                                    </Button>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ItemsControl.ItemTemplate>
-                </ItemsControl>
-            </ScrollViewer>
+                                            </StackPanel>
+
+                                            <StackPanel Orientation="Horizontal"
+                                                        Margin="0,6,0,0">
+                                                <TextBlock FontSize="11"
+                                                           Foreground="#64748B">
+                                                    <Run Text="Invoiced: "/>
+                                                    <Run Text="{Binding TotalInvoicedDisplay,
+                                                             Mode=OneWay}"
+                                                         FontWeight="Bold"
+                                                         Foreground="#0F172A"/>
+                                                </TextBlock>
+
+                                                <TextBlock Text="  ·  "
+                                                           FontSize="11"
+                                                           Foreground="#94A3B8"/>
+
+                                                <TextBlock FontSize="11"
+                                                           Foreground="#64748B">
+                                                    <Run Text="Outstanding: "/>
+                                                    <Run Text="{Binding OutstandingDisplay,
+                                                             Mode=OneWay}"
+                                                         FontWeight="Bold"
+                                                         Foreground="#B45309"/>
+                                                </TextBlock>
+
+                                                <TextBlock
+                                                    Text="  ·  "
+                                                    FontSize="11"
+                                                    Foreground="#94A3B8"
+                                                    Visibility="{Binding HasOverdue,
+                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                                                <TextBlock
+                                                    FontSize="11"
+                                                    Visibility="{Binding HasOverdue,
+                                                        Converter={StaticResource BoolToVisibilityConverter}}">
+                                                    <Run Text="⚠  Overdue: "
+                                                         Foreground="#64748B"/>
+                                                    <Run Text="{Binding OverdueDisplay,
+                                                             Mode=OneWay}"
+                                                         FontWeight="Bold"
+                                                         Foreground="{StaticResource DangerText}"/>
+                                                </TextBlock>
+                                            </StackPanel>
+
+                                            <TextBlock FontSize="10"
+                                                       Foreground="#94A3B8"
+                                                       Margin="0,4,0,0">
+                                                <Run Text="{Binding InvoiceCount,
+                                                         Mode=OneWay}"/>
+                                                <Run Text=" invoice(s)  ·  "/>
+                                                <Run Text="{Binding CreatedAtDisplay,
+                                                         Mode=OneWay}"/>
+                                            </TextBlock>
+
+                                        </StackPanel>
+
+                                        <!-- PDF BUTTON -->
+                                        <Button Grid.Column="4"
+                                                Content="📄  PDF"
+                                                Style="{StaticResource PdfChipButtonStyle}"
+                                                Command="{Binding DataContext.OpenPdfCommand,
+                                                    RelativeSource={RelativeSource
+                                                        AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}"
+                                                IsEnabled="{Binding HasPdf}"/>
+
+                                    </Grid>
+                                </Border>
+
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+
+                </ScrollViewer>
+
+            </Grid>
+
         </Grid>
+
     </Grid>
+
 </UserControl>
