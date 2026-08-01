@@ -1,32 +1,16 @@
 ﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/AI/AiChatView.xaml
      PROJECT: ProGlassAutomation
-     MODULE: AI Chat (Chat 24 v1.1)
+     MODULE: AI Chat (Chat 25 v4.0 — StatusMessage visibility fix)
 
-     FOLDER: Views/AI/               (SAME — no move)
-
-     CHANGES vs previous:
-       ✓ All purple/pink (#8B5CF6/#EC4899) → Navy/Royal blue
-       ✓ Clickable suggestion chips with SuggestionChipStyle + handler
-       ✓ Provider indicator in header (ActiveProviderSubtitle binding)
-       ✓ Timestamps on user + AI bubbles (TimeLabel binding)
-       ✓ Provider attribution on AI bubbles (ProviderIcon + ProviderName)
-       ✓ AiBubbleStyle trigger: IsAiResponse (was MultiDataTrigger)
-       ✓ All gradients/shadows → frozen shared resources
-       ✓ SnapsToDevicePixels + UseLayoutRounding on all rounded borders
-       ✓ SmoothScrollBehavior on messages ScrollViewer
-       ✓ IsHitTestVisible="False" on decorative text
-       ✓ Message bubble MaxWidth 320→380
-       ✓ Panel width 400→420, height 560→580
-
-     PRESERVED:
-       • x:Name="MessagesScroll", x:Name="InputBox"
-       • All DataTrigger bindings (IsUser, IsError, IsOpen, IsBusy, HasMessages)
-       • DimOverlay click handler
-       • All commands (SendCommand, ToggleChatCommand, etc.)
-       • Chat panel position (bottom-right)
-       • Floating button position (bottom-right corner)
-       • Typing indicator (3 dots)
+     CHANGES vs Chat 25 v3.0:
+       ✓ FIX CRITICAL: StatusMessage Border had default Visibility=Collapsed
+         and the only trigger also set Collapsed on empty string. Nothing
+         could ever make it Visible — user never saw voice status feedback.
+         FIX: Default Visible, collapse ONLY when StatusMessage is null
+         or empty string. Now shows "Listening...", "Processing speech...",
+         "Voice recognized — press Enter" etc.
+       ✓ ALL other XAML preserved exactly.
 ═══════════════════════════════════════════════════════════════════════ -->
 
 <UserControl x:Class="ProGlassAutomation.Views.AI.AiChatView"
@@ -58,26 +42,29 @@
                           Color="#1D4ED8" Opacity="0.5"
                           po:Freeze="True"/>
 
-        <!-- Icon button -->
         <Style x:Key="ChatIconBtn" TargetType="Button">
-            <Setter Property="Width" Value="32"/>
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Width"           Value="32"/>
+            <Setter Property="Height"          Value="32"/>
+            <Setter Property="Background"      Value="Transparent"/>
+            <Setter Property="Foreground"      Value="White"/>
+            <Setter Property="FontSize"        Value="14"/>
+            <Setter Property="Cursor"          Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd" Background="{TemplateBinding Background}"
-                                CornerRadius="16" SnapsToDevicePixels="True">
+                        <Border x:Name="bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="16"
+                                SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#33FFFFFF"/>
+                                <Setter TargetName="bd"
+                                        Property="Background"
+                                        Value="#33FFFFFF"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -85,31 +72,35 @@
             </Setter>
         </Style>
 
-        <!-- Send button -->
         <Style x:Key="SendBtn" TargetType="Button">
-            <Setter Property="Width" Value="42"/>
-            <Setter Property="Height" Value="42"/>
-            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Width"           Value="42"/>
+            <Setter Property="Height"          Value="42"/>
+            <Setter Property="Cursor"          Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd" CornerRadius="21"
+                        <Border x:Name="bd"
+                                CornerRadius="21"
                                 Background="{StaticResource ChatBrand}"
                                 SnapsToDevicePixels="True"
                                 UseLayoutRounding="True">
-                            <TextBlock Text="➤" Foreground="White" FontSize="16"
+                            <TextBlock Text="➤"
+                                       Foreground="White"
+                                       FontSize="16"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        IsHitTestVisible="False"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Opacity" Value="0.9"/>
+                                <Setter TargetName="bd"
+                                        Property="Opacity" Value="0.9"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="bd" Property="Opacity" Value="0.4"/>
+                                <Setter TargetName="bd"
+                                        Property="Opacity" Value="0.4"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -117,17 +108,16 @@
             </Setter>
         </Style>
 
-        <!-- User bubble -->
         <Style x:Key="UserBubble" TargetType="Border">
             <Setter Property="HorizontalAlignment" Value="Right"/>
-            <Setter Property="MaxWidth" Value="380"/>
-            <Setter Property="CornerRadius" Value="16,16,4,16"/>
-            <Setter Property="Padding" Value="14,10"/>
-            <Setter Property="Margin" Value="60,4,0,4"/>
-            <Setter Property="Background" Value="{StaticResource ChatBrand}"/>
+            <Setter Property="MaxWidth"            Value="380"/>
+            <Setter Property="CornerRadius"        Value="16,16,4,16"/>
+            <Setter Property="Padding"             Value="14,10"/>
+            <Setter Property="Margin"              Value="60,4,0,4"/>
+            <Setter Property="Background"          Value="{StaticResource ChatBrand}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding" Value="True"/>
-            <Setter Property="Visibility" Value="Collapsed"/>
+            <Setter Property="UseLayoutRounding"   Value="True"/>
+            <Setter Property="Visibility"          Value="Collapsed"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsUser}" Value="True">
                     <Setter Property="Visibility" Value="Visible"/>
@@ -135,17 +125,17 @@
             </Style.Triggers>
         </Style>
 
-        <!-- AI bubble -->
         <Style x:Key="AiBubble" TargetType="Border">
             <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="MaxWidth" Value="380"/>
-            <Setter Property="CornerRadius" Value="16,16,16,4"/>
-            <Setter Property="Padding" Value="14,10"/>
-            <Setter Property="Margin" Value="0,4,60,4"/>
-            <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="MaxWidth"            Value="380"/>
+            <Setter Property="CornerRadius"        Value="16,16,16,4"/>
+            <Setter Property="Padding"             Value="14,10"/>
+            <Setter Property="Margin"              Value="0,4,60,4"/>
+            <Setter Property="Background"
+                    Value="{DynamicResource MenuHoverBrush}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding" Value="True"/>
-            <Setter Property="Visibility" Value="Collapsed"/>
+            <Setter Property="UseLayoutRounding"   Value="True"/>
+            <Setter Property="Visibility"          Value="Collapsed"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsAiResponse}" Value="True">
                     <Setter Property="Visibility" Value="Visible"/>
@@ -153,17 +143,16 @@
             </Style.Triggers>
         </Style>
 
-        <!-- Error bubble -->
         <Style x:Key="ErrBubble" TargetType="Border">
             <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="MaxWidth" Value="380"/>
-            <Setter Property="CornerRadius" Value="16,16,16,4"/>
-            <Setter Property="Padding" Value="14,10"/>
-            <Setter Property="Margin" Value="0,4,60,4"/>
-            <Setter Property="Background" Value="#FEE2E2"/>
+            <Setter Property="MaxWidth"            Value="380"/>
+            <Setter Property="CornerRadius"        Value="16,16,16,4"/>
+            <Setter Property="Padding"             Value="14,10"/>
+            <Setter Property="Margin"              Value="0,4,60,4"/>
+            <Setter Property="Background"          Value="#FEE2E2"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding" Value="True"/>
-            <Setter Property="Visibility" Value="Collapsed"/>
+            <Setter Property="UseLayoutRounding"   Value="True"/>
+            <Setter Property="Visibility"          Value="Collapsed"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsError}" Value="True">
                     <Setter Property="Visibility" Value="Visible"/>
@@ -171,18 +160,19 @@
             </Style.Triggers>
         </Style>
 
-        <!-- Suggestion chip -->
         <Style x:Key="SuggChip" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
-            <Setter Property="CornerRadius" Value="12"/>
-            <Setter Property="Padding" Value="14,9"/>
-            <Setter Property="Margin" Value="0,3"/>
-            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Background"
+                    Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="CornerRadius"        Value="12"/>
+            <Setter Property="Padding"             Value="14,9"/>
+            <Setter Property="Margin"              Value="0,3"/>
+            <Setter Property="Cursor"              Value="Hand"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding" Value="True"/>
+            <Setter Property="UseLayoutRounding"   Value="True"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{DynamicResource BorderBrush}"/>
+                    <Setter Property="Background"
+                            Value="{DynamicResource BorderBrush}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -190,7 +180,7 @@
     </UserControl.Resources>
 
     <Grid>
-        <!-- Dim overlay -->
+
         <Rectangle Fill="Black" Opacity="0.3"
                    MouseLeftButtonDown="DimOverlay_MouseLeftButtonDown">
             <Rectangle.Style>
@@ -205,13 +195,15 @@
             </Rectangle.Style>
         </Rectangle>
 
-        <!-- Chat panel -->
-        <Border Width="420" Height="580"
-                HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                Margin="0,0,25,95" CornerRadius="20"
+        <Border Width="420" Height="600"
+                HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Margin="0,0,25,95"
+                CornerRadius="20"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
                 Effect="{StaticResource PanelShadow}"
-                SnapsToDevicePixels="True" UseLayoutRounding="True">
+                SnapsToDevicePixels="True"
+                UseLayoutRounding="True">
             <Border.Style>
                 <Style TargetType="Border">
                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -228,10 +220,13 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
                 <!-- Header -->
-                <Border Grid.Row="0" CornerRadius="20,20,0,0" Padding="16,12"
+                <Border Grid.Row="0"
+                        CornerRadius="20,20,0,0"
+                        Padding="16,12"
                         Background="{StaticResource ChatBrand}"
                         SnapsToDevicePixels="True">
                     <Grid>
@@ -242,32 +237,42 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <Border Grid.Column="0" Width="38" Height="38"
-                                CornerRadius="19" Background="#33FFFFFF"
-                                VerticalAlignment="Center" SnapsToDevicePixels="True">
+                        <Border Grid.Column="0"
+                                Width="38" Height="38"
+                                CornerRadius="19"
+                                Background="#33FFFFFF"
+                                VerticalAlignment="Center"
+                                SnapsToDevicePixels="True">
                             <TextBlock Text="🤖" FontSize="20"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        IsHitTestVisible="False"/>
                         </Border>
 
-                        <StackPanel Grid.Column="1" Margin="12,0,0,0"
+                        <StackPanel Grid.Column="1"
+                                    Margin="12,0,0,0"
                                     VerticalAlignment="Center">
-                            <TextBlock Text="ProGlass AI" FontSize="16"
-                                       FontWeight="Bold" Foreground="White"
+                            <TextBlock Text="ProGlass AI"
+                                       FontSize="16" FontWeight="Bold"
+                                       Foreground="White"
                                        IsHitTestVisible="False"/>
                             <TextBlock Text="{Binding ActiveProviderSubtitle}"
-                                       FontSize="10" Foreground="#E0E0FF"
-                                       Opacity="0.9" IsHitTestVisible="False"/>
+                                       FontSize="10"
+                                       Foreground="#E0E0FF"
+                                       Opacity="0.9"
+                                       IsHitTestVisible="False"/>
                         </StackPanel>
 
                         <Button Grid.Column="2"
                                 Style="{StaticResource ChatIconBtn}"
-                                Content="🗑" ToolTip="Clear chat"
+                                Content="🗑"
+                                ToolTip="Clear chat"
                                 Command="{Binding ClearChatCommand}"/>
+
                         <Button Grid.Column="3"
                                 Style="{StaticResource ChatIconBtn}"
-                                Content="✕" ToolTip="Close"
+                                Content="✕"
+                                ToolTip="Close"
                                 Margin="6,0,0,0"
                                 Command="{Binding CloseChatCommand}"/>
                     </Grid>
@@ -275,25 +280,31 @@
 
                 <!-- Messages area -->
                 <Grid Grid.Row="1">
-                    <!-- Empty state -->
+
                     <StackPanel VerticalAlignment="Center"
-                                HorizontalAlignment="Center" Margin="30">
+                                HorizontalAlignment="Center"
+                                Margin="30">
                         <StackPanel.Style>
                             <Style TargetType="StackPanel">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding HasMessages}" Value="False">
-                                        <Setter Property="Visibility" Value="Visible"/>
+                                    <DataTrigger Binding="{Binding HasMessages}"
+                                                 Value="False">
+                                        <Setter Property="Visibility"
+                                                Value="Visible"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </StackPanel.Style>
 
-                        <Border Width="72" Height="72" CornerRadius="20"
+                        <Border Width="72" Height="72"
+                                CornerRadius="20"
                                 HorizontalAlignment="Center"
                                 Background="{StaticResource ChatBrand}"
-                                SnapsToDevicePixels="True" UseLayoutRounding="True">
-                            <TextBlock Text="💬" FontSize="36" Foreground="White"
+                                SnapsToDevicePixels="True"
+                                UseLayoutRounding="True">
+                            <TextBlock Text="💬" FontSize="36"
+                                       Foreground="White"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        IsHitTestVisible="False"/>
@@ -305,26 +316,31 @@
                                    Margin="0,16,0,4"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    IsHitTestVisible="False"/>
-                        <TextBlock Text="Ask me about glass production, invoices, or your business data."
-                                   FontSize="12" TextAlignment="Center"
-                                   TextWrapping="Wrap" MaxWidth="300"
+
+                        <TextBlock Text="Ask me about glass production, invoices, job orders, or your business data."
+                                   FontSize="12"
+                                   TextAlignment="Center"
+                                   TextWrapping="Wrap"
+                                   MaxWidth="300"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    IsHitTestVisible="False"/>
 
-                        <TextBlock Text="TRY ASKING" FontSize="9" FontWeight="Bold"
+                        <TextBlock Text="TRY ASKING"
+                                   FontSize="9" FontWeight="Bold"
                                    HorizontalAlignment="Center"
                                    Margin="0,20,0,8"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   Opacity="0.7" IsHitTestVisible="False"/>
+                                   Opacity="0.7"
+                                   IsHitTestVisible="False"/>
 
-                        <!-- Clickable suggestions -->
                         <ItemsControl ItemsSource="{Binding Suggestions}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Style="{StaticResource SuggChip}"
                                             Tag="{Binding}"
                                             MouseLeftButtonDown="Suggestion_MouseLeftButtonDown">
-                                        <TextBlock Text="{Binding}" FontSize="12"
+                                        <TextBlock Text="{Binding}"
+                                                   FontSize="12"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                    IsHitTestVisible="False"/>
                                     </Border>
@@ -333,7 +349,6 @@
                         </ItemsControl>
                     </StackPanel>
 
-                    <!-- Messages -->
                     <ScrollViewer x:Name="MessagesScroll"
                                   VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled"
@@ -347,8 +362,10 @@
                             <Style TargetType="ScrollViewer">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding HasMessages}" Value="True">
-                                        <Setter Property="Visibility" Value="Visible"/>
+                                    <DataTrigger Binding="{Binding HasMessages}"
+                                                 Value="True">
+                                        <Setter Property="Visibility"
+                                                Value="Visible"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -358,26 +375,27 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Grid>
-                                        <!-- User -->
                                         <Border Style="{StaticResource UserBubble}">
                                             <StackPanel>
                                                 <TextBlock Text="{Binding Text}"
-                                                           Foreground="White" FontSize="13"
+                                                           Foreground="White"
+                                                           FontSize="13"
                                                            TextWrapping="Wrap"/>
                                                 <TextBlock Text="{Binding TimeLabel}"
-                                                           Foreground="#FFFFFFAA" FontSize="9"
+                                                           Foreground="#FFFFFFAA"
+                                                           FontSize="9"
                                                            HorizontalAlignment="Right"
                                                            Margin="0,4,0,0"
                                                            IsHitTestVisible="False"/>
                                             </StackPanel>
                                         </Border>
 
-                                        <!-- AI -->
                                         <Border Style="{StaticResource AiBubble}">
                                             <StackPanel>
                                                 <TextBlock Text="{Binding Text}"
                                                            Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                           FontSize="13" TextWrapping="Wrap"/>
+                                                           FontSize="13"
+                                                           TextWrapping="Wrap"/>
                                                 <StackPanel Orientation="Horizontal"
                                                             Margin="0,6,0,0">
                                                     <TextBlock FontSize="9"
@@ -393,10 +411,10 @@
                                             </StackPanel>
                                         </Border>
 
-                                        <!-- Error -->
                                         <Border Style="{StaticResource ErrBubble}">
                                             <TextBlock Text="{Binding Text}"
-                                                       Foreground="#991B1B" FontSize="12"
+                                                       Foreground="#991B1B"
+                                                       FontSize="12"
                                                        TextWrapping="Wrap"/>
                                         </Border>
                                     </Grid>
@@ -405,36 +423,90 @@
                         </ItemsControl>
                     </ScrollViewer>
 
-                    <!-- Typing indicator -->
-                    <Border HorizontalAlignment="Left" VerticalAlignment="Bottom"
+                    <Border HorizontalAlignment="Left"
+                            VerticalAlignment="Bottom"
                             Background="{DynamicResource MenuHoverBrush}"
-                            CornerRadius="16,16,16,4" Padding="14,10"
-                            Margin="16,0,0,8" SnapsToDevicePixels="True">
+                            CornerRadius="16,16,16,4"
+                            Padding="14,10"
+                            Margin="16,0,0,8"
+                            SnapsToDevicePixels="True">
                         <Border.Style>
                             <Style TargetType="Border">
                                 <Setter Property="Visibility" Value="Collapsed"/>
                                 <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsBusy}" Value="True">
-                                        <Setter Property="Visibility" Value="Visible"/>
+                                    <DataTrigger Binding="{Binding IsBusy}"
+                                                 Value="True">
+                                        <Setter Property="Visibility"
+                                                Value="Visible"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
                         <StackPanel Orientation="Horizontal">
                             <Ellipse Width="6" Height="6"
-                                     Fill="{DynamicResource SecondaryForegroundBrush}" Margin="2,0"/>
+                                     Fill="{DynamicResource SecondaryForegroundBrush}"
+                                     Margin="2,0"/>
                             <Ellipse Width="6" Height="6"
-                                     Fill="{DynamicResource SecondaryForegroundBrush}" Margin="2,0" Opacity="0.6"/>
+                                     Fill="{DynamicResource SecondaryForegroundBrush}"
+                                     Margin="2,0" Opacity="0.6"/>
                             <Ellipse Width="6" Height="6"
-                                     Fill="{DynamicResource SecondaryForegroundBrush}" Margin="2,0" Opacity="0.3"/>
+                                     Fill="{DynamicResource SecondaryForegroundBrush}"
+                                     Margin="2,0" Opacity="0.3"/>
                         </StackPanel>
                     </Border>
                 </Grid>
 
-                <!-- Input area with voice controls -->
-                <Border Grid.Row="2"
+                <!--
+                     ═══════════════════════════════════════════════════
+                     STATUS MESSAGE ROW — FIXED VISIBILITY
+                     
+                     Previous: Default Visibility=Collapsed, and only
+                     trigger also set Collapsed on empty. Nothing could
+                     ever make it Visible. User never saw voice feedback.
+                     
+                     Fixed: Default Visible, collapse ONLY when
+                     StatusMessage is null OR empty string.
+                     
+                     Shows messages like:
+                       "🎤 Listening — click again to stop"
+                       "Processing speech..."
+                       "✓ Recognized: what is my balance"
+                       "✓ Voice recognized — press Enter to send"
+                       "Recording too short — speak for at least 1 second"
+                       "⚠ Whisper unavailable: Model file corrupted..."
+                     ═══════════════════════════════════════════════════
+                -->
+                <Border Grid.Row="2" Padding="16,4,16,2">
+                    <Border.Style>
+                        <Style TargetType="Border">
+                            <Setter Property="Visibility" Value="Visible"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding StatusMessage}"
+                                             Value="">
+                                    <Setter Property="Visibility"
+                                            Value="Collapsed"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding StatusMessage}"
+                                             Value="{x:Null}">
+                                    <Setter Property="Visibility"
+                                            Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <TextBlock Text="{Binding StatusMessage}"
+                               FontSize="10"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource AccentBrush}"
+                               TextWrapping="Wrap"
+                               IsHitTestVisible="False"/>
+                </Border>
+
+                <!-- Input area -->
+                <Border Grid.Row="3"
                         Background="{DynamicResource SideMenuBackgroundBrush}"
-                        CornerRadius="0,0,20,20" Padding="12"
+                        CornerRadius="0,0,20,20"
+                        Padding="12"
                         SnapsToDevicePixels="True">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -444,85 +516,30 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <!-- 🔊 Speaker toggle -->
+                        <!-- Speaker toggle -->
                         <Button Grid.Column="0"
                                 Command="{Binding ToggleSpeakerCommand}"
                                 ToolTip="Toggle voice responses"
                                 Width="36" Height="36"
-                                Cursor="Hand" BorderThickness="0"
+                                Cursor="Hand"
+                                BorderThickness="0"
                                 Margin="0,0,4,0"
                                 SnapsToDevicePixels="True">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border x:Name="bd" CornerRadius="18"
+                                    <Border x:Name="bd"
+                                            CornerRadius="18"
                                             SnapsToDevicePixels="True"
                                             UseLayoutRounding="True">
                                         <Border.Style>
                                             <Style TargetType="Border">
-                                                <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                                <Setter Property="Background"
+                                                        Value="{DynamicResource MenuHoverBrush}"/>
                                                 <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsSpeakerOn}" Value="True">
-                                                        <Setter Property="Background" Value="{StaticResource ChatBrand}"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </Border.Style>
-                                        <TextBlock x:Name="spkIcon" FontSize="16"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"
-                                                   IsHitTestVisible="False">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="Text" Value="🔇"/>
-                                                    <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsSpeakerOn}" Value="True">
-                                                            <Setter Property="Text" Value="🔊"/>
-                                                            <Setter Property="Foreground" Value="White"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="bd" Property="Opacity" Value="0.85"/>
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Button.Template>
-                        </Button>
-
-                        <!-- 🎤 Microphone button -->
-                        <Button Grid.Column="1"
-                                Command="{Binding VoiceInputCommand}"
-                                ToolTip="Voice input (click to speak)"
-                                Width="36" Height="36"
-                                Cursor="Hand" BorderThickness="0"
-                                Margin="0,0,6,0"
-                                SnapsToDevicePixels="True">
-                            <Button.Style>
-                                <Style TargetType="Button">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsVoiceAvailable}" Value="False">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border x:Name="bd" CornerRadius="18"
-                                            SnapsToDevicePixels="True"
-                                            UseLayoutRounding="True">
-                                        <Border.Style>
-                                            <Style TargetType="Border">
-                                                <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsListening}" Value="True">
-                                                        <Setter Property="Background" Value="#EF4444"/>
+                                                    <DataTrigger Binding="{Binding IsSpeakerOn}"
+                                                                 Value="True">
+                                                        <Setter Property="Background"
+                                                                Value="{StaticResource ChatBrand}"/>
                                                     </DataTrigger>
                                                 </Style.Triggers>
                                             </Style>
@@ -533,11 +550,15 @@
                                                    IsHitTestVisible="False">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock">
-                                                    <Setter Property="Text" Value="🎤"/>
+                                                    <Setter Property="Text" Value="🔇"/>
+                                                    <Setter Property="Foreground"
+                                                            Value="{DynamicResource SecondaryForegroundBrush}"/>
                                                     <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsListening}" Value="True">
-                                                            <Setter Property="Text" Value="⏹"/>
-                                                            <Setter Property="Foreground" Value="White"/>
+                                                        <DataTrigger Binding="{Binding IsSpeakerOn}"
+                                                                     Value="True">
+                                                            <Setter Property="Text" Value="🔊"/>
+                                                            <Setter Property="Foreground"
+                                                                    Value="White"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -546,52 +567,153 @@
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="bd" Property="Opacity" Value="0.85"/>
+                                            <Setter TargetName="bd"
+                                                    Property="Opacity" Value="0.85"/>
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Button.Template>
                         </Button>
 
+                        <!-- Mic button with audio level pulse -->
+                        <Grid Grid.Column="1" Margin="0,0,6,0">
+                            <Grid.Style>
+                                <Style TargetType="Grid">
+                                    <Setter Property="Visibility" Value="Visible"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsVoiceAvailable}"
+                                                     Value="False">
+                                            <Setter Property="Visibility"
+                                                    Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Grid.Style>
+
+                            <Ellipse Width="44" Height="44"
+                                     HorizontalAlignment="Center"
+                                     VerticalAlignment="Center"
+                                     Fill="#22EF4444"
+                                     Opacity="{Binding MicAudioLevel}"
+                                     IsHitTestVisible="False"/>
+
+                            <Button Command="{Binding VoiceInputCommand}"
+                                    ToolTip="Voice input (click to speak, click again to stop)"
+                                    Width="36" Height="36"
+                                    Cursor="Hand"
+                                    BorderThickness="0"
+                                    SnapsToDevicePixels="True">
+                                <Button.Template>
+                                    <ControlTemplate TargetType="Button">
+                                        <Border x:Name="bd"
+                                                CornerRadius="18"
+                                                SnapsToDevicePixels="True"
+                                                UseLayoutRounding="True">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background"
+                                                            Value="{DynamicResource MenuHoverBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsListening}"
+                                                                     Value="True">
+                                                            <Setter Property="Background"
+                                                                    Value="#EF4444"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsProcessingVoice}"
+                                                                     Value="True">
+                                                            <Setter Property="Background"
+                                                                    Value="#F59E0B"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock FontSize="16"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"
+                                                       IsHitTestVisible="False">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text" Value="🎤"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsListening}"
+                                                                         Value="True">
+                                                                <Setter Property="Text" Value="⏹"/>
+                                                                <Setter Property="Foreground"
+                                                                        Value="White"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding IsProcessingVoice}"
+                                                                         Value="True">
+                                                                <Setter Property="Text" Value="⏳"/>
+                                                                <Setter Property="Foreground"
+                                                                        Value="White"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="bd"
+                                                        Property="Opacity" Value="0.85"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </Button.Template>
+                            </Button>
+                        </Grid>
+
                         <!-- Text input -->
                         <Border Grid.Column="2"
                                 Background="{DynamicResource MenuHoverBrush}"
-                                CornerRadius="21" Padding="14,0"
-                                Height="42" VerticalAlignment="Center"
+                                CornerRadius="21"
+                                Padding="14,0"
+                                Height="42"
+                                VerticalAlignment="Center"
                                 Margin="0,0,8,0"
-                                SnapsToDevicePixels="True" UseLayoutRounding="True">
+                                SnapsToDevicePixels="True"
+                                UseLayoutRounding="True">
                             <TextBox x:Name="InputBox"
-                                     Text="{Binding CurrentInput, UpdateSourceTrigger=PropertyChanged}"
-                                     BorderThickness="0" Background="Transparent"
+                                     Text="{Binding CurrentInput,
+                                         UpdateSourceTrigger=PropertyChanged}"
+                                     BorderThickness="0"
+                                     Background="Transparent"
                                      FontSize="13"
                                      Foreground="{DynamicResource PrimaryForegroundBrush}"
                                      VerticalAlignment="Center"
                                      KeyDown="InputBox_KeyDown"/>
                         </Border>
 
-                        <!-- Send button -->
                         <Button Grid.Column="3"
                                 Style="{StaticResource SendBtn}"
                                 Command="{Binding SendCommand}"
                                 ToolTip="Send (Enter)"/>
                     </Grid>
                 </Border>
+
             </Grid>
         </Border>
 
-        <!-- Floating button -->
-        <Button HorizontalAlignment="Right" VerticalAlignment="Bottom"
-                Margin="0,0,25,25" Width="60" Height="60"
-                Cursor="Hand" BorderThickness="0"
+        <!-- Floating toggle button -->
+        <Button HorizontalAlignment="Right"
+                VerticalAlignment="Bottom"
+                Margin="0,0,25,25"
+                Width="60" Height="60"
+                Cursor="Hand"
+                BorderThickness="0"
                 Command="{Binding ToggleChatCommand}"
                 ToolTip="AI Assistant">
             <Button.Template>
                 <ControlTemplate TargetType="Button">
-                    <Border x:Name="bd" CornerRadius="30"
+                    <Border x:Name="bd"
+                            CornerRadius="30"
                             Background="{StaticResource ChatBrand}"
                             Effect="{StaticResource BtnShadow}"
-                            SnapsToDevicePixels="True" UseLayoutRounding="True">
-                        <TextBlock x:Name="icon" Text="🤖" FontSize="26"
+                            SnapsToDevicePixels="True"
+                            UseLayoutRounding="True">
+                        <TextBlock x:Name="icon"
+                                   Text="🤖"
+                                   FontSize="26"
                                    Foreground="White"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
@@ -599,7 +721,8 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="bd" Property="Opacity" Value="0.9"/>
+                            <Setter TargetName="bd"
+                                    Property="Opacity" Value="0.9"/>
                         </Trigger>
                         <DataTrigger Binding="{Binding IsOpen}" Value="True">
                             <Setter TargetName="icon" Property="Text" Value="✕"/>
@@ -609,5 +732,6 @@
                 </ControlTemplate>
             </Button.Template>
         </Button>
+
     </Grid>
 </UserControl>

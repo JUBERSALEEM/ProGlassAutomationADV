@@ -1,17 +1,30 @@
 ﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: App.xaml.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Application startup (Chat 25 v1.2 — SpeechToText public set)
+// MODULE: Application startup (Chat 25 v4.0 — non-blocking Whisper init)
 //
-// CHANGES vs Chat 24 v1.3:
-//   ✓ FIX CS0272: SpeechToText { get; private set; } → { get; set; }
-//     SettingsViewModel swaps STT service after model download/delete.
-//     Matches pattern of App.Ai which is already public set.
-//   ✓ FIX CS0428: WhisperModelManager.IsModelDownloaded resolves as
-//     bool property (fixed in WhisperModelManager.cs).
-//   ✓ Added App.AiProviderChanged static event for live provider swap.
-//   ✓ AI Enabled defaults to true in AiSettings — no change needed here.
-//   ✓ All startup steps preserved in exact order.
+// CHANGES vs Chat 25 v1.2:
+//   ✓ FIX CRITICAL (STARTUP HANG): WhisperSpeechService constructor
+//     internally calls new AudioCaptureService() which invokes
+//     NAudio's WaveInEvent.DeviceCount. On some Windows machines
+//     (broken audio drivers, USB audio, Bluetooth issues, Realtek
+//     bugs) this call blocks the UI thread indefinitely.
+//     
+//     Previous behavior: App startup HANGS at step 10b if Whisper
+//     model file exists. User must delete the model to recover.
+//     
+//     New behavior: Whisper initialization runs on background thread
+//     with 10-second timeout. If it hangs, times out, or crashes,
+//     app automatically falls back to System.Speech and continues.
+//     App startup NEVER blocks on audio device enumeration.
+//   
+//   ✓ System.Speech fallback also wrapped in try/catch as before.
+//   
+//   ✓ Debug output shows exactly which path was taken so user can
+//     diagnose STT selection.
+//   
+//   ✓ All other startup steps preserved in exact order.
+//   ✓ All existing properties, events, methods preserved.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.AI.AIConfig;
@@ -29,6 +42,7 @@ using ProGlassAutomation.Services.Statement.Repository;
 using ProGlassAutomation.Services.TaxInvoice.Repository;
 using ProGlassAutomation.Views.Splash;
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -60,13 +74,9 @@ namespace ProGlassAutomation
 
         /// <summary>
         /// Speech-to-Text service.
-        /// ─────────────────────────────────────────────────────────────
-        /// FIX CS0272: Changed from { get; private set; } to { get; set; }
-        /// SettingsViewModel needs to swap this after model download:
-        ///   • Download complete → swap System.Speech → WhisperSpeechService
-        ///   • Model deleted    → swap WhisperSpeechService → System.Speech
-        /// Pattern matches App.Ai which is already public set.
-        /// ─────────────────────────────────────────────────────────────
+        /// Public set: SettingsViewModel swaps this after model
+        /// download/delete without requiring app restart.
+        /// May be null if all initialization attempts fail.
         /// </summary>
         public static ISpeechToTextService SpeechToText { get; set; }
 
@@ -81,7 +91,8 @@ namespace ProGlassAutomation
         public static ITaxInvoiceRepository TaxInvoices { get; private set; }
         public static IStatementRepository Statements { get; private set; }
 
-        private async void Application_Startup(object sender, StartupEventArgs e)
+        private async void Application_Startup(
+            object sender, StartupEventArgs e)
         {
             // ── Global unhandled exception catcher (debug) ────────────
             DispatcherUnhandledException += (s, args) =>
@@ -92,7 +103,8 @@ namespace ProGlassAutomation
                     $"Message: {args.Exception.Message}";
 
                 if (args.Exception.InnerException != null)
-                    msg += $"\n\nInner: {args.Exception.InnerException.Message}";
+                    msg += $"\n\nInner: " +
+                           $"{args.Exception.InnerException.Message}";
 
                 string stack = args.Exception.StackTrace ?? "";
                 if (stack.Length > 600) stack = stack[..600] + "...";
@@ -137,7 +149,7 @@ namespace ProGlassAutomation
             Statements = new StatementRepository();
             await Statements.InitializeAsync();
 
-            // 10) AI via factory (multi-provider, reads ActiveProvider from config)
+            // 10) AI via factory (multi-provider)
             Ai = AiProviderFactory.CreateActive(Config.Ai);
 
             System.Diagnostics.Debug.WriteLine(
@@ -145,35 +157,43 @@ namespace ProGlassAutomation
                 $"Enabled: {Config.Ai.Enabled} | " +
                 $"Configured: {Ai?.IsConfigured}");
 
-            // 10b) Speech-to-Text
-            //      Priority: Whisper (if model downloaded) → System.Speech fallback
-            try
-            {
-                if (WhisperModelManager.IsModelDownloaded)
-                {
-                    SpeechToText = new WhisperSpeechService();
-                    System.Diagnostics.Debug.WriteLine(
-                        $"[App] STT: Whisper " +
-                        $"({WhisperModelManager.SelectedModelInfo.DisplayName})");
-                }
-                else
-                {
-                    SpeechToText = new SpeechToTextService();
-                    System.Diagnostics.Debug.WriteLine(
-                        "[App] STT: System.Speech fallback. " +
-                        "Download Whisper model in Settings for better accuracy.");
-                }
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine(
-                    $"[App] STT init failed: {ex.Message}");
-                SpeechToText = null;
-            }
+            // ══════════════════════════════════════════════════════════
+            //  10b) SPEECH-TO-TEXT — NON-BLOCKING INITIALIZATION
+            //
+            //  CRITICAL FIX: WhisperSpeechService internally creates
+            //  AudioCaptureService which calls NAudio's
+            //  WaveInEvent.DeviceCount. On machines with broken audio
+            //  drivers, USB audio hot-plug issues, Bluetooth audio in
+            //  bad state, or Realtek driver bugs, this call can HANG
+            //  the UI thread indefinitely — freezing app startup.
+            //
+            //  Fix: Run Whisper init on background thread with 10s
+            //  timeout. If it hangs or fails, fall back to System.Speech
+            //  (which uses a different audio subsystem) or null.
+            //  App startup continues in all cases.
+            // ══════════════════════════════════════════════════════════
+            SpeechToText = await InitializeSpeechToTextAsync();
 
             // 10c) Text-to-Speech
-            try { TextToSpeech = new TextToSpeechService(); }
-            catch { TextToSpeech = null; }
+            //      Also wrap in try/catch — TTS init can rarely hang
+            //      on machines with corrupted Windows Speech Platform
+            try
+            {
+                TextToSpeech = await Task.Run(() =>
+                {
+                    try { return new TextToSpeechService(); }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine(
+                            $"[App] TTS init failed: {ex.Message}");
+                        return null;
+                    }
+                });
+            }
+            catch
+            {
+                TextToSpeech = null;
+            }
 
             // 11) Connectivity monitoring
             Connectivity = new ConnectivityService();
@@ -198,6 +218,129 @@ namespace ProGlassAutomation
                 mainWindow.Topmost = true;
                 mainWindow.Topmost = false;
             });
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  SPEECH-TO-TEXT INITIALIZATION — background + timeout + fallback
+        //
+        //  Priority chain:
+        //    1. Try Whisper (if model downloaded) — 10s timeout
+        //    2. On Whisper timeout/failure → try System.Speech
+        //    3. On System.Speech failure → null (voice disabled)
+        //
+        //  Each attempt runs on background thread with timeout so
+        //  UI thread never blocks. App startup ALWAYS completes.
+        // ══════════════════════════════════════════════════════════════
+
+        private static async Task<ISpeechToTextService>
+            InitializeSpeechToTextAsync()
+        {
+            // ── Try Whisper first if model file exists ────────────────
+            if (WhisperModelManager.IsModelDownloaded)
+            {
+                var whisper = await TryCreateWithTimeoutAsync(
+                    factory: () => new WhisperSpeechService(),
+                    timeoutMs: 10000,
+                    engineName: "Whisper");
+
+                if (whisper != null)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        $"[App] STT: Whisper " +
+                        $"({WhisperModelManager.SelectedModelInfo.DisplayName})");
+                    return whisper;
+                }
+
+                System.Diagnostics.Debug.WriteLine(
+                    "[App] STT: Whisper init failed or timed out. " +
+                    "Falling back to System.Speech.");
+            }
+
+            // ── Fall back to System.Speech ────────────────────────────
+            var systemSpeech = await TryCreateWithTimeoutAsync(
+                factory: () => new SpeechToTextService(),
+                timeoutMs: 5000,
+                engineName: "System.Speech");
+
+            if (systemSpeech != null)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    "[App] STT: System.Speech fallback active. " +
+                    "Voice available but accuracy limited to ~70%. " +
+                    "Download Whisper model in Settings for 95%+ accuracy.");
+                return systemSpeech;
+            }
+
+            // ── All attempts failed ───────────────────────────────────
+            System.Diagnostics.Debug.WriteLine(
+                "[App] STT: All engines failed. Voice input disabled. " +
+                "Check audio drivers and Windows Speech Platform.");
+            return null;
+        }
+
+        /// <summary>
+        /// Attempts to construct a service on background thread with
+        /// timeout. Returns null if construction hangs, times out,
+        /// or throws.
+        /// 
+        /// Critical for STT services because underlying audio device
+        /// enumeration (NAudio WaveInEvent.DeviceCount, Windows Speech
+        /// Recognizer init) can block indefinitely on machines with
+        /// audio driver issues.
+        /// </summary>
+        private static async Task<ISpeechToTextService>
+            TryCreateWithTimeoutAsync(
+                Func<ISpeechToTextService> factory,
+                int timeoutMs,
+                string engineName)
+        {
+            try
+            {
+                using var cts = new CancellationTokenSource(timeoutMs);
+
+                // Run constructor on background thread
+                var createTask = Task.Run(() =>
+                {
+                    try
+                    {
+                        return factory();
+                    }
+                    catch (Exception ex)
+                    {
+                        System.Diagnostics.Debug.WriteLine(
+                            $"[App] {engineName} constructor threw: " +
+                            $"{ex.GetType().Name}: {ex.Message}");
+                        return (ISpeechToTextService)null;
+                    }
+                }, cts.Token);
+
+                // Race constructor against timeout
+                var completedTask = await Task.WhenAny(
+                    createTask,
+                    Task.Delay(timeoutMs, cts.Token));
+
+                if (completedTask == createTask)
+                {
+                    // Constructor finished before timeout
+                    return await createTask;
+                }
+
+                // Timeout won the race — constructor is still hanging
+                // We cannot forcibly abort it (Thread.Abort deprecated)
+                // but we can abandon it. GC will clean up eventually.
+                System.Diagnostics.Debug.WriteLine(
+                    $"[App] {engineName} constructor TIMED OUT after " +
+                    $"{timeoutMs}ms — abandoning and falling through.");
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[App] {engineName} init exception: " +
+                    $"{ex.GetType().Name}: {ex.Message}");
+                return null;
+            }
         }
 
         protected override void OnExit(ExitEventArgs e)

@@ -1,29 +1,19 @@
 ﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/AI/AIService/CohereAiService.cs
 // PROJECT: ProGlassAutomation
-// MODULE: AI Service (Chat 24 v1.1 — NEW provider)
+// MODULE: AI Service (Chat 25 v3.0 — model update + better error logging)
 //
-// PURPOSE:
-//   Cohere AI service implementation.
-//   Free trial tier: 100 req/min.
-//   Optimized for search and retrieval (RAG) workflows.
-//   Uses Command-R model by default.
-//   Sign up: https://dashboard.cohere.com/
-//
-// FOLDER: Services/AI/AIService/    (same folder as other providers)
-// NAMESPACE: ProGlassAutomation.Services.AI.AIService
-//
-// API:
-//   POST https://api.cohere.com/v2/chat
-//   Authorization: Bearer {api_key}
-//   Body: { model, messages: [{role, content}], temperature, max_tokens }
-//
-// NOTE:
-//   Cohere v2 API uses a message-based format similar to OpenAI.
-//   Response format differs slightly — this service handles multiple
-//   response shapes (v2 message.content[], OpenAI choices[], legacy text).
-//
-// REGRESSION RISK: ZERO — new file, no existing code depends on it.
+// CHANGES vs Chat 24 v1.1:
+//   ✓ FIX: Model reads from _settings.CohereModel which now defaults to
+//     "command-r-plus" (better quality, free tier eligible).
+//   ✓ FIX: HTTP 429 rate limit — friendly message.
+//   ✓ FIX: HTTP 401/403 — clear key invalid message.
+//   ✓ FIX: Silent parse failure now logs body to Debug output so
+//     format changes can be diagnosed.
+//   ✓ FIX: ParseCohereResponse returns the raw body in the error
+//     message so format mismatches are visible in debug output.
+//   ✓ Added Error() helper to reduce repetition.
+//   ✓ All other logic preserved exactly.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -38,7 +28,7 @@ namespace ProGlassAutomation.Services.AI.AIService
 {
     /// <summary>
     /// Cohere AI provider — optimized for search/RAG.
-    /// Uses the Cohere v2 Chat API.
+    /// Uses Cohere v2 Chat API.
     /// </summary>
     public class CohereAiService : IAiService
     {
@@ -50,14 +40,21 @@ namespace ProGlassAutomation.Services.AI.AIService
         public string ProviderName => "Cohere";
         public string ProviderIcon => "🟣";
         public AiProvider Provider => AiProvider.Cohere;
-        public bool IsEnabled => _settings.Enabled &&
-                                  _settings.ActiveProvider == AiProvider.Cohere;
-        public bool IsConfigured => !string.IsNullOrWhiteSpace(_settings.CohereApiKey);
+
+        public bool IsEnabled =>
+            _settings.Enabled &&
+            _settings.ActiveProvider == AiProvider.Cohere;
+
+        public bool IsConfigured =>
+            !string.IsNullOrWhiteSpace(_settings.CohereApiKey);
 
         public CohereAiService(AiSettings settings)
         {
             _settings = settings ?? new AiSettings();
-            _http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+            _http = new HttpClient
+            {
+                Timeout = TimeSpan.FromSeconds(30)
+            };
         }
 
         public async Task<AiTestResult> TestConnectionAsync()
@@ -70,12 +67,12 @@ namespace ProGlassAutomation.Services.AI.AIService
                     ProviderName = ProviderName
                 };
 
-            var res = await AskInternalAsync(null, "Reply with the single word: OK");
+            var res = await AskInternalAsync(null, "Reply with exactly: OK");
             return new AiTestResult
             {
                 Success = res.Success,
                 Message = res.Success
-                    ? "Connection successful. Cohere responded."
+                    ? "✓ Connection successful. Cohere responded."
                     : res.ErrorMessage ?? "Unknown error.",
                 ProviderName = ProviderName
             };
@@ -84,29 +81,24 @@ namespace ProGlassAutomation.Services.AI.AIService
         public Task<AiResponse> AskAsync(string prompt) =>
             AskInternalAsync(null, prompt);
 
-        public Task<AiResponse> AskAsync(string systemPrompt, string userPrompt) =>
+        public Task<AiResponse> AskAsync(
+            string systemPrompt, string userPrompt) =>
             AskInternalAsync(systemPrompt, userPrompt);
 
         private async Task<AiResponse> AskInternalAsync(
             string systemPrompt, string userPrompt)
         {
             if (!IsConfigured)
-                return new AiResponse
-                {
-                    Success = false,
-                    ErrorMessage = "Cohere API key not configured.",
-                    ProviderName = ProviderName
-                };
+                return Error(
+                    "Cohere API key not configured. " +
+                    "Go to Settings → AI Providers to add your key.");
 
             try
             {
-                // Build Cohere v2 messages array
                 var messages = new List<object>();
 
                 if (!string.IsNullOrWhiteSpace(systemPrompt))
-                {
                     messages.Add(new { role = "system", content = systemPrompt });
-                }
 
                 messages.Add(new { role = "user", content = userPrompt });
 
@@ -120,38 +112,51 @@ namespace ProGlassAutomation.Services.AI.AIService
 
                 var json = JsonSerializer.Serialize(payload);
 
-                using var request = new HttpRequestMessage(HttpMethod.Post, BaseUrl);
+                using var request = new HttpRequestMessage(
+                    HttpMethod.Post, BaseUrl);
                 request.Headers.Authorization =
-                    new AuthenticationHeaderValue("Bearer", _settings.CohereApiKey);
+                    new AuthenticationHeaderValue(
+                        "Bearer", _settings.CohereApiKey);
                 request.Content = new StringContent(
                     json, Encoding.UTF8, "application/json");
 
                 var response = await _http.SendAsync(request);
                 var body = await response.Content.ReadAsStringAsync();
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    return new AiResponse
-                    {
-                        Success = false,
-                        ErrorMessage = $"Cohere API error ({(int)response.StatusCode}): " +
-                                       TruncateError(body),
-                        ProviderName = ProviderName
-                    };
-                }
+                if ((int)response.StatusCode == 429)
+                    return Error(
+                        "Cohere rate limit reached. " +
+                        "Free trial: 100 requests/minute. " +
+                        "Please wait a moment and try again.");
 
-                // Parse response — handle multiple Cohere response formats
-                string text = ParseCohereResponse(body);
+                if ((int)response.StatusCode == 401 ||
+                    (int)response.StatusCode == 403)
+                    return Error(
+                        "Cohere API key is invalid or expired. " +
+                        "Go to Settings → AI Providers to update your key.");
+
+                if (!response.IsSuccessStatusCode)
+                    return Error(
+                        $"Cohere API error ({(int)response.StatusCode}): " +
+                        Truncate(body));
+
+                // FIX: Log body to Debug so format changes are diagnosable
+                System.Diagnostics.Debug.WriteLine(
+                    $"[CohereAI] Response body: {Truncate(body)}");
+
+                var text = ParseCohereResponse(body);
 
                 if (string.IsNullOrEmpty(text))
                 {
-                    return new AiResponse
-                    {
-                        Success = false,
-                        ErrorMessage = "Cohere returned an unrecognized response format: " +
-                                       TruncateError(body),
-                        ProviderName = ProviderName
-                    };
+                    // FIX: Include truncated body in error for debugging
+                    System.Diagnostics.Debug.WriteLine(
+                        $"[CohereAI] Failed to parse response. " +
+                        $"Full body: {body}");
+
+                    return Error(
+                        "Cohere returned an unrecognized response format. " +
+                        "This may indicate an API change. " +
+                        $"Debug: {Truncate(body)}");
                 }
 
                 return new AiResponse
@@ -163,31 +168,21 @@ namespace ProGlassAutomation.Services.AI.AIService
             }
             catch (TaskCanceledException)
             {
-                return new AiResponse
-                {
-                    Success = false,
-                    ErrorMessage = "Cohere request timed out (30s). " +
-                                   "Check your internet connection.",
-                    ProviderName = ProviderName
-                };
+                return Error(
+                    "Cohere request timed out (30s). " +
+                    "Check your internet connection and try again.");
             }
             catch (Exception ex)
             {
-                return new AiResponse
-                {
-                    Success = false,
-                    ErrorMessage = $"Cohere exception: {ex.Message}",
-                    ProviderName = ProviderName
-                };
+                return Error($"Cohere error: {ex.Message}");
             }
         }
 
         /// <summary>
-        /// Parses Cohere API response body. Handles three response formats:
-        ///   1. Cohere v2: { message: { content: [{ text: "..." }] } }
+        /// Parses Cohere API response. Handles three formats:
+        ///   1. v2: { message: { content: [{ text: "..." }] } }
         ///   2. OpenAI-compat: { choices: [{ message: { content: "..." } }] }
         ///   3. Legacy v1: { text: "..." }
-        /// Returns null if none match.
         /// </summary>
         private static string ParseCohereResponse(string body)
         {
@@ -196,24 +191,22 @@ namespace ProGlassAutomation.Services.AI.AIService
                 using var doc = JsonDocument.Parse(body);
                 var root = doc.RootElement;
 
-                // Format 1: Cohere v2 — message.content[0].text
+                // Format 1: Cohere v2
                 if (root.TryGetProperty("message", out var message))
                 {
-                    if (message.TryGetProperty("content", out var contentArr) &&
-                        contentArr.ValueKind == JsonValueKind.Array &&
-                        contentArr.GetArrayLength() > 0)
+                    if (message.TryGetProperty("content", out var arr) &&
+                        arr.ValueKind == JsonValueKind.Array &&
+                        arr.GetArrayLength() > 0)
                     {
-                        var firstContent = contentArr[0];
-                        if (firstContent.TryGetProperty("text", out var textProp))
+                        if (arr[0].TryGetProperty("text", out var t))
                         {
-                            var text = textProp.GetString();
-                            if (!string.IsNullOrEmpty(text))
-                                return text;
+                            var text = t.GetString();
+                            if (!string.IsNullOrEmpty(text)) return text;
                         }
                     }
                 }
 
-                // Format 2: OpenAI-compatible — choices[0].message.content
+                // Format 2: OpenAI-compatible
                 if (root.TryGetProperty("choices", out var choices) &&
                     choices.ValueKind == JsonValueKind.Array &&
                     choices.GetArrayLength() > 0)
@@ -222,27 +215,33 @@ namespace ProGlassAutomation.Services.AI.AIService
                         .GetProperty("message")
                         .GetProperty("content")
                         .GetString();
-                    if (!string.IsNullOrEmpty(text))
-                        return text;
+                    if (!string.IsNullOrEmpty(text)) return text;
                 }
 
-                // Format 3: Legacy v1 — { text: "..." }
+                // Format 3: Legacy v1
                 if (root.TryGetProperty("text", out var legacyText))
                 {
                     var text = legacyText.GetString();
-                    if (!string.IsNullOrEmpty(text))
-                        return text;
+                    if (!string.IsNullOrEmpty(text)) return text;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // JSON parse error — return null, caller handles it
+                System.Diagnostics.Debug.WriteLine(
+                    $"[CohereAI] JSON parse failed: {ex.Message}");
             }
 
             return null;
         }
 
-        private static string TruncateError(string body) =>
-            body.Length > 300 ? body.Substring(0, 300) + "..." : body;
+        private AiResponse Error(string message) => new AiResponse
+        {
+            Success = false,
+            ErrorMessage = message,
+            ProviderName = ProviderName
+        };
+
+        private static string Truncate(string s) =>
+            s?.Length > 300 ? s.Substring(0, 300) + "..." : s;
     }
 }

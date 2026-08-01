@@ -65,7 +65,7 @@ namespace ProGlassAutomation.Services.AI.AIContext
         // ── Cache ──────────────────────────────────────────────────────────
         private static string _cachedContext = string.Empty;
         private static DateTime _cacheExpiry = DateTime.MinValue;
-        private const int CacheSeconds = 30;
+        private const int CacheSeconds = 120;
 
         // FIX BUG #3: thread-safe build gate
         private static readonly SemaphoreSlim _buildLock =

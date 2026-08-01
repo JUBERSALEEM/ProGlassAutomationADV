@@ -1,34 +1,20 @@
 ﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/AI/AIVoice/TextToSpeechService.cs
 // PROJECT: ProGlassAutomation
-// MODULE: AI Voice (Chat 24 v1.0 — NEW)
+// MODULE: AI Voice (Chat 25 v3.0 — English voice selection for UAE)
 //
-// PURPOSE:
-//   Text-to-Speech using Windows built-in System.Speech.Synthesis.
-//   Free, offline, no API key needed. Reads AI responses aloud.
-//
-// HOW IT WORKS:
-//   1. Creates a SpeechSynthesizer with default voice
-//   2. SpeakAsync(text) queues text for speaking (non-blocking)
-//   3. Stop() cancels current speech immediately
-//   4. Rate and Volume are adjustable
-//
-// VOICE QUALITY:
-//   Windows 10/11 includes Microsoft David/Zira (EN-US) voices.
-//   They sound robotic compared to neural TTS (Azure/ElevenLabs),
-//   but they're FREE, OFFLINE, and instant — no API calls needed.
-//
-//   Future upgrade path: swap this service with an Azure Neural TTS
-//   implementation using the same ITextToSpeechService interface.
-//
-// REQUIREMENTS:
-//   • Windows 10/11
-//   • NuGet: System.Speech (or GAC reference)
-//
-// REGRESSION RISK: ZERO — new file, no existing code depends on it.
+// CHANGES vs Chat 24 v1.0:
+//   ✓ FIX: Explicit English voice selection added.
+//     On UAE Windows machines with Arabic language packs the default
+//     voice may be Arabic. Now explicitly searches for an English
+//     voice (en-US preferred, any English fallback, any voice last).
+//     This ensures AI responses are always spoken in English.
+//   ✓ Added debug logging to show which voice was selected at startup.
+//   ✓ All other logic preserved exactly.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
+using System.Linq;
 using System.Speech.Synthesis;
 
 namespace ProGlassAutomation.Services.AI.AIVoice
@@ -36,6 +22,7 @@ namespace ProGlassAutomation.Services.AI.AIVoice
     /// <summary>
     /// Text-to-Speech using Windows built-in speech synthesis.
     /// Free, offline, no API key required.
+    /// English voice explicitly selected for UAE deployments.
     /// </summary>
     public class TextToSpeechService : ITextToSpeechService, IDisposable
     {
@@ -46,14 +33,12 @@ namespace ProGlassAutomation.Services.AI.AIVoice
         public bool IsSpeaking => _isSpeaking;
         public bool IsAvailable { get; private set; }
 
-        /// <summary>Speech rate: -10 (slowest) to +10 (fastest), 0 = normal.</summary>
         public int Rate
         {
             get => _synth?.Rate ?? 0;
             set { if (_synth != null) _synth.Rate = Math.Clamp(value, -10, 10); }
         }
 
-        /// <summary>Volume: 0 (silent) to 100 (loudest).</summary>
         public int Volume
         {
             get => _synth?.Volume ?? 100;
@@ -65,42 +50,109 @@ namespace ProGlassAutomation.Services.AI.AIVoice
             try
             {
                 _synth = new SpeechSynthesizer();
-
-                // Use default audio output device
                 _synth.SetOutputToDefaultAudioDevice();
 
-                // Moderate speed — not too fast, not too slow
-                _synth.Rate = 1;
+                // ── FIX: Explicit English voice selection ────────────────
+                // On UAE machines Arabic voices may be default.
+                // We need English for AI responses.
+                // Priority: en-US > any English > any available voice.
+                SelectEnglishVoice();
+
+                _synth.Rate = 1;   // Slightly faster than default
                 _synth.Volume = 90;
 
-                // Track speaking state
                 _synth.SpeakStarted += (s, e) => _isSpeaking = true;
                 _synth.SpeakCompleted += (s, e) => _isSpeaking = false;
 
                 IsAvailable = true;
+
+                System.Diagnostics.Debug.WriteLine(
+                    $"[TextToSpeech] Ready. " +
+                    $"Voice: {_synth.Voice?.Name ?? "unknown"} | " +
+                    $"Culture: {_synth.Voice?.Culture?.Name ?? "unknown"}");
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine(
-                    $"[TextToSpeech] Initialization failed: {ex.Message}");
+                    $"[TextToSpeech] Init failed: {ex.Message}");
                 IsAvailable = false;
             }
         }
 
         /// <summary>
-        /// Speak the given text aloud. Non-blocking.
-        /// Queues behind any currently-speaking text.
+        /// Selects the best available English voice.
+        /// Priority: en-US > en-GB > en-AU > any English > any available.
+        /// Logs selected voice to Debug output.
         /// </summary>
-        public void SpeakAsync(string text)
+        private void SelectEnglishVoice()
         {
-            if (!IsAvailable || _isDisposed || string.IsNullOrWhiteSpace(text))
-                return;
-
             try
             {
-                // Clean up markdown/special chars that sound weird spoken aloud
-                var cleanText = CleanForSpeech(text);
-                _synth.SpeakAsync(cleanText);
+                var voices = _synth.GetInstalledVoices()
+                    .Where(v => v.Enabled)
+                    .ToList();
+
+                if (voices.Count == 0)
+                {
+                    System.Diagnostics.Debug.WriteLine(
+                        "[TextToSpeech] No voices found — using system default.");
+                    return;
+                }
+
+                // 1. Prefer en-US
+                var enUs = voices.FirstOrDefault(v =>
+                    v.VoiceInfo.Culture.Name
+                     .StartsWith("en-US",
+                         StringComparison.OrdinalIgnoreCase));
+
+                if (enUs != null)
+                {
+                    _synth.SelectVoice(enUs.VoiceInfo.Name);
+                    System.Diagnostics.Debug.WriteLine(
+                        $"[TextToSpeech] Selected en-US voice: " +
+                        $"{enUs.VoiceInfo.Name}");
+                    return;
+                }
+
+                // 2. Any English voice
+                var anyEnglish = voices.FirstOrDefault(v =>
+                    v.VoiceInfo.Culture.TwoLetterISOLanguageName
+                     .Equals("en", StringComparison.OrdinalIgnoreCase));
+
+                if (anyEnglish != null)
+                {
+                    _synth.SelectVoice(anyEnglish.VoiceInfo.Name);
+                    System.Diagnostics.Debug.WriteLine(
+                        $"[TextToSpeech] Selected English voice: " +
+                        $"{anyEnglish.VoiceInfo.Name} " +
+                        $"({anyEnglish.VoiceInfo.Culture.Name})");
+                    return;
+                }
+
+                // 3. Any available voice — log warning
+                var anyVoice = voices.First();
+                _synth.SelectVoice(anyVoice.VoiceInfo.Name);
+                System.Diagnostics.Debug.WriteLine(
+                    $"[TextToSpeech] ⚠ No English voice found. " +
+                    $"Using: {anyVoice.VoiceInfo.Name} " +
+                    $"({anyVoice.VoiceInfo.Culture.Name}). " +
+                    $"Install an English language pack for correct TTS.");
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[TextToSpeech] Voice selection failed: {ex.Message}. " +
+                    $"Using system default.");
+            }
+        }
+
+        public void SpeakAsync(string text)
+        {
+            if (!IsAvailable || _isDisposed ||
+                string.IsNullOrWhiteSpace(text)) return;
+            try
+            {
+                _synth.SpeakAsync(CleanForSpeech(text));
             }
             catch (Exception ex)
             {
@@ -109,11 +161,9 @@ namespace ProGlassAutomation.Services.AI.AIVoice
             }
         }
 
-        /// <summary>Stop speaking immediately.</summary>
         public void Stop()
         {
             if (!IsAvailable || _isDisposed) return;
-
             try
             {
                 _synth.SpeakAsyncCancelAll();
@@ -126,57 +176,31 @@ namespace ProGlassAutomation.Services.AI.AIVoice
             }
         }
 
-        /// <summary>
-        /// Cleans text for natural speech output.
-        /// Removes markdown formatting, code blocks, bullet chars, etc.
-        /// that would sound awkward when spoken aloud.
-        /// </summary>
         private static string CleanForSpeech(string text)
         {
             if (string.IsNullOrEmpty(text)) return text;
 
-            var cleaned = text;
+            var cleaned = text
+                .Replace("**", "").Replace("__", "")
+                .Replace("*", "").Replace("_", " ")
+                .Replace("###", "").Replace("##", "").Replace("#", "")
+                .Replace("```", "").Replace("`", "")
+                .Replace("• ", ". ").Replace("- ", ". ");
 
-            // Remove markdown bold/italic markers
-            cleaned = cleaned.Replace("**", "");
-            cleaned = cleaned.Replace("__", "");
-            cleaned = cleaned.Replace("*", "");
-            cleaned = cleaned.Replace("_", " ");
-
-            // Remove markdown headers
-            cleaned = cleaned.Replace("###", "");
-            cleaned = cleaned.Replace("##", "");
-            cleaned = cleaned.Replace("#", "");
-
-            // Remove code block markers
-            cleaned = cleaned.Replace("```", "");
-            cleaned = cleaned.Replace("`", "");
-
-            // Replace bullet points with natural pause
-            cleaned = cleaned.Replace("• ", ". ");
-            cleaned = cleaned.Replace("- ", ". ");
-
-            // Replace multiple newlines with period (natural pause)
-            cleaned = System.Text.RegularExpressions.Regex.Replace(
-                cleaned, @"\n{2,}", ". ");
+            cleaned = System.Text.RegularExpressions.Regex
+                .Replace(cleaned, @"\n{2,}", ". ");
             cleaned = cleaned.Replace("\n", " ");
-
-            // Clean up extra spaces
-            cleaned = System.Text.RegularExpressions.Regex.Replace(
-                cleaned, @"\s{2,}", " ");
+            cleaned = System.Text.RegularExpressions.Regex
+                .Replace(cleaned, @"\s{2,}", " ");
 
             return cleaned.Trim();
         }
-
-        // ── Cleanup ──────────────────────────────────────────────────
 
         public void Dispose()
         {
             if (_isDisposed) return;
             _isDisposed = true;
-
             Stop();
-
             if (_synth != null)
             {
                 _synth.Dispose();

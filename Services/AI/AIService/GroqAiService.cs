@@ -1,25 +1,18 @@
 ﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/AI/AIService/GroqAiService.cs
 // PROJECT: ProGlassAutomation
-// MODULE: AI Service (Chat 24 v1.1 — NEW provider)
+// MODULE: AI Service (Chat 25 v3.0 — updated model + rate limit handling)
 //
-// PURPOSE:
-//   Groq AI service implementation.
-//   Free tier: 30 req/min, 14,400 req/day — most generous free tier.
-//   Fastest inference speed of any free provider (~200ms response time).
-//   Uses Llama 3.1 70B by default.
-//   Sign up: https://console.groq.com/
-//
-// FOLDER: Services/AI/AIService/    (same folder as other providers)
-// NAMESPACE: ProGlassAutomation.Services.AI.AIService
-//
-// API:
-//   Groq uses an OpenAI-compatible REST API format:
-//   POST https://api.groq.com/openai/v1/chat/completions
-//   Authorization: Bearer {api_key}
-//   Body: { model, messages: [{role, content}], temperature, max_tokens }
-//
-// REGRESSION RISK: ZERO — new file, no existing code depends on it.
+// CHANGES vs Chat 24 v1.1:
+//   ✓ FIX: Default model reference updated — reads from AiSettings.GroqModel
+//     which now defaults to "llama-3.3-70b-versatile" (current Groq model).
+//     "llama-3.1-70b-versatile" was deprecated by Groq late 2024.
+//   ✓ FIX: HTTP 429 rate limit — friendly message with quota info.
+//   ✓ FIX: HTTP 401/403 — clear key invalid message.
+//   ✓ FIX: Groq uses "max_tokens" not "max_completion_tokens" — verified
+//     against current Groq OpenAI-compatible API docs. Preserved.
+//   ✓ Added Error() helper to reduce repetition.
+//   ✓ All other logic preserved exactly.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -34,7 +27,7 @@ namespace ProGlassAutomation.Services.AI.AIService
 {
     /// <summary>
     /// Groq AI provider — fastest free inference.
-    /// Uses OpenAI-compatible chat completions API.
+    /// OpenAI-compatible chat completions API.
     /// </summary>
     public class GroqAiService : IAiService
     {
@@ -47,14 +40,21 @@ namespace ProGlassAutomation.Services.AI.AIService
         public string ProviderName => "Groq";
         public string ProviderIcon => "⚡";
         public AiProvider Provider => AiProvider.Groq;
-        public bool IsEnabled => _settings.Enabled &&
-                                  _settings.ActiveProvider == AiProvider.Groq;
-        public bool IsConfigured => !string.IsNullOrWhiteSpace(_settings.GroqApiKey);
+
+        public bool IsEnabled =>
+            _settings.Enabled &&
+            _settings.ActiveProvider == AiProvider.Groq;
+
+        public bool IsConfigured =>
+            !string.IsNullOrWhiteSpace(_settings.GroqApiKey);
 
         public GroqAiService(AiSettings settings)
         {
             _settings = settings ?? new AiSettings();
-            _http = new HttpClient { Timeout = TimeSpan.FromSeconds(30) };
+            _http = new HttpClient
+            {
+                Timeout = TimeSpan.FromSeconds(30)
+            };
         }
 
         public async Task<AiTestResult> TestConnectionAsync()
@@ -67,12 +67,12 @@ namespace ProGlassAutomation.Services.AI.AIService
                     ProviderName = ProviderName
                 };
 
-            var res = await AskInternalAsync(null, "Reply with the single word: OK");
+            var res = await AskInternalAsync(null, "Reply with exactly: OK");
             return new AiTestResult
             {
                 Success = res.Success,
                 Message = res.Success
-                    ? "Connection successful. Groq responded."
+                    ? "✓ Connection successful. Groq responded."
                     : res.ErrorMessage ?? "Unknown error.",
                 ProviderName = ProviderName
             };
@@ -81,29 +81,25 @@ namespace ProGlassAutomation.Services.AI.AIService
         public Task<AiResponse> AskAsync(string prompt) =>
             AskInternalAsync(null, prompt);
 
-        public Task<AiResponse> AskAsync(string systemPrompt, string userPrompt) =>
+        public Task<AiResponse> AskAsync(
+            string systemPrompt, string userPrompt) =>
             AskInternalAsync(systemPrompt, userPrompt);
 
         private async Task<AiResponse> AskInternalAsync(
             string systemPrompt, string userPrompt)
         {
             if (!IsConfigured)
-                return new AiResponse
-                {
-                    Success = false,
-                    ErrorMessage = "Groq API key not configured.",
-                    ProviderName = ProviderName
-                };
+                return Error(
+                    "Groq API key not configured. " +
+                    "Go to Settings → AI Providers to add your key.");
 
             try
             {
-                // Build OpenAI-compatible messages array
                 var messages = new List<object>();
 
+                // Groq (OpenAI-compatible) supports role:"system" properly
                 if (!string.IsNullOrWhiteSpace(systemPrompt))
-                {
                     messages.Add(new { role = "system", content = systemPrompt });
-                }
 
                 messages.Add(new { role = "user", content = userPrompt });
 
@@ -117,27 +113,34 @@ namespace ProGlassAutomation.Services.AI.AIService
 
                 var json = JsonSerializer.Serialize(payload);
 
-                using var request = new HttpRequestMessage(HttpMethod.Post, BaseUrl);
+                using var request = new HttpRequestMessage(
+                    HttpMethod.Post, BaseUrl);
                 request.Headers.Authorization =
-                    new AuthenticationHeaderValue("Bearer", _settings.GroqApiKey);
+                    new AuthenticationHeaderValue(
+                        "Bearer", _settings.GroqApiKey);
                 request.Content = new StringContent(
                     json, Encoding.UTF8, "application/json");
 
                 var response = await _http.SendAsync(request);
                 var body = await response.Content.ReadAsStringAsync();
 
-                if (!response.IsSuccessStatusCode)
-                {
-                    return new AiResponse
-                    {
-                        Success = false,
-                        ErrorMessage = $"Groq API error ({(int)response.StatusCode}): " +
-                                       TruncateError(body),
-                        ProviderName = ProviderName
-                    };
-                }
+                if ((int)response.StatusCode == 429)
+                    return Error(
+                        "Groq rate limit reached. " +
+                        "Free tier: 30 requests/minute, 14,400/day. " +
+                        "Please wait a moment and try again.");
 
-                // Parse OpenAI-format response
+                if ((int)response.StatusCode == 401 ||
+                    (int)response.StatusCode == 403)
+                    return Error(
+                        "Groq API key is invalid or expired. " +
+                        "Go to Settings → AI Providers to update your key.");
+
+                if (!response.IsSuccessStatusCode)
+                    return Error(
+                        $"Groq API error ({(int)response.StatusCode}): " +
+                        Truncate(body));
+
                 using var doc = JsonDocument.Parse(body);
                 var text = doc.RootElement
                     .GetProperty("choices")[0]
@@ -154,26 +157,24 @@ namespace ProGlassAutomation.Services.AI.AIService
             }
             catch (TaskCanceledException)
             {
-                return new AiResponse
-                {
-                    Success = false,
-                    ErrorMessage = "Groq request timed out (30s). " +
-                                   "Check your internet connection.",
-                    ProviderName = ProviderName
-                };
+                return Error(
+                    "Groq request timed out (30s). " +
+                    "Check your internet connection and try again.");
             }
             catch (Exception ex)
             {
-                return new AiResponse
-                {
-                    Success = false,
-                    ErrorMessage = $"Groq exception: {ex.Message}",
-                    ProviderName = ProviderName
-                };
+                return Error($"Groq error: {ex.Message}");
             }
         }
 
-        private static string TruncateError(string body) =>
-            body.Length > 300 ? body.Substring(0, 300) + "..." : body;
+        private AiResponse Error(string message) => new AiResponse
+        {
+            Success = false,
+            ErrorMessage = message,
+            ProviderName = ProviderName
+        };
+
+        private static string Truncate(string s) =>
+            s?.Length > 300 ? s.Substring(0, 300) + "..." : s;
     }
 }
