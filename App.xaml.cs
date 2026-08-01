@@ -1,15 +1,23 @@
 ﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: App.xaml.cs
 // PROJECT: ProGlassAutomation
+// MODULE: Application startup (Chat 25 v1.2 — SpeechToText public set)
 //
-// CHAT 16: Added IStatementRepository + StatementRepository registration.
-//          Initialized after TaxInvoices (step 9).
-//          All other code UNCHANGED.
+// CHANGES vs Chat 24 v1.3:
+//   ✓ FIX CS0272: SpeechToText { get; private set; } → { get; set; }
+//     SettingsViewModel swaps STT service after model download/delete.
+//     Matches pattern of App.Ai which is already public set.
+//   ✓ FIX CS0428: WhisperModelManager.IsModelDownloaded resolves as
+//     bool property (fixed in WhisperModelManager.cs).
+//   ✓ Added App.AiProviderChanged static event for live provider swap.
+//   ✓ AI Enabled defaults to true in AiSettings — no change needed here.
+//   ✓ All startup steps preserved in exact order.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.AI.AIConnectivity;
 using ProGlassAutomation.Services.AI.AIService;
+using ProGlassAutomation.Services.AI.AIVoice;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Database.DatabaseBackup;
 using ProGlassAutomation.Services.DeliveryNote.Repository;
@@ -28,61 +36,66 @@ namespace ProGlassAutomation
 {
     public partial class App : Application
     {
-        // ── Global service instances (simple service locator pattern) ─────
+        // ── Global service instances ──────────────────────────────────
 
         public static AppConfig Config { get; private set; }
-        public static IAiService Ai { get; private set; }
+
+        /// <summary>
+        /// Active AI service — public set allows runtime provider swap
+        /// from SettingsViewModel without app restart.
+        /// </summary>
+        public static IAiService Ai { get; set; }
+
+        /// <summary>
+        /// Raised when SettingsViewModel swaps the active AI provider.
+        /// AiChatViewModel subscribes to refresh its provider display.
+        /// </summary>
+        public static event EventHandler AiProviderChanged;
+
+        /// <summary>Raises AiProviderChanged so all subscribers refresh.</summary>
+        public static void RaiseAiProviderChanged() =>
+            AiProviderChanged?.Invoke(null, EventArgs.Empty);
+
         public static IConnectivityService Connectivity { get; private set; }
 
-        // Proforma Invoice — spec library (separate SQLite: specifications.db)
+        /// <summary>
+        /// Speech-to-Text service.
+        /// ─────────────────────────────────────────────────────────────
+        /// FIX CS0272: Changed from { get; private set; } to { get; set; }
+        /// SettingsViewModel needs to swap this after model download:
+        ///   • Download complete → swap System.Speech → WhisperSpeechService
+        ///   • Model deleted    → swap WhisperSpeechService → System.Speech
+        /// Pattern matches App.Ai which is already public set.
+        /// ─────────────────────────────────────────────────────────────
+        /// </summary>
+        public static ISpeechToTextService SpeechToText { get; set; }
+
+        /// <summary>Text-to-Speech — Windows System.Speech. Nullable.</summary>
+        public static ITextToSpeechService TextToSpeech { get; private set; }
+
         public static ISpecificationsRepository Specs { get; private set; }
-
-        // Proforma Invoice — saved invoices (separate SQLite: proformainvoices.db)
         public static IProformaInvoiceRepository Invoices { get; private set; }
-
-        // Job Order — saved job orders (separate SQLite: joborders.db)
         public static IJobOrderRepository Jobs { get; private set; }
-
-        // Delivery Notes — saved delivery notes (separate SQLite: deliverynotes.db)
         public static IDeliveryNoteRepository DeliveryNotes { get; private set; }
-
-        // Master Data — companies, clients, projects, salesmen (separate SQLite: masterdata.db)
         public static IMasterDataRepository MasterData { get; private set; }
-
-        /// <summary>
-        /// Tax Invoices — saved tax invoices (separate SQLite: taxinvoices.db)
-        /// Added in Chat 14 (Tax Invoice module).
-        /// Initialized after DeliveryNotes in Application_Startup.
-        /// </summary>
         public static ITaxInvoiceRepository TaxInvoices { get; private set; }
-
-        /// <summary>
-        /// Statements — saved account statements (separate SQLite: statements.db)
-        /// Added in Chat 16 (Sales Report / Account Statement module).
-        /// Initialized after TaxInvoices in Application_Startup.
-        /// </summary>
         public static IStatementRepository Statements { get; private set; }
 
         private async void Application_Startup(object sender, StartupEventArgs e)
         {
-            // ══════════════════════════════════════════════════════════════
-            //  TEMPORARY DIAGNOSTIC: Global exception handler
-            //  Catches WPF dispatcher crashes (layout/render pass errors)
-            //  that bypass normal try/catch blocks.
-            // ══════════════════════════════════════════════════════════════
+            // ── Global unhandled exception catcher (debug) ────────────
             DispatcherUnhandledException += (s, args) =>
             {
                 string msg =
                     $"UNHANDLED EXCEPTION:\n\n" +
-                    $"Type: {args.Exception.GetType().Name}\n" +
+                    $"Type:    {args.Exception.GetType().Name}\n" +
                     $"Message: {args.Exception.Message}";
 
                 if (args.Exception.InnerException != null)
                     msg += $"\n\nInner: {args.Exception.InnerException.Message}";
 
                 string stack = args.Exception.StackTrace ?? "";
-                if (stack.Length > 600)
-                    stack = stack.Substring(0, 600) + "...";
+                if (stack.Length > 600) stack = stack[..600] + "...";
                 msg += $"\n\nStack:\n{stack}";
 
                 MessageBox.Show(msg, "App Crash — Debug",
@@ -90,91 +103,110 @@ namespace ProGlassAutomation
                 args.Handled = true;
             };
 
-            // 1) Load persisted config (%AppData%\ProGlassAutomation\config.json)
+            // 1) Load persisted config
             Config = ConfigService.Load();
 
-            // 2) Initialize main database (proglass.db)
+            // 2) Main database
             DatabaseInitializer.Initialize();
 
-            // 3) Initialize Specifications database (specifications.db)
+            // 3) Specifications
             Specs = new SpecificationsRepository();
             await Specs.InitializeAsync();
 
-            // 4) Initialize Proforma Invoices database (proformainvoices.db)
+            // 4) Proforma Invoices
             Invoices = new ProformaInvoiceRepository();
             await Invoices.InitializeAsync();
 
-            // 5) Initialize Job Orders database (joborders.db)
+            // 5) Job Orders
             Jobs = new JobOrderRepository();
             await Jobs.InitializeAsync();
 
-            // 6) Initialize Delivery Notes database (deliverynotes.db)
+            // 6) Delivery Notes
             DeliveryNotes = new DeliveryNoteRepository();
             await DeliveryNotes.InitializeAsync();
 
-            // 7) Initialize Master Data database (masterdata.db)
-            //    Companies, Clients, Projects, Salesmen — auto-populated
-            //    from Proforma Invoice saves. Powers card auto-fill and
-            //    salesman dropdown across the app.
+            // 7) Master Data
             MasterData = new MasterDataRepository();
             await MasterData.InitializeAsync();
 
-            // 8) Initialize Tax Invoices database (taxinvoices.db)
-            //    Chat 14 — Tax Invoice module.
-            //    Initialized after DeliveryNotes (Tax Invoices reference DNs).
+            // 8) Tax Invoices
             TaxInvoices = new TaxInvoiceRepository();
             await TaxInvoices.InitializeAsync();
 
-            // 9) Initialize Statements database (statements.db)
-            //    Chat 16 — Sales Report / Account Statement module.
-            //    Initialized after TaxInvoices (statements aggregate invoices).
+            // 9) Statements
             Statements = new StatementRepository();
             await Statements.InitializeAsync();
 
-            // 10) Initialize AI + Connectivity services
-            Ai = new GeminiAiService(Config.Ai);
+            // 10) AI via factory (multi-provider, reads ActiveProvider from config)
+            Ai = AiProviderFactory.CreateActive(Config.Ai);
+
+            System.Diagnostics.Debug.WriteLine(
+                $"[App] AI: {Ai?.ProviderName} | " +
+                $"Enabled: {Config.Ai.Enabled} | " +
+                $"Configured: {Ai?.IsConfigured}");
+
+            // 10b) Speech-to-Text
+            //      Priority: Whisper (if model downloaded) → System.Speech fallback
+            try
+            {
+                if (WhisperModelManager.IsModelDownloaded)
+                {
+                    SpeechToText = new WhisperSpeechService();
+                    System.Diagnostics.Debug.WriteLine(
+                        $"[App] STT: Whisper " +
+                        $"({WhisperModelManager.SelectedModelInfo.DisplayName})");
+                }
+                else
+                {
+                    SpeechToText = new SpeechToTextService();
+                    System.Diagnostics.Debug.WriteLine(
+                        "[App] STT: System.Speech fallback. " +
+                        "Download Whisper model in Settings for better accuracy.");
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[App] STT init failed: {ex.Message}");
+                SpeechToText = null;
+            }
+
+            // 10c) Text-to-Speech
+            try { TextToSpeech = new TextToSpeechService(); }
+            catch { TextToSpeech = null; }
+
+            // 11) Connectivity monitoring
             Connectivity = new ConnectivityService();
             Connectivity.StartMonitoring();
 
-            // 11) Show splash
+            // 12) Splash screen
             var splash = new SplashView();
             splash.Show();
 
-            // 12) Loading time for splash animations
+            // 13) Loading delay for splash animations
             await Task.Delay(2800);
 
-            // 13) Create main window (not shown yet)
+            // 14) Main window handoff
             var mainWindow = new MainWindow();
-
-            // ══════════════════════════════════════════════════════════════
-            //  Phase 8.2c — Proper splash-to-main handoff
-            //  1. Register main window as app's primary BEFORE showing
-            //  2. Splash fades out (releases Topmost internally)
-            //  3. On fade complete: show + activate + focus main window,
-            //     then close splash
-            //  Prevents the main window from opening BEHIND the splash
-            //  and requiring a taskbar click to bring to foreground.
-            // ══════════════════════════════════════════════════════════════
             MainWindow = mainWindow;
 
             splash.FadeOutAndClose(() =>
             {
                 mainWindow.Show();
-                mainWindow.Activate();      // bring to foreground
-                mainWindow.Focus();         // grab keyboard focus
-                mainWindow.Topmost = true;  // force above splash residue
-                mainWindow.Topmost = false; // immediately release
+                mainWindow.Activate();
+                mainWindow.Focus();
+                mainWindow.Topmost = true;
+                mainWindow.Topmost = false;
             });
         }
 
         protected override void OnExit(ExitEventArgs e)
         {
-            // Backup database before closing (keeps last 7 copies)
             BackupService.CreateBackup();
-
-            // Persist config + cleanup
             if (Config != null) ConfigService.Save(Config);
             Connectivity?.StopMonitoring();
+            SpeechToText?.Dispose();
+            TextToSpeech?.Dispose();
             base.OnExit(e);
         }
     }

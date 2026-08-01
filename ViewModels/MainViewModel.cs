@@ -1,42 +1,38 @@
 ﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/MainViewModel.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Main Shell (Chat 23 v3.1)
-// VERSION: Chat 23 v3.1 — Extracted settings into SettingsViewModel
+// MODULE: Main Shell (Chat 24 v1.2)
+// VERSION: Chat 24 v1.2 — Voice services passed to AiChatViewModel
 //
-// CHANGES vs v3.0:
-//   ✓ ADDED SettingsVM (new SettingsViewModel instance)
-//   ✓ ADDED ShowSettingsCommand — navigates to Settings module
-//     (matches ShowAboutCommand pattern)
-//   ✓ ADDED "Settings" case in Navigate() switch
-//   ✓ REMOVED IsSettingsOpen property (no longer a drawer)
-//   ✓ REMOVED ToggleSettingsCommand (replaced by ShowSettingsCommand)
-//   ✓ REMOVED IsDarkTheme property (moved to SettingsViewModel)
-//   ✓ REMOVED IsAiEnabled property (moved to SettingsViewModel)
-//   ✓ REMOVED AiApiKey property (moved to SettingsViewModel)
-//   ✓ REMOVED AiTestStatus property (moved to SettingsViewModel)
-//   ✓ REMOVED TestAiConnectionCommand (moved to SettingsViewModel)
-//   ✓ REMOVED ToggleThemeCommand (was unused; theme toggled via
-//     SettingsViewModel.IsDarkTheme setter directly)
+// CHANGES vs Chat 23 v3.1:
+//   ✓ AiChatViewModel constructor now receives voice services:
+//     AiChatViewModel(App.Ai, App.SpeechToText, App.TextToSpeech)
+//     (was: AiChatViewModel(App.Ai) — voice params are optional/nullable,
+//      so if App.SpeechToText or App.TextToSpeech are null, voice
+//      features disable gracefully without crash)
+//   ✓ Updated version header to Chat 24 v1.2
+//   ✓ ALL other code UNCHANGED from Chat 23 v3.1
 //
 // PRESERVED (zero regression):
-//   • All 17 module VM properties
+//   • All 17 module VM properties (DashboardVM through SalesReportVM)
 //   • CurrentViewModel property
 //   • IsMenuOpen property
 //   • ToggleMenuCommand
 //   • NavigateCommand
 //   • ShowAboutCommand
+//   • ShowSettingsCommand
+//   • SettingsVM instance
+//   • AboutVM instance
 //   • Dashboard callbacks (NavigateTo, TriggerNewInvoice)
 //   • Phase 10.5 JO→DN navigation
 //   • Chat 14 dual-path DN→TaxInvoice navigation
-//   • AboutVM instance
-//   • AiChatVM instance
 //   • Default landing on DashboardVM
+//   • Navigate() switch with all 17 targets + About + Settings
 //
-// REGRESSION RISK: LOW
-//   Settings extraction is clean — nothing outside MainViewModel
-//   referenced the removed properties (only the right drawer XAML,
-//   which is also removed in this delivery).
+// REGRESSION RISK: ZERO
+//   Only the AiChatVM constructor call changed. The new parameters
+//   have default values (null), so even if App.SpeechToText/TextToSpeech
+//   don't exist yet, this compiles and runs identically to v3.1.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
@@ -64,6 +60,9 @@ namespace ProGlassAutomation.ViewModels
     /// v3.1: Theme + AI settings extracted into <see cref="SettingsViewModel"/>.
     /// This VM no longer owns any settings state — it just navigates to
     /// the Settings module when the gear button is clicked.
+    ///
+    /// v1.2 (Chat 24): AiChatVM now receives voice services
+    /// (App.SpeechToText, App.TextToSpeech) for voice assistant features.
     /// </summary>
     public class MainViewModel : ViewModelBase
     {
@@ -79,6 +78,9 @@ namespace ProGlassAutomation.ViewModels
         public SettingsViewModel SettingsVM { get; } = new SettingsViewModel();
 
         // ── AI chat ───────────────────────────────────────────────────────
+        // Chat 24 v1.2: Now receives voice services for 🎤 mic + 🔊 speaker.
+        // App.SpeechToText and App.TextToSpeech may be null if Windows
+        // speech services are unavailable — voice buttons hide gracefully.
         public AiChatViewModel AiChatVM { get; }
 
         // ── placeholder modules ───────────────────────────────────────────
@@ -134,7 +136,15 @@ namespace ProGlassAutomation.ViewModels
             // ── construct modules ─────────────────────────────────────────
             DashboardVM = new DashboardViewModel();
             ProformaInvoiceVM = new ProformaInvoiceViewModel();
-            AiChatVM = new AiChatViewModel(App.Ai);
+
+            // Chat 24 v1.2: Pass voice services to AI chat ViewModel.
+            // App.SpeechToText / App.TextToSpeech are initialized in
+            // App.xaml.cs step 10b. They may be null if Windows speech
+            // recognition or synthesis is not available on this machine
+            // (missing language pack, no microphone, etc.).
+            // AiChatViewModel handles null gracefully — voice buttons
+            // simply hide when services are unavailable.
+            AiChatVM = new AiChatViewModel(App.Ai, App.SpeechToText, App.TextToSpeech);
 
             // ── wire dashboard navigation callbacks ───────────────────────
             DashboardVM.NavigateTo = target =>
@@ -159,6 +169,8 @@ namespace ProGlassAutomation.ViewModels
             // ══════════════════════════════════════════════════════════════
 
             // Path 1: DN List "Master Invoice" on JO group row
+            //   → aggregates delivered qty across ALL sibling DNs
+            //   → creates Master Invoice covering all delivered pieces
             DeliveryNoteVM.OnRequestOpenTaxInvoiceForMasterFromProforma =
                 async proformaId =>
                 {
@@ -167,6 +179,8 @@ namespace ProGlassAutomation.ViewModels
                 };
 
             // Path 2: DN Detail "Convert to Tax Invoice" on history entry
+            //   → uses ONLY that specific DN's delivered qty
+            //   → creates Partial Invoice with just that DN's rows
             DeliveryNoteVM.OnRequestOpenTaxInvoiceForDeliveryNote =
                 async deliveryNoteId =>
                 {

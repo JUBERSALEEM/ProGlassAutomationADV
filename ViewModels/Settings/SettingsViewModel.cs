@@ -1,230 +1,556 @@
 ﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Settings/SettingsViewModel.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Settings (Chat 23 v3.1 — NEW module)
-// VERSION: Chat 23 v3.1 — Extracted from MainViewModel, adds persistence UX
+// MODULE: Settings (Chat 25 v1.1 — CS0272 fix)
 //
-// PURPOSE:
-//   Consolidates all app settings previously scattered on the right
-//   drawer of MainWindow. Now a proper full-screen module (like About)
-//   with its own VM, view, and lifecycle.
-//
-// FEATURES:
-//   • Appearance section — Dark Mode toggle (uses ThemeManager)
-//   • AI Assistant section — Enable toggle, API key input, Test button
-//   • Model & Tuning section — read-only display of current AI config
-//   • API key persistence — auto-saves to disk via ConfigService.Save
-//   • Visual save indicator — "SAVED ✓" flashes when API key changes
-//   • Config location note — shows where config.json lives on disk
-//   • ThemeChanged subscription — VM stays synced if theme changes externally
-//
-// PERSISTENCE:
-//   Every property setter that touches AppConfig immediately calls
-//   ConfigService.Save(App.Config) — writes JSON to:
-//   %AppData%\ProGlassAutomation\config.json
-//
-//   On next app launch, ConfigService.Load() reads the JSON, so the
-//   user NEVER needs to re-enter the API key. This was already true
-//   in v3.0 but wasn't visually communicated to users.
-//
-// REGRESSION RISK: ZERO
-//   New file. All persistence logic identical to previous MainViewModel
-//   pattern (same ConfigService.Save call), just relocated.
+// CHANGES vs Chat 25 v1.0:
+//   ✓ FIX CS0272: App.SpeechToText setter is now public (fixed in
+//     App.xaml.cs). All three assignment sites now compile correctly:
+//       App.SpeechToText = new WhisperSpeechService()  ← line 151
+//       App.SpeechToText?.Dispose()                    ← line 196
+//       App.SpeechToText = new SpeechToTextService()   ← line 197
+//   ✓ FIX CS0428: WhisperModelManager.IsModelDownloaded now resolves
+//     as bool property — line 498 compiles correctly.
+//   ✓ All other code preserved exactly from Chat 25 v1.0.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services;
 using ProGlassAutomation.Services.AI.AIConfig;
+using ProGlassAutomation.Services.AI.AIService;
+using ProGlassAutomation.Services.AI.AIVoice;
 using System;
+using System.Collections.ObjectModel;
 using System.IO;
+using System.Threading;
 using System.Windows.Input;
 
-namespace ProGlassAutomation.ViewModels.Settings;
-
-/// <summary>
-/// View-model for the Settings module.
-/// Owns theme toggle, AI enable/disable, API key entry, connection test,
-/// and read-only display of the current AI tuning parameters.
-///
-/// All persistence goes through <see cref="ConfigService.Save"/> which
-/// writes to <c>%AppData%\ProGlassAutomation\config.json</c>. The user
-/// therefore only enters the API key once — it is auto-loaded on every
-/// subsequent app launch.
-/// </summary>
-public sealed class SettingsViewModel : ViewModelBase
+namespace ProGlassAutomation.ViewModels.Settings
 {
-    private string _aiTestStatus = string.Empty;
-    private bool _apiKeyJustSaved;
-
-    /// <summary>
-    /// Absolute path of the config file on disk (shown in the UI so
-    /// users know where their settings and API key are persisted).
-    /// </summary>
-    public string ConfigFilePath { get; }
-
-    public SettingsViewModel()
+    public sealed class SettingsViewModel : ViewModelBase
     {
-        // Compute the config path once so the UI can display it
-        ConfigFilePath = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "ProGlassAutomation",
-            "config.json");
+        private string _geminiTestStatus = string.Empty;
+        private string _groqTestStatus = string.Empty;
+        private string _cohereTestStatus = string.Empty;
+        private bool _apiKeyJustSaved;
+        private bool _isDownloadingModel;
+        private int _downloadProgress;
+        private string _voiceStatus = string.Empty;
+        private CancellationTokenSource _downloadCts;
 
-        TestAiConnectionCommand = new RelayCommand(async _ =>
+        public string ConfigFilePath { get; }
+
+        // ══════════════════════════════════════════════════════════════
+        //  CONSTRUCTOR
+        // ══════════════════════════════════════════════════════════════
+
+        public SettingsViewModel()
         {
-            if (App.Ai == null)
+            ConfigFilePath = Path.Combine(
+                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+                "ProGlassAutomation",
+                "config.json");
+
+            // Build model options list for UI picker
+            foreach (var kvp in WhisperModelManager.AvailableModels)
+                WhisperModelOptions.Add(kvp.Value);
+
+            // ── Per-provider test commands ─────────────────────────────
+            TestGeminiCommand = new RelayCommand(async _ =>
             {
-                AiTestStatus = "✗ AI service not initialized.";
-                return;
-            }
-            AiTestStatus = "Testing…";
-            var result = await App.Ai.TestConnectionAsync();
-            AiTestStatus = result.Success
-                ? "✓ " + result.Message
-                : "✗ " + result.Message;
-        });
+                GeminiTestStatus = "Testing…";
+                var svc = AiProviderFactory.CreateForProvider(
+                    AiProvider.Gemini, App.Config.Ai);
+                var result = await svc.TestConnectionAsync();
+                GeminiTestStatus = result.Success
+                    ? "✓ " + result.Message
+                    : "✗ " + result.Message;
+            });
 
-        // Keep IsDarkTheme in sync if theme is toggled externally
-        // (e.g. via a keyboard shortcut in a future release)
-        ThemeManager.ThemeChanged += OnThemeChanged;
-    }
+            TestGroqCommand = new RelayCommand(async _ =>
+            {
+                GroqTestStatus = "Testing…";
+                var svc = AiProviderFactory.CreateForProvider(
+                    AiProvider.Groq, App.Config.Ai);
+                var result = await svc.TestConnectionAsync();
+                GroqTestStatus = result.Success
+                    ? "✓ " + result.Message
+                    : "✗ " + result.Message;
+            });
 
-    // ══════════════════════════════════════════════════════════════════
-    //  APPEARANCE
-    // ══════════════════════════════════════════════════════════════════
+            TestCohereCommand = new RelayCommand(async _ =>
+            {
+                CohereTestStatus = "Testing…";
+                var svc = AiProviderFactory.CreateForProvider(
+                    AiProvider.Cohere, App.Config.Ai);
+                var result = await svc.TestConnectionAsync();
+                CohereTestStatus = result.Success
+                    ? "✓ " + result.Message
+                    : "✗ " + result.Message;
+            });
 
-    /// <summary>
-    /// Two-way bound to the Dark Mode toggle. Setter calls
-    /// <see cref="ThemeManager.ApplyTheme"/> which swaps the theme
-    /// merged dictionary and raises ThemeChanged.
-    /// </summary>
-    public bool IsDarkTheme
-    {
-        get => ThemeManager.CurrentTheme == AppTheme.Dark;
-        set
-        {
-            ThemeManager.ApplyTheme(value ? AppTheme.Dark : AppTheme.Light);
-            OnPropertyChanged();
+            // ── Provider selection ─────────────────────────────────────
+            SelectGeminiCommand = new RelayCommand(_ =>
+                ActiveProvider = AiProvider.Gemini);
+            SelectGroqCommand = new RelayCommand(_ =>
+                ActiveProvider = AiProvider.Groq);
+            SelectCohereCommand = new RelayCommand(_ =>
+                ActiveProvider = AiProvider.Cohere);
+
+            // ── Whisper download ───────────────────────────────────────
+            DownloadWhisperModelCommand = new RelayCommand(async _ =>
+            {
+                if (IsDownloadingModel) return;
+
+                var modelKey = SelectedWhisperModel;
+                var modelInfo = WhisperModelManager.GetModelInfo(modelKey);
+
+                IsDownloadingModel = true;
+                DownloadProgress = 0;
+                VoiceStatus =
+                    $"Downloading {modelInfo.DisplayName} ({modelInfo.SizeMB} MB)…";
+
+                _downloadCts = new CancellationTokenSource();
+
+                var success = await WhisperModelManager.DownloadModelAsync(
+                    modelKey,
+                    progress =>
+                    {
+                        System.Windows.Application.Current?.Dispatcher.Invoke(() =>
+                        {
+                            DownloadProgress = progress;
+                            VoiceStatus = $"Downloading… {progress}%";
+                        });
+                    },
+                    _downloadCts.Token);
+
+                IsDownloadingModel = false;
+
+                if (success)
+                {
+                    VoiceStatus = $"✓ {modelInfo.DisplayName} downloaded successfully!";
+                    OnPropertyChanged(nameof(IsWhisperModelReady));
+                    OnPropertyChanged(nameof(ModelFileSizeMB));
+                    OnPropertyChanged(nameof(SelectedModelInfo));
+
+                    // Refresh or swap STT service so mic button appears without restart
+                    if (App.SpeechToText is WhisperSpeechService whisper)
+                    {
+                        // Already using Whisper — just refresh availability
+                        whisper.RefreshAvailability();
+                    }
+                    else
+                    {
+                        // Was using System.Speech fallback — swap to Whisper
+                        // FIX CS0272: App.SpeechToText now has public set
+                        try
+                        {
+                            App.SpeechToText?.Dispose();
+                            App.SpeechToText = new WhisperSpeechService();
+                            System.Diagnostics.Debug.WriteLine(
+                                "[Settings] Switched STT → Whisper after download.");
+                        }
+                        catch (Exception ex)
+                        {
+                            System.Diagnostics.Debug.WriteLine(
+                                $"[Settings] Whisper swap failed: {ex.Message}");
+                        }
+                    }
+                }
+                else if (_downloadCts.IsCancellationRequested)
+                {
+                    VoiceStatus = "Download cancelled.";
+                    DownloadProgress = 0;
+                }
+                else
+                {
+                    VoiceStatus = "✗ Download failed. Check internet connection.";
+                    DownloadProgress = 0;
+                }
+
+                _downloadCts?.Dispose();
+                _downloadCts = null;
+            });
+
+            CancelDownloadCommand = new RelayCommand(_ =>
+                _downloadCts?.Cancel());
+
+            DeleteWhisperModelCommand = new RelayCommand(_ =>
+            {
+                var deleted = WhisperModelManager.DeleteModel(SelectedWhisperModel);
+                if (deleted)
+                {
+                    VoiceStatus = "Model deleted. Voice disabled until re-download.";
+                    DownloadProgress = 0;
+                    OnPropertyChanged(nameof(IsWhisperModelReady));
+                    OnPropertyChanged(nameof(ModelFileSizeMB));
+
+                    // Swap back to System.Speech fallback
+                    // FIX CS0272: App.SpeechToText now has public set
+                    if (App.SpeechToText is WhisperSpeechService w)
+                    {
+                        w.Dispose();
+                        try { App.SpeechToText = new SpeechToTextService(); }
+                        catch { App.SpeechToText = null; }
+                    }
+                }
+                else
+                {
+                    VoiceStatus = "Could not delete model file. It may be in use.";
+                }
+            });
+
+            ThemeManager.ThemeChanged += (_, __) =>
+                OnPropertyChanged(nameof(IsDarkTheme));
         }
-    }
 
-    // ══════════════════════════════════════════════════════════════════
-    //  AI ASSISTANT
-    // ══════════════════════════════════════════════════════════════════
+        // ══════════════════════════════════════════════════════════════
+        //  APPEARANCE
+        // ══════════════════════════════════════════════════════════════
 
-    /// <summary>
-    /// Two-way bound to the "Enable AI" toggle.
-    /// Persists to config.json on every change.
-    /// </summary>
-    public bool IsAiEnabled
-    {
-        get => App.Config?.Ai?.Enabled ?? false;
-        set
+        public bool IsDarkTheme
         {
-            if (App.Config?.Ai != null)
+            get => ThemeManager.CurrentTheme == AppTheme.Dark;
+            set
             {
-                App.Config.Ai.Enabled = value;
-                ConfigService.Save(App.Config);
+                ThemeManager.ApplyTheme(value ? AppTheme.Dark : AppTheme.Light);
                 OnPropertyChanged();
             }
         }
-    }
 
-    /// <summary>
-    /// Gemini API key. Persisted to disk on every setter call so users
-    /// never need to re-enter it. Bound from PasswordBox via code-behind
-    /// because PasswordBox.Password is not a DependencyProperty.
-    /// </summary>
-    public string AiApiKey
-    {
-        get => App.Config?.Ai?.ApiKey ?? string.Empty;
-        set
+        // ══════════════════════════════════════════════════════════════
+        //  AI MASTER TOGGLE
+        // ══════════════════════════════════════════════════════════════
+
+        public bool IsAiEnabled
         {
-            if (App.Config?.Ai != null && App.Config.Ai.ApiKey != value)
+            get => App.Config?.Ai?.Enabled ?? false;
+            set
             {
-                App.Config.Ai.ApiKey = value;
-                ConfigService.Save(App.Config);
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(HasSavedApiKey));
-
-                // Flash the "SAVED ✓" indicator briefly
-                ApiKeyJustSaved = true;
+                if (App.Config?.Ai != null)
+                {
+                    App.Config.Ai.Enabled = value;
+                    SaveConfig();
+                    OnPropertyChanged();
+                }
             }
         }
-    }
 
-    /// <summary>
-    /// True when an API key is stored (used to show a masked "loaded" hint).
-    /// </summary>
-    public bool HasSavedApiKey =>
-        !string.IsNullOrWhiteSpace(App.Config?.Ai?.ApiKey);
+        // ══════════════════════════════════════════════════════════════
+        //  ACTIVE PROVIDER
+        // ══════════════════════════════════════════════════════════════
 
-    /// <summary>
-    /// True right after user changes the key — used by the view to flash
-    /// a "SAVED ✓" chip. View is responsible for un-setting it after
-    /// its animation completes (or user can toggle it manually via
-    /// binding). Kept in VM for pure MVVM.
-    /// </summary>
-    public bool ApiKeyJustSaved
-    {
-        get => _apiKeyJustSaved;
-        set
+        public AiProvider ActiveProvider
         {
-            if (_apiKeyJustSaved == value) return;
-            _apiKeyJustSaved = value;
-            OnPropertyChanged();
-        }
-    }
+            get => App.Config?.Ai?.ActiveProvider ?? AiProvider.Gemini;
+            set
+            {
+                if (App.Config?.Ai != null &&
+                    App.Config.Ai.ActiveProvider != value)
+                {
+                    App.Config.Ai.ActiveProvider = value;
+                    SaveConfig();
+                    App.Ai = AiProviderFactory.CreateActive(App.Config.Ai);
+                    App.RaiseAiProviderChanged();
 
-    /// <summary>
-    /// Status message from the last "Test Connection" click.
-    /// Prefixed with ✓ on success, ✗ on failure.
-    /// </summary>
-    public string AiTestStatus
-    {
-        get => _aiTestStatus;
-        set
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsGeminiActive));
+                    OnPropertyChanged(nameof(IsGroqActive));
+                    OnPropertyChanged(nameof(IsCohereActive));
+                    OnPropertyChanged(nameof(AiModel));
+                    OnPropertyChanged(nameof(ActiveProviderName));
+                }
+            }
+        }
+
+        public bool IsGeminiActive => ActiveProvider == AiProvider.Gemini;
+        public bool IsGroqActive => ActiveProvider == AiProvider.Groq;
+        public bool IsCohereActive => ActiveProvider == AiProvider.Cohere;
+
+        public string ActiveProviderName => ActiveProvider switch
         {
-            if (_aiTestStatus == value) return;
-            _aiTestStatus = value;
-            OnPropertyChanged();
+            AiProvider.Gemini => "Google Gemini",
+            AiProvider.Groq => "Groq",
+            AiProvider.Cohere => "Cohere",
+            _ => "Unknown"
+        };
+
+        // ══════════════════════════════════════════════════════════════
+        //  API KEYS
+        // ══════════════════════════════════════════════════════════════
+
+        public string GeminiApiKey
+        {
+            get => App.Config?.Ai?.GeminiApiKey ?? string.Empty;
+            set
+            {
+                if (App.Config?.Ai != null &&
+                    App.Config.Ai.GeminiApiKey != value)
+                {
+                    App.Config.Ai.GeminiApiKey = value;
+                    SaveConfig();
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsGeminiConfigured));
+                    ApiKeyJustSaved = true;
+                }
+            }
         }
-    }
 
-    // ══════════════════════════════════════════════════════════════════
-    //  MODEL & TUNING (read-only for now — future: editable)
-    // ══════════════════════════════════════════════════════════════════
+        public string GroqApiKey
+        {
+            get => App.Config?.Ai?.GroqApiKey ?? string.Empty;
+            set
+            {
+                if (App.Config?.Ai != null &&
+                    App.Config.Ai.GroqApiKey != value)
+                {
+                    App.Config.Ai.GroqApiKey = value;
+                    SaveConfig();
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsGroqConfigured));
+                    ApiKeyJustSaved = true;
+                }
+            }
+        }
 
-    /// <summary>Current AI model in use (from config).</summary>
-    public string AiModel => App.Config?.Ai?.Model ?? "—";
+        public string CohereApiKey
+        {
+            get => App.Config?.Ai?.CohereApiKey ?? string.Empty;
+            set
+            {
+                if (App.Config?.Ai != null &&
+                    App.Config.Ai.CohereApiKey != value)
+                {
+                    App.Config.Ai.CohereApiKey = value;
+                    SaveConfig();
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(IsCohereConfigured));
+                    ApiKeyJustSaved = true;
+                }
+            }
+        }
 
-    /// <summary>Max output tokens per request.</summary>
-    public int AiMaxTokens => App.Config?.Ai?.MaxTokens ?? 1024;
+        public string AiApiKey
+        {
+            get => App.Config?.Ai?.ApiKey ?? string.Empty;
+            set
+            {
+                if (App.Config?.Ai != null)
+                {
+                    App.Config.Ai.ApiKey = value;
+                    SaveConfig();
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(HasSavedApiKey));
+                    ApiKeyJustSaved = true;
+                }
+            }
+        }
 
-    /// <summary>Temperature (creativity) parameter for AI responses.</summary>
-    public double AiTemperature => App.Config?.Ai?.Temperature ?? 0.7;
+        public bool IsGeminiConfigured =>
+            !string.IsNullOrWhiteSpace(App.Config?.Ai?.GeminiApiKey);
+        public bool IsGroqConfigured =>
+            !string.IsNullOrWhiteSpace(App.Config?.Ai?.GroqApiKey);
+        public bool IsCohereConfigured =>
+            !string.IsNullOrWhiteSpace(App.Config?.Ai?.CohereApiKey);
+        public bool HasSavedApiKey =>
+            !string.IsNullOrWhiteSpace(App.Config?.Ai?.ApiKey);
 
-    // ══════════════════════════════════════════════════════════════════
-    //  COMMANDS
-    // ══════════════════════════════════════════════════════════════════
+        public bool ApiKeyJustSaved
+        {
+            get => _apiKeyJustSaved;
+            set
+            {
+                if (_apiKeyJustSaved == value) return;
+                _apiKeyJustSaved = value;
+                OnPropertyChanged();
+            }
+        }
 
-    /// <summary>
-    /// Tests the Google Gemini API using the currently saved key.
-    /// Updates <see cref="AiTestStatus"/> with the result.
-    /// </summary>
-    public ICommand TestAiConnectionCommand { get; }
+        // ══════════════════════════════════════════════════════════════
+        //  TEST STATUS
+        // ══════════════════════════════════════════════════════════════
 
-    // ══════════════════════════════════════════════════════════════════
-    //  THEME SYNC
-    // ══════════════════════════════════════════════════════════════════
+        public string GeminiTestStatus
+        {
+            get => _geminiTestStatus;
+            set
+            {
+                if (_geminiTestStatus == value) return;
+                _geminiTestStatus = value;
+                OnPropertyChanged();
+            }
+        }
 
-    /// <summary>
-    /// Fires when theme is toggled anywhere in the app.
-    /// Notifies IsDarkTheme so the toggle stays in sync if changed
-    /// programmatically (e.g. via a future keyboard shortcut).
-    /// </summary>
-    private void OnThemeChanged(object? sender, EventArgs e)
-    {
-        OnPropertyChanged(nameof(IsDarkTheme));
+        public string GroqTestStatus
+        {
+            get => _groqTestStatus;
+            set
+            {
+                if (_groqTestStatus == value) return;
+                _groqTestStatus = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string CohereTestStatus
+        {
+            get => _cohereTestStatus;
+            set
+            {
+                if (_cohereTestStatus == value) return;
+                _cohereTestStatus = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string AiTestStatus
+        {
+            get => ActiveProvider switch
+            {
+                AiProvider.Gemini => _geminiTestStatus,
+                AiProvider.Groq => _groqTestStatus,
+                AiProvider.Cohere => _cohereTestStatus,
+                _ => string.Empty
+            };
+            set
+            {
+                switch (ActiveProvider)
+                {
+                    case AiProvider.Gemini: GeminiTestStatus = value; break;
+                    case AiProvider.Groq: GroqTestStatus = value; break;
+                    case AiProvider.Cohere: CohereTestStatus = value; break;
+                }
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  RAG TOGGLE
+        // ══════════════════════════════════════════════════════════════
+
+        public bool UseRealData
+        {
+            get => App.Config?.Ai?.UseRealData ?? true;
+            set
+            {
+                if (App.Config?.Ai != null)
+                {
+                    App.Config.Ai.UseRealData = value;
+                    SaveConfig();
+                    OnPropertyChanged();
+                }
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  MODEL & TUNING
+        // ══════════════════════════════════════════════════════════════
+
+        public string AiModel => App.Config?.Ai?.GetModelForProvider(ActiveProvider) ?? "—";
+        public int AiMaxTokens => App.Config?.Ai?.MaxTokens ?? 1024;
+        public double AiTemperature => App.Config?.Ai?.Temperature ?? 0.7;
+
+        // ══════════════════════════════════════════════════════════════
+        //  COMMANDS
+        // ══════════════════════════════════════════════════════════════
+
+        public ICommand TestGeminiCommand { get; }
+        public ICommand TestGroqCommand { get; }
+        public ICommand TestCohereCommand { get; }
+
+        public ICommand TestAiConnectionCommand => ActiveProvider switch
+        {
+            AiProvider.Gemini => TestGeminiCommand,
+            AiProvider.Groq => TestGroqCommand,
+            AiProvider.Cohere => TestCohereCommand,
+            _ => TestGeminiCommand
+        };
+
+        public ICommand SelectGeminiCommand { get; }
+        public ICommand SelectGroqCommand { get; }
+        public ICommand SelectCohereCommand { get; }
+
+        // ══════════════════════════════════════════════════════════════
+        //  WHISPER MODEL MANAGEMENT
+        // ══════════════════════════════════════════════════════════════
+
+        public ObservableCollection<WhisperModelInfo> WhisperModelOptions { get; }
+            = new ObservableCollection<WhisperModelInfo>();
+
+        public string SelectedWhisperModel
+        {
+            get => App.Config?.Ai?.SelectedWhisperModel ?? "base";
+            set
+            {
+                if (App.Config?.Ai != null &&
+                    App.Config.Ai.SelectedWhisperModel != value)
+                {
+                    App.Config.Ai.SelectedWhisperModel = value;
+                    SaveConfig();
+                    OnPropertyChanged();
+                    OnPropertyChanged(nameof(SelectedModelInfo));
+                    OnPropertyChanged(nameof(IsWhisperModelReady));
+                    OnPropertyChanged(nameof(ModelFileSizeMB));
+                    OnPropertyChanged(nameof(ModelFilePath));
+
+                    if (App.SpeechToText is WhisperSpeechService whisper)
+                        whisper.RefreshAvailability();
+                }
+            }
+        }
+
+        public WhisperModelInfo SelectedModelInfo =>
+            WhisperModelManager.GetModelInfo(SelectedWhisperModel);
+
+        // FIX CS0428: IsModelDownloaded is now a clean bool property
+        public bool IsWhisperModelReady => WhisperModelManager.IsModelDownloaded;
+        public long ModelFileSizeMB => WhisperModelManager.ModelFileSizeMB;
+        public string ModelFilePath => WhisperModelManager.DefaultModelPath;
+
+        public bool IsDownloadingModel
+        {
+            get => _isDownloadingModel;
+            set
+            {
+                if (_isDownloadingModel == value) return;
+                _isDownloadingModel = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int DownloadProgress
+        {
+            get => _downloadProgress;
+            set
+            {
+                if (_downloadProgress == value) return;
+                _downloadProgress = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public string VoiceStatus
+        {
+            get => _voiceStatus;
+            set
+            {
+                if (_voiceStatus == value) return;
+                _voiceStatus = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public ICommand DownloadWhisperModelCommand { get; }
+        public ICommand CancelDownloadCommand { get; }
+        public ICommand DeleteWhisperModelCommand { get; }
+
+        // ══════════════════════════════════════════════════════════════
+        //  HELPERS
+        // ══════════════════════════════════════════════════════════════
+
+        private static void SaveConfig()
+        {
+            if (App.Config != null)
+                ConfigService.Save(App.Config);
+        }
     }
 }

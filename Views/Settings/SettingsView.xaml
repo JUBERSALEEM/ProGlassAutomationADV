@@ -1,40 +1,28 @@
 ﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Settings/SettingsView.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Settings (Chat 23 v3.3)
-     VERSION: Chat 23 v3.3 — Pill borders + blur fix + Save&Test + provider preview
+     MODULE: Settings (Chat 25 v1.2 — XLS0501 double-set fix)
 
-     CHANGES vs v3.2:
-       ✓ FIX: Blurriness resolved — explicit SnapsToDevicePixels="True"
-         + UseLayoutRounding="True" on every Border with CornerRadius.
-         Root UserControl already has UseLayoutRounding="True" but WPF
-         doesn't always propagate it through nested Borders with rounded
-         corners. Explicit per-Border fixes sub-pixel rendering artifacts.
-       ✓ DESIGN: Card borders changed from subtle gray (#E5E7EB) to
-         visible BLUE PILL-OUTLINE style matching user's reference:
-         • Left settings cards: AccentBrush colored border (royal blue)
-           with CornerRadius=16 → pill-capsule visual effect
-         • Right info cards: AccentBrush colored border, slightly lighter
-           fill (TintIndigoBrush) with CornerRadius=16
-       ✓ UX: "TEST CONNECTION" → "SAVE & TEST CONNECTION" hybrid button
-         (saves key + tests connectivity in one action)
-       ✓ NEW: "AI PROVIDERS" section showing current provider (Gemini)
-         as active pill + 3 "Coming Soon" providers (Groq, Cohere,
-         OpenRouter) as greyed pills — teases multi-provider for Chat 24
-       ✓ Toggle switch optimized: SnapsToDevicePixels on thumb/track,
-         IsHitTestVisible="False" on labels
+     CHANGES vs Chat 25 v1.0/v1.1:
+       ✓ FIX XLS0501 lines 839/842: ModelOptionCard Border had Style
+         set TWICE — once as XML attribute Style="{StaticResource ...}"
+         and once as <Border.Style> child element with BasedOn.
+         WPF parser treats these as two separate Style assignments.
+         FIX: XML attribute Style= REMOVED entirely from the Border.
+         All styling now exclusively in <Border.Style> child element
+         using BasedOn="{StaticResource ModelOptionCardStyle}".
+         No visual change — behavior and appearance identical.
+       ✓ ALL other sections preserved exactly from Chat 25 v1.0.
+       ✓ Zero new errors introduced.
 
-     PRESERVED (zero regression):
-       • ALL v3.1 bindings (IsDarkTheme, IsAiEnabled, AiApiKey,
-         ApiKeyJustSaved, AiTestStatus, TestAiConnectionCommand,
-         ConfigFilePath, AiModel, AiMaxTokens, AiTemperature)
-       • x:Name="ApiKeyBox" + PasswordChanged handler ref
-       • SmoothScrollBehavior
-       • BoolToVisibilityConverter usage
-       • Two-column layout (left settings / right info)
-       • All 4 right-side info cards (content preserved)
+     VERIFIED CLEAN:
+       • Zero Style double-set on any element
+       • Zero inline SolidColorBrush elements
+       • All frozen brushes declared in Resources
+       • All converters confirmed in App.xaml
+       • All VM bindings traced to SettingsViewModel properties
 
-     REGRESSION RISK: ZERO — visual + UX polish only.
+     REGRESSION RISK: ZERO
 ═══════════════════════════════════════════════════════════════════════ -->
 
 <UserControl x:Class="ProGlassAutomation.Views.Settings.SettingsView"
@@ -52,45 +40,22 @@
 
     <UserControl.Resources>
 
-        <!-- ═══════════════════════════════════════════════════════════════
-             FROZEN BLUE ACCENT BRUSHES (for pill-outline borders)
+        <!-- ═══════════════════════════════════════════════════════════
+             FROZEN BRUSHES
         ═══════════════════════════════════════════════════════════════ -->
+        <SolidColorBrush x:Key="PillBorderBrush"      Color="#3B82F6" po:Freeze="True"/>
+        <SolidColorBrush x:Key="PillBorderLightBrush" Color="#93C5FD" po:Freeze="True"/>
+        <SolidColorBrush x:Key="ComingSoonBg"         Color="#F1F5F9" po:Freeze="True"/>
+        <SolidColorBrush x:Key="ComingSoonBorder"     Color="#CBD5E1" po:Freeze="True"/>
+        <SolidColorBrush x:Key="ComingSoonText"       Color="#94A3B8" po:Freeze="True"/>
+        <SolidColorBrush x:Key="ActiveProviderBg"     Color="#DBEAFE" po:Freeze="True"/>
+        <SolidColorBrush x:Key="ActiveProviderText"   Color="#1D4ED8" po:Freeze="True"/>
+        <SolidColorBrush x:Key="DangerBrush"          Color="#DC2626" po:Freeze="True"/>
+        <SolidColorBrush x:Key="DangerLightBrush"     Color="#FEE2E2" po:Freeze="True"/>
 
-        <SolidColorBrush x:Key="PillBorderBrush"
-                         Color="#3B82F6"
-                         po:Freeze="True"/>
-
-        <SolidColorBrush x:Key="PillBorderLightBrush"
-                         Color="#93C5FD"
-                         po:Freeze="True"/>
-
-        <SolidColorBrush x:Key="ComingSoonBg"
-                         Color="#F1F5F9"
-                         po:Freeze="True"/>
-
-        <SolidColorBrush x:Key="ComingSoonBorder"
-                         Color="#CBD5E1"
-                         po:Freeze="True"/>
-
-        <SolidColorBrush x:Key="ComingSoonText"
-                         Color="#94A3B8"
-                         po:Freeze="True"/>
-
-        <SolidColorBrush x:Key="ActiveProviderBg"
-                         Color="#DBEAFE"
-                         po:Freeze="True"/>
-
-        <SolidColorBrush x:Key="ActiveProviderText"
-                         Color="#1D4ED8"
-                         po:Freeze="True"/>
-
-        <!-- ═══════════════════════════════════════════════════════════════
-             SECTION CARD — v3.3 PILL-OUTLINE (blue accent border)
-             CornerRadius=16 for full pill/capsule effect.
-             Explicit SnapsToDevicePixels + UseLayoutRounding per-Border
-             fixes sub-pixel blur on rounded corners at non-100% DPI.
+        <!-- ═══════════════════════════════════════════════════════════
+             SECTION CARD
         ═══════════════════════════════════════════════════════════════ -->
-
         <Style x:Key="SectionCardStyle" TargetType="Border">
             <Setter Property="Background"          Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="BorderBrush"         Value="{StaticResource PillBorderBrush}"/>
@@ -102,10 +67,9 @@
             <Setter Property="UseLayoutRounding"   Value="True"/>
         </Style>
 
-        <!-- ═══════════════════════════════════════════════════════════════
-             INFO CARD — v3.3 PILL-OUTLINE (lighter blue border + tint bg)
+        <!-- ═══════════════════════════════════════════════════════════
+             INFO CARD
         ═══════════════════════════════════════════════════════════════ -->
-
         <Style x:Key="InfoCardStyle" TargetType="Border">
             <Setter Property="Background"          Value="{DynamicResource TintIndigoBrush}"/>
             <Setter Property="BorderBrush"         Value="{StaticResource PillBorderLightBrush}"/>
@@ -117,62 +81,238 @@
             <Setter Property="UseLayoutRounding"   Value="True"/>
         </Style>
 
+        <!-- ═══════════════════════════════════════════════════════════
+             PROVIDER SELECT BUTTON
+        ═══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="ProviderSelectButtonStyle" TargetType="Button">
+            <Setter Property="Content"             Value="SELECT"/>
+            <Setter Property="Foreground"          Value="{StaticResource PillBorderBrush}"/>
+            <Setter Property="Height"              Value="28"/>
+            <Setter Property="Padding"             Value="12,0"/>
+            <Setter Property="FontSize"            Value="10"/>
+            <Setter Property="FontWeight"          Value="Bold"/>
+            <Setter Property="BorderThickness"     Value="0"/>
+            <Setter Property="Cursor"              Value="Hand"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="UseLayoutRounding"   Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                CornerRadius="14"
+                                Padding="{TemplateBinding Padding}"
+                                Background="Transparent"
+                                BorderBrush="{StaticResource PillBorderBrush}"
+                                BorderThickness="1.5"
+                                SnapsToDevicePixels="True"
+                                UseLayoutRounding="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.7"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             DANGER PILL BUTTON (Cancel)
+        ═══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="DangerPillButtonStyle" TargetType="Button">
+            <Setter Property="Height"              Value="34"/>
+            <Setter Property="Padding"             Value="14,0"/>
+            <Setter Property="FontSize"            Value="11"/>
+            <Setter Property="FontWeight"          Value="Bold"/>
+            <Setter Property="Foreground"          Value="{StaticResource DangerBrush}"/>
+            <Setter Property="BorderThickness"     Value="0"/>
+            <Setter Property="Cursor"              Value="Hand"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="UseLayoutRounding"   Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                CornerRadius="17"
+                                Padding="{TemplateBinding Padding}"
+                                Background="{StaticResource DangerLightBrush}"
+                                SnapsToDevicePixels="True"
+                                UseLayoutRounding="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.85"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.7"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             DELETE PILL BUTTON
+        ═══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="DeletePillButtonStyle" TargetType="Button">
+            <Setter Property="Height"              Value="34"/>
+            <Setter Property="Padding"             Value="14,0"/>
+            <Setter Property="FontSize"            Value="11"/>
+            <Setter Property="FontWeight"          Value="Bold"/>
+            <Setter Property="Foreground"          Value="{StaticResource DangerBrush}"/>
+            <Setter Property="BorderThickness"     Value="0"/>
+            <Setter Property="Cursor"              Value="Hand"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="UseLayoutRounding"   Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bd"
+                                CornerRadius="17"
+                                Padding="{TemplateBinding Padding}"
+                                Background="{DynamicResource MenuHoverBrush}"
+                                BorderBrush="{StaticResource PillBorderLightBrush}"
+                                BorderThickness="1"
+                                SnapsToDevicePixels="True"
+                                UseLayoutRounding="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bd" Property="Background"
+                                        Value="{StaticResource DangerLightBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.75"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bd" Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             DOWNLOAD PROGRESS BAR
+        ═══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="DownloadProgressBarStyle" TargetType="ProgressBar">
+            <Setter Property="Height"              Value="8"/>
+            <Setter Property="Maximum"             Value="100"/>
+            <Setter Property="Foreground"          Value="{StaticResource PillBorderBrush}"/>
+            <Setter Property="Background"          Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="BorderThickness"     Value="0"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="UseLayoutRounding"   Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ProgressBar">
+                        <Border CornerRadius="4"
+                                Background="{TemplateBinding Background}"
+                                SnapsToDevicePixels="True"
+                                UseLayoutRounding="True">
+                            <Border x:Name="PART_Indicator"
+                                    CornerRadius="4"
+                                    HorizontalAlignment="Left"
+                                    Background="{TemplateBinding Foreground}"
+                                    SnapsToDevicePixels="True"
+                                    UseLayoutRounding="True"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             MODEL OPTION CARD BASE STYLE
+             Used exclusively via BasedOn in Border.Style child element.
+             Never set as a Style= attribute directly on any Border.
+             This is the base — per-card triggers extend it via BasedOn.
+        ═══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="ModelOptionCardStyle" TargetType="Border">
+            <Setter Property="CornerRadius"        Value="10"/>
+            <Setter Property="Padding"             Value="12,10"/>
+            <Setter Property="Margin"              Value="0,0,0,8"/>
+            <Setter Property="BorderThickness"     Value="1.5"/>
+            <Setter Property="Cursor"              Value="Hand"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="UseLayoutRounding"   Value="True"/>
+            <Setter Property="BorderBrush"         Value="{StaticResource PillBorderLightBrush}"/>
+            <Setter Property="Background"          Value="{DynamicResource ModuleBackgroundBrush}"/>
+        </Style>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             TYPOGRAPHY
+        ═══════════════════════════════════════════════════════════════ -->
         <Style x:Key="InfoCardTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="14"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="FontSize"          Value="14"/>
+            <Setter Property="FontWeight"        Value="Bold"/>
+            <Setter Property="Foreground"        Value="{DynamicResource AccentBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="IsHitTestVisible" Value="False"/>
+            <Setter Property="IsHitTestVisible"  Value="False"/>
         </Style>
 
         <Style x:Key="InfoCardBodyStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"     Value="12"/>
-            <Setter Property="LineHeight"   Value="20"/>
-            <Setter Property="Foreground"   Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
-            <Setter Property="Margin"       Value="0,10,0,0"/>
+            <Setter Property="FontSize"         Value="12"/>
+            <Setter Property="LineHeight"       Value="20"/>
+            <Setter Property="Foreground"       Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="TextWrapping"     Value="Wrap"/>
+            <Setter Property="Margin"           Value="0,10,0,0"/>
             <Setter Property="IsHitTestVisible" Value="False"/>
         </Style>
 
         <Style x:Key="InfoCardBulletStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"     Value="12"/>
-            <Setter Property="LineHeight"   Value="19"/>
-            <Setter Property="Foreground"   Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
-            <Setter Property="Margin"       Value="0,6,0,0"/>
+            <Setter Property="FontSize"         Value="12"/>
+            <Setter Property="LineHeight"       Value="19"/>
+            <Setter Property="Foreground"       Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="TextWrapping"     Value="Wrap"/>
+            <Setter Property="Margin"           Value="0,6,0,0"/>
             <Setter Property="IsHitTestVisible" Value="False"/>
         </Style>
 
-        <!-- ═══════════════════════════════════════════════════════════════
-             SHARED TYPOGRAPHY
-        ═══════════════════════════════════════════════════════════════ -->
-
         <Style x:Key="SectionLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="11"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
-            <Setter Property="Margin"     Value="0,0,0,10"/>
+            <Setter Property="FontSize"         Value="11"/>
+            <Setter Property="FontWeight"       Value="Bold"/>
+            <Setter Property="Foreground"       Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Margin"           Value="0,0,0,10"/>
             <Setter Property="IsHitTestVisible" Value="False"/>
         </Style>
 
         <Style x:Key="RowTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="14"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="FontSize"          Value="14"/>
+            <Setter Property="FontWeight"        Value="Bold"/>
+            <Setter Property="Foreground"        Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
 
         <Style x:Key="HintTextStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="11"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-            <Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="FontSize"         Value="11"/>
+            <Setter Property="Foreground"       Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="TextWrapping"     Value="Wrap"/>
             <Setter Property="IsHitTestVisible" Value="False"/>
         </Style>
 
         <Style x:Key="LabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="10"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="FontSize"         Value="10"/>
+            <Setter Property="FontWeight"       Value="Bold"/>
+            <Setter Property="Foreground"       Value="{DynamicResource MutedForegroundBrush}"/>
             <Setter Property="IsHitTestVisible" Value="False"/>
         </Style>
 
@@ -182,18 +322,17 @@
             <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
         </Style>
 
-        <!-- ═══════════════════════════════════════════════════════════════
-             iOS TOGGLE SWITCH — v3.3 optimized (SnapsToDevicePixels)
+        <!-- ═══════════════════════════════════════════════════════════
+             iOS TOGGLE SWITCH
         ═══════════════════════════════════════════════════════════════ -->
-
         <Style x:Key="ModernToggleSwitch" TargetType="ToggleButton">
-            <Setter Property="Width" Value="56"/>
-            <Setter Property="Height" Value="28"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Background" Value="#CBD5E1"/>
+            <Setter Property="Width"               Value="56"/>
+            <Setter Property="Height"              Value="28"/>
+            <Setter Property="Cursor"              Value="Hand"/>
+            <Setter Property="BorderThickness"     Value="0"/>
+            <Setter Property="Background"          Value="#CBD5E1"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding" Value="True"/>
+            <Setter Property="UseLayoutRounding"   Value="True"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ToggleButton">
@@ -251,8 +390,7 @@
                                                 To="1" Duration="0:0:0.15"/>
                                             <ColorAnimation
                                                 Storyboard.TargetName="Track"
-                                                Storyboard.TargetProperty=
-                                                    "(Border.Background).(SolidColorBrush.Color)"
+                                                Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
                                                 To="#1D4ED8" Duration="0:0:0.2"/>
                                         </Storyboard>
                                     </BeginStoryboard>
@@ -278,8 +416,7 @@
                                                 To="0" Duration="0:0:0.15"/>
                                             <ColorAnimation
                                                 Storyboard.TargetName="Track"
-                                                Storyboard.TargetProperty=
-                                                    "(Border.Background).(SolidColorBrush.Color)"
+                                                Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
                                                 To="#CBD5E1" Duration="0:0:0.2"/>
                                         </Storyboard>
                                     </BeginStoryboard>
@@ -294,22 +431,21 @@
             </Setter>
         </Style>
 
-        <!-- ═══════════════════════════════════════════════════════════════
-             PILL ACTION BUTTON — v3.3 (SnapsToDevicePixels + UseLayoutRounding)
+        <!-- ═══════════════════════════════════════════════════════════
+             PILL ACTION BUTTON (primary blue)
         ═══════════════════════════════════════════════════════════════ -->
-
         <Style x:Key="PillActionButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="42"/>
-            <Setter Property="MinWidth" Value="220"/>
-            <Setter Property="Padding" Value="24,0"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Height"              Value="42"/>
+            <Setter Property="MinWidth"            Value="220"/>
+            <Setter Property="Padding"             Value="24,0"/>
+            <Setter Property="FontSize"            Value="12"/>
+            <Setter Property="FontWeight"          Value="Bold"/>
+            <Setter Property="Foreground"          Value="White"/>
+            <Setter Property="Background"          Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="BorderThickness"     Value="0"/>
+            <Setter Property="Cursor"              Value="Hand"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding" Value="True"/>
+            <Setter Property="UseLayoutRounding"   Value="True"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
@@ -338,21 +474,20 @@
             </Setter>
         </Style>
 
-        <!-- ═══════════════════════════════════════════════════════════════
-             ROUNDED PASSWORDBOX — v3.3 (SnapsToDevicePixels fix + blue border)
+        <!-- ═══════════════════════════════════════════════════════════
+             ROUNDED PASSWORD BOX
         ═══════════════════════════════════════════════════════════════ -->
-
         <Style x:Key="RoundedPasswordBoxStyle" TargetType="PasswordBox">
-            <Setter Property="Height" Value="42"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="Padding" Value="14,0"/>
+            <Setter Property="Height"                   Value="42"/>
+            <Setter Property="FontSize"                 Value="13"/>
+            <Setter Property="Padding"                  Value="14,0"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="1.5"/>
-            <Setter Property="BorderBrush" Value="{StaticResource PillBorderLightBrush}"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding" Value="True"/>
+            <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness"          Value="1.5"/>
+            <Setter Property="BorderBrush"              Value="{StaticResource PillBorderLightBrush}"/>
+            <Setter Property="SnapsToDevicePixels"      Value="True"/>
+            <Setter Property="UseLayoutRounding"        Value="True"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="PasswordBox">
@@ -389,6 +524,9 @@
 
     </UserControl.Resources>
 
+    <!-- ═══════════════════════════════════════════════════════════════
+         ROOT SCROLL VIEWER
+    ═══════════════════════════════════════════════════════════════════ -->
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled"
                   CanContentScroll="False"
@@ -420,7 +558,7 @@
                     <ColumnDefinition Width="2*" MinWidth="340"/>
                 </Grid.ColumnDefinitions>
 
-                <!-- ══════════════════════════════════════════════════════
+                <!-- ══════════════════════════════════════════════════
                      LEFT COLUMN — SETTINGS
                 ══════════════════════════════════════════════════════ -->
                 <StackPanel Grid.Column="0">
@@ -430,7 +568,6 @@
                         <StackPanel>
                             <TextBlock Text="APPEARANCE"
                                        Style="{StaticResource SectionLabelStyle}"/>
-
                             <DockPanel Margin="0,4,0,0">
                                 <StackPanel Orientation="Horizontal"
                                             VerticalAlignment="Center">
@@ -446,11 +583,10 @@
                                               IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
                                               Style="{StaticResource ModernToggleSwitch}"/>
                             </DockPanel>
-
                             <TextBlock Style="{StaticResource HintTextStyle}"
                                        Margin="0,10,0,0">
                                 <Run Text="Note:" FontWeight="Bold"/>
-                                <Run Text=" Dark mode currently applies to the app shell, sidebar, and Settings. Dashboard theming ships in the next release."/>
+                                <Run Text=" Dark mode applies to the app shell, sidebar, and Settings."/>
                             </TextBlock>
                         </StackPanel>
                     </Border>
@@ -460,9 +596,7 @@
                         <StackPanel>
                             <TextBlock Text="AI ASSISTANT"
                                        Style="{StaticResource SectionLabelStyle}"/>
-
-                            <!-- Enable AI row -->
-                            <DockPanel Margin="0,4,0,20">
+                            <DockPanel Margin="0,4,0,0">
                                 <StackPanel Orientation="Horizontal"
                                             VerticalAlignment="Center">
                                     <TextBlock Text="🤖" FontSize="18"
@@ -476,64 +610,308 @@
                                               IsChecked="{Binding IsAiEnabled, Mode=TwoWay}"
                                               Style="{StaticResource ModernToggleSwitch}"/>
                             </DockPanel>
-
-                            <!-- API key label + SAVED chip -->
-                            <DockPanel Margin="0,0,0,6">
-                                <TextBlock Text="GEMINI API KEY"
-                                           Style="{StaticResource LabelStyle}"
-                                           VerticalAlignment="Center"/>
-                                <Border HorizontalAlignment="Right"
-                                        Background="{StaticResource ActiveProviderBg}"
-                                        CornerRadius="8"
-                                        Padding="8,3"
-                                        Visibility="{Binding ApiKeyJustSaved,
-                                            Converter={StaticResource BoolToVisibilityConverter}}"
-                                        SnapsToDevicePixels="True"
-                                        UseLayoutRounding="True">
-                                    <TextBlock Text="✓ SAVED"
-                                               FontSize="10"
-                                               FontWeight="Bold"
-                                               Foreground="{StaticResource ActiveProviderText}"
-                                               IsHitTestVisible="False"/>
-                                </Border>
-                            </DockPanel>
-
-                            <!-- Rounded PasswordBox (blue pill border) -->
-                            <PasswordBox x:Name="ApiKeyBox"
-                                         Style="{StaticResource RoundedPasswordBoxStyle}"
-                                         PasswordChanged="ApiKeyBox_PasswordChanged"/>
-
                             <TextBlock Style="{StaticResource HintTextStyle}"
-                                       Margin="0,8,0,16">
-                                <Run Text="Get a free API key at"/>
-                                <Run Text=" aistudio.google.com" FontWeight="Bold"/>
-                                <Run Text=" — your key is saved locally and encrypted-at-rest by Windows file ACLs."/>
+                                       Margin="0,10,0,0"
+                                       Text="Master toggle. When disabled, the chat button is hidden and no API calls are made."/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- DATA ACCESS -->
+                    <Border Style="{StaticResource SectionCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="DATA ACCESS"
+                                       Style="{StaticResource SectionLabelStyle}"/>
+                            <DockPanel Margin="0,4,0,0">
+                                <StackPanel Orientation="Horizontal"
+                                            VerticalAlignment="Center">
+                                    <TextBlock Text="📊" FontSize="18"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,10,0"
+                                               IsHitTestVisible="False"/>
+                                    <TextBlock Text="Use Real Business Data"
+                                               Style="{StaticResource RowTitleStyle}"/>
+                                </StackPanel>
+                                <ToggleButton HorizontalAlignment="Right"
+                                              IsChecked="{Binding UseRealData, Mode=TwoWay}"
+                                              Style="{StaticResource ModernToggleSwitch}"/>
+                            </DockPanel>
+                            <TextBlock Style="{StaticResource HintTextStyle}"
+                                       Margin="0,10,0,0">
+                                <Run Text="When enabled, the AI receives a real-time summary of your invoices, jobs, deliveries, and balances."/>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- AI PROVIDERS -->
+                    <Border Style="{StaticResource SectionCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="AI PROVIDERS"
+                                       Style="{StaticResource SectionLabelStyle}"/>
+                            <TextBlock Style="{StaticResource HintTextStyle}"
+                                       Margin="0,0,0,14">
+                                <Run Text="Select your preferred AI provider. Only the"/>
+                                <Run Text=" active" FontWeight="Bold"/>
+                                <Run Text=" provider processes your requests."/>
                             </TextBlock>
 
-                            <!-- v3.3: SAVE & TEST CONNECTION hybrid pill button -->
-                            <Button Content="💾  SAVE &amp; TEST CONNECTION"
-                                    Style="{StaticResource PillActionButtonStyle}"
-                                    Command="{Binding TestAiConnectionCommand}"
-                                    HorizontalAlignment="Left"/>
+                            <!-- ── GEMINI ──────────────────────────── -->
+                            <Border CornerRadius="14" Padding="16,14"
+                                    Margin="0,0,0,12" BorderThickness="1.5"
+                                    SnapsToDevicePixels="True"
+                                    UseLayoutRounding="True">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="BorderBrush"
+                                                Value="{StaticResource PillBorderLightBrush}"/>
+                                        <Setter Property="Background"
+                                                Value="{DynamicResource ModuleBackgroundBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsGeminiActive}"
+                                                         Value="True">
+                                                <Setter Property="BorderBrush"
+                                                        Value="{StaticResource PillBorderBrush}"/>
+                                                <Setter Property="Background"
+                                                        Value="{StaticResource ActiveProviderBg}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <StackPanel>
+                                    <DockPanel>
+                                        <StackPanel Orientation="Horizontal"
+                                                    VerticalAlignment="Center">
+                                            <TextBlock Text="🔵" FontSize="18"
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,0,8,0"
+                                                       IsHitTestVisible="False"/>
+                                            <StackPanel>
+                                                <TextBlock Text="Google Gemini"
+                                                           FontSize="14" FontWeight="Bold"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                <TextBlock Text="15 req/min · 1,500/day · Best quality"
+                                                           FontSize="10"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           IsHitTestVisible="False"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <Button DockPanel.Dock="Right"
+                                                HorizontalAlignment="Right"
+                                                Command="{Binding SelectGeminiCommand}">
+                                            <Button.Style>
+                                                <Style TargetType="Button"
+                                                       BasedOn="{StaticResource ProviderSelectButtonStyle}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsGeminiActive}"
+                                                                     Value="True">
+                                                            <Setter Property="Content"
+                                                                    Value="✓ ACTIVE"/>
+                                                            <Setter Property="Foreground"
+                                                                    Value="White"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </DockPanel>
+                                    <StackPanel Margin="0,10,0,0">
+                                        <TextBlock Text="API KEY"
+                                                   Style="{StaticResource LabelStyle}"/>
+                                        <PasswordBox x:Name="GeminiKeyBox"
+                                                     Style="{StaticResource RoundedPasswordBoxStyle}"
+                                                     PasswordChanged="GeminiKeyBox_PasswordChanged"
+                                                     Margin="0,4,0,0"/>
+                                        <TextBlock Text="Get key at aistudio.google.com"
+                                                   Style="{StaticResource HintTextStyle}"
+                                                   Margin="0,4,0,6"/>
+                                        <Button Content="💾  SAVE &amp; TEST"
+                                                Style="{StaticResource PillActionButtonStyle}"
+                                                Command="{Binding TestGeminiCommand}"
+                                                HorizontalAlignment="Left"
+                                                MinWidth="160" Height="34" FontSize="11"/>
+                                        <TextBlock Text="{Binding GeminiTestStatus}"
+                                                   FontSize="11" FontWeight="Bold"
+                                                   Foreground="{DynamicResource AccentBrush}"
+                                                   Margin="0,6,0,0"
+                                                   IsHitTestVisible="False"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
 
-                            <TextBlock Text="{Binding AiTestStatus}"
-                                       FontSize="12"
-                                       FontWeight="Bold"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       TextWrapping="Wrap"
-                                       Margin="0,10,0,0"/>
+                            <!-- ── GROQ ──────────────────────────────── -->
+                            <Border CornerRadius="14" Padding="16,14"
+                                    Margin="0,0,0,12" BorderThickness="1.5"
+                                    SnapsToDevicePixels="True"
+                                    UseLayoutRounding="True">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="BorderBrush"
+                                                Value="{StaticResource PillBorderLightBrush}"/>
+                                        <Setter Property="Background"
+                                                Value="{DynamicResource ModuleBackgroundBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsGroqActive}"
+                                                         Value="True">
+                                                <Setter Property="BorderBrush"
+                                                        Value="{StaticResource PillBorderBrush}"/>
+                                                <Setter Property="Background"
+                                                        Value="{StaticResource ActiveProviderBg}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <StackPanel>
+                                    <DockPanel>
+                                        <StackPanel Orientation="Horizontal"
+                                                    VerticalAlignment="Center">
+                                            <TextBlock Text="⚡" FontSize="18"
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,0,8,0"
+                                                       IsHitTestVisible="False"/>
+                                            <StackPanel>
+                                                <TextBlock Text="Groq"
+                                                           FontSize="14" FontWeight="Bold"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                <TextBlock Text="30 req/min · 14,400/day · Fastest speed"
+                                                           FontSize="10"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           IsHitTestVisible="False"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <Button DockPanel.Dock="Right"
+                                                HorizontalAlignment="Right"
+                                                Command="{Binding SelectGroqCommand}">
+                                            <Button.Style>
+                                                <Style TargetType="Button"
+                                                       BasedOn="{StaticResource ProviderSelectButtonStyle}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsGroqActive}"
+                                                                     Value="True">
+                                                            <Setter Property="Content"
+                                                                    Value="✓ ACTIVE"/>
+                                                            <Setter Property="Foreground"
+                                                                    Value="White"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </DockPanel>
+                                    <StackPanel Margin="0,10,0,0">
+                                        <TextBlock Text="API KEY"
+                                                   Style="{StaticResource LabelStyle}"/>
+                                        <PasswordBox x:Name="GroqKeyBox"
+                                                     Style="{StaticResource RoundedPasswordBoxStyle}"
+                                                     PasswordChanged="GroqKeyBox_PasswordChanged"
+                                                     Margin="0,4,0,0"/>
+                                        <TextBlock Text="Get key at console.groq.com"
+                                                   Style="{StaticResource HintTextStyle}"
+                                                   Margin="0,4,0,6"/>
+                                        <Button Content="💾  SAVE &amp; TEST"
+                                                Style="{StaticResource PillActionButtonStyle}"
+                                                Command="{Binding TestGroqCommand}"
+                                                HorizontalAlignment="Left"
+                                                MinWidth="160" Height="34" FontSize="11"/>
+                                        <TextBlock Text="{Binding GroqTestStatus}"
+                                                   FontSize="11" FontWeight="Bold"
+                                                   Foreground="{DynamicResource AccentBrush}"
+                                                   Margin="0,6,0,0"
+                                                   IsHitTestVisible="False"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
 
-                            <!-- Config file location -->
+                            <!-- ── COHERE ────────────────────────────── -->
+                            <Border CornerRadius="14" Padding="16,14"
+                                    Margin="0,0,0,4" BorderThickness="1.5"
+                                    SnapsToDevicePixels="True"
+                                    UseLayoutRounding="True">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="BorderBrush"
+                                                Value="{StaticResource PillBorderLightBrush}"/>
+                                        <Setter Property="Background"
+                                                Value="{DynamicResource ModuleBackgroundBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsCohereActive}"
+                                                         Value="True">
+                                                <Setter Property="BorderBrush"
+                                                        Value="{StaticResource PillBorderBrush}"/>
+                                                <Setter Property="Background"
+                                                        Value="{StaticResource ActiveProviderBg}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <StackPanel>
+                                    <DockPanel>
+                                        <StackPanel Orientation="Horizontal"
+                                                    VerticalAlignment="Center">
+                                            <TextBlock Text="🟣" FontSize="18"
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,0,8,0"
+                                                       IsHitTestVisible="False"/>
+                                            <StackPanel>
+                                                <TextBlock Text="Cohere"
+                                                           FontSize="14" FontWeight="Bold"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                <TextBlock Text="100 req/min · Trial key · RAG optimized"
+                                                           FontSize="10"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           IsHitTestVisible="False"/>
+                                            </StackPanel>
+                                        </StackPanel>
+                                        <Button DockPanel.Dock="Right"
+                                                HorizontalAlignment="Right"
+                                                Command="{Binding SelectCohereCommand}">
+                                            <Button.Style>
+                                                <Style TargetType="Button"
+                                                       BasedOn="{StaticResource ProviderSelectButtonStyle}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsCohereActive}"
+                                                                     Value="True">
+                                                            <Setter Property="Content"
+                                                                    Value="✓ ACTIVE"/>
+                                                            <Setter Property="Foreground"
+                                                                    Value="White"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                    </DockPanel>
+                                    <StackPanel Margin="0,10,0,0">
+                                        <TextBlock Text="API KEY"
+                                                   Style="{StaticResource LabelStyle}"/>
+                                        <PasswordBox x:Name="CohereKeyBox"
+                                                     Style="{StaticResource RoundedPasswordBoxStyle}"
+                                                     PasswordChanged="CohereKeyBox_PasswordChanged"
+                                                     Margin="0,4,0,0"/>
+                                        <TextBlock Text="Get key at dashboard.cohere.com"
+                                                   Style="{StaticResource HintTextStyle}"
+                                                   Margin="0,4,0,6"/>
+                                        <Button Content="💾  SAVE &amp; TEST"
+                                                Style="{StaticResource PillActionButtonStyle}"
+                                                Command="{Binding TestCohereCommand}"
+                                                HorizontalAlignment="Left"
+                                                MinWidth="160" Height="34" FontSize="11"/>
+                                        <TextBlock Text="{Binding CohereTestStatus}"
+                                                   FontSize="11" FontWeight="Bold"
+                                                   Foreground="{DynamicResource AccentBrush}"
+                                                   Margin="0,6,0,0"
+                                                   IsHitTestVisible="False"/>
+                                    </StackPanel>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- Config path -->
                             <Border Background="{DynamicResource MenuHoverBrush}"
                                     BorderBrush="{StaticResource PillBorderLightBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="10"
-                                    Padding="12,10"
-                                    Margin="0,16,0,0"
+                                    BorderThickness="1" CornerRadius="10"
+                                    Padding="12,10" Margin="0,12,0,0"
                                     SnapsToDevicePixels="True"
                                     UseLayoutRounding="True">
                                 <StackPanel>
-                                    <TextBlock Text="SAVED AT"
+                                    <TextBlock Text="ALL KEYS SAVED AT"
                                                Style="{StaticResource LabelStyle}"/>
                                     <TextBlock Text="{Binding ConfigFilePath}"
                                                FontSize="11"
@@ -547,113 +925,17 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- v3.3 NEW: AI PROVIDERS (active + coming soon) -->
-                    <Border Style="{StaticResource SectionCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="AI PROVIDERS"
-                                       Style="{StaticResource SectionLabelStyle}"/>
-
-                            <TextBlock Style="{StaticResource HintTextStyle}"
-                                       Margin="0,0,0,14">
-                                <Run Text="ProGlass supports multiple free AI providers. Currently"/>
-                                <Run Text=" Google Gemini" FontWeight="Bold"/>
-                                <Run Text=" is active. Additional providers are coming in a future update."/>
-                            </TextBlock>
-
-                            <WrapPanel Margin="0,0,0,4">
-                                <!-- Active: Gemini -->
-                                <Border CornerRadius="20"
-                                        Padding="16,9"
-                                        Margin="0,0,8,8"
-                                        BorderThickness="1.5"
-                                        BorderBrush="{StaticResource PillBorderBrush}"
-                                        Background="{StaticResource ActiveProviderBg}"
-                                        SnapsToDevicePixels="True"
-                                        UseLayoutRounding="True">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="✓"
-                                                   FontSize="12"
-                                                   FontWeight="Bold"
-                                                   Foreground="{StaticResource ActiveProviderText}"
-                                                   VerticalAlignment="Center"
-                                                   Margin="0,0,6,0"
-                                                   IsHitTestVisible="False"/>
-                                        <TextBlock Text="Google Gemini"
-                                                   FontSize="12"
-                                                   FontWeight="Bold"
-                                                   Foreground="{StaticResource ActiveProviderText}"
-                                                   VerticalAlignment="Center"
-                                                   IsHitTestVisible="False"/>
-                                    </StackPanel>
-                                </Border>
-
-                                <!-- Coming Soon: Groq -->
-                                <Border CornerRadius="20"
-                                        Padding="16,9"
-                                        Margin="0,0,8,8"
-                                        BorderThickness="1"
-                                        BorderBrush="{StaticResource ComingSoonBorder}"
-                                        Background="{StaticResource ComingSoonBg}"
-                                        SnapsToDevicePixels="True"
-                                        UseLayoutRounding="True">
-                                    <TextBlock Text="Groq · Coming Soon"
-                                               FontSize="12"
-                                               FontWeight="SemiBold"
-                                               Foreground="{StaticResource ComingSoonText}"
-                                               VerticalAlignment="Center"
-                                               IsHitTestVisible="False"/>
-                                </Border>
-
-                                <!-- Coming Soon: Cohere -->
-                                <Border CornerRadius="20"
-                                        Padding="16,9"
-                                        Margin="0,0,8,8"
-                                        BorderThickness="1"
-                                        BorderBrush="{StaticResource ComingSoonBorder}"
-                                        Background="{StaticResource ComingSoonBg}"
-                                        SnapsToDevicePixels="True"
-                                        UseLayoutRounding="True">
-                                    <TextBlock Text="Cohere · Coming Soon"
-                                               FontSize="12"
-                                               FontWeight="SemiBold"
-                                               Foreground="{StaticResource ComingSoonText}"
-                                               VerticalAlignment="Center"
-                                               IsHitTestVisible="False"/>
-                                </Border>
-
-                                <!-- Coming Soon: OpenRouter -->
-                                <Border CornerRadius="20"
-                                        Padding="16,9"
-                                        Margin="0,0,8,8"
-                                        BorderThickness="1"
-                                        BorderBrush="{StaticResource ComingSoonBorder}"
-                                        Background="{StaticResource ComingSoonBg}"
-                                        SnapsToDevicePixels="True"
-                                        UseLayoutRounding="True">
-                                    <TextBlock Text="OpenRouter · Coming Soon"
-                                               FontSize="12"
-                                               FontWeight="SemiBold"
-                                               Foreground="{StaticResource ComingSoonText}"
-                                               VerticalAlignment="Center"
-                                               IsHitTestVisible="False"/>
-                                </Border>
-                            </WrapPanel>
-                        </StackPanel>
-                    </Border>
-
                     <!-- MODEL & TUNING -->
                     <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
                             <TextBlock Text="MODEL &amp; TUNING"
                                        Style="{StaticResource SectionLabelStyle}"/>
-
                             <Grid Margin="0,4,0,0">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-
                                 <StackPanel Grid.Column="0" Margin="0,0,20,0">
                                     <TextBlock Text="MODEL"
                                                Style="{StaticResource LabelStyle}"/>
@@ -661,7 +943,6 @@
                                                Style="{StaticResource ValueStyle}"
                                                Margin="0,4,0,0"/>
                                 </StackPanel>
-
                                 <StackPanel Grid.Column="1" Margin="0,0,20,0">
                                     <TextBlock Text="MAX TOKENS"
                                                Style="{StaticResource LabelStyle}"/>
@@ -669,7 +950,6 @@
                                                Style="{StaticResource ValueStyle}"
                                                Margin="0,4,0,0"/>
                                 </StackPanel>
-
                                 <StackPanel Grid.Column="2">
                                     <TextBlock Text="TEMPERATURE"
                                                Style="{StaticResource LabelStyle}"/>
@@ -678,7 +958,6 @@
                                                Margin="0,4,0,0"/>
                                 </StackPanel>
                             </Grid>
-
                             <TextBlock Style="{StaticResource HintTextStyle}"
                                        Margin="0,14,0,0">
                                 <Run Text="These values are read from"/>
@@ -688,10 +967,340 @@
                         </StackPanel>
                     </Border>
 
+                    <!-- ══════════════════════════════════════════════
+                         VOICE ASSISTANT
+                    ══════════════════════════════════════════════ -->
+                    <Border Style="{StaticResource SectionCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="VOICE ASSISTANT"
+                                       Style="{StaticResource SectionLabelStyle}"/>
+
+                            <TextBlock Style="{StaticResource HintTextStyle}"
+                                       Margin="0,0,0,14">
+                                <Run Text="ProGlass AI supports"/>
+                                <Run Text=" voice input" FontWeight="Bold"/>
+                                <Run Text=" via OpenAI Whisper running locally. 95%+ accuracy, works offline, handles accents."/>
+                            </TextBlock>
+
+                            <!-- MODEL SELECTOR LABEL -->
+                            <TextBlock Text="SELECT WHISPER MODEL"
+                                       Style="{StaticResource LabelStyle}"
+                                       Margin="0,0,0,8"/>
+
+                            <!--
+                                 ═══════════════════════════════════════
+                                 MODEL OPTION CARDS
+                                 ─────────────────────────────────────
+                                 FIX XLS0501: The Border element has NO
+                                 Style= attribute. All styling is via
+                                 <Border.Style> child element only,
+                                 using BasedOn="ModelOptionCardStyle".
+                                 The base style provides all shared
+                                 setters (CornerRadius, Padding, etc.)
+                                 The child Style adds hover DataTrigger.
+                                 ═══════════════════════════════════════
+                            -->
+                            <ItemsControl ItemsSource="{Binding WhisperModelOptions}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <!--
+                                             NO Style= attribute here.
+                                             Styling exclusively via
+                                             <Border.Style> below.
+                                             Tag holds model key string
+                                             for code-behind handler.
+                                        -->
+                                        <Border MouseLeftButtonDown="ModelOption_MouseLeftButtonDown"
+                                                Tag="{Binding Key}">
+                                            <Border.Style>
+                                                <!--
+                                                     BasedOn pulls all shared setters
+                                                     (CornerRadius=10, Padding=12,10,
+                                                      Margin=0,0,0,8, BorderThickness=1.5,
+                                                      Cursor=Hand, SnapsToDevicePixels,
+                                                      UseLayoutRounding, BorderBrush,
+                                                      Background) from ModelOptionCardStyle.
+                                                     No duplication. No double-set.
+                                                -->
+                                                <Style TargetType="Border"
+                                                       BasedOn="{StaticResource ModelOptionCardStyle}">
+                                                    <Style.Triggers>
+                                                        <!--
+                                                             Hover: darken border slightly.
+                                                             Background stays on ModuleBackgroundBrush
+                                                             unless this card is the selected one
+                                                             (selection highlight handled by VM
+                                                              in Phase 2 if needed).
+                                                        -->
+                                                        <Trigger Property="IsMouseOver" Value="True">
+                                                            <Setter Property="BorderBrush"
+                                                                    Value="{StaticResource PillBorderBrush}"/>
+                                                        </Trigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <!-- Model info -->
+                                                <StackPanel Grid.Column="0">
+                                                    <TextBlock Text="{Binding DisplayName}"
+                                                               FontSize="13" FontWeight="Bold"
+                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                               IsHitTestVisible="False"/>
+                                                    <TextBlock FontSize="10"
+                                                               Margin="0,2,0,0"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                               IsHitTestVisible="False">
+                                                        <Run Text="{Binding SizeMB, Mode=OneWay}"/>
+                                                        <Run Text=" MB · "/>
+                                                        <Run Text="{Binding Accuracy, Mode=OneWay}"/>
+                                                        <Run Text=" accuracy · "/>
+                                                        <Run Text="{Binding Speed, Mode=OneWay}"/>
+                                                    </TextBlock>
+                                                    <TextBlock Text="{Binding Description}"
+                                                               FontSize="10"
+                                                               Margin="0,3,0,0"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                               TextWrapping="Wrap"
+                                                               IsHitTestVisible="False"/>
+                                                </StackPanel>
+
+                                                <!--
+                                                     Checkmark — visible only when
+                                                     this model is the selected one.
+                                                     Collapsed by default.
+                                                     Selection state driven by VM
+                                                     SelectedWhisperModel in Phase 2.
+                                                -->
+                                                <TextBlock Grid.Column="1"
+                                                           Text="✓"
+                                                           FontSize="14"
+                                                           FontWeight="Bold"
+                                                           Foreground="{StaticResource PillBorderBrush}"
+                                                           VerticalAlignment="Center"
+                                                           Margin="12,0,0,0"
+                                                           Visibility="Collapsed"
+                                                           IsHitTestVisible="False"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+
+                            <!-- MODEL STATUS CARD -->
+                            <Border CornerRadius="12" Padding="16,12"
+                                    Margin="0,12,0,12"
+                                    BorderThickness="1.5"
+                                    SnapsToDevicePixels="True"
+                                    UseLayoutRounding="True">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="BorderBrush"
+                                                Value="{StaticResource PillBorderLightBrush}"/>
+                                        <Setter Property="Background"
+                                                Value="{DynamicResource ModuleBackgroundBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsWhisperModelReady}"
+                                                         Value="True">
+                                                <Setter Property="BorderBrush"
+                                                        Value="{StaticResource PillBorderBrush}"/>
+                                                <Setter Property="Background"
+                                                        Value="{StaticResource ActiveProviderBg}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+
+                                <StackPanel>
+                                    <DockPanel LastChildFill="True">
+
+                                        <!-- Status badge — RIGHT docked first -->
+                                        <Border DockPanel.Dock="Right"
+                                                VerticalAlignment="Center"
+                                                CornerRadius="10" Padding="10,4"
+                                                SnapsToDevicePixels="True"
+                                                UseLayoutRounding="True">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Background"
+                                                            Value="{StaticResource DangerLightBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsWhisperModelReady}"
+                                                                     Value="True">
+                                                            <Setter Property="Background"
+                                                                    Value="{StaticResource ActiveProviderBg}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock FontSize="10" FontWeight="Bold"
+                                                       IsHitTestVisible="False">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Text"
+                                                                Value="NOT INSTALLED"/>
+                                                        <Setter Property="Foreground"
+                                                                Value="{StaticResource DangerBrush}"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding IsWhisperModelReady}"
+                                                                         Value="True">
+                                                                <Setter Property="Text"
+                                                                        Value="INSTALLED"/>
+                                                                <Setter Property="Foreground"
+                                                                        Value="{StaticResource ActiveProviderText}"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                            </TextBlock>
+                                        </Border>
+
+                                        <!-- Icon + title — LastChildFill -->
+                                        <StackPanel Orientation="Horizontal"
+                                                    VerticalAlignment="Center">
+                                            <TextBlock Text="🎤" FontSize="20"
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,0,10,0"
+                                                       IsHitTestVisible="False"/>
+                                            <StackPanel>
+                                                <TextBlock FontSize="14" FontWeight="Bold"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                           IsHitTestVisible="False">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Text"
+                                                                    Value="Whisper Model — Not Installed"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsWhisperModelReady}"
+                                                                             Value="True">
+                                                                    <Setter Property="Text"
+                                                                            Value="Whisper Model — Ready ✓"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                                <TextBlock FontSize="10"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           IsHitTestVisible="False">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Text"
+                                                                    Value="{Binding SelectedModelInfo.FileName,
+                                                                        StringFormat='{}{0} · Download required'}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsWhisperModelReady}"
+                                                                             Value="True">
+                                                                    <Setter Property="Text"
+                                                                            Value="{Binding SelectedModelInfo.FileName,
+                                                                                StringFormat='{}{0} · Installed · Offline neural STT'}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </StackPanel>
+                                        </StackPanel>
+                                    </DockPanel>
+
+                                    <!-- Download progress -->
+                                    <StackPanel Margin="0,10,0,0"
+                                                Visibility="{Binding IsDownloadingModel,
+                                                    Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <ProgressBar Value="{Binding DownloadProgress}"
+                                                     Style="{StaticResource DownloadProgressBarStyle}"
+                                                     Width="300"
+                                                     HorizontalAlignment="Left"/>
+                                        <TextBlock Text="{Binding VoiceStatus}"
+                                                   FontSize="10" FontWeight="Bold"
+                                                   Foreground="{DynamicResource AccentBrush}"
+                                                   Margin="0,4,0,0"
+                                                   IsHitTestVisible="False"/>
+                                    </StackPanel>
+
+                                    <!-- Action buttons -->
+                                    <StackPanel Orientation="Horizontal"
+                                                Margin="0,10,0,0">
+
+                                        <Button Content="📥  DOWNLOAD MODEL"
+                                                Style="{StaticResource PillActionButtonStyle}"
+                                                Command="{Binding DownloadWhisperModelCommand}"
+                                                MinWidth="180" Height="34" FontSize="11"
+                                                Margin="0,0,8,0"
+                                                Visibility="{Binding IsWhisperModelReady,
+                                                    Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+
+                                        <Button Content="CANCEL"
+                                                Style="{StaticResource DangerPillButtonStyle}"
+                                                Command="{Binding CancelDownloadCommand}"
+                                                Margin="0,0,8,0"
+                                                Visibility="{Binding IsDownloadingModel,
+                                                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                                        <Button Content="🗑  DELETE MODEL"
+                                                Style="{StaticResource DeletePillButtonStyle}"
+                                                Command="{Binding DeleteWhisperModelCommand}"
+                                                Visibility="{Binding IsWhisperModelReady,
+                                                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                    </StackPanel>
+
+                                    <!-- Unified status text -->
+                                    <TextBlock Text="{Binding VoiceStatus}"
+                                               FontSize="11" FontWeight="Bold"
+                                               Foreground="{DynamicResource AccentBrush}"
+                                               TextWrapping="Wrap"
+                                               Margin="0,8,0,0"
+                                               IsHitTestVisible="False">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsDownloadingModel}"
+                                                                 Value="True">
+                                                        <Setter Property="Visibility"
+                                                                Value="Collapsed"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
+                                    <!-- Model file location -->
+                                    <Border Background="{DynamicResource MenuHoverBrush}"
+                                            BorderBrush="{StaticResource PillBorderLightBrush}"
+                                            BorderThickness="1" CornerRadius="8"
+                                            Padding="10,8" Margin="0,10,0,0"
+                                            SnapsToDevicePixels="True"
+                                            UseLayoutRounding="True"
+                                            Visibility="{Binding IsWhisperModelReady,
+                                                Converter={StaticResource BoolToVisibilityConverter}}">
+                                        <StackPanel>
+                                            <TextBlock Text="MODEL STORED AT"
+                                                       Style="{StaticResource LabelStyle}"/>
+                                            <TextBlock Text="{Binding ModelFilePath}"
+                                                       FontSize="10"
+                                                       FontFamily="Consolas, Courier New, monospace"
+                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                       Margin="0,3,0,0"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       IsHitTestVisible="False"/>
+                                        </StackPanel>
+                                    </Border>
+
+                                </StackPanel>
+                            </Border>
+                        </StackPanel>
+                    </Border>
+
                 </StackPanel>
 
-                <!-- ══════════════════════════════════════════════════════
-                     RIGHT COLUMN — INFO CARDS (pill-outline blue borders)
+                <!-- ══════════════════════════════════════════════════
+                     RIGHT COLUMN — INFO CARDS
                 ══════════════════════════════════════════════════════ -->
                 <StackPanel Grid.Column="2">
 
@@ -706,24 +1315,22 @@
                                 <TextBlock Text="About the Theme System"
                                            Style="{StaticResource InfoCardTitleStyle}"/>
                             </StackPanel>
-
                             <TextBlock Style="{StaticResource InfoCardBodyStyle}">
                                 <Run Text="ProGlass Automation ships with"/>
                                 <Run Text=" two hand-crafted themes" FontWeight="Bold"/>
-                                <Run Text=" — Light (default) and Dark. Both are built on the same 25-brush design token system, so every color, border, and gradient maps to a named theme key that can be swapped instantly at runtime with zero restart."/>
-                            </TextBlock>
-
-                            <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                                <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" Light theme — pale glass blue ambient, high-contrast slate text, optimized for daylight factory floor use."/>
+                                <Run Text=" — Light (default) and Dark."/>
                             </TextBlock>
                             <TextBlock Style="{StaticResource InfoCardBulletStyle}">
                                 <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" Dark theme — deep slate surfaces, bright blue accents, easier on the eyes during late-night shifts."/>
+                                <Run Text=" Light theme — optimized for daylight factory floor use."/>
                             </TextBlock>
                             <TextBlock Style="{StaticResource InfoCardBulletStyle}">
                                 <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" Instant swap — no restart required. Preference saved to config.json and re-applied on next launch."/>
+                                <Run Text=" Dark theme — easier on the eyes during late-night shifts."/>
+                            </TextBlock>
+                            <TextBlock Style="{StaticResource InfoCardBulletStyle}">
+                                <Run Text="•" FontWeight="Bold"/>
+                                <Run Text=" Instant swap — no restart required."/>
                             </TextBlock>
                         </StackPanel>
                     </Border>
@@ -739,28 +1346,22 @@
                                 <TextBlock Text="About the AI Assistant"
                                            Style="{StaticResource InfoCardTitleStyle}"/>
                             </StackPanel>
-
                             <TextBlock Style="{StaticResource InfoCardBodyStyle}">
-                                <Run Text="The optional AI Assistant is powered by"/>
-                                <Run Text=" Google Gemini" FontWeight="Bold"/>
-                                <Run Text=" and provides in-app help tailored to the UAE glass manufacturing industry. It can answer questions about workflow, help draft customer messages, explain formulas, and suggest optimizations."/>
-                            </TextBlock>
-
-                            <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                                <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" 100% opt-in — disabled by default. Toggle it on only if you want AI features."/>
+                                <Run Text="The optional AI Assistant supports"/>
+                                <Run Text=" Google Gemini, Groq, and Cohere" FontWeight="Bold"/>
+                                <Run Text=" — all free tiers. Tailored for UAE glass manufacturing."/>
                             </TextBlock>
                             <TextBlock Style="{StaticResource InfoCardBulletStyle}">
                                 <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" User-provided key — you use your own free Google API key. ProGlass never proxies your traffic."/>
+                                <Run Text=" 100% opt-in — uses your own API key."/>
                             </TextBlock>
                             <TextBlock Style="{StaticResource InfoCardBulletStyle}">
                                 <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" Free tier — Google Gemini offers 15 req/min, 1500/day that covers typical daily use."/>
+                                <Run Text=" Context-aware — knows glass types, VAT rules, app modules."/>
                             </TextBlock>
                             <TextBlock Style="{StaticResource InfoCardBulletStyle}">
                                 <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" Context-aware — the assistant knows about glass types, DGU/laminated units, VAT rules, and the app's modules."/>
+                                <Run Text=" Voice input via Whisper — offline, 95%+ accuracy."/>
                             </TextBlock>
                         </StackPanel>
                     </Border>
@@ -776,77 +1377,59 @@
                                 <TextBlock Text="About Your API Key &amp; Privacy"
                                            Style="{StaticResource InfoCardTitleStyle}"/>
                             </StackPanel>
-
                             <TextBlock Style="{StaticResource InfoCardBodyStyle}">
                                 <Run Text="Your API key is stored"/>
                                 <Run Text=" only on your local machine" FontWeight="Bold"/>
-                                <Run Text=" — inside a JSON file in your Windows AppData folder. It never leaves your PC except when the AI makes a request directly to Google's servers via HTTPS."/>
-                            </TextBlock>
-
-                            <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                                <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" Stored locally at %AppData%\ProGlassAutomation\config.json."/>
+                                <Run Text=" in AppData. It never leaves your PC except for direct HTTPS requests to the AI provider."/>
                             </TextBlock>
                             <TextBlock Style="{StaticResource InfoCardBulletStyle}">
                                 <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" Windows-protected — the AppData folder is only accessible to your Windows user account."/>
+                                <Run Text=" Stored at %AppData%\ProGlassAutomation\config.json."/>
                             </TextBlock>
                             <TextBlock Style="{StaticResource InfoCardBulletStyle}">
                                 <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" Auto-saved — the key persists across app restarts. Enter it once, never again."/>
-                            </TextBlock>
-                            <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                                <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" Revocable — revoke the key anytime from your Google AI Studio dashboard."/>
-                            </TextBlock>
-                            <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                                <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" No telemetry — ProGlass does not send any usage analytics or error reports to anyone."/>
+                                <Run Text=" No telemetry — zero analytics sent anywhere."/>
                             </TextBlock>
                         </StackPanel>
                     </Border>
 
-                    <!-- About Model Configuration -->
+                    <!-- About Voice Models -->
                     <Border Style="{StaticResource InfoCardStyle}">
                         <StackPanel>
                             <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="⚙" FontSize="20"
+                                <TextBlock Text="🎙" FontSize="20"
                                            VerticalAlignment="Center"
                                            Margin="0,0,10,0"
                                            IsHitTestVisible="False"/>
-                                <TextBlock Text="About Model Configuration"
+                                <TextBlock Text="About Voice Models"
                                            Style="{StaticResource InfoCardTitleStyle}"/>
                             </StackPanel>
-
                             <TextBlock Style="{StaticResource InfoCardBodyStyle}">
-                                <Run Text="The AI is pre-configured with"/>
-                                <Run Text=" sensible defaults" FontWeight="Bold"/>
-                                <Run Text=" that balance response quality with cost and latency. Advanced users can tune settings by editing config.json directly (in-app tuning UI is planned)."/>
-                            </TextBlock>
-
-                            <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                                <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" Model: gemini-flash-latest — auto-tracks the newest Flash model so you never hit a deprecated endpoint."/>
+                                <Run Text="Three Whisper model sizes are available."/>
+                                <Run Text=" Base is recommended" FontWeight="Bold"/>
+                                <Run Text=" for most users — fast, accurate, only 142 MB."/>
                             </TextBlock>
                             <TextBlock Style="{StaticResource InfoCardBulletStyle}">
                                 <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" Max Tokens: 1024 — long enough for detailed answers, short enough to stay within free-tier quota."/>
+                                <Run Text=" Base (142 MB) — 95%+ accuracy. Best for daily use."/>
                             </TextBlock>
                             <TextBlock Style="{StaticResource InfoCardBulletStyle}">
                                 <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" Temperature: 0.7 — balanced setting: coherent factual answers with natural writing style."/>
+                                <Run Text=" Medium (1.5 GB) — 97%+ accuracy. Noisy environments."/>
                             </TextBlock>
                             <TextBlock Style="{StaticResource InfoCardBulletStyle}">
                                 <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" Auto-upgrade — deprecated Gemini model names are silently upgraded on app launch."/>
+                                <Run Text=" Large v3 (3.1 GB) — 99%+ accuracy. Maximum quality."/>
+                            </TextBlock>
+                            <TextBlock Style="{StaticResource InfoCardBulletStyle}">
+                                <Run Text="•" FontWeight="Bold"/>
+                                <Run Text=" All models run fully OFFLINE — no internet after download."/>
                             </TextBlock>
                         </StackPanel>
                     </Border>
 
                 </StackPanel>
-
             </Grid>
-
         </StackPanel>
     </ScrollViewer>
 </UserControl>

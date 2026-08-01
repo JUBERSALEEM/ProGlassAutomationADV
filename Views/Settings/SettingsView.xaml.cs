@@ -1,64 +1,66 @@
 ﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: Views/Settings/SettingsView.xaml.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Settings (Chat 23 v3.1 — NEW module)
-// VERSION: Chat 23 v3.1 — PasswordBox handler + on-load key restore
-//
-// PURPOSE:
-//   PasswordBox cannot bind to a plain string property because
-//   PasswordBox.Password is not a DependencyProperty (by design, for
-//   security). This code-behind bridges the PasswordBox to the VM's
-//   AiApiKey property.
-//
-//   Also: on Loaded, restore the saved API key into the PasswordBox
-//   so the user sees their key is remembered.
-//
-// PATTERN:
-//   Same as v3.0 MainWindow.xaml.cs's ApiKeyBox_PasswordChanged handler,
-//   just relocated to this view.
-//
-// REGRESSION RISK: ZERO
-//   New file. Same handler pattern proven in v3.0.
+// MODULE: Settings (Chat 25 v1.1)
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.ViewModels.Settings;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace ProGlassAutomation.Views.Settings
 {
-    /// <summary>
-    /// Code-behind for the Settings view.
-    /// Owns only the PasswordBox bridge (WPF security constraint).
-    /// All other logic lives in <see cref="SettingsViewModel"/>.
-    /// </summary>
     public partial class SettingsView : UserControl
     {
         public SettingsView()
         {
             InitializeComponent();
 
-            // On Loaded: restore saved API key into the PasswordBox so
-            // the user visually confirms their key is remembered
             Loaded += (_, __) =>
             {
-                if (DataContext is SettingsViewModel vm &&
-                    !string.IsNullOrEmpty(vm.AiApiKey))
+                if (DataContext is SettingsViewModel vm)
                 {
-                    ApiKeyBox.Password = vm.AiApiKey;
+                    if (!string.IsNullOrEmpty(vm.GeminiApiKey))
+                        GeminiKeyBox.Password = vm.GeminiApiKey;
+                    if (!string.IsNullOrEmpty(vm.GroqApiKey))
+                        GroqKeyBox.Password = vm.GroqApiKey;
+                    if (!string.IsNullOrEmpty(vm.CohereApiKey))
+                        CohereKeyBox.Password = vm.CohereApiKey;
                 }
             };
         }
 
-        /// <summary>
-        /// Pushes the PasswordBox contents into the VM's AiApiKey
-        /// property, which persists to disk via ConfigService.Save.
-        /// </summary>
-        private void ApiKeyBox_PasswordChanged(object sender, RoutedEventArgs e)
+        private void GeminiKeyBox_PasswordChanged(object sender, RoutedEventArgs e)
         {
             if (DataContext is SettingsViewModel vm && sender is PasswordBox pb)
+                vm.GeminiApiKey = pb.Password;
+        }
+
+        private void GroqKeyBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is SettingsViewModel vm && sender is PasswordBox pb)
+                vm.GroqApiKey = pb.Password;
+        }
+
+        private void CohereKeyBox_PasswordChanged(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is SettingsViewModel vm && sender is PasswordBox pb)
+                vm.CohereApiKey = pb.Password;
+        }
+
+        /// <summary>
+        /// Whisper model card clicked — sets SelectedWhisperModel on VM.
+        /// Tag on the Border holds the model key ("base","medium","large-v3").
+        /// </summary>
+        private void ModelOption_MouseLeftButtonDown(
+            object sender, MouseButtonEventArgs e)
+        {
+            if (sender is FrameworkElement el &&
+                el.Tag is string modelKey &&
+                DataContext is SettingsViewModel vm)
             {
-                vm.AiApiKey = pb.Password;
+                vm.SelectedWhisperModel = modelKey;
             }
         }
     }

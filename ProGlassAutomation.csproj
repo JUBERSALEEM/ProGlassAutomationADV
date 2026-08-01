@@ -21,10 +21,35 @@
 			<PrivateAssets>all</PrivateAssets>
 			<IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
 		</PackageReference>
+		<PackageReference Include="NAudio" Version="2.2.1" />
 		<PackageReference Include="QuestPDF" Version="2024.12.2" />
 		<PackageReference Include="PdfSharp-WPF" Version="6.1.1" />
 		<PackageReference Include="SkiaSharp" Version="2.88.8" />
 		<PackageReference Include="SkiaSharp.Views.WPF" Version="2.88.8" />
+		<PackageReference Include="System.Speech" Version="8.0.0" />
+
+		<!--
+		     ═══════════════════════════════════════════════════════════
+		     WHISPER.NET — Local neural Speech-to-Text (offline)
+
+		     PACKAGE NAME CORRECTION vs previous versions:
+		       WRONG (does not exist on NuGet):
+		         Whisper.net.Runtime.Cpu  ← NU1101 error
+		       CORRECT for Whisper.net 1.7.x:
+		         Whisper.net.Runtime      ← bundled native runtimes
+
+		     Whisper.net         — managed C# API wrapper
+		     Whisper.net.Runtime — native GGML inference engine
+		                          (CPU + GPU auto-select, Windows x64)
+		                          Without this, WhisperFactory throws
+		                          DllNotFoundException at runtime.
+
+		     Both packages MUST be the same version.
+		     ═══════════════════════════════════════════════════════════
+		-->
+		<PackageReference Include="Whisper.net" Version="1.7.4" />
+		<PackageReference Include="Whisper.net.Runtime" Version="1.7.4" />
+
 	</ItemGroup>
 
 	<ItemGroup>
@@ -35,9 +60,9 @@
 		<Resource Include="favicon.ico" />
 	</ItemGroup>
 
-	<!-- ═══════════════════════════════════════════════════════════
+	<!-- ═══════════════════════════════════════════════════════════════
 	     Phase 8.3 — Explicit registration for Controls folder
-	═══════════════════════════════════════════════════════════ -->
+	═══════════════════════════════════════════════════════════════ -->
 	<ItemGroup>
 		<Page Update="Controls\**\*.xaml">
 			<Generator>MSBuild:Compile</Generator>
@@ -61,9 +86,9 @@
 		</Compile>
 	</ItemGroup>
 
-	<!-- ═══════════════════════════════════════════════════════════
+	<!-- ═══════════════════════════════════════════════════════════════
 	     Chat 16 — Sales Report + Statement List
-	═══════════════════════════════════════════════════════════ -->
+	═══════════════════════════════════════════════════════════════ -->
 	<ItemGroup>
 		<Page Update="Views\Reports\SalesReportView.xaml">
 			<Generator>MSBuild:Compile</Generator>
@@ -93,26 +118,12 @@
 		</Compile>
 	</ItemGroup>
 
-	<!-- ═══════════════════════════════════════════════════════════
+	<!-- ═══════════════════════════════════════════════════════════════
 	     Chat 21 v3 — Statement Generator WIZARD (4 steps)
-	     
-	     Folder structure:
-	       Views/Reports/StatementGenerator/
-	         Shell/     → Wizard shell (composition root)
-	         Filter/    → Step 1: Configure filters
-	         Preview/   → Step 2: Select invoices
-	         Pipeline/  → Step 3: Execute pipeline (live)
-	         Review/    → Step 4: Review & download PDF
-	         Styles/    → Wizard-specific shared styles
-	     
-	     DELETED in v3:
-	       Hero/ folder (marketing content, no place in ERP)
-	       *Section.xaml files (renamed to *Step.xaml)
-	       StatementGeneratorStyles.xaml (renamed to WizardStyles.xaml)
-	═══════════════════════════════════════════════════════════ -->
+	═══════════════════════════════════════════════════════════════ -->
 	<ItemGroup>
 
-		<!-- Shell (wizard composition root) -->
+		<!-- Shell -->
 		<Page Update="Views\Reports\StatementGenerator\Shell\StatementGeneratorView.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>
@@ -142,7 +153,7 @@
 			<SubType>Code</SubType>
 		</Compile>
 
-		<!-- Step 3: Execute (Pipeline) -->
+		<!-- Step 3: Execute -->
 		<Page Update="Views\Reports\StatementGenerator\Pipeline\ExecuteStep.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>
@@ -162,7 +173,7 @@
 			<SubType>Code</SubType>
 		</Compile>
 
-		<!-- Shared wizard styles resource dictionary -->
+		<!-- Shared wizard styles -->
 		<Page Update="Views\Reports\StatementGenerator\Styles\WizardStyles.xaml">
 			<Generator>MSBuild:Compile</Generator>
 			<SubType>Designer</SubType>
