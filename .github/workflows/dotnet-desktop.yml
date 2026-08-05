@@ -36,7 +36,7 @@
 # For a complete CI/CD sample to get started with GitHub Action workflows for Desktop Applications,
 # refer to https://github.com/microsoft/github-actions-for-desktop-apps
 
-name: .NET Core Desktop
+name: ProGlassAutomation Build
 
 on:
   push:
@@ -52,8 +52,9 @@ jobs:
   build:
 
     strategy:
+      fail-fast: false
       matrix:
-        configuration: [Debug, Release]
+        configuration: [Release]
 
     runs-on: windows-latest
 
@@ -68,7 +69,7 @@ jobs:
       with:
         fetch-depth: 0
 
-    - name: Install .NET 8
+    - name: Install .NET 8 SDK
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
@@ -76,32 +77,32 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
-    - name: Restore the application
-      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
+    - name: Restore NuGet Packages
+      run: |
+        msbuild "$env:Solution_Name" /t:Restore /p:Configuration=$env:Configuration
 
-    - name: Build the application
-      run: msbuild $env:Solution_Name /p:Configuration=$env:Configuration /m
+    - name: Build Application
+      run: |
+        msbuild "$env:Solution_Name" /p:Configuration=$env:Configuration /m
 
-    - name: Execute unit tests
-      run: dotnet test $env:Solution_Name --configuration $env:Configuration --no-build
+    - name: Run Tests
+      run: |
+        dotnet test "$env:Solution_Name" --configuration $env:Configuration --no-build
       continue-on-error: true
 
-    - name: Publish application
-      if: matrix.configuration == 'Release'
+    - name: Publish Application
       run: |
-        dotnet publish $env:Solution_Name `
+        dotnet publish "$env:Solution_Name" `
           --configuration Release `
           --output publish
 
-    - name: Upload build artifacts
-      if: matrix.configuration == 'Release'
+    - name: Upload Build Artifact
       uses: actions/upload-artifact@v4
       with:
         name: ProGlassAutomation-Release
         path: publish
 
     - name: Create GitHub Release
-      if: matrix.configuration == 'Release'
       uses: softprops/action-gh-release@v2
       with:
         tag_name: v1.0.${{ github.run_number }}
