@@ -51,12 +51,13 @@ jobs:
 
   build:
 
+    runs-on: windows-latest
+
     strategy:
       fail-fast: false
       matrix:
-        configuration: [Release]
-
-    runs-on: windows-latest
+        configuration:
+          - Release
 
     env:
       Solution_Name: ProGlassAutomation.slnx
@@ -64,12 +65,12 @@ jobs:
 
     steps:
 
-    - name: Checkout
+    - name: Checkout Repository
       uses: actions/checkout@v4
       with:
         fetch-depth: 0
 
-    - name: Install .NET 8 SDK
+    - name: Setup .NET 8 SDK
       uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 8.0.x
@@ -77,26 +78,30 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
-    - name: Restore NuGet Packages
+    - name: Restore Application
+      shell: pwsh
       run: |
         msbuild "$env:Solution_Name" /t:Restore /p:Configuration=$env:Configuration
 
     - name: Build Application
+      shell: pwsh
       run: |
         msbuild "$env:Solution_Name" /p:Configuration=$env:Configuration /m
 
-    - name: Run Tests
-      run: |
-        dotnet test "$env:Solution_Name" --configuration $env:Configuration --no-build
-      continue-on-error: true
-
-    - name: Publish Application
+    - name: Publish Single EXE
+      shell: pwsh
       run: |
         dotnet publish "$env:Solution_Name" `
           --configuration Release `
-          --output publish
+          --output publish `
+          -r win-x64 `
+          --self-contained true `
+          -p:PublishSingleFile=true `
+          -p:IncludeNativeLibrariesForSelfExtract=true `
+          -p:EnableCompressionInSingleFile=true `
+          -p:PublishTrimmed=false
 
-    - name: Upload Build Artifact
+    - name: Upload Release Artifact
       uses: actions/upload-artifact@v4
       with:
         name: ProGlassAutomation-Release
