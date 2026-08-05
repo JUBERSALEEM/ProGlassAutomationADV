@@ -45,6 +45,7 @@ on:
     branches: [ "new" ]
 
 jobs:
+
   build:
 
     strategy:
@@ -55,6 +56,7 @@ jobs:
 
     env:
       Solution_Name: ProGlassAutomation.slnx
+      Configuration: ${{ matrix.configuration }}
 
     steps:
 
@@ -71,24 +73,26 @@ jobs:
     - name: Setup MSBuild
       uses: microsoft/setup-msbuild@v2
 
-    - name: Restore NuGet Packages
-      run: dotnet restore $env:Solution_Name
+    - name: Restore the application
+      run: msbuild $env:Solution_Name /t:Restore /p:Configuration=$env:Configuration
 
-    - name: Build Application
-      run: msbuild $env:Solution_Name /p:Configuration=${{ matrix.configuration }} /m
+    - name: Build the application
+      run: msbuild $env:Solution_Name /p:Configuration=$env:Configuration /m
 
-    - name: Run Tests
-      run: dotnet test $env:Solution_Name --configuration ${{ matrix.configuration }} --no-build
+    - name: Execute unit tests
+      run: dotnet test $env:Solution_Name --configuration $env:Configuration --no-build
       continue-on-error: true
 
-    - name: Publish Application
+    - name: Publish application
+      if: matrix.configuration == 'Release'
       run: |
         dotnet publish $env:Solution_Name `
-          --configuration ${{ matrix.configuration }} `
+          --configuration Release `
           --output publish
 
-    - name: Upload Build Output
+    - name: Upload build artifacts
+      if: matrix.configuration == 'Release'
       uses: actions/upload-artifact@v4
       with:
-        name: ProGlassAutomation-${{ matrix.configuration }}
+        name: ProGlassAutomation-Release
         path: publish
