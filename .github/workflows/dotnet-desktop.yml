@@ -2,9 +2,9 @@ name: ProGlassAutomation Build
 
 on:
   push:
-    branches: [ "new" ]
+    branches: [ "feature/stylish-installer-mcp-14230068296920334458" ]
   pull_request:
-    branches: [ "new" ]
+    branches: [ "feature/stylish-installer-mcp-14230068296920334458" ]
 
 permissions:
   contents: write
