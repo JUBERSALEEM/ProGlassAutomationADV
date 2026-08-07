@@ -364,3 +364,6 @@ FodyWeavers.xsdSetup/Payload/
 Setup/Payload/
 Setup/ProGlassSetup/bin/
 Setup/ProGlassSetup/obj/
+Setup/ProGlassAutomation.Installer/bin/
+Setup/ProGlassAutomation.Installer/obj/
+Setup/ProGlassAutomation.Installer/payload.zip

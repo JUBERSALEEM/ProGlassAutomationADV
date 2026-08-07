@@ -951,6 +951,99 @@
                                                Margin="0,4,0,0"/>
                                 </StackPanel>
                                 <StackPanel Grid.Column="2">
+                    <!-- APPLICATION UPDATES CARD (Custom high-fidelity design) -->
+                    <Border Style="{StaticResource SectionCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="APPLICATION UPDATES"
+                                       Style="{StaticResource SectionLabelStyle}"/>
+
+                            <Grid Margin="0,4,0,12">
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
+                                <StackPanel Grid.Column="0">
+                                    <TextBlock Text="ProGlass Automation"
+                                               FontSize="15" FontWeight="Bold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text="{Binding CurrentVersionString}"
+                                               FontSize="12" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource AccentBrush}"
+                                               Margin="0,2,0,0"/>
+                                    <TextBlock FontSize="10"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                               Margin="0,2,0,0">
+                                        <Run Text="{Binding AppBuildString}"/>
+                                        <Run Text=" · "/>
+                                        <Run Text="{Binding AppReleaseDateString}"/>
+                                    </TextBlock>
+                                </StackPanel>
+                                <TextBlock Grid.Column="1" Text="🚀" FontSize="26" VerticalAlignment="Center"/>
+                            </Grid>
+
+                            <!-- Status Area -->
+                            <Border Background="{DynamicResource MenuHoverBrush}"
+                                    BorderBrush="{StaticResource PillBorderLightBrush}"
+                                    BorderThickness="1" CornerRadius="10"
+                                    Padding="14,10" Margin="0,0,0,12"
+                                    SnapsToDevicePixels="True"
+                                    UseLayoutRounding="True">
+                                <StackPanel>
+                                    <TextBlock Text="STATUS" Style="{StaticResource LabelStyle}"/>
+                                    <TextBlock Text="{Binding UpdateStatus}"
+                                               FontSize="12" FontWeight="SemiBold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               TextWrapping="Wrap" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </Border>
+
+                            <!-- New Version Details (Visible only when update is available) -->
+                            <StackPanel Visibility="{Binding IsUpdateAvailable, Converter={StaticResource BoolToVisibilityConverter}}">
+                                <Border Background="#1E293B" BorderBrush="{DynamicResource AccentBrush}"
+                                        BorderThickness="1.5" CornerRadius="10" Padding="14,10" Margin="0,0,0,12">
+                                    <StackPanel>
+                                        <TextBlock Text="NEW VERSION DETAILS" Style="{StaticResource LabelStyle}" Foreground="{DynamicResource AccentBrush}"/>
+                                        <TextBlock Text="{Binding LatestVersionString}" FontSize="13" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,4,0,2"/>
+                                        <TextBlock Text="CHANGES:" Style="{StaticResource LabelStyle}" Margin="0,6,0,2"/>
+                                        <TextBlock Text="{Binding ReleaseNotesString}" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" TextWrapping="Wrap" LineHeight="16"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Action buttons -->
+                            <StackPanel>
+                                <!-- Check for updates -->
+                                <Button Content="🔄  CHECK FOR UPDATES"
+                                        Style="{StaticResource PillActionButtonStyle}"
+                                        Command="{Binding CheckForUpdatesCommand}"
+                                        Height="38" FontSize="11"
+                                        Visibility="{Binding IsUpdateAvailable, Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+
+                                <!-- Download and Apply Update -->
+                                <Button Content="📥  DOWNLOAD &amp; INSTALL UPDATE"
+                                        Style="{StaticResource PillActionButtonStyle}"
+                                        Command="{Binding DownloadUpdateCommand}"
+                                        Background="{DynamicResource SuccessBrush}"
+                                        Height="38" FontSize="11"
+                                        Visibility="{Binding IsUpdateAvailable, Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                                <!-- Download progress -->
+                                <StackPanel Margin="0,10,0,0"
+                                            Visibility="{Binding IsDownloadingUpdate, Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <ProgressBar Value="{Binding DownloadUpdateProgress}"
+                                                 Style="{StaticResource DownloadProgressBarStyle}"
+                                                 Height="6"
+                                                 Background="{DynamicResource MenuHoverBrush}"
+                                                 Foreground="{DynamicResource AccentBrush}"/>
+                                    <TextBlock Text="{Binding DownloadUpdateProgress, StringFormat='{}{0}% complete'}"
+                                               FontSize="10" FontWeight="Bold" HorizontalAlignment="Center"
+                                               Foreground="{DynamicResource AccentBrush}" Margin="0,4,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                        </StackPanel>
+                    </Border>
+
                                     <TextBlock Text="TEMPERATURE"
                                                Style="{StaticResource LabelStyle}"/>
                                     <TextBlock Text="{Binding AiTemperature}"

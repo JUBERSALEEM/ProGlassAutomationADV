@@ -15,6 +15,8 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Models;
+
 using ProGlassAutomation.Services;
 using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.AI.AIService;
@@ -29,6 +31,15 @@ namespace ProGlassAutomation.ViewModels.Settings
 {
     public sealed class SettingsViewModel : ViewModelBase
     {
+        // ── Professional Update System Fields ───────────────────────
+        private readonly UpdateService _updateService = new UpdateService();
+        private string _updateStatus = "Check for updates to keep your system optimized.";
+        private bool _isUpdateAvailable;
+        private bool _isCheckingForUpdates;
+        private bool _isDownloadingUpdate;
+        private int _downloadUpdateProgress;
+        private UpdateInfo? _latestUpdateInfo;
+
         private string _geminiTestStatus = string.Empty;
         private string _groqTestStatus = string.Empty;
         private string _cohereTestStatus = string.Empty;
@@ -44,7 +55,88 @@ namespace ProGlassAutomation.ViewModels.Settings
         //  CONSTRUCTOR
         // ══════════════════════════════════════════════════════════════
 
-        public SettingsViewModel()
+
+        // ── Professional Update System Properties ───────────────────
+        public string CurrentVersionString => $"Version {VersionService.CurrentVersion}";
+        public string AppBuildString => $"Build {VersionService.BuildNumber}";
+        public string AppReleaseDateString => $"Released: {VersionService.ReleaseDate}";
+
+        public string UpdateStatus
+        {
+            get => _updateStatus;
+            set
+            {
+                if (_updateStatus == value) return;
+                _updateStatus = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsUpdateAvailable
+        {
+            get => _isUpdateAvailable;
+            set
+            {
+                if (_isUpdateAvailable == value) return;
+                _isUpdateAvailable = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsCheckingForUpdates
+        {
+            get => _isCheckingForUpdates;
+            set
+            {
+                if (_isCheckingForUpdates == value) return;
+                _isCheckingForUpdates = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public bool IsDownloadingUpdate
+        {
+            get => _isDownloadingUpdate;
+            set
+            {
+                if (_isDownloadingUpdate == value) return;
+                _isDownloadingUpdate = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public int DownloadUpdateProgress
+        {
+            get => _downloadUpdateProgress;
+            set
+            {
+                if (_downloadUpdateProgress == value) return;
+                _downloadUpdateProgress = value;
+                OnPropertyChanged();
+            }
+        }
+
+        public UpdateInfo? LatestUpdateInfo
+        {
+            get => _latestUpdateInfo;
+            set
+            {
+                _latestUpdateInfo = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(LatestVersionString));
+                OnPropertyChanged(nameof(ReleaseNotesString));
+            }
+        }
+
+        public string LatestVersionString => _latestUpdateInfo != null ? $"v{_latestUpdateInfo.LatestVersion}" : string.Empty;
+
+        public string ReleaseNotesString => _latestUpdateInfo != null
+            ? string.Join("\n", _latestUpdateInfo.ReleaseNotes)
+            : string.Empty;
+
+        public ICommand CheckForUpdatesCommand { get; }
+        public ICommand DownloadUpdateCommand { get; }
+public SettingsViewModel()
         {
             ConfigFilePath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
@@ -202,6 +294,68 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             ThemeManager.ThemeChanged += (_, __) =>
                 OnPropertyChanged(nameof(IsDarkTheme));
+
+            // ── Update System Command Wireups ──────────────────────────
+            CheckForUpdatesCommand = new RelayCommand(async _ =>
+            {
+                if (IsCheckingForUpdates) return;
+                IsCheckingForUpdates = true;
+                UpdateStatus = "Connecting to update server...";
+
+                var info = await _updateService.CheckForUpdatesAsync();
+                IsCheckingForUpdates = false;
+
+                if (info != null)
+                {
+                    LatestUpdateInfo = info;
+                    if (_updateService.IsNewVersionAvailable(info.LatestVersion))
+                    {
+                        IsUpdateAvailable = true;
+                        UpdateStatus = "A new version of ProGlass Automation is available!";
+                    }
+                    else
+                    {
+                        IsUpdateAvailable = false;
+                        UpdateStatus = "You are running the latest version.";
+                    }
+                }
+                else
+                {
+                    UpdateStatus = "✗ Failed to contact update server. Check your connection.";
+                }
+            });
+
+            DownloadUpdateCommand = new RelayCommand(async _ =>
+            {
+                if (IsDownloadingUpdate || LatestUpdateInfo == null) return;
+                IsDownloadingUpdate = true;
+                DownloadUpdateProgress = 0;
+                UpdateStatus = "Downloading latest package update...";
+
+                string? downloadedFile = await _updateService.DownloadUpdateAsync(
+                    LatestUpdateInfo.DownloadUrl,
+                    progress =>
+                    {
+                        System.Windows.Application.Current?.Dispatcher.Invoke(() =>
+                        {
+                            DownloadUpdateProgress = progress;
+                        });
+                    });
+
+                IsDownloadingUpdate = false;
+
+                if (!string.IsNullOrEmpty(downloadedFile) && File.Exists(downloadedFile))
+                {
+                    UpdateStatus = "Download complete. Launching setup...";
+                    await Task.Delay(800);
+                    _updateService.LaunchInstallerAndExit(downloadedFile);
+                }
+                else
+                {
+                    UpdateStatus = "✗ Download failed. Please try again later.";
+                }
+            });
+
         }
 
         // ══════════════════════════════════════════════════════════════

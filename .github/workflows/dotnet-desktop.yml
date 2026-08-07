@@ -51,24 +51,43 @@ jobs:
           -p:EnableCompressionInSingleFile=true `
           -p:PublishTrimmed=false
 
-    - name: Compile Professional Installer Setup
+    - name: Zip Standalone Application for Embed
       shell: pwsh
       run: |
-        # Run Inno Setup Compiler directly (pre-installed on windows-latest GitHub runners)
-        iscc Setup/setup.iss
+        # Create zip payload from published binaries
+        Compress-Archive -Path publish\* -DestinationPath Setup/ProGlassAutomation.Installer/payload.zip -Force
+        Get-Item Setup/ProGlassAutomation.Installer/payload.zip
 
-    - name: Prepare Final Single Setup Artifact
+    - name: Restore ProGlassAutomation.Installer NuGet Packages
+      shell: pwsh
+      run: |
+        dotnet restore Setup/ProGlassAutomation.Installer/ProGlassAutomation.Installer.csproj
+
+    - name: Publish Custom WPF Installer Package
+      shell: pwsh
+      run: |
+        dotnet publish Setup/ProGlassAutomation.Installer/ProGlassAutomation.Installer.csproj `
+          --configuration Release `
+          --output setup_publish `
+          -r win-x64 `
+          --self-contained true `
+          -p:PublishSingleFile=true `
+          -p:IncludeNativeLibrariesForSelfExtract=true `
+          -p:EnableCompressionInSingleFile=true `
+          -p:PublishTrimmed=false
+
+    - name: Prepare Setup.exe Artifact
       shell: pwsh
       run: |
         mkdir dist
-        cp Setup/Output/Setup.exe dist/
+        cp setup_publish/ProGlassAutomation-Setup.exe dist/ProGlassAutomation-Setup.exe
         ls dist
 
     - name: Upload Setup.exe Artifact
       uses: actions/upload-artifact@v4
       with:
         name: ProGlassAutomation-Setup
-        path: dist/Setup.exe
+        path: dist/ProGlassAutomation-Setup.exe
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
@@ -76,6 +95,6 @@ jobs:
         tag_name: v1.0.${{ github.run_number }}
         name: ProGlass Automation v1.0.${{ github.run_number }}
         files: |
-          dist/Setup.exe
+          dist/ProGlassAutomation-Setup.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
