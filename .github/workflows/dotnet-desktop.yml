@@ -51,36 +51,17 @@ jobs:
           -p:EnableCompressionInSingleFile=true `
           -p:PublishTrimmed=false
 
-    - name: Zip Standalone Application for Embed
+    - name: Compile Professional Installer Setup
       shell: pwsh
       run: |
-        # Create zip payload from published binaries
-        Compress-Archive -Path publish\* -DestinationPath Setup/ProGlassSetup/payload.zip -Force
-        Get-Item Setup/ProGlassSetup/payload.zip
+        # Run Inno Setup Compiler directly (pre-installed on windows-latest GitHub runners)
+        iscc Setup/setup.iss
 
-    - name: Restore ProGlassSetup NuGet Packages
-      shell: pwsh
-      run: |
-        dotnet restore Setup/ProGlassSetup/ProGlassSetup.csproj
-
-    - name: Publish ProGlassSetup Installer Package
-      shell: pwsh
-      run: |
-        dotnet publish Setup/ProGlassSetup/ProGlassSetup.csproj `
-          --configuration Release `
-          --output setup_publish `
-          -r win-x64 `
-          --self-contained true `
-          -p:PublishSingleFile=true `
-          -p:IncludeNativeLibrariesForSelfExtract=true `
-          -p:EnableCompressionInSingleFile=true `
-          -p:PublishTrimmed=false
-
-    - name: Prepare Setup.exe Artifact
+    - name: Prepare Final Single Setup Artifact
       shell: pwsh
       run: |
         mkdir dist
-        cp setup_publish/ProGlassSetup.exe dist/Setup.exe
+        cp Setup/Output/Setup.exe dist/
         ls dist
 
     - name: Upload Setup.exe Artifact
