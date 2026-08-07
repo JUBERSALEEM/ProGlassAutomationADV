@@ -40,9 +40,11 @@ name: ProGlassAutomation Build
 
 on:
   push:
-    branches: [ "new" ]
+    branches:
+      - feature/stylish-installer-mcp-14230068296920334458
   pull_request:
-    branches: [ "new" ]
+    branches:
+      - feature/stylish-installer-mcp-14230068296920334458
 
 permissions:
   contents: write
@@ -60,7 +62,7 @@ jobs:
           - Release
 
     env:
-      Solution_Name: ProGlassAutomation.slnx
+      Project_Name: ProGlassAutomation.csproj
       Configuration: ${{ matrix.configuration }}
 
     steps:
@@ -81,22 +83,30 @@ jobs:
     - name: Restore NuGet Packages
       shell: pwsh
       run: |
-        msbuild "$env:Solution_Name" `
+        msbuild "$env:Project_Name" `
           /t:Restore `
           /p:Configuration=$env:Configuration
 
     - name: Build Application
       shell: pwsh
       run: |
-        msbuild "$env:Solution_Name" `
+        msbuild "$env:Project_Name" `
           /p:Configuration=$env:Configuration `
           /m `
           /verbosity:minimal
 
+    - name: Run Tests
+      shell: pwsh
+      run: |
+        dotnet test "$env:Project_Name" `
+          --configuration $env:Configuration `
+          --no-build
+      continue-on-error: true
+
     - name: Publish Single EXE
       shell: pwsh
       run: |
-        dotnet publish "$env:Solution_Name" `
+        dotnet publish "$env:Project_Name" `
           --configuration Release `
           --output publish `
           -r win-x64 `
