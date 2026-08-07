@@ -183,8 +183,15 @@
 	</ItemGroup>
 
 
-	<!-- Exclude Setup installer folder from core compilation -->
+	<!-- Exclude Setup installer folder from core compilation (cross-platform & msbuild/dotnet compatible) -->
 	<ItemGroup>
+		<Compile Remove="Setup\**\*" />
+		<Page Remove="Setup\**\*" />
+		<Resource Remove="Setup\**\*" />
+		<EmbeddedResource Remove="Setup\**\*" />
+		<None Remove="Setup\**\*" />
+		<Compile Remove="Setup\**\*.cs" />
+		<Page Remove="Setup\**\*.xaml" />
 		<Compile Remove="Setup/**" />
 		<Page Remove="Setup/**" />
 		<Resource Remove="Setup/**" />
