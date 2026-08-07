@@ -2,17 +2,15 @@ name: ProGlassAutomation Build
 
 on:
   push:
-    branches:
-      - new
+    branches: [ "new" ]
   pull_request:
-    branches:
-      - new
-  workflow_dispatch:
+    branches: [ "new" ]
 
 permissions:
   contents: write
 
 jobs:
+
   build:
 
     runs-on: windows-latest
@@ -38,86 +36,65 @@ jobs:
     - name: Restore ProGlassAutomation NuGet Packages
       shell: pwsh
       run: |
-        dotnet restore "./ProGlassAutomation.csproj"
+        dotnet restore ProGlassAutomation.csproj
 
     - name: Publish ProGlassAutomation Standalone Binary
       shell: pwsh
       run: |
-        dotnet publish "./ProGlassAutomation.csproj" `
+        dotnet publish ProGlassAutomation.csproj `
           --configuration Release `
           --output publish `
-          --runtime win-x64 `
+          -r win-x64 `
           --self-contained true `
           -p:PublishSingleFile=true `
           -p:IncludeNativeLibrariesForSelfExtract=true `
           -p:EnableCompressionInSingleFile=true `
-          -p:PublishTrimmed=false `
-          -p:DebugType=None `
-          -p:DebugSymbols=false
+          -p:PublishTrimmed=false
 
-    - name: Create Installer Payload
+    - name: Zip Standalone Application for Embed
       shell: pwsh
       run: |
-        if (Test-Path "Setup/ProGlassSetup/payload.zip") {
-          Remove-Item "Setup/ProGlassSetup/payload.zip" -Force
-        }
-
-        Compress-Archive `
-          -Path "publish/*" `
-          -DestinationPath "Setup/ProGlassSetup/payload.zip" `
-          -Force
-
-        Get-Item "Setup/ProGlassSetup/payload.zip"
+        # Create zip payload from published binaries
+        Compress-Archive -Path publish\* -DestinationPath Setup/ProGlassSetup/payload.zip -Force
+        Get-Item Setup/ProGlassSetup/payload.zip
 
     - name: Restore ProGlassSetup NuGet Packages
       shell: pwsh
       run: |
-        dotnet restore "./Setup/ProGlassSetup/ProGlassSetup.csproj"
+        dotnet restore Setup/ProGlassSetup/ProGlassSetup.csproj
 
-    - name: Publish ProGlassSetup Installer
+    - name: Publish ProGlassSetup Installer Package
       shell: pwsh
       run: |
-        dotnet publish "./Setup/ProGlassSetup/ProGlassSetup.csproj" `
+        dotnet publish Setup/ProGlassSetup/ProGlassSetup.csproj `
           --configuration Release `
           --output setup_publish `
-          --runtime win-x64 `
+          -r win-x64 `
           --self-contained true `
           -p:PublishSingleFile=true `
           -p:IncludeNativeLibrariesForSelfExtract=true `
           -p:EnableCompressionInSingleFile=true `
-          -p:PublishTrimmed=false `
-          -p:DebugType=None `
-          -p:DebugSymbols=false
+          -p:PublishTrimmed=false
 
-    - name: Prepare Release Files
+    - name: Prepare Setup.exe Artifact
       shell: pwsh
       run: |
-        if (Test-Path dist) {
-          Remove-Item dist -Recurse -Force
-        }
+        mkdir dist
+        cp setup_publish/ProGlassSetup.exe dist/Setup.exe
+        ls dist
 
-        New-Item -ItemType Directory -Path dist | Out-Null
-
-        Copy-Item "publish/ProGlassAutomation.exe" "dist/ProGlassAutomation.exe" -Force
-        Copy-Item "setup_publish/ProGlassSetup.exe" "dist/ProGlassSetup.exe" -Force
-
-        Get-ChildItem dist
-
-    - name: Upload Build Artifacts
+    - name: Upload Setup.exe Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: ProGlassAutomation-Setup-Package
-        path: dist
+        name: ProGlassAutomation-Setup
+        path: dist/Setup.exe
 
     - name: Create GitHub Release
-      if: github.event_name == 'push'
       uses: softprops/action-gh-release@v2
       with:
         tag_name: v1.0.${{ github.run_number }}
         name: ProGlass Automation v1.0.${{ github.run_number }}
-        generate_release_notes: true
         files: |
-          dist/ProGlassAutomation.exe
-          dist/ProGlassSetup.exe
+          dist/Setup.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
