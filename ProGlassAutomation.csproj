@@ -7,6 +7,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UseWPF>true</UseWPF>
 		<ApplicationIcon>favicon.ico</ApplicationIcon>
+		<DefaultItemExcludes>$(DefaultItemExcludes);Setup\**</DefaultItemExcludes>
 	</PropertyGroup>
 
 	<ItemGroup>
