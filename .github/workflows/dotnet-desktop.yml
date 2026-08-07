@@ -1,41 +1,3 @@
-# This workflow uses actions that are not certified by GitHub.
-# They are provided by a third-party and are governed by
-# separate terms of service, privacy policy, and support
-# documentation.
-
-# This workflow will build, test, sign and package a WPF or Windows Forms desktop application
-# built on .NET Core.
-# To learn how to migrate your existing application to .NET Core,
-# refer to https://docs.microsoft.com/en-us/dotnet/desktop-wpf/migration/convert-project-from-net-framework
-#
-# To configure this workflow:
-#
-# 1. Configure environment variables
-# GitHub sets default environment variables for every workflow run.
-# Replace the variables relative to your project in the "env" section below.
-#
-# 2. Signing
-# Generate a signing certificate in the Windows Application
-# Packaging Project or add an existing signing certificate to the project.
-# Next, use PowerShell to encode the .pfx file using Base64 encoding
-# by running the following Powershell script to generate the output string:
-#
-# $pfx_cert = Get-Content '.\SigningCertificate.pfx' -Encoding Byte
-# [System.Convert]::ToBase64String($pfx_cert) | Out-File 'SigningCertificate_Encoded.txt'
-#
-# Open the output file, SigningCertificate_Encoded.txt, and copy the
-# string inside. Then, add the string to the repo as a GitHub secret
-# and name it "Base64_Encoded_Pfx."
-# For more information on how to configure your signing certificate for
-# this workflow, refer to https://github.com/microsoft/github-actions-for-desktop-apps#signing
-#
-# Finally, add the signing certificate password to the repo as a secret and name it "Pfx_Key".
-# See "Build the Windows Application Packaging project" below to see how the secret is used.
-#
-# For more information on GitHub Actions, refer to https://github.com/features/actions
-# For a complete CI/CD sample to get started with GitHub Action workflows for Desktop Applications,
-# refer to https://github.com/microsoft/github-actions-for-desktop-apps
-
 name: ProGlassAutomation Build
 
 on:
@@ -59,10 +21,6 @@ jobs:
         configuration:
           - Release
 
-    env:
-      Solution_Name: ProGlassAutomation.slnx
-      Configuration: ${{ matrix.configuration }}
-
     steps:
 
     - name: Checkout Repository
@@ -75,28 +33,15 @@ jobs:
       with:
         dotnet-version: 8.0.x
 
-    - name: Setup MSBuild
-      uses: microsoft/setup-msbuild@v2
-
-    - name: Restore NuGet Packages
+    - name: Restore ProGlassAutomation NuGet Packages
       shell: pwsh
       run: |
-        msbuild "$env:Solution_Name" `
-          /t:Restore `
-          /p:Configuration=$env:Configuration
+        dotnet restore ProGlassAutomation.csproj
 
-    - name: Build Application
+    - name: Publish ProGlassAutomation Standalone Binary
       shell: pwsh
       run: |
-        msbuild "$env:Solution_Name" `
-          /p:Configuration=$env:Configuration `
-          /m `
-          /verbosity:minimal
-
-    - name: Publish Single EXE
-      shell: pwsh
-      run: |
-        dotnet publish "$env:Solution_Name" `
+        dotnet publish ProGlassAutomation.csproj `
           --configuration Release `
           --output publish `
           -r win-x64 `
@@ -106,18 +51,52 @@ jobs:
           -p:EnableCompressionInSingleFile=true `
           -p:PublishTrimmed=false
 
-    - name: Upload Build Artifact
+    - name: Zip Standalone Application for Embed
+      shell: pwsh
+      run: |
+        # Create zip payload from published binaries
+        Compress-Archive -Path publish\* -DestinationPath Setup/ProGlassSetup/payload.zip -Force
+        Get-Item Setup/ProGlassSetup/payload.zip
+
+    - name: Restore ProGlassSetup NuGet Packages
+      shell: pwsh
+      run: |
+        dotnet restore Setup/ProGlassSetup/ProGlassSetup.csproj
+
+    - name: Publish ProGlassSetup Installer Package
+      shell: pwsh
+      run: |
+        dotnet publish Setup/ProGlassSetup/ProGlassSetup.csproj `
+          --configuration Release `
+          --output setup_publish `
+          -r win-x64 `
+          --self-contained true `
+          -p:PublishSingleFile=true `
+          -p:IncludeNativeLibrariesForSelfExtract=true `
+          -p:EnableCompressionInSingleFile=true `
+          -p:PublishTrimmed=false
+
+    - name: Prepare Artifacts Layout
+      shell: pwsh
+      run: |
+        mkdir dist
+        cp publish/ProGlassAutomation.exe dist/
+        cp setup_publish/ProGlassSetup.exe dist/ProGlassSetup.exe
+        ls dist
+
+    - name: Upload Build Artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: ProGlassAutomation-Release
-        path: publish
+        name: ProGlassAutomation-Setup-Package
+        path: dist
 
     - name: Create GitHub Release
       uses: softprops/action-gh-release@v2
       with:
         tag_name: v1.0.${{ github.run_number }}
-        name: ProGlassAutomation v1.0.${{ github.run_number }}
+        name: ProGlass Automation v1.0.${{ github.run_number }}
         files: |
-          publish/**
+          dist/ProGlassSetup.exe
+          dist/ProGlassAutomation.exe
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

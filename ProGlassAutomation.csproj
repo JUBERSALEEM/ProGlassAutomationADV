@@ -7,7 +7,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<UseWPF>true</UseWPF>
 		<ApplicationIcon>favicon.ico</ApplicationIcon>
-		<DefaultItemExcludes>$(DefaultItemExcludes);Setup\**</DefaultItemExcludes>
+
 	</PropertyGroup>
 
 	<ItemGroup>
@@ -182,4 +182,13 @@
 
 	</ItemGroup>
 
+
+	<!-- Exclude Setup installer folder from core compilation -->
+	<ItemGroup>
+		<Compile Remove="Setup/**" />
+		<Page Remove="Setup/**" />
+		<Resource Remove="Setup/**" />
+		<EmbeddedResource Remove="Setup/**" />
+		<None Remove="Setup/**" />
+	</ItemGroup>
 </Project>
