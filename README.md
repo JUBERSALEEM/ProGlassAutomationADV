@@ -258,7 +258,7 @@ This project is currently maintained by the author. Licensing terms may be updat
 
 Professional Glass Manufacturing ERP
 
-Built with ❤️ by Juber Saleem
+Built with passion by Juber Saleem
 
 Powered by .NET 8 • WPF • MVVM • SQLite • Entity Framework Core
 
