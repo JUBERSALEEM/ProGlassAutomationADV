@@ -11,6 +11,9 @@
                 <!-- ── Theme (must be first so styles can reference brushes) ── -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/LightTheme.xaml"/>
 
+                <!-- Centralized Typography Styles -->
+                <ResourceDictionary Source="pack://application:,,,/Styles/Typography.xaml"/>
+
                 <!-- ── Shared style dictionaries (order matters for BasedOn chains) ── -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/TypographyStyles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/IconBadgeStyles.xaml"/>
