@@ -1,0 +1,29 @@
+# Compile verification for the WPF app.
+# Runs on a real Windows runner because the project targets net8.0-windows
+# with UseWPF — Linux/macOS runners cannot compile it.
+name: Build (Windows)
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build net8.0-windows
+    runs-on: windows-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8 SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Restore
+        run: dotnet restore ProGlassAutomation.csproj
+
+      - name: Build (Release)
+        run: dotnet build ProGlassAutomation.csproj -c Release --no-restore -v minimal
