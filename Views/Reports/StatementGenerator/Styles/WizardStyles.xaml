@@ -220,7 +220,7 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="bd" Property="BorderBrush" Value="#8B5CF6"/>
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                             <Setter TargetName="bd" Property="Background"
                                     Value="{DynamicResource MenuHoverBrush}"/>
                         </Trigger>
@@ -261,12 +261,12 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="bd" Property="Background" Value="#FEF2F2"/>
-                            <Setter TargetName="bd" Property="BorderBrush" Value="#B91C1C"/>
-                            <Setter TargetName="cp" Property="TextElement.Foreground" Value="#B91C1C"/>
+                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource TintRedBrush}"/>
+                            <Setter TargetName="bd" Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+                            <Setter TargetName="cp" Property="TextElement.Foreground" Value="{DynamicResource DangerBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="bd" Property="Background" Value="#FEE2E2"/>
+                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource TintRedBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -307,12 +307,12 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="bd" Property="Background" Value="#FEF2F2"/>
-                            <Setter TargetName="ic" Property="Foreground" Value="#B91C1C"/>
-                            <Setter TargetName="tx" Property="Foreground" Value="#B91C1C"/>
+                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource TintRedBrush}"/>
+                            <Setter TargetName="ic" Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                            <Setter TargetName="tx" Property="Foreground" Value="{DynamicResource DangerBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="bd" Property="Background" Value="#FEE2E2"/>
+                            <Setter TargetName="bd" Property="Background" Value="{DynamicResource TintRedBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
@@ -465,8 +465,8 @@
         <Setter Property="SnapsToDevicePixels"  Value="True"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="BorderBrush" Value="#8B5CF6"/>
-                <Setter Property="Background"  Value="#FAF5FF"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                <Setter Property="Background"  Value="{DynamicResource TintIndigoBrush}"/>
             </Trigger>
         </Style.Triggers>
     </Style>

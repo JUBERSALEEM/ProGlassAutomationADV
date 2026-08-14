@@ -24,7 +24,7 @@
                 Margin="24,16,24,0"
                 CornerRadius="14"
                 ClipToBounds="True">
-            <Border Background="#3730A3" Padding="24,20">
+            <Border Background="{DynamicResource AccentBrush}" Padding="24,20">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -49,7 +49,7 @@
                         <TextBlock Text="SALES REPORT"
                                    FontSize="10"
                                    FontWeight="Bold"
-                                   Foreground="#A5B4FC"
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    Margin="0,0,0,4"/>
                         <TextBlock Text="Account Statements"
                                    FontSize="22"
@@ -57,7 +57,7 @@
                                    Foreground="White"/>
                         <TextBlock Text="{Binding StatusMessage}"
                                    FontSize="12"
-                                   Foreground="#C7D2FE"
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                    Margin="0,4,0,0"/>
                     </StackPanel>
 
@@ -70,9 +70,9 @@
                             <Border Width="10" Height="10" CornerRadius="5"
                                     Background="{DynamicResource SuccessBrush}" Margin="0,0,5,0"/>
                             <Border Width="10" Height="10" CornerRadius="5"
-                                    Background="#B45309" Margin="0,0,5,0"/>
+                                    Background="{DynamicResource WarningBrush}" Margin="0,0,5,0"/>
                             <Border Width="10" Height="10" CornerRadius="5"
-                                    Background="#B91C1C"/>
+                                    Background="{DynamicResource DangerBrush}"/>
                         </StackPanel>
                         <Button Content="+ New Statement"
                                 Command="{Binding NewStatementCommand}"
@@ -81,7 +81,7 @@
                                 FontSize="13"
                                 FontWeight="SemiBold"
                                 Cursor="Hand"
-                                Foreground="#3730A3"
+                                Foreground="{DynamicResource AccentBrush}"
                                 BorderThickness="0">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
@@ -131,7 +131,7 @@
                     <TextBlock Text="STATEMENTS"
                                FontSize="10"
                                FontWeight="Bold"
-                               Foreground="#A5B4FC"/>
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     <TextBlock Text="{Binding TotalStatements}"
                                FontSize="28"
                                FontWeight="Bold"
@@ -139,7 +139,7 @@
                                Margin="0,6,0,2"/>
                     <TextBlock Text="Total saved"
                                FontSize="11"
-                               Foreground="#C7D2FE"/>
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                 </StackPanel>
             </Border>
 
@@ -151,7 +151,7 @@
                     <TextBlock Text="TOTAL INVOICED"
                                FontSize="10"
                                FontWeight="Bold"
-                               Foreground="#6EE7B7"/>
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     <TextBlock Text="{Binding TotalInvoicedDisplay}"
                                FontSize="22"
                                FontWeight="Bold"
@@ -159,19 +159,19 @@
                                Margin="0,6,0,2"/>
                     <TextBlock Text="Across all statements"
                                FontSize="11"
-                               Foreground="#A7F3D0"/>
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                 </StackPanel>
             </Border>
 
             <Border Grid.Column="4"
-                    Background="#B45309"
+                    Background="{DynamicResource WarningBrush}"
                     CornerRadius="12"
                     Padding="16,14">
                 <StackPanel>
                     <TextBlock Text="OUTSTANDING"
                                FontSize="10"
                                FontWeight="Bold"
-                               Foreground="#FCD34D"/>
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     <TextBlock Text="{Binding TotalOutstandingDisplay}"
                                FontSize="22"
                                FontWeight="Bold"
@@ -179,7 +179,7 @@
                                Margin="0,6,0,2"/>
                     <TextBlock Text="Total balance due"
                                FontSize="11"
-                               Foreground="#FDE68A"/>
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                 </StackPanel>
             </Border>
 
@@ -190,7 +190,7 @@
                                 Value="{DynamicResource SideMenuBackgroundBrush}"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding HasOverdue}" Value="True">
-                                <Setter Property="Background" Value="#B91C1C"/>
+                                <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -205,7 +205,7 @@
                                         Value="{DynamicResource MutedForegroundBrush}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding HasOverdue}" Value="True">
-                                        <Setter Property="Foreground" Value="#FCA5A5"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -235,7 +235,7 @@
                                         Value="{DynamicResource MutedForegroundBrush}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding HasOverdue}" Value="True">
-                                        <Setter Property="Foreground" Value="#FECACA"/>
+                                        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -298,8 +298,8 @@
                                      BorderThickness="0"
                                      Foreground="{DynamicResource PrimaryForegroundBrush}"
                                      VerticalContentAlignment="Center"
-                                     CaretBrush="#4338CA"
-                                     SelectionBrush="#4338CA"/>
+                                     CaretBrush="{DynamicResource AccentBrush}"
+                                     SelectionBrush="{DynamicResource AccentBrush}"/>
                         </Grid>
 
                         <Button Grid.Column="2"
@@ -443,7 +443,7 @@
                             VerticalAlignment="Center"
                             Margin="0,48,0,48">
                     <Border Width="72" Height="72"
-                            Background="#3730A3"
+                            Background="{DynamicResource AccentBrush}"
                             CornerRadius="18"
                             HorizontalAlignment="Center">
                         <TextBlock Text="↻"
@@ -460,7 +460,7 @@
                                Margin="0,18,0,0"/>
                     <TextBlock Text="Preparing data and totals"
                                FontSize="12"
-                               Foreground="#C7D2FE"
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"
                                HorizontalAlignment="Center"
                                Margin="0,5,0,0"/>
                 </StackPanel>
@@ -493,8 +493,8 @@
                             </Grid.RowDefinitions>
                             <Border Grid.Row="0" Grid.Column="0" Background="{DynamicResource AccentBrush}"/>
                             <Border Grid.Row="0" Grid.Column="1" Background="{DynamicResource SuccessBrush}"/>
-                            <Border Grid.Row="1" Grid.Column="0" Background="#B45309"/>
-                            <Border Grid.Row="1" Grid.Column="1" Background="#B91C1C"/>
+                            <Border Grid.Row="1" Grid.Column="0" Background="{DynamicResource WarningBrush}"/>
+                            <Border Grid.Row="1" Grid.Column="1" Background="{DynamicResource DangerBrush}"/>
                         </Grid>
                     </Border>
 
@@ -588,7 +588,7 @@
                                 <Style TargetType="Border">
                                     <Style.Triggers>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter Property="BorderBrush" Value="#4338CA"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                         </Trigger>
                                     </Style.Triggers>
                                 </Style>
@@ -607,11 +607,11 @@
                                 <Border Grid.Column="0" CornerRadius="12,0,0,12">
                                     <Border.Style>
                                         <Style TargetType="Border">
-                                            <Setter Property="Background" Value="#4338CA"/>
+                                            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding HasOverdue}"
                                                              Value="True">
-                                                    <Setter Property="Background" Value="#B91C1C"/>
+                                                    <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -680,7 +680,7 @@
                                         <TextBlock Text="INVOICED"
                                                    FontSize="9"
                                                    FontWeight="Bold"
-                                                   Foreground="#6EE7B7"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    Margin="0,0,0,4"/>
                                         <TextBlock Text="{Binding TotalInvoicedDisplay, Mode=OneWay}"
                                                    FontSize="13"
@@ -691,7 +691,7 @@
 
                                 <!-- COL 3: Outstanding -->
                                 <Border Grid.Column="3"
-                                        Background="#B45309"
+                                        Background="{DynamicResource WarningBrush}"
                                         Margin="0,10,8,10"
                                         CornerRadius="10"
                                         Padding="12,10">
@@ -699,7 +699,7 @@
                                         <TextBlock Text="OUTSTANDING"
                                                    FontSize="9"
                                                    FontWeight="Bold"
-                                                   Foreground="#FCD34D"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    Margin="0,0,0,4"/>
                                         <TextBlock Text="{Binding TotalOutstandingDisplay, Mode=OneWay}"
                                                    FontSize="13"
@@ -710,7 +710,7 @@
                                                        Converter={StaticResource BoolToVisibilityConverter}}"
                                                    FontSize="10"
                                                    FontWeight="SemiBold"
-                                                   Foreground="#FDE68A"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    Margin="0,4,0,0">
                                             <Run Text="Overdue "/>
                                             <Run Text="{Binding OverdueAmountDisplay, Mode=OneWay}"/>
@@ -726,11 +726,11 @@
                                         Padding="12,6">
                                     <Border.Style>
                                         <Style TargetType="Border">
-                                            <Setter Property="Background" Value="#047857"/>
+                                            <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding HasOverdue}"
                                                              Value="True">
-                                                    <Setter Property="Background" Value="#B91C1C"/>
+                                                    <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -811,7 +811,7 @@
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="bd"
-                                                            Background="#B45309"
+                                                            Background="{DynamicResource WarningBrush}"
                                                             CornerRadius="8"
                                                             Padding="{TemplateBinding Padding}">
                                                         <TextBlock Text="Edit"
@@ -844,7 +844,7 @@
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="bd"
-                                                            Background="#B91C1C"
+                                                            Background="{DynamicResource DangerBrush}"
                                                             CornerRadius="8">
                                                         <TextBlock Text="✕"
                                                                    FontSize="13"

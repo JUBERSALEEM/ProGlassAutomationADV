@@ -39,20 +39,20 @@
 
             <!-- ══ HEADER — amber warning bar ══ -->
             <Border Grid.Row="0"
-                    Background="#B45309"
+                    Background="{DynamicResource WarningBrush}"
                     CornerRadius="12,12,0,0"
                     Padding="24,18">
                 <StackPanel>
                     <TextBlock Text="⚠  WARNING"
                                FontSize="10" FontWeight="Bold"
-                               Foreground="#FDE68A"/>
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                     <TextBlock Text="Missing Invoice Detected"
                                FontSize="22" FontWeight="Bold"
                                Foreground="White"
                                Margin="0,4,0,0"/>
                     <TextBlock Text="Some delivered items have no matching tax invoice."
                                FontSize="12"
-                               Foreground="#FDE68A"
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"
                                Margin="0,2,0,0"/>
                 </StackPanel>
             </Border>
@@ -75,7 +75,7 @@
                     <StackPanel>
                         <TextBlock Text="DELIVERED"
                                    FontSize="9" FontWeight="Bold"
-                                   Foreground="#6EE7B7"/>
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock FontSize="20" FontWeight="Bold"
                                    Foreground="White"
                                    Margin="0,4,0,0">
@@ -93,7 +93,7 @@
                     <StackPanel>
                         <TextBlock Text="INVOICED"
                                    FontSize="9" FontWeight="Bold"
-                                   Foreground="#A5B4FC"/>
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock FontSize="20" FontWeight="Bold"
                                    Foreground="White"
                                    Margin="0,4,0,0">
@@ -105,13 +105,13 @@
 
                 <!-- Missing -->
                 <Border Grid.Column="4"
-                        Background="#B91C1C"
+                        Background="{DynamicResource DangerBrush}"
                         CornerRadius="10"
                         Padding="12,10">
                     <StackPanel>
                         <TextBlock Text="MISSING"
                                    FontSize="9" FontWeight="Bold"
-                                   Foreground="#FCA5A5"/>
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         <TextBlock FontSize="20" FontWeight="Bold"
                                    Foreground="White"
                                    Margin="0,4,0,0">
@@ -183,7 +183,7 @@
 
                                             <!-- Middle: Delivered qty -->
                                             <Border Grid.Column="1"
-                                                    Background="#B91C1C"
+                                                    Background="{DynamicResource DangerBrush}"
                                                     CornerRadius="6"
                                                     Padding="10,4"
                                                     Margin="8,0,0,0"
@@ -249,7 +249,7 @@
                                                    HorizontalAlignment="Center"/>
                                         <TextBlock Text="Fix missing invoice now"
                                                    FontSize="9"
-                                                   Foreground="#C7D2FE"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    HorizontalAlignment="Center"
                                                    Margin="0,3,0,0"/>
                                     </StackPanel>
@@ -273,7 +273,7 @@
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="bd"
-                                        Background="#B45309"
+                                        Background="{DynamicResource WarningBrush}"
                                         CornerRadius="10"
                                         Padding="12,10">
                                     <StackPanel>
@@ -284,7 +284,7 @@
                                                    HorizontalAlignment="Center"/>
                                         <TextBlock Text="Generate with warning"
                                                    FontSize="9"
-                                                   Foreground="#FDE68A"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    HorizontalAlignment="Center"
                                                    Margin="0,3,0,0"/>
                                     </StackPanel>
@@ -308,7 +308,7 @@
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="bd"
-                                        Background="#B91C1C"
+                                        Background="{DynamicResource DangerBrush}"
                                         CornerRadius="10"
                                         Padding="12,10">
                                     <StackPanel>
@@ -319,7 +319,7 @@
                                                    HorizontalAlignment="Center"/>
                                         <TextBlock Text="Cancel generation"
                                                    FontSize="9"
-                                                   Foreground="#FCA5A5"
+                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
                                                    HorizontalAlignment="Center"
                                                    Margin="0,3,0,0"/>
                                     </StackPanel>
