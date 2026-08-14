@@ -207,7 +207,7 @@
                 <StackPanel Grid.Column="0" VerticalAlignment="Center">
                     <TextBlock Text="{Binding Company.CompanyName, TargetNullValue=PROGLASS AUTOMATION ERP}"
                                FontSize="18" FontWeight="Bold"
-                               Foreground="#4338CA"/>
+                               Foreground="{DynamicResource AccentBrush}"/>
                     <TextBlock Text="Premium Glass Glazing, High-Yield Manufacturing &amp; Logistics Spec"
                                FontSize="9"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -264,7 +264,7 @@
             </Grid>
 
             <!-- Top Divider — colored accent line -->
-            <Border Background="#4338CA" Height="2" CornerRadius="1" Margin="0,0,0,12"/>
+            <Border Background="{DynamicResource AccentBrush}" Height="2" CornerRadius="1" Margin="0,0,0,12"/>
 
             <!-- ══════════════════════════════════════════════════════
                  CLIENT + PROJECT BLOCKS
@@ -284,7 +284,7 @@
                         BorderThickness="1" BorderBrush="#E2E8F0"
                         CornerRadius="6" Padding="10,10">
                     <StackPanel>
-                        <Border Background="#4338CA" CornerRadius="3"
+                        <Border Background="{DynamicResource AccentBrush}" CornerRadius="3"
                                 Padding="6,3" Margin="0,0,0,6">
                             <TextBlock Text="CLIENT / BILL TO"
                                        FontSize="9" FontWeight="Bold"
@@ -332,7 +332,7 @@
                         BorderThickness="1" BorderBrush="#E2E8F0"
                         CornerRadius="6" Padding="10,10">
                     <StackPanel>
-                        <Border Background="#4338CA" CornerRadius="3"
+                        <Border Background="{DynamicResource AccentBrush}" CornerRadius="3"
                                 Padding="6,3" Margin="0,0,0,6">
                             <TextBlock Text="PROJECT ESTIMATE METRIC"
                                        FontSize="9" FontWeight="Bold"
@@ -403,7 +403,7 @@
                         <StackPanel Margin="0,0,0,12">
 
                             <!-- Spec Group Header -->
-                            <Border Background="#4338CA" Padding="10,6" CornerRadius="4,4,0,0">
+                            <Border Background="{DynamicResource AccentBrush}" Padding="10,6" CornerRadius="4,4,0,0">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="SPECIFICATION " FontSize="10" FontWeight="Bold" Foreground="White"/>
                                     <TextBlock Text="{Binding GroupNumber}" FontSize="10" FontWeight="Bold" Foreground="White"/>
@@ -504,7 +504,7 @@
                                     <TextBlock Grid.Column="0" Grid.ColumnSpan="6"
                                                Text="SPEC SUB-TOTAL"
                                                FontSize="9" FontWeight="Bold"
-                                               Foreground="#4338CA"
+                                               Foreground="{DynamicResource AccentBrush}"
                                                Padding="10,6"
                                                VerticalAlignment="Center"/>
 
@@ -529,7 +529,7 @@
                                     <TextBlock Grid.Column="9"
                                                Text="{Binding FooterTotalValue, StringFormat={}{0:N2}}"
                                                Style="{StaticResource TableSubTotalStyle}"
-                                               Foreground="#047857"
+                                               Foreground="{DynamicResource SuccessBrush}"
                                                HorizontalAlignment="Right"/>
                                 </Grid>
                             </Border>
@@ -546,7 +546,7 @@
                 Uses DataGrid.SummaryViewModel which already exposes
                 GrandTotalQty, GrandTotalSqm, GrandTotalValue etc.
             -->
-            <Border Background="#4338CA"
+            <Border Background="{DynamicResource AccentBrush}"
                     CornerRadius="4"
                     Padding="12,8"
                     Margin="0,0,0,12">
@@ -593,7 +593,7 @@
                  OTHER CHARGES DETAIL LIST
                  TOTALS-02: Subtotal row added at bottom
             ══════════════════════════════════════════════════════ -->
-            <Border Background="#4338CA" Padding="10,6" CornerRadius="4,4,0,0" Margin="0,8,0,0">
+            <Border Background="{DynamicResource AccentBrush}" Padding="10,6" CornerRadius="4,4,0,0" Margin="0,8,0,0">
                 <TextBlock Text="SUPPLEMENTARY / FABRICATION OTHER CHARGES"
                            FontSize="10" FontWeight="Bold" Foreground="White"/>
             </Border>
@@ -745,13 +745,13 @@
                             <TextBlock Grid.Column="0" Grid.ColumnSpan="3"
                                        Text="OTHER CHARGES SUBTOTAL"
                                        FontSize="9" FontWeight="Bold"
-                                       Foreground="#4338CA"
+                                       Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"/>
                             <TextBlock Grid.Column="3"
                                        Text="{Binding MainSummary.OtherChargesSubtotal, StringFormat=AED {0:N2}}"
                                        HorizontalAlignment="Right"
                                        FontSize="11" FontWeight="Bold"
-                                       Foreground="#047857"/>
+                                       Foreground="{DynamicResource SuccessBrush}"/>
                         </Grid>
                     </Border>
 
@@ -811,9 +811,9 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0" Text="Discount:" Style="{StaticResource PrintValueStyle}" Foreground="#B91C1C"/>
+                        <TextBlock Grid.Column="0" Text="Discount:" Style="{StaticResource PrintValueStyle}" Foreground="{DynamicResource DangerBrush}"/>
                         <TextBlock Grid.Column="1" Text="{Binding MainSummary.DiscountAmount, StringFormat=- {0:N2} AED}"
-                                   Style="{StaticResource PrintValueStyle}" Foreground="#B91C1C" Margin="16,0,0,0"/>
+                                   Style="{StaticResource PrintValueStyle}" Foreground="{DynamicResource DangerBrush}" Margin="16,0,0,0"/>
                     </Grid>
 
                     <!-- VAT (conditional) -->
@@ -842,7 +842,7 @@
                     </Grid>
 
                     <!-- Grand Total Bar -->
-                    <Border Background="#4338CA" CornerRadius="6" Padding="14,10" Margin="0,6,0,0">
+                    <Border Background="{DynamicResource AccentBrush}" CornerRadius="6" Padding="14,10" Margin="0,6,0,0">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -867,7 +867,7 @@
                  NEW-PR2: Empty state now fires when 0 clauses OR
                           all clauses inactive
             ══════════════════════════════════════════════════════ -->
-            <Border Background="#4338CA" Padding="10,6" CornerRadius="4,4,0,0" Margin="0,16,0,0">
+            <Border Background="{DynamicResource AccentBrush}" Padding="10,6" CornerRadius="4,4,0,0" Margin="0,16,0,0">
                 <TextBlock Text="TERMS &amp; CONDITIONS"
                            FontSize="10" FontWeight="Bold" Foreground="White"/>
             </Border>
@@ -903,7 +903,7 @@
                                         <ItemsControl.ItemTemplate>
                                             <DataTemplate>
                                                 <StackPanel Orientation="Horizontal" Margin="0,1,0,0">
-                                                    <TextBlock Text="• " FontSize="9" FontWeight="Bold" Foreground="#4338CA"/>
+                                                    <TextBlock Text="• " FontSize="9" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                                                     <TextBlock Text="{Binding}" FontSize="9" Foreground="{DynamicResource PrimaryForegroundBrush}" TextWrapping="Wrap"/>
                                                 </StackPanel>
                                             </DataTemplate>
@@ -971,7 +971,7 @@
                         BorderThickness="1" BorderBrush="#E2E8F0"
                         Padding="12,10" CornerRadius="6">
                     <StackPanel>
-                        <Border Background="#4338CA" CornerRadius="3"
+                        <Border Background="{DynamicResource AccentBrush}" CornerRadius="3"
                                 Padding="6,3" Margin="0,0,0,8">
                             <TextBlock Text="PREPARED BY (ERP AUTHENTICATED)"
                                        FontSize="9" FontWeight="Bold"
@@ -987,7 +987,7 @@
                             <TextBlock Text="Status: " FontSize="9" Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             <TextBox Text="{Binding PreparedByStatus, UpdateSourceTrigger=PropertyChanged}"
                                      Style="{StaticResource EditableTextBoxStyle}"
-                                     FontSize="9" FontWeight="Bold" Foreground="#047857" MinWidth="80"/>
+                                     FontSize="9" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" MinWidth="80"/>
                         </StackPanel>
                     </StackPanel>
                 </Border>
@@ -997,7 +997,7 @@
                         BorderThickness="1" BorderBrush="#E2E8F0"
                         Padding="12,10" CornerRadius="6">
                     <StackPanel>
-                        <Border Background="#4338CA" CornerRadius="3"
+                        <Border Background="{DynamicResource AccentBrush}" CornerRadius="3"
                                 Padding="6,3" Margin="0,0,0,8">
                             <TextBlock Text="CLIENT APPROVAL SIGN &amp; MOB NUMBER"
                                        FontSize="9" FontWeight="Bold"

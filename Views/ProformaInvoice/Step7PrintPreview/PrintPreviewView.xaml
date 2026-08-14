@@ -196,7 +196,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                  PERF-01: DropShadowEffect removed.
             ══════════════════════════════════════════════════════════ -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                <Border Background="#4338CA"
+                <Border Background="{DynamicResource AccentBrush}"
                         Width="44"
                         Height="44"
                         CornerRadius="12"
@@ -248,7 +248,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                 Orientation="Horizontal"
                                 VerticalAlignment="Center">
                         <!-- UI-01: solid #4338CA / White. Was #EEF2FF / #4338CA -->
-                        <Border Background="#4338CA"
+                        <Border Background="{DynamicResource AccentBrush}"
                                 Width="34"
                                 Height="34"
                                 CornerRadius="10"
@@ -314,7 +314,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                 <TextBlock Text="&#xEA90;"
                                            FontFamily="Segoe MDL2 Assets"
                                            FontSize="13"
-                                           Foreground="#B91C1C"
+                                           Foreground="{DynamicResource DangerBrush}"
                                            VerticalAlignment="Center"
                                            Margin="0,0,8,0"/>
                                 <TextBlock Text="PDF" VerticalAlignment="Center"/>
@@ -329,7 +329,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                 <TextBlock Text="&#xE9F9;"
                                            FontFamily="Segoe MDL2 Assets"
                                            FontSize="13"
-                                           Foreground="#047857"
+                                           Foreground="{DynamicResource SuccessBrush}"
                                            VerticalAlignment="Center"
                                            Margin="0,0,8,0"/>
                                 <TextBlock Text="EXCEL" VerticalAlignment="Center"/>
@@ -344,7 +344,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                 <TextBlock Text="&#xE8A5;"
                                            FontFamily="Segoe MDL2 Assets"
                                            FontSize="13"
-                                           Foreground="#1E40AF"
+                                           Foreground="{DynamicResource AccentBrush}"
                                            VerticalAlignment="Center"
                                            Margin="0,0,8,0"/>
                                 <TextBlock Text="CSV" VerticalAlignment="Center"/>
@@ -371,7 +371,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                            Margin="0,0,8,0"/>
                                 <TextBlock Text="EMAIL" VerticalAlignment="Center"/>
                                 <!-- BUG-92: hardcoded SOON badge — replace when Phase 7.20 ships -->
-                                <Border Background="#FEF3C7"
+                                <Border Background="{DynamicResource TintAmberBrush}"
                                         CornerRadius="8"
                                         Padding="6,2"
                                         Margin="8,0,0,0"
@@ -379,7 +379,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                     <TextBlock Text="SOON"
                                                FontSize="9"
                                                FontWeight="Bold"
-                                               Foreground="#B45309"/>
+                                               Foreground="{DynamicResource WarningBrush}"/>
                                 </Border>
                             </StackPanel>
                         </Button>

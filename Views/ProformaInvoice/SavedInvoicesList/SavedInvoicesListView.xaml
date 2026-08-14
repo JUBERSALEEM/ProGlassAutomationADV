@@ -228,7 +228,7 @@
 
                 <!-- Card 1 — TOTAL INVOICES — solid indigo -->
                 <Border Style="{StaticResource StatCardStyle}"
-                        Background="#4338CA"
+                        Background="{DynamicResource AccentBrush}"
                         ClipToBounds="True">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -324,7 +324,7 @@
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="RefreshBg"
-                                    Background="#4338CA"
+                                    Background="{DynamicResource AccentBrush}"
                                     CornerRadius="20"
                                     Padding="22,0"
                                     Height="40"
@@ -457,7 +457,7 @@
 
                     <!-- UI-02: indigo top stripe on filter card -->
                     <Border Grid.Row="0"
-                            Background="#4338CA"
+                            Background="{DynamicResource AccentBrush}"
                             CornerRadius="12,12,0,0"/>
 
                     <Border Grid.Row="1" Padding="24,16,24,20">
@@ -466,7 +466,7 @@
                                         Margin="0,0,0,14">
                                 <Border Width="28"
                                         Height="28"
-                                        Background="#4338CA"
+                                        Background="{DynamicResource AccentBrush}"
                                         CornerRadius="7"
                                         Margin="0,0,10,0">
                                     <TextBlock Text="&#xE721;"
@@ -479,7 +479,7 @@
                                 <TextBlock Text="Search &amp; Filter"
                                            FontSize="15"
                                            FontWeight="Bold"
-                                           Foreground="#4338CA"
+                                           Foreground="{DynamicResource AccentBrush}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
 
@@ -615,7 +615,7 @@
             </Border>
 
             <!-- ── HINT CARD — UI-04: solid indigo ──────────────────── -->
-            <Border Background="#4338CA"
+            <Border Background="{DynamicResource AccentBrush}"
                     CornerRadius="10"
                     Padding="14,10"
                     Margin="0,0,0,16"
@@ -655,7 +655,7 @@
 
                 <!-- Sticky table column header -->
                 <Border Grid.Row="0"
-                        Background="#4338CA"
+                        Background="{DynamicResource AccentBrush}"
                         CornerRadius="12,12,0,0"
                         SnapsToDevicePixels="True">
                     <Grid>
@@ -727,7 +727,7 @@
                                        Text="&#xE895;"
                                        FontFamily="Segoe MDL2 Assets"
                                        FontSize="36"
-                                       Foreground="#4338CA"
+                                       Foreground="{DynamicResource AccentBrush}"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
                                        RenderTransformOrigin="0.5,0.5">
@@ -772,7 +772,7 @@
                         <Border Width="72"
                                 Height="72"
                                 CornerRadius="36"
-                                Background="#4338CA"
+                                Background="{DynamicResource AccentBrush}"
                                 HorizontalAlignment="Center">
                             <TextBlock Text="&#xE7C3;"
                                        FontFamily="Segoe MDL2 Assets"
@@ -893,7 +893,7 @@
                                                    Text="{Binding ProformaId}"
                                                    FontSize="14"
                                                    FontWeight="Bold"
-                                                   Foreground="#4338CA"
+                                                   Foreground="{DynamicResource AccentBrush}"
                                                    Padding="14,14"
                                                    VerticalAlignment="Center"/>
 
@@ -944,7 +944,7 @@
                                                        StringFormat=AED {0:N2}}"
                                                    FontSize="14"
                                                    FontWeight="Bold"
-                                                   Foreground="#047857"
+                                                   Foreground="{DynamicResource SuccessBrush}"
                                                    Padding="14,14"
                                                    HorizontalAlignment="Center"
                                                    VerticalAlignment="Center"/>
@@ -981,7 +981,7 @@
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="OpenBtnBg"
-                                                            Background="#4338CA"
+                                                            Background="{DynamicResource AccentBrush}"
                                                             CornerRadius="8"
                                                             Padding="12,7"
                                                             SnapsToDevicePixels="True">

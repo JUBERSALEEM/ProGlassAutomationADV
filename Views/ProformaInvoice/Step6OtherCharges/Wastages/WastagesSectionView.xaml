@@ -137,7 +137,7 @@
 
             <!-- Title group -->
             <StackPanel Grid.Column="0" Orientation="Horizontal">
-                <Border Background="#EEF2FF"
+                <Border Background="{DynamicResource TintIndigoBrush}"
                         Width="34" Height="34"
                         CornerRadius="10"
                         VerticalAlignment="Center"
@@ -146,7 +146,7 @@
                     <TextBlock Text="&#xE790;"
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="14"
-                               Foreground="#4338CA"
+                               Foreground="{DynamicResource AccentBrush}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
                 </Border>
@@ -180,12 +180,12 @@
                                 SnapsToDevicePixels="True">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="+"
-                                           Foreground="#4338CA"
+                                           Foreground="{DynamicResource AccentBrush}"
                                            FontSize="14"
                                            FontWeight="Bold"
                                            Margin="0,0,8,0"/>
                                 <TextBlock Text="ADD WASTAGE ROW"
-                                           Foreground="#4338CA"
+                                           Foreground="{DynamicResource AccentBrush}"
                                            FontSize="11"
                                            FontWeight="Bold"/>
                             </StackPanel>
@@ -275,13 +275,13 @@
                                                     <TextBlock Text="&#xE762;"
                                                                FontFamily="Segoe MDL2 Assets"
                                                                FontSize="11"
-                                                               Foreground="#4338CA"
+                                                               Foreground="{DynamicResource AccentBrush}"
                                                                VerticalAlignment="Center"
                                                                Margin="0,0,8,0"/>
                                                     <TextBlock Text="CHOOSE SQM SOURCES"
                                                                FontSize="10"
                                                                FontWeight="Bold"
-                                                               Foreground="#4338CA"
+                                                               Foreground="{DynamicResource AccentBrush}"
                                                                VerticalAlignment="Center"/>
                                                 </StackPanel>
 
@@ -299,7 +299,7 @@
                                                                     <TextBlock Text="{Binding SqmValue, StringFormat={}{0:0.000} sqm}"
                                                                                FontSize="11"
                                                                                FontWeight="Bold"
-                                                                               Foreground="#1E40AF"
+                                                                               Foreground="{DynamicResource AccentBrush}"
                                                                                Margin="10,0,0,0"/>
                                                                 </StackPanel>
                                                             </CheckBox>
@@ -322,7 +322,7 @@
                                 <TextBlock Text="{Binding TotalSqm, StringFormat={}{0:0.000} sqm}"
                                            FontSize="12"
                                            FontWeight="Bold"
-                                           Foreground="#1E40AF"/>
+                                           Foreground="{DynamicResource AccentBrush}"/>
                             </Border>
 
                             <!-- Rate input — Deep Forest green money color -->
@@ -338,7 +338,7 @@
                                        TextAlignment="Right"
                                        VerticalAlignment="Center"
                                        FontWeight="Bold"
-                                       Foreground="#047857"
+                                       Foreground="{DynamicResource SuccessBrush}"
                                        TextWrapping="Wrap"
                                        Margin="10,0,0,0"/>
 
@@ -360,7 +360,7 @@
                                                        FontFamily="Segoe MDL2 Assets"
                                                        FontSize="12"
                                                        FontWeight="Bold"
-                                                       Foreground="#B91C1C"/>
+                                                       Foreground="{DynamicResource DangerBrush}"/>
                                         </Border>
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
@@ -390,7 +390,7 @@
                     </Style.Triggers>
                 </Style>
             </StackPanel.Style>
-            <Border Background="#EEF2FF"
+            <Border Background="{DynamicResource TintIndigoBrush}"
                     Width="48" Height="48"
                     CornerRadius="24"
                     HorizontalAlignment="Center"
@@ -398,7 +398,7 @@
                 <TextBlock Text="&#xE790;"
                            FontFamily="Segoe MDL2 Assets"
                            FontSize="20"
-                           Foreground="#4338CA"
+                           Foreground="{DynamicResource AccentBrush}"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"/>
             </Border>

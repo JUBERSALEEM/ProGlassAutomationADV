@@ -118,7 +118,7 @@ CHAT 17 — UI POLISH
                         <TextBlock x:Name="LinkText"
                                    FontSize="12"
                                    FontWeight="SemiBold"
-                                   Foreground="#4338CA"
+                                   Foreground="{DynamicResource AccentBrush}"
                                    TextDecorations="Underline">
                             <ContentPresenter/>
                         </TextBlock>
@@ -143,7 +143,7 @@ CHAT 17 — UI POLISH
 
             <!-- ══ STEP HEADER ══ -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                <Border Background="#4338CA"
+                <Border Background="{DynamicResource AccentBrush}"
                         Width="44"
                         Height="44"
                         CornerRadius="12"
@@ -199,7 +199,7 @@ CHAT 17 — UI POLISH
 
                     <!-- Indigo top stripe -->
                     <Border Grid.Row="0"
-                            Background="#4338CA"
+                            Background="{DynamicResource AccentBrush}"
                             CornerRadius="16,16,0,0"/>
 
                     <!-- Card body -->
@@ -221,7 +221,7 @@ CHAT 17 — UI POLISH
                                         UI-02: Solid #4338CA icon block with
                                         white MDL2 glyph. Matches Step 1.
                                     -->
-                                    <Border Background="#4338CA"
+                                    <Border Background="{DynamicResource AccentBrush}"
                                             Width="28"
                                             Height="28"
                                             CornerRadius="8"
@@ -346,12 +346,12 @@ CHAT 17 — UI POLISH
                                     <TextBlock Text="&#xE783;"
                                                FontFamily="Segoe MDL2 Assets"
                                                FontSize="14"
-                                               Foreground="#B91C1C"
+                                               Foreground="{DynamicResource DangerBrush}"
                                                VerticalAlignment="Center"
                                                Margin="0,0,10,0"/>
                                     <TextBlock Text="{Binding CardsErrorMessage}"
                                                FontSize="12"
-                                               Foreground="#B91C1C"
+                                               Foreground="{DynamicResource DangerBrush}"
                                                VerticalAlignment="Center"
                                                TextWrapping="Wrap"/>
                                 </StackPanel>
@@ -383,7 +383,7 @@ CHAT 17 — UI POLISH
                                     <Border Width="56"
                                             Height="56"
                                             CornerRadius="28"
-                                            Background="#4338CA"
+                                            Background="{DynamicResource AccentBrush}"
                                             HorizontalAlignment="Center"
                                             Margin="0,0,0,12">
                                         <TextBlock Text="&#xE77B;"
@@ -468,7 +468,7 @@ CHAT 17 — UI POLISH
                                                         <TextBlock Text="{Binding UsageBadgeText}"
                                                                    FontSize="9"
                                                                    FontWeight="Bold"
-                                                                   Foreground="#4338CA"/>
+                                                                   Foreground="{DynamicResource AccentBrush}"/>
                                                     </Border>
                                                 </Grid>
 
@@ -508,13 +508,13 @@ CHAT 17 — UI POLISH
                                                     <TextBlock Text="&#xE72D;"
                                                                FontFamily="Segoe MDL2 Assets"
                                                                FontSize="10"
-                                                               Foreground="#4338CA"
+                                                               Foreground="{DynamicResource AccentBrush}"
                                                                VerticalAlignment="Center"
                                                                Margin="0,0,5,0"/>
                                                     <TextBlock Text="Click to load"
                                                                FontSize="10"
                                                                FontWeight="SemiBold"
-                                                               Foreground="#4338CA"
+                                                               Foreground="{DynamicResource AccentBrush}"
                                                                VerticalAlignment="Center"/>
                                                 </StackPanel>
                                             </Grid>
@@ -542,7 +542,7 @@ CHAT 17 — UI POLISH
                                 </Button.Style>
                                 <TextBlock FontSize="12"
                                            FontWeight="SemiBold"
-                                           Foreground="#4338CA"
+                                           Foreground="{DynamicResource AccentBrush}"
                                            TextDecorations="Underline">
                                     <Run Text="View all ("/>
                                     <Run Text="{Binding TotalClientCount, Mode=OneWay}"/>
@@ -589,7 +589,7 @@ CHAT 17 — UI POLISH
                                    VerticalAlignment="Center"/>
                     </Border>
                     <TextBlock FontSize="12"
-                               Foreground="#047857"
+                               Foreground="{DynamicResource SuccessBrush}"
                                VerticalAlignment="Center">
                         <Run Text="Client loaded: "/>
                         <Run Text="{Binding LoadedProfileName}" FontWeight="Bold"/>
@@ -613,7 +613,7 @@ CHAT 17 — UI POLISH
                     <TextBlock Style="{StaticResource FieldLabelStyle}"
                                ToolTip="Client company name as it appears on the invoice">
                         <Run Text="CUSTOMER / BILL TO NAME"/>
-                        <Run Text=" *" Foreground="#B91C1C"/>
+                        <Run Text=" *" Foreground="{DynamicResource DangerBrush}"/>
                     </TextBlock>
                     <TextBox Text="{Binding CustomerName,
                                  UpdateSourceTrigger=PropertyChanged}"

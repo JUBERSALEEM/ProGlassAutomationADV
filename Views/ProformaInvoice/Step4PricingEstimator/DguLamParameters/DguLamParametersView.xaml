@@ -37,7 +37,7 @@
                     MaxWidth="620">
 
             <!-- ── Hero icon — 64×64 amber tinted with glow ── -->
-            <Border Background="#FEF3C7"
+            <Border Background="{DynamicResource TintAmberBrush}"
                     Width="72" Height="72"
                     CornerRadius="18"
                     HorizontalAlignment="Center"
@@ -53,13 +53,13 @@
                 <TextBlock Text="&#xE7C1;"
                            FontFamily="Segoe MDL2 Assets"
                            FontSize="30"
-                           Foreground="#B45309"
+                           Foreground="{DynamicResource WarningBrush}"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"/>
             </Border>
 
             <!-- ── "COMING SOON" pill above title ── -->
-            <Border Background="#FEF3C7"
+            <Border Background="{DynamicResource TintAmberBrush}"
                     BorderBrush="#FDE68A"
                     BorderThickness="1"
                     CornerRadius="14"
@@ -70,13 +70,13 @@
                     <TextBlock Text="&#xE787;"
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="10"
-                               Foreground="#B45309"
+                               Foreground="{DynamicResource WarningBrush}"
                                VerticalAlignment="Center"
                                Margin="0,0,6,0"/>
                     <TextBlock Text="COMING SOON"
                                FontSize="10"
                                FontWeight="Bold"
-                               Foreground="#B45309"
+                               Foreground="{DynamicResource WarningBrush}"
                                VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>
@@ -119,14 +119,14 @@
                     <TextBlock Text="COMMON APPLICATIONS"
                                FontSize="10"
                                FontWeight="Bold"
-                               Foreground="#B45309"
+                               Foreground="{DynamicResource WarningBrush}"
                                Margin="0,0,0,10"/>
 
                     <StackPanel Style="{StaticResource BulletRowStyle}">
                         <TextBlock Text="&#xE915;"
                                    FontFamily="Segoe MDL2 Assets"
                                    FontSize="10"
-                                   Foreground="#B45309"
+                                   Foreground="{DynamicResource WarningBrush}"
                                    VerticalAlignment="Center"
                                    Margin="0,0,10,0"/>
                         <TextBlock Text="High-end architectural facades"
@@ -139,7 +139,7 @@
                         <TextBlock Text="&#xE915;"
                                    FontFamily="Segoe MDL2 Assets"
                                    FontSize="10"
-                                   Foreground="#B45309"
+                                   Foreground="{DynamicResource WarningBrush}"
                                    VerticalAlignment="Center"
                                    Margin="0,0,10,0"/>
                         <TextBlock Text="Hurricane / impact-resistant glazing"
@@ -152,7 +152,7 @@
                         <TextBlock Text="&#xE915;"
                                    FontFamily="Segoe MDL2 Assets"
                                    FontSize="10"
-                                   Foreground="#B45309"
+                                   Foreground="{DynamicResource WarningBrush}"
                                    VerticalAlignment="Center"
                                    Margin="0,0,10,0"/>
                         <TextBlock Text="Sound insulation for premium interiors"
@@ -165,7 +165,7 @@
                         <TextBlock Text="&#xE915;"
                                    FontFamily="Segoe MDL2 Assets"
                                    FontSize="10"
-                                   Foreground="#B45309"
+                                   Foreground="{DynamicResource WarningBrush}"
                                    VerticalAlignment="Center"
                                    Margin="0,0,10,0"/>
                         <TextBlock Text="Bullet-resistant glass assemblies"
@@ -178,7 +178,7 @@
             </Border>
 
             <!-- ── Tip footer ── -->
-            <Border Background="#EEF2FF"
+            <Border Background="{DynamicResource TintIndigoBrush}"
                     BorderBrush="#C7D2FE"
                     BorderThickness="1"
                     CornerRadius="10"
@@ -187,13 +187,13 @@
                     <TextBlock Text="&#xE946;"
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="12"
-                               Foreground="#4338CA"
+                               Foreground="{DynamicResource AccentBrush}"
                                VerticalAlignment="Center"
                                Margin="0,0,10,0"/>
                     <TextBlock Text="For now, use DGU or LAM separately based on which property matters more for your project."
                                FontSize="11"
                                FontWeight="SemiBold"
-                               Foreground="#4338CA"
+                               Foreground="{DynamicResource AccentBrush}"
                                TextWrapping="Wrap"
                                VerticalAlignment="Center"/>
                 </StackPanel>

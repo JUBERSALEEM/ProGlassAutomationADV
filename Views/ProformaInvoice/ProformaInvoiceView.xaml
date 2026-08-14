@@ -252,7 +252,7 @@ CHAT 17 — LAYOUT FIX
                                 <TextBlock Text="+"
                                            FontSize="16"
                                            FontWeight="Bold"
-                                           Foreground="#4338CA"
+                                           Foreground="{DynamicResource AccentBrush}"
                                            HorizontalAlignment="Center"
                                            VerticalAlignment="Center"
                                            Margin="0,-2,0,0"/>
@@ -442,14 +442,14 @@ CHAT 17 — LAYOUT FIX
                                                                 Width="28"
                                                                 Height="28"
                                                                 CornerRadius="14"
-                                                                Background="#EEF2FF"
+                                                                Background="{DynamicResource TintIndigoBrush}"
                                                                 HorizontalAlignment="Center"
                                                                 VerticalAlignment="Center">
                                                             <TextBlock x:Name="NumberText"
                                                                        Text="{Binding StepNumber}"
                                                                        FontSize="12"
                                                                        FontWeight="Bold"
-                                                                       Foreground="#4338CA"
+                                                                       Foreground="{DynamicResource AccentBrush}"
                                                                        HorizontalAlignment="Center"
                                                                        VerticalAlignment="Center"/>
                                                         </Border>
@@ -545,7 +545,7 @@ CHAT 17 — LAYOUT FIX
                     <!-- Progress summary card -->
                     <Border Grid.Row="2"
                             Margin="16,12,16,20"
-                            Background="#EEF2FF"
+                            Background="{DynamicResource TintIndigoBrush}"
                             CornerRadius="14"
                             Padding="14,12">
                         <StackPanel>
@@ -553,15 +553,15 @@ CHAT 17 — LAYOUT FIX
                                 <TextBlock Text="Current Step"
                                            FontSize="10"
                                            FontWeight="SemiBold"
-                                           Foreground="#4338CA"
+                                           Foreground="{DynamicResource AccentBrush}"
                                            VerticalAlignment="Center"/>
                                 <TextBlock Text=" • "
                                            FontSize="10"
-                                           Foreground="#4338CA"
+                                           Foreground="{DynamicResource AccentBrush}"
                                            VerticalAlignment="Center"/>
                                 <TextBlock FontSize="10"
                                            FontWeight="SemiBold"
-                                           Foreground="#4338CA"
+                                           Foreground="{DynamicResource AccentBrush}"
                                            VerticalAlignment="Center">
                                     <Run Text="{Binding CurrentStepNumber, Mode=OneWay}"/>
                                     <Run Text=" of 8"/>
@@ -591,7 +591,7 @@ CHAT 17 — LAYOUT FIX
                                     </Grid.ColumnDefinitions>
                                     <Border Grid.Column="0"
                                             Grid.ColumnSpan="{Binding CurrentStepNumber}"
-                                            Background="#4338CA"
+                                            Background="{DynamicResource AccentBrush}"
                                             Height="4"
                                             CornerRadius="2"
                                             HorizontalAlignment="Stretch"/>

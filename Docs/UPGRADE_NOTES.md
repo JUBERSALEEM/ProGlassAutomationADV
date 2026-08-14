@@ -504,3 +504,18 @@ BrushKeyConverter, SmoothScrollBehavior, GradientHeroCard, etc.) are all
 cascade errors — those types exist with correct namespaces and resolve once
 the assembly compiles. Repo-wide sweep confirms no other instances of these
 patterns. All XAML parse clean, 381/381 CS balanced.
+
+---
+
+## 17. v2 Upgrade — Phase Batch 12: PI wizard chrome migration
+
+Normalized 212 hardcoded SOLID brush colors (Foreground/Background) across 18
+Proforma Invoice wizard files to theme DynamicResource brushes so the wizard
+adapts to light AND dark themes:
+  #4338CA/#3B82F6/#1E40AF/#6366F1 -> AccentBrush
+  #EEF2FF -> TintIndigoBrush
+  #B91C1C -> DangerBrush, #047857 -> SuccessBrush, #B45309 -> WarningBrush
+  #DCFCE7/#FEE2E2/#FEF3C7 -> TintGreen/TintRed/TintAmber
+Gradient-stop Colors were intentionally left untouched (cannot safely bind a
+Brush to GradientStop.Color). Contained, appearance-only, no business logic
+touched. All XAML parse clean, 381/381 CS balanced.

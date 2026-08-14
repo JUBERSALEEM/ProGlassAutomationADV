@@ -126,7 +126,7 @@
                     <TextBlock Text="&#xE81E;"
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="12"
-                               Foreground="#047857"
+                               Foreground="{DynamicResource SuccessBrush}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
                 </Border>
@@ -149,7 +149,7 @@
                     <TextBlock Text="&#xE7C1;"
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="12"
-                               Foreground="#047857"
+                               Foreground="{DynamicResource SuccessBrush}"
                                VerticalAlignment="Center"
                                Margin="0,0,8,0"/>
                     <TextBlock Text="Generated Spec:"
@@ -161,7 +161,7 @@
                     <TextBlock Text="{Binding GeneratedSpecName}"
                                FontSize="12"
                                FontWeight="Bold"
-                               Foreground="#047857"
+                               Foreground="{DynamicResource SuccessBrush}"
                                TextWrapping="Wrap"
                                VerticalAlignment="Center"/>
                 </StackPanel>
@@ -366,7 +366,7 @@
                     <TextBlock FontSize="11"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                TextWrapping="Wrap">
-                        <Run Text="&#xE946;" FontFamily="Segoe MDL2 Assets" Foreground="#047857"/>
+                        <Run Text="&#xE946;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource SuccessBrush}"/>
                         <Run Text="  LAM total = outer + inner + PVB + tempering. Typical yield 0.90 for lamination."/>
                     </TextBlock>
                 </StackPanel>

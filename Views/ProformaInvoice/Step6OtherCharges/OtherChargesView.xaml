@@ -180,7 +180,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
 
             <!-- STEP HEADER (PERF-01 applied) -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                <Border Background="#4338CA" Width="44" Height="44" CornerRadius="12" VerticalAlignment="Center">
+                <Border Background="{DynamicResource AccentBrush}" Width="44" Height="44" CornerRadius="12" VerticalAlignment="Center">
                     <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
                 <StackPanel VerticalAlignment="Center" Margin="16,0,0,0">
@@ -195,7 +195,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
             <Border Background="{DynamicResource ModuleBackgroundBrush}" CornerRadius="14" Padding="18" BorderThickness="1" BorderBrush="#4338CA" Margin="0,0,0,18">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                        <Border Background="#4338CA" Width="28" Height="28" CornerRadius="8" VerticalAlignment="Center" Margin="0,0,10,0">
+                        <Border Background="{DynamicResource AccentBrush}" Width="28" Height="28" CornerRadius="8" VerticalAlignment="Center" Margin="0,0,10,0">
                             <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
@@ -206,7 +206,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                     <WrapPanel>
                         <Border Style="{StaticResource MetricCardStyle}">
                             <StackPanel>
-                                <TextBlock Text="TOTAL GLASS 1 (LM1)" FontSize="10" FontWeight="Bold" Foreground="#4338CA"/>
+                                <TextBlock Text="TOTAL GLASS 1 (LM1)" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                                 <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                                     <TextBlock Text="{Binding MetricHub.TotalLm1, StringFormat={}{0:0.##}}" FontSize="18" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                     <TextBlock Text=" lm" FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Bottom" Margin="4,0,0,3"/>
@@ -298,8 +298,8 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border Background="#EEF2FF" CornerRadius="6" Padding="10,4" Margin="0,0,4,4" ToolTip="{Binding}">
-                                                <TextBlock Text="{Binding}" FontSize="11" FontWeight="SemiBold" Foreground="#4338CA"/>
+                                            <Border Background="{DynamicResource TintIndigoBrush}" CornerRadius="6" Padding="10,4" Margin="0,0,4,4" ToolTip="{Binding}">
+                                                <TextBlock Text="{Binding}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/>
                                             </Border>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
@@ -323,7 +323,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                 <Border Grid.Column="1" Background="{DynamicResource TintGreenBrush}" BorderBrush="{DynamicResource BorderBrush}" BorderThickness="1" CornerRadius="10" Padding="16,10" VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="Total Other Charges: " FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding TotalOtherCharges, StringFormat=AED {0:N2}}" FontSize="14" FontWeight="Bold" Foreground="#047857" VerticalAlignment="Center"/>
+                        <TextBlock Text="{Binding TotalOtherCharges, StringFormat=AED {0:N2}}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center"/>
                     </StackPanel>
                 </Border>
             </Grid>
@@ -480,13 +480,13 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                                                                 <TextBlock Text="&#xE762;"
                                                                            FontFamily="Segoe MDL2 Assets"
                                                                            FontSize="11"
-                                                                           Foreground="#4338CA"
+                                                                           Foreground="{DynamicResource AccentBrush}"
                                                                            VerticalAlignment="Center"
                                                                            Margin="0,0,8,0"/>
                                                                 <TextBlock Text="SELECT SPECS"
                                                                            FontSize="10"
                                                                            FontWeight="Bold"
-                                                                           Foreground="#4338CA"
+                                                                           Foreground="{DynamicResource AccentBrush}"
                                                                            VerticalAlignment="Center"/>
                                                             </StackPanel>
 
@@ -523,13 +523,13 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                                                                 <TextBlock Text="&#xE9D2;"
                                                                            FontFamily="Segoe MDL2 Assets"
                                                                            FontSize="11"
-                                                                           Foreground="#4338CA"
+                                                                           Foreground="{DynamicResource AccentBrush}"
                                                                            VerticalAlignment="Center"
                                                                            Margin="0,0,8,0"/>
                                                                 <TextBlock Text="SELECT METRIC"
                                                                            FontSize="10"
                                                                            FontWeight="Bold"
-                                                                           Foreground="#4338CA"
+                                                                           Foreground="{DynamicResource AccentBrush}"
                                                                            VerticalAlignment="Center"/>
                                                             </StackPanel>
 
@@ -589,7 +589,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                                                                 <TextBlock Text="{Binding SummaryText}"
                                                                            FontSize="11"
                                                                            FontWeight="Bold"
-                                                                           Foreground="#4338CA"
+                                                                           Foreground="{DynamicResource AccentBrush}"
                                                                            VerticalAlignment="Center"
                                                                            TextWrapping="Wrap"/>
                                                             </StackPanel>
@@ -603,9 +603,9 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                                     <!-- Metric qty badge -->
                                     <Border Grid.Column="3" Background="#DBEAFE" CornerRadius="8" Padding="10,5" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="{Binding MetricQty, StringFormat={}{0:0.###}}" FontSize="12" FontWeight="Bold" Foreground="#1E40AF"/>
+                                            <TextBlock Text="{Binding MetricQty, StringFormat={}{0:0.###}}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                                             <TextBlock Text=" "/>
-                                            <TextBlock Text="{Binding Unit}" FontSize="10" Foreground="#1E40AF" Opacity="0.75" VerticalAlignment="Bottom" Margin="0,0,0,1"/>
+                                            <TextBlock Text="{Binding Unit}" FontSize="10" Foreground="{DynamicResource AccentBrush}" Opacity="0.75" VerticalAlignment="Bottom" Margin="0,0,0,1"/>
                                         </StackPanel>
                                     </Border>
 
@@ -642,7 +642,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                                 </Grid>
 
                                 <!-- Custom Polish inline editor -->
-                                <Border Background="#EEF2FF" CornerRadius="10" Padding="14,12" Margin="60,10,0,0" BorderThickness="1" BorderBrush="#C7D2FE">
+                                <Border Background="{DynamicResource TintIndigoBrush}" CornerRadius="10" Padding="14,12" Margin="60,10,0,0" BorderThickness="1" BorderBrush="#C7D2FE">
                                     <Border.Style>
                                         <Style TargetType="Border">
                                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -665,9 +665,9 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                                             <ColumnDefinition Width="Auto"/>
                                             <ColumnDefinition Width="Auto"/>
                                         </Grid.ColumnDefinitions>
-                                        <TextBlock Grid.Column="0" Text="CUSTOM DESCRIPTION:" FontSize="10" FontWeight="Bold" Foreground="#4338CA" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                        <TextBlock Grid.Column="0" Text="CUSTOM DESCRIPTION:" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                         <TextBox Grid.Column="1" Text="{Binding CustomPolishDescription, UpdateSourceTrigger=PropertyChanged}" Style="{StaticResource CustomInputStyle}" Margin="0,0,14,0"/>
-                                        <TextBlock Grid.Column="2" Text="MANUAL QTY (lm):" FontSize="10" FontWeight="Bold" Foreground="#4338CA" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                                        <TextBlock Grid.Column="2" Text="MANUAL QTY (lm):" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                                         <TextBox Grid.Column="3" Text="{Binding CustomPolishQty, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.###}}" Style="{StaticResource CustomInputStyle}" beh:TextBoxBehaviors.AcceptDecimals="True" MinWidth="90"/>
                                     </Grid>
                                 </Border>
@@ -680,10 +680,10 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
             <wastages:WastagesSectionView DataContext="{Binding WastagesSection}"/>
             <custom:CustomChargesSectionView DataContext="{Binding CustomChargesSection}"/>
 
-            <Border Background="#EEF2FF" BorderBrush="#C7D2FE" BorderThickness="1" CornerRadius="10" Padding="14,10" Margin="0,30,0,20" HorizontalAlignment="Left">
+            <Border Background="{DynamicResource TintIndigoBrush}" BorderBrush="#C7D2FE" BorderThickness="1" CornerRadius="10" Padding="14,10" Margin="0,30,0,20" HorizontalAlignment="Left">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE930;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="#4338CA" VerticalAlignment="Center" Margin="0,0,10,0"/>
-                    <TextBlock FontSize="11" Foreground="#4338CA" TextWrapping="Wrap" VerticalAlignment="Center">
+                    <TextBlock Text="&#xE930;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock FontSize="11" Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap" VerticalAlignment="Center">
                         <Run FontWeight="Bold">Step 6 Complete.</Run>
                         <Run>All predefined charges, polish sub-types, color-aggregated wastages, and manual custom charges are implemented and integrated into the total.</Run>
                     </TextBlock>

@@ -101,7 +101,7 @@
              SECTION HEADER — icon badge + title + subtitle
         ══════════════════════════════════════════════════════════════ -->
         <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-            <Border Background="#EEF2FF"
+            <Border Background="{DynamicResource TintIndigoBrush}"
                     Width="34" Height="34"
                     CornerRadius="10"
                     VerticalAlignment="Center"
@@ -110,7 +110,7 @@
                 <TextBlock Text="&#xE710;"
                            FontFamily="Segoe MDL2 Assets"
                            FontSize="14"
-                           Foreground="#4338CA"
+                           Foreground="{DynamicResource AccentBrush}"
                            HorizontalAlignment="Center"
                            VerticalAlignment="Center"/>
             </Border>
@@ -174,10 +174,10 @@
                                     <TextBlock Text="{Binding Qty, StringFormat={}{0:0.###}}"
                                                FontSize="12"
                                                FontWeight="Bold"
-                                               Foreground="#1E40AF"/>
+                                               Foreground="{DynamicResource AccentBrush}"/>
                                     <TextBlock Text="{Binding Unit, StringFormat={} {0}}"
                                                FontSize="10"
-                                               Foreground="#1E40AF"
+                                               Foreground="{DynamicResource AccentBrush}"
                                                Opacity="0.75"
                                                VerticalAlignment="Bottom"
                                                Margin="0,0,0,1"/>
@@ -197,7 +197,7 @@
                                        Text="{Binding FormulaDisplay}"
                                        FontSize="12"
                                        FontWeight="Bold"
-                                       Foreground="#047857"
+                                       Foreground="{DynamicResource SuccessBrush}"
                                        VerticalAlignment="Center"
                                        TextAlignment="Right"/>
 
@@ -220,7 +220,7 @@
                                                        FontFamily="Segoe MDL2 Assets"
                                                        FontSize="12"
                                                        FontWeight="Bold"
-                                                       Foreground="#B91C1C"/>
+                                                       Foreground="{DynamicResource DangerBrush}"/>
                                         </Border>
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
@@ -246,7 +246,7 @@
                • ConverterCulture="en-US" (culture-safe "." separator)
                • NO StringFormat on InputQty/InputRate bindings
         ══════════════════════════════════════════════════════════════ -->
-        <Border Background="#EEF2FF"
+        <Border Background="{DynamicResource TintIndigoBrush}"
                 CornerRadius="12"
                 Padding="18"
                 Margin="0,18,0,0"
@@ -269,7 +269,7 @@
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="CHARGE NAME"
                                Style="{StaticResource FieldLabelStyle}"
-                               Foreground="#4338CA"/>
+                               Foreground="{DynamicResource AccentBrush}"/>
                     <TextBox Text="{Binding InputName, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource FormInputStyle}"/>
                 </StackPanel>
@@ -280,7 +280,7 @@
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="QTY / SQM"
                                Style="{StaticResource FieldLabelStyle}"
-                               Foreground="#4338CA"/>
+                               Foreground="{DynamicResource AccentBrush}"/>
                     <TextBox beh:TextBoxBehaviors.AcceptDecimals="True"
                              Style="{StaticResource FormNumericInputStyle}">
                         <TextBox.Text>
@@ -304,7 +304,7 @@
                 <StackPanel Grid.Column="4">
                     <TextBlock Text="UNIT"
                                Style="{StaticResource FieldLabelStyle}"
-                               Foreground="#4338CA"/>
+                               Foreground="{DynamicResource AccentBrush}"/>
                     <ComboBox ItemsSource="{Binding UnitOptions}"
                               SelectedItem="{Binding InputUnit}"
                               Style="{StaticResource FormComboBoxStyle}"/>
@@ -316,7 +316,7 @@
                 <StackPanel Grid.Column="6">
                     <TextBlock Text="RATE (AED)"
                                Style="{StaticResource FieldLabelStyle}"
-                               Foreground="#4338CA"/>
+                               Foreground="{DynamicResource AccentBrush}"/>
                     <TextBox beh:TextBoxBehaviors.AcceptDecimals="True"
                              Style="{StaticResource FormNumericInputStyle}">
                         <TextBox.Text>
@@ -340,7 +340,7 @@
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="B"
-                                    Background="#4338CA"
+                                    Background="{DynamicResource AccentBrush}"
                                     CornerRadius="8"
                                     Padding="20,0"
                                     Height="34"

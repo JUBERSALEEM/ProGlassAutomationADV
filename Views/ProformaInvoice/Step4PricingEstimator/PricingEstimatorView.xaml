@@ -68,7 +68,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
             ══════════════════════════════════════════════════════════ -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                 <!-- PERF-01: DropShadowEffect removed -->
-                <Border Background="#4338CA"
+                <Border Background="{DynamicResource AccentBrush}"
                         Width="44"
                         Height="44"
                         CornerRadius="12"
@@ -386,7 +386,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
 
                         <StackPanel Grid.Column="0" Orientation="Horizontal">
                             <!-- UI-01: Solid #4338CA / White -->
-                            <Border Background="#4338CA"
+                            <Border Background="{DynamicResource AccentBrush}"
                                     Width="26"
                                     Height="26"
                                     CornerRadius="8"
@@ -414,7 +414,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                        FontWeight="SemiBold"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        VerticalAlignment="Center"/>
-                            <Border Background="#4338CA"
+                            <Border Background="{DynamicResource AccentBrush}"
                                     CornerRadius="10"
                                     Padding="10,3"
                                     MinWidth="36"
@@ -583,14 +583,14 @@ CHAT 17 — PERFORMANCE + UI POLISH
                             <TextBlock Text="AED"
                                        FontSize="15"
                                        FontWeight="Bold"
-                                       Foreground="#047857"
+                                       Foreground="{DynamicResource SuccessBrush}"
                                        VerticalAlignment="Bottom"
                                        Margin="0,0,6,4"/>
                             <TextBlock Text="{Binding EstimatedRatePerSqm,
                                            StringFormat={}{0:N2}}"
                                        FontSize="28"
                                        FontWeight="Bold"
-                                       Foreground="#047857"
+                                       Foreground="{DynamicResource SuccessBrush}"
                                        VerticalAlignment="Center"/>
                             <TextBlock Text=" / sqm"
                                        FontSize="12"
@@ -611,7 +611,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="ApplyBorder"
-                                        Background="#4338CA"
+                                        Background="{DynamicResource AccentBrush}"
                                         CornerRadius="22"
                                         Padding="24,0"
                                         Height="44"

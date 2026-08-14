@@ -181,7 +181,7 @@
                     <TextBlock Grid.Column="4"
                                Text="{Binding DiscountAmount, StringFormat=- AED {0:N2}}"
                                FontSize="12" FontWeight="Bold"
-                               Foreground="#B91C1C"
+                               Foreground="{DynamicResource DangerBrush}"
                                VerticalAlignment="Center"/>
                 </Grid>
             </Border>
@@ -251,7 +251,7 @@
                     <TextBlock Grid.Column="5"
                                Text="{Binding VatAmount, StringFormat=+ AED {0:N2}}"
                                FontSize="12" FontWeight="Bold"
-                               Foreground="#047857"
+                               Foreground="{DynamicResource SuccessBrush}"
                                VerticalAlignment="Center"/>
                 </Grid>
             </Border>
