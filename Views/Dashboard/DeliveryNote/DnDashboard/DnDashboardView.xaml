@@ -125,7 +125,7 @@
 
         <Style x:Key="SectionSubtitle" TargetType="TextBlock">
             <Setter Property="FontSize"   Value="12"/>
-            <Setter Property="Foreground" Value="#64748B"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
             <Setter Property="Margin"     Value="8,0,8,10"/>
         </Style>
 
@@ -290,7 +290,7 @@
     </UserControl.Resources>
 
     <!-- ═══ Root: v2.5 smooth pattern ═══ -->
-    <Grid Background="#F5F9FF">
+    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
 
         <Canvas Panel.ZIndex="0"
                 IsHitTestVisible="False"
@@ -356,12 +356,12 @@
                 <Border Visibility="{Binding HasError,
                                      Converter={StaticResource BoolToVisibilityConverter}}"
                         Background="{DynamicResource TintRedBrush}"
-                        BorderBrush="#FCA5A5"
+                        BorderBrush="{DynamicResource DangerBrush}"
                         BorderThickness="1.5"
                         CornerRadius="12"
                         Padding="14" Margin="8,0,8,12">
                     <TextBlock Text="Failed to load delivery note data."
-                               Foreground="#991B1B"
+                               Foreground="{DynamicResource DangerBrush}"
                                FontSize="12" TextWrapping="Wrap" FontWeight="Bold"/>
                 </Border>
 
@@ -401,7 +401,7 @@
                             </ItemsControl>
 
                             <Border Height="1" Margin="0,4,0,0"
-                                    Background="#DBE7F9"/>
+                                    Background="{DynamicResource TintIndigoBrush}"/>
 
                             <TextBlock Text="Delivery note count by status"
                                        FontSize="11" HorizontalAlignment="Right"
@@ -448,7 +448,7 @@
                             </ItemsControl>
 
                             <Border Height="1" Margin="0,4,0,0"
-                                    Background="#DBE7F9"/>
+                                    Background="{DynamicResource TintIndigoBrush}"/>
 
                             <TextBlock Text="Delivery note count by type"
                                        FontSize="11" HorizontalAlignment="Right"
@@ -485,7 +485,7 @@
                                           ItemTemplate="{StaticResource FeedRowTemplate}"/>
 
                             <Border Height="1" Margin="0,8,0,0"
-                                    Background="#DBE7F9"/>
+                                    Background="{DynamicResource TintIndigoBrush}"/>
 
                             <TextBlock Text="Showing last 10 · ordered by last updated"
                                        FontSize="11" HorizontalAlignment="Right"

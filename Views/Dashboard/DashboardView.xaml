@@ -154,11 +154,11 @@
                                Foreground="White"/>
                     <TextBlock Text="{Binding WelcomeDateLine}"
                                FontSize="12" Margin="0,3,0,0"
-                               Foreground="#CCFFFFFF"/>
+                               Foreground="{DynamicResource OverlayButtonForegroundBrush}"/>
                 </StackPanel>
 
                 <Border Grid.Column="1"
-                        Background="#33FFFFFF"
+                        Background="{DynamicResource OverlayButtonBackgroundBrush}"
                         CornerRadius="{DynamicResource PillCornerRadius}"
                         Padding="16,8"
                         VerticalAlignment="Center">
