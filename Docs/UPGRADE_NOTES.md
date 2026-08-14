@@ -558,3 +558,37 @@ AutoCompleteTextBox accent hexes (#4338CA hover/selection/border) converted to
 theme AccentBrush so the shared control adapts to both themes. GradientHeroCard
 brand gradient intentionally preserved (it is a deliberate brand gradient).
 All XAML parse clean, 381/381 CS balanced.
+
+---
+
+## 21. v2 Upgrade — Phase Batch 16: Phase 2 pilot + Reports interior
+
+Pre-build safety batches (structural verification only; first on-device
+build pending):
+
+1. CI template shipped at Docs/CI/build.yml (windows-latest restore +
+   Release build). GitHub App tokens cannot push .github/workflows, so
+   one-time manual activation copies it into place. Sandbox has no .NET
+   SDK and no route to Microsoft/NuGet, so no local compile exists here.
+2. Sheet Store pilot — all 33 remaining solid colors migrated; module is
+   now zero-hex. Hover/pressed -> AccentHover/AccentDark, stat boxes ->
+   Tint + semantic borders, overlay button -> OverlayButton brushes.
+3. Reports area — StatementListView (33), WorkflowProgress/WarningDialog
+   (18), WizardStyles (11 migratable): hero headers -> AccentBrush,
+   light tints on colored surfaces -> OnAccentForegroundBrush, status
+   chips -> Warning/Danger/Success. Frozen gradients, frozen shadow
+   colors and the theme-independent dark tooltip remain as documented
+   exceptions (Freezables cannot hold DynamicResource).
+4. Statement Generator shell — 32 lines: stepper completed/active ->
+   Success/Accent, nav hover/pressed -> TintIndigo, reset triggers ->
+   TintRed/Danger. Inline effect colors stay (Color != Brush).
+
+Deferred by design (needs careful per-file mapping, not bulk script):
+the four Statement Generator step files + PreviewStep (225 colors,
+59 distinct palette values incl. whites/slates/near-blacks, 47 frozen
+gradient stops) and the ProformaInvoice leftovers (323, incl. paper-white
+print-preview surfaces that must NOT be themed). These migrate after the
+first on-device build confirms the current batches are clean.
+
+All touched XAML parse clean; symmetric diffs (tokens only, no logic,
+bindings or layout touched).
