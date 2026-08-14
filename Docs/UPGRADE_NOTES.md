@@ -308,3 +308,24 @@ existing dashboard stat cards (the shared StatCard is additive).
 - Unsaved-changes guard currently covers Job Order; DN/TI need dirty
   tracking added before they can use it.
 - Structural validation only — no compile/run test in this sandbox.
+
+---
+
+## 10. v2 Upgrade — Phase Batch 5 (this round): Version history for JO / DN / TI
+
+- **Job Order**: every save appends a restorable version; 🕘 button on
+  each saved-list row opens the shared Versions dialog; Restore loads
+  the old snapshot into the editor (database untouched until the user
+  saves, which appends a NEW version). Audit-logged.
+- **Tax Invoice**: same — every save recorded (entity snapshot JSON as
+  stored), 🕘 button on the detail action bar, full restore support.
+- **Delivery Note**: every save recorded; 🕘 button shows the preserved
+  history. DN restore is intentionally deferred — DN line items live in
+  relational rows (not the snapshot blob), so a safe restore needs
+  mapper support; recording now guarantees no history is lost.
+- Fixed a recording bug caught in review: TI versions must capture the
+  entity's serialized snapshot (BuildEntity output), not the raw wizard
+  state — otherwise restores would not deserialize.
+
+Restores always create a new version on the next save; nothing is ever
+silently erased (§24).

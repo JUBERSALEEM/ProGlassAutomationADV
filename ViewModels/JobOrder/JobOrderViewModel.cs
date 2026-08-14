@@ -110,6 +110,9 @@ namespace ProGlassAutomation.ViewModels.JobOrder
             // When user clicks OPEN on a list row → load detail
             ListVM.OnJobOrderOpenRequested = LoadJobOrderIntoDetail;
 
+            // v2 §24: version restore from history dialog
+            ListVM.OnVersionRestoreRequested = RestoreVersion;
+
             // When user clicks Save/Back in detail → return to list
             DetailVM.OnRequestBackToList = ReturnToList;
 
@@ -201,6 +204,58 @@ namespace ProGlassAutomation.ViewModels.JobOrder
             {
                 System.Diagnostics.Debug.WriteLine(
                     $"[JobOrderVM] ReturnToList failed: {ex.Message}");
+            }
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  v2 §24 — VERSION RESTORE
+        // ═════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Opens the job order that owns the chosen version, then applies
+        /// the version snapshot into the editor (pending save).
+        /// </summary>
+        private async void RestoreVersion(int versionId)
+        {
+            try
+            {
+                var version = await ProGlassAutomation.Services.Audit
+                    .VersionHistoryService.GetByIdAsync(versionId);
+
+                if (version == null || App.Jobs == null) return;
+
+                var entity = await App.Jobs
+                    .GetByJobOrderIdAsync(version.EntityId);
+
+                if (entity == null)
+                {
+                    System.Windows.MessageBox.Show(
+                        $"Job order '{version.EntityId}' no longer exists.",
+                        "Restore Version",
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Warning);
+                    return;
+                }
+
+                await DetailVM.LoadAsync(entity.Id);
+                IsListView = false;
+                ActiveTab = TabWorkspace;
+
+                bool ok = await DetailVM.RestoreVersionAsync(versionId);
+
+                if (!ok)
+                {
+                    System.Windows.MessageBox.Show(
+                        "This version could not be applied.",
+                        "Restore Version",
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Warning);
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[JobOrderVM] RestoreVersion failed: {ex.Message}");
             }
         }
     }

@@ -552,6 +552,9 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         public ICommand BackCommand { get; }
         public ICommand IssueCommand { get; }
         public ICommand MarkPaidCommand { get; }
+
+        /// <summary>v2 §24: shows this invoice's version history.</summary>
+        public ICommand ShowVersionsCommand { get; }
         public ICommand AddAttachmentCommand { get; }
         public ICommand RemoveAttachmentCommand { get; }
         public ICommand AddSpecGroupCommand { get; }
@@ -578,6 +581,10 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
             BackCommand = new RelayCommand(
                 _ => OnRequestBackToList?.Invoke());
+
+            // v2 §24: version history dialog (shared control).
+            ShowVersionsCommand = new RelayCommand(
+                async _ => await ShowVersionsAsync());
 
             IssueCommand = new RelayCommand(
                 async _ => await ChangeStatusAndSaveAsync("Issued"),
@@ -764,6 +771,81 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             }
         }
 
+        /// <summary>
+        /// v2 §24: shows the version history for the invoice being edited
+        /// and applies a chosen restore into the editor (pending save).
+        /// </summary>
+        private async Task ShowVersionsAsync()
+        {
+            if (string.IsNullOrWhiteSpace(_editingInvoiceNumber))
+            {
+                StatusMessage = "Save the invoice first to build its history.";
+                return;
+            }
+
+            var versions = await ProGlassAutomation.Services.Audit
+                .VersionHistoryService
+                .GetVersionsAsync("TI", _editingInvoiceNumber);
+
+            var restoreId = Views.ProformaInvoice.SavedInvoicesList
+                .VersionsDialog.Show(
+                    System.Windows.Application.Current?.MainWindow,
+                    _editingInvoiceNumber, versions);
+
+            if (restoreId == null) return;
+
+            bool ok = await RestoreVersionAsync(restoreId.Value);
+            StatusMessage = ok
+                ? "Version loaded — save to keep it."
+                : "This version could not be applied.";
+        }
+
+        /// <summary>
+        /// v2 §24: loads an old version's snapshot into the editor.
+        /// The database row is untouched until the user saves — saving
+        /// appends a NEW version (history is never erased).
+        /// </summary>
+        public async Task<bool> RestoreVersionAsync(int versionId)
+        {
+            try
+            {
+                var version = await ProGlassAutomation.Services.Audit
+                    .VersionHistoryService.GetByIdAsync(versionId);
+
+                if (version == null ||
+                    string.IsNullOrEmpty(version.SnapshotJson) ||
+                    App.TaxInvoices == null)
+                    return false;
+
+                var entity = await App.TaxInvoices
+                    .GetByInvoiceNumberAsync(version.EntityId);
+                if (entity == null) return false;
+
+                // Swap in the old snapshot and re-hydrate the UI.
+                entity.FullSnapshotJson = version.SnapshotJson;
+                var snapshot = TaxInvoiceMapper.DeserializeSnapshot(entity);
+                if (snapshot == null) return false;
+
+                _editingId = entity.Id;
+                _editingInvoiceNumber = entity.InvoiceNumber;
+                IsNewInvoice = false;
+
+                RestoreFromSnapshot(entity, snapshot);
+
+                ProGlassAutomation.Services.Audit.AuditService.Log(
+                    ProGlassAutomation.Services.Audit.AuditSections.TaxInvoice,
+                    "Version restored",
+                    $"{entity.InvoiceNumber} → version {version.VersionNo} " +
+                    "(pending save)",
+                    "TI", entity.InvoiceNumber);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
         // ══════════════════════════════════════════════════════════════════
         //  LOAD FAMILY (Chat 16 — sidebar contents)
         // ══════════════════════════════════════════════════════════════════
@@ -1226,6 +1308,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                 var state = BuildWizardState();
                 string savedInvoiceNumber;
+                string savedSnapshotJson = "";   // v2 §24 version capture
 
                 if (IsNewInvoice)
                 {
@@ -1250,6 +1333,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                     var entity = TaxInvoiceMapper.BuildEntity(
                         state, invoiceNum, seq, letter);
+                    savedSnapshotJson = entity.FullSnapshotJson;
                     var saved = await App.TaxInvoices.InsertAsync(entity);
                     _editingId = saved.Id;
                     _editingInvoiceNumber = saved.InvoiceNumber;
@@ -1271,6 +1355,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                         entity.SequenceNumber, entity.SequenceLetter);
                     updated.Id = entity.Id;
                     updated.CreatedAt = entity.CreatedAt;
+                    savedSnapshotJson = updated.FullSnapshotJson;
 
                     await App.TaxInvoices.UpdateAsync(updated);
                     savedInvoiceNumber = entity.InvoiceNumber;
@@ -1297,6 +1382,16 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                     AuditSections.TaxInvoice, "Tax invoice saved",
                     $"{savedInvoiceNumber} — status {Status}",
                     "TI", savedInvoiceNumber);
+
+                // v2 §24: append a restorable version of every save.
+                if (!string.IsNullOrEmpty(savedSnapshotJson))
+                {
+                    _ = ProGlassAutomation.Services.Audit
+                        .VersionHistoryService.AddVersionAsync(
+                            "TI", savedInvoiceNumber,
+                            $"Status {Status}",
+                            savedSnapshotJson);
+                }
 
                 await MarkDnsAsInvoicedAsync(savedInvoiceNumber);
 

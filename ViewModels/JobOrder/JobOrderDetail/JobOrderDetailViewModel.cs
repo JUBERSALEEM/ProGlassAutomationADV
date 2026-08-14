@@ -335,6 +335,62 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
             }
         }
 
+        /// <summary>
+        /// v2 §24: loads an old version's snapshot into the editor.
+        /// The database row is untouched until the user saves — saving
+        /// then appends a NEW version (history is never erased).
+        /// Returns false when the version cannot be applied.
+        /// </summary>
+        public async Task<bool> RestoreVersionAsync(int versionId)
+        {
+            try
+            {
+                var version = await ProGlassAutomation.Services.Audit
+                    .VersionHistoryService.GetByIdAsync(versionId);
+
+                if (version == null ||
+                    string.IsNullOrEmpty(version.SnapshotJson))
+                    return false;
+
+                if (_entity == null)
+                {
+                    if (App.Jobs == null) return false;
+                    _entity = await App.Jobs
+                        .GetByJobOrderIdAsync(version.EntityId);
+                    if (_entity == null) return false;
+                }
+
+                // Swap in the old snapshot and re-hydrate. On any
+                // failure the current snapshot is rolled back.
+                string savedJson = _entity.FullSnapshotJson;
+                _entity.FullSnapshotJson = version.SnapshotJson;
+
+                var snap = JobOrderMapper.DeserializeSnapshot(_entity);
+                if (snap == null)
+                {
+                    _entity.FullSnapshotJson = savedJson;
+                    return false;
+                }
+
+                _snapshot = snap;
+                PopulateDisplayFields();
+                HasUnsavedChanges = true;   // save to persist the restore
+
+                ProGlassAutomation.Services.Audit.AuditService.Log(
+                    ProGlassAutomation.Services.Audit.AuditSections.JobOrder,
+                    "Version restored",
+                    $"{_entity.JobOrderId} → version {version.VersionNo} " +
+                    "(pending save)",
+                    "JO", _entity.JobOrderId);
+
+                return true;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
         private void PopulateDisplayFields()
         {
             if (_entity == null || _snapshot == null) return;
@@ -437,6 +493,13 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
                 await App.Jobs.UpdateAsync(_entity);
 
                 HasUnsavedChanges = false;
+
+                // v2 §24: append a restorable version of every save.
+                _ = ProGlassAutomation.Services.Audit.VersionHistoryService
+                    .AddVersionAsync(
+                        "JO", _entity.JobOrderId,
+                        $"Status {SelectedStatus}, priority {SelectedPriority}",
+                        _entity.FullSnapshotJson);
 
                 var diff = new System.Collections.Generic.List<AuditChange>();
                 if (!string.Equals(previousStatus, SelectedStatus))

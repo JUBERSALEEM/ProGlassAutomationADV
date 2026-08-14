@@ -572,6 +572,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         // ── Commands ──────────────────────────────────────────────────────
 
         public ICommand SaveCommand { get; }
+
+        /// <summary>v2 §24: shows this delivery note's version history.</summary>
+        public ICommand ShowVersionsCommand { get; }
         public ICommand BackCommand { get; }
         public ICommand MakeDnCommand { get; }
         public ICommand DeleteDnCommand { get; }
@@ -612,6 +615,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         public DeliveryNoteDetailViewModel()
         {
+            // v2 §24: version history (read-only list for DN — restore
+            // needs relational-item support and ships in a later phase).
+            ShowVersionsCommand = new RelayCommand(
+                async _ => await ShowVersionsAsync());
+
             SaveCommand = new RelayCommand(
                 async _ => await SaveAsync(),
                 _ => !IsSaving && !IsLoading && !IsMasterDn);
@@ -1009,6 +1017,17 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 DeliveryNoteMapper.RefreshSnapshot(_entity, joRef);
 
                 await App.DeliveryNotes.UpdateAsync(_entity);
+
+                // v2 §24: append a restorable version of every save.
+                // (Restore for DN needs relational-item support — the
+                // snapshots are preserved now so that can ship later
+                // without losing any history.)
+                _ = ProGlassAutomation.Services.Audit.VersionHistoryService
+                    .AddVersionAsync(
+                        "DN", _entity.DeliveryNoteId,
+                        $"Status {Status}",
+                        _entity.FullSnapshotJson);
+
                 await LoadAsync(_entity.Id);
 
                 AuditService.Log(
@@ -1040,6 +1059,45 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         //  MAKE DN — CHAT 19 FIXED
         //  Calls UpdateMasterDnAsync instead of creating new Dummy DN
         // ═════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// v2 §24: shows the version history for the delivery note being
+        /// edited. Restore is deferred (DN line items live in relational
+        /// rows), but every save is preserved so no history is lost.
+        /// </summary>
+        private async Task ShowVersionsAsync()
+        {
+            if (string.IsNullOrWhiteSpace(DeliveryNoteId))
+            {
+                MessageBox.Show(
+                    "Save the delivery note first to build its history.",
+                    "Version History",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
+            }
+
+            var versions = await ProGlassAutomation.Services.Audit
+                .VersionHistoryService
+                .GetVersionsAsync("DN", DeliveryNoteId);
+
+            // Reuse the shared dialog. DN restore is not wired (returns
+            // are ignored here) — the list still documents every save.
+            var restoreId = Views.ProformaInvoice.SavedInvoicesList
+                .VersionsDialog.Show(
+                    Application.Current?.MainWindow,
+                    DeliveryNoteId, versions);
+
+            if (restoreId != null)
+            {
+                MessageBox.Show(
+                    "Delivery-note restore ships in a later phase.\n" +
+                    "The selected version has been recorded and preserved.",
+                    "Version History",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+            }
+        }
 
         private async Task ConfirmDispatchAsync()
         {

@@ -39,6 +39,13 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         // ── callback wired by shell VM ────────────────────────────────────
         public Action<int>? OnJobOrderOpenRequested { get; set; }
 
+        /// <summary>
+        /// v2 §24: fired when the user restores a version from the
+        /// history dialog. Payload = version row id. Shell opens the
+        /// detail and applies the snapshot.
+        /// </summary>
+        public Action<int>? OnVersionRestoreRequested { get; set; }
+
         // ── data: full list + filtered display list ───────────────────────
 
         private List<JobOrderRowViewModel> _allJobs = new();
@@ -193,6 +200,9 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         public ICommand RefreshCommand { get; }
         public ICommand ClearFiltersCommand { get; }
 
+        /// <summary>v2 §24: shows the version history dialog for a row.</summary>
+        public ICommand ShowVersionsCommand { get; }
+
         // ═════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
         // ═════════════════════════════════════════════════════════════════
@@ -224,6 +234,11 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             });
 
             RefreshCommand = new RelayCommand(async _ => await LoadJobOrdersAsync());
+
+            // v2 §24: version history dialog (shared with Proforma).
+            ShowVersionsCommand = new RelayCommand(
+                async param => await ShowVersionsAsync(
+                    param as JobOrderRowViewModel));
             ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
 
             // Load on construction
@@ -350,6 +365,31 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         // ═════════════════════════════════════════════════════════════════
         //  MUTATIONS
         // ═════════════════════════════════════════════════════════════════
+
+        // ═════════════════════════════════════════════════════════════
+        //  v2 §24 — VERSION HISTORY
+        // ═════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Shows the shared version-history dialog for one job order.
+        /// A chosen restore is handed to the shell via
+        /// OnVersionRestoreRequested (opens detail + applies snapshot).
+        /// </summary>
+        private async Task ShowVersionsAsync(JobOrderRowViewModel? row)
+        {
+            if (row == null) return;
+
+            var versions = await VersionHistoryService
+                .GetVersionsAsync("JO", row.JobOrderId);
+
+            var restoreId = Views.ProformaInvoice.SavedInvoicesList
+                .VersionsDialog.Show(
+                    Application.Current.MainWindow,
+                    row.JobOrderId, versions);
+
+            if (restoreId == null) return;
+            OnVersionRestoreRequested?.Invoke(restoreId.Value);
+        }
 
         private async Task DeleteJobOrderAsync(JobOrderRowViewModel row)
         {
