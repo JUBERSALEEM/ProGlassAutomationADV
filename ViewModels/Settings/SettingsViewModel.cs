@@ -879,6 +879,32 @@ namespace ProGlassAutomation.ViewModels.Settings
             private set { _hasReleaseInfo = value; OnPropertyChanged(); }
         }
 
+        // ── v3 OTA §7: state-driven display ──────────────────────────
+
+        /// <summary>True when a downloaded update can be installed.</summary>
+        private bool _isUpdateReady;
+        public bool IsUpdateReady
+        {
+            get => _isUpdateReady;
+            private set { _isUpdateReady = value; OnPropertyChanged(); }
+        }
+
+        /// <summary>True while a check is in flight (disables buttons).</summary>
+        private bool _isCheckingUpdate;
+        public bool IsCheckingUpdate
+        {
+            get => _isCheckingUpdate;
+            private set { _isCheckingUpdate = value; OnPropertyChanged(); }
+        }
+
+        /// <summary>"14 Aug 2026 • 10:42 AM" style last-check stamp.</summary>
+        private string _lastCheckedDisplay = "";
+        public string LastCheckedDisplay
+        {
+            get => _lastCheckedDisplay;
+            private set { _lastCheckedDisplay = value; OnPropertyChanged(); }
+        }
+
         // ── v2 §34: update history ledger ────────────────────────────
 
         public System.Collections.ObjectModel.ObservableCollection
@@ -908,6 +934,69 @@ namespace ProGlassAutomation.ViewModels.Settings
             HasUpdateHistory = UpdateHistory.Count > 0;
         }
 
+        /// <summary>
+        /// v3 OTA: projects UpdateService state changes onto the UI.
+        /// Raised from a background thread — marshals to the dispatcher.
+        /// </summary>
+        private void OnUpdateServiceStateChanged()
+        {
+            System.Windows.Application.Current?.Dispatcher.InvokeAsync(() =>
+            {
+                var s = Services.Updates.UpdateService.State;
+                var d = Services.Updates.UpdateService.StateDetail;
+
+                IsCheckingUpdate =
+                    s == Services.Updates.UpdateState.Checking;
+                IsDownloadingUpdate =
+                    s == Services.Updates.UpdateState.Downloading;
+                IsUpdateReady =
+                    s == Services.Updates.UpdateState.DownloadCompleted;
+                UpdateDownloadProgress =
+                    Services.Updates.UpdateService.DownloadPercent;
+
+                switch (s)
+                {
+                    case Services.Updates.UpdateState.Checking:
+                        UpdateStatus = "Checking for updates…";
+                        break;
+                    case Services.Updates.UpdateState.UpToDate:
+                        UpdateStatus =
+                            $"✓ You're up to date (v{AppVersionSafe()}).";
+                        break;
+                    case Services.Updates.UpdateState.UpdateAvailable:
+                        UpdateStatus = $"🚀 Update available: v{d}";
+                        break;
+                    case Services.Updates.UpdateState.Downloading:
+                        UpdateStatus =
+                            $"Downloading… {Services.Updates.UpdateService.DownloadPercent}%";
+                        break;
+                    case Services.Updates.UpdateState.DownloadCompleted:
+                        UpdateStatus =
+                            "Update ready. Click Install & restart.";
+                        break;
+                    case Services.Updates.UpdateState.Installing:
+                        UpdateStatus = "Installing — restarting soon…";
+                        break;
+                    case Services.Updates.UpdateState.Failed:
+                        UpdateStatus = $"❌ Update failed: {d}";
+                        break;
+                    case Services.Updates.UpdateState.Offline:
+                        UpdateStatus =
+                            "No internet connection. Update check unavailable.";
+                        break;
+                    case Services.Updates.UpdateState.Cancelled:
+                        UpdateStatus = "Update cancelled.";
+                        break;
+                }
+            });
+        }
+
+        private static string AppVersionSafe()
+        {
+            try { return Services.Updates.AppInfo.Version; }
+            catch { return ""; }
+        }
+
         private void ApplyReleaseInfo(
             Services.Updates.UpdateCheckResult result)
         {
@@ -927,6 +1016,9 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public ICommand CheckForUpdatesCommand { get; private set; }
         public ICommand DownloadUpdateCommand { get; private set; }
+
+        /// <summary>v3 OTA: launches the downloaded installer & exits.</summary>
+        public ICommand InstallUpdateCommand { get; private set; }
 
         // ══════════════════════════════════════════════════════════════
         //  v2 — BACKUP & RESTORE (full dataset sets)
@@ -1088,43 +1180,52 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "Module wallpaper cleared", row.Label);
             });
 
-            // ── Update commands ───────────────────────────────────────
+            // ── Update commands (v3 OTA orchestrator, spec §6-§8) ─────
+            // All heavy lifting lives in Services/Updates/UpdateService;
+            // this VM only projects its state machine onto the UI.
+
+            Services.Updates.UpdateService.StateChanged +=
+                OnUpdateServiceStateChanged;
+
             CheckForUpdatesCommand = new RelayCommand(async _ =>
             {
+                if (IsCheckingUpdate) return;
+                IsCheckingUpdate = true;
                 UpdateStatus = "Checking for updates…";
 
                 var result = await Services.Updates.UpdateService
-                    .CheckForUpdateAsync();
+                    .CheckNowAsync();
 
                 _lastUpdateCheck = result;
 
-                if (!result.Success)
+                if (result.Success)
                 {
-                    UpdateStatus =
-                        $"Could not check for updates: {result.ErrorMessage}";
-                    Services.Updates.UpdateHistoryService.Record(
-                        Services.Updates.UpdateEventType.CheckFailed,
-                        "", "", result.ErrorMessage);
-                    LoadUpdateHistory();
-                    return;
+                    IsUpdateAvailable = result.UpdateAvailable;
+                    ApplyReleaseInfo(result);
+
+                    var checkedAt = Services.Updates.UpdateService
+                        .LastCheckUtc;
+                    LastCheckedDisplay = checkedAt.HasValue
+                        ? "Last checked: " + checkedAt.Value.ToLocalTime()
+                            .ToString("dd MMM yyyy • h:mm tt")
+                        : "";
+
+                    if (!result.UpdateAvailable)
+                        UpdateStatus =
+                            $"✓ You're up to date " +
+                            $"(v{Services.Updates.AppInfo.Version}).";
+                    // UpdateAvailable status text arrives via the
+                    // StateChanged handler ("🚀 Update available…").
+                }
+                else
+                {
+                    UpdateStatus = Services.Updates.UpdateService.State ==
+                        Services.Updates.UpdateState.Offline
+                        ? "No internet connection. Update check unavailable."
+                        : $"Could not check for updates: {result.ErrorMessage}";
                 }
 
-                IsUpdateAvailable = result.UpdateAvailable;
-                ApplyReleaseInfo(result);
-
-                UpdateStatus = result.UpdateAvailable
-                    ? $"Update available: v{result.LatestVersion}" +
-                      (string.IsNullOrEmpty(result.ReleaseName)
-                          ? "" : $" — {result.ReleaseName}")
-                    : $"You are on the latest version " +
-                      $"(v{Services.Updates.AppInfo.Version}).";
-
-                if (result.UpdateAvailable)
-                {
-                    Services.Updates.UpdateHistoryService.Record(
-                        Services.Updates.UpdateEventType.Detected,
-                        result.LatestVersion, result.ReleaseName);
-                }
+                IsCheckingUpdate = false;
                 LoadUpdateHistory();
             });
 
@@ -1135,9 +1236,10 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                 IsDownloadingUpdate = true;
                 UpdateDownloadProgress = 0;
+                UpdateStatus = "Downloading update…";
 
                 var (ok, path, error) = await Services.Updates.UpdateService
-                    .DownloadUpdateAsync(
+                    .DownloadNowAsync(
                         update,
                         progress => System.Windows.Application.Current
                             ?.Dispatcher.InvokeAsync(
@@ -1145,29 +1247,25 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                 IsDownloadingUpdate = false;
 
-                if (ok)
-                {
-                    UpdateStatus =
-                        $"Downloaded to {path}. Run the installer manually — " +
-                        "the app never replaces its own files.";
-
-                    Services.Updates.UpdateHistoryService.Record(
-                        Services.Updates.UpdateEventType.Downloaded,
-                        update.LatestVersion, update.ReleaseName, path);
-
-                    Services.Audit.AuditService.Log(
-                        Services.Audit.AuditSections.Settings,
-                        "Update downloaded",
-                        $"v{update.LatestVersion} → {path}");
-                }
-                else
-                {
+                if (!ok && string.IsNullOrEmpty(error))
+                    UpdateStatus = "Update cancelled.";
+                else if (!ok)
                     UpdateStatus = $"Download failed: {error}";
-                    Services.Updates.UpdateHistoryService.Record(
-                        Services.Updates.UpdateEventType.CheckFailed,
-                        update.LatestVersion, "", $"Download failed: {error}");
-                }
+
+                // Success status ("Update ready.") arrives via the
+                // StateChanged handler.
                 LoadUpdateHistory();
+            });
+
+            InstallUpdateCommand = new RelayCommand(_ =>
+            {
+                if (!Services.Updates.UpdateService.CanInstall) return;
+
+                UpdateStatus =
+                    "Launching installer — ProGlass will close so the " +
+                    "update can be applied. Your data stays safe.";
+
+                Services.Updates.UpdateService.InstallAndRestart();
             });
 
             // ── Backup commands ───────────────────────────────────────

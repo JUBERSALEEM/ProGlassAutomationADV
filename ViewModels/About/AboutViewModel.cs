@@ -91,6 +91,13 @@ public sealed class AboutViewModel : ViewModelBase
     public string Version { get; } =
         "v" + Services.Updates.AppInfo.Version;
 
+    /// <summary>
+    /// v3 OTA §25 — build label derived from the build artifact date.
+    /// Never hard-coded; comes from AppInfo (assembly identity).
+    /// </summary>
+    public string Build { get; } =
+        "Build " + Services.Updates.AppInfo.BuildLabel;
+
     // ══════════════════════════════════════════════════════════════════
     //  PRIVACY (v2) — plain-language data handling summary
     // ══════════════════════════════════════════════════════════════════

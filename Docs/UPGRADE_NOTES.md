@@ -630,3 +630,43 @@ immutable). New settings: StreamingEnabled, AutoSendVoice (both
 default true, serialize automatically). All structural checks pass
 (8/8 CS balanced with interpolation-aware scanner, all XAML parse).
 On-device build pending.
+
+---
+
+## 23. v2 Upgrade — Phase Batch 18: OTA foundation (spec-driven, no new packages)
+
+Professional OTA integration into the EXISTING update infrastructure —
+extended, nothing duplicated:
+
+Reused:
+- UpdateService (GitHub Releases check + download) — extended in place
+- UpdateHistoryService (deduplicated ledger) — extended with a persisted
+  last-check stamp for the once-per-day startup check
+- AppInfo (single identity source) — version now ASSEMBLY-derived
+- Settings Updates card, About version pill, AuditService, AppLogService,
+  ConnectivityService (offline detection)
+
+Added:
+- ProGlassAutomation.csproj: <Version>/<AssemblyVersion>/<FileVersion>
+  = ONE authoritative version source (spec §5); AppInfo resolves from
+  assembly with a safe fallback, plus BuildLabel for About.
+- UpdateState enum (Idle/Checking/UpToDate/UpdateAvailable/Downloading/
+  DownloadCompleted/Installing/Failed/Offline/Cancelled) + orchestrator
+  in UpdateService: CheckNowAsync, DownloadNowAsync, InstallAndRestart,
+  StartupCheckAsync, StateChanged event, progress + last-checked state.
+- AuditSections.Updates + audit entries: UPDATE_CHECK, UPDATE_AVAILABLE,
+  UPDATE_CHECK_FAILED, UPDATE_DOWNLOAD_COMPLETED/FAILED/CANCELLED,
+  UPDATE_INSTALL, UPDATE_INSTALL_FAILED (auto user/session metadata).
+- SettingsViewModel: state projection (UpdateStatus per state), new
+  IsUpdateReady/IsCheckingUpdate/LastCheckedDisplay, InstallUpdateCommand.
+- SettingsView card: last-checked stamp, Install & restart / Later row
+  (Success pill + on-accent text), download button auto-hides when ready.
+- About: Build pill (artifact date) next to the version pill.
+- App startup: async once-per-day update check (never blocks, §17/§18).
+- Docs/OTA.md (architecture, versioning, release commands, DB safety,
+  troubleshooting) + Docs/CI/release.yml tag-triggered release pipeline
+  template with a ready-to-enable Velopack block.
+
+Deliberately deferred until the first green on-device build: the
+Velopack NuGet dependency (in-app apply/restart + installer packaging).
+The orchestrator states already cover it; no UI changes will be needed.

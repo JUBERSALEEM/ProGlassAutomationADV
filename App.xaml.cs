@@ -284,6 +284,11 @@ namespace ProGlassAutomation
                 mainWindow.Topmost = true;
                 mainWindow.Topmost = false;
             });
+
+            // 15) v3 OTA §18 — daily background update check.
+            // Fully async + offline-safe; never delays or blocks
+            // startup, never affects normal operation (spec §17).
+            _ = Services.Updates.UpdateService.StartupCheckAsync();
         }
 
         // ══════════════════════════════════════════════════════════════

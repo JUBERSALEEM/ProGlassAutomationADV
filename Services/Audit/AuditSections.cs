@@ -25,5 +25,6 @@ namespace ProGlassAutomation.Services.Audit
         public const string Reports      = "Reports";
         public const string Settings     = "Settings";
         public const string Ai           = "AI Assistant";
+        public const string Updates      = "Updates";
     }
 }

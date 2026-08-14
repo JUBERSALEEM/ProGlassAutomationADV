@@ -329,9 +329,16 @@ Settings is organized as focused cards:
 
 ---
 
-# 🔄 Update System ✅
+# 🔄 Update System (OTA) ✅
 
-`UpdateService` performs OTA **checks** (current vs latest version, release notes, status) and keeps a de-duplicated update history. Updates never silently replace user data, and the application never self-replaces.
+Full state-driven OTA pipeline: **check → download → install & restart**, wired into Settings → Updates (current vs latest version, release notes, last-checked stamp, live progress) and backed by GitHub Releases as the public distribution source — no tokens in the app.
+
+- One authoritative version: `<Version>` in the `.csproj` → assembly → [`AppInfo`](Services/Updates/AppInfo.cs) → About / Settings / updater / installer
+- States: Idle · Checking · UpToDate · UpdateAvailable · Downloading · DownloadCompleted · Installing · Failed · Offline · Cancelled
+- Daily async startup check (never blocks startup; offline-safe)
+- Every operation lands in the Activity log (section **Updates**) + app log; de-duplicated on-screen history
+- User data under `%AppData%/ProGlassAutomation/` is never touched by updates
+- Release process: bump `<Version>` → commit → `git tag v2.0.1` → push tag → CI publishes the release — see [`Docs/OTA.md`](Docs/OTA.md)
 
 ---
 

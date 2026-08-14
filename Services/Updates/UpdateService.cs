@@ -10,8 +10,10 @@
 // user decides what to do with the downloaded installer (spec §34).
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Logging;
 using System;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net.Http;
@@ -25,6 +27,261 @@ namespace ProGlassAutomation.Services.Updates
     public static class UpdateService
     {
         private static readonly HttpClient _http = CreateClient();
+
+        // ══════════════════════════════════════════════════════════════
+        //  v3 OTA ORCHESTRATOR (spec §7 states + §13 activity + §17
+        //  offline + §18 automatic checking)
+        //
+        //  CheckNowAsync / DownloadNowAsync / InstallAndRestart wrap the
+        //  original low-level methods with lifecycle states, audit
+        //  entries and offline handling. The original methods stay
+        //  public for backward compatibility. Velopack (apply/restart
+        //  provider) plugs into these same states later.
+        // ══════════════════════════════════════════════════════════════
+
+        /// <summary>Current lifecycle state.</summary>
+        public static UpdateState State { get; private set; } = UpdateState.Idle;
+
+        /// <summary>Human-readable detail for the current state.</summary>
+        public static string StateDetail { get; private set; } = "";
+
+        /// <summary>Download progress 0–100 while Downloading.</summary>
+        public static int DownloadPercent { get; private set; }
+
+        /// <summary>When the last check ran (this session).</summary>
+        public static DateTime? LastCheckUtc { get; private set; }
+
+        /// <summary>Path of the downloaded installer (when ready).</summary>
+        public static string DownloadedInstallerPath { get; private set; } = "";
+
+        /// <summary>Raised on every state change (background thread).</summary>
+        public static event Action StateChanged;
+
+        /// <summary>True once a downloaded installer can be launched.</summary>
+        public static bool CanInstall =>
+            !string.IsNullOrEmpty(DownloadedInstallerPath) &&
+            File.Exists(DownloadedInstallerPath);
+
+        private static void SetState(UpdateState state, string detail = "")
+        {
+            State = state;
+            StateDetail = detail ?? "";
+            try { StateChanged?.Invoke(); } catch { }
+        }
+
+        private static bool IsOffline =>
+            App.Connectivity != null && !App.Connectivity.IsOnline;
+
+        /// <summary>
+        /// Full state-aware update check. Never throws; never blocks
+        /// the UI (callers await it asynchronously).
+        /// </summary>
+        public static async Task<UpdateCheckResult> CheckNowAsync()
+        {
+            if (IsOffline)
+            {
+                SetState(UpdateState.Offline,
+                    "No internet connection. Update check unavailable.");
+                return Fail("Offline — no internet connection.");
+            }
+
+            SetState(UpdateState.Checking);
+
+            var result = await CheckForUpdateAsync();
+            LastCheckUtc = DateTime.UtcNow;
+            UpdateHistoryService.StampCheckUtc();
+
+            if (!result.Success)
+            {
+                SetState(IsOffline ? UpdateState.Offline : UpdateState.Failed,
+                    result.ErrorMessage);
+                AuditService.Log(AuditSections.Updates,
+                    "UPDATE_CHECK_FAILED",
+                    Shorten(result.ErrorMessage));
+                return result;
+            }
+
+            if (result.UpdateAvailable)
+            {
+                SetState(UpdateState.UpdateAvailable, result.LatestVersion);
+                AuditService.Log(AuditSections.Updates,
+                    "UPDATE_AVAILABLE",
+                    $"v{AppInfo.Version} -> v{result.LatestVersion}");
+                UpdateHistoryService.Record(
+                    UpdateEventType.Detected,
+                    result.LatestVersion, result.ReleaseName);
+            }
+            else
+            {
+                SetState(UpdateState.UpToDate, result.LatestVersion);
+                AuditService.Log(AuditSections.Updates,
+                    "UPDATE_CHECK",
+                    $"Up to date (v{result.LatestVersion})");
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// State-aware download of the release asset. Progress is
+        /// reported via <paramref name="progress"/> AND DownloadPercent.
+        /// </summary>
+        public static async Task<(bool Success, string Path, string Error)>
+            DownloadNowAsync(
+                UpdateCheckResult update,
+                Action<int>? progress = null,
+                CancellationToken cancellationToken = default)
+        {
+            if (update == null)
+                return (false, "", "Nothing to download — check for updates first.");
+
+            if (string.IsNullOrWhiteSpace(update.DownloadUrl))
+            {
+                SetState(UpdateState.Failed,
+                    "This release has no downloadable asset.");
+                return (false, "", "This release has no downloadable asset.");
+            }
+
+            SetState(UpdateState.Downloading);
+            DownloadPercent = 0;
+
+            var (ok, path, error) = await DownloadUpdateAsync(
+                update,
+                p =>
+                {
+                    DownloadPercent = p;
+                    progress?.Invoke(p);
+                },
+                cancellationToken);
+
+            if (ok)
+            {
+                DownloadedInstallerPath = path;
+                SetState(UpdateState.DownloadCompleted, path);
+                AuditService.Log(AuditSections.Updates,
+                    "UPDATE_DOWNLOAD_COMPLETED",
+                    $"v{update.LatestVersion} -> {path}");
+                UpdateHistoryService.Record(
+                    UpdateEventType.Downloaded,
+                    update.LatestVersion, update.ReleaseName, path);
+            }
+            else if (cancellationToken.IsCancellationRequested)
+            {
+                SetState(UpdateState.Cancelled);
+                AuditService.Log(AuditSections.Updates,
+                    "UPDATE_DOWNLOAD_CANCELLED",
+                    $"v{update.LatestVersion}");
+            }
+            else
+            {
+                SetState(UpdateState.Failed, error);
+                AuditService.Log(AuditSections.Updates,
+                    "UPDATE_DOWNLOAD_FAILED",
+                    $"v{update.LatestVersion}: {Shorten(error)}");
+                AppLogService.Warning(
+                    $"Update download failed: {error}",
+                    new LogContext
+                    {
+                        Module = "Updates",
+                        Class = nameof(UpdateService),
+                        Operation = "Download"
+                    });
+            }
+
+            return (ok, path, error);
+        }
+
+        /// <summary>
+        /// Launches the downloaded installer and exits the app so the
+        /// installer can apply the update. User data under
+        /// %AppData%/ProGlassAutomation is NEVER touched (spec §19).
+        /// Full in-app apply-and-restart arrives with the Velopack
+        /// provider; until then the downloaded Setup.exe does the work.
+        /// </summary>
+        public static void InstallAndRestart()
+        {
+            if (!CanInstall)
+            {
+                SetState(UpdateState.Failed, "No downloaded update to install.");
+                return;
+            }
+
+            var path = DownloadedInstallerPath;
+
+            AuditService.Log(AuditSections.Updates,
+                "UPDATE_INSTALL", Path.GetFileName(path));
+
+            try
+            {
+                if (path.EndsWith(".exe",
+                        StringComparison.OrdinalIgnoreCase))
+                {
+                    Process.Start(new ProcessStartInfo(path)
+                    {
+                        UseShellExecute = true
+                    });
+
+                    // Give the installer a moment to start, then exit so
+                    // application files can be replaced safely.
+                    System.Windows.Application.Current?.Dispatcher
+                        .InvokeAsync(async () =>
+                        {
+                            await Task.Delay(800);
+                            System.Windows.Application.Current.Shutdown();
+                        });
+
+                    SetState(UpdateState.Installing, path);
+                }
+                else
+                {
+                    // Archive release: reveal it so the user can extract
+                    // and run Setup — the app still never self-replaces.
+                    Process.Start("explorer.exe", $"/select,\"{path}\"");
+                    SetState(UpdateState.DownloadCompleted,
+                        "Unzip the archive and run Setup to install.");
+                }
+            }
+            catch (Exception ex)
+            {
+                SetState(UpdateState.Failed, ex.Message);
+                AuditService.Log(AuditSections.Updates,
+                    "UPDATE_INSTALL_FAILED", Shorten(ex.Message));
+                AppLogService.Warning(
+                    $"Update install launch failed: {ex.Message}",
+                    new LogContext
+                    {
+                        Module = "Updates",
+                        Class = nameof(UpdateService),
+                        Operation = "Install"
+                    });
+            }
+        }
+
+        /// <summary>
+        /// Startup check (spec §18): fires once per ~day, fully async,
+        /// never delays or blocks application startup.
+        /// </summary>
+        public static async Task StartupCheckAsync()
+        {
+            try
+            {
+                // Let the app settle first — updates are never urgent
+                // enough to compete with startup work.
+                await Task.Delay(TimeSpan.FromSeconds(8));
+
+                var last = UpdateHistoryService.ReadLastCheckUtc();
+                if (last.HasValue &&
+                    DateTime.UtcNow - last.Value < TimeSpan.FromHours(20))
+                    return;
+
+                await CheckNowAsync();
+            }
+            catch { /* OTA must never affect the running app */ }
+        }
+
+        private static string Shorten(string s) =>
+            string.IsNullOrEmpty(s) ? "" :
+            (s.Length <= 200 ? s : s[..200] + "…");
 
         private static HttpClient CreateClient()
         {

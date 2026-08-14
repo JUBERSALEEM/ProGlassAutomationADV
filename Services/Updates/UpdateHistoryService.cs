@@ -50,6 +50,43 @@ namespace ProGlassAutomation.Services.Updates
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "ProGlassAutomation", "update-history.json");
 
+        private static string LastCheckPath => Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "ProGlassAutomation", "last-update-check.txt");
+
+        // ── v3 OTA §18: persisted "checked once per day" stamp ────────
+
+        /// <summary>Records that a check just happened (never throws).</summary>
+        public static void StampCheckUtc()
+        {
+            try
+            {
+                var dir = Path.GetDirectoryName(LastCheckPath);
+                if (!string.IsNullOrEmpty(dir) && !Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
+
+                File.WriteAllText(
+                    LastCheckPath, DateTime.UtcNow.ToString("o"));
+            }
+            catch { }
+        }
+
+        /// <summary>When the last check ran, or null when unknown.</summary>
+        public static DateTime? ReadLastCheckUtc()
+        {
+            try
+            {
+                if (!File.Exists(LastCheckPath)) return null;
+
+                var raw = File.ReadAllText(LastCheckPath).Trim();
+                return DateTime.TryParse(
+                    raw, null,
+                    System.Globalization.DateTimeStyles.RoundtripKind,
+                    out var d) ? d : null;
+            }
+            catch { return null; }
+        }
+
         /// <summary>
         /// Appends one event (newest first, capped).
         /// PROFESSIONAL BEHAVIOR: repeated identical checks do NOT grow

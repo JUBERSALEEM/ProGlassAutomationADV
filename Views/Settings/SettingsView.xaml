@@ -835,6 +835,11 @@
                                        Style="{StaticResource RowTitleStyle}"
                                        Margin="0,12,0,0"
                                        TextWrapping="Wrap"/>
+                            <!-- v3 OTA §8: last-checked stamp -->
+                            <TextBlock Text="{Binding LastCheckedDisplay}"
+                                       FontSize="10"
+                                       Margin="0,4,0,0"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
                             <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                                 <Button Content="🔍  Check for updates"
                                         Command="{Binding CheckForUpdatesCommand}"
@@ -865,6 +870,11 @@
                                                 <DataTrigger Binding="{Binding IsUpdateAvailable}" Value="True">
                                                     <Setter Property="Visibility" Value="Visible"/>
                                                 </DataTrigger>
+                                                <!-- hidden again once the
+                                                     download is ready -->
+                                                <DataTrigger Binding="{Binding IsUpdateReady}" Value="True">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
                                     </Button.Style>
@@ -882,6 +892,50 @@
                                     </Button.Template>
                                 </Button>
                             </StackPanel>
+
+                            <!-- ═══════════════════════════════════════
+                                 v3 OTA §8: READY STATE
+                                 Install & restart / later — appears only
+                                 once the download has completed.
+                            ════════════════════════════════════════ -->
+                            <StackPanel Orientation="Horizontal"
+                                        Margin="0,10,0,0">
+                                <StackPanel.Style>
+                                    <Style TargetType="StackPanel">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsUpdateReady}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </StackPanel.Style>
+                                <Button Content="🚀  Install &amp; restart"
+                                        Command="{Binding InstallUpdateCommand}"
+                                        Cursor="Hand"
+                                        Padding="14,8"
+                                        BorderThickness="0">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{DynamicResource SuccessBrush}"
+                                                    CornerRadius="999"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                  VerticalAlignment="Center"
+                                                                  TextElement.Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                                  TextElement.FontWeight="SemiBold"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                                <TextBlock Text="…or install later — the file stays in your Downloads folder."
+                                           FontSize="10"
+                                           Margin="12,0,0,0"
+                                           VerticalAlignment="Center"
+                                           TextWrapping="Wrap"
+                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                            </StackPanel>
+
                             <!-- Mode=OneWay: UpdateDownloadProgress is
                                  read-only from XAML's perspective
                                  (private setter) — TwoWay would throw
