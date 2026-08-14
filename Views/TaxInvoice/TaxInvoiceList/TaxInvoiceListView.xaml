@@ -466,7 +466,7 @@
                 <hero:GradientHeroCard Grid.Column="0"
                     Icon="💰" Value="{Binding HeroCard1Value}"
                     Label="{Binding HeroCard1Label}"
-                    GradientStartColor="#047857" GradientEndColor="#10B981"
+                    GradientStartColor="#1E40AF" GradientEndColor="#3B82F6"
                     Margin="4" MinHeight="92"/>
 
                 <hero:GradientHeroCard Grid.Column="1"
@@ -484,7 +484,7 @@
                 <hero:GradientHeroCard Grid.Column="3"
                     Icon="✅" Value="{Binding HeroCard4Value}"
                     Label="{Binding HeroCard4Label}"
-                    GradientStartColor="#047857" GradientEndColor="#34D399"
+                    GradientStartColor="#1D4ED8" GradientEndColor="#60A5FA"
                     Margin="4" MinHeight="92"/>
 
                 <hero:GradientHeroCard Grid.Column="4"

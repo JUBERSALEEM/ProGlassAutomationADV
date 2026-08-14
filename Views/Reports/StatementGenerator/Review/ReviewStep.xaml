@@ -88,15 +88,15 @@
                         <Setter Property="Background">
                             <Setter.Value>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                    <GradientStop Color="#047857" Offset="0"/>
-                                    <GradientStop Color="#10B981" Offset="1"/>
+                                    <GradientStop Color="#1D4ED8" Offset="0"/>
+                                    <GradientStop Color="#3B82F6" Offset="1"/>
                                 </LinearGradientBrush>
                             </Setter.Value>
                         </Setter>
                         <Setter Property="Effect">
                             <Setter.Value>
                                 <DropShadowEffect BlurRadius="20" ShadowDepth="4"
-                                                  Opacity="0.15" Color="#047857"/>
+                                                  Opacity="0.15" Color="#1D4ED8"/>
                             </Setter.Value>
                         </Setter>
                         <Style.Triggers>
@@ -210,8 +210,8 @@
                                 Padding="24,20">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#047857" Offset="0"/>
-                                    <GradientStop Color="#10B981" Offset="1"/>
+                                    <GradientStop Color="#1D4ED8" Offset="0"/>
+                                    <GradientStop Color="#3B82F6" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
                             <StackPanel Orientation="Horizontal">
@@ -315,13 +315,13 @@
                                     <Border x:Name="bd" CornerRadius="12">
                                         <Border.Background>
                                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                <GradientStop Color="#047857" Offset="0"/>
-                                                <GradientStop Color="#10B981" Offset="1"/>
+                                                <GradientStop Color="#1D4ED8" Offset="0"/>
+                                                <GradientStop Color="#3B82F6" Offset="1"/>
                                             </LinearGradientBrush>
                                         </Border.Background>
                                         <Border.Effect>
                                             <DropShadowEffect BlurRadius="10" ShadowDepth="3"
-                                                              Opacity="0.3" Color="#047857"/>
+                                                              Opacity="0.3" Color="#1D4ED8"/>
                                         </Border.Effect>
                                         <StackPanel Orientation="Horizontal"
                                                     HorizontalAlignment="Center"
@@ -442,8 +442,8 @@
                                                                 <Setter Property="Background">
                                                                     <Setter.Value>
                                                                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                                            <GradientStop Color="#047857" Offset="0"/>
-                                                                            <GradientStop Color="#10B981" Offset="1"/>
+                                                                            <GradientStop Color="#1D4ED8" Offset="0"/>
+                                                                            <GradientStop Color="#3B82F6" Offset="1"/>
                                                                         </LinearGradientBrush>
                                                                     </Setter.Value>
                                                                 </Setter>

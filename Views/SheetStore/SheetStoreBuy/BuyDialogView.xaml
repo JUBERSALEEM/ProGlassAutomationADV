@@ -103,7 +103,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg"
-                                Background="#047857"
+                                Background="{DynamicResource SuccessBrush}"
                                 CornerRadius="8"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
@@ -224,7 +224,7 @@
                                  BorderThickness="0" Margin="8,0"/>
                         <Button Grid.Column="2" Content="+"
                                 Style="{StaticResource QtyButtonStyle}"
-                                Background="#047857"
+                                Background="{DynamicResource SuccessBrush}"
                                 Command="{Binding IncreaseCommand}"/>
                     </Grid>
                 </StackPanel>

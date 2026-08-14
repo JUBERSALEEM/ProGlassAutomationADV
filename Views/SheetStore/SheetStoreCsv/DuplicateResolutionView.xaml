@@ -258,7 +258,7 @@
                     Command="{Binding SkipCommand}"/>
 
             <Button Grid.Column="1" Style="{StaticResource ActionBtn}"
-                    Background="#047857" Content="+ Add to Stock"
+                    Background="{DynamicResource SuccessBrush}" Content="+ Add to Stock"
                     ToolTip="Add incoming stock to existing (keeps prices)"
                     Command="{Binding AddToStockCommand}"/>
 

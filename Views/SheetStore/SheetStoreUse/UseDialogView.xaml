@@ -97,7 +97,7 @@
                                  Foreground="{DynamicResource PrimaryForegroundBrush}"
                                  BorderThickness="0" Margin="8,0"/>
                         <Button Grid.Column="2" Content="+" FontSize="22" FontWeight="Bold"
-                                Height="44" Background="#10B981" Foreground="White"
+                                Height="44" Background="{DynamicResource AccentBrush}" Foreground="White"
                                 BorderThickness="0" Cursor="Hand"
                                 Command="{Binding IncreaseCommand}"/>
                     </Grid>

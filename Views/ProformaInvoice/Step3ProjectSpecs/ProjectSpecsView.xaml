@@ -674,7 +674,7 @@ CHAT 17 — UI POLISH + BUG FIXES
                     </Style>
                 </Border.Style>
                 <StackPanel Orientation="Horizontal">
-                    <Border Background="#047857"
+                    <Border Background="{DynamicResource SuccessBrush}"
                             Width="20"
                             Height="20"
                             CornerRadius="10"

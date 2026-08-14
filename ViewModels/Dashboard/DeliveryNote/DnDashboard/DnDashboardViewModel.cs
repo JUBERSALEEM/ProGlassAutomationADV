@@ -260,7 +260,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
             {
                 (Label: "Draft",      Key: StatusDraft,      BarColor: "#6B7280"),
                 (Label: "Dispatched", Key: StatusDispatched, BarColor: "#F59E0B"),
-                (Label: "Delivered",  Key: StatusDelivered,  BarColor: "#22C55E"),
+                (Label: "Delivered",  Key: StatusDelivered,  BarColor: "#3B82F6"),
                 (Label: "Signed",     Key: StatusSigned,     BarColor: "#3B82F6"),
                 (Label: "Received",   Key: StatusReceived,   BarColor: "#8B5CF6"),
             };

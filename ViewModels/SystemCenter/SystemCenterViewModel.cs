@@ -351,6 +351,13 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
             get => _selectedSectionFilter;
             set
             {
+                // Guard: ComboBox rebinding (ItemsSource refresh) can
+                // re-fire the setter — ignore no-op/null writes so we
+                // never trigger a reload loop.
+                if (string.IsNullOrEmpty(value) ||
+                    _selectedSectionFilter == value)
+                    return;
+
                 _selectedSectionFilter = value;
                 OnPropertyChanged();
                 LoadActivityAsync();

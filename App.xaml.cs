@@ -109,21 +109,26 @@ namespace ProGlassAutomation
             // 0) Technical logging first — everything after can report here.
             AppLogService.Initialize();
 
-            // ── Global unhandled exception catcher (debug + v2 crash log) ──
+            // ── Global unhandled exception catcher ──────────────────────
+            // Writes a FULL crash report (logs\crash-latest.txt) and shows
+            // a user-safe dialog with the ErrorId, so any crash can be
+            // diagnosed without guessing.
             DispatcherUnhandledException += (s, args) =>
             {
-                // Full technical record with an ErrorId for support.
                 string errorId = AppLogService.Critical(
                     "Unhandled UI exception", args.Exception,
                     new LogContext { Operation = "UnhandledException" });
+
+                WriteCrashReport(errorId, args.Exception);
 
                 string msg =
                     $"Something went wrong.\n\n" +
                     $"Error ID: {errorId}\n" +
                     $"Type:    {args.Exception.GetType().Name}\n" +
                     $"Message: {args.Exception.Message}\n\n" +
-                    "The full technical details were written to the " +
-                    "application log (Settings → Diagnostics).";
+                    "Full technical details were saved to:\n" +
+                    $"{CrashReportPath}\n\n" +
+                    "Share that file (or the Error ID) with support.";
 
                 MessageBox.Show(msg, "ProGlass — Error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
@@ -407,6 +412,61 @@ namespace ProGlassAutomation
                     $"[App] {engineName} init exception: " +
                     $"{ex.GetType().Name}: {ex.Message}");
                 return null;
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  CRASH REPORT — full technical dump for diagnosis
+        // ══════════════════════════════════════════════════════════════
+
+        private static string CrashReportPath => System.IO.Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "ProGlassAutomation", "logs", "crash-latest.txt");
+
+        /// <summary>
+        /// Writes a complete crash report (exception chain + stack +
+        /// environment) so any crash can be diagnosed from the file alone.
+        /// Never throws — a failure here must not mask the original error.
+        /// </summary>
+        private static void WriteCrashReport(string errorId, Exception root)
+        {
+            try
+            {
+                var dir = System.IO.Path.GetDirectoryName(CrashReportPath)!;
+                if (!System.IO.Directory.Exists(dir))
+                    System.IO.Directory.CreateDirectory(dir);
+
+                var sb = new System.Text.StringBuilder();
+                sb.AppendLine("═══════════════════════════════════════════════════════");
+                sb.AppendLine(" ProGlass Automation — crash report");
+                sb.AppendLine("═══════════════════════════════════════════════════════");
+                sb.AppendLine($"Error ID : {errorId}");
+                sb.AppendLine($"Time     : {DateTime.Now:yyyy-MM-dd HH:mm:ss.fff}");
+                sb.AppendLine($"Version  : {Services.Updates.AppInfo.Version}");
+                sb.AppendLine($"User     : {Services.Audit.AuditService.CurrentUsername}");
+                sb.AppendLine($"Session  : {Services.Audit.AuditService.SessionId}");
+                sb.AppendLine($"OS       : {Environment.OSVersion}");
+                sb.AppendLine(".NET     : " + Environment.Version);
+                sb.AppendLine();
+
+                var current = root;
+                int depth = 0;
+                while (current != null && depth < 6)
+                {
+                    if (depth > 0) sb.AppendLine("── caused by ──");
+                    sb.AppendLine($"[{depth}] {current.GetType().FullName}");
+                    sb.AppendLine($"    Message : {current.Message}");
+                    if (!string.IsNullOrEmpty(current.StackTrace))
+                        sb.AppendLine("    Stack   :\n" + current.StackTrace);
+                    current = current.InnerException;
+                    depth++;
+                }
+
+                System.IO.File.WriteAllText(CrashReportPath, sb.ToString());
+            }
+            catch
+            {
+                // Reporting failure must never propagate.
             }
         }
 

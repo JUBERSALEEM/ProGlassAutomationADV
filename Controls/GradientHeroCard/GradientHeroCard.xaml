@@ -12,8 +12,10 @@
             ClipToBounds="True">
         <Border.Background>
             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                <GradientStop Color="#0F4C3A" Offset="0"/>
-                <GradientStop Color="#22C55E" Offset="1"/>
+                <!-- v2 default: brand blue (was green) — callers can
+                     still override via GradientStart/EndColor. -->
+                <GradientStop Color="#1E3A8A" Offset="0"/>
+                <GradientStop Color="#3B82F6" Offset="1"/>
             </LinearGradientBrush>
         </Border.Background>
 

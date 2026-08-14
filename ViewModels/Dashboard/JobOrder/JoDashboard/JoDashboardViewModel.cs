@@ -223,7 +223,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
                 (Label: "Draft",         Key: StatusDraft,        BarColor: "#6B7280"),
                 (Label: "Released",      Key: StatusReleased,     BarColor: "#3B82F6"),
                 (Label: "In Production", Key: StatusInProduction, BarColor: "#F59E0B"),
-                (Label: "Completed",     Key: StatusCompleted,    BarColor: "#22C55E"),
+                (Label: "Completed",     Key: StatusCompleted,    BarColor: "#3B82F6"),
                 (Label: "Delivered",     Key: StatusDelivered,    BarColor: "#8B5CF6"),
             };
 
@@ -250,7 +250,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
             {
                 (Label: "High",   Key: PriorityHigh,   BarColor: "#EF4444"),
                 (Label: "Medium", Key: PriorityMedium, BarColor: "#F59E0B"),
-                (Label: "Low",    Key: PriorityLow,    BarColor: "#22C55E"),
+                (Label: "Low",    Key: PriorityLow,    BarColor: "#60A5FA"),
             };
 
             double priorityMax = total == 0 ? 1d : (double)total;

@@ -69,7 +69,7 @@
 
                 <!-- Delivered -->
                 <Border Grid.Column="0"
-                        Background="#047857"
+                        Background="{DynamicResource SuccessBrush}"
                         CornerRadius="10"
                         Padding="12,10">
                     <StackPanel>

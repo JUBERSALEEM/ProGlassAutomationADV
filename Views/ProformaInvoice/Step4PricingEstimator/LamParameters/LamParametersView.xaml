@@ -117,7 +117,7 @@
 
             <!-- ── Section header — green icon + title ── -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                <Border Background="#ECFDF5"
+                <Border Background="{DynamicResource TintGreenBrush}"
                         Width="26" Height="26"
                         CornerRadius="8"
                         VerticalAlignment="Center"
@@ -138,8 +138,8 @@
             </StackPanel>
 
             <!-- ── Live spec name preview — green tint chip ── -->
-            <Border Background="#ECFDF5"
-                    BorderBrush="#A7F3D0"
+            <Border Background="{DynamicResource TintGreenBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="1"
                     CornerRadius="10"
                     Padding="14,10"

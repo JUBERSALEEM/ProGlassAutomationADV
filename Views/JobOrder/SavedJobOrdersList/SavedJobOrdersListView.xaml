@@ -171,7 +171,7 @@
                         SnapsToDevicePixels="True">
                     <StackPanel>
                         <Border Width="40" Height="40" CornerRadius="10"
-                                Background="#047857"
+                                Background="{DynamicResource SuccessBrush}"
                                 HorizontalAlignment="Left">
                             <TextBlock Text="✅" FontSize="20"
                                        HorizontalAlignment="Center"
@@ -313,9 +313,56 @@
              Handles 10,000+ rows smoothly via UI virtualization
         ═══════════════════════════════════════════════════════════════ -->
         <Grid Grid.Row="1" Margin="32,0,32,16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- ── COLUMN HEADERS (v2 — always visible, even when the
+                 list is empty, so users know what each column means) ── -->
+            <Border Grid.Row="0"
+                    Background="{DynamicResource MenuHoverBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1,1,1,0"
+                    CornerRadius="10,10,0,0"
+                    Padding="18,9"
+                    Margin="0,0,0,0"
+                    SnapsToDevicePixels="True">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="130"/>
+                        <ColumnDefinition Width="110"/>
+                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="95"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="JOB ORDER  •  CUSTOMER  •  DELIVERY  •  PROJECT"
+                               FontSize="10" FontWeight="Bold"
+                               Foreground="{DynamicResource MutedForegroundBrush}"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1" Text="VALUE (AED)"
+                               FontSize="10" FontWeight="Bold"
+                               Foreground="{DynamicResource MutedForegroundBrush}"
+                               HorizontalAlignment="Right" VerticalAlignment="Center"
+                               Margin="0,0,18,0"/>
+                    <TextBlock Grid.Column="2" Text="STATUS"
+                               FontSize="10" FontWeight="Bold"
+                               Foreground="{DynamicResource MutedForegroundBrush}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="3" Text="PRIORITY"
+                               FontSize="10" FontWeight="Bold"
+                               Foreground="{DynamicResource MutedForegroundBrush}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="4" Text="ACTION"
+                               FontSize="10" FontWeight="Bold"
+                               Foreground="{DynamicResource MutedForegroundBrush}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Grid>
+            </Border>
 
             <!-- Virtualized ListBox — item recycling, smooth scroll -->
-            <ListBox ItemsSource="{Binding DisplayedJobs}"
+            <ListBox Grid.Row="1"
+                     ItemsSource="{Binding DisplayedJobs}"
                      ItemContainerStyle="{StaticResource JobListBoxItemStyle}"
                      BorderThickness="0"
                      Background="Transparent"
@@ -468,7 +515,8 @@
             </ListBox>
 
             <!-- ── EMPTY STATE (overlaid on top when list is empty) ───── -->
-            <StackPanel HorizontalAlignment="Center"
+            <StackPanel Grid.Row="1"
+                        HorizontalAlignment="Center"
                         VerticalAlignment="Center"
                         Margin="0,50"
                         IsHitTestVisible="False">

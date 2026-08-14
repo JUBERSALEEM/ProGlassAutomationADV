@@ -282,9 +282,9 @@
                     </Grid>
                 </Border>
 
-                <!-- Card 3 — TOTAL VALUE — solid green -->
+                <!-- Card 3 — TOTAL VALUE — v2: brand blue (was green) -->
                 <Border Style="{StaticResource StatCardStyle}"
-                        Background="#047857"
+                        Background="{DynamicResource AccentBrush}"
                         MinWidth="220"
                         ClipToBounds="True">
                     <Grid>

@@ -23,8 +23,6 @@
 using System;
 using System.Runtime.InteropServices;
 using System.Windows;
-using System.Windows.Media;
-using System.Windows.Media.Animation;
 
 namespace ProGlassAutomation.Services.Performance
 {
@@ -240,36 +238,13 @@ namespace ProGlassAutomation.Services.Performance
             resources["MotionDurationSlow"] =
                 new Duration(TimeSpan.FromMilliseconds(380 * ratio));
 
-            // Hint WPF storyboards to render at the panel's real rate.
-            // Without this, WPF caps most animations near 60 fps even on
-            // 144/165 Hz displays.
-            ConfigureStoryboardFrameRate(TargetFps);
-        }
-
-        /// <summary>
-        /// Applies a global DesiredFrameRate default to all timelines.
-        /// Wrapped defensively — metadata override can only run once
-        /// per type per app-domain, so we guard with a flag.
-        /// </summary>
-        private static bool _frameRateConfigured;
-
-        private static void ConfigureStoryboardFrameRate(int fps)
-        {
-            if (_frameRateConfigured) return;
-
-            try
-            {
-                Timeline.DesiredFrameRateProperty.OverrideMetadata(
-                    typeof(Timeline),
-                    new FrameworkPropertyMetadata((int?)fps));
-
-                _frameRateConfigured = true;
-            }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine(
-                    $"[Performance] FrameRate override skipped: {ex.Message}");
-            }
+            // NOTE: an earlier revision globally overrode
+            // Timeline.DesiredFrameRateProperty metadata here. That
+            // touched WPF's internal animation plumbing for EVERY
+            // timeline (including framework popups/dropdowns) and was
+            // rolled back — stability beats a speculative micro-gain.
+            // High-refresh smoothness now comes from the scaled
+            // MotionDuration tokens above, which XAML consumes safely.
         }
     }
 }

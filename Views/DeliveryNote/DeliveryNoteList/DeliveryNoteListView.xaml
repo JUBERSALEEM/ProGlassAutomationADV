@@ -133,7 +133,7 @@
                      Converter={StaticResource BoolToVisibilityConverter}}">
                                 <TextBlock Text="{Binding InvoicedBadgeText}"
                FontSize="9" FontWeight="Bold"
-               Foreground="#047857"/>
+               Foreground="{DynamicResource SuccessBrush}"/>
                             </Border>
 
                             <!-- CHAT 19 INVOICED: Partial Invoice badge — indigo
@@ -256,7 +256,7 @@
                                  FontWeight="SemiBold"/>
                             <Run Text=" ord · "/>
                             <Run Text="{Binding TotalDelivered, Mode=OneWay}"
-                                 FontWeight="SemiBold" Foreground="#047857"/>
+                                 FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}"/>
                             <Run Text=" del · "/>
                             <Run Text="{Binding TotalBalance, Mode=OneWay}"
                                  FontWeight="SemiBold" Foreground="#B45309"/>
@@ -274,7 +274,7 @@
     <Run Text=" ord · "/>
     <Run Text="{Binding TotalDeliveredSqm, Mode=OneWay,
                 StringFormat={}{0:0.000}}"
-         FontWeight="SemiBold" Foreground="#047857"/>
+         FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}"/>
     <Run Text=" del · "/>
     <Run Text="{Binding TotalBalanceSqm, Mode=OneWay,
                 StringFormat={}{0:0.000}}"
@@ -358,10 +358,10 @@
                                             CornerRadius="7" Padding="0,8"
                                             BorderThickness="1.5"
                                             Background="{DynamicResource TintGreenBrush}"
-                                            BorderBrush="#047857">
+                                            BorderBrush="{DynamicResource SuccessBrush}">
                                         <TextBlock Text="🧾  Master Invoice"
                                                    FontSize="10" FontWeight="Bold"
-                                                   Foreground="#047857"
+                                                   Foreground="{DynamicResource SuccessBrush}"
                                                    HorizontalAlignment="Center"/>
                                     </Border>
                                     <ControlTemplate.Triggers>
@@ -714,7 +714,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Width="36" Height="36"
-                                CornerRadius="9" Background="#047857"
+                                CornerRadius="9" Background="{DynamicResource AccentBrush}"
                                 VerticalAlignment="Center">
                             <TextBlock Text="{Binding HeroCard5Icon}"
                                        FontSize="17"

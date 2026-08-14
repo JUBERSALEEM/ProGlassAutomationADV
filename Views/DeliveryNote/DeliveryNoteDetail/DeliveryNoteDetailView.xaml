@@ -822,7 +822,7 @@
                             Background="{DynamicResource TintGreenBrush}">
                         <TextBlock Text="{Binding Status}"
                                    FontSize="10" FontWeight="Bold"
-                                   Foreground="#047857"/>
+                                   Foreground="{DynamicResource SuccessBrush}"/>
                     </Border>
                 </StackPanel>
 
@@ -840,7 +840,7 @@
                         <Button Content="🚚  Make DN"
                                 Command="{Binding MakeDnCommand}"
                                 Style="{StaticResource ActionButtonStyle}"
-                                Background="#047857"
+                                Background="{DynamicResource SuccessBrush}"
                                 Margin="0,0,12,0"/>
                         <Border Width="1" Margin="0,4,12,4"
                                 Background="{DynamicResource BorderBrush}"/>
@@ -854,9 +854,9 @@
                         <Button Content="📊  Excel"
                                 Command="{Binding ExportExcelCommand}"
                                 Style="{StaticResource ExportButtonStyle}"
-                                Background="#ECFDF5"
-                                BorderBrush="#047857"
-                                Foreground="#047857"
+                                Background="{DynamicResource TintGreenBrush}"
+                                BorderBrush="{DynamicResource SuccessBrush}"
+                                Foreground="{DynamicResource SuccessBrush}"
                                 Margin="0,0,6,0"/>
                         <Button Content="📋  CSV"
                                 Command="{Binding ExportCsvCommand}"
@@ -1053,10 +1053,10 @@
                                             HorizontalAlignment="Center">
                                     <TextBlock Text="{Binding TotalDeliveredQty}"
                                                Style="{StaticResource CompactStatNumberStyle}"
-                                               Foreground="#047857"/>
+                                               Foreground="{DynamicResource SuccessBrush}"/>
                                     <TextBlock Text=" pcs"
                                                Style="{StaticResource CompactStatUnitStyle}"
-                                               Foreground="#047857" Opacity="0.75"/>
+                                               Foreground="{DynamicResource SuccessBrush}" Opacity="0.75"/>
                                 </StackPanel>
                                 <TextBlock Style="{StaticResource ThisDnLabelStyle}"/>
                             </StackPanel>
@@ -1314,8 +1314,9 @@
                     <Border Grid.Row="0" Style="{StaticResource MasterHeroStripStyle}">
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#047857" Offset="0"/>
-                                <GradientStop Color="#10B981" Offset="1"/>
+                                <!-- v2: brand blue hero (was green) -->
+                                <GradientStop Color="#1E3A8A" Offset="0"/>
+                                <GradientStop Color="#3B82F6" Offset="1"/>
                             </LinearGradientBrush>
                         </Border.Background>
                         <Grid>
@@ -1860,7 +1861,7 @@
                                                             </Border>
                                                             <Border CornerRadius="4" Padding="7,2"
                                                                     Margin="6,0,0,0"
-                                                                    Background="#047857"
+                                                                    Background="{DynamicResource SuccessBrush}"
                                                                     VerticalAlignment="Center"
                                                                     Visibility="{Binding IsCurrentDn,
                                                                         Converter={StaticResource BoolToVisibilityConverter}}">
@@ -1892,7 +1893,7 @@
             Converter={StaticResource BoolToVisibilityConverter}}">
                                                                 <TextBlock Text="{Binding InvoicedBadgeText, Mode=OneWay}"
                FontSize="9" FontWeight="Bold"
-               Foreground="#047857"/>
+               Foreground="{DynamicResource SuccessBrush}"/>
                                                             </Border>
                                                         </StackPanel>
 
@@ -1906,7 +1907,7 @@
                                                         <TextBlock Text="You are editing this delivery note"
                                                                    FontSize="10" FontStyle="Italic"
                                                                    FontWeight="SemiBold"
-                                                                   Foreground="#047857"
+                                                                   Foreground="{DynamicResource SuccessBrush}"
                                                                    Margin="0,4,0,0"
                                                                    Visibility="{Binding IsCurrentDn,
                                                                        Converter={StaticResource BoolToVisibilityConverter}}"/>
@@ -1998,10 +1999,10 @@
                                                                     HorizontalAlignment="Center">
                                                             <TextBlock Text="THIS DN"
                                                                        Style="{StaticResource CumulativeLabelStyle}"
-                                                                       Foreground="#047857"/>
+                                                                       Foreground="{DynamicResource SuccessBrush}"/>
                                                             <TextBlock Text="{Binding DeliveredQty, Mode=OneWay}"
                                                                        Style="{StaticResource CumulativeValueStyle}"
-                                                                       Foreground="#047857"/>
+                                                                       Foreground="{DynamicResource SuccessBrush}"/>
                                                         </StackPanel>
                                                         <Border Grid.Column="5"
                                                                 Style="{StaticResource CumulativeSeparatorStyle}"/>
@@ -2048,7 +2049,7 @@
                                 <TextBlock Text="{Binding HistoryTotalDelivered}"
                                            FontSize="18" FontWeight="Bold"
                                            HorizontalAlignment="Center"
-                                           Foreground="#047857"/>
+                                           Foreground="{DynamicResource SuccessBrush}"/>
                                 <TextBlock Text="Delivered" FontSize="10"
                                            HorizontalAlignment="Center"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>

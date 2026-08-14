@@ -50,7 +50,7 @@
         <SolidColorBrush x:Key="IndigoLight" Color="#EEF2FF" po:Freeze="True"/>
         <SolidColorBrush x:Key="VioletAccent" Color="#8B5CF6" po:Freeze="True"/>
         <SolidColorBrush x:Key="CyanAccent" Color="#06B6D4" po:Freeze="True"/>
-        <SolidColorBrush x:Key="EmeraldAccent" Color="#10B981" po:Freeze="True"/>
+        <SolidColorBrush x:Key="EmeraldAccent" Color="#3B82F6" po:Freeze="True"/>
 
         <SolidColorBrush x:Key="TextPrimary" Color="#0F172A" po:Freeze="True"/>
         <SolidColorBrush x:Key="TextSecondary" Color="#475569" po:Freeze="True"/>
@@ -107,7 +107,7 @@
 
         <RadialGradientBrush x:Key="GreenLed" po:Freeze="True">
             <GradientStop Color="#34D399" Offset="0"/>
-            <GradientStop Color="#10B981" Offset="1"/>
+            <GradientStop Color="#3B82F6" Offset="1"/>
         </RadialGradientBrush>
 
         <!-- ══════════════════════════════════════════════════════════
@@ -145,7 +145,7 @@
 
         <DropShadowEffect x:Key="GreenLedGlow"
                           BlurRadius="8" ShadowDepth="0"
-                          Opacity="0.6" Color="#10B981"
+                          Opacity="0.6" Color="#3B82F6"
                           po:Freeze="True"/>
 
         <DropShadowEffect x:Key="OptionCardHoverShadow"

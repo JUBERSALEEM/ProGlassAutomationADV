@@ -925,8 +925,8 @@ PRESERVED EXACTLY:
                                     </Border>
 
                                     <!-- SURCHARGE RATE — live green badge -->
-                                    <Border Background="#ECFDF5"
-                                            BorderBrush="#A7F3D0"
+                                    <Border Background="{DynamicResource TintGreenBrush}"
+                                            BorderBrush="{DynamicResource BorderBrush}"
                                             BorderThickness="1"
                                             CornerRadius="8"
                                             Padding="12,7">

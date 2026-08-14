@@ -49,8 +49,8 @@
     <LinearGradientBrush x:Key="SuccessGradient"
                          StartPoint="0,0" EndPoint="1,0"
                          po:Freeze="True">
-        <GradientStop Color="#047857" Offset="0"/>
-        <GradientStop Color="#10B981" Offset="1"/>
+        <GradientStop Color="#1D4ED8" Offset="0"/>
+        <GradientStop Color="#3B82F6" Offset="1"/>
     </LinearGradientBrush>
 
     <!-- Card header gradient (deep indigo→purple) -->
@@ -75,7 +75,7 @@
 
     <DropShadowEffect x:Key="SuccessButtonShadow"
                       BlurRadius="8" ShadowDepth="2"
-                      Opacity="0.25" Color="#047857"
+                      Opacity="0.25" Color="#1D4ED8"
                       po:Freeze="True"/>
 
     <DropShadowEffect x:Key="ToolTipShadow"

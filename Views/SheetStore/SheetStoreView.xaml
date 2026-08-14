@@ -187,7 +187,7 @@
                             ToolTip="Export current view to CSV"
                             Command="{Binding ExportCsvCommand}"/>
                     <Button Content="📊 Excel" Style="{StaticResource HeaderActionBtn}"
-                            Background="#047857" Foreground="White"
+                            Background="{DynamicResource SuccessBrush}" Foreground="White"
                             ToolTip="Export current view to formatted Excel (.xlsx)"
                             Command="{Binding ExportExcelCommand}"/>
                     <Button Content="📄 PDF" Style="{StaticResource HeaderActionBtn}"
@@ -418,8 +418,9 @@
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="1"
                     CornerRadius="10,10,0,0" Padding="12,10" Margin="8,0,8,0"
-                    SnapsToDevicePixels="True"
-                    Visibility="{Binding HasSheets, Converter={StaticResource BoolToVisibilityConverter}}">
+                    SnapsToDevicePixels="True">
+                    <!-- v2: header stays visible even when the list is
+                         empty — users must always see the columns. -->
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="40"/>
@@ -447,8 +448,8 @@
                     <TextBlock Grid.Column="6" Text="SQM" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Right"/>
                     <TextBlock Grid.Column="7" Text="BUY/SQM" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Right"/>
                     <TextBlock Grid.Column="8" Text="SELL/SQM" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Right"/>
-                    <TextBlock Grid.Column="9" Text="TOTAL BUY" FontSize="10" FontWeight="Bold" Foreground="#B91C1C" HorizontalAlignment="Right"/>
-                    <TextBlock Grid.Column="10" Text="TOTAL SELL" FontSize="10" FontWeight="Bold" Foreground="#047857" HorizontalAlignment="Right"/>
+                    <TextBlock Grid.Column="9" Text="TOTAL BUY" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Right"/>
+                    <TextBlock Grid.Column="10" Text="TOTAL SELL" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Right"/>
                     <TextBlock Grid.Column="11" Text="STOCK" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center"/>
                     <TextBlock Grid.Column="12" Text="USED" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center"/>
                     <TextBlock Grid.Column="13" Text="BAL" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center"/>
@@ -540,25 +541,25 @@
                                                FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                     <TextBlock Grid.Column="9" Text="{Binding TotalPurchaseValue, StringFormat={}{0:N0}}"
-                                               FontSize="12" FontWeight="Bold" Foreground="#B91C1C"
+                                               FontSize="12" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}"
                                                VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                     <TextBlock Grid.Column="10" Text="{Binding TotalSellValue, StringFormat={}{0:N0}}"
-                                               FontSize="12" FontWeight="Bold" Foreground="#047857"
+                                               FontSize="12" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"
                                                VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                                    <Border Grid.Column="11" Background="#DCFCE7" CornerRadius="6"
+                                    <Border Grid.Column="11" Background="{DynamicResource TintGreenBrush}" CornerRadius="6"
                                             Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding Stock}" FontSize="12" FontWeight="Bold" Foreground="#047857"/>
+                                        <TextBlock Text="{Binding Stock}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
                                     </Border>
-                                    <Border Grid.Column="12" Background="#FEE2E2" CornerRadius="6"
+                                    <Border Grid.Column="12" Background="{DynamicResource TintRedBrush}" CornerRadius="6"
                                             Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding Used}" FontSize="12" FontWeight="Bold" Foreground="#B91C1C"/>
+                                        <TextBlock Text="{Binding Used}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}"/>
                                     </Border>
-                                    <Border Grid.Column="13" Background="#FEF3C7" CornerRadius="6"
+                                    <Border Grid.Column="13" Background="{DynamicResource TintAmberBrush}" CornerRadius="6"
                                             Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding Balance}" FontSize="12" FontWeight="Bold" Foreground="#B45309"/>
+                                        <TextBlock Text="{Binding Balance}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
                                     </Border>
                                     <StackPanel Grid.Column="14" Orientation="Horizontal" HorizontalAlignment="Center">
-                                        <Button Content="Buy" Style="{StaticResource ActionBtn}" Background="#047857"
+                                        <Button Content="Buy" Style="{StaticResource ActionBtn}" Background="{DynamicResource SuccessBrush}"
                                                 Command="{Binding DataContext.BuyCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"/>
                                         <Button Content="Use" Style="{StaticResource ActionBtn}" Background="#1E40AF"

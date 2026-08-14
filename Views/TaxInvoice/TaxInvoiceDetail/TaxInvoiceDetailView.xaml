@@ -351,7 +351,7 @@
                     <Button Content="✅  Mark Paid"
                             Command="{Binding MarkPaidCommand}"
                             Style="{StaticResource ActionButtonStyle}"
-                            Background="#047857"
+                            Background="{DynamicResource SuccessBrush}"
                             Margin="0,0,12,0"
                             ToolTip="Mark invoice as Paid"/>
 
@@ -413,8 +413,8 @@
                     <Border Style="{StaticResource SectionHeaderStyle}">
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                <GradientStop Color="#047857" Offset="0"/>
-                                <GradientStop Color="#10B981" Offset="1"/>
+                                <GradientStop Color="#1E3A8A" Offset="0"/>
+                                <GradientStop Color="#3B82F6" Offset="1"/>
                             </LinearGradientBrush>
                         </Border.Background>
                         <StackPanel>
@@ -1451,8 +1451,8 @@
                                                                                  FontSize="11" FontWeight="Bold"
                                                                                  TextAlignment="Right"
                                                                                  Padding="4,2,6,2"
-                                                                                 BorderBrush="#047857"
-                                                                                 Background="#ECFDF5"
+                                                                                 BorderBrush="{DynamicResource SuccessBrush}"
+                                                                                 Background="{DynamicResource TintGreenBrush}"
                                                                                  Foreground="#065F46"
                                                                                  VerticalContentAlignment="Center"/>
                                                                         <TextBlock Text="{Binding Value,
@@ -1608,7 +1608,7 @@
                                                         <!-- Editing badge -->
                                                         <Border CornerRadius="4" Padding="6,1"
                                                                 Margin="6,0,0,0"
-                                                                Background="#047857"
+                                                                Background="{DynamicResource SuccessBrush}"
                                                                 VerticalAlignment="Center"
                                                                 Visibility="{Binding IsCurrentInvoice,
                                                                     Converter={StaticResource BoolToVisibilityConverter}}">
