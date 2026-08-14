@@ -260,3 +260,51 @@ in audit.db), export engines, AI providers, wizard step content.
 - Monet blur uses opacity layering (no expensive blur effects) to stay
   smooth on all hardware tiers.
 - Still not compile-tested in this sandbox — structural validation only.
+
+---
+
+## 9. v2 Upgrade — Phase Batch 4 (this round)
+
+### Per-module wallpapers (§9)
+- `AppearanceSettings.ModuleWallpapers` (keyed by `WallpaperModules`
+  constants) — Enabled / Path / Opacity per module, persisted in config.
+- `VisualThemeEngine.ApplyModule()` runs on every navigation: rebuilds the
+  active theme family, then layers that module's wallpaper behind the
+  content (MainWindow module frame) with translucent surfaces.
+- Settings → MODULE WALLPAPERS: enable toggle, image picker
+  (JPG/JPEG/PNG/WEBP/BMP), visibility slider, clear — per module, all 14
+  screens. Changes apply live to the module currently on screen.
+
+### Unsaved-changes guard (§28)
+- Shared `UnsavedChangesGuard` + `UnsavedChangesDialog`:
+  Cancel / Discard / Save & Continue. Data is never silently lost.
+- Wired into Job Order (the module with real dirty tracking): leaving the
+  detail screen or opening another JO while dirty triggers the guard.
+  Save & Continue uses the new `JobOrderDetailViewModel.TrySaveAsync()`.
+- Other modules gain the guard as they adopt dirty tracking.
+
+### Shared statistics component (§11)
+- `Controls/StatCard/StatCardControl` — one reusable card with states
+  Normal / Loading / Empty / Updating / Success / Warning / Error /
+  Transparent, unit + trend line, hideable via IsHidden.
+- Demonstrated on the Logs & Activity page (live log count, errors,
+  warnings, signed-in user). Modules keep their own data.
+
+### Performance (§13)
+- Virtualization (row + column, Recycling mode) on: God View DataGrids
+  (DN/JO/TI), Activity feeds (module tabs, Diagnostics app log, System
+  Center). Large lists scroll smoothly without loading every row.
+- DB-backed feeds stay capped (audit 200–300 rows in memory).
+- Import/paste business flows kept untouched by design — they were
+  already async in v1.
+
+### Files intentionally untouched
+All module business logic, import/paste code paths, PI wizard content,
+existing dashboard stat cards (the shared StatCard is additive).
+
+### Known limitations (honest)
+- Module wallpaper translucency is opacity-based (keeps all hardware
+  tiers smooth — no real-time blur).
+- Unsaved-changes guard currently covers Job Order; DN/TI need dirty
+  tracking added before they can use it.
+- Structural validation only — no compile/run test in this sandbox.

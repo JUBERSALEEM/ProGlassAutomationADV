@@ -573,7 +573,10 @@
         ══════════════════════════════════════════════════════ -->
         <Grid Grid.Row="1">
 
-            <!-- Framed module container (v3.0 preserved) -->
+            <!-- Framed module container (v3.0 preserved).
+                 v2 §9: ModuleWallpaperBrush sits BEHIND the module —
+                 set per module by VisualThemeEngine, Transparent when
+                 the active module has no wallpaper. -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{StaticResource ModuleFrameBorder}"
                     BorderThickness="1"
@@ -581,7 +584,11 @@
                     Margin="12,12,12,12"
                     ClipToBounds="True"
                     SnapsToDevicePixels="True">
-                <ContentControl Content="{Binding CurrentViewModel}"/>
+                <Grid>
+                    <Border Background="{DynamicResource ModuleWallpaperBrush}"
+                            IsHitTestVisible="False"/>
+                    <ContentControl Content="{Binding CurrentViewModel}"/>
+                </Grid>
             </Border>
 
             <!-- Dim overlay — only triggers on IsMenuOpen now

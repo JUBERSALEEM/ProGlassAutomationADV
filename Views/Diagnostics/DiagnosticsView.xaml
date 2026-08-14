@@ -16,6 +16,7 @@
              xmlns:diagVm="clr-namespace:ProGlassAutomation.ViewModels.Diagnostics"
              xmlns:sharedVm="clr-namespace:ProGlassAutomation.ViewModels.Shared"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:statCard="clr-namespace:ProGlassAutomation.Controls.StatCard"
              FontFamily="Segoe UI"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
@@ -104,9 +105,19 @@
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         </StackPanel>
 
+                        <!-- Virtualized log feed (1000+ entries safe) -->
                         <ScrollViewer VerticalScrollBarVisibility="Auto"
-                                      behaviors:SmoothScrollBehavior.IsEnabled="True">
-                            <ItemsControl ItemsSource="{Binding Entries}">
+                                      CanContentScroll="True"
+                                      VirtualizingPanel.IsVirtualizing="True"
+                                      VirtualizingPanel.VirtualizationMode="Recycling">
+                            <ItemsControl ItemsSource="{Binding Entries}"
+                                          VirtualizingPanel.IsVirtualizing="True"
+                                          VirtualizingPanel.VirtualizationMode="Recycling">
+                                <ItemsControl.ItemsPanel>
+                                    <ItemsPanelTemplate>
+                                        <VirtualizingStackPanel/>
+                                    </ItemsPanelTemplate>
+                                </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border Padding="14,8"
@@ -212,6 +223,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -225,8 +237,28 @@
                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
         </StackPanel>
 
+        <!-- ══ LIVE STATISTICS (shared StatCardControl, §11) ══════════ -->
+        <WrapPanel Grid.Row="1" Margin="0,0,0,14">
+            <statCard:StatCardControl Icon="🛠" Title="LOG ENTRIES"
+                                      Value="{Binding TotalEntries}"
+                                      TrendText="last 500 kept in memory"
+                                      Margin="0,0,12,0"/>
+            <statCard:StatCardControl Icon="⛔" Title="ERRORS"
+                                      Value="{Binding ErrorCount}"
+                                      State="Error"
+                                      TrendText="incl. critical"
+                                      Margin="0,0,12,0"/>
+            <statCard:StatCardControl Icon="⚠️" Title="WARNINGS"
+                                      Value="{Binding WarningCount}"
+                                      State="Warning"
+                                      Margin="0,0,12,0"/>
+            <statCard:StatCardControl Icon="👤" Title="SIGNED IN AS"
+                                      Value="{Binding ActiveUser}"
+                                      State="Success"/>
+        </WrapPanel>
+
         <!-- ══ TAB PILLS ══════════════════════════════════════════════ -->
-        <ScrollViewer Grid.Row="1"
+        <ScrollViewer Grid.Row="2"
                       HorizontalScrollBarVisibility="Auto"
                       VerticalScrollBarVisibility="Disabled"
                       Margin="0,0,0,14">
@@ -286,7 +318,7 @@
         </ScrollViewer>
 
         <!-- ══ ACTIVE TAB CONTENT ═════════════════════════════════════ -->
-        <ContentControl Grid.Row="2"
+        <ContentControl Grid.Row="3"
                         Content="{Binding ActiveContent}"/>
     </Grid>
 </UserControl>

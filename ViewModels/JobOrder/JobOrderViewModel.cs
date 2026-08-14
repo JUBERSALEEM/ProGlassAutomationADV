@@ -160,6 +160,14 @@ namespace ProGlassAutomation.ViewModels.JobOrder
             // into async-void territory and could crash the app.
             try
             {
+                // §28: don't steamroll unsaved edits when opening another JO.
+                if (!await ProGlassAutomation.Services.Safety
+                    .UnsavedChangesGuard.ConfirmLeaveAsync(
+                        () => DetailVM.HasUnsavedChanges,
+                        () => DetailVM.TrySaveAsync(),
+                        "job order"))
+                    return;
+
                 await DetailVM.LoadAsync(jobOrderId);
                 IsListView = false;
                 ActiveTab = TabWorkspace;   // open always lands on workspace
@@ -178,6 +186,14 @@ namespace ProGlassAutomation.ViewModels.JobOrder
         {
             try
             {
+                // §28: user decides Cancel / Discard / Save & Continue.
+                if (!await ProGlassAutomation.Services.Safety
+                    .UnsavedChangesGuard.ConfirmLeaveAsync(
+                        () => DetailVM.HasUnsavedChanges,
+                        () => DetailVM.TrySaveAsync(),
+                        "job order"))
+                    return;
+
                 IsListView = true;
                 await ListVM.LoadJobOrdersAsync();
             }

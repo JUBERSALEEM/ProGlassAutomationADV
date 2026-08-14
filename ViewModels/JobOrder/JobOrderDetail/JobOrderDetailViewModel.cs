@@ -385,6 +385,16 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
         //  SAVE
         // ═════════════════════════════════════════════════════════════════
 
+        /// <summary>
+        /// v2 §28: public save entry for the unsaved-changes guard.
+        /// Returns true when the record is clean afterwards.
+        /// </summary>
+        public async Task<bool> TrySaveAsync()
+        {
+            await SaveAsync();
+            return !HasUnsavedChanges;
+        }
+
         private async Task SaveAsync()
         {
 

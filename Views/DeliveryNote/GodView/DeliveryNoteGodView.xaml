@@ -113,7 +113,10 @@
                 ClipToBounds="True">
             <DataGrid Style="{StaticResource GodViewGridStyle}"
                       ColumnHeaderStyle="{StaticResource GodViewHeaderStyle}"
-                      ItemsSource="{Binding Rows}">
+                      ItemsSource="{Binding Rows}"
+                      EnableColumnVirtualization="True"
+                      VirtualizingPanel.IsVirtualizing="True"
+                      VirtualizingPanel.VirtualizationMode="Recycling">
                 <DataGrid.InputBindings>
                     <MouseBinding MouseAction="LeftDoubleClick"
                                   Command="{Binding OpenCommand}"

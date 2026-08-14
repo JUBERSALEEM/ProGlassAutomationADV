@@ -1,0 +1,193 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Controls/StatCard/StatCardControl.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Shared UI — reusable statistic card (§11)
+
+     One component, every state a statistic can be in:
+       Normal / Loading / Empty / Updating / Success / Warning / Error
+     Hideable (IsHidden), compact, theme-aware. The DATA belongs to
+     the module; this is only presentation.
+
+     Usage:
+       <controls:StatCardControl Icon="🧾" Title="Invoices"
+                                 Value="128" Unit="AED"
+                                 State="Success"/>
+═══════════════════════════════════════════════════════════════════════ -->
+
+<UserControl x:Class="ProGlassAutomation.Controls.StatCard.StatCardControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             x:Name="Root"
+             FontFamily="Segoe UI"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <Border CornerRadius="{DynamicResource CardCornerRadius}"
+            BorderThickness="1"
+            Padding="16,13"
+            MinWidth="170"
+            SnapsToDevicePixels="True">
+        <Border.Style>
+            <Style TargetType="Border">
+                <Setter Property="Background"
+                        Value="{DynamicResource ElevatedSurfaceBrush}"/>
+                <Setter Property="BorderBrush"
+                        Value="{DynamicResource BorderBrush}"/>
+                <Setter Property="Visibility" Value="Visible"/>
+                <Style.Triggers>
+                    <!-- IsHidden collapses the card entirely so it never
+                         obstructs the working area -->
+                    <DataTrigger Binding="{Binding IsHidden,
+                                             ElementName=Root}" Value="True">
+                        <Setter Property="Visibility" Value="Collapsed"/>
+                    </DataTrigger>
+
+                    <!-- State tints -->
+                    <DataTrigger Binding="{Binding State, ElementName=Root}"
+                                 Value="Success">
+                        <Setter Property="Background"
+                                Value="{DynamicResource TintGreenBrush}"/>
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding State, ElementName=Root}"
+                                 Value="Warning">
+                        <Setter Property="Background"
+                                Value="{DynamicResource TintAmberBrush}"/>
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding State, ElementName=Root}"
+                                 Value="Error">
+                        <Setter Property="Background"
+                                Value="{DynamicResource TintRedBrush}"/>
+                    </DataTrigger>
+                    <DataTrigger Binding="{Binding State, ElementName=Root}"
+                                 Value="Transparent">
+                        <Setter Property="Background" Value="Transparent"/>
+                        <Setter Property="BorderThickness" Value="0"/>
+                    </DataTrigger>
+                </Style.Triggers>
+            </Style>
+        </Border.Style>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <!-- Icon badge -->
+            <Border Grid.Column="0"
+                    Width="38" Height="38"
+                    CornerRadius="12"
+                    Background="{DynamicResource ModuleBackgroundBrush}"
+                    VerticalAlignment="Center">
+                <TextBlock Text="{Binding Icon, ElementName=Root}"
+                           FontSize="17"
+                           HorizontalAlignment="Center"
+                           VerticalAlignment="Center"/>
+            </Border>
+
+            <StackPanel Grid.Column="1"
+                        Margin="12,0,0,0"
+                        VerticalAlignment="Center">
+
+                <TextBlock Text="{Binding Title, ElementName=Root}"
+                           FontSize="11" FontWeight="SemiBold"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           TextTrimming="CharacterEllipsis"/>
+
+                <!-- Value row: loading shows a pulse, empty shows — -->
+                <Grid Margin="0,2,0,0">
+                    <StackPanel Orientation="Horizontal">
+                        <StackPanel.Style>
+                            <Style TargetType="StackPanel">
+                                <Setter Property="Visibility" Value="Visible"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding State, ElementName=Root}"
+                                                 Value="Loading">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding State, ElementName=Root}"
+                                                 Value="Updating">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </StackPanel.Style>
+
+                        <TextBlock FontSize="19" FontWeight="Bold">
+                            <TextBlock.Style>
+                                <Style TargetType="TextBlock">
+                                    <Setter Property="Text"
+                                            Value="{Binding DisplayValue,
+                                                    ElementName=Root}"/>
+                                    <Setter Property="Foreground"
+                                            Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding State, ElementName=Root}"
+                                                     Value="Success">
+                                            <Setter Property="Foreground"
+                                                    Value="{DynamicResource SuccessBrush}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding State, ElementName=Root}"
+                                                     Value="Warning">
+                                            <Setter Property="Foreground"
+                                                    Value="{DynamicResource WarningBrush}"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding State, ElementName=Root}"
+                                                     Value="Error">
+                                            <Setter Property="Foreground"
+                                                    Value="{DynamicResource DangerBrush}"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </TextBlock.Style>
+                        </TextBlock>
+
+                        <TextBlock Text="{Binding Unit, ElementName=Root}"
+                                   FontSize="11"
+                                   Margin="4,0,0,2"
+                                   VerticalAlignment="Bottom"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                    </StackPanel>
+
+                    <!-- Loading / updating indicator -->
+                    <TextBlock Text="• • •" FontSize="14" FontWeight="Bold"
+                               Foreground="{DynamicResource MutedForegroundBrush}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding State, ElementName=Root}"
+                                                 Value="Loading">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding State, ElementName=Root}"
+                                                 Value="Updating">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </Grid>
+
+                <!-- Trend / secondary line -->
+                <TextBlock Text="{Binding TrendText, ElementName=Root}"
+                           FontSize="10"
+                           Margin="0,2,0,0"
+                           TextTrimming="CharacterEllipsis"
+                           Foreground="{DynamicResource MutedForegroundBrush}">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding TrendText, ElementName=Root}"
+                                             Value="">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+            </StackPanel>
+        </Grid>
+    </Border>
+</UserControl>

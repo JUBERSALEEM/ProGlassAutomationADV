@@ -522,9 +522,19 @@
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     </StackPanel>
 
+                    <!-- Virtualized activity feed -->
                     <ScrollViewer VerticalScrollBarVisibility="Auto"
-                              behaviors:SmoothScrollBehavior.IsEnabled="True">
-                        <ItemsControl ItemsSource="{Binding ActivityRows}">
+                                  CanContentScroll="True"
+                                  VirtualizingPanel.IsVirtualizing="True"
+                                  VirtualizingPanel.VirtualizationMode="Recycling">
+                        <ItemsControl ItemsSource="{Binding ActivityRows}"
+                                      VirtualizingPanel.IsVirtualizing="True"
+                                      VirtualizingPanel.VirtualizationMode="Recycling">
+                            <ItemsControl.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel/>
+                                </ItemsPanelTemplate>
+                            </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Padding="16,10"

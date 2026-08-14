@@ -143,6 +143,57 @@ namespace ProGlassAutomation.ViewModels.Diagnostics
 
         public ICommand SwitchTabCommand { get; }
 
+        // ── v2 §11: header statistics (shared StatCardControl) ─────────
+
+        private string _totalEntries = "0";
+        public string TotalEntries
+        {
+            get => _totalEntries;
+            private set { _totalEntries = value; OnPropertyChanged(); }
+        }
+
+        private string _errorCount = "0";
+        public string ErrorCount
+        {
+            get => _errorCount;
+            private set { _errorCount = value; OnPropertyChanged(); }
+        }
+
+        private string _warningCount = "0";
+        public string WarningCount
+        {
+            get => _warningCount;
+            private set { _warningCount = value; OnPropertyChanged(); }
+        }
+
+        private string _activeUser = "";
+        public string ActiveUser
+        {
+            get => _activeUser;
+            private set { _activeUser = value; OnPropertyChanged(); }
+        }
+
+        private void RefreshStats()
+        {
+            var entries = Services.Logging.AppLogService.GetRecent(500);
+
+            int errors = 0, warnings = 0;
+            foreach (var e in entries)
+            {
+                if (e.Level == Services.Logging.LogLevel.Error ||
+                    e.Level == Services.Logging.LogLevel.Critical)
+                    errors++;
+                else if (e.Level == Services.Logging.LogLevel.Warning)
+                    warnings++;
+            }
+
+            TotalEntries = entries.Count.ToString("N0");
+            ErrorCount = errors.ToString("N0");
+            WarningCount = warnings.ToString("N0");
+            ActiveUser = AuditService.CurrentUser?.DisplayName
+                ?? AuditService.CurrentUsername;
+        }
+
         public DiagnosticsViewModel()
         {
             Tabs.Add(MakeTab("applog", "App Log", "🛠",
@@ -188,6 +239,7 @@ namespace ProGlassAutomation.ViewModels.Diagnostics
         /// <summary>Called whenever the module becomes visible.</summary>
         public void OnShown()
         {
+            RefreshStats();
             Activate(ActiveTab);
         }
 

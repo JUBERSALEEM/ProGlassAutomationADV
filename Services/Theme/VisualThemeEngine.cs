@@ -40,11 +40,15 @@ namespace ProGlassAutomation.Services.Theme
             "MenuHoverBrush",
             "CardCornerRadius", "CardCornerRadiusLarge",
             "ControlCornerRadius",
-            "WallpaperOpacityValue"
+            "WallpaperOpacityValue",
+            "ModuleWallpaperBrush"
         };
 
         /// <summary>Currently active family.</summary>
         public static string Current { get; private set; } = Normal;
+
+        /// <summary>Module whose wallpaper is currently layered (or "").</summary>
+        public static string CurrentModule { get; private set; } = "";
 
         /// <summary>
         /// Applies one family. wallpaperPath/opacity are only used by
@@ -92,6 +96,104 @@ namespace ProGlassAutomation.Services.Theme
                         Module = "Themes",
                         Class = nameof(VisualThemeEngine)
                     });
+            }
+        }
+
+        // ── PER-MODULE WALLPAPER (§9) ────────────────────────────────────
+
+        /// <summary>
+        /// Called on every module navigation. Rebuilds the base family
+        /// first, then layers that module's wallpaper (when configured)
+        /// so each screen can carry its own background image.
+        /// </summary>
+        public static void ApplyModule(
+            string moduleKey,
+            AI.AIConfig.AppearanceSettings appearance)
+        {
+            try
+            {
+                var resources = Application.Current?.Resources;
+                if (resources == null) return;
+
+                // Rebuild the family baseline (removes the previous
+                // module's wallpaper layer).
+                ClearOverrides(resources);
+                Current = Normalize(appearance?.VisualTheme ?? Normal);
+
+                switch (Current)
+                {
+                    case Monet:
+                        ApplyMonet(resources,
+                            appearance?.WallpaperPath ?? "",
+                            ClampOpacity(appearance?.WallpaperOpacity ?? 0.85));
+                        break;
+                    case Professional:
+                        ApplyProfessional(resources);
+                        break;
+                }
+
+                CurrentModule = "";
+                if (string.IsNullOrEmpty(moduleKey) || appearance == null)
+                    return;
+
+                if (!appearance.ModuleWallpapers.TryGetValue(
+                    moduleKey, out var moduleWallpaper) ||
+                    moduleWallpaper == null ||
+                    !moduleWallpaper.Enabled)
+                    return;
+
+                if (!System.IO.File.Exists(moduleWallpaper.Path))
+                    return;
+
+                var brush = BuildWallpaperBrush(
+                    moduleWallpaper.Path,
+                    ClampOpacity(moduleWallpaper.Opacity));
+
+                if (brush == null) return;
+
+                resources["ModuleWallpaperBrush"] = brush;
+                CurrentModule = moduleKey;
+
+                // Let the image read through the module surface.
+                SetTranslucent(resources, "ModuleBackgroundBrush",
+                    ThemeManager.GetThemeColor(
+                        "ModuleBackgroundBrush", Colors.White), 0.78);
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"Module wallpaper apply failed: {ex.Message}",
+                    new LogContext
+                    {
+                        Module = "Themes",
+                        Class = nameof(VisualThemeEngine)
+                    });
+            }
+        }
+
+        private static ImageBrush? BuildWallpaperBrush(
+            string path, double opacity)
+        {
+            try
+            {
+                var image = new BitmapImage();
+                image.BeginInit();
+                image.CacheOption = BitmapCacheOption.OnLoad;
+                image.UriSource = new Uri(path, UriKind.Absolute);
+                image.EndInit();
+                image.Freeze();
+
+                var brush = new ImageBrush(image)
+                {
+                    Stretch = Stretch.UniformToFill,
+                    Opacity = opacity
+                };
+                brush.Freeze();
+                return brush;
+            }
+            catch
+            {
+                return null;
             }
         }
 

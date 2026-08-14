@@ -254,6 +254,10 @@ namespace ProGlassAutomation.ViewModels
 
             // default landing page
             CurrentViewModel = DashboardVM;
+
+            // v2 §9: the landing module gets its wallpaper layer too
+            // (constructor bypasses Navigate()).
+            ApplyModuleWallpaper("Dashboard");
         }
 
         // ── navigation ────────────────────────────────────────────────────
@@ -294,7 +298,43 @@ namespace ProGlassAutomation.ViewModels
                     DiagnosticsVM.OnShown();
                     break;
             }
+
+            // v2 §9: each module can carry its own wallpaper.
+            ApplyModuleWallpaper(parameter?.ToString());
+
             IsMenuOpen = false;
+        }
+
+        /// <summary>
+        /// Resolves the wallpaper module key for a navigation target and
+        /// lets the visual theme engine layer it. Cheap when the module
+        /// has no wallpaper configured.
+        /// </summary>
+        private static void ApplyModuleWallpaper(string? navKey)
+        {
+            var w = ProGlassAutomation.Services.Theme.WallpaperModules;
+
+            string moduleKey = navKey switch
+            {
+                "Dashboard" => w.Dashboard,
+                "SheetStore" => w.SheetStore,
+                "ProformaInvoice" => w.ProformaInvoice,
+                "JobOrder" => w.JobOrder,
+                "DeliveryNote" => w.DeliveryNote,
+                "TaxInvoice" => w.TaxInvoice,
+                "SalesReport" => w.SalesReport,
+                "Optimization" or "Cutting" or "HolesCutouts" or "Polish"
+                    or "EdgeDeletion" or "Mitring" or "Tempering"
+                    or "Pairing" or "DoublingLamination" => w.Optimization,
+                "Diagnostics" => w.Logs,
+                "SystemCenter" => w.SystemCenter,
+                "Settings" => w.Settings,
+                "About" => w.About,
+                _ => ""
+            };
+
+            ProGlassAutomation.Services.Theme.VisualThemeEngine.ApplyModule(
+                moduleKey, App.Config?.Appearance);
         }
     }
 }

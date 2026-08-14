@@ -683,6 +683,108 @@ namespace ProGlassAutomation.ViewModels.Settings
         public ICommand SetWallpaperCommand { get; private set; }
         public ICommand ClearWallpaperCommand { get; private set; }
 
+        // ── Per-module wallpapers (§9) ─────────────────────────────────
+
+        /// <summary>One configurable row on the Module Wallpapers list.</summary>
+        public class ModuleWallpaperRow : ViewModelBase
+        {
+            public string Key { get; }
+            public string Label { get; }
+
+            public ModuleWallpaperRow(string key, string label)
+            {
+                Key = key;
+                Label = label;
+            }
+
+            private ModuleWallpaperSettings Settings()
+            {
+                var appearance = App.Config!.Appearance;
+                if (!appearance.ModuleWallpapers.TryGetValue(Key, out var s)
+                    || s == null)
+                {
+                    s = new ModuleWallpaperSettings();
+                    appearance.ModuleWallpapers[Key] = s;
+                }
+                return s;
+            }
+
+            public bool Enabled
+            {
+                get => Settings().Enabled;
+                set
+                {
+                    Settings().Enabled = value;
+                    SaveConfig();
+                    Refresh();
+                    OnPropertyChanged();
+                }
+            }
+
+            public string FileName
+            {
+                get
+                {
+                    var path = Settings().Path;
+                    return string.IsNullOrEmpty(path)
+                        ? "No image"
+                        : System.IO.Path.GetFileName(path);
+                }
+            }
+
+            public double OpacityValue
+            {
+                get => Settings().Opacity;
+                set
+                {
+                    Settings().Opacity = value;
+                    SaveConfig();
+                    Refresh();
+                    OnPropertyChanged();
+                }
+            }
+
+            internal void SetPath(string path)
+            {
+                var s = Settings();
+                s.Path = path;
+                s.Enabled = true;
+                SaveConfig();
+                Refresh();
+                OnPropertyChanged(nameof(Enabled));
+                OnPropertyChanged(nameof(FileName));
+                OnPropertyChanged(nameof(OpacityValue));
+            }
+
+            internal void ClearPath()
+            {
+                var s = Settings();
+                s.Path = "";
+                s.Enabled = false;
+                SaveConfig();
+                Refresh();
+                OnPropertyChanged(nameof(Enabled));
+                OnPropertyChanged(nameof(FileName));
+            }
+
+            /// <summary>
+            /// Re-layer the wallpaper of whichever module is on screen
+            /// right now, so changes are visible immediately.
+            /// </summary>
+            private static void Refresh() =>
+                ProGlassAutomation.Services.Theme.VisualThemeEngine
+                    .ApplyModule(
+                        ProGlassAutomation.Services.Theme.VisualThemeEngine
+                            .CurrentModule,
+                        App.Config?.Appearance);
+        }
+
+        public ObservableCollection<ModuleWallpaperRow>
+            ModuleWallpaperRows { get; } = new();
+
+        public ICommand SetModuleWallpaperCommand { get; private set; }
+        public ICommand ClearModuleWallpaperCommand { get; private set; }
+
         private void ApplyVisualTheme()
         {
             var appearance = App.Config?.Appearance;
@@ -851,6 +953,45 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             // Apply the persisted visual theme once Settings loads.
             ApplyVisualTheme();
+
+            // ── Module wallpaper rows (§9) ────────────────────────────
+            foreach (var (key, label) in
+                ProGlassAutomation.Services.Theme.WallpaperModules.All)
+            {
+                ModuleWallpaperRows.Add(new ModuleWallpaperRow(key, label));
+            }
+
+            SetModuleWallpaperCommand = new RelayCommand(param =>
+            {
+                if (param is not ModuleWallpaperRow row) return;
+
+                var dialog = new Microsoft.Win32.OpenFileDialog
+                {
+                    Title = $"Wallpaper for {row.Label}",
+                    Filter = "Images|*.jpg;*.jpeg;*.png;*.webp;*.bmp|" +
+                             "All files|*.*"
+                };
+
+                if (dialog.ShowDialog() != true) return;
+
+                row.SetPath(dialog.FileName);
+
+                Services.Audit.AuditService.Log(
+                    Services.Audit.AuditSections.Settings,
+                    "Module wallpaper set",
+                    $"{row.Label} → " +
+                    System.IO.Path.GetFileName(dialog.FileName));
+            });
+
+            ClearModuleWallpaperCommand = new RelayCommand(param =>
+            {
+                if (param is not ModuleWallpaperRow row) return;
+                row.ClearPath();
+
+                Services.Audit.AuditService.Log(
+                    Services.Audit.AuditSections.Settings,
+                    "Module wallpaper cleared", row.Label);
+            });
 
             // ── Update commands ───────────────────────────────────────
             CheckForUpdatesCommand = new RelayCommand(async _ =>

@@ -1,7 +1,16 @@
 using ProGlassAutomation.Services.AI.AIService;
+using System.Collections.Generic;
 
 namespace ProGlassAutomation.Services.AI.AIConfig
 {
+    /// <summary>Wallpaper configuration for one module (§9).</summary>
+    public class ModuleWallpaperSettings
+    {
+        public bool Enabled { get; set; }
+        public string Path { get; set; } = "";
+        public double Opacity { get; set; } = 0.85;
+    }
+
     /// <summary>
     /// Appearance preferences (v2 visual theme engine + wallpaper).
     /// No secrets here — plain settings only.
@@ -11,11 +20,18 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// <summary>"Normal" | "Monet" | "Professional".</summary>
         public string VisualTheme { get; set; } = "Normal";
 
-        /// <summary>Wallpaper image path (empty = none).</summary>
+        /// <summary>Global wallpaper image path (empty = none).</summary>
         public string WallpaperPath { get; set; } = "";
 
         /// <summary>How strongly the wallpaper shows through (0.3–1).</summary>
         public double WallpaperOpacity { get; set; } = 0.85;
+
+        /// <summary>
+        /// Per-module wallpapers, keyed by WallpaperModules constants
+        /// (e.g. "ProformaInvoice"). Missing entries = no wallpaper.
+        /// </summary>
+        public Dictionary<string, ModuleWallpaperSettings> ModuleWallpapers
+        { get; set; } = new();
     }
 
     /// <summary>
