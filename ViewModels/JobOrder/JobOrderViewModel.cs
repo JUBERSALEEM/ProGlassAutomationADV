@@ -1,6 +1,9 @@
-﻿using ProGlassAutomation.Commands;
+using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.ViewModels.JobOrder.GodView;
 using ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail;
 using ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList;
+using ProGlassAutomation.ViewModels.Shared;
 using System;
 using System.Windows.Input;
 
@@ -12,16 +15,32 @@ namespace ProGlassAutomation.ViewModels.JobOrder
     ///
     /// Phase 10.5: Added OnRequestOpenDeliveryNote callback to propagate
     /// DN navigation requests up to MainViewModel.
+    ///
+    /// TAB STRIP (new): Workspace | God View | Activity
+    ///   • Workspace — the original list ↔ detail flow (unchanged)
+    ///   • God View  — all-records overview (JobOrderGodViewViewModel)
+    ///   • Activity  — live audit feed for this section
     /// </summary>
     public class JobOrderViewModel : ViewModelBase
     {
         public string Title { get; } = "Job Orders";
         public string Subtitle { get; } = "Track production status of approved invoices";
 
+        // ── tab keys ──────────────────────────────────────────────────────
+        public const string TabWorkspace = "Workspace";
+        public const string TabGodView = "GodView";
+        public const string TabActivity = "Activity";
+
         // ── sub-VMs ───────────────────────────────────────────────────────
 
         public SavedJobOrdersListViewModel ListVM { get; }
         public JobOrderDetailViewModel DetailVM { get; }
+
+        /// <summary>God View tab — every job order in the system.</summary>
+        public JobOrderGodViewViewModel GodViewVM { get; }
+
+        /// <summary>Activity tab — live audit feed for this section.</summary>
+        public SectionActivityViewModel ActivityVM { get; }
 
         // ── view state toggle ─────────────────────────────────────────────
 
@@ -40,9 +59,35 @@ namespace ProGlassAutomation.ViewModels.JobOrder
 
         public bool IsDetailView => !_isListView;
 
+        // ── tab strip state ───────────────────────────────────────────────
+
+        private string _activeTab = TabWorkspace;
+
+        /// <summary>Which tab is active: Workspace / GodView / Activity.</summary>
+        public string ActiveTab
+        {
+            get => _activeTab;
+            set
+            {
+                if (_activeTab == value) return;
+                _activeTab = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsWorkspaceTab));
+                OnPropertyChanged(nameof(IsGodViewTab));
+                OnPropertyChanged(nameof(IsActivityTab));
+            }
+        }
+
+        public bool IsWorkspaceTab => ActiveTab == TabWorkspace;
+        public bool IsGodViewTab => ActiveTab == TabGodView;
+        public bool IsActivityTab => ActiveTab == TabActivity;
+
         // ── commands ──────────────────────────────────────────────────────
 
         public ICommand BackToListCommand { get; }
+
+        /// <summary>Switches tabs. Parameter = tab key constant.</summary>
+        public ICommand SwitchTabCommand { get; }
 
         // ── callback for main shell (Phase 10.5) ──────────────────────────
 
@@ -73,6 +118,36 @@ namespace ProGlassAutomation.ViewModels.JobOrder
                 OnRequestOpenDeliveryNote?.Invoke(dnId);
 
             BackToListCommand = new RelayCommand(_ => ReturnToList());
+
+            // ── God View tab: row-open hands off to detail flow ───────
+            GodViewVM = new JobOrderGodViewViewModel();
+            GodViewVM.OnOpenRequested = LoadJobOrderIntoDetail;
+
+            // ── Activity tab: live audit feed for this section ────────
+            ActivityVM = new SectionActivityViewModel(AuditSections.JobOrder);
+
+            SwitchTabCommand = new RelayCommand(param =>
+                SwitchTab(param as string ?? TabWorkspace));
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  TAB SWITCHING
+        // ═════════════════════════════════════════════════════════════════
+
+        private void SwitchTab(string tabKey)
+        {
+            ActiveTab = tabKey;
+
+            // Load lazily when each overview tab is entered.
+            switch (tabKey)
+            {
+                case TabGodView:
+                    GodViewVM.LoadAsync();
+                    break;
+                case TabActivity:
+                    ActivityVM.LoadAsync();
+                    break;
+            }
         }
 
         // ═════════════════════════════════════════════════════════════════
@@ -81,14 +156,36 @@ namespace ProGlassAutomation.ViewModels.JobOrder
 
         private async void LoadJobOrderIntoDetail(int jobOrderId)
         {
-            await DetailVM.LoadAsync(jobOrderId);
-            IsListView = false;
+            // BUG-FIX: previously unguarded — an exception here escaped
+            // into async-void territory and could crash the app.
+            try
+            {
+                await DetailVM.LoadAsync(jobOrderId);
+                IsListView = false;
+                ActiveTab = TabWorkspace;   // open always lands on workspace
+            }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(
+                    $"Could not open job order:\n\n{ex.Message}",
+                    "Job Orders",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+            }
         }
 
         private async void ReturnToList()
         {
-            IsListView = true;
-            await ListVM.LoadJobOrdersAsync();
+            try
+            {
+                IsListView = true;
+                await ListVM.LoadJobOrdersAsync();
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[JobOrderVM] ReturnToList failed: {ex.Message}");
+            }
         }
     }
 }

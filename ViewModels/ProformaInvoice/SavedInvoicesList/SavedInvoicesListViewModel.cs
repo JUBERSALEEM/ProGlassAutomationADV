@@ -1,5 +1,6 @@
-﻿using ProGlassAutomation.Commands;
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Csv;
 using ProGlassAutomation.Services.Export.Excel;
@@ -388,6 +389,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             try
             {
                 await App.Invoices.DeleteAsync(item.Id);
+
+                AuditService.Log(
+                    AuditSections.Proforma, "Invoice deleted",
+                    item.ProformaId, "PI", item.ProformaId);
+
                 await LoadInvoicesAsync();
             }
             catch (Exception ex)

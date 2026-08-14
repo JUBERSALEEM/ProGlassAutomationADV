@@ -1,0 +1,62 @@
+// ═══════════════════════════════════════════════════════════════════════
+// FILE: Models/Audit/ActivityLogEntry.cs
+// PROJECT: ProGlassAutomation
+// MODULE: Audit / Activity Logging
+//
+// One immutable audit-trail row. Every meaningful user action in every
+// section writes one of these through Services/Audit/AuditService.cs.
+//
+// Rows are INSERT-ONLY: the app never updates or deletes them, so the
+// trail is trustworthy. (System Center can prune entries older than a
+// retention window — that operation is itself audited.)
+// ═══════════════════════════════════════════════════════════════════════
+
+using System;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace ProGlassAutomation.Models.Audit
+{
+    /// <summary>
+    /// One audit-trail entry describing a user action.
+    /// Example: user "juber" | section "Delivery Note" | action "Saved"
+    ///          | details "DN-2026-003-01 saved (12 pcs)".
+    /// </summary>
+    [Table("ActivityLog")]
+    public class ActivityLogEntry
+    {
+        [Key]
+        public int Id { get; set; }
+
+        /// <summary>UTC timestamp of the action.</summary>
+        public DateTime TimestampUtc { get; set; }
+
+        /// <summary>Username of the active user at the time.</summary>
+        [Required, MaxLength(60)]
+        public string Username { get; set; } = "";
+
+        /// <summary>
+        /// Module where the action happened.
+        /// Use constants from Services/Audit/AuditSections.cs
+        /// ("Sheet Store", "Proforma Invoice", "Job Order", ...).
+        /// </summary>
+        [Required, MaxLength(60)]
+        public string Section { get; set; } = "";
+
+        /// <summary>Short verb: "Created", "Saved", "Deleted", ...</summary>
+        [Required, MaxLength(60)]
+        public string Action { get; set; } = "";
+
+        /// <summary>Free-text details (record ids, quantities, ...).</summary>
+        [MaxLength(1000)]
+        public string Details { get; set; } = "";
+
+        /// <summary>Optional entity type hint ("PI", "JO", "DN", "TI").</summary>
+        [MaxLength(20)]
+        public string EntityType { get; set; } = "";
+
+        /// <summary>Optional entity id ("PI-2026-001", ...).</summary>
+        [MaxLength(60)]
+        public string EntityId { get; set; } = "";
+    }
+}

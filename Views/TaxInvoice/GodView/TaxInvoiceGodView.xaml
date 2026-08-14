@@ -1,0 +1,172 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/TaxInvoice/GodView/TaxInvoiceGodView.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Tax Invoice — God View tab
+
+     Full-system overview: KPI tiles + searchable table of every tax
+     invoice. Read-only; Open hands off to the normal detail view.
+═══════════════════════════════════════════════════════════════════════ -->
+
+<UserControl x:Class="ProGlassAutomation.Views.TaxInvoice.GodView.TaxInvoiceGodView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="Segoe UI"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <Grid Margin="20">
+
+        <!-- Fade-in uses the hardware-scaled motion token: snappier on
+             120/144/165 Hz panels, calmer on 60 Hz (PerformanceProfileService). -->
+        <Grid.Triggers>
+            <EventTrigger RoutedEvent="FrameworkElement.Loaded">
+                <BeginStoryboard>
+                    <Storyboard>
+                        <DoubleAnimation Storyboard.TargetProperty="Opacity"
+                                         From="0" To="1"
+                                         Duration="{DynamicResource MotionDurationNorm}"/>
+                    </Storyboard>
+                </BeginStoryboard>
+            </EventTrigger>
+        </Grid.Triggers>
+
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- ══ HEADER ═════════════════════════════════════════════════ -->
+        <Grid Grid.Row="0" Margin="0,0,0,14">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+
+            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                <TextBlock Text="🌐  Tax Invoices — God View"
+                           FontSize="18" FontWeight="Bold"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                <TextBlock Text="Every tax invoice in the system, at a glance"
+                           FontSize="12" Margin="0,2,0,0"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+            </StackPanel>
+
+            <Border Grid.Column="1"
+                    MaxWidth="340"
+                    Margin="24,0"
+                    Background="{DynamicResource MenuHoverBrush}"
+                    CornerRadius="{DynamicResource PillCornerRadius}"
+                    Padding="14,0"
+                    Height="38"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Center">
+                <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                         BorderThickness="0"
+                         Background="Transparent"
+                         FontSize="13"
+                         VerticalAlignment="Center"
+                         ToolTip="Search invoice # / customer / project / status"/>
+            </Border>
+
+            <Button Grid.Column="2"
+                    Command="{Binding RefreshCommand}"
+                    Cursor="Hand"
+                    Padding="16,9"
+                    BorderThickness="0">
+                <Button.Template>
+                    <ControlTemplate TargetType="Button">
+                        <Border Background="{DynamicResource AccentBrush}"
+                                CornerRadius="{DynamicResource PillCornerRadius}"
+                                Padding="{TemplateBinding Padding}">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Button.Template>
+                <TextBlock Text="↻  Refresh"
+                           Foreground="White"
+                           FontSize="13" FontWeight="SemiBold"/>
+            </Button>
+        </Grid>
+
+        <!-- ══ KPI TILES ══════════════════════════════════════════════ -->
+        <ItemsControl Grid.Row="1"
+                      ItemsSource="{Binding Kpis}"
+                      ItemTemplate="{StaticResource GodKpiCardTemplate}">
+            <ItemsControl.ItemsPanel>
+                <ItemsPanelTemplate>
+                    <WrapPanel/>
+                </ItemsPanelTemplate>
+            </ItemsControl.ItemsPanel>
+        </ItemsControl>
+
+        <!-- ══ FULL TABLE ═════════════════════════════════════════════ -->
+        <Border Grid.Row="2"
+                Margin="0,4,0,0"
+                CornerRadius="{DynamicResource CardCornerRadius}"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1"
+                ClipToBounds="True">
+            <DataGrid Style="{StaticResource GodViewGridStyle}"
+                      ColumnHeaderStyle="{StaticResource GodViewHeaderStyle}"
+                      ItemsSource="{Binding Rows}">
+                <DataGrid.InputBindings>
+                    <MouseBinding MouseAction="LeftDoubleClick"
+                                  Command="{Binding OpenCommand}"
+                                  CommandParameter="{Binding SelectedItem,
+                                      RelativeSource={RelativeSource
+                                          AncestorType=DataGrid}}"/>
+                </DataGrid.InputBindings>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Invoice #"
+                                        Binding="{Binding InvoiceNumber}"
+                                        Width="140"/>
+                    <DataGridTextColumn Header="Type"
+                                        Binding="{Binding InvoiceType}"
+                                        Width="80"/>
+                    <DataGridTextColumn Header="Customer"
+                                        Binding="{Binding CustomerName}"
+                                        Width="*"/>
+                    <DataGridTextColumn Header="Project"
+                                        Binding="{Binding ProjectName}"
+                                        Width="*"/>
+                    <DataGridTextColumn Header="Status"
+                                        Binding="{Binding Status}"
+                                        Width="105"/>
+                    <DataGridTextColumn Header="Issue Date"
+                                        Binding="{Binding IssueDate,
+                                            StringFormat='dd MMM yyyy'}"
+                                        Width="105"/>
+                    <DataGridTextColumn Header="Due Date"
+                                        Binding="{Binding DueDate,
+                                            StringFormat='dd MMM yyyy'}"
+                                        Width="105"/>
+                    <DataGridTextColumn Header="Total (AED)"
+                                        Binding="{Binding GrandTotal,
+                                            StringFormat='N2'}"
+                                        Width="110"/>
+
+                    <DataGridTemplateColumn Header="" Width="80">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <Button Content="Open"
+                                        Cursor="Hand"
+                                        FontSize="11"
+                                        Padding="10,3"
+                                        BorderThickness="0"
+                                        Background="{DynamicResource AccentBrush}"
+                                        Foreground="White"
+                                        Command="{Binding DataContext.OpenCommand,
+                                                    RelativeSource={RelativeSource
+                                                        AncestorType=DataGrid}}"
+                                        CommandParameter="{Binding}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+    </Grid>
+</UserControl>

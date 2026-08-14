@@ -1,4 +1,4 @@
-﻿<!--
+<!--
 ═══════════════════════════════════════════════════════════════════════
 FILE: Views/ProformaInvoice/ProformaInvoiceView.xaml
 ═══════════════════════════════════════════════════════════════════════
@@ -31,6 +31,7 @@ CHAT 17 — LAYOUT FIX
              xmlns:step5="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step5DataGrid"
              xmlns:step6="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges"
              xmlns:step7="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview"
+             xmlns:step8="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step8Attachments"
              xmlns:pilist="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList"
              mc:Ignorable="d"
              d:DesignHeight="900"
@@ -399,7 +400,7 @@ CHAT 17 — LAYOUT FIX
                                    FontWeight="SemiBold"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    Margin="4,0,0,4"/>
-                        <TextBlock Text="7 steps to complete"
+                        <TextBlock Text="8 steps to complete"
                                    FontSize="10"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    Opacity="0.7"
@@ -563,7 +564,7 @@ CHAT 17 — LAYOUT FIX
                                            Foreground="#4338CA"
                                            VerticalAlignment="Center">
                                     <Run Text="{Binding CurrentStepNumber, Mode=OneWay}"/>
-                                    <Run Text=" of 7"/>
+                                    <Run Text=" of 8"/>
                                 </TextBlock>
                             </StackPanel>
 
@@ -576,8 +577,10 @@ CHAT 17 — LAYOUT FIX
                                 <Border Background="#DBEAFE"
                                         Height="4"
                                         CornerRadius="2"/>
+                                <!-- 8 columns — one per wizard step -->
                                 <Grid>
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
@@ -768,6 +771,28 @@ CHAT 17 — LAYOUT FIX
                                 <ContentControl.ContentTemplate>
                                     <DataTemplate>
                                         <step7:PrintPreviewView/>
+                                    </DataTemplate>
+                                </ContentControl.ContentTemplate>
+                            </ContentControl>
+
+                            <!-- STEP 8 — Attachments (NEW)
+                                 Same ContentControl + DataTrigger pattern as
+                                 steps 1-7. DataContext = Step8VM. -->
+                            <ContentControl Content="{Binding Step8VM}">
+                                <ContentControl.Style>
+                                    <Style TargetType="ContentControl">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CurrentStepNumber}"
+                                                         Value="8">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ContentControl.Style>
+                                <ContentControl.ContentTemplate>
+                                    <DataTemplate>
+                                        <step8:AttachmentsStepView/>
                                     </DataTemplate>
                                 </ContentControl.ContentTemplate>
                             </ContentControl>

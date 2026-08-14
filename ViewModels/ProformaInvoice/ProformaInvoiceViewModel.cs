@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/ProformaInvoice/ProformaInvoiceViewModel.cs
 // ═══════════════════════════════════════════════════════════════════════
 // CHAT 15 — PHASE 3
@@ -84,7 +84,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
     public class ProformaInvoiceViewModel : ViewModelBase
     {
         public string Title { get; } = "Proforma Invoice Builder";
-        public string Subtitle { get; } = "Create professional glass invoices in 7 simple steps";
+        public string Subtitle { get; } = "Create professional glass invoices in 8 simple steps";
+
+        /// <summary>
+        /// Total wizard steps. Single source of truth — progress text,
+        /// percent and navigation all derive from this constant.
+        /// (Raised 7 → 8 when the Attachments step was added.)
+        /// </summary>
+        public const int TotalSteps = 8;
 
         // ── Dashboard Contract (preserved — DashboardViewModel binding) ─
         public ObservableCollection<InvoiceItem> Invoices { get; }
@@ -119,6 +126,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         public Step5DataGrid.DataGridViewModel Step5VM { get; }
         public Step6OtherCharges.OtherChargesViewModel Step6VM { get; }
         public Step7PrintPreview.PrintPreviewViewModel Step7VM { get; }
+
+        /// <summary>
+        /// Step 8 — Attachments (site photos, drawings, approvals).
+        /// Mirrors the Delivery Note attachments system.
+        /// </summary>
+        public Step8Attachments.AttachmentsStepViewModel Step8VM { get; }
 
         // ═══════════════════════════════════════════════════════════════
         //  WIZARD STEPS
@@ -155,11 +168,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         }
 
         public int CurrentStepNumber => CurrentStep?.StepNumber ?? 1;
-        public string StepProgressText => $"STEP  {CurrentStepNumber}  OF  7";
-        public double ProgressPercent => (double)CurrentStepNumber / 7.0;
+        public string StepProgressText =>
+            $"STEP  {CurrentStepNumber}  OF  {TotalSteps}";
+        public double ProgressPercent =>
+            (double)CurrentStepNumber / TotalSteps;
         public bool CanGoBack => CurrentStepNumber > 1;
-        public bool CanGoNext => CurrentStepNumber < 7;
-        public bool IsLastStep => CurrentStepNumber == 7;
+        public bool CanGoNext => CurrentStepNumber < TotalSteps;
+        public bool IsLastStep => CurrentStepNumber == TotalSteps;
 
         // ═══════════════════════════════════════════════════════════════
         //  PHASE 7.19 — LIST ↔ WIZARD
@@ -217,6 +232,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             Step7VM = new Step7PrintPreview.PrintPreviewViewModel(
                 Step1VM, Step2VM, Step3VM, Step5VM, Step6VM);
 
+            // Step 8 — Attachments. Reads the live Proforma ID from
+            // Step 1 so files stay keyed to the invoice being edited.
+            Step8VM = new Step8Attachments.AttachmentsStepViewModel(Step1VM);
+
             // ── S-03: Wizard step titles — corrected after swap ───────
             WizardSteps = new ObservableCollection<WizardStep>
             {
@@ -261,6 +280,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                     StepNumber = 7,
                     Title      = "Print preview",
                     Subtitle   = "Review, terms and ERP conversion"
+                },
+                new WizardStep
+                {
+                    StepNumber = 8,
+                    Title      = "Attachments",
+                    Subtitle   = "Photos, drawings & approvals"
                 }
             };
 
@@ -339,8 +364,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         private void GoToStep(int stepNumber)
         {
             var step = WizardSteps.FirstOrDefault(s => s.StepNumber == stepNumber);
-            if (step != null)
-                CurrentStep = step;
+            if (step == null) return;
+
+            CurrentStep = step;
+
+            // Step 8 shows disk state — refresh every time it is
+            // entered so external changes are never shown stale.
+            if (stepNumber == 8)
+                SafeFireAsync(() => Step8VM.LoadAsync());
         }
 
         // ═══════════════════════════════════════════════════════════════
@@ -401,6 +432,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 Step2VM.LoadSalesmanOptionsAsync(),  // S-06
                 Step3VM.LoadCardsAsync()
             );
+
+            // ── Step 8 follows the fresh Proforma ID automatically ────
+            // (its PropertyChanged hook on Step1VM triggers the reload).
+            await Step8VM.LoadAsync();
 
             // ── Navigate to Step 1 and show wizard ────────────────────
             CurrentStep = WizardSteps[0];
@@ -463,6 +498,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 Step2VM.LoadSalesmanOptionsAsync(),
                 Step3VM.LoadCardsAsync()
             );
+
+            // Step 8 — show the loaded invoice's attachments
+            await Step8VM.LoadAsync();
 
             CurrentStep = WizardSteps[0];
             IsListView = false;

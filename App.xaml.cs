@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: App.xaml.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Application startup (Chat 25 v4.0 — non-blocking Whisper init)
@@ -31,8 +31,10 @@ using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.AI.AIConnectivity;
 using ProGlassAutomation.Services.AI.AIService;
 using ProGlassAutomation.Services.AI.AIVoice;
+using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Database.DatabaseBackup;
+using ProGlassAutomation.Services.Performance;
 using ProGlassAutomation.Services.DeliveryNote.Repository;
 using ProGlassAutomation.Services.JobOrder.Repository;
 using ProGlassAutomation.Services.MasterData.Repository;
@@ -148,6 +150,20 @@ namespace ProGlassAutomation
             // 9) Statements
             Statements = new StatementRepository();
             await Statements.InitializeAsync();
+
+            // 9b) Audit & user system (activity logging).
+            //     Never throws — audit failure must not block startup.
+            await AuditService.InitializeAsync();
+
+            // 9c) Hardware-adaptive motion profile.
+            //     Detects the display refresh rate and snaps to the
+            //     nearest tier in 60/90/120/144/165 fps, then publishes
+            //     MotionDuration* / TargetFps resources for the XAML.
+            PerformanceProfileService.Apply();
+
+            AuditService.Log(
+                AuditSections.App, "App started",
+                $"Motion tier {PerformanceProfileService.TargetFps} fps");
 
             // 10) AI via factory (multi-provider)
             Ai = AiProviderFactory.CreateActive(Config.Ai);
@@ -345,6 +361,15 @@ namespace ProGlassAutomation
 
         protected override void OnExit(ExitEventArgs e)
         {
+            // Record shutdown in the audit trail (bounded wait — the
+            // app must still exit promptly even if the DB is locked).
+            try
+            {
+                AuditService.LogAsync(
+                    AuditSections.App, "App closed", "").Wait(1500);
+            }
+            catch { /* exit must never be blocked by audit errors */ }
+
             BackupService.CreateBackup();
             if (Config != null) ConfigService.Save(Config);
             Connectivity?.StopMonitoring();

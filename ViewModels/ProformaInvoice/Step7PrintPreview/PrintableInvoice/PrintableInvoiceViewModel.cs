@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs
 // ═══════════════════════════════════════════════════════════════════════
 // CHAT 15 — NAMESPACE FIX
@@ -14,6 +14,7 @@
 using Microsoft.Win32;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Csv;
 using ProGlassAutomation.Services.Export.Excel;
@@ -341,6 +342,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
 
         private static void ShowSaveSuccess(string proformaId, bool isUpdate)
         {
+            // Single audit point — all three save paths funnel through
+            // here, so one line covers create AND update.
+            AuditService.Log(
+                AuditSections.Proforma,
+                isUpdate ? "Invoice updated" : "Invoice saved",
+                proformaId, "PI", proformaId);
+
             string verb = isUpdate ? "updated" : "saved";
             MessageBox.Show(
                 $"Invoice '{proformaId}' was {verb} successfully.\n\n" +

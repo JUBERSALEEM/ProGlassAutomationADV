@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Reports/StatementGenerator/StatementGeneratorViewModel.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Account Statement / Sales Report (Chat 22 v3 — Jump Navigation)
@@ -42,6 +42,7 @@ using PdfSharp.Pdf.IO;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.Statement;
 using ProGlassAutomation.Models.Statement.Workflow;
+using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Statement.Aggregation;
 using ProGlassAutomation.Services.Statement.Pdf;
 using ProGlassAutomation.Services.Statement.Repository;
@@ -1254,6 +1255,13 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
                 double elapsedSec = (DateTime.Now - generationStart).TotalSeconds;
                 LiftWorkflowResultAfterCompletion(wfResult, pdfPath, elapsedSec);
+
+                AuditService.Log(
+                    AuditSections.Statement, "Statement generated",
+                    $"{wfResult.Snapshot.Header.StatementNumber} — " +
+                    $"{wfResult.Snapshot.Financial.TotalInvoiceCount} invoices, " +
+                    $"{elapsedSec:0.#}s",
+                    "STMT", wfResult.Snapshot.Header.StatementNumber);
 
                 StatusMessage = "Saving statement record…";
                 LiveAddLogEntry(LogSeverity.Info, "› Saving to database…");

@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Settings/SettingsViewModel.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Settings (Chat 25 v1.1 — CS0272 fix)
@@ -202,6 +202,10 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             ThemeManager.ThemeChanged += (_, __) =>
                 OnPropertyChanged(nameof(IsDarkTheme));
+
+            // Dynamic Theme Engine — accent presets (Settings UI)
+            ApplyAccentCommand = new RelayCommand(param =>
+                ApplyAccentPreset(param as string ?? "GlassBlue"));
         }
 
         // ══════════════════════════════════════════════════════════════
@@ -214,9 +218,58 @@ namespace ProGlassAutomation.ViewModels.Settings
             set
             {
                 ThemeManager.ApplyTheme(value ? AppTheme.Dark : AppTheme.Light);
+
+                ProGlassAutomation.Services.Audit.AuditService.Log(
+                    ProGlassAutomation.Services.Audit.AuditSections.Settings,
+                    "Theme changed",
+                    value ? "Dark theme" : "Light theme");
+
                 OnPropertyChanged();
             }
         }
+
+        // ══════════════════════════════════════════════════════════════
+        //  ACCENT COLOR (Dynamic Theme Engine)
+        //
+        //  One-click presets feed the adaptive accent engine
+        //  (ThemeManager.ApplyAccent) which derives hover/tint/contrast
+        //  brushes automatically. "Glass Blue" resets to the default.
+        // ══════════════════════════════════════════════════════════════
+
+        public ICommand ApplyAccentCommand { get; private set; }
+
+        /// <summary>Applies a named accent preset. Parameter = preset key.</summary>
+        public void ApplyAccentPreset(string presetKey)
+        {
+            var color = presetKey switch
+            {
+                "Emerald" => (System.Windows.Media.Color?)
+                    System.Windows.Media.Color.FromRgb(0x05, 0x96, 0x69),
+                "Amber" =>
+                    System.Windows.Media.Color.FromRgb(0xD9, 0x77, 0x06),
+                "Rose" =>
+                    System.Windows.Media.Color.FromRgb(0xE1, 0x1D, 0x48),
+                "Violet" =>
+                    System.Windows.Media.Color.FromRgb(0x7C, 0x3A, 0xED),
+                "Teal" =>
+                    System.Windows.Media.Color.FromRgb(0x0D, 0x94, 0x88),
+                _ => (System.Windows.Media.Color?)null   // Glass Blue default
+            };
+
+            ThemeManager.ApplyAccent(color);
+
+            ProGlassAutomation.Services.Audit.AuditService.Log(
+                ProGlassAutomation.Services.Audit.AuditSections.Settings,
+                "Accent changed",
+                presetKey == "GlassBlue" ? "Glass Blue (default)" : presetKey);
+        }
+
+        /// <summary>Detected display tier for the Performance section.</summary>
+        public string PerformanceTierDisplay =>
+            $"{ProGlassAutomation.Services.Performance.PerformanceProfileService.TargetFps} fps profile" +
+            (ProGlassAutomation.Services.Performance.PerformanceProfileService.RichEffectsEnabled
+                ? "  •  rich effects on"
+                : "  •  effects optimized");
 
         // ══════════════════════════════════════════════════════════════
         //  AI MASTER TOGGLE

@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: MainWindow.xaml
      PROJECT: ProGlassAutomation
      MODULE: Main Shell (Chat 23 v3.1)
@@ -55,6 +55,7 @@
         xmlns:vmDelivery="clr-namespace:ProGlassAutomation.ViewModels.DeliveryNote"
         xmlns:vmTaxInvoice="clr-namespace:ProGlassAutomation.ViewModels.TaxInvoice"
         xmlns:vmReports="clr-namespace:ProGlassAutomation.ViewModels.Reports"
+        xmlns:vmSystem="clr-namespace:ProGlassAutomation.ViewModels.System"
         xmlns:viewsDashboard="clr-namespace:ProGlassAutomation.Views.Dashboard"
         xmlns:viewsProforma="clr-namespace:ProGlassAutomation.Views.ProformaInvoice"
         xmlns:viewsAbout="clr-namespace:ProGlassAutomation.Views.About"
@@ -67,6 +68,7 @@
         xmlns:viewsTaxInvoice="clr-namespace:ProGlassAutomation.Views.TaxInvoice"
         xmlns:viewsReports="clr-namespace:ProGlassAutomation.Views.Reports"
         xmlns:viewsAi="clr-namespace:ProGlassAutomation.Views.AI"
+        xmlns:viewsSystem="clr-namespace:ProGlassAutomation.Views.System"
         Title="ProGlass Automation"
         Height="720" Width="1280"
         MinHeight="600" MinWidth="900"
@@ -205,6 +207,11 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type vmReports:SalesReportViewModel}">
             <viewsReports:SalesReportView/>
+        </DataTemplate>
+
+        <!-- NEW: System Center — user management + audit trail -->
+        <DataTemplate DataType="{x:Type vmSystem:SystemCenterViewModel}">
+            <viewsSystem:SystemCenterView/>
         </DataTemplate>
 
         <!-- ═══════════════════════════════════════════════════════════════
@@ -658,6 +665,13 @@
                                     Content="Sales Report" Tag="&#128202;"
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="SalesReport"/>
+
+                            <TextBlock Text="SYSTEM"
+                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                            <Button Style="{StaticResource SidebarItemStyle}"
+                                    Content="System Center" Tag="&#128736;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="SystemCenter"/>
 
                         </StackPanel>
                     </ScrollViewer>

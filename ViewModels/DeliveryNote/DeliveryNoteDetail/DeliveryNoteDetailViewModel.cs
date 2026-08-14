@@ -1,6 +1,7 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
+using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.DeliveryNote.Attachments;
 using ProGlassAutomation.Services.DeliveryNote.Export;
 using ProGlassAutomation.Services.DeliveryNote.Mapper;
@@ -1006,6 +1007,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 await App.DeliveryNotes.UpdateAsync(_entity);
                 await LoadAsync(_entity.Id);
 
+                AuditService.Log(
+                    AuditSections.DeliveryNote, "Delivery note saved",
+                    $"{DeliveryNoteId} — status {Status}",
+                    "DN", DeliveryNoteId);
+
                 MessageBox.Show(
                     $"Delivery note '{DeliveryNoteId}' saved successfully.",
                     "Saved",
@@ -1101,6 +1107,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 await App.DeliveryNotes.UpdateMasterDnAsync(
                     _entity.JobOrderId,
                     _entity.DeliveryNoteId);
+
+                AuditService.Log(
+                    AuditSections.DeliveryNote, "Delivery dispatched",
+                    $"{_entity.DeliveryNoteId} dispatched",
+                    "DN", _entity.DeliveryNoteId);
 
                 int totalBalance = _entity.Items.Sum(i => i.BalanceQty);
 
@@ -1506,6 +1517,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                         renameDlg.ResultFileName);
                 await App.DeliveryNotes.AddAttachmentAsync(entity);
                 await LoadAttachmentsDirectlyAsync(_deliveryNoteId);
+
+                AuditService.Log(
+                    AuditSections.DeliveryNote, "Attachment added",
+                    $"Image '{entity.FileName}' → {_deliveryNoteId}",
+                    "DN", _deliveryNoteId);
             }
             catch (Exception ex)
             {
@@ -1568,6 +1584,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                         renameDlg.ResultFileName);
                 await App.DeliveryNotes.AddAttachmentAsync(entity);
                 await LoadAttachmentsDirectlyAsync(_deliveryNoteId);
+
+                AuditService.Log(
+                    AuditSections.DeliveryNote, "Attachment added",
+                    $"PDF '{entity.FileName}' → {_deliveryNoteId}",
+                    "DN", _deliveryNoteId);
             }
             catch (Exception ex)
             {
@@ -1611,6 +1632,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 await App.DeliveryNotes.DeleteAttachmentAsync(row.Id);
                 _attachmentService.DeleteFile(row.FilePath);
                 await LoadAttachmentsDirectlyAsync(_deliveryNoteId);
+
+                AuditService.Log(
+                    AuditSections.DeliveryNote, "Attachment deleted",
+                    $"'{row.FileName}' removed from {_deliveryNoteId}",
+                    "DN", _deliveryNoteId);
             }
             catch (Exception ex)
             {

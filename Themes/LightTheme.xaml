@@ -1,4 +1,4 @@
-﻿<!--
+<!--
     FILE: Themes/LightTheme.xaml
     PROJECT: ProGlassAutomation
     VERSION: Chat 23 v1.6 — Add Dashboard glass/ambient keys
@@ -22,6 +22,7 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
                     xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
+                    xmlns:sys="clr-namespace:System;assembly=System.Runtime"
                     xmlns:conv="clr-namespace:ProGlassAutomation.Converters">
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -208,6 +209,30 @@
                       Color="#1E3A8A"
                       Direction="270"
                       po:Freeze="True"/>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         CARD SHAPE + MOTION TOKENS (additive — Dynamic Theme Engine)
+         Card geometry and motion timings live here as single tokens so
+         every section reads the same smooth, consistent shapes. The
+         PerformanceProfileService overrides MotionDuration* at runtime
+         with values scaled to the detected refresh tier
+         (60/90/120/144/165 fps).
+    ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- Card shapes — one source of truth for corner radii. -->
+    <CornerRadius x:Key="ControlCornerRadius">10</CornerRadius>
+    <CornerRadius x:Key="CardCornerRadius">14</CornerRadius>
+    <CornerRadius x:Key="CardCornerRadiusLarge">20</CornerRadius>
+    <CornerRadius x:Key="PillCornerRadius">999</CornerRadius>
+
+    <!-- Motion defaults (pre-profile values; tuned at startup). -->
+    <sys:Double x:Key="MotionSpeedRatio">1.0</sys:Double>
+    <Duration x:Key="MotionDurationFast">0:0:0.12</Duration>
+    <Duration x:Key="MotionDurationNorm">0:0:0.22</Duration>
+    <Duration x:Key="MotionDurationSlow">0:0:0.38</Duration>
+    <sys:Boolean x:Key="RichEffectsEnabled">False</sys:Boolean>
+    <sys:Boolean x:Key="UltraSmoothEnabled">False</sys:Boolean>
+    <sys:Int32 x:Key="TargetFps">60</sys:Int32>
 
     <!-- ── BrushKeyConverter (unchanged) ──────────────────────────── -->
     <conv:BrushKeyConverter x:Key="BrushKeyConverter"/>

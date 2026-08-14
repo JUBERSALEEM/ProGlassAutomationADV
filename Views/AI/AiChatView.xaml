@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/AI/AiChatView.xaml
      PROJECT: ProGlassAutomation
      MODULE: AI Chat (Chat 25 v4.0 — StatusMessage visibility fix)
@@ -195,7 +195,20 @@
             </Rectangle.Style>
         </Rectangle>
 
+        <!--
+            VOICE-FIX: The panel keeps its 600 px design height, but
+            MaxHeight is clamped to (window height − 130) so on short
+            windows the panel SHRINKS instead of overflowing past the
+            top edge. Previously the header and the voice-assistant
+            input row were clipped off-screen ("voice assistant gets
+            hidden"). The messages row (*) absorbs the shrink; the
+            mic/speaker/status rows always stay visible.
+        -->
         <Border Width="420" Height="600"
+                MaxHeight="{Binding ActualHeight,
+                            RelativeSource={RelativeSource AncestorType=Window},
+                            Converter={StaticResource WindowInsetConverter},
+                            ConverterParameter=130}"
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
                 Margin="0,0,25,95"

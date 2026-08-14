@@ -1,8 +1,11 @@
-﻿using ProGlassAutomation.Commands;
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
+using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.DeliveryNote.Mapper;
 using ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail;
 using ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList;
+using ProGlassAutomation.ViewModels.DeliveryNote.GodView;
+using ProGlassAutomation.ViewModels.Shared;
 using System;
 using System.Linq;
 using System.Text.Json;
@@ -37,8 +40,19 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
         public string Subtitle { get; } =
             "Track glass deliveries, partial shipments and balance quantities";
 
+        // ── Tab strip keys (Workspace | God View | Activity) ─────────────
+        public const string TabWorkspace = "Workspace";
+        public const string TabGodView = "GodView";
+        public const string TabActivity = "Activity";
+
         public DeliveryNoteListViewModel ListVM { get; }
         public DeliveryNoteDetailViewModel DetailVM { get; }
+
+        /// <summary>God View tab — every delivery note in the system.</summary>
+        public DeliveryNoteGodViewViewModel GodViewVM { get; }
+
+        /// <summary>Activity tab — live audit feed for this section.</summary>
+        public SectionActivityViewModel ActivityVM { get; }
 
         // ── Cross-module callbacks ────────────────────────────────────────
 
@@ -64,7 +78,33 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
 
         public bool IsDetailView => !_isListView;
 
+        // ── Tab strip state ──────────────────────────────────────────────
+
+        private string _activeTab = TabWorkspace;
+
+        /// <summary>Which tab is active: Workspace / GodView / Activity.</summary>
+        public string ActiveTab
+        {
+            get => _activeTab;
+            set
+            {
+                if (_activeTab == value) return;
+                _activeTab = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsWorkspaceTab));
+                OnPropertyChanged(nameof(IsGodViewTab));
+                OnPropertyChanged(nameof(IsActivityTab));
+            }
+        }
+
+        public bool IsWorkspaceTab => ActiveTab == TabWorkspace;
+        public bool IsGodViewTab => ActiveTab == TabGodView;
+        public bool IsActivityTab => ActiveTab == TabActivity;
+
         public ICommand BackToListCommand { get; }
+
+        /// <summary>Switches tabs. Parameter = tab key constant.</summary>
+        public ICommand SwitchTabCommand { get; }
 
         private static readonly JsonSerializerOptions _jsonOptions = new()
         {
@@ -143,6 +183,37 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
 
             BackToListCommand = new RelayCommand(
                 _ => SafeFireAsync(ReturnToList));
+
+            // ── God View tab: row-open hands off to detail flow ───────
+            GodViewVM = new DeliveryNoteGodViewViewModel();
+            GodViewVM.OnOpenRequested = id =>
+                SafeFireAsync(() => LoadDetailAsync(id));
+
+            // ── Activity tab: live audit feed for this section ────────
+            ActivityVM = new SectionActivityViewModel(
+                AuditSections.DeliveryNote);
+
+            SwitchTabCommand = new RelayCommand(param =>
+                SwitchTab(param as string ?? TabWorkspace));
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  TAB SWITCHING
+        // ═════════════════════════════════════════════════════════════════
+
+        private void SwitchTab(string tabKey)
+        {
+            ActiveTab = tabKey;
+
+            switch (tabKey)
+            {
+                case TabGodView:
+                    GodViewVM.LoadAsync();
+                    break;
+                case TabActivity:
+                    ActivityVM.LoadAsync();
+                    break;
+            }
         }
 
         // ═════════════════════════════════════════════════════════════════

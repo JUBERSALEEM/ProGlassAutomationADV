@@ -1,6 +1,7 @@
-﻿using Microsoft.Win32;
+using Microsoft.Win32;
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.SheetStore;
+using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.SheetStore;
 using ProGlassAutomation.Services.SheetStore.SheetStoreCsv;
 using ProGlassAutomation.Services.SheetStore.SheetStoreExcel;
@@ -651,6 +652,11 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                         $"Initial stock: {added.Stock} sheets @ {added.PurchasePricePerSqm:N2} AED/SQM. " +
                         $"Total value: {added.TotalPurchaseValue:N2} AED.",
                         added.Stock, added.TotalPurchaseValue);
+
+                    AuditService.Log(AuditSections.SheetStore, "Sheet added",
+                        $"{DescribeSheet(added)} — stock {added.Stock}",
+                        "SHEET", added.Id.ToString());
+
                     await LoadAsync();
                 }
                 catch (Exception ex) { ShowError("Could not add glass sheet.\n\n" + ex.Message); }
@@ -682,6 +688,11 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                     var details = changes.Count > 0 ? string.Join(" | ", changes) : "Details edited";
 
                     await _historyRepo.LogAsync(vm.Result.Id, DescribeSheet(vm.Result), "Edited", details);
+
+                    AuditService.Log(AuditSections.SheetStore, "Sheet edited",
+                        $"{DescribeSheet(vm.Result)} — {details}",
+                        "SHEET", vm.Result.Id.ToString());
+
                     await LoadAsync();
                 }
                 catch (Exception ex) { ShowError("Could not update.\n\n" + ex.Message); }
@@ -712,6 +723,11 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                     await _historyRepo.LogAsync(sheet.Id, desc, "Deleted",
                         $"Removed from inventory. Lost {stockLost} sheets worth {valueLost:N2} AED.",
                         stockLost, valueLost);
+
+                    AuditService.Log(AuditSections.SheetStore, "Sheet deleted",
+                        $"{desc} — {stockLost} sheets removed",
+                        "SHEET", sheet.Id.ToString());
+
                     await LoadAsync();
                 }
                 catch (Exception ex) { ShowError("Could not delete.\n\n" + ex.Message); }
@@ -740,6 +756,11 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                         sheet.Id, DescribeSheet(sheet), "Bought",
                         $"Purchased {vm.Quantity} sheets. Stock: {oldStock} → {oldStock + vm.Quantity}. Value: {value:N2} AED.",
                         vm.Quantity, value);
+
+                    AuditService.Log(AuditSections.SheetStore, "Stock purchased",
+                        $"{DescribeSheet(sheet)} — +{vm.Quantity} sheets",
+                        "SHEET", sheet.Id.ToString());
+
                     await LoadAsync();
                 }
                 catch (Exception ex) { ShowError("Could not add stock.\n\n" + ex.Message); }
@@ -778,6 +799,11 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                         sheet.Id, DescribeSheet(sheet), "Used",
                         $"Consumed {vm.Quantity} sheets.{jobRef} Used: {oldUsed} → {oldUsed + vm.Quantity}. Value: {value:N2} AED.",
                         vm.Quantity, value);
+
+                    AuditService.Log(AuditSections.SheetStore, "Stock used",
+                        $"{DescribeSheet(sheet)} — {vm.Quantity} sheets{jobRef}",
+                        "SHEET", sheet.Id.ToString());
+
                     await LoadAsync();
                 }
                 catch (Exception ex) { ShowError(ex.Message); }

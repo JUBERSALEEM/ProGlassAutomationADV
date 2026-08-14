@@ -1,9 +1,10 @@
-﻿using ProGlassAutomation.Commands;
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus;
 using ProGlassAutomation.Models.JobOrder.Common.JobPriority;
 using ProGlassAutomation.Models.JobOrder.ProductionDetails;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.DeliveryNote.Mapper;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Csv;
@@ -419,6 +420,11 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
                 await App.Jobs.UpdateAsync(_entity);
 
                 HasUnsavedChanges = false;
+
+                AuditService.Log(
+                    AuditSections.JobOrder, "Job order saved",
+                    $"{_snapshot.JobOrderId} — status {SelectedStatus}",
+                    "JO", _snapshot.JobOrderId);
 
                 MessageBox.Show(
                     $"Job order '{_snapshot.JobOrderId}' saved successfully.",

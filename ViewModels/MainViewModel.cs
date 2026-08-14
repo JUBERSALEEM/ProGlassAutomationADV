@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/MainViewModel.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Main Shell (Chat 24 v1.2)
@@ -47,6 +47,7 @@ using ProGlassAutomation.ViewModels.Production;
 using ProGlassAutomation.ViewModels.Reports;
 using ProGlassAutomation.ViewModels.Settings;
 using ProGlassAutomation.ViewModels.SheetStore;
+using ProGlassAutomation.ViewModels.System;
 using ProGlassAutomation.ViewModels.TaxInvoice;
 using System.Windows.Input;
 
@@ -76,6 +77,10 @@ namespace ProGlassAutomation.ViewModels
 
         // v3.1: NEW Settings module
         public SettingsViewModel SettingsVM { get; } = new SettingsViewModel();
+
+        // NEW: System Center — user management + audit trail
+        public SystemCenterViewModel SystemCenterVM { get; } =
+            new SystemCenterViewModel();
 
         // ── AI chat ───────────────────────────────────────────────────────
         // Chat 24 v1.2: Now receives voice services for 🎤 mic + 🔊 speaker.
@@ -238,6 +243,12 @@ namespace ProGlassAutomation.ViewModels
 
                 // v3.1: NEW Settings navigation
                 case "Settings": CurrentViewModel = SettingsVM; break;
+
+                // NEW: System Center (Users + Activity Log)
+                case "SystemCenter":
+                    CurrentViewModel = SystemCenterVM;
+                    SystemCenterVM.LoadUsersAsync();
+                    break;
             }
             IsMenuOpen = false;
         }

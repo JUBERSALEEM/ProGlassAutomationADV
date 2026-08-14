@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/AI/AiChatViewModel.cs
 // PROJECT: ProGlassAutomation
 // MODULE: AI Chat (Chat 25 v5.0 — Whisper fallback + full thread safety)
@@ -31,7 +31,12 @@ namespace ProGlassAutomation.ViewModels.AI
     /// </summary>
     public class AiChatViewModel : ViewModelBase
     {
-        private readonly ISpeechToTextService _stt;
+        // VOICE-FIX: was readonly. When Whisper failed mid-session the
+        // fallback service could never replace it, so IsVoiceAvailable
+        // kept reading the disposed Whisper → the mic button and voice
+        // assistant UI silently disappeared ("voice assistant hidden").
+        // Now mutable + swapped safely in the ModelLoadFailed handler.
+        private ISpeechToTextService _stt;
         private readonly ITextToSpeechService _tts;
 
         private string _currentInput;
@@ -200,10 +205,16 @@ namespace ProGlassAutomation.ViewModels.AI
                     RunOnUi(() => MicAudioLevel = level);
                 };
 
-                // ── NEW: Auto-fallback on Whisper model failure ───────
+                // ── Auto-fallback on Whisper model failure ────────────
                 // If Whisper model fails to load (corrupted, missing DLL,
-                // permission error), swap App.SpeechToText to the
-                // SpeechToTextService fallback so voice still works.
+                // permission error), swap BOTH App.SpeechToText and this
+                // VM's own _stt reference to the SpeechToTextService
+                // fallback so voice keeps working.
+                //
+                // VOICE-FIX: previous versions only swapped App.SpeechToText;
+                // this VM kept using the disposed Whisper through _stt, so
+                // IsVoiceAvailable flipped to false and the mic button +
+                // voice assistant UI vanished.
                 whisper.ModelLoadFailed += (_, reason) =>
                 {
                     RunOnUi(() =>
@@ -215,7 +226,24 @@ namespace ProGlassAutomation.ViewModels.AI
                         try
                         {
                             whisper.Dispose();
-                            App.SpeechToText = new SpeechToTextService();
+
+                            var fallback = new SpeechToTextService();
+
+                            // Re-point this VM AND the global service.
+                            _stt = fallback;
+                            App.SpeechToText = fallback;
+
+                            // Re-wire listening-state updates from the
+                            // new service (old handler died with Whisper).
+                            _stt.ListeningStateChanged += (_, listening) =>
+                            {
+                                RunOnUi(() =>
+                                {
+                                    IsListening = listening;
+                                    if (!listening)
+                                        MicAudioLevel = 0f;
+                                });
+                            };
 
                             System.Diagnostics.Debug.WriteLine(
                                 "[AiChatVM] Swapped Whisper → System.Speech.");
@@ -225,6 +253,7 @@ namespace ProGlassAutomation.ViewModels.AI
                                 "For 95% accuracy, re-download Whisper " +
                                 "model in Settings.";
 
+                            // Show the mic again — availability changed.
                             OnPropertyChanged(nameof(IsVoiceAvailable));
                         }
                         catch (Exception ex)
@@ -233,6 +262,7 @@ namespace ProGlassAutomation.ViewModels.AI
                                 $"[AiChatVM] Fallback swap failed: {ex.Message}");
                             StatusMessage =
                                 "⚠ Voice unavailable — check audio drivers";
+                            OnPropertyChanged(nameof(IsVoiceAvailable));
                         }
                     });
                 };

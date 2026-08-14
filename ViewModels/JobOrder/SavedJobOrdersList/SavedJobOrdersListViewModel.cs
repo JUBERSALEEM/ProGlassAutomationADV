@@ -1,7 +1,8 @@
-﻿using ProGlassAutomation.Commands;
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.JobOrder.Common.JobOrderStatus;
 using ProGlassAutomation.Models.JobOrder.Common.JobPriority;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
+using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Excel;
 using ProGlassAutomation.Services.Export.Pdf;
@@ -365,6 +366,11 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
             try
             {
                 await App.Jobs.DeleteAsync(row.Id);
+
+                AuditService.Log(
+                    AuditSections.JobOrder, "Job order deleted",
+                    row.JobOrderId, "JO", row.JobOrderId);
+
                 await LoadJobOrdersAsync();
             }
             catch (Exception ex)

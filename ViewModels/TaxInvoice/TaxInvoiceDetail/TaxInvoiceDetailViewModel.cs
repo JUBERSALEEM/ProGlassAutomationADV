@@ -1,6 +1,7 @@
-﻿using ProGlassAutomation.Commands;
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.TaxInvoice.Attachment;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
+using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.TaxInvoice.Mapper;
 using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList;
@@ -1286,6 +1287,12 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 // This fires regardless of Insert or Update so that:
                 //   a) Newly saved TI immediately marks DNs
                 //   b) Re-saving existing TI keeps DNs marked (idempotent)
+
+                // Single audit point — both insert and update reach here.
+                AuditService.Log(
+                    AuditSections.TaxInvoice, "Tax invoice saved",
+                    $"{savedInvoiceNumber} — status {Status}",
+                    "TI", savedInvoiceNumber);
 
                 await MarkDnsAsInvoicedAsync(savedInvoiceNumber);
 

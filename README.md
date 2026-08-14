@@ -7,6 +7,7 @@
 ## Quick links
 
 - Project: https://github.com/JUBERSALEEM/ProGlassAutomationADV
+- **Upgrade notes (audit system, God Views, Step 8 attachments, dynamic theme engine, bug fixes): `Docs/UPGRADE_NOTES.md`**
 - Docs: `docs/` (see `docs/Chat5`, `docs/Chat5-9`, `docs/Chat6`)
 - New helper documents:
   - BUG_FIXES.md — high-priority defects to fix
@@ -32,7 +33,12 @@ This repository was audited and several helper documents were added to help tria
 
 ## Short project overview
 
-ProGlass Automation is a Windows desktop application for managing glass production workflows: inventory (Sheet Store), proforma invoices, job orders, delivery notes, tax invoices, statements and exports (PDF/Excel/CSV). The app uses a modular ViewModel-first MVVM pattern; each module is loaded into a shell `MainWindow` ContentControl via DataTemplate bindings.
+ProGlass Automation is a Windows desktop application for managing glass production workflows: inventory (Sheet Store), proforma invoices (8-step wizard incl. attachments), job orders, delivery notes, tax invoices, statements and exports (PDF/Excel/CSV). The app uses a modular ViewModel-first MVVM pattern; each module is loaded into a shell `MainWindow` ContentControl via DataTemplate bindings.
+
+Highlights of the current build:
+- **Audit & users** — every user action is recorded (`audit.db`); create/switch users in System Center; live Activity tabs inside Delivery Note, Job Order and Tax Invoice.
+- **God View tabs** — DN / JO / TI modules switch between Workspace, an all-records God View, and Activity.
+- **Dynamic theme engine** — accent colours are derived (HSL + WCAG contrast), card shapes are token-driven, and motion adapts to the display refresh tier (60/90/120/144/165 fps).
 
 ### Stack
 - Language: C# targeting .NET 8
