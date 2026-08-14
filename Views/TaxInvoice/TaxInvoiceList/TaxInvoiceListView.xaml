@@ -419,11 +419,10 @@
 
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="Tax Invoices"
-                               FontSize="26" FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                               Style="{StaticResource ModulePageTitleStyle}"/>
                     <TextBlock Text="One row per Proforma Invoice. Click to open · view partial invoices inside detail."
-                               FontSize="12" Margin="0,3,0,0"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                               Style="{StaticResource ModulePageSubtitleStyle}"
+                               Margin="0,3,0,0"/>
                 </StackPanel>
 
                 <Button Grid.Column="1"

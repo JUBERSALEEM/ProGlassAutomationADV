@@ -17,6 +17,9 @@
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/PillStyles.xaml"/>
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/CardStyles.xaml"/>
 
+                <!-- v2 design system: shared module-screen primitives -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/DesignTokens.xaml"/>
+
                 <!-- Module tab strip + God View styles (DN/JO/TI tabs) -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ModuleTabStyles.xaml"/>
 

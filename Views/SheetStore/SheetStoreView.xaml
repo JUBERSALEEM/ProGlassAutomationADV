@@ -88,7 +88,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="8"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="{TemplateBinding Padding}"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
@@ -111,7 +111,8 @@
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderBrush" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="CornerRadius"
+                    Value="{DynamicResource ControlCornerRadius}"/>
             <Setter Property="Padding" Value="12,10"/>
             <Setter Property="Margin" Value="0,3"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -163,17 +164,19 @@
             <DockPanel Margin="8,0,8,16">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="SHEET STORE" FontSize="28" FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                        <!-- v2 design system: shared module title scale -->
+                        <TextBlock Text="SHEET STORE"
+                                   Style="{StaticResource ModulePageTitleStyle}"/>
                         <Border Background="{DynamicResource AccentBrush}"
-                                CornerRadius="10" Padding="10,4"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Padding="10,4"
                                 VerticalAlignment="Center" Margin="14,6,0,0">
                             <TextBlock Text="INVENTORY" FontSize="10" FontWeight="Bold" Foreground="White"/>
                         </Border>
                     </StackPanel>
                     <TextBlock Text="Stock Management &amp; Pricing System"
-                               FontSize="12" Margin="0,4,0,0"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                               Style="{StaticResource ModulePageSubtitleStyle}"
+                               Margin="0,4,0,0"/>
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Content="📥 Import" Style="{StaticResource HeaderActionBtn}"
@@ -191,7 +194,7 @@
                             ToolTip="Export current view to formatted Excel (.xlsx)"
                             Command="{Binding ExportExcelCommand}"/>
                     <Button Content="📄 PDF" Style="{StaticResource HeaderActionBtn}"
-                            Background="#B91C1C" Foreground="White"
+                            Background="{DynamicResource DangerBrush}" Foreground="White"
                             ToolTip="Generate PDF inventory report"
                             Command="{Binding ExportPdfCommand}"/>
                     <Button Content="📜 History" Style="{StaticResource HeaderActionBtn}"
@@ -417,7 +420,7 @@
             <Border Background="{DynamicResource MenuHoverBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="1"
-                    CornerRadius="10,10,0,0" Padding="12,10" Margin="8,0,8,0"
+                    CornerRadius="14,14,0,0" Padding="12,10" Margin="8,0,8,0"
                     SnapsToDevicePixels="True">
                     <!-- v2: header stays visible even when the list is
                          empty — users must always see the columns. -->
@@ -467,7 +470,7 @@
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1,0,1,1"
-                CornerRadius="0,0,12,12"
+                CornerRadius="0,0,14,14"
                 Margin="32,0,32,16"
                 SnapsToDevicePixels="True">
             <Grid>

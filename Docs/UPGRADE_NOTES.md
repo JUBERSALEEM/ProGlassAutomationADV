@@ -381,3 +381,34 @@ silently erased (§24).
 - Everything already virtualized/capped stays as-is (God Views,
   activity feeds, audit queries). Real FPS measurement needs your
   hardware — this pass removes structural bottlenecks.
+
+---
+
+## 13. v2 Upgrade — Phase Batch 8: UI design-system foundation + first migrations
+
+### Analysis (senior audit)
+- 20+ hardcoded corner radii (3…22), 40+ local styles in single views,
+  module title sizes drifting (24/26/28/36), Splash pinned to stale v1.1.0.
+
+### Foundation
+- `Themes/Styles/DesignTokens.xaml` (registered in App.xaml): the single
+  source of truth for module-screen primitives — ModulePageTitle/Subtitle
+  styles (24/12), ModuleSectionCard, ModuleColumnHeader, toolbar
+  primary/secondary buttons, in-page tab pill. Built ON the existing
+  radius tokens (Control=10, Card=14, CardLarge=20, Pill=999) — no new
+  conflicting values.
+
+### Migrations (pilot-first, non-destructive)
+- Sheet Store pilot: page title/subtitle, data-row + toolbar + table
+  chrome radii moved to tokens; PDF button hard-red → DangerBrush.
+- Job Order / Delivery Note / Tax Invoice: page titles + subtitles on the
+  shared styles — one consistent 24/12 scale.
+- Splash: version bound to AppInfo.Version via x:Static (no stale string).
+- About: already dynamic from earlier batch (verified).
+
+### Docs
+- `Docs/DESIGN_SYSTEM.md` — canonical tokens, rules for touching a module,
+  migration status, and the pilot-first rationale.
+
+Remaining module chrome (detail headers, wizard steps) migrates
+incrementally per the documented rules — each a small reviewable change.

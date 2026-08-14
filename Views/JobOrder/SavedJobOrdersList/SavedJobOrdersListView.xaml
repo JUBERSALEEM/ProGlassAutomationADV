@@ -137,11 +137,10 @@
             <!-- ── PAGE HEADER ────────────────────────────────────────── -->
             <StackPanel Margin="8,0,8,20">
                 <TextBlock Text="Job Orders"
-                           FontSize="28" FontWeight="Bold"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                           Style="{StaticResource ModulePageTitleStyle}"/>
                 <TextBlock Text="Track production status of approved invoices"
-                           FontSize="12" Margin="0,4,0,0"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                           Style="{StaticResource ModulePageSubtitleStyle}"
+                           Margin="0,4,0,0"/>
             </StackPanel>
 
             <!-- ── LOADING / ERROR ────────────────────────────────────── -->

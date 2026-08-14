@@ -585,11 +585,10 @@
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="Delivery Notes"
-                               FontSize="26" FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                               Style="{StaticResource ModulePageTitleStyle}"/>
                     <TextBlock Text="One row per Job Order. Click to open the latest split."
-                               FontSize="12" Margin="0,3,0,0"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                               Style="{StaticResource ModulePageSubtitleStyle}"
+                               Margin="0,3,0,0"/>
                 </StackPanel>
                 <Button Grid.Column="1"
                         Content="🚚  Create DN"
