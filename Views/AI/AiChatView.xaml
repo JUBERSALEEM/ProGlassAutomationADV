@@ -634,15 +634,24 @@
                                                 <DataTrigger.EnterActions>
                                                     <BeginStoryboard x:Name="ListenPulse">
                                                         <Storyboard RepeatBehavior="Forever">
-                                                            <DoubleAnimation Storyboard.TargetProperty="Opacity"
-                                                                             Values="0.85;0.15;0.85"
-                                                                             Duration="0:0:1.2"/>
-                                                            <DoubleAnimation Storyboard.TargetProperty="(Ellipse.RenderTransform).(ScaleTransform.ScaleX)"
-                                                                             Values="0.8;1.35;0.8"
-                                                                             Duration="0:0:1.2"/>
-                                                            <DoubleAnimation Storyboard.TargetProperty="(Ellipse.RenderTransform).(ScaleTransform.ScaleY)"
-                                                                             Values="0.8;1.35;0.8"
-                                                                             Duration="0:0:1.2"/>
+                                                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="Opacity"
+                                                                                           Duration="0:0:1.2">
+                                                                <LinearDoubleKeyFrame Value="0.85" KeyTime="0:0:0"/>
+                                                                <LinearDoubleKeyFrame Value="0.15" KeyTime="0:0:0.6"/>
+                                                                <LinearDoubleKeyFrame Value="0.85" KeyTime="0:0:1.2"/>
+                                                            </DoubleAnimationUsingKeyFrames>
+                                                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Ellipse.RenderTransform).(ScaleTransform.ScaleX)"
+                                                                                           Duration="0:0:1.2">
+                                                                <LinearDoubleKeyFrame Value="0.8" KeyTime="0:0:0"/>
+                                                                <LinearDoubleKeyFrame Value="1.35" KeyTime="0:0:0.6"/>
+                                                                <LinearDoubleKeyFrame Value="0.8" KeyTime="0:0:1.2"/>
+                                                            </DoubleAnimationUsingKeyFrames>
+                                                            <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(Ellipse.RenderTransform).(ScaleTransform.ScaleY)"
+                                                                                           Duration="0:0:1.2">
+                                                                <LinearDoubleKeyFrame Value="0.8" KeyTime="0:0:0"/>
+                                                                <LinearDoubleKeyFrame Value="1.35" KeyTime="0:0:0.6"/>
+                                                                <LinearDoubleKeyFrame Value="0.8" KeyTime="0:0:1.2"/>
+                                                            </DoubleAnimationUsingKeyFrames>
                                                         </Storyboard>
                                                     </BeginStoryboard>
                                                 </DataTrigger.EnterActions>

@@ -1175,13 +1175,16 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             CreateBackupNowCommand = new RelayCommand(_ =>
             {
-                var backup = Services.Database.DatabaseBackup.BackupService;
+                // BackupService is a STATIC class — call members directly
+                // (a static type cannot be assigned to a variable).
 
                 // Professional behaviour: warn if a backup was made very
                 // recently so the list isn't flooded by repeated clicks.
-                var sinceLast = backup.TimeSinceLastBackup();
+                var sinceLast = Services.Database.DatabaseBackup.BackupService
+                    .TimeSinceLastBackup();
                 if (sinceLast.HasValue &&
-                    sinceLast.Value < backup.ManualWarnWindow)
+                    sinceLast.Value < Services.Database.DatabaseBackup.BackupService
+                        .ManualWarnWindow)
                 {
                     var mins = (int)sinceLast.Value.TotalMinutes;
                     var confirm = System.Windows.MessageBox.Show(
@@ -1194,7 +1197,8 @@ namespace ProGlassAutomation.ViewModels.Settings
                         return;
                 }
 
-                var set = backup.CreateFullBackupSet("manual (Settings)");
+                var set = Services.Database.DatabaseBackup.BackupService
+                    .CreateFullBackupSet("manual (Settings)");
 
                 BackupStatus = set.Length > 0
                     ? $"✓ Backup created: {System.IO.Path.GetFileName(set)}"

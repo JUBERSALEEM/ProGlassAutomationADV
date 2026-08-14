@@ -482,3 +482,25 @@ Verified: all XAML parse clean, 381/381 CS balanced.
 
 Verified: all XAML parse clean, 381/381 CS balanced. Model availability
 confirmed via current Google/Groq/Cohere documentation.
+
+---
+
+## 16. v2 Upgrade — Phase Batch 11: fix 3 compile errors from prior phases
+
+Three genuine compile errors (the rest of the reported XDG0008 list was a
+cascade from these breaking the assembly build):
+
+1. **SettingsViewModel** — `BackupService` is a static class and was being
+   assigned to a variable (CS0723/CS0119/CS0176). Now calls members
+   statically.
+2. **AiChatView** — listening pulse used `Values="..."` on a
+   `DoubleAnimation`, which has no `Values` property (MC3072). Replaced
+   with `DoubleAnimationUsingKeyFrames` + `LinearDoubleKeyFrame`s.
+3. **SplashView** — `x:Static` does not support `Mode=OneWay` (MC3045).
+   Removed the Mode.
+
+Verified the many "type not found in namespace" errors (EmptyStateControl,
+BrushKeyConverter, SmoothScrollBehavior, GradientHeroCard, etc.) are all
+cascade errors — those types exist with correct namespaces and resolve once
+the assembly compiles. Repo-wide sweep confirms no other instances of these
+patterns. All XAML parse clean, 381/381 CS balanced.

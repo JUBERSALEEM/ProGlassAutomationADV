@@ -349,7 +349,7 @@
                            VerticalAlignment="Center"
                            IsHitTestVisible="False">
                     <Run Text="v"/>
-                    <Run Text="{x:Static updates:AppInfo.Version, Mode=OneWay}"/>
+                    <Run Text="{x:Static updates:AppInfo.Version}"/>
                 </TextBlock>
             </StackPanel>
         </Border>
