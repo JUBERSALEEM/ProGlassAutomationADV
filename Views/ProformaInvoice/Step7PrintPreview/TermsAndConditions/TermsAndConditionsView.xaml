@@ -1,5 +1,6 @@
 ﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview.TermsAndConditions.TermsAndConditionsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
@@ -19,6 +20,7 @@
              INPUT BOX — theme-aware with indigo focus
         ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="InputBoxStyle" TargetType="TextBox">
+            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="Background"                 Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="Foreground"                 Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="BorderBrush"                Value="{DynamicResource BorderBrush}"/>
@@ -63,6 +65,7 @@
 
         <!-- Title editor (bold clause title) -->
         <Style x:Key="TitleBoxStyle" TargetType="TextBox" BasedOn="{StaticResource InputBoxStyle}">
+            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="FontSize"   Value="13"/>
         </Style>

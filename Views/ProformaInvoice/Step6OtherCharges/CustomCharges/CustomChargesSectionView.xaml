@@ -19,6 +19,7 @@
              FORM INPUT — 34px height, theme-safe borders
         ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="FormInputStyle" TargetType="TextBox">
+            <Setter Property="beh:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="Background"                 Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="Foreground"                 Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="BorderThickness"            Value="1"/>

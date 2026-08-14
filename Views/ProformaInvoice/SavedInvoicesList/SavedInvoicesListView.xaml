@@ -95,6 +95,7 @@
              FILTER TEXT INPUT
         ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="FilterInputStyle" TargetType="TextBox">
+            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>

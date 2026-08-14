@@ -181,7 +181,7 @@
                     <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                         <TextBlock Text="Price: " FontSize="11"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                        <TextBlock Text="{Binding Sheet.PurchasePricePerSqm, StringFormat={}{0:N2}}"
+                        <TextBlock Text="{Binding Sheet.PurchasePricePerSqm, StringFormat={}{0:0.##}}"
                                    FontSize="11" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <TextBlock Text=" AED/SQM  •  SQM/sheet: " FontSize="11"

@@ -41,6 +41,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
     <UserControl.Resources>
 
         <Style x:Key="RateInputStyle" TargetType="TextBox">
+            <Setter Property="beh:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="Background"                Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="Foreground"                Value="#047857"/>
             <Setter Property="BorderThickness"           Value="1"/>
@@ -77,6 +78,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
         </Style>
 
         <Style x:Key="CustomInputStyle" TargetType="TextBox">
+            <Setter Property="beh:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="BorderThickness"          Value="1"/>

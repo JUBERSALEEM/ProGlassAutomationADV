@@ -538,10 +538,10 @@
                                                FontSize="12" FontWeight="SemiBold"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="7" Text="{Binding PurchasePricePerSqm, StringFormat={}{0:N2}}"
+                                    <TextBlock Grid.Column="7" Text="{Binding PurchasePricePerSqm, StringFormat={}{0:0.##}}"
                                                FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                                    <TextBlock Grid.Column="8" Text="{Binding SellPricePerSqm, StringFormat={}{0:N2}}"
+                                    <TextBlock Grid.Column="8" Text="{Binding SellPricePerSqm, StringFormat={}{0:0.##}}"
                                                FontSize="12" Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                VerticalAlignment="Center" HorizontalAlignment="Right"/>
                                     <TextBlock Grid.Column="9" Text="{Binding TotalPurchaseValue, StringFormat={}{0:N0}}"

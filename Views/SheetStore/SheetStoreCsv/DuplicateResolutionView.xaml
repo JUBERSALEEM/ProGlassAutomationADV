@@ -160,10 +160,10 @@
                 <!-- Purchase Price -->
                 <TextBlock Grid.Row="1" Grid.Column="0" Text="PURCHASE/SQM" Style="{StaticResource RowLabel}"/>
                 <TextBlock Grid.Row="1" Grid.Column="1"
-                           Text="{Binding Existing.PurchasePricePerSqm, StringFormat={}{0:N2}}"
+                           Text="{Binding Existing.PurchasePricePerSqm, StringFormat={}{0:0.##}}"
                            Style="{StaticResource RowValue}"/>
                 <TextBlock Grid.Row="1" Grid.Column="2"
-                           Text="{Binding Incoming.PurchasePricePerSqm, StringFormat={}{0:N2}}">
+                           Text="{Binding Incoming.PurchasePricePerSqm, StringFormat={}{0:0.##}}">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock" BasedOn="{StaticResource RowValue}">
                             <Style.Triggers>
@@ -179,10 +179,10 @@
                 <!-- Sell Price -->
                 <TextBlock Grid.Row="2" Grid.Column="0" Text="SELL/SQM" Style="{StaticResource RowLabel}"/>
                 <TextBlock Grid.Row="2" Grid.Column="1"
-                           Text="{Binding Existing.SellPricePerSqm, StringFormat={}{0:N2}}"
+                           Text="{Binding Existing.SellPricePerSqm, StringFormat={}{0:0.##}}"
                            Style="{StaticResource RowValue}"/>
                 <TextBlock Grid.Row="2" Grid.Column="2"
-                           Text="{Binding Incoming.SellPricePerSqm, StringFormat={}{0:N2}}">
+                           Text="{Binding Incoming.SellPricePerSqm, StringFormat={}{0:0.##}}">
                     <TextBlock.Style>
                         <Style TargetType="TextBlock" BasedOn="{StaticResource RowValue}">
                             <Style.Triggers>

@@ -34,6 +34,7 @@
 
         <!-- Base text input (uses global TextBox focus glow from App.xaml) -->
         <Style x:Key="InputStyle" TargetType="TextBox">
+            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="Height" Value="38"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Padding" Value="10,6"/>
@@ -47,12 +48,14 @@
         <!-- Integer-only input (Width, Height, Stock) -->
         <Style x:Key="IntInputStyle" TargetType="TextBox"
                BasedOn="{StaticResource InputStyle}">
+            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="behaviors:TextBoxBehaviors.AcceptIntegersOnly" Value="True"/>
         </Style>
 
         <!-- Decimal input (prices) -->
         <Style x:Key="DecimalInputStyle" TargetType="TextBox"
                BasedOn="{StaticResource InputStyle}">
+            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="behaviors:TextBoxBehaviors.AcceptDecimals" Value="True"/>
         </Style>
 
@@ -237,12 +240,12 @@
                     <StackPanel Grid.Column="0">
                         <TextBlock Text="PURCHASE PRICE (per SQM)" Style="{StaticResource LabelStyle}"/>
                         <TextBox Style="{StaticResource DecimalInputStyle}"
-                                 Text="{Binding PurchasePricePerSqm, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}"/>
+                                 Text="{Binding PurchasePricePerSqm, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"/>
                     </StackPanel>
                     <StackPanel Grid.Column="2">
                         <TextBlock Text="SELL PRICE (per SQM)" Style="{StaticResource LabelStyle}"/>
                         <TextBox Style="{StaticResource DecimalInputStyle}"
-                                 Text="{Binding SellPricePerSqm, UpdateSourceTrigger=PropertyChanged, StringFormat=N2}"/>
+                                 Text="{Binding SellPricePerSqm, UpdateSourceTrigger=PropertyChanged, StringFormat={}{0:0.##}}"/>
                     </StackPanel>
                 </Grid>
 

@@ -576,6 +576,7 @@
 
         <!-- DeliveredQty TextBox — hidden on Master DN -->
         <Style x:Key="DeliveredQtyTextBoxStyle" TargetType="TextBox">
+            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="TextAlignment" Value="Right"/>

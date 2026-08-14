@@ -18,6 +18,7 @@
         </Style>
 
         <Style x:Key="FieldInputStyle" TargetType="TextBox">
+            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="FontSize"    Value="13"/>
             <Setter Property="Padding"     Value="10,8"/>
             <Setter Property="Margin"      Value="0,0,0,14"/>
@@ -29,6 +30,7 @@
 
         <Style x:Key="MultiLineInputStyle" TargetType="TextBox"
                BasedOn="{StaticResource FieldInputStyle}">
+            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="False"/>
             <Setter Property="AcceptsReturn" Value="True"/>
             <Setter Property="TextWrapping"  Value="Wrap"/>
             <Setter Property="MinHeight"     Value="70"/>
