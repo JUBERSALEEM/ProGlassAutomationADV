@@ -388,6 +388,8 @@
                                                 <Run Text="{Binding Username, Mode=OneWay}"/>
                                                 <Run Text="  •  "/>
                                                 <Run Text="{Binding RoleBadge, Mode=OneWay}"/>
+                                                <Run Text="  •  "/>
+                                                <Run Text="{Binding PermissionCount, Mode=OneWay}"/>
                                                 <Run Text="  •  since "/>
                                                 <Run Text="{Binding CreatedDisplay, Mode=OneWay}"/>
                                             </TextBlock>

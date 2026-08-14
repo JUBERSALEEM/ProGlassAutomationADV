@@ -1207,6 +1207,10 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
         public async Task SaveAsync()
         {
+            if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
+                ProGlassAutomation.Services.Audit.AppPermissions.TaxInvoiceEdit, "save a tax invoice"))
+                return;
+
             if (!ValidateBeforeSave()) return;
 
             try

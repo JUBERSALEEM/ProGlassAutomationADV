@@ -16,8 +16,8 @@
 using ProGlassAutomation.Models.Audit;
 using ProGlassAutomation.Services.Audit;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows.Input;
 using ProGlassAutomation.Commands;
 
@@ -31,6 +31,13 @@ namespace ProGlassAutomation.ViewModels.Shared
         public string Action { get; set; } = "";
         public string Details { get; set; } = "";
         public string Section { get; set; } = "";
+
+        /// <summary>Raw before/after change set JSON (empty = no diff).</summary>
+        public string ChangesJson { get; set; } = "";
+
+        /// <summary>True when a GitHub-style diff can be shown.</summary>
+        public bool HasChanges =>
+            !string.IsNullOrWhiteSpace(ChangesJson);
     }
 
     /// <summary>
@@ -56,11 +63,25 @@ namespace ProGlassAutomation.ViewModels.Shared
 
         public ICommand RefreshCommand { get; }
 
+        /// <summary>Shows the GitHub-style before/after diff for a row.</summary>
+        public ICommand ShowChangesCommand { get; }
+
         public SectionActivityViewModel(string? section)
         {
             _section = section;
 
             RefreshCommand = new RelayCommand(_ => LoadAsync());
+
+            ShowChangesCommand = new RelayCommand(param =>
+            {
+                if (param is ActivityRowViewModel row && row.HasChanges)
+                {
+                    Views.Shared.ChangesDialog.Show(
+                        System.Windows.Application.Current?.MainWindow,
+                        $"{row.Section} — {row.Action} — {row.Username}",
+                        AuditService_ChangesFromRow(row));
+                }
+            });
 
             // Live updates — the service raises this on the UI thread.
             AuditService.ActivityLogged += OnActivityLogged;
@@ -102,8 +123,13 @@ namespace ProGlassAutomation.ViewModels.Shared
                 Username = e.Username,
                 Action = e.Action,
                 Details = e.Details,
-                Section = e.Section
+                Section = e.Section,
+                ChangesJson = e.ChangesJson ?? ""
             };
         }
+
+        private static List<Services.Audit.AuditChange>
+            AuditService_ChangesFromRow(ActivityRowViewModel row) =>
+            Services.Audit.AuditChangeSerializer.FromJson(row.ChangesJson);
     }
 }

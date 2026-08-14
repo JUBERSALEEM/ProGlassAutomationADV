@@ -1,0 +1,137 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Shared/ChangesDialog.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Shared — GitHub-style before/after change viewer
+
+     Shows an audit change set the way code reviews show diffs:
+       🔴 BEFORE  (red tint)   →   🟢 AFTER  (green tint)
+     with Added / Removed / Modified / Unchanged badges.
+═══════════════════════════════════════════════════════════════════════ -->
+
+<Window x:Class="ProGlassAutomation.Views.Shared.ChangesDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Changes"
+        Width="640" Height="520"
+        MinWidth="480" MinHeight="320"
+        WindowStartupLocation="CenterOwner"
+        FontFamily="Segoe UI"
+        Background="{DynamicResource ModuleBackgroundBrush}"
+        UseLayoutRounding="True"
+        SnapsToDevicePixels="True">
+
+    <Grid Margin="20">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="0,0,0,14">
+            <TextBlock Text="🔍  What changed"
+                       FontSize="17" FontWeight="Bold"
+                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+            <TextBlock x:Name="SubtitleText"
+                       FontSize="12" Margin="0,3,0,0"
+                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+        </StackPanel>
+
+        <Border Grid.Row="1"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="{DynamicResource CardCornerRadius}"
+                ClipToBounds="True">
+            <ScrollViewer VerticalScrollBarVisibility="Auto">
+                <ItemsControl x:Name="ChangesList">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border BorderBrush="{DynamicResource DividerBrush}"
+                                    BorderThickness="0,0,0,1"
+                                    Padding="14,10">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <!-- LEFT: field + before -->
+                                    <StackPanel Grid.Column="0" Margin="0,0,12,0">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="{Binding Field}"
+                                                       FontSize="12" FontWeight="Bold"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                            <Border Margin="8,0,0,0"
+                                                    CornerRadius="7"
+                                                    Padding="6,1"
+                                                    VerticalAlignment="Center"
+                                                    Background="{DynamicResource TintBlueBrush}">
+                                                <TextBlock Text="{Binding Kind}"
+                                                           FontSize="9" FontWeight="Bold"
+                                                           Foreground="{DynamicResource InfoBrush}"/>
+                                            </Border>
+                                        </StackPanel>
+
+                                        <Border Margin="0,6,0,0"
+                                                Background="{DynamicResource TintRedBrush}"
+                                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                Padding="10,6">
+                                            <StackPanel Orientation="Horizontal">
+                                                <TextBlock Text="🔴"
+                                                           FontSize="9"
+                                                           VerticalAlignment="Center"
+                                                           Margin="0,0,7,0"/>
+                                                <TextBlock Text="{Binding Before}"
+                                                           FontSize="12"
+                                                           TextWrapping="Wrap"
+                                                           Foreground="{DynamicResource DangerBrush}"/>
+                                            </StackPanel>
+                                        </Border>
+                                    </StackPanel>
+
+                                    <!-- RIGHT: after -->
+                                    <Border Grid.Column="1"
+                                            Background="{DynamicResource TintGreenBrush}"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                                            Padding="10,6"
+                                            VerticalAlignment="Bottom">
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="🟢"
+                                                       FontSize="9"
+                                                       VerticalAlignment="Center"
+                                                       Margin="0,0,7,0"/>
+                                            <TextBlock Text="{Binding After}"
+                                                       FontSize="12"
+                                                       TextWrapping="Wrap"
+                                                       Foreground="{DynamicResource SuccessBrush}"/>
+                                        </StackPanel>
+                                    </Border>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+            </ScrollViewer>
+        </Border>
+
+        <Button Grid.Row="2"
+                HorizontalAlignment="Right"
+                Margin="0,14,0,0"
+                Padding="22,9"
+                Cursor="Hand"
+                BorderThickness="0"
+                Click="OnCloseClick">
+            <Button.Template>
+                <ControlTemplate TargetType="Button">
+                    <Border Background="{DynamicResource AccentBrush}"
+                            CornerRadius="{DynamicResource PillCornerRadius}"
+                            Padding="{TemplateBinding Padding}">
+                        <ContentPresenter HorizontalAlignment="Center"
+                                          VerticalAlignment="Center"/>
+                    </Border>
+                </ControlTemplate>
+            </Button.Template>
+            <TextBlock Text="Close" Foreground="White"
+                       FontSize="13" FontWeight="SemiBold"/>
+        </Button>
+    </Grid>
+</Window>

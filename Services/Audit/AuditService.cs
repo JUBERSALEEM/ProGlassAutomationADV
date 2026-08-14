@@ -67,6 +67,15 @@ namespace ProGlassAutomation.Services.Audit
         private static bool _initialized;
         private static readonly object _initLock = new();
 
+        // ── Session (v2) ─────────────────────────────────────────────────
+
+        /// <summary>Unique id of the running session (one app launch).</summary>
+        public static string SessionId { get; } =
+            "S-" + Guid.NewGuid().ToString("N")[..10].ToUpperInvariant();
+
+        /// <summary>When this session started.</summary>
+        public static DateTime SessionStartedUtc { get; } = DateTime.UtcNow;
+
         // ══════════════════════════════════════════════════════════════
         //  INITIALIZATION
         // ══════════════════════════════════════════════════════════════
@@ -83,6 +92,10 @@ namespace ProGlassAutomation.Services.Audit
                 using var db = new AuditDbContext();
                 await db.Database.EnsureCreatedAsync();
 
+                // v2 additive schema upgrades (SessionId, ChangesJson,
+                // RecordMetadata, RecordVersions) — safe on existing DBs.
+                AuditDbMigrations.Apply();
+
                 lock (_initLock)
                 {
                     if (_initialized) return;
@@ -96,7 +109,7 @@ namespace ProGlassAutomation.Services.Audit
                     var admin = BuildUser(
                         username: "admin",
                         displayName: "Administrator",
-                        role: "Admin",
+                        role: AppRoles.Administrator,
                         password: "admin");
 
                     admin.CreatedAtUtc = DateTime.UtcNow;
@@ -109,14 +122,32 @@ namespace ProGlassAutomation.Services.Audit
                     .OrderBy(u => u.Id)
                     .FirstOrDefaultAsync();
 
+                if (_currentUser != null)
+                {
+                    _currentUser.LastActiveAtUtc = DateTime.UtcNow;
+                    await db.SaveChangesAsync();
+                }
+
                 System.Diagnostics.Debug.WriteLine(
-                    $"[Audit] Initialized. Active user: {CurrentUsername}");
+                    $"[Audit] Initialized. Session {SessionId}, " +
+                    $"active user: {CurrentUsername}");
             }
             catch (Exception ex)
             {
                 System.Diagnostics.Debug.WriteLine(
                     $"[Audit] Initialize failed: {ex.Message}");
             }
+        }
+
+        /// <summary>
+        /// Records the session login/logout boundary in the audit trail.
+        /// </summary>
+        public static void LogSessionBoundary(bool login)
+        {
+            Log(
+                AuditSections.Users,
+                login ? "Session started" : "Session ended",
+                $"Session {SessionId} for {CurrentUsername}");
         }
 
         // ══════════════════════════════════════════════════════════════
@@ -134,18 +165,25 @@ namespace ProGlassAutomation.Services.Audit
             string entityType = "",
             string entityId = "")
         {
-            var entry = new ActivityLogEntry
-            {
-                TimestampUtc = DateTime.UtcNow,
-                Username = CurrentUsername,
-                Section = section ?? "",
-                Action = action ?? "",
-                Details = Truncate(details, 1000),
-                EntityType = Truncate(entityType, 20),
-                EntityId = Truncate(entityId, 60)
-            };
+            WriteEntry(BuildEntry(section, action, details, entityType, entityId));
+        }
 
-            _ = WriteEntryAsync(entry);
+        /// <summary>
+        /// Audit write carrying a before/after change set — the Activity
+        /// UI shows these as GitHub-style diffs.
+        /// </summary>
+        public static void LogWithChanges(
+            string section,
+            string action,
+            string details,
+            string entityType,
+            string entityId,
+            List<AuditChange> changes)
+        {
+            var entry = BuildEntry(
+                section, action, details, entityType, entityId);
+            entry.ChangesJson = AuditChangeSerializer.ToJson(changes);
+            WriteEntry(entry);
         }
 
         /// <summary>Awaitable variant for flows that need ordering guarantees.</summary>
@@ -156,18 +194,33 @@ namespace ProGlassAutomation.Services.Audit
             string entityType = "",
             string entityId = "")
         {
-            var entry = new ActivityLogEntry
+            await WriteEntryAsync(
+                BuildEntry(section, action, details, entityType, entityId));
+        }
+
+        private static ActivityLogEntry BuildEntry(
+            string section,
+            string action,
+            string details,
+            string entityType,
+            string entityId)
+        {
+            return new ActivityLogEntry
             {
                 TimestampUtc = DateTime.UtcNow,
                 Username = CurrentUsername,
+                SessionId = SessionId,
                 Section = section ?? "",
                 Action = action ?? "",
                 Details = Truncate(details, 1000),
                 EntityType = Truncate(entityType, 20),
                 EntityId = Truncate(entityId, 60)
             };
+        }
 
-            await WriteEntryAsync(entry);
+        private static void WriteEntry(ActivityLogEntry entry)
+        {
+            _ = WriteEntryAsync(entry);
         }
 
         private static async Task WriteEntryAsync(ActivityLogEntry entry)

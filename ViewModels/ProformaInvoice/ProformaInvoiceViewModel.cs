@@ -320,6 +320,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             SavedInvoicesListVM.OnInvoiceLoadRequested = id =>
                 SafeFireAsync(() => LoadInvoiceIntoWizardAsync(id));
 
+            // v2 version history: open an old version's snapshot
+            SavedInvoicesListVM.OnSnapshotRestoreRequested = json =>
+                SafeFireAsync(() => RestoreSnapshotIntoWizardAsync(json));
+
             // ── S-07: Client → Project filter wiring ─────────────────
             // Subscribed ONCE here — safe for VM lifetime (no dispose needed
             // since shell VM and step VMs have identical lifetimes).
@@ -500,6 +504,53 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             );
 
             // Step 8 — show the loaded invoice's attachments
+            await Step8VM.LoadAsync();
+
+            CurrentStep = WizardSteps[0];
+            IsListView = false;
+        }
+
+        /// <summary>
+        /// v2 VERSION RESTORE (§24): opens a stored version snapshot in
+        /// the wizard. The user's next save creates a NEW version —
+        /// history is append-only and never silently erased.
+        /// </summary>
+        private async Task RestoreSnapshotIntoWizardAsync(string snapshotJson)
+        {
+            // Reuse the existing mapper path: wrap the JSON in a
+            // throwaway entity and deserialize through the normal API.
+            var wrapper = new Models.ProformaInvoice.SavedInvoice
+                .SavedProformaInvoice
+            {
+                FullSnapshotJson = snapshotJson
+            };
+
+            var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(wrapper);
+            if (snapshot == null)
+            {
+                MessageBox.Show(
+                    "This version could not be read.",
+                    "Restore Version",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;
+            }
+
+            Step7VM.InvoiceMainSummary.BeginBatchUpdate();
+            try
+            {
+                ProformaInvoiceMapper.RestoreWizardFromSnapshot(
+                    snapshot,
+                    Step1VM, Step2VM, Step3VM, Step5VM, Step6VM,
+                    Step7VM.InvoiceMainSummary,
+                    Step7VM.Terms,
+                    Step7VM.PrintableInvoice);
+            }
+            finally
+            {
+                Step7VM.InvoiceMainSummary.EndBatchUpdate();
+            }
+
             await Step8VM.LoadAsync();
 
             CurrentStep = WizardSteps[0];

@@ -38,6 +38,7 @@ using ProGlassAutomation.Services.Database.DatabaseBackup;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Network;
 using ProGlassAutomation.Services.Performance;
+using ProGlassAutomation.Services.Theme;
 using ProGlassAutomation.Services.DeliveryNote.Repository;
 using ProGlassAutomation.Services.JobOrder.Repository;
 using ProGlassAutomation.Services.MasterData.Repository;
@@ -201,9 +202,19 @@ namespace ProGlassAutomation
             //     MotionDuration* / TargetFps resources for the XAML.
             PerformanceProfileService.Apply();
 
+            // 9d) Visual theme family + wallpaper
+            //     (Normal / Monet / Professional).
+            VisualThemeEngine.Apply(
+                Config.Appearance?.VisualTheme ?? "Normal",
+                Config.Appearance?.WallpaperPath ?? "",
+                Config.Appearance?.WallpaperOpacity ?? 0.85);
+
             AuditService.Log(
                 AuditSections.App, "App started",
                 $"Motion tier {PerformanceProfileService.TargetFps} fps");
+
+            // v2: session boundary — login recorded in the audit trail.
+            AuditService.LogSessionBoundary(login: true);
 
             // 10) AI via factory (multi-provider)
             Ai = AiProviderFactory.CreateActive(Config.Ai);
@@ -405,6 +416,7 @@ namespace ProGlassAutomation
             // app must still exit promptly even if the DB is locked).
             try
             {
+                AuditService.LogSessionBoundary(login: false);
                 AuditService.LogAsync(
                     AuditSections.App, "App closed", "").Wait(1500);
             }

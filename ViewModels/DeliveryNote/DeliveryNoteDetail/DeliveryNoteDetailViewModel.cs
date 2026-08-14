@@ -950,6 +950,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         public async Task SaveAsync()
         {
+            if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
+                ProGlassAutomation.Services.Audit.AppPermissions.DeliveryNoteEdit, "save a delivery note"))
+                return;
+
             if (_entity == null || App.DeliveryNotes == null) return;
             if (_entity.IsMasterDn) return;
 
@@ -1039,6 +1043,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         private async Task ConfirmDispatchAsync()
         {
+            if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
+                ProGlassAutomation.Services.Audit.AppPermissions.DeliveryNoteEdit, "dispatch a delivery note"))
+                return;
+
             if (_entity == null || App.DeliveryNotes == null) return;
             if (_entity.IsMasterDn) return;
 

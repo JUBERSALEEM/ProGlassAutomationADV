@@ -20,6 +20,7 @@ using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.AI.AIService;
 using ProGlassAutomation.Services.AI.AIVoice;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Threading;
@@ -625,6 +626,73 @@ namespace ProGlassAutomation.ViewModels.Settings
         public ICommand ClearAiMemoryCommand { get; }
 
         // ══════════════════════════════════════════════════════════════
+        //  v2 — VISUAL THEME & WALLPAPER (Normal / Monet / Professional)
+        // ══════════════════════════════════════════════════════════════
+
+        public List<string> VisualThemeOptions { get; } = new()
+        {
+            ProGlassAutomation.Services.Theme.VisualThemeEngine.Normal,
+            ProGlassAutomation.Services.Theme.VisualThemeEngine.Monet,
+            ProGlassAutomation.Services.Theme.VisualThemeEngine.Professional
+        };
+
+        public string SelectedVisualTheme
+        {
+            get => App.Config?.Appearance?.VisualTheme ?? "Normal";
+            set
+            {
+                if (App.Config == null || string.IsNullOrEmpty(value))
+                    return;
+
+                App.Config.Appearance.VisualTheme = value;
+                SaveConfig();
+                ApplyVisualTheme();
+                OnPropertyChanged();
+
+                ProGlassAutomation.Services.Audit.AuditService.Log(
+                    ProGlassAutomation.Services.Audit.AuditSections.Settings,
+                    "Visual theme changed", value);
+            }
+        }
+
+        public double WallpaperOpacity
+        {
+            get => App.Config?.Appearance?.WallpaperOpacity ?? 0.85;
+            set
+            {
+                if (App.Config == null) return;
+
+                App.Config.Appearance.WallpaperOpacity = value;
+                SaveConfig();
+                ApplyVisualTheme();
+                OnPropertyChanged();
+            }
+        }
+
+        public string WallpaperStatus
+        {
+            get
+            {
+                var path = App.Config?.Appearance?.WallpaperPath ?? "";
+                return string.IsNullOrEmpty(path)
+                    ? "No wallpaper set"
+                    : $"Wallpaper: {System.IO.Path.GetFileName(path)}";
+            }
+        }
+
+        public ICommand SetWallpaperCommand { get; private set; }
+        public ICommand ClearWallpaperCommand { get; private set; }
+
+        private void ApplyVisualTheme()
+        {
+            var appearance = App.Config?.Appearance;
+            ProGlassAutomation.Services.Theme.VisualThemeEngine.Apply(
+                appearance?.VisualTheme ?? "Normal",
+                appearance?.WallpaperPath ?? "",
+                appearance?.WallpaperOpacity ?? 0.85);
+        }
+
+        // ══════════════════════════════════════════════════════════════
         //  v2 — UPDATES (OTA check via GitHub releases)
         // ══════════════════════════════════════════════════════════════
 
@@ -745,6 +813,44 @@ namespace ProGlassAutomation.ViewModels.Settings
                     Services.Audit.AuditSections.Settings,
                     "AI memory cleared", "");
             });
+
+            // ── Visual theme & wallpaper commands ─────────────────────
+            SetWallpaperCommand = new RelayCommand(_ =>
+            {
+                var dialog = new Microsoft.Win32.OpenFileDialog
+                {
+                    Title = "Choose wallpaper image",
+                    Filter = "Images|*.jpg;*.jpeg;*.png;*.webp;*.bmp|" +
+                             "All files|*.*"
+                };
+
+                if (dialog.ShowDialog() != true) return;
+
+                if (App.Config == null) return;
+                App.Config.Appearance.WallpaperPath = dialog.FileName;
+                SaveConfig();
+                ApplyVisualTheme();
+
+                OnPropertyChanged(nameof(WallpaperStatus));
+                OnPropertyChanged(nameof(WallpaperOpacity));
+
+                Services.Audit.AuditService.Log(
+                    Services.Audit.AuditSections.Settings,
+                    "Wallpaper set",
+                    System.IO.Path.GetFileName(dialog.FileName));
+            });
+
+            ClearWallpaperCommand = new RelayCommand(_ =>
+            {
+                if (App.Config == null) return;
+                App.Config.Appearance.WallpaperPath = "";
+                SaveConfig();
+                ApplyVisualTheme();
+                OnPropertyChanged(nameof(WallpaperStatus));
+            });
+
+            // Apply the persisted visual theme once Settings loads.
+            ApplyVisualTheme();
 
             // ── Update commands ───────────────────────────────────────
             CheckForUpdatesCommand = new RelayCommand(async _ =>

@@ -206,6 +206,26 @@ namespace ProGlassAutomation.Services
         }
 
         /// <summary>
+        /// Reads a colour from the ACTIVE theme dictionary (Light/Dark).
+        /// Used by the visual theme engine to derive translucent
+        /// variants that always match the current base theme.
+        /// </summary>
+        internal static Color GetThemeColor(string key, Color fallback)
+        {
+            var resources = Application.Current?.Resources;
+            if (resources == null) return fallback;
+
+            var dict = resources.MergedDictionaries.FirstOrDefault(d =>
+                d.Source != null &&
+                (d.Source.OriginalString.Contains("LightTheme.xaml") ||
+                 d.Source.OriginalString.Contains("DarkTheme.xaml")));
+
+            return dict != null && dict[key] is SolidColorBrush brush
+                ? brush.Color
+                : fallback;
+        }
+
+        /// <summary>
         /// Sets an application-level resource with a frozen brush.
         /// App-level entries override the merged theme dictionaries,
         /// which is exactly how derived values win over defaults.

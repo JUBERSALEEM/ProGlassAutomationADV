@@ -298,6 +298,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                 return;
             }
 
+            // v2 permission gate — the operation itself verifies access.
+            if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
+                ProGlassAutomation.Services.Audit.AppPermissions.ProformaCreate,
+                "save a proforma invoice"))
+                return;
+
             // CHAT 15: BuildEntityFromWizard now expects (company, client, project, ...)
             var entity = ProformaInvoiceMapper.BuildEntityFromWizard(
                 Company, Client, Project, DataGrid, OtherCharges,
@@ -324,7 +330,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
 
                 if (result == MessageBoxResult.Yes)
                 {
+                    if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
+                        ProGlassAutomation.Services.Audit.AppPermissions.ProformaEdit,
+                        "update an existing invoice"))
+                        return;
+
                     await App.Invoices.UpdateAsync(entity);
+                    await StampSaveArtifactsAsync(entity, isUpdate: true);
                     ShowSaveSuccess(entity.ProformaId, isUpdate: true);
                     return;
                 }
@@ -332,12 +344,47 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                 entity.ProformaId = suggestedId;
                 Company.ProformaId = suggestedId;
                 await App.Invoices.InsertAsync(entity);
+                await StampSaveArtifactsAsync(entity, isUpdate: false);
                 ShowSaveSuccess(entity.ProformaId, isUpdate: false);
                 return;
             }
 
             await App.Invoices.InsertAsync(entity);
+            await StampSaveArtifactsAsync(entity, isUpdate: false);
             ShowSaveSuccess(entity.ProformaId, isUpdate: false);
+        }
+
+        /// <summary>
+        /// v2: after every successful save — record created/updated
+        /// metadata and append a restorable version snapshot.
+        /// Never allowed to break the save itself.
+        /// </summary>
+        private static async Task StampSaveArtifactsAsync(
+            SavedProformaInvoice entity, bool isUpdate)
+        {
+            try
+            {
+                var audit = ProGlassAutomation.Services.Audit;
+
+                if (isUpdate)
+                    await audit.RecordMetadataService.StampUpdatedAsync(
+                        "PI", entity.ProformaId);
+                else
+                    await audit.RecordMetadataService.StampCreatedAsync(
+                        "PI", entity.ProformaId);
+
+                int version = await audit.VersionHistoryService.AddVersionAsync(
+                    "PI", entity.ProformaId,
+                    isUpdate ? "Invoice updated" : "Invoice created",
+                    entity.FullSnapshotJson);
+
+                Debug.WriteLine(
+                    $"[PI] Version {version} stored for {entity.ProformaId}");
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[PI] Save artifacts failed: {ex.Message}");
+            }
         }
 
         private static void ShowSaveSuccess(string proformaId, bool isUpdate)

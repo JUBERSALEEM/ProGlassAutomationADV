@@ -621,6 +621,74 @@
                                 <Run Text=" Dark mode applies to the app shell, sidebar, and Settings."/>
                             </TextBlock>
 
+                            <!-- ── Visual theme family (v2) ── -->
+                            <TextBlock Text="Visual Theme"
+                                       Style="{StaticResource RowTitleStyle}"
+                                       Margin="0,16,0,6"/>
+                            <StackPanel Orientation="Horizontal">
+                                <ComboBox ItemsSource="{Binding VisualThemeOptions}"
+                                          SelectedItem="{Binding SelectedVisualTheme}"
+                                          MinWidth="180"
+                                          Padding="10,7"
+                                          FontSize="13"/>
+                                <Button Content="🖼  Set wallpaper…"
+                                        Command="{Binding SetWallpaperCommand}"
+                                        Cursor="Hand"
+                                        Margin="10,0,0,0"
+                                        Padding="14,8"
+                                        BorderThickness="0">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{DynamicResource MenuHoverBrush}"
+                                                    BorderBrush="{DynamicResource BorderBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="999"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                  VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                                <Button Content="✕  Clear"
+                                        Command="{Binding ClearWallpaperCommand}"
+                                        Cursor="Hand"
+                                        Margin="8,0,0,0"
+                                        Padding="14,8"
+                                        BorderThickness="0">
+                                    <Button.Template>
+                                        <ControlTemplate TargetType="Button">
+                                            <Border Background="{DynamicResource MenuHoverBrush}"
+                                                    BorderBrush="{DynamicResource BorderBrush}"
+                                                    BorderThickness="1"
+                                                    CornerRadius="999"
+                                                    Padding="{TemplateBinding Padding}">
+                                                <ContentPresenter HorizontalAlignment="Center"
+                                                                  VerticalAlignment="Center"/>
+                                            </Border>
+                                        </ControlTemplate>
+                                    </Button.Template>
+                                </Button>
+                            </StackPanel>
+                            <TextBlock Text="{Binding WallpaperStatus}"
+                                       FontSize="11" Margin="0,8,0,0"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
+                                <TextBlock Text="Wallpaper visibility"
+                                           FontSize="12"
+                                           VerticalAlignment="Center"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                <Slider Value="{Binding WallpaperOpacity}"
+                                        Minimum="0.3" Maximum="1"
+                                        Width="180"
+                                        Margin="12,0,0,0"
+                                        VerticalAlignment="Center"/>
+                            </StackPanel>
+                            <TextBlock Style="{StaticResource HintTextStyle}"
+                                       Margin="0,8,0,0"
+                                       TextWrapping="Wrap"
+                                       Text="Normal = clean default. Monet = wallpaper with glass surfaces. Professional = premium corporate finish."/>
+
                             <!-- ── Accent colour presets (Dynamic Theme Engine) ── -->
                             <TextBlock Text="Accent Colour"
                                        Style="{StaticResource RowTitleStyle}"

@@ -353,6 +353,11 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 
         private async Task DeleteJobOrderAsync(JobOrderRowViewModel row)
         {
+
+            if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
+                ProGlassAutomation.Services.Audit.AppPermissions.JobOrderDelete, "delete a job order"))
+                return;
+
             var result = MessageBox.Show(
                 $"Delete job order '{row.JobOrderId}'?\n\n" +
                 $"Customer: {row.CustomerName}\n" +

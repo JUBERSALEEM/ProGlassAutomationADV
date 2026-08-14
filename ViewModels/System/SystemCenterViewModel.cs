@@ -47,8 +47,22 @@ namespace ProGlassAutomation.ViewModels.System
             set { _isCurrent = value; OnPropertyChanged(); }
         }
 
-        public string RoleBadge => Role == "Admin" ? "🛡 Admin"
-            : Role == "Manager" ? "⭐ Manager" : "👷 Operator";
+        public string RoleBadge => Role switch
+        {
+            "Administrator" or "Admin" => "🛡 Administrator",
+            "Manager" => "⭐ Manager",
+            "Estimator" => "📐 Estimator",
+            "Sales" => "💼 Sales",
+            "Production" => "🏭 Production",
+            "Store" or "Operator" => "📦 Store",
+            "Accountant" => "🧮 Accountant",
+            _ => "👁 Viewer"
+        };
+
+        /// <summary>How many permissions this role carries.</summary>
+        public string PermissionCount =>
+            ProGlassAutomation.Services.Audit.RolePermissions
+                .For(Role).Count + " permissions";
     }
 
     /// <summary>
@@ -79,8 +93,10 @@ namespace ProGlassAutomation.ViewModels.System
 
             SwitchUserCommand = new RelayCommand(_ => SwitchUser());
 
-            RoleOptions = new List<string> { "Operator", "Manager", "Admin" };
-            SelectedRole = "Operator";
+            // v2: full role catalogue (permissions resolve per role)
+            RoleOptions = new List<string>(
+                ProGlassAutomation.Services.Audit.AppRoles.All);
+            SelectedRole = ProGlassAutomation.Services.Audit.AppRoles.Viewer;
 
             // ── Activity commands ─────────────────────────────────────
             RefreshActivityCommand = new RelayCommand(_ => LoadActivityAsync());

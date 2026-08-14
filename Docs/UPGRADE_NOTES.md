@@ -204,3 +204,59 @@ was not duplicated.
 This WPF project cannot be compiled in the development sandbox (Linux, no
 .NET Windows SDK). All changes were validated structurally (XAML parse,
 syntax analysis, API cross-referencing) — not build- or run-tested.
+
+---
+
+## 8. v2 Upgrade — Phase Batch 3 (this round)
+
+### Roles & permissions (§15)
+- `Services/Audit/Permissions.cs`: 8 roles (Administrator, Manager,
+  Estimator, Sales, Production, Store, Accountant, Viewer) mapped to
+  granular permissions ("Module.Capability"). Legacy Admin/Operator roles
+  keep working via aliases.
+- `PermissionService.Require()` enforces INSIDE operations (not just hidden
+  buttons): Sheet Store add/edit/delete/buy/use, PI save/update/delete/
+  exports, JO save/delete, DN save/dispatch, TI save, Statement generation.
+  Denials show a professional dialog AND are audited.
+- System Center: full role catalogue on creation, per-user permission count.
+
+### Sessions & record metadata (§16/§17)
+- Every app run has a SessionId (`S-XXXXXXXXXX`); audit rows carry it;
+  login/logout boundaries are recorded.
+- `RecordMetadataService`: automatic CreatedBy/CreatedSession/UpdatedBy/
+  UpdatedSession per record — stored centrally in audit.db so the nine
+  business databases keep their existing schemas untouched (§41).
+- Wired today: Sheet Store (create/edit), Proforma Invoice saves, JO saves.
+
+### Before/after audit diffs (§23)
+- `AuditChange` + `ChangesJson` on audit entries (additive migration).
+- GitHub-style `ChangesDialog` (🔴 before / 🟢 after, Added/Removed/
+  Modified badges), opened from any activity row with a "± Changes" button.
+- Live diffs recorded for: Sheet Store edits (stock/buy/sell), Job Order
+  status changes.
+
+### Version history (§24)
+- Append-only `RecordVersions` store; every PI save stores a full snapshot.
+- 🕘 button on saved-invoice rows → `VersionsDialog` (version, date, user,
+  summary) with Restore → opens that version in the wizard; saving again
+  creates a NEW version. Restores are audited; history never erased.
+
+### Visual theme families + wallpaper (§8)
+- `VisualThemeEngine` layers three families over Light/Dark without
+  duplicating palettes: **Normal** (clean default), **Monet** (wallpaper +
+  translucent glass surfaces + softer radii), **Professional** (tighter
+  radii, restrained hover, corporate finish).
+- Wallpaper: JPG/JPEG/PNG/WEBP/BMP picker, visibility slider, clear —
+  persisted in config; applied at startup.
+- Settings → Appearance: visual theme selector + wallpaper controls.
+
+### Files intentionally untouched
+All module business logic, all database schemas (metadata/versioning live
+in audit.db), export engines, AI providers, wizard step content.
+
+### Known limitations (honest)
+- Permissions enforce listed operations; read-only screens remain open to
+  all roles by design.
+- Monet blur uses opacity layering (no expensive blur effects) to stay
+  smooth on all hardware tiers.
+- Still not compile-tested in this sandbox — structural validation only.

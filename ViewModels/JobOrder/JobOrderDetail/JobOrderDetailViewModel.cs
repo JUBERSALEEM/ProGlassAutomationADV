@@ -387,6 +387,11 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
 
         private async Task SaveAsync()
         {
+
+            if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
+                ProGlassAutomation.Services.Audit.AppPermissions.JobOrderEdit, "save a job order"))
+                return;
+
             if (_entity == null || _snapshot == null)
             {
                 MessageBox.Show(
@@ -396,6 +401,8 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
                     MessageBoxImage.Warning);
                 return;
             }
+
+            var previousStatus = _snapshot?.Production?.Status ?? "";
 
             try
             {
@@ -421,9 +428,17 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
 
                 HasUnsavedChanges = false;
 
-                AuditService.Log(
+                var diff = new System.Collections.Generic.List<AuditChange>();
+                if (!string.Equals(previousStatus, SelectedStatus))
+                    diff.Add(AuditChangeSerializer.Modified(
+                        "Status", previousStatus, SelectedStatus));
+
+                AuditService.LogWithChanges(
                     AuditSections.JobOrder, "Job order saved",
                     $"{_snapshot.JobOrderId} — status {SelectedStatus}",
+                    "JO", _snapshot.JobOrderId, diff);
+
+                await RecordMetadataService.StampUpdatedAsync(
                     "JO", _snapshot.JobOrderId);
 
                 MessageBox.Show(

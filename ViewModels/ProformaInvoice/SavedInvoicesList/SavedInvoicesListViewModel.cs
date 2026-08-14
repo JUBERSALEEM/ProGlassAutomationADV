@@ -151,6 +151,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         public ICommand SetTodayFilterCommand { get; }
         public ICommand ExportFilteredExcelCommand { get; }
 
+        // v2: version history (§24)
+        public ICommand ShowVersionsCommand { get; }
+
+        /// <summary>
+        /// v2: fired when the user restores an old version — payload is
+        /// the version's snapshot JSON. The wizard shell opens it.
+        /// </summary>
+        public Action<string>? OnSnapshotRestoreRequested { get; set; }
+
         public SavedInvoicesListViewModel()
         {
             RefreshCommand = new RelayCommand(async _ => await LoadInvoicesAsync());
@@ -205,11 +214,50 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 ToDate = DateTime.Today;
             });
 
+            // v2: version history per invoice
+            ShowVersionsCommand = new RelayCommand(
+                async p => await ShowVersionsAsync(p as SavedInvoiceListItem));
+
             // v2: share the CURRENT FILTERED list as one styled Excel table
             ExportFilteredExcelCommand = new RelayCommand(
                 async _ => await ExportFilteredExcelAsync());
 
             _ = LoadInvoicesAsync();
+        }
+
+        /// <summary>
+        /// v2: version history dialog. Restore hands the snapshot JSON
+        /// to the wizard shell via OnSnapshotRestoreRequested.
+        /// </summary>
+        private async Task ShowVersionsAsync(SavedInvoiceListItem? item)
+        {
+            if (item == null) return;
+
+            var audit = ProGlassAutomation.Services.Audit;
+
+            var versions = await audit.VersionHistoryService
+                .GetVersionsAsync("PI", item.ProformaId);
+
+            var restoreId = Views.ProformaInvoice.SavedInvoicesList
+                .VersionsDialog.Show(
+                    Application.Current.MainWindow,
+                    item.ProformaId, versions);
+
+            if (restoreId == null) return;
+
+            var full = await audit.VersionHistoryService
+                .GetByIdAsync(restoreId.Value);
+
+            if (full == null || string.IsNullOrEmpty(full.SnapshotJson))
+                return;
+
+            OnSnapshotRestoreRequested?.Invoke(full.SnapshotJson);
+
+            AuditService.Log(
+                AuditSections.Proforma, "Version restored",
+                $"{item.ProformaId} → version {full.VersionNo} " +
+                $"(by {full.Username})",
+                "PI", item.ProformaId);
         }
 
         /// <summary>
@@ -219,6 +267,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         /// </summary>
         private async Task ExportFilteredExcelAsync()
         {
+            if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
+                ProGlassAutomation.Services.Audit.AppPermissions.ProformaExport, "export the invoice register"))
+                return;
+
             try
             {
                 var items = FilteredItems.ToList();
@@ -453,6 +505,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
         private async Task DeleteAsync(SavedInvoiceListItem item)
         {
+            if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
+                ProGlassAutomation.Services.Audit.AppPermissions.ProformaDelete, "delete an invoice"))
+                return;
+
             if (item == null || App.Invoices == null) return;
 
             var confirm = MessageBox.Show(
@@ -516,6 +572,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
         private async Task ExportPdfFromListAsync(SavedInvoiceListItem item)
         {
+            if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
+                ProGlassAutomation.Services.Audit.AppPermissions.ProformaExport, "export an invoice PDF"))
+                return;
+
             if (item == null || App.Invoices == null) return;
 
             try
@@ -559,6 +619,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
         private async Task ExportExcelFromListAsync(SavedInvoiceListItem item)
         {
+            if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
+                ProGlassAutomation.Services.Audit.AppPermissions.ProformaExport, "export an invoice to Excel"))
+                return;
+
             if (item == null || App.Invoices == null) return;
 
             try
@@ -605,6 +669,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         /// </summary>
         private async Task ExportCsvFromListAsync(SavedInvoiceListItem item)
         {
+            if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
+                ProGlassAutomation.Services.Audit.AppPermissions.ProformaExport, "export an invoice CSV"))
+                return;
+
             if (item == null || App.Invoices == null) return;
 
             try

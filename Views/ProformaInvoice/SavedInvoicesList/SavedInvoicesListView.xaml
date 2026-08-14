@@ -962,7 +962,11 @@
                                             NEW-N5: OPEN button sizing hardened
                                             for DPI scaling.
                                         -->
-                                        <Button Grid.Column="8"
+                                        <StackPanel Grid.Column="8"
+                                                    Orientation="Horizontal"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center">
+<Button
                                                 Command="{Binding DataContext.LoadInvoiceCommand,
                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
@@ -1013,6 +1017,19 @@
                                                 </ControlTemplate>
                                             </Button.Template>
                                         </Button>
+                                        <Button Command="{Binding DataContext.ShowVersionsCommand,
+                                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                ToolTip="Version history"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Cursor="Hand"
+                                                Background="Transparent"
+                                                BorderThickness="0"
+                                                Margin="6,0,0,0"
+                                                FontSize="14"
+                                                Content="🕘"/>
+                                        </StackPanel>
                                     </Grid>
                                 </Border>
                             </DataTemplate>

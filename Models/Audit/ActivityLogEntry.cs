@@ -58,5 +58,15 @@ namespace ProGlassAutomation.Models.Audit
         /// <summary>Optional entity id ("PI-2026-001", ...).</summary>
         [MaxLength(60)]
         public string EntityId { get; set; } = "";
+
+        /// <summary>Session that produced this entry (v2).</summary>
+        [MaxLength(40)]
+        public string SessionId { get; set; } = "";
+
+        /// <summary>
+        /// Structured before/after change set (JSON of List&lt;AuditChange&gt;).
+        /// Empty when the entry carries no field-level diff (v2).
+        /// </summary>
+        public string ChangesJson { get; set; } = "";
     }
 }

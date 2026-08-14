@@ -638,6 +638,10 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
         private async Task AddAsync()
         {
+            if (!PermissionService.Require(
+                AppPermissions.SheetStoreCreate, "add a glass sheet"))
+                return;
+
             var vm = new AddEditSheetViewModel();
             var dialog = new AddEditSheetView(vm) { Owner = Application.Current.MainWindow };
             dialog.ShowDialog();
@@ -657,6 +661,9 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                         $"{DescribeSheet(added)} — stock {added.Stock}",
                         "SHEET", added.Id.ToString());
 
+                    await RecordMetadataService.StampCreatedAsync(
+                        "SHEET", added.Id.ToString());
+
                     await LoadAsync();
                 }
                 catch (Exception ex) { ShowError("Could not add glass sheet.\n\n" + ex.Message); }
@@ -666,6 +673,10 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         private async Task EditAsync(GlassSheet? sheet)
         {
             if (sheet == null) return;
+
+            if (!PermissionService.Require(
+                AppPermissions.SheetStoreEdit, "edit a glass sheet"))
+                return;
 
             var oldStock = sheet.Stock;
             var oldBuyPrice = sheet.PurchasePricePerSqm;
@@ -682,15 +693,37 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                     await _repo.UpdateAsync(vm.Result);
 
                     var changes = new List<string>();
-                    if (oldStock != vm.Result.Stock) changes.Add($"Stock: {oldStock} → {vm.Result.Stock}");
-                    if (oldBuyPrice != vm.Result.PurchasePricePerSqm) changes.Add($"Buy: {oldBuyPrice:N2} → {vm.Result.PurchasePricePerSqm:N2}");
-                    if (oldSellPrice != vm.Result.SellPricePerSqm) changes.Add($"Sell: {oldSellPrice:N2} → {vm.Result.SellPricePerSqm:N2}");
+                    var diff = new List<AuditChange>();
+                    if (oldStock != vm.Result.Stock)
+                    {
+                        changes.Add($"Stock: {oldStock} → {vm.Result.Stock}");
+                        diff.Add(AuditChangeSerializer.Modified(
+                            "Stock", oldStock.ToString(), vm.Result.Stock.ToString()));
+                    }
+                    if (oldBuyPrice != vm.Result.PurchasePricePerSqm)
+                    {
+                        changes.Add($"Buy: {oldBuyPrice:N2} → {vm.Result.PurchasePricePerSqm:N2}");
+                        diff.Add(AuditChangeSerializer.Modified(
+                            "Buy price (AED/SQM)", oldBuyPrice.ToString("N2"),
+                            vm.Result.PurchasePricePerSqm.ToString("N2")));
+                    }
+                    if (oldSellPrice != vm.Result.SellPricePerSqm)
+                    {
+                        changes.Add($"Sell: {oldSellPrice:N2} → {vm.Result.SellPricePerSqm:N2}");
+                        diff.Add(AuditChangeSerializer.Modified(
+                            "Sell price (AED/SQM)", oldSellPrice.ToString("N2"),
+                            vm.Result.SellPricePerSqm.ToString("N2")));
+                    }
                     var details = changes.Count > 0 ? string.Join(" | ", changes) : "Details edited";
 
                     await _historyRepo.LogAsync(vm.Result.Id, DescribeSheet(vm.Result), "Edited", details);
 
-                    AuditService.Log(AuditSections.SheetStore, "Sheet edited",
+                    AuditService.LogWithChanges(
+                        AuditSections.SheetStore, "Sheet edited",
                         $"{DescribeSheet(vm.Result)} — {details}",
+                        "SHEET", vm.Result.Id.ToString(), diff);
+
+                    await RecordMetadataService.StampUpdatedAsync(
                         "SHEET", vm.Result.Id.ToString());
 
                     await LoadAsync();
@@ -702,6 +735,10 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         private async Task DeleteAsync(GlassSheet? sheet)
         {
             if (sheet == null) return;
+
+            if (!PermissionService.Require(
+                AppPermissions.SheetStoreDelete, "delete a glass sheet"))
+                return;
 
             var result = MessageBox.Show(
                 $"Delete this glass sheet?\n\n" +
@@ -740,6 +777,10 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         {
             if (sheet == null) return;
 
+            if (!PermissionService.Require(
+                AppPermissions.SheetStoreEdit, "buy stock"))
+                return;
+
             var vm = new BuyDialogViewModel(sheet);
             var dialog = new BuyDialogView(vm) { Owner = Application.Current.MainWindow };
             dialog.ShowDialog();
@@ -772,6 +813,10 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         private async Task UseAsync(GlassSheet? sheet)
         {
             if (sheet == null) return;
+
+            if (!PermissionService.Require(
+                AppPermissions.SheetStoreEdit, "use stock"))
+                return;
 
             if (sheet.Balance <= 0)
             {

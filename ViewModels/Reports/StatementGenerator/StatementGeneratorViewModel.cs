@@ -1152,6 +1152,11 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
         private async Task RunGenerateAsync()
         {
+            if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
+                ProGlassAutomation.Services.Audit.AppPermissions.StatementGenerate,
+                "generate a statement"))
+                return;
+
             if (_previewSnapshot == null) return;
 
             var selectedNumbers = PreviewVM.GetSelectedInvoiceNumbers();
