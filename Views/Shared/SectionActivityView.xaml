@@ -16,7 +16,7 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <Grid Margin="20">
+    <Grid Margin="20" MaxWidth="1100" HorizontalAlignment="Center">
 
         <!-- Fade-in uses the hardware-scaled motion token: snappier on
              120/144/165 Hz panels, calmer on 60 Hz (PerformanceProfileService). -->
@@ -85,8 +85,44 @@
                 ClipToBounds="True">
 
             <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- v2: column headers with tooltips -->
+                <Border Grid.Row="0"
+                        Background="{DynamicResource MenuHoverBrush}"
+                        BorderBrush="{DynamicResource DividerBrush}"
+                        BorderThickness="0,0,0,1"
+                        Padding="16,8">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="170"/>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="DATE &amp; TIME"
+                                   Style="{StaticResource ModuleColumnHeaderStyle}"
+                                   ToolTip="When the action happened"/>
+                        <TextBlock Grid.Column="1" Text="ACTION"
+                                   Style="{StaticResource ModuleColumnHeaderStyle}"
+                                   ToolTip="What was done"/>
+                        <TextBlock Grid.Column="2" Text="DETAILS"
+                                   Style="{StaticResource ModuleColumnHeaderStyle}"
+                                   Margin="12,0,0,0"
+                                   ToolTip="Full detail of the action"/>
+                        <TextBlock Grid.Column="3" Text="DIFF"
+                                   Style="{StaticResource ModuleColumnHeaderStyle}"
+                                   Margin="10,0,0,0"
+                                   ToolTip="Before/after changes (when recorded)"/>
+                    </Grid>
+                </Border>
+
                 <!-- Empty state -->
-                <StackPanel VerticalAlignment="Center"
+                <StackPanel Grid.Row="1"
+                            VerticalAlignment="Center"
                             HorizontalAlignment="Center">
                     <StackPanel.Style>
                         <Style TargetType="StackPanel">
@@ -114,7 +150,8 @@
 
                 <!-- Rows -->
                 <!-- Virtualized: stays smooth even with thousands of rows -->
-                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                <ScrollViewer Grid.Row="1"
+                              VerticalScrollBarVisibility="Auto"
                               CanContentScroll="True"
                               VirtualizingPanel.IsVirtualizing="True"
                               VirtualizingPanel.VirtualizationMode="Recycling">
@@ -130,7 +167,8 @@
                             <DataTemplate>
                                 <Border Padding="16,10"
                                         BorderBrush="{DynamicResource DividerBrush}"
-                                        BorderThickness="0,0,0,1">
+                                        BorderThickness="0,0,0,1"
+                                        ToolTip="{Binding RowTooltip}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="170"/>
@@ -143,7 +181,8 @@
                                                    Text="{Binding TimeDisplay}"
                                                    FontSize="11"
                                                    Foreground="{DynamicResource MutedForegroundBrush}"
-                                                   VerticalAlignment="Center"/>
+                                                   VerticalAlignment="Center"
+                                                   ToolTip="Date &amp; time of the action"/>
 
                                         <Border Grid.Column="1"
                                                 Background="{DynamicResource TintIndigoBrush}"

@@ -55,7 +55,7 @@
                 Value="{DynamicResource BorderBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius"
-                Value="{DynamicResource CardCornerRadiusLarge}"/>
+                Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding" Value="20,16"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>

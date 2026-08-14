@@ -50,7 +50,13 @@ namespace ProGlassAutomation.Services.Updates
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
             "ProGlassAutomation", "update-history.json");
 
-        /// <summary>Appends one event (newest first, capped).</summary>
+        /// <summary>
+        /// Appends one event (newest first, capped).
+        /// PROFESSIONAL BEHAVIOR: repeated identical checks do NOT grow
+        /// the list — if the newest entry is the same event + version,
+        /// only its timestamp refreshes (e.g. clicking "Check for
+        /// updates" five times yields ONE history row).
+        /// </summary>
         public static void Record(
             UpdateEventType type, string version,
             string releaseName = "", string detail = "")
@@ -58,6 +64,20 @@ namespace ProGlassAutomation.Services.Updates
             try
             {
                 var entries = ReadAll();
+
+                if (entries.Count > 0)
+                {
+                    var latest = entries[0];
+                    if (latest.EventType == type.ToString() &&
+                        latest.Version == (version ?? ""))
+                    {
+                        latest.TimestampUtc = DateTime.UtcNow;
+                        if (!string.IsNullOrEmpty(detail))
+                            latest.Detail = detail;
+                        WriteFile(entries);
+                        return;
+                    }
+                }
 
                 entries.Insert(0, new UpdateHistoryEntry
                 {
@@ -71,17 +91,22 @@ namespace ProGlassAutomation.Services.Updates
                 if (entries.Count > MaxEntries)
                     entries = entries.Take(MaxEntries).ToList();
 
-                var dir = Path.GetDirectoryName(HistoryPath)!;
-                if (!Directory.Exists(dir))
-                    Directory.CreateDirectory(dir);
-
-                File.WriteAllText(
-                    HistoryPath, JsonSerializer.Serialize(entries, Options));
+                WriteFile(entries);
             }
             catch
             {
                 // History is a convenience — never block updates on it.
             }
+        }
+
+        private static void WriteFile(List<UpdateHistoryEntry> entries)
+        {
+            var dir = Path.GetDirectoryName(HistoryPath)!;
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
+            File.WriteAllText(
+                HistoryPath, JsonSerializer.Serialize(entries, Options));
         }
 
         /// <summary>All recorded events, newest first.</summary>

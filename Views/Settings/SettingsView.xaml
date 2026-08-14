@@ -60,7 +60,7 @@
             <Setter Property="Background"          Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="BorderBrush"         Value="{StaticResource PillBorderBrush}"/>
             <Setter Property="BorderThickness"     Value="1.5"/>
-            <Setter Property="CornerRadius"        Value="20"/>
+            <Setter Property="CornerRadius"        Value="14"/>
             <Setter Property="Padding"             Value="24,20"/>
             <Setter Property="Margin"              Value="0,0,0,20"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -595,12 +595,14 @@
                 ══════════════════════════════════════════════════════ -->
                 <StackPanel Grid.Column="0">
 
-                    <!-- APPEARANCE -->
+                    <!-- APPEARANCE — v2: split into focused cards -->
+
+                    <!-- THEME MODE -->
                     <Border Style="{StaticResource SectionCardStyle}">
                         <StackPanel>
-                            <TextBlock Text="APPEARANCE"
+                            <TextBlock Text="THEME MODE"
                                        Style="{StaticResource SectionLabelStyle}"/>
-                            <DockPanel Margin="0,4,0,0">
+                            <DockPanel Margin="0,6,0,0">
                                 <StackPanel Orientation="Horizontal"
                                             VerticalAlignment="Center">
                                     <TextBlock Text="☀" FontSize="18"
@@ -615,26 +617,31 @@
                                               IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
                                               Style="{StaticResource ModernToggleSwitch}"/>
                             </DockPanel>
-                            <TextBlock Style="{StaticResource HintTextStyle}"
-                                       Margin="0,10,0,0">
-                                <Run Text="Note:" FontWeight="Bold"/>
-                                <Run Text=" Dark mode applies to the app shell, sidebar, and Settings."/>
-                            </TextBlock>
 
-                            <!-- ── Visual theme family (v2) ── -->
                             <TextBlock Text="Visual Theme"
                                        Style="{StaticResource RowTitleStyle}"
                                        Margin="0,16,0,6"/>
-                            <StackPanel Orientation="Horizontal">
-                                <ComboBox ItemsSource="{Binding VisualThemeOptions}"
-                                          SelectedItem="{Binding SelectedVisualTheme}"
-                                          MinWidth="180"
-                                          Padding="10,7"
-                                          FontSize="13"/>
+                            <ComboBox ItemsSource="{Binding VisualThemeOptions}"
+                                      SelectedItem="{Binding SelectedVisualTheme}"
+                                      MinWidth="200"
+                                      Padding="10,7"
+                                      FontSize="13"/>
+                            <TextBlock Style="{StaticResource HintTextStyle}"
+                                       Margin="0,10,0,0"
+                                       TextWrapping="Wrap"
+                                       Text="Normal = clean default. Monet = wallpaper with glass surfaces. Professional = premium corporate finish."/>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- WALLPAPER -->
+                    <Border Style="{StaticResource SectionCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="WALLPAPER"
+                                       Style="{StaticResource SectionLabelStyle}"/>
+                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                                 <Button Content="🖼  Set wallpaper…"
                                         Command="{Binding SetWallpaperCommand}"
                                         Cursor="Hand"
-                                        Margin="10,0,0,0"
                                         Padding="14,8"
                                         BorderThickness="0">
                                     <Button.Template>
@@ -684,16 +691,15 @@
                                         Margin="12,0,0,0"
                                         VerticalAlignment="Center"/>
                             </StackPanel>
-                            <TextBlock Style="{StaticResource HintTextStyle}"
-                                       Margin="0,8,0,0"
-                                       TextWrapping="Wrap"
-                                       Text="Normal = clean default. Monet = wallpaper with glass surfaces. Professional = premium corporate finish."/>
+                        </StackPanel>
+                    </Border>
 
-                            <!-- ── Accent colour presets (Dynamic Theme Engine) ── -->
-                            <TextBlock Text="Accent Colour"
-                                       Style="{StaticResource RowTitleStyle}"
-                                       Margin="0,16,0,6"/>
-                            <WrapPanel>
+                    <!-- ACCENT COLOUR -->
+                    <Border Style="{StaticResource SectionCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="ACCENT COLOUR"
+                                       Style="{StaticResource SectionLabelStyle}"/>
+                            <WrapPanel Margin="0,8,0,0">
                                 <Button Content="🔵 Glass Blue" Command="{Binding ApplyAccentCommand}" CommandParameter="GlassBlue" Style="{StaticResource AccentChipStyle}"/>
                                 <Button Content="🟢 Emerald"    Command="{Binding ApplyAccentCommand}" CommandParameter="Emerald"   Style="{StaticResource AccentChipStyle}" Margin="8,0,0,0"/>
                                 <Button Content="🟠 Amber"      Command="{Binding ApplyAccentCommand}" CommandParameter="Amber"     Style="{StaticResource AccentChipStyle}" Margin="8,0,0,0"/>
@@ -702,14 +708,18 @@
                                 <Button Content="🌊 Teal"       Command="{Binding ApplyAccentCommand}" CommandParameter="Teal"      Style="{StaticResource AccentChipStyle}" Margin="8,0,0,0"/>
                             </WrapPanel>
                             <TextBlock Style="{StaticResource HintTextStyle}"
-                                       Margin="0,8,0,0"
+                                       Margin="0,10,0,0"
                                        Text="The engine derives hover, tint and contrast colours automatically from the chosen accent."/>
+                        </StackPanel>
+                    </Border>
 
-                            <!-- ── Hardware-adaptive motion profile ── -->
-                            <TextBlock Text="Motion &amp; Performance"
-                                       Style="{StaticResource RowTitleStyle}"
-                                       Margin="0,16,0,4"/>
+                    <!-- MOTION & PERFORMANCE -->
+                    <Border Style="{StaticResource SectionCardStyle}">
+                        <StackPanel>
+                            <TextBlock Text="MOTION &amp; PERFORMANCE"
+                                       Style="{StaticResource SectionLabelStyle}"/>
                             <TextBlock Style="{StaticResource HintTextStyle}"
+                                       Margin="0,6,0,0"
                                        Text="{Binding PerformanceTierDisplay}"/>
                             <TextBlock Style="{StaticResource HintTextStyle}"
                                        Margin="0,4,0,0"

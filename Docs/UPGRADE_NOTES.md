@@ -412,3 +412,44 @@ silently erased (§24).
 
 Remaining module chrome (detail headers, wizard steps) migrates
 incrementally per the documented rules — each a small reviewable change.
+
+---
+
+## 14. v2 Upgrade — Phase Batch 9: UX refinements from review feedback
+
+### Update checks no longer spam history
+- `UpdateHistoryService.Record` now dedupes: repeated identical checks
+  refresh the newest row's timestamp instead of growing the list. Five
+  clicks of "Check for updates" = ONE history row.
+- Settings shows at most the 6 newest history rows (compact, no sprawl).
+
+### Backups no longer flood
+- Automatic (on-exit) backup now throttles against the newest set ON
+  DISK — at most one auto set per hour, never one per exit.
+- Manual "Create backup now" warns first if a backup was made in the
+  last 10 minutes ("Create another?"), so repeated clicks don't pile up.
+
+### Delivery Note list — column headings + empty states
+- ALL tab gains a column-heading strip (Job order/customer/project |
+  Delivery progress | Quantities) matching the card columns; empty
+  state preserved. (All six DN tabs already had empty states.)
+
+### Centered, professional layouts
+- System Center, Logs & Activity (Diagnostics) and the shared activity
+  feed are now centered with a max width (1100–1180px) instead of
+  stretching edge-to-edge — like professional desktop apps.
+
+### List tooltips everywhere
+- Activity rows (Section feed, Diagnostics app log, System Center) get
+  full hover tooltips: date/time, user, module/function, action,
+  details, error id.
+- New column-header strips with tooltips in the Section activity feed
+  (Date & Time | Action | Details | Diff) and Diagnostics app log
+  (Time | Level | Module/Function | Message).
+
+### Settings Appearance split into focused cards
+- The overstuffed APPEARANCE card is now four focused 14px cards:
+  Theme Mode, Wallpaper, Accent Colour, Motion & Performance.
+- Section cards standardized to a 14px corner radius.
+
+Verified: all XAML parse clean, 381/381 CS balanced.

@@ -38,6 +38,28 @@ namespace ProGlassAutomation.ViewModels.Shared
         /// <summary>True when a GitHub-style diff can be shown.</summary>
         public bool HasChanges =>
             !string.IsNullOrWhiteSpace(ChangesJson);
+
+        /// <summary>
+        /// Full row tooltip: date/time · user · module · action · details.
+        /// Shown on hover so every field is discoverable even when the
+        /// row is trimmed.
+        /// </summary>
+        public string RowTooltip
+        {
+            get
+            {
+                var parts = new System.Collections.Generic.List<string>
+                {
+                    $"When:   {TimeDisplay}",
+                    $"User:   {Username}",
+                    $"Module: {Section}",
+                    $"Action: {Action}"
+                };
+                if (!string.IsNullOrWhiteSpace(Details))
+                    parts.Add($"Details: {Details}");
+                return string.Join("\n", parts);
+            }
+        }
     }
 
     /// <summary>

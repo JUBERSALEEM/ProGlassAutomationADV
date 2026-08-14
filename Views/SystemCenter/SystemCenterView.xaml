@@ -66,7 +66,7 @@
 
     </UserControl.Resources>
 
-    <Grid Margin="24">
+    <Grid Margin="24" MaxWidth="1180" HorizontalAlignment="Center">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -539,7 +539,8 @@
                                 <DataTemplate>
                                     <Border Padding="16,10"
                                             BorderBrush="{DynamicResource DividerBrush}"
-                                            BorderThickness="0,0,0,1">
+                                            BorderThickness="0,0,0,1"
+                                            ToolTip="{Binding RowTooltip}">
                                         <Grid>
                                             <Grid.ColumnDefinitions>
                                                 <ColumnDefinition Width="160"/>

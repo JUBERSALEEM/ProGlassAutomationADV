@@ -22,6 +22,7 @@ using ProGlassAutomation.Services.AI.AIVoice;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.IO;
 using System.Threading;
 using System.Windows.Input;
@@ -892,13 +893,16 @@ namespace ProGlassAutomation.ViewModels.Settings
         }
 
         /// <summary>Loads the persisted update-event ledger.</summary>
+        /// <summary>Max history rows shown (keeps the card compact).</summary>
+        private const int MaxDisplayedHistory = 6;
+
         public async void LoadUpdateHistory()
         {
             var entries = await Services.Updates.UpdateHistoryService
                 .ReadAllAsync();
 
             UpdateHistory.Clear();
-            foreach (var e in entries)
+            foreach (var e in entries.Take(MaxDisplayedHistory))
                 UpdateHistory.Add(e);
 
             HasUpdateHistory = UpdateHistory.Count > 0;
@@ -1171,8 +1175,26 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             CreateBackupNowCommand = new RelayCommand(_ =>
             {
-                var set = Services.Database.DatabaseBackup.BackupService
-                    .CreateFullBackupSet("manual (Settings)");
+                var backup = Services.Database.DatabaseBackup.BackupService;
+
+                // Professional behaviour: warn if a backup was made very
+                // recently so the list isn't flooded by repeated clicks.
+                var sinceLast = backup.TimeSinceLastBackup();
+                if (sinceLast.HasValue &&
+                    sinceLast.Value < backup.ManualWarnWindow)
+                {
+                    var mins = (int)sinceLast.Value.TotalMinutes;
+                    var confirm = System.Windows.MessageBox.Show(
+                        $"A backup was created {mins} minute(s) ago.\n\n" +
+                        "Create another backup now?",
+                        "Backup Already Recent",
+                        System.Windows.MessageBoxButton.YesNo,
+                        System.Windows.MessageBoxImage.Question);
+                    if (confirm != System.Windows.MessageBoxResult.Yes)
+                        return;
+                }
+
+                var set = backup.CreateFullBackupSet("manual (Settings)");
 
                 BackupStatus = set.Length > 0
                     ? $"✓ Backup created: {System.IO.Path.GetFileName(set)}"

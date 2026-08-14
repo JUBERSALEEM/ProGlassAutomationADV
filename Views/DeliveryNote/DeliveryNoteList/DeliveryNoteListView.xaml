@@ -887,7 +887,42 @@
                         </Style.Triggers>
                     </Style>
                 </Grid.Style>
-                <ListBox ItemsSource="{Binding AllItemsGrouped}"
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- v2: column headings (match the card columns below) -->
+                <Border Grid.Row="0"
+                        Background="{DynamicResource MenuHoverBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="14,14,0,0"
+                        Padding="16,9"
+                        Margin="0,0,0,0">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="280"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0"
+                                   Text="JOB ORDER  ·  CUSTOMER  ·  PROJECT"
+                                   Style="{StaticResource ModuleColumnHeaderStyle}"/>
+                        <TextBlock Grid.Column="1"
+                                   Text="DELIVERY PROGRESS"
+                                   Style="{StaticResource ModuleColumnHeaderStyle}"
+                                   HorizontalAlignment="Right"
+                                   Margin="0,0,16,0"/>
+                        <TextBlock Grid.Column="2"
+                                   Text="QUANTITIES"
+                                   Style="{StaticResource ModuleColumnHeaderStyle}"
+                                   Margin="8,0,6,0"/>
+                    </Grid>
+                </Border>
+
+                <ListBox Grid.Row="1"
+                         ItemsSource="{Binding AllItemsGrouped}"
                          ItemTemplate="{StaticResource JoGroupRowTemplate}"
                          ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
                          BorderThickness="0" Background="Transparent"
@@ -907,7 +942,8 @@
                         </ItemsPanelTemplate>
                     </ListBox.ItemsPanel>
                 </ListBox>
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                <StackPanel Grid.Row="1"
+                            HorizontalAlignment="Center" VerticalAlignment="Center"
                             IsHitTestVisible="False">
                     <StackPanel.Style>
                         <Style TargetType="StackPanel">

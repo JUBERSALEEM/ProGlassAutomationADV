@@ -80,8 +80,43 @@
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                         ClipToBounds="True">
                     <Grid>
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+
+                        <!-- v2: column headers with tooltips -->
+                        <Border Grid.Row="0"
+                                Background="{DynamicResource MenuHoverBrush}"
+                                BorderBrush="{DynamicResource DividerBrush}"
+                                BorderThickness="0,0,0,1"
+                                Padding="14,8">
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="95"/>
+                                    <ColumnDefinition Width="80"/>
+                                    <ColumnDefinition Width="270"/>
+                                    <ColumnDefinition Width="*"/>
+                                </Grid.ColumnDefinitions>
+                                <TextBlock Grid.Column="0" Text="TIME"
+                                           Style="{StaticResource ModuleColumnHeaderStyle}"
+                                           ToolTip="When the event was logged"/>
+                                <TextBlock Grid.Column="1" Text="LEVEL"
+                                           Style="{StaticResource ModuleColumnHeaderStyle}"
+                                           ToolTip="Severity: INFO / WARN / ERROR / CRITICAL"/>
+                                <TextBlock Grid.Column="2" Text="MODULE / FUNCTION"
+                                           Style="{StaticResource ModuleColumnHeaderStyle}"
+                                           ToolTip="Module › Class › Method where it happened"/>
+                                <TextBlock Grid.Column="3" Text="MESSAGE"
+                                           Style="{StaticResource ModuleColumnHeaderStyle}"
+                                           Margin="10,0,0,0"
+                                           ToolTip="What happened"/>
+                            </Grid>
+                        </Border>
+
                         <!-- Empty state -->
-                        <StackPanel VerticalAlignment="Center"
+                        <StackPanel Grid.Row="1"
+                                    VerticalAlignment="Center"
                                     HorizontalAlignment="Center">
                             <StackPanel.Style>
                                 <Style TargetType="StackPanel">
@@ -106,7 +141,8 @@
                         </StackPanel>
 
                         <!-- Virtualized log feed (1000+ entries safe) -->
-                        <ScrollViewer VerticalScrollBarVisibility="Auto"
+                        <ScrollViewer Grid.Row="1"
+                                      VerticalScrollBarVisibility="Auto"
                                       CanContentScroll="True"
                                       VirtualizingPanel.IsVirtualizing="True"
                                       VirtualizingPanel.VirtualizationMode="Recycling">
@@ -122,7 +158,8 @@
                                     <DataTemplate>
                                         <Border Padding="14,8"
                                                 BorderBrush="{DynamicResource DividerBrush}"
-                                                BorderThickness="0,0,0,1">
+                                                BorderThickness="0,0,0,1"
+                                                ToolTip="{Binding RowTooltip}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
                                                     <ColumnDefinition Width="95"/>
@@ -219,7 +256,7 @@
 
     </UserControl.Resources>
 
-    <Grid Margin="24">
+    <Grid Margin="24" MaxWidth="1180" HorizontalAlignment="Center">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>

@@ -63,5 +63,27 @@ namespace ProGlassAutomation.Services.Logging
                 return string.Join(" › ", parts);
             }
         }
+
+        /// <summary>
+        /// Full row tooltip: time · level · module/function · message.
+        /// </summary>
+        public string RowTooltip
+        {
+            get
+            {
+                var parts = new System.Collections.Generic.List<string>
+                {
+                    $"When:     {TimestampUtc.ToLocalTime():dd MMM yyyy HH:mm:ss.fff}",
+                    $"Level:    {LevelDisplay}",
+                    $"Where:    {(string.IsNullOrEmpty(ContextDisplay) ? "(app)" : ContextDisplay)}",
+                    $"Message:  {Message}"
+                };
+                if (!string.IsNullOrEmpty(ErrorId))
+                    parts.Add($"Error ID: {ErrorId}");
+                if (!string.IsNullOrEmpty(Username))
+                    parts.Add($"User:     {Username}");
+                return string.Join("\n", parts);
+            }
+        }
     }
 }

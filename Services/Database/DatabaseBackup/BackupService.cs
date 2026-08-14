@@ -57,29 +57,45 @@ namespace ProGlassAutomation.Services.Database.DatabaseBackup
         private const int MaxBackupSets = 10;
         private const int LegacyMaxBackups = 7;
 
-        // Exit-time backups use a cooldown so frequent restarts don't
-        // flood the Backups folder with near-identical sets.
-        private static readonly TimeSpan ExitCooldown = TimeSpan.FromMinutes(15);
-        private static DateTime _lastAutoBackupUtc = DateTime.MinValue;
+        // PROFESSIONAL backup policy:
+        //   • Automatic (on exit) only when the newest backup set on
+        //     disk is older than AutoBackupInterval — closing and
+        //     reopening the app all day creates at most one set/hour,
+        //     never one per exit.
+        //   • Manual creation warns (in the UI layer) when a backup
+        //     was made within ManualWarnWindow.
+        private static readonly TimeSpan AutoBackupInterval =
+            TimeSpan.FromHours(1);
+
+        /// <summary>Manual backups newer than this should prompt first.</summary>
+        public static readonly TimeSpan ManualWarnWindow =
+            TimeSpan.FromMinutes(10);
 
         // ══════════════════════════════════════════════════════════════
         //  CREATE
         // ══════════════════════════════════════════════════════════════
 
+        /// <summary>How long since the newest backup set (null = none).</summary>
+        public static TimeSpan? TimeSinceLastBackup()
+        {
+            var sets = GetBackupSets();
+            if (sets.Length == 0) return null;
+            return DateTime.Now - sets[0].CreatedAt;
+        }
+
         /// <summary>
-        /// Original API (App.OnExit). Now creates a FULL backup set,
-        /// throttled by a cooldown so restart-heavy sessions stay tidy.
+        /// Automatic backup (App.OnExit). Throttled against the newest
+        /// set ON DISK so frequent app restarts never flood the folder.
         /// </summary>
         public static void CreateBackup()
         {
             try
             {
-                if (DateTime.UtcNow - _lastAutoBackupUtc < ExitCooldown &&
-                    GetBackupSets().Length > 0)
+                var sinceLast = TimeSinceLastBackup();
+                if (sinceLast.HasValue && sinceLast.Value < AutoBackupInterval)
                     return;
 
                 CreateFullBackupSet("auto");
-                _lastAutoBackupUtc = DateTime.UtcNow;
             }
             catch (Exception ex)
             {
