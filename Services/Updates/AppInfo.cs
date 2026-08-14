@@ -34,5 +34,8 @@ namespace ProGlassAutomation.Services.Updates
         public string ReleasePageUrl { get; set; } = "";
         public string DownloadUrl { get; set; } = "";
         public string DownloadFileName { get; set; } = "";
+
+        /// <summary>When the release was published on GitHub (UTC).</summary>
+        public DateTime? PublishedAtUtc { get; set; }
     }
 }

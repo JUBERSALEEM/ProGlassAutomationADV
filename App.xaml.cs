@@ -145,40 +145,34 @@ namespace ProGlassAutomation
             // 2) Main database
             DatabaseInitializer.Initialize();
 
-            // 3) Specifications
+            // 3–9) Module databases.
+            //      PERFORMANCE: every repository owns its own SQLite
+            //      file and has no dependencies on the others, so they
+            //      initialize IN PARALLEL — startup no longer pays nine
+            //      sequential EnsureCreated round-trips.
             Specs = new SpecificationsRepository();
-            await Specs.InitializeAsync();
-
-            // 4) Proforma Invoices
             Invoices = new ProformaInvoiceRepository();
-            await Invoices.InitializeAsync();
-
-            // 5) Job Orders
             Jobs = new JobOrderRepository();
-            await Jobs.InitializeAsync();
-
-            // 6) Delivery Notes
             DeliveryNotes = new DeliveryNoteRepository();
-            await DeliveryNotes.InitializeAsync();
-
-            // 7) Master Data
             MasterData = new MasterDataRepository();
-            await MasterData.InitializeAsync();
-
-            // 8) Tax Invoices
             TaxInvoices = new TaxInvoiceRepository();
-            await TaxInvoices.InitializeAsync();
-
-            // 9) Statements
             Statements = new StatementRepository();
-            await Statements.InitializeAsync();
 
-            // 9b) Audit & user system (activity logging).
-            //     Never throws — audit failure must not block startup.
-            await AuditService.InitializeAsync();
+            await Task.WhenAll(
+                Specs.InitializeAsync(),
+                Invoices.InitializeAsync(),
+                Jobs.InitializeAsync(),
+                DeliveryNotes.InitializeAsync(),
+                MasterData.InitializeAsync(),
+                TaxInvoices.InitializeAsync(),
+                Statements.InitializeAsync(),
 
-            // 9c-1) AI learning memory (aimemory.db).
-            await AiMemoryService.InitializeAsync();
+                // 9b) Audit & user system — own DB (audit.db), safe in
+                //     parallel. Never throws internally.
+                AuditService.InitializeAsync(),
+
+                // 9c-1) AI learning memory (aimemory.db)
+                AiMemoryService.InitializeAsync());
 
             // 9c-2) Same-network user presence (Users page).
             try

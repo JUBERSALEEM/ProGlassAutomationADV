@@ -837,6 +837,90 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         private Services.Updates.UpdateCheckResult? _lastUpdateCheck;
 
+        // ── v2 §34: release info display ─────────────────────────────
+
+        /// <summary>Version this build is running.</summary>
+        public string CurrentVersionDisplay =>
+            Services.Updates.AppInfo.Version;
+
+        private string _latestVersionDisplay = "";
+        public string LatestVersionDisplay
+        {
+            get => _latestVersionDisplay;
+            private set { _latestVersionDisplay = value; OnPropertyChanged(); }
+        }
+
+        private string _releaseNameDisplay = "";
+        public string ReleaseNameDisplay
+        {
+            get => _releaseNameDisplay;
+            private set { _releaseNameDisplay = value; OnPropertyChanged(); }
+        }
+
+        private string _releasePublishedDisplay = "";
+        public string ReleasePublishedDisplay
+        {
+            get => _releasePublishedDisplay;
+            private set { _releasePublishedDisplay = value; OnPropertyChanged(); }
+        }
+
+        private string _releaseNotesPreview = "";
+        public string ReleaseNotesPreview
+        {
+            get => _releaseNotesPreview;
+            private set { _releaseNotesPreview = value; OnPropertyChanged(); }
+        }
+
+        private bool _hasReleaseInfo;
+        public bool HasReleaseInfo
+        {
+            get => _hasReleaseInfo;
+            private set { _hasReleaseInfo = value; OnPropertyChanged(); }
+        }
+
+        // ── v2 §34: update history ledger ────────────────────────────
+
+        public System.Collections.ObjectModel.ObservableCollection
+            <Services.Updates.UpdateHistoryEntry> UpdateHistory { get; } =
+            new();
+
+        private bool _hasUpdateHistory;
+        public bool HasUpdateHistory
+        {
+            get => _hasUpdateHistory;
+            private set { _hasUpdateHistory = value; OnPropertyChanged(); }
+        }
+
+        /// <summary>Loads the persisted update-event ledger.</summary>
+        public async void LoadUpdateHistory()
+        {
+            var entries = await Services.Updates.UpdateHistoryService
+                .ReadAllAsync();
+
+            UpdateHistory.Clear();
+            foreach (var e in entries)
+                UpdateHistory.Add(e);
+
+            HasUpdateHistory = UpdateHistory.Count > 0;
+        }
+
+        private void ApplyReleaseInfo(
+            Services.Updates.UpdateCheckResult result)
+        {
+            LatestVersionDisplay = result.LatestVersion;
+            ReleaseNameDisplay = string.IsNullOrEmpty(result.ReleaseName)
+                ? $"Release v{result.LatestVersion}"
+                : result.ReleaseName;
+            ReleasePublishedDisplay = result.PublishedAtUtc.HasValue
+                ? result.PublishedAtUtc.Value.ToLocalTime()
+                    .ToString("dd MMM yyyy")
+                : "";
+            ReleaseNotesPreview = (result.ReleaseNotes ?? "").Length > 400
+                ? result.ReleaseNotes[..400] + "…"
+                : (result.ReleaseNotes ?? "");
+            HasReleaseInfo = !string.IsNullOrEmpty(result.LatestVersion);
+        }
+
         public ICommand CheckForUpdatesCommand { get; private set; }
         public ICommand DownloadUpdateCommand { get; private set; }
 
@@ -958,6 +1042,9 @@ namespace ProGlassAutomation.ViewModels.Settings
             // Apply the persisted visual theme once Settings loads.
             ApplyVisualTheme();
 
+            // v2 §34: show the persisted update history on open.
+            LoadUpdateHistory();
+
             // ── Module wallpaper rows (§9) ────────────────────────────
             foreach (var (key, label) in
                 ProGlassAutomation.Services.Theme.WallpaperModules.All)
@@ -1011,10 +1098,15 @@ namespace ProGlassAutomation.ViewModels.Settings
                 {
                     UpdateStatus =
                         $"Could not check for updates: {result.ErrorMessage}";
+                    Services.Updates.UpdateHistoryService.Record(
+                        Services.Updates.UpdateEventType.CheckFailed,
+                        "", "", result.ErrorMessage);
+                    LoadUpdateHistory();
                     return;
                 }
 
                 IsUpdateAvailable = result.UpdateAvailable;
+                ApplyReleaseInfo(result);
 
                 UpdateStatus = result.UpdateAvailable
                     ? $"Update available: v{result.LatestVersion}" +
@@ -1022,6 +1114,14 @@ namespace ProGlassAutomation.ViewModels.Settings
                           ? "" : $" — {result.ReleaseName}")
                     : $"You are on the latest version " +
                       $"(v{Services.Updates.AppInfo.Version}).";
+
+                if (result.UpdateAvailable)
+                {
+                    Services.Updates.UpdateHistoryService.Record(
+                        Services.Updates.UpdateEventType.Detected,
+                        result.LatestVersion, result.ReleaseName);
+                }
+                LoadUpdateHistory();
             });
 
             DownloadUpdateCommand = new RelayCommand(async _ =>
@@ -1047,6 +1147,10 @@ namespace ProGlassAutomation.ViewModels.Settings
                         $"Downloaded to {path}. Run the installer manually — " +
                         "the app never replaces its own files.";
 
+                    Services.Updates.UpdateHistoryService.Record(
+                        Services.Updates.UpdateEventType.Downloaded,
+                        update.LatestVersion, update.ReleaseName, path);
+
                     Services.Audit.AuditService.Log(
                         Services.Audit.AuditSections.Settings,
                         "Update downloaded",
@@ -1055,7 +1159,11 @@ namespace ProGlassAutomation.ViewModels.Settings
                 else
                 {
                     UpdateStatus = $"Download failed: {error}";
+                    Services.Updates.UpdateHistoryService.Record(
+                        Services.Updates.UpdateEventType.CheckFailed,
+                        update.LatestVersion, "", $"Download failed: {error}");
                 }
+                LoadUpdateHistory();
             });
 
             // ── Backup commands ───────────────────────────────────────

@@ -49,6 +49,12 @@ namespace ProGlassAutomation.Services.Network
         private UdpClient? _listener;
         private Timer? _heartbeat;
         private Timer? _sweeper;
+
+        // PERFORMANCE: one reusable broadcast sender. The previous
+        // implementation allocated + disposed a UdpClient on every
+        // 10-second heartbeat (socket churn + allocations for nothing).
+        private UdpClient? _sender;
+        private readonly object _senderLock = new();
         private string _username = "";
         private string _displayName = "";
         private bool _disposed;
@@ -119,7 +125,15 @@ namespace ProGlassAutomation.Services.Network
 
                 var bytes = Encoding.UTF8.GetBytes(payload);
 
-                using var sender = new UdpClient { EnableBroadcast = true };
+                // Reuse a single broadcast socket across heartbeats.
+                UdpClient sender;
+                lock (_senderLock)
+                {
+                    if (_sender == null)
+                        _sender = new UdpClient { EnableBroadcast = true };
+                    sender = _sender;
+                }
+
                 sender.Send(bytes, bytes.Length,
                     new IPEndPoint(IPAddress.Broadcast, Port));
             }
@@ -233,6 +247,12 @@ namespace ProGlassAutomation.Services.Network
             _heartbeat?.Dispose();
             _sweeper?.Dispose();
             try { _listener?.Close(); } catch { }
+
+            lock (_senderLock)
+            {
+                try { _sender?.Close(); } catch { }
+                _sender = null;
+            }
         }
     }
 }

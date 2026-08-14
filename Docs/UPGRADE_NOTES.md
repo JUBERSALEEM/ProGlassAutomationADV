@@ -353,3 +353,31 @@ silently erased (§24).
   by definition. Guards on ReturnToList and record-switching.
 - Job Order guard shipped in an earlier batch. PI wizard uses the
   shared dialog via its shell flows.
+
+---
+
+## 12. v2 Upgrade — Phase Batch 7: Update history (§34) + performance pass (§13)
+
+### Update history (§34)
+- `UpdateHistoryService`: persisted ledger (update-history.json, capped
+  at 30) recording Detected / Downloaded / CheckFailed events with
+  version, release name, timestamp, detail.
+- UpdateService now captures the GitHub publish date.
+- Settings UPDATES section upgraded: current vs latest version tiles,
+  status line, release details card (name + published date + notes
+  preview), download progress, and the full update-history list with
+  color-coded event badges. The app still never replaces its own files.
+
+### Performance pass (§13 — structural)
+- **Parallel DB init at startup**: the nine module databases (each its
+  own SQLite file, no interdependencies) now initialize concurrently
+  via Task.WhenAll — startup no longer pays nine sequential
+  EnsureCreated round-trips. Ordering preserved: Presence still starts
+  after Audit so the active user identity is ready.
+- **Presence heartbeat socket reuse**: the 10-second LAN heartbeat
+  previously allocated and disposed a UdpClient each beat; it now
+  reuses one broadcast socket (less socket churn + allocations), and
+  disposes it cleanly on exit.
+- Everything already virtualized/capped stays as-is (God Views,
+  activity feeds, audit queries). Real FPS measurement needs your
+  hardware — this pass removes structural bottlenecks.

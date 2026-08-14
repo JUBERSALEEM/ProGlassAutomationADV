@@ -79,6 +79,17 @@ namespace ProGlassAutomation.Services.Updates
                         ? n.GetString() ?? "" : "";
                 }
 
+                // Parse the publish date (ISO-8601 from GitHub).
+                DateTime? published = null;
+                if (root.TryGetProperty("published_at", out var pa) &&
+                    DateTime.TryParse(
+                        pa.GetString(), null,
+                        System.Globalization.DateTimeStyles.RoundtripKind,
+                        out var parsedDate))
+                {
+                    published = parsedDate;
+                }
+
                 return new UpdateCheckResult
                 {
                     Success = true,
@@ -91,7 +102,8 @@ namespace ProGlassAutomation.Services.Updates
                     ReleasePageUrl = root.TryGetProperty("html_url", out var h)
                         ? h.GetString() ?? "" : "",
                     DownloadUrl = downloadUrl,
-                    DownloadFileName = fileName
+                    DownloadFileName = fileName,
+                    PublishedAtUtc = published
                 };
             }
             catch (Exception ex)
