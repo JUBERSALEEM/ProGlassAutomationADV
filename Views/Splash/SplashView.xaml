@@ -652,7 +652,7 @@
         </Border>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             BOTTOM-RIGHT — VERSION CARD (v1.1.0)
+             BOTTOM-RIGHT — VERSION CARD (bound to AppInfo.Version)
         ═══════════════════════════════════════════════════════════════ -->
         <Border Style="{StaticResource GlassCardStyle}"
                 HorizontalAlignment="Right"
@@ -665,12 +665,16 @@
                          IsHitTestVisible="False"/>
                 <StackPanel Margin="12,0,4,0" VerticalAlignment="Center">
                     <TextBlock Text="VERSION" Style="{StaticResource CardLabelStyle}"/>
-                    <TextBlock Text="v1.1.0"
-                               FontSize="14"
+                    <!-- v2: bound to AppInfo.Version — single source of truth,
+                         no more hardcoded/stale version string. -->
+                    <TextBlock FontSize="14"
                                FontWeight="SemiBold"
                                Foreground="{StaticResource Slate900}"
                                Margin="0,3,0,0"
-                               IsHitTestVisible="False"/>
+                               IsHitTestVisible="False">
+                        <Run Text="v"/>
+                        <Run Text="{x:Static updates:AppInfo.Version}"/>
+                    </TextBlock>
                 </StackPanel>
             </StackPanel>
         </Border>

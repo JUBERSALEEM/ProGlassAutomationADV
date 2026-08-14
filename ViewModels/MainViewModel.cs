@@ -145,6 +145,52 @@ namespace ProGlassAutomation.ViewModels
 
         public string ConnectivityLabel => IsOnline ? "Online" : "Offline";
 
+        // ── live clock (top bar) — auto-updating date & time ─────────
+        private string _currentDateText = "";
+        public string CurrentDateText
+        {
+            get => _currentDateText;
+            private set
+            {
+                if (_currentDateText == value) return;
+                _currentDateText = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _currentTimeText = "";
+        public string CurrentTimeText
+        {
+            get => _currentTimeText;
+            private set
+            {
+                if (_currentTimeText == value) return;
+                _currentTimeText = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private System.Windows.Threading.DispatcherTimer? _clockTimer;
+
+        /// <summary>Starts the top-bar clock; ticks every second.</summary>
+        private void StartClock()
+        {
+            UpdateClock();
+            _clockTimer = new System.Windows.Threading.DispatcherTimer
+            {
+                Interval = TimeSpan.FromSeconds(1)
+            };
+            _clockTimer.Tick += (_, __) => UpdateClock();
+            _clockTimer.Start();
+        }
+
+        private void UpdateClock()
+        {
+            var now = DateTime.Now;
+            CurrentDateText = now.ToString("ddd, dd MMM yyyy");
+            CurrentTimeText = now.ToString("HH:mm:ss");
+        }
+
         // ── commands ──────────────────────────────────────────────────────
 
         /// <summary>Toggles the left navigation drawer.</summary>
@@ -258,6 +304,9 @@ namespace ProGlassAutomation.ViewModels
             // v2 §9: the landing module gets its wallpaper layer too
             // (constructor bypasses Navigate()).
             ApplyModuleWallpaper("Dashboard");
+
+            // Live clock on the top bar.
+            StartClock();
         }
 
         // ── navigation ────────────────────────────────────────────────────

@@ -777,7 +777,7 @@
 
                         <TextBlock Text="Generate your first account statement from the Sales Report module."
                                    FontSize="13"
-                                   Foreground="#475569"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    HorizontalAlignment="Center"
                                    TextWrapping="Wrap"
                                    TextAlignment="Center"
@@ -867,13 +867,13 @@
                                                 <TextBlock
                                                     Text="  —  "
                                                     FontSize="13"
-                                                    Foreground="#94A3B8"
+                                                    Foreground="{DynamicResource MutedForegroundBrush}"
                                                     VerticalAlignment="Center"/>
                                                 <TextBlock
                                                     Text="{Binding SubTitle, Mode=OneWay}"
                                                     FontSize="13"
                                                     FontWeight="Bold"
-                                                    Foreground="#0F172A"
+                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                     MaxWidth="240"
                                                     TextTrimming="CharacterEllipsis"
                                                     VerticalAlignment="Center"/>
@@ -893,20 +893,20 @@
                                             <StackPanel Orientation="Horizontal"
                                                         Margin="0,6,0,0">
                                                 <TextBlock FontSize="11"
-                                                           Foreground="#64748B">
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}">
                                                     <Run Text="Invoiced: "/>
                                                     <Run Text="{Binding TotalInvoicedDisplay,
                                                              Mode=OneWay}"
                                                          FontWeight="Bold"
-                                                         Foreground="#0F172A"/>
+                                                         Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                                 </TextBlock>
 
                                                 <TextBlock Text="  ·  "
                                                            FontSize="11"
-                                                           Foreground="#94A3B8"/>
+                                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
 
                                                 <TextBlock FontSize="11"
-                                                           Foreground="#64748B">
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}">
                                                     <Run Text="Outstanding: "/>
                                                     <Run Text="{Binding OutstandingDisplay,
                                                              Mode=OneWay}"
@@ -917,7 +917,7 @@
                                                 <TextBlock
                                                     Text="  ·  "
                                                     FontSize="11"
-                                                    Foreground="#94A3B8"
+                                                    Foreground="{DynamicResource MutedForegroundBrush}"
                                                     Visibility="{Binding HasOverdue,
                                                         Converter={StaticResource BoolToVisibilityConverter}}"/>
 
@@ -926,7 +926,7 @@
                                                     Visibility="{Binding HasOverdue,
                                                         Converter={StaticResource BoolToVisibilityConverter}}">
                                                     <Run Text="⚠  Overdue: "
-                                                         Foreground="#64748B"/>
+                                                         Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                                     <Run Text="{Binding OverdueDisplay,
                                                              Mode=OneWay}"
                                                          FontWeight="Bold"
@@ -935,7 +935,7 @@
                                             </StackPanel>
 
                                             <TextBlock FontSize="10"
-                                                       Foreground="#94A3B8"
+                                                       Foreground="{DynamicResource MutedForegroundBrush}"
                                                        Margin="0,4,0,0">
                                                 <Run Text="{Binding InvoiceCount,
                                                          Mode=OneWay}"/>

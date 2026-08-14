@@ -396,7 +396,7 @@ FLAG FOR LATER:
                         </StackPanel>
                         <TextBlock Text="Revenue, VAT, aging and customer analysis — UAE 5% VAT."
                                    FontSize="13" Margin="0,4,0,0"
-                                   Foreground="#475569"/>
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     </StackPanel>
 
                     <Button Grid.Column="1"
@@ -524,7 +524,7 @@ FLAG FOR LATER:
                                        Margin="12,0,0,0"/>
                             <TextBlock Text="— Month to Date"
                                        FontSize="11"
-                                       Foreground="#64748B"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        VerticalAlignment="Center"
                                        Margin="8,2,0,0"/>
                         </StackPanel>
@@ -574,7 +574,7 @@ FLAG FOR LATER:
                                                    Foreground="{StaticResource RecentHeaderBrush}"/>
                                         <TextBlock Text="Last 5 invoices"
                                                    FontSize="10"
-                                                   Foreground="#64748B"/>
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                     </StackPanel>
                                 </StackPanel>
 
@@ -636,7 +636,7 @@ FLAG FOR LATER:
                                                                TextTrimming="CharacterEllipsis"/>
                                                     <TextBlock FontSize="11"
                                                                Margin="0,2,0,0"
-                                                               Foreground="#64748B"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                TextTrimming="CharacterEllipsis">
                                                         <Run Text="{Binding CustomerName, Mode=OneWay}"/>
                                                         <Run Text=" · "/>
@@ -683,7 +683,7 @@ FLAG FOR LATER:
                                 <TextBlock Text="Create your first Tax Invoice to see data."
                                            FontSize="11"
                                            HorizontalAlignment="Center"
-                                           Foreground="#64748B"/>
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
@@ -707,7 +707,7 @@ FLAG FOR LATER:
                                                Foreground="{StaticResource AgingHeaderBrush}"/>
                                     <TextBlock Text="Overdue by bracket"
                                                FontSize="10"
-                                               Foreground="#64748B"/>
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 </StackPanel>
                             </StackPanel>
 
@@ -746,7 +746,7 @@ FLAG FOR LATER:
                                                                Text="{Binding CountDisplay}"
                                                                FontSize="10"
                                                                Margin="10,0,0,0"
-                                                               Foreground="#64748B"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                VerticalAlignment="Center"/>
 
                                                     <TextBlock Grid.Column="2"
@@ -791,7 +791,7 @@ FLAG FOR LATER:
                                 <TextBlock Text="All invoices are within payment terms."
                                            FontSize="11"
                                            HorizontalAlignment="Center"
-                                           Foreground="#64748B"/>
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
@@ -823,7 +823,7 @@ FLAG FOR LATER:
                                                Foreground="{StaticResource CustomersHeaderBrush}"/>
                                     <TextBlock Text="By invoiced amount (last 12 months)"
                                                FontSize="10"
-                                               Foreground="#64748B"/>
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 </StackPanel>
                             </StackPanel>
 
@@ -886,7 +886,7 @@ FLAG FOR LATER:
                                                                    TextTrimming="CharacterEllipsis"/>
                                                         <TextBlock Text="{Binding InvoiceCountDisplay}"
                                                                    FontSize="10"
-                                                                   Foreground="#64748B"/>
+                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                                     </StackPanel>
 
                                                     <TextBlock Grid.Column="2"
@@ -931,7 +931,7 @@ FLAG FOR LATER:
                                 <TextBlock Text="Issue invoices to see top customers."
                                            FontSize="11"
                                            HorizontalAlignment="Center"
-                                           Foreground="#64748B"/>
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
@@ -955,7 +955,7 @@ FLAG FOR LATER:
                                                Foreground="{StaticResource RevenueHeaderBrush}"/>
                                     <TextBlock Text="{Binding RevenueChartTitle}"
                                                FontSize="10"
-                                               Foreground="#64748B"/>
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 </StackPanel>
                             </StackPanel>
 
@@ -1005,7 +1005,7 @@ FLAG FOR LATER:
                                                            FontSize="11" FontWeight="Bold"
                                                            HorizontalAlignment="Center"
                                                            Margin="0,8,0,0"
-                                                           Foreground="#475569"/>
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                             </Grid>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
@@ -1015,7 +1015,7 @@ FLAG FOR LATER:
                                            FontSize="9"
                                            HorizontalAlignment="Right"
                                            Margin="0,8,4,0"
-                                           Foreground="#94A3B8"/>
+                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
                             </Grid>
 
                             <StackPanel HorizontalAlignment="Center"
@@ -1032,7 +1032,7 @@ FLAG FOR LATER:
                                 <TextBlock Text="Issue Tax Invoices to see the revenue trend."
                                            FontSize="11"
                                            HorizontalAlignment="Center"
-                                           Foreground="#64748B"/>
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             </StackPanel>
                         </StackPanel>
                     </Border>
@@ -1042,7 +1042,7 @@ FLAG FOR LATER:
                 <TextBlock Text="{Binding LastRefreshed}"
                            FontSize="10" Opacity="0.6"
                            Margin="12,12,0,0"
-                           Foreground="#64748B"/>
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
 
             </StackPanel>
         </ScrollViewer>

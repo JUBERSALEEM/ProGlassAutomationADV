@@ -339,7 +339,7 @@
                                Foreground="{StaticResource AccentTextDeep}"/>
                     <TextBlock Text="Monitor deliveries, dispatches, rework, and pending balance."
                                FontSize="13" Margin="0,4,0,0"
-                               Foreground="#475569"/>
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </StackPanel>
 
                 <!-- Loading -->
@@ -406,7 +406,7 @@
                             <TextBlock Text="Delivery note count by status"
                                        FontSize="11" HorizontalAlignment="Right"
                                        Margin="0,10,4,0"
-                                       Foreground="#94A3B8"/>
+                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
                         </StackPanel>
 
                         <StackPanel HorizontalAlignment="Center" Margin="0,50"
@@ -422,7 +422,7 @@
                             <TextBlock Text="Create a delivery note from a Job Order to get started."
                                        FontSize="12" HorizontalAlignment="Center"
                                        TextAlignment="Center"
-                                       Foreground="#64748B"/>
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -453,7 +453,7 @@
                             <TextBlock Text="Delivery note count by type"
                                        FontSize="11" HorizontalAlignment="Right"
                                        Margin="0,10,4,0"
-                                       Foreground="#94A3B8"/>
+                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
                         </StackPanel>
 
                         <StackPanel HorizontalAlignment="Center" Margin="0,50"
@@ -490,7 +490,7 @@
                             <TextBlock Text="Showing last 10 · ordered by last updated"
                                        FontSize="11" HorizontalAlignment="Right"
                                        Margin="0,10,4,0"
-                                       Foreground="#94A3B8"/>
+                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
                         </StackPanel>
 
                         <StackPanel HorizontalAlignment="Center" Margin="0,50"
@@ -506,14 +506,14 @@
                             <TextBlock Text="Create a delivery note from a Job Order to get started."
                                        FontSize="12" HorizontalAlignment="Center"
                                        TextAlignment="Center"
-                                       Foreground="#64748B"/>
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
                 <TextBlock Text="{Binding LastRefreshed}"
                            FontSize="11" Opacity="0.6" Margin="12,16,0,0"
-                           Foreground="#64748B"/>
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
 
             </StackPanel>
         </ScrollViewer>

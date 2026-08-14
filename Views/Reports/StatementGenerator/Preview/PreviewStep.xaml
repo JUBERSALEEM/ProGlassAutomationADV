@@ -814,7 +814,7 @@
                                                                    Foreground="#374151"/>
                                                         <TextBlock Text="{Binding TotalInvoiceVsDeliveryDiff}"
                                                                    FontSize="13" FontWeight="Bold"
-                                                                   Foreground="#111827"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                                    HorizontalAlignment="Center"/>
                                                     </StackPanel>
                                                 </Border>

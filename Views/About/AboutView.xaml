@@ -268,14 +268,14 @@
                                FontWeight="Bold"
                                HorizontalAlignment="Center"
                                Margin="0,4,0,0"
-                               Foreground="{StaticResource Navy}"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"
                                IsHitTestVisible="False"/>
                     <TextBlock Text="{Binding Label}"
                                FontSize="9"
                                FontWeight="Bold"
                                HorizontalAlignment="Center"
                                Margin="0,2,0,0"
-                               Foreground="{StaticResource Royal}"
+                               Foreground="{DynamicResource AccentBrush}"
                                IsHitTestVisible="False"/>
                 </StackPanel>
             </Border>
@@ -313,7 +313,7 @@
                                    IsHitTestVisible="False"/>
                         <TextBlock Text="{Binding Description}"
                                    FontSize="11"
-                                   Foreground="{StaticResource SecondaryTextBrush}"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    TextWrapping="Wrap"
                                    Margin="0,2,0,0"
                                    IsHitTestVisible="False"/>
@@ -397,7 +397,7 @@
 
                     <TextBlock Text="{Binding Description}"
                                FontSize="11"
-                               Foreground="{StaticResource SecondaryTextBrush}"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
                                HorizontalAlignment="Center"
                                TextAlignment="Center"
                                TextWrapping="Wrap"
@@ -433,7 +433,7 @@
                     <TextBlock Text="{Binding Name}"
                                FontSize="13"
                                FontWeight="Bold"
-                               Foreground="{StaticResource Navy}"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"
                                HorizontalAlignment="Center"
                                TextAlignment="Center"
                                Margin="0,10,0,4"
@@ -441,7 +441,7 @@
 
                     <TextBlock Text="{Binding Description}"
                                FontSize="11"
-                               Foreground="{StaticResource SecondaryTextBrush}"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
                                HorizontalAlignment="Center"
                                TextAlignment="Center"
                                TextWrapping="Wrap"
@@ -540,14 +540,14 @@
                                        FontWeight="Bold"
                                        HorizontalAlignment="Center"
                                        Margin="0,24,0,0"
-                                       Foreground="{StaticResource Navy}"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        IsHitTestVisible="False"/>
 
                             <TextBlock Text="{Binding AppTagline}"
                                        FontSize="15"
                                        HorizontalAlignment="Center"
                                        Margin="0,8,0,0"
-                                       Foreground="{StaticResource SecondaryTextBrush}"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        TextAlignment="Center"
                                        IsHitTestVisible="False"/>
 
@@ -574,7 +574,7 @@
                                     <TextBlock Text="Enterprise Edition"
                                                FontSize="12"
                                                FontWeight="Bold"
-                                               Foreground="{StaticResource Royal}"
+                                               Foreground="{DynamicResource AccentBrush}"
                                                IsHitTestVisible="False"/>
                                 </Border>
                             </StackPanel>
@@ -589,7 +589,7 @@
                                        FontSize="10"
                                        FontWeight="Bold"
                                        HorizontalAlignment="Center"
-                                       Foreground="{StaticResource MutedTextBrush}"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
                                        IsHitTestVisible="False"/>
 
                             <StackPanel Orientation="Horizontal"
@@ -618,7 +618,7 @@
                                                IsHitTestVisible="False"/>
                                     <TextBlock Text="{Binding Country}"
                                                FontSize="12"
-                                               Foreground="{StaticResource SecondaryTextBrush}"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                Margin="0,2,0,0"
                                                IsHitTestVisible="False"/>
                                 </StackPanel>
@@ -638,12 +638,12 @@
                                     <TextBlock Text="✉"
                                                FontSize="14"
                                                VerticalAlignment="Center"
-                                               Foreground="{StaticResource Royal}"
+                                               Foreground="{DynamicResource AccentBrush}"
                                                Margin="0,0,8,0"/>
                                     <TextBlock Text="{Binding Email}"
                                                FontSize="13"
                                                FontWeight="Bold"
-                                               Foreground="{StaticResource Royal}"
+                                               Foreground="{DynamicResource AccentBrush}"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Border>
@@ -905,13 +905,13 @@
                                FontSize="12"
                                FontWeight="Bold"
                                HorizontalAlignment="Center"
-                               Foreground="{StaticResource Navy}"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"
                                IsHitTestVisible="False"/>
                     <TextBlock Text="{Binding Copyright}"
                                FontSize="11"
                                HorizontalAlignment="Center"
                                Margin="0,6,0,0"
-                               Foreground="{StaticResource MutedTextBrush}"
+                               Foreground="{DynamicResource MutedForegroundBrush}"
                                IsHitTestVisible="False"/>
                 </StackPanel>
 

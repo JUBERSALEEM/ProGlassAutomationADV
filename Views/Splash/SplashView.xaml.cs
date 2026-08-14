@@ -111,12 +111,14 @@ namespace ProGlassAutomation.Views.Splash
 
             return new[]
             {
-                new FeatureItem("📊", "Dashboard",   frost),
-                new FeatureItem("📄", "Proforma",    cerulean),
-                new FeatureItem("📦", "Sheet Store", azure),
-                new FeatureItem("🏭", "Job Orders",  sapphire),
-                new FeatureItem("🚚", "Delivery",    royal),
-                new FeatureItem("🧾", "Tax Invoice", navy),
+                new FeatureItem("📊", "Dashboard",    frost),
+                new FeatureItem("📄", "Proforma",     cerulean),
+                new FeatureItem("📦", "Sheet Store",  azure),
+                new FeatureItem("🏭", "Job Orders",   sapphire),
+                new FeatureItem("🚚", "Delivery",     royal),
+                new FeatureItem("🧾", "Tax Invoice",  navy),
+                new FeatureItem("📈", "Statements",   sapphire),
+                new FeatureItem("📑", "Reports",      azure),
                 new FeatureItem("🤖", "AI Assistant", royal),
             };
         }

@@ -270,11 +270,11 @@
                     <StackPanel Grid.Column="1" VerticalAlignment="Center">
                         <TextBlock Text="{Binding Title}"
                                    FontSize="13" FontWeight="Bold"
-                                   Foreground="#0F172A"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    TextTrimming="CharacterEllipsis"/>
                         <TextBlock Text="{Binding SubTitle}"
                                    FontSize="11" Margin="0,3,0,0"
-                                   Foreground="#64748B"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    TextTrimming="CharacterEllipsis"/>
                     </StackPanel>
 
@@ -284,7 +284,7 @@
                         <TextBlock Text="{Binding ValueDisplay}"
                                    FontSize="12" FontWeight="Bold"
                                    HorizontalAlignment="Right"
-                                   Foreground="#0F172A"/>
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <Border CornerRadius="8" Padding="8,3" Margin="0,4,0,0"
                                 HorizontalAlignment="Right"
                                 Background="{Binding StatusColor,
@@ -479,7 +479,7 @@
                                    Foreground="{StaticResource AccentTextDeep}"/>
                         <TextBlock Text="Business at a glance — sales, production, delivery, inventory."
                                    FontSize="13" Margin="0,4,0,0"
-                                   Foreground="#475569"/>
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     </StackPanel>
 
                     <StackPanel Grid.Column="1" Orientation="Horizontal"
@@ -637,7 +637,7 @@
                                                Foreground="{StaticResource ActivityHeaderBrush}"/>
                                     <TextBlock Text="Latest across all modules"
                                                FontSize="10"
-                                               Foreground="#64748B"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                Margin="0,2,0,0"/>
                                 </StackPanel>
                             </StackPanel>
@@ -672,7 +672,7 @@
                                                    Foreground="{StaticResource AccentTextDeep}"/>
                                         <TextBlock Text="Activity from all modules will appear here."
                                                    FontSize="11" HorizontalAlignment="Center"
-                                                   Foreground="#64748B"/>
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                     </StackPanel>
                                 </Grid>
                             </Border>
@@ -728,7 +728,7 @@
                                            Foreground="{StaticResource ChartHeaderBrush}"/>
                                 <TextBlock Text="{Binding ChartTitle}"
                                            FontSize="10"
-                                           Foreground="#64748B"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
                                            Margin="0,2,0,0"/>
                             </StackPanel>
                         </StackPanel>
@@ -776,7 +776,7 @@
                                                            FontSize="11" FontWeight="Bold"
                                                            HorizontalAlignment="Center"
                                                            Margin="0,8,0,0"
-                                                           Foreground="#475569"/>
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                             </Grid>
                                         </DataTemplate>
                                     </ItemsControl.ItemTemplate>
@@ -785,7 +785,7 @@
                                 <TextBlock Text="Values in AED · VAT inclusive"
                                            FontSize="10" HorizontalAlignment="Right"
                                            Margin="0,10,4,0"
-                                           Foreground="#94A3B8"/>
+                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
                             </StackPanel>
 
                             <StackPanel HorizontalAlignment="Center" Margin="0,40"
@@ -800,7 +800,7 @@
                                            Foreground="{StaticResource AccentTextDeep}"/>
                                 <TextBlock Text="Create your first Proforma Invoice to see data."
                                            FontSize="11" HorizontalAlignment="Center"
-                                           Foreground="#64748B"/>
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                             </StackPanel>
                         </Grid>
                     </StackPanel>
@@ -808,7 +808,7 @@
 
                 <TextBlock Text="{Binding LastRefreshed}"
                            FontSize="10" Opacity="0.6" Margin="12,12,0,0"
-                           Foreground="#64748B"/>
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
 
             </StackPanel>
         </ScrollViewer>
