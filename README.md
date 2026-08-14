@@ -30,6 +30,8 @@
 •
 [🗺️ Roadmap](Docs/ROADMAP.md)
 •
+[🔬 Deep Audit](Docs/AUDIT_FINDINGS.md)
+•
 [🔀 Open Pull Request](https://github.com/JUBERSALEEM/ProGlassAutomationADV/pulls)
 
 </div>
@@ -47,6 +49,7 @@ This branch delivers an **incremental V1 → V2 upgrade**. Every change was laye
 | [`Docs/UPGRADE_NOTES.md`](Docs/UPGRADE_NOTES.md) | Full per-phase V1 → V2 changelog |
 | [`Docs/DESIGN_SYSTEM.md`](Docs/DESIGN_SYSTEM.md) | Visual tokens, brushes & migration rules |
 | [`Docs/ROADMAP.md`](Docs/ROADMAP.md) | Phased plan from upgraded V1 to shippable professional product |
+| [`Docs/AUDIT_FINDINGS.md`](Docs/AUDIT_FINDINGS.md) | Deep audit: leaks, references, bindings, style status |
 
 ---
 
