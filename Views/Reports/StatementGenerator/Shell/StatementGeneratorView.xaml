@@ -8,8 +8,8 @@
        ✂ CommandParameter="1..4" identifies target step
        ✂ IsEnabled bound to VM.CanNavigateToStepX gate
        ✂ StepBadgeButtonStyle provides:
-           - Hover feedback (hardcoded #F5F3FF — theme-safe)
-           - Pressed feedback (hardcoded #E9E5FF — theme-safe)
+           - Hover feedback (TintIndigoBrush — theme-adaptive)
+           - Pressed feedback (TintIndigoBrush — theme-adaptive)
            - Disabled state (0.45 opacity + Arrow cursor)
            - Zero focus rectangle noise
        ✂ Badge visual states use IsStepXActive + IsStepXComplete
@@ -78,10 +78,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="hoverBg" Property="Background" Value="#F5F3FF"/>
+                                <Setter TargetName="hoverBg" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="hoverBg" Property="Background" Value="#E9E5FF"/>
+                                <Setter TargetName="hoverBg" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -151,12 +151,12 @@
                                         <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsStep1Complete}" Value="True">
-                                                <Setter Property="Background" Value="#10B981"/>
-                                                <Setter Property="BorderBrush" Value="#10B981"/>
+                                                <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding IsStep1Active}" Value="True">
-                                                <Setter Property="Background" Value="#4338CA"/>
-                                                <Setter Property="BorderBrush" Value="#4338CA"/>
+                                                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                                 <Setter Property="Effect">
                                                     <Setter.Value>
                                                         <DropShadowEffect BlurRadius="6" ShadowDepth="0"
@@ -192,10 +192,10 @@
                                     <Style TargetType="TextBlock" BasedOn="{StaticResource StepLabelStyle}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsStep1Complete}" Value="True">
-                                                <Setter Property="Foreground" Value="#047857"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding IsStep1Active}" Value="True">
-                                                <Setter Property="Foreground" Value="#4338CA"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                                                 <Setter Property="FontWeight" Value="Bold"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -211,7 +211,7 @@
                             <Style TargetType="Border" BasedOn="{StaticResource StepperConnectorStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsStep1Complete}" Value="True">
-                                        <Setter Property="Background" Value="#10B981"/>
+                                        <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -233,12 +233,12 @@
                                         <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsStep2Complete}" Value="True">
-                                                <Setter Property="Background" Value="#10B981"/>
-                                                <Setter Property="BorderBrush" Value="#10B981"/>
+                                                <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding IsStep2Active}" Value="True">
-                                                <Setter Property="Background" Value="#4338CA"/>
-                                                <Setter Property="BorderBrush" Value="#4338CA"/>
+                                                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                                 <Setter Property="Effect">
                                                     <Setter.Value>
                                                         <DropShadowEffect BlurRadius="6" ShadowDepth="0"
@@ -274,10 +274,10 @@
                                     <Style TargetType="TextBlock" BasedOn="{StaticResource StepLabelStyle}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsStep2Complete}" Value="True">
-                                                <Setter Property="Foreground" Value="#047857"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding IsStep2Active}" Value="True">
-                                                <Setter Property="Foreground" Value="#4338CA"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                                                 <Setter Property="FontWeight" Value="Bold"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -293,7 +293,7 @@
                             <Style TargetType="Border" BasedOn="{StaticResource StepperConnectorStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsStep2Complete}" Value="True">
-                                        <Setter Property="Background" Value="#10B981"/>
+                                        <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -315,12 +315,12 @@
                                         <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsStep3Complete}" Value="True">
-                                                <Setter Property="Background" Value="#10B981"/>
-                                                <Setter Property="BorderBrush" Value="#10B981"/>
+                                                <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding IsStep3Active}" Value="True">
-                                                <Setter Property="Background" Value="#4338CA"/>
-                                                <Setter Property="BorderBrush" Value="#4338CA"/>
+                                                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                                 <Setter Property="Effect">
                                                     <Setter.Value>
                                                         <DropShadowEffect BlurRadius="6" ShadowDepth="0"
@@ -356,10 +356,10 @@
                                     <Style TargetType="TextBlock" BasedOn="{StaticResource StepLabelStyle}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsStep3Complete}" Value="True">
-                                                <Setter Property="Foreground" Value="#047857"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding IsStep3Active}" Value="True">
-                                                <Setter Property="Foreground" Value="#4338CA"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                                                 <Setter Property="FontWeight" Value="Bold"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -375,7 +375,7 @@
                             <Style TargetType="Border" BasedOn="{StaticResource StepperConnectorStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsStep3Complete}" Value="True">
-                                        <Setter Property="Background" Value="#10B981"/>
+                                        <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -397,12 +397,12 @@
                                         <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsStep4Complete}" Value="True">
-                                                <Setter Property="Background" Value="#10B981"/>
-                                                <Setter Property="BorderBrush" Value="#10B981"/>
+                                                <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding IsStep4Active}" Value="True">
-                                                <Setter Property="Background" Value="#4338CA"/>
-                                                <Setter Property="BorderBrush" Value="#4338CA"/>
+                                                <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                                 <Setter Property="Effect">
                                                     <Setter.Value>
                                                         <DropShadowEffect BlurRadius="6" ShadowDepth="0"
@@ -438,10 +438,10 @@
                                     <Style TargetType="TextBlock" BasedOn="{StaticResource StepLabelStyle}">
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsStep4Complete}" Value="True">
-                                                <Setter Property="Foreground" Value="#047857"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding IsStep4Active}" Value="True">
-                                                <Setter Property="Foreground" Value="#4338CA"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                                                 <Setter Property="FontWeight" Value="Bold"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -478,11 +478,11 @@
                             </Border>
                             <ControlTemplate.Triggers>
                                 <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="bd" Property="Background" Value="#FEF2F2"/>
-                                    <Setter TargetName="ic" Property="Foreground" Value="#B91C1C"/>
+                                    <Setter TargetName="bd" Property="Background" Value="{DynamicResource TintRedBrush}"/>
+                                    <Setter TargetName="ic" Property="Foreground" Value="{DynamicResource DangerBrush}"/>
                                 </Trigger>
                                 <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="bd" Property="Background" Value="#FEE2E2"/>
+                                    <Setter TargetName="bd" Property="Background" Value="{DynamicResource TintRedBrush}"/>
                                 </Trigger>
                             </ControlTemplate.Triggers>
                         </ControlTemplate>
