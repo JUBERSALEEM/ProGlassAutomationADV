@@ -46,6 +46,7 @@ using ProGlassAutomation.ViewModels.ProformaInvoice;
 using ProGlassAutomation.ViewModels.Production;
 using ProGlassAutomation.ViewModels.Reports;
 using ProGlassAutomation.ViewModels.Settings;
+using ProGlassAutomation.ViewModels.Diagnostics;
 using ProGlassAutomation.ViewModels.SheetStore;
 using ProGlassAutomation.ViewModels.System;
 using ProGlassAutomation.ViewModels.TaxInvoice;
@@ -81,6 +82,10 @@ namespace ProGlassAutomation.ViewModels
         // NEW: System Center — user management + audit trail
         public SystemCenterViewModel SystemCenterVM { get; } =
             new SystemCenterViewModel();
+
+        // NEW: Logs & Activity — technical log + per-module activity tabs
+        public DiagnosticsViewModel DiagnosticsVM { get; } =
+            new DiagnosticsViewModel();
 
         // ── AI chat ───────────────────────────────────────────────────────
         // Chat 24 v1.2: Now receives voice services for 🎤 mic + 🔊 speaker.
@@ -120,6 +125,25 @@ namespace ProGlassAutomation.ViewModels
             get => _isMenuOpen;
             set { if (_isMenuOpen == value) return; _isMenuOpen = value; OnPropertyChanged(); }
         }
+
+        // ── connectivity indicator (top bar pill) ─────────────────────
+
+        private bool _isOnline = true;
+
+        /// <summary>Live internet state — drives the top-bar pill.</summary>
+        public bool IsOnline
+        {
+            get => _isOnline;
+            private set
+            {
+                if (_isOnline == value) return;
+                _isOnline = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(ConnectivityLabel));
+            }
+        }
+
+        public string ConnectivityLabel => IsOnline ? "Online" : "Offline";
 
         // ── commands ──────────────────────────────────────────────────────
 
@@ -214,6 +238,20 @@ namespace ProGlassAutomation.ViewModels
                 IsMenuOpen = false;
             });
 
+            // ── connectivity pill: follow the shared ConnectivityService ──
+            if (App.Connectivity != null)
+            {
+                _isOnline = App.Connectivity.IsOnline;
+                App.Connectivity.ConnectivityChanged += (_, online) =>
+                {
+                    var dispatcher = System.Windows.Application.Current?.Dispatcher;
+                    if (dispatcher == null) return;
+
+                    if (dispatcher.CheckAccess()) IsOnline = online;
+                    else dispatcher.InvokeAsync(() => IsOnline = online);
+                };
+            }
+
             // default landing page
             CurrentViewModel = DashboardVM;
         }
@@ -248,6 +286,12 @@ namespace ProGlassAutomation.ViewModels
                 case "SystemCenter":
                     CurrentViewModel = SystemCenterVM;
                     SystemCenterVM.LoadUsersAsync();
+                    break;
+
+                // NEW: Logs & Activity (technical log + per-module feeds)
+                case "Diagnostics":
+                    CurrentViewModel = DiagnosticsVM;
+                    DiagnosticsVM.OnShown();
                     break;
             }
             IsMenuOpen = false;

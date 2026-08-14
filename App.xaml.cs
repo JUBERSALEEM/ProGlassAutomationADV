@@ -29,11 +29,14 @@
 
 using ProGlassAutomation.Services.AI.AIConfig;
 using ProGlassAutomation.Services.AI.AIConnectivity;
+using ProGlassAutomation.Services.AI.AIMemory;
 using ProGlassAutomation.Services.AI.AIService;
 using ProGlassAutomation.Services.AI.AIVoice;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Database;
 using ProGlassAutomation.Services.Database.DatabaseBackup;
+using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Network;
 using ProGlassAutomation.Services.Performance;
 using ProGlassAutomation.Services.DeliveryNote.Repository;
 using ProGlassAutomation.Services.JobOrder.Repository;
@@ -93,29 +96,42 @@ namespace ProGlassAutomation
         public static ITaxInvoiceRepository TaxInvoices { get; private set; }
         public static IStatementRepository Statements { get; private set; }
 
+        /// <summary>
+        /// Same-network user presence (Users page shows colleagues on
+        /// the LAN). Created during startup, disposed on exit.
+        /// </summary>
+        public static UserPresenceService Presence { get; private set; }
+
         private async void Application_Startup(
             object sender, StartupEventArgs e)
         {
-            // ── Global unhandled exception catcher (debug) ────────────
+            // 0) Technical logging first — everything after can report here.
+            AppLogService.Initialize();
+
+            // ── Global unhandled exception catcher (debug + v2 crash log) ──
             DispatcherUnhandledException += (s, args) =>
             {
+                // Full technical record with an ErrorId for support.
+                string errorId = AppLogService.Critical(
+                    "Unhandled UI exception", args.Exception,
+                    new LogContext { Operation = "UnhandledException" });
+
                 string msg =
-                    $"UNHANDLED EXCEPTION:\n\n" +
+                    $"Something went wrong.\n\n" +
+                    $"Error ID: {errorId}\n" +
                     $"Type:    {args.Exception.GetType().Name}\n" +
-                    $"Message: {args.Exception.Message}";
+                    $"Message: {args.Exception.Message}\n\n" +
+                    "The full technical details were written to the " +
+                    "application log (Settings → Diagnostics).";
 
-                if (args.Exception.InnerException != null)
-                    msg += $"\n\nInner: " +
-                           $"{args.Exception.InnerException.Message}";
-
-                string stack = args.Exception.StackTrace ?? "";
-                if (stack.Length > 600) stack = stack[..600] + "...";
-                msg += $"\n\nStack:\n{stack}";
-
-                MessageBox.Show(msg, "App Crash — Debug",
+                MessageBox.Show(msg, "ProGlass — Error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 args.Handled = true;
             };
+
+            AppLogService.Info(
+                $"ProGlass {Services.Updates.AppInfo.Version} starting",
+                new LogContext { Operation = "Startup" });
 
             // 1) Load persisted config
             Config = ConfigService.Load();
@@ -154,6 +170,30 @@ namespace ProGlassAutomation
             // 9b) Audit & user system (activity logging).
             //     Never throws — audit failure must not block startup.
             await AuditService.InitializeAsync();
+
+            // 9c-1) AI learning memory (aimemory.db).
+            await AiMemoryService.InitializeAsync();
+
+            // 9c-2) Same-network user presence (Users page).
+            try
+            {
+                Presence = new UserPresenceService();
+                Presence.Start(
+                    AuditService.CurrentUsername,
+                    AuditService.CurrentUser?.DisplayName ?? "");
+
+                // Keep broadcasting the identity of the active user.
+                AuditService.CurrentUserChanged += (_, __) =>
+                    Presence.UpdateIdentity(
+                        AuditService.CurrentUsername,
+                        AuditService.CurrentUser?.DisplayName ?? "");
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Warning(
+                    $"Presence service unavailable: {ex.Message}",
+                    new LogContext { Module = "Network", Operation = "Startup" });
+            }
 
             // 9c) Hardware-adaptive motion profile.
             //     Detects the display refresh rate and snaps to the
@@ -370,9 +410,13 @@ namespace ProGlassAutomation
             }
             catch { /* exit must never be blocked by audit errors */ }
 
+            AppLogService.Info("Shutdown — creating backup set",
+                new LogContext { Operation = "Shutdown" });
+
             BackupService.CreateBackup();
             if (Config != null) ConfigService.Save(Config);
             Connectivity?.StopMonitoring();
+            Presence?.Dispose();
             SpeechToText?.Dispose();
             TextToSpeech?.Dispose();
             base.OnExit(e);

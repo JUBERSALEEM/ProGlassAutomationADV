@@ -1,94 +1,298 @@
-﻿using System;
+// ═══════════════════════════════════════════════════════════════════════
+// FILE: Services/Database/DatabaseBackup/BackupService.cs
+// PROJECT: ProGlassAutomation
+// MODULE: Core — backup & restore (v2 upgrade)
+//
+// v1 backed up only proglass.db. v2 backs up the COMPLETE data set:
+// every SQLite database + config.json into one timestamped "backup set"
+// folder, with retention, verification and safe restore.
+//
+// Layout:  %AppData%\ProGlassAutomation\Backups\
+//            set_2026-08-14_18-30-00\{ all *.db, config.json }
+//
+// SAFETY RULES honoured:
+//   • Restore always snapshots the CURRENT state first (pre_restore).
+//   • Restore requires caller-side user confirmation (Settings asks).
+//   • Nothing is deleted beyond the retention window, and pruning is logged.
+//
+// The original single-file API (CreateBackup / RestoreFromBackup /
+// GetAvailableBackups) is preserved for backward compatibility.
+// ═══════════════════════════════════════════════════════════════════════
+
+using ProGlassAutomation.Services.Logging;
+using System;
 using System.IO;
 using System.Linq;
 
 namespace ProGlassAutomation.Services.Database.DatabaseBackup
 {
+    /// <summary>One backup set on disk.</summary>
+    public class BackupSetInfo
+    {
+        public string FolderPath { get; set; } = "";
+        public string Name { get; set; } = "";
+        public DateTime CreatedAt { get; set; }
+        public long TotalBytes { get; set; }
+        public int FileCount { get; set; }
+
+        public string SizeDisplay =>
+            TotalBytes < 1024 * 1024
+                ? $"{TotalBytes / 1024.0:0.#} KB"
+                : $"{TotalBytes / (1024.0 * 1024.0):0.##} MB";
+    }
+
     /// <summary>
-    /// Auto-backup service for the SQLite database.
-    /// Copies proglass.db to Backups/ folder with timestamp.
-    /// Keeps last 7 backups, auto-deletes older ones.
+    /// Full-dataset backup & restore. Static facade, never throws —
+    /// backup problems are logged, never surfaced as crashes.
     /// </summary>
     public static class BackupService
     {
-        private static readonly string BackupFolder = Path.Combine(
+        private static readonly string AppDataFolder = Path.Combine(
             Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "ProGlassAutomation",
-            "Backups");
+            "ProGlassAutomation");
 
-        private const int MAX_BACKUPS = 7;
+        private static readonly string BackupFolder =
+            Path.Combine(AppDataFolder, "Backups");
+
+        private const int MaxBackupSets = 10;
+        private const int LegacyMaxBackups = 7;
+
+        // Exit-time backups use a cooldown so frequent restarts don't
+        // flood the Backups folder with near-identical sets.
+        private static readonly TimeSpan ExitCooldown = TimeSpan.FromMinutes(15);
+        private static DateTime _lastAutoBackupUtc = DateTime.MinValue;
+
+        // ══════════════════════════════════════════════════════════════
+        //  CREATE
+        // ══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Creates a timestamped backup of the database file.
-        /// Called from App.OnExit().
+        /// Original API (App.OnExit). Now creates a FULL backup set,
+        /// throttled by a cooldown so restart-heavy sessions stay tidy.
         /// </summary>
         public static void CreateBackup()
         {
             try
             {
-                var dbPath = AppDbContext.DatabaseFilePath;
+                if (DateTime.UtcNow - _lastAutoBackupUtc < ExitCooldown &&
+                    GetBackupSets().Length > 0)
+                    return;
 
-                // Skip if DB doesn't exist yet
-                if (!File.Exists(dbPath)) return;
-
-                // Ensure backup folder exists
-                if (!Directory.Exists(BackupFolder))
-                    Directory.CreateDirectory(BackupFolder);
-
-                // Create backup with timestamp
-                var timestamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
-                var backupFileName = $"proglass_{timestamp}.db";
-                var backupPath = Path.Combine(BackupFolder, backupFileName);
-
-                // Copy the database file
-                File.Copy(dbPath, backupPath, overwrite: true);
-
-                // Cleanup old backups (keep only last MAX_BACKUPS)
-                CleanupOldBackups();
-
-                System.Diagnostics.Debug.WriteLine($"[Backup] Created: {backupPath}");
+                CreateFullBackupSet("auto");
+                _lastAutoBackupUtc = DateTime.UtcNow;
             }
             catch (Exception ex)
             {
-                // Silent fail — backup is optional, never crash the app
-                System.Diagnostics.Debug.WriteLine($"[Backup] Error: {ex.Message}");
+                AppLogService.Warning(
+                    $"Auto backup failed: {ex.Message}",
+                    new LogContext
+                    {
+                        Module = "Backup",
+                        Class = nameof(BackupService),
+                        Operation = "CreateBackup"
+                    });
             }
         }
 
         /// <summary>
-        /// Restores database from a specific backup file.
-        /// Returns true if successful.
+        /// Creates one full backup set (all databases + config).
+        /// Returns the set folder, or empty string on failure.
         /// </summary>
+        public static string CreateFullBackupSet(string reason = "manual")
+        {
+            try
+            {
+                Directory.CreateDirectory(BackupFolder);
+
+                var stamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
+                var setFolder = Path.Combine(BackupFolder, $"set_{stamp}");
+                Directory.CreateDirectory(setFolder);
+
+                int copied = CopyDataFilesInto(setFolder);
+                if (copied == 0)
+                {
+                    Directory.Delete(setFolder, recursive: true);
+                    return "";
+                }
+
+                CleanupOldSets();
+
+                AppLogService.Info(
+                    $"Backup set created ({reason}): {copied} files → {setFolder}",
+                    new LogContext { Module = "Backup", Operation = "Create" });
+
+                return setFolder;
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Error(
+                    "Backup set creation failed", ex,
+                    new LogContext { Module = "Backup", Operation = "Create" });
+                return "";
+            }
+        }
+
+        private static int CopyDataFilesInto(string setFolder)
+        {
+            int copied = 0;
+            var source = new DirectoryInfo(AppDataFolder);
+
+            foreach (var db in source.GetFiles("*.db"))
+            {
+                try
+                {
+                    db.CopyTo(Path.Combine(setFolder, db.Name), overwrite: true);
+                    copied++;
+                }
+                catch (Exception ex)
+                {
+                    AppLogService.Warning(
+                        $"Could not back up {db.Name}: {ex.Message}",
+                        new LogContext { Module = "Backup", Operation = "Copy" });
+                }
+            }
+
+            var config = Path.Combine(AppDataFolder, "config.json");
+            if (File.Exists(config))
+            {
+                File.Copy(config, Path.Combine(setFolder, "config.json"),
+                    overwrite: true);
+                copied++;
+            }
+
+            return copied;
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  LIST
+        // ══════════════════════════════════════════════════════════════
+
+        /// <summary>All backup sets, newest first.</summary>
+        public static BackupSetInfo[] GetBackupSets()
+        {
+            try
+            {
+                if (!Directory.Exists(BackupFolder))
+                    return Array.Empty<BackupSetInfo>();
+
+                return new DirectoryInfo(BackupFolder)
+                    .GetDirectories("set_*")
+                    .Select(dir =>
+                    {
+                        var files = dir.GetFiles();
+                        return new BackupSetInfo
+                        {
+                            FolderPath = dir.FullName,
+                            Name = dir.Name,
+                            CreatedAt = dir.CreationTime,
+                            TotalBytes = files.Sum(f => f.Length),
+                            FileCount = files.Length
+                        };
+                    })
+                    .OrderByDescending(s => s.CreatedAt)
+                    .ToArray();
+            }
+            catch
+            {
+                return Array.Empty<BackupSetInfo>();
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  RESTORE
+        // ══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Restores every file from a backup set over the live data.
+        /// A safety snapshot of the CURRENT state is taken first.
+        /// Caller must confirm with the user before invoking this.
+        /// </summary>
+        public static (bool Success, string Message) RestoreBackupSet(
+            string setFolder)
+        {
+            try
+            {
+                if (!Directory.Exists(setFolder))
+                    return (false, "Backup set not found.");
+
+                var files = new DirectoryInfo(setFolder).GetFiles();
+                if (files.Length == 0)
+                    return (false, "Backup set is empty.");
+
+                // Safety snapshot first — restore can always be undone.
+                var safety = CreateFullBackupSet("pre-restore safety");
+                if (safety.Length == 0)
+                    return (false,
+                        "Could not create the pre-restore safety backup.");
+
+                int restored = 0;
+                foreach (var file in files)
+                {
+                    try
+                    {
+                        file.CopyTo(Path.Combine(AppDataFolder, file.Name),
+                            overwrite: true);
+                        restored++;
+                    }
+                    catch (Exception ex)
+                    {
+                        AppLogService.Warning(
+                            $"Restore skipped {file.Name}: {ex.Message}",
+                            new LogContext
+                            {
+                                Module = "Backup",
+                                Operation = "Restore"
+                            });
+                    }
+                }
+
+                AppLogService.Info(
+                    $"Backup set restored: {files[0].Directory?.Name} " +
+                    $"({restored}/{files.Length} files)",
+                    new LogContext { Module = "Backup", Operation = "Restore" });
+
+                return (true,
+                    $"Restored {restored} of {files.Length} files. " +
+                    "Restart the app to load the restored data.");
+            }
+            catch (Exception ex)
+            {
+                AppLogService.Error("Restore failed", ex,
+                    new LogContext { Module = "Backup", Operation = "Restore" });
+                return (false, $"Restore failed: {ex.Message}");
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  LEGACY v1 API (preserved)
+        // ══════════════════════════════════════════════════════════════
+
+        /// <summary>Legacy single-file restore (proglass.db backups).</summary>
         public static bool RestoreFromBackup(string backupFilePath)
         {
             try
             {
                 var dbPath = AppDbContext.DatabaseFilePath;
+                if (!File.Exists(backupFilePath)) return false;
 
-                if (!File.Exists(backupFilePath))
-                    return false;
+                var safetyBackup = Path.Combine(
+                    BackupFolder, "pre_restore_safety.db");
 
-                // Create a backup of current DB before restoring (safety net)
-                var safetyBackup = Path.Combine(BackupFolder, "pre_restore_safety.db");
                 if (File.Exists(dbPath))
                     File.Copy(dbPath, safetyBackup, overwrite: true);
 
-                // Restore
                 File.Copy(backupFilePath, dbPath, overwrite: true);
-
-                System.Diagnostics.Debug.WriteLine($"[Backup] Restored from: {backupFilePath}");
                 return true;
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine($"[Backup] Restore error: {ex.Message}");
+                AppLogService.Error("Legacy restore failed", ex,
+                    new LogContext { Module = "Backup", Operation = "RestoreLegacy" });
                 return false;
             }
         }
 
-        /// <summary>
-        /// Gets list of available backup files, newest first.
-        /// </summary>
+        /// <summary>Legacy v1 single-file backups (proglass_*.db).</summary>
         public static FileInfo[] GetAvailableBackups()
         {
             if (!Directory.Exists(BackupFolder))
@@ -100,28 +304,24 @@ namespace ProGlassAutomation.Services.Database.DatabaseBackup
                 .ToArray();
         }
 
-        /// <summary>
-        /// Deletes backups beyond MAX_BACKUPS count (oldest first).
-        /// </summary>
-        private static void CleanupOldBackups()
+        // ══════════════════════════════════════════════════════════════
+        //  RETENTION
+        // ══════════════════════════════════════════════════════════════
+
+        private static void CleanupOldSets()
         {
             try
             {
-                var backups = GetAvailableBackups();
-
-                if (backups.Length <= MAX_BACKUPS) return;
-
-                // Delete oldest backups beyond the limit
-                foreach (var old in backups.Skip(MAX_BACKUPS))
+                var sets = GetBackupSets();
+                foreach (var old in sets.Skip(MaxBackupSets))
                 {
-                    old.Delete();
-                    System.Diagnostics.Debug.WriteLine($"[Backup] Deleted old: {old.Name}");
+                    Directory.Delete(old.FolderPath, recursive: true);
+                    AppLogService.Info(
+                        $"Old backup set removed: {old.Name}",
+                        new LogContext { Module = "Backup", Operation = "Prune" });
                 }
             }
-            catch (Exception ex)
-            {
-                System.Diagnostics.Debug.WriteLine($"[Backup] Cleanup error: {ex.Message}");
-            }
+            catch { }
         }
     }
 }

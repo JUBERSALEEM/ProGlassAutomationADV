@@ -206,6 +206,9 @@ namespace ProGlassAutomation.ViewModels.Settings
             // Dynamic Theme Engine — accent presets (Settings UI)
             ApplyAccentCommand = new RelayCommand(param =>
                 ApplyAccentPreset(param as string ?? "GlassBlue"));
+
+            // v2 sections: security keys, OTA updates, backup & restore
+            InitializeV2Sections();
         }
 
         // ══════════════════════════════════════════════════════════════
@@ -597,6 +600,100 @@ namespace ProGlassAutomation.ViewModels.Settings
         public ICommand DeleteWhisperModelCommand { get; }
 
         // ══════════════════════════════════════════════════════════════
+        //  v2 — SECURITY (API key storage)
+        //
+        //  Keys are DPAPI-encrypted in the SecretVault, never plain
+        //  text. Turning "keep keys" off makes them session-only.
+        // ══════════════════════════════════════════════════════════════
+
+        public bool KeepApiKeysSaved
+        {
+            get => App.Config?.Ai?.RememberApiKeys ?? true;
+            set
+            {
+                if (App.Config == null ||
+                    App.Config.Ai.RememberApiKeys == value)
+                    return;
+
+                App.Config.Ai.RememberApiKeys = value;
+                SaveConfig();   // wipes the vault when value is false
+                OnPropertyChanged();
+            }
+        }
+
+        public ICommand RemoveSavedKeysCommand { get; }
+        public ICommand ClearAiMemoryCommand { get; }
+
+        // ══════════════════════════════════════════════════════════════
+        //  v2 — UPDATES (OTA check via GitHub releases)
+        // ══════════════════════════════════════════════════════════════
+
+        private string _updateStatus =
+            $"Current version: v{Services.Updates.AppInfo.Version}";
+        public string UpdateStatus
+        {
+            get => _updateStatus;
+            private set { _updateStatus = value; OnPropertyChanged(); }
+        }
+
+        private bool _isUpdateAvailable;
+        public bool IsUpdateAvailable
+        {
+            get => _isUpdateAvailable;
+            private set { _isUpdateAvailable = value; OnPropertyChanged(); }
+        }
+
+        private int _downloadProgress;
+        public int DownloadProgress
+        {
+            get => _downloadProgress;
+            private set { _downloadProgress = value; OnPropertyChanged(); }
+        }
+
+        private bool _isDownloadingUpdate;
+        public bool IsDownloadingUpdate
+        {
+            get => _isDownloadingUpdate;
+            private set
+            {
+                _isDownloadingUpdate = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private Services.Updates.UpdateCheckResult? _lastUpdateCheck;
+
+        public ICommand CheckForUpdatesCommand { get; }
+        public ICommand DownloadUpdateCommand { get; }
+
+        // ══════════════════════════════════════════════════════════════
+        //  v2 — BACKUP & RESTORE (full dataset sets)
+        // ══════════════════════════════════════════════════════════════
+
+        public ObservableCollection<
+            Services.Database.DatabaseBackup.BackupSetInfo> BackupSets
+        { get; } = new();
+
+        private Services.Database.DatabaseBackup.BackupSetInfo? _selectedBackup;
+        public Services.Database.DatabaseBackup.BackupSetInfo? SelectedBackup
+        {
+            get => _selectedBackup;
+            set { _selectedBackup = value; OnPropertyChanged(); }
+        }
+
+        private string _backupStatus = "";
+        public string BackupStatus
+        {
+            get => _backupStatus;
+            private set { _backupStatus = value; OnPropertyChanged(); }
+        }
+
+        public ICommand CreateBackupNowCommand { get; }
+        public ICommand RestoreSelectedBackupCommand { get; }
+        public ICommand RefreshBackupsCommand { get; }
+        public ICommand OpenBackupsFolderCommand { get; }
+
+        // ══════════════════════════════════════════════════════════════
         //  HELPERS
         // ══════════════════════════════════════════════════════════════
 
@@ -604,6 +701,180 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             if (App.Config != null)
                 ConfigService.Save(App.Config);
+        }
+
+        private void InitializeV2Sections()
+        {
+            // ── Security commands ─────────────────────────────────────
+            RemoveSavedKeysCommand = new RelayCommand(_ =>
+            {
+                var confirm = System.Windows.MessageBox.Show(
+                    "Remove all saved API keys from this device?\n\n" +
+                    "They will also be cleared from memory — AI stops " +
+                    "working until keys are entered again.",
+                    "Remove Saved Keys",
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Warning);
+
+                if (confirm != System.Windows.MessageBoxResult.Yes) return;
+
+                Services.Security.SecretVault.RemoveAll();
+
+                if (App.Config?.Ai != null)
+                {
+                    App.Config.Ai.GeminiApiKey = "";
+                    App.Config.Ai.GroqApiKey = "";
+                    App.Config.Ai.CohereApiKey = "";
+                    SaveConfig();
+                }
+
+                OnPropertyChanged(nameof(GeminiApiKey));
+                OnPropertyChanged(nameof(GroqApiKey));
+                OnPropertyChanged(nameof(CohereApiKey));
+
+                Services.Audit.AuditService.Log(
+                    Services.Audit.AuditSections.Settings,
+                    "API keys removed",
+                    "All stored AI keys deleted from device");
+            });
+
+            ClearAiMemoryCommand = new RelayCommand(async _ =>
+            {
+                await Services.AI.AIMemory.AiMemoryService.ClearAsync();
+                Services.Audit.AuditService.Log(
+                    Services.Audit.AuditSections.Settings,
+                    "AI memory cleared", "");
+            });
+
+            // ── Update commands ───────────────────────────────────────
+            CheckForUpdatesCommand = new RelayCommand(async _ =>
+            {
+                UpdateStatus = "Checking for updates…";
+
+                var result = await Services.Updates.UpdateService
+                    .CheckForUpdateAsync();
+
+                _lastUpdateCheck = result;
+
+                if (!result.Success)
+                {
+                    UpdateStatus =
+                        $"Could not check for updates: {result.ErrorMessage}";
+                    return;
+                }
+
+                IsUpdateAvailable = result.UpdateAvailable;
+
+                UpdateStatus = result.UpdateAvailable
+                    ? $"Update available: v{result.LatestVersion}" +
+                      (string.IsNullOrEmpty(result.ReleaseName)
+                          ? "" : $" — {result.ReleaseName}")
+                    : $"You are on the latest version " +
+                      $"(v{Services.Updates.AppInfo.Version}).";
+            });
+
+            DownloadUpdateCommand = new RelayCommand(async _ =>
+            {
+                var update = _lastUpdateCheck;
+                if (update == null || IsDownloadingUpdate) return;
+
+                IsDownloadingUpdate = true;
+                DownloadProgress = 0;
+
+                var (ok, path, error) = await Services.Updates.UpdateService
+                    .DownloadUpdateAsync(
+                        update,
+                        progress => System.Windows.Application.Current
+                            ?.Dispatcher.InvokeAsync(
+                                () => DownloadProgress = progress));
+
+                IsDownloadingUpdate = false;
+
+                if (ok)
+                {
+                    UpdateStatus =
+                        $"Downloaded to {path}. Run the installer manually — " +
+                        "the app never replaces its own files.";
+
+                    Services.Audit.AuditService.Log(
+                        Services.Audit.AuditSections.Settings,
+                        "Update downloaded",
+                        $"v{update.LatestVersion} → {path}");
+                }
+                else
+                {
+                    UpdateStatus = $"Download failed: {error}";
+                }
+            });
+
+            // ── Backup commands ───────────────────────────────────────
+            RefreshBackupsCommand = new RelayCommand(_ => RefreshBackupSets());
+
+            CreateBackupNowCommand = new RelayCommand(_ =>
+            {
+                var set = Services.Database.DatabaseBackup.BackupService
+                    .CreateFullBackupSet("manual (Settings)");
+
+                BackupStatus = set.Length > 0
+                    ? $"✓ Backup created: {System.IO.Path.GetFileName(set)}"
+                    : "✗ Backup failed — see Logs & Activity for details.";
+
+                RefreshBackupSets();
+            });
+
+            RestoreSelectedBackupCommand = new RelayCommand(_ =>
+            {
+                var selected = SelectedBackup;
+                if (selected == null) return;
+
+                var confirm = System.Windows.MessageBox.Show(
+                    $"Restore backup from {selected.CreatedAt:dd MMM yyyy HH:mm}?\n\n" +
+                    "This OVERWRITES all current data with the backup.\n" +
+                    "A safety snapshot of the current data is taken first.",
+                    "Restore Backup",
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Warning);
+
+                if (confirm != System.Windows.MessageBoxResult.Yes) return;
+
+                var (ok, message) = Services.Database.DatabaseBackup
+                    .BackupService.RestoreBackupSet(selected.FolderPath);
+
+                BackupStatus = (ok ? "✓ " : "✗ ") + message;
+                RefreshBackupSets();
+            });
+
+            OpenBackupsFolderCommand = new RelayCommand(_ =>
+            {
+                try
+                {
+                    var folder = System.IO.Path.Combine(
+                        System.Environment.GetFolderPath(
+                            System.Environment.SpecialFolder.ApplicationData),
+                        "ProGlassAutomation", "Backups");
+
+                    System.IO.Directory.CreateDirectory(folder);
+                    System.Diagnostics.Process.Start(
+                        new System.Diagnostics.ProcessStartInfo
+                        {
+                            FileName = folder,
+                            UseShellExecute = true
+                        });
+                }
+                catch { }
+            });
+
+            RefreshBackupSets();
+        }
+
+        private void RefreshBackupSets()
+        {
+            BackupSets.Clear();
+            foreach (var set in Services.Database.DatabaseBackup
+                .BackupService.GetBackupSets())
+            {
+                BackupSets.Add(set);
+            }
         }
     }
 }

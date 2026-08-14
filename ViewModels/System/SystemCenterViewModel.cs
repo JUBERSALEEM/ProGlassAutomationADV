@@ -18,7 +18,6 @@ using ProGlassAutomation.Services.Audit;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 
@@ -93,6 +92,43 @@ namespace ProGlassAutomation.ViewModels.System
                 RefreshCurrentFlags();
                 OnPropertyChanged(nameof(CurrentUserDisplay));
             };
+
+            // Same-network presence (UDP heartbeats from colleagues).
+            if (App.Presence != null)
+            {
+                App.Presence.PeersChanged += (_, __) => RefreshPeers();
+                RefreshPeers();
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  NETWORK PRESENCE (same LAN)
+        // ══════════════════════════════════════════════════════════════
+
+        public ObservableCollection<Services.Network.NetworkPeer>
+            OnlinePeers { get; } = new();
+
+        private bool _hasPeers;
+        public bool HasPeers
+        {
+            get => _hasPeers;
+            private set { _hasPeers = value; OnPropertyChanged(); }
+        }
+
+        private void RefreshPeers()
+        {
+            var dispatcher = System.Windows.Application.Current?.Dispatcher;
+
+            void Update()
+            {
+                OnlinePeers.Clear();
+                foreach (var peer in App.Presence?.GetPeers() ?? new())
+                    OnlinePeers.Add(peer);
+                HasPeers = OnlinePeers.Count > 0;
+            }
+
+            if (dispatcher == null || dispatcher.CheckAccess()) Update();
+            else dispatcher.InvokeAsync(Update);
         }
 
         // ══════════════════════════════════════════════════════════════

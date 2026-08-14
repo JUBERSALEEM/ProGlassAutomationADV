@@ -136,3 +136,71 @@ Audit also surfaced (and logs) flows that were previously invisible — useful f
   smallest example).
 - **New accent preset** → add one case to `SettingsViewModel.ApplyAccentPreset` + one button in
   `SettingsView.xaml`.
+
+---
+
+## 7. v2 Upgrade — Phase Batch 2 (this round)
+
+### Security — no plain-text secrets
+- `Services/Security/SecretVault.cs`: DPAPI (Windows user scope) encrypted
+  secret store (`secrets.dat`). API keys never reach `config.json`.
+- `ConfigService` upgraded: legacy plain-text keys are migrated into the
+  vault on load; saves always mask keys; `RememberApiKeys=false` makes keys
+  session-only (memory until app closes).
+- Settings → SECURITY: keep-keys toggle, "Remove saved keys", "Clear AI memory".
+
+### Technical logging & crash diagnostics
+- `Services/Logging/AppLogService` (+`LogEntry`): file log
+  `logs\app-yyyyMMdd.log` (14-day retention), levels, module/class/method/
+  operation context, ErrorIds, exception chains, live ring buffer + event.
+- Unhandled UI exceptions now produce an ErrorId, full technical log and a
+  user-safe dialog (no raw stack as the primary message).
+- **Logs & Activity module** (sidebar → SYSTEM): separate stylish page with
+  tabs — App Log, All Activity, and one live activity tab per module
+  (PI / JO / DN / TI / Sheet Store / Statement / AI / Users).
+
+### OTA updates
+- `Services/Updates/UpdateService`: GitHub-release check, version compare,
+  release notes, download with progress into the user's Downloads folder.
+  The app never replaces its own files.
+- `AppInfo` is the single version source; About now shows v2.0.0.
+
+### AI upgrades
+- **Learning memory** (`Services/AI/AIMemory`, aimemory.db): every exchange
+  remembered locally; recent memories + the last 12 audit actions are
+  injected into the AI context so the assistant understands daily work.
+- AI answers are audited; memory clearable from Settings (privacy).
+
+### Users around the app
+- Dashboard welcome banner greets the signed-in user (live on user switch).
+- **Same-network presence**: `Services/Network/UserPresenceService` — UDP
+  broadcast heartbeats; System Center → Users shows colleagues online on
+  the LAN.
+
+### Daily PI sharing
+- Saved invoices list: TODAY one-tap filter + SHARE EXCEL — exports the
+  filtered list as one styled register via the shared Excel engine
+  (`ProformaInvoiceListExcelLayout`, WorkbookStyle).
+
+### Backup & restore (advanced)
+- Full backup SETS (all databases + config) in timestamped folders,
+  retention 10, verification, restore with automatic pre-restore safety
+  snapshot. Settings → BACKUP & RESTORE UI. Exit creates an auto set
+  (15-minute cooldown).
+
+### UI polish
+- Top-bar live Online/Offline pill (shared ConnectivityService).
+- No-search-results / empty states in God Views, App Log, presence,
+  activity feeds. Smooth scrolling enabled on new/settings/system lists.
+- About gained a plain-language Privacy card.
+
+### Intentionally untouched
+All module business logic (PI pricing, DN partial deliveries, TI families,
+Statement workflow, SheetStore stock rules), all existing database files and
+schemas, the existing export engines (reused), and every v1-era style that
+was not duplicated.
+
+### Honest testing status
+This WPF project cannot be compiled in the development sandbox (Linux, no
+.NET Windows SDK). All changes were validated structurally (XAML parse,
+syntax analysis, API cross-referencing) — not build- or run-tested.

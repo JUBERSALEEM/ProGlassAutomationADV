@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Dashboard/DashboardViewModel.cs
 // PROJECT: ProGlassAutomation
 //
@@ -59,6 +59,28 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         // ── commands ──────────────────────────────────────────────────────
         public ICommand SelectTabCommand { get; }
 
+        // ── v2 welcome banner (bound in DashboardView.xaml) ──────────────
+
+        public string CurrentUserDisplay =>
+            Services.Audit.AuditService.CurrentUser?.DisplayName
+            ?? Services.Audit.AuditService.CurrentUsername;
+
+        public string WelcomeLine
+        {
+            get
+            {
+                int hour = DateTime.Now.Hour;
+                string part = hour < 12 ? "Good morning"
+                    : hour < 17 ? "Good afternoon"
+                    : "Good evening";
+                return $"{part}, {CurrentUserDisplay} 👋";
+            }
+        }
+
+        public string WelcomeDateLine =>
+            DateTime.Now.ToString("dddd, dd MMMM yyyy") +
+            "  •  Here's your glass production at a glance.";
+
         // ── navigation callbacks — set by MainViewModel after construction ─
 
         /// <summary>
@@ -116,6 +138,13 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             // Default tab — set backing field directly to avoid double load
             _activePage = OverviewVM;
             _ = OverviewVM.LoadAsync();
+
+            // v2: greeting follows the signed-in user
+            Services.Audit.AuditService.CurrentUserChanged += (_, __) =>
+            {
+                OnPropertyChanged(nameof(CurrentUserDisplay));
+                OnPropertyChanged(nameof(WelcomeLine));
+            };
         }
 
         /// <summary>

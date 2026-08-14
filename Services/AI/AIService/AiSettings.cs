@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/AI/AIService/AiSettings.cs
 // PROJECT: ProGlassAutomation
 // MODULE: AI Service (Chat 25 v3.0 — correct model defaults)
@@ -103,6 +103,17 @@ namespace ProGlassAutomation.Services.AI.AIService
         /// Default "base" — 142MB, 95%+ accuracy, fast inference.
         /// </summary>
         public string SelectedWhisperModel { get; set; } = "base";
+
+        // ── Secret storage policy ──────────────────────────────────────
+
+        /// <summary>
+        /// v2 security: when true, API keys are kept in the DPAPI
+        /// SecretVault between sessions (encrypted, current Windows user
+        /// only). When false, keys live only in memory until the app
+        /// closes — the user re-enters them next session.
+        /// Default true so existing users are not logged out of their keys.
+        /// </summary>
+        public bool RememberApiKeys { get; set; } = true;
 
         // ── Helpers ────────────────────────────────────────────────────
 

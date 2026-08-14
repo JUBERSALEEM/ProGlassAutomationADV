@@ -56,6 +56,7 @@
         xmlns:vmTaxInvoice="clr-namespace:ProGlassAutomation.ViewModels.TaxInvoice"
         xmlns:vmReports="clr-namespace:ProGlassAutomation.ViewModels.Reports"
         xmlns:vmSystem="clr-namespace:ProGlassAutomation.ViewModels.System"
+        xmlns:vmDiagnostics="clr-namespace:ProGlassAutomation.ViewModels.Diagnostics"
         xmlns:viewsDashboard="clr-namespace:ProGlassAutomation.Views.Dashboard"
         xmlns:viewsProforma="clr-namespace:ProGlassAutomation.Views.ProformaInvoice"
         xmlns:viewsAbout="clr-namespace:ProGlassAutomation.Views.About"
@@ -69,6 +70,7 @@
         xmlns:viewsReports="clr-namespace:ProGlassAutomation.Views.Reports"
         xmlns:viewsAi="clr-namespace:ProGlassAutomation.Views.AI"
         xmlns:viewsSystem="clr-namespace:ProGlassAutomation.Views.System"
+        xmlns:viewsDiagnostics="clr-namespace:ProGlassAutomation.Views.Diagnostics"
         Title="ProGlass Automation"
         Height="720" Width="1280"
         MinHeight="600" MinWidth="900"
@@ -212,6 +214,11 @@
         <!-- NEW: System Center — user management + audit trail -->
         <DataTemplate DataType="{x:Type vmSystem:SystemCenterViewModel}">
             <viewsSystem:SystemCenterView/>
+        </DataTemplate>
+
+        <!-- NEW: Logs & Activity — technical log + per-module activity -->
+        <DataTemplate DataType="{x:Type vmDiagnostics:DiagnosticsViewModel}">
+            <viewsDiagnostics:DiagnosticsView/>
         </DataTemplate>
 
         <!-- ═══════════════════════════════════════════════════════════════
@@ -491,13 +498,62 @@
                                IsHitTestVisible="False"/>
                 </Border>
 
-                <!-- Right: Settings + About
+                <!-- Right: connectivity pill + Settings + About
                      v3.1: Settings button now navigates to Settings module
                      via ShowSettingsCommand (like ShowAboutCommand) -->
                 <StackPanel Grid.Column="4"
                             Orientation="Horizontal"
                             VerticalAlignment="Center"
                             Margin="0,0,8,0">
+
+                    <!-- Internet connectivity pill (live — AI, updates) -->
+                    <Border CornerRadius="999"
+                            Padding="10,4"
+                            Margin="0,0,10,0"
+                            VerticalAlignment="Center"
+                            ToolTip="Internet connection state — AI and updates need internet">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="#2210B981"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsOnline}" Value="False">
+                                        <Setter Property="Background" Value="#22EF4444"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <Ellipse Width="7" Height="7"
+                                     VerticalAlignment="Center"
+                                     Margin="0,0,6,0">
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Setter Property="Fill" Value="#10B981"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsOnline}" Value="False">
+                                                <Setter Property="Fill" Value="#EF4444"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
+                            <TextBlock Text="{Binding ConnectivityLabel}"
+                                       FontSize="10" FontWeight="Bold"
+                                       VerticalAlignment="Center">
+                                <TextBlock.Style>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="Foreground" Value="#10B981"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsOnline}" Value="False">
+                                                <Setter Property="Foreground" Value="#EF4444"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </TextBlock.Style>
+                            </TextBlock>
+                        </StackPanel>
+                    </Border>
+
                     <Button Style="{StaticResource TopBarIconButtonStyle}"
                             Content="&#9881;" FontSize="20"
                             Command="{Binding ShowSettingsCommand}"
@@ -672,6 +728,10 @@
                                     Content="System Center" Tag="&#128736;"
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="SystemCenter"/>
+                            <Button Style="{StaticResource SidebarItemStyle}"
+                                    Content="Logs &amp; Activity" Tag="&#129657;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="Diagnostics"/>
 
                         </StackPanel>
                     </ScrollViewer>

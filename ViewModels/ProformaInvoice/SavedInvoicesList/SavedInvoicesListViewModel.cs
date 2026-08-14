@@ -147,6 +147,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         public ICommand ExportExcelFromListCommand { get; }
         public ICommand ExportCsvFromListCommand { get; }   // BUG-76
 
+        // v2: quick "today" filter + share the filtered list as Excel
+        public ICommand SetTodayFilterCommand { get; }
+        public ICommand ExportFilteredExcelCommand { get; }
+
         public SavedInvoicesListViewModel()
         {
             RefreshCommand = new RelayCommand(async _ => await LoadInvoicesAsync());
@@ -193,7 +197,80 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             ExportCsvFromListCommand = new RelayCommand(
                 async p => await ExportCsvFromListAsync(p as SavedInvoiceListItem));
 
+            // v2: one tap → show today's invoices (FromDate/ToDate both today)
+            SetTodayFilterCommand = new RelayCommand(_ =>
+            {
+                SelectedStatusFilter = "All Statuses";
+                FromDate = DateTime.Today;
+                ToDate = DateTime.Today;
+            });
+
+            // v2: share the CURRENT FILTERED list as one styled Excel table
+            ExportFilteredExcelCommand = new RelayCommand(
+                async _ => await ExportFilteredExcelAsync());
+
             _ = LoadInvoicesAsync();
+        }
+
+        /// <summary>
+        /// v2: exports whatever the filter currently shows (e.g. today's
+        /// prepared invoices) as a single Excel register using the shared
+        /// export engine + WorkbookStyle.
+        /// </summary>
+        private async Task ExportFilteredExcelAsync()
+        {
+            try
+            {
+                var items = FilteredItems.ToList();
+
+                if (items.Count == 0)
+                {
+                    MessageBox.Show(
+                        "Nothing to export — the current filter shows no invoices.",
+                        "Export Excel",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Information);
+                    return;
+                }
+
+                bool isToday = FromDate == DateTime.Today &&
+                               ToDate == DateTime.Today;
+
+                string title = isToday
+                    ? $"PROFORMA INVOICES PREPARED {DateTime.Today:dd MMM yyyy}"
+                    : "PROFORMA INVOICE REGISTER";
+
+                var layout = new ProformaInvoice.Export
+                    .ProformaInvoiceListExcelLayout(items, title);
+                var engine = new Export.Excel.ExcelExportEngine();
+
+                var result = await engine.ExportAsync(layout,
+                    new Export.Core.ExportRequest
+                    {
+                        PromptForLocation = true,
+                        OpenAfterSave = true
+                    });
+
+                LastExportStatus = result.Success
+                    ? $"✓ Exported {items.Count} invoices to Excel"
+                    : result.Cancelled ? "" : "✗ Excel export failed";
+
+                if (result.Success)
+                    ProGlassAutomation.Services.Audit.AuditService.Log(
+                        ProGlassAutomation.Services.Audit.AuditSections.Proforma,
+                        "Invoice list exported",
+                        $"{items.Count} invoices → Excel ({title})",
+                        "PI", "REGISTER");
+            }
+            catch (Exception ex)
+            {
+                LastExportStatus = $"✗ Excel export failed: {ex.Message}";
+                MessageBox.Show(
+                    $"Excel export failed: {ex.Message}",
+                    "Export Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
         }
 
         // ── Data loading ──────────────────────────────────────────────────────

@@ -517,6 +517,18 @@ namespace ProGlassAutomation.ViewModels.AI
                     {
                         _tts.SpeakAsync(aiText);
                     }
+
+                    // v2 learning — remember the exchange so the
+                    // assistant builds continuity across sessions.
+                    _ = ProGlassAutomation.Services.AI.AIMemory
+                        .AiMemoryService.RememberAsync(
+                            userMsg, aiText,
+                            entityRef?.EntityId ?? "");
+
+                    ProGlassAutomation.Services.Audit.AuditService.Log(
+                        ProGlassAutomation.Services.Audit.AuditSections.Ai,
+                        "Question answered",
+                        userMsg.Length > 120 ? userMsg[..120] + "…" : userMsg);
                 }
                 else
                 {

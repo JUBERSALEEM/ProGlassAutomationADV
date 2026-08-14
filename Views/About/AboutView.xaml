@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/About/AboutView.xaml
      PROJECT: ProGlassAutomation
      MODULE: About (Chat 23 v3.0)
@@ -859,6 +859,40 @@
                                                 HorizontalAlignment="Center"/>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
+                        </ItemsControl>
+                    </StackPanel>
+                </Border>
+
+                <!-- ═══════════════════════════════════════════════════════
+                     PRIVACY (v2) — plain-language data handling
+                ═══════════════════════════════════════════════════════ -->
+                <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                        Padding="26,20"
+                        Margin="0,0,0,16">
+                    <StackPanel>
+                        <TextBlock Text="🔒  Privacy"
+                                   FontSize="15" FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   Margin="0,0,0,10"/>
+                        <ItemsControl ItemsSource="{Binding PrivacyLines}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Orientation="Horizontal"
+                                                Margin="0,0,0,7">
+                                        <TextBlock Text="•"
+                                                   FontSize="12" FontWeight="Bold"
+                                                   Foreground="{DynamicResource AccentBrush}"
+                                                   Margin="0,0,9,0"/>
+                                        <TextBlock Text="{Binding}"
+                                                   FontSize="12"
+                                                   TextWrapping="Wrap"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
                         </ItemsControl>
                     </StackPanel>
                 </Border>

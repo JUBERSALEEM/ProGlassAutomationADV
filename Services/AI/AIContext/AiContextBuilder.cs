@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/AI/AIContext/AiContextBuilder.cs
 // PROJECT: ProGlassAutomation
 // MODULE: AI Context (Chat 25 v2.0 — Deep RAG Phase 2)
@@ -392,9 +392,60 @@ namespace ProGlassAutomation.Services.AI.AIContext
             }
             catch { }
 
+            // ── v2 LEARNING CONTEXT ─────────────────────────────────────
+            // Assistant memory + the user's recent activity let the AI
+            // understand daily work patterns, not just static data.
+            string learning = await BuildLearningContextAsync();
+            if (learning.Length > 0)
+                sb.Append(learning);
+
             sb.AppendLine("─────────────────────────────────────────────────────");
 
-            return hasData ? sb.ToString() : string.Empty;
+            return (hasData || learning.Length > 0)
+                ? sb.ToString()
+                : string.Empty;
+        }
+
+        /// <summary>
+        /// Combines AI memory (previous conversations) with the latest
+        /// audit activity so the assistant has session continuity.
+        /// </summary>
+        private static async Task<string> BuildLearningContextAsync()
+        {
+            try
+            {
+                var sb = new StringBuilder();
+
+                string memory = await AIMemory.AiMemoryService
+                    .BuildMemoryContextAsync();
+                if (memory.Length > 0)
+                    sb.AppendLine(memory);
+
+                var recent = await Audit.AuditService.GetRecentAsync(12);
+                if (recent.Count > 0)
+                {
+                    sb.AppendLine("─── RECENT USER ACTIVITY (audit trail) ─────────────");
+                    foreach (var entry in recent)
+                    {
+                        sb.Append("• [")
+                          .Append(entry.TimestampUtc.ToLocalTime()
+                              .ToString("dd MMM HH:mm"))
+                          .Append("] ").Append(entry.Section)
+                          .Append(" — ").Append(entry.Action);
+
+                        if (!string.IsNullOrWhiteSpace(entry.Details))
+                            sb.Append(": ").Append(entry.Details);
+
+                        sb.AppendLine();
+                    }
+                }
+
+                return sb.ToString();
+            }
+            catch
+            {
+                return "";
+            }
         }
 
         // ══════════════════════════════════════════════════════════════════

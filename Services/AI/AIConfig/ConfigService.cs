@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/AI/AIConfig/ConfigService.cs
 // PROJECT: ProGlassAutomation
 // MODULE: AI Config (Chat 25 v3.0 — corrected deprecated model list)
@@ -18,6 +18,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.AI.AIService;
+using ProGlassAutomation.Services.Security;
 using System;
 using System.IO;
 using System.Text.Json;
@@ -27,9 +28,21 @@ namespace ProGlassAutomation.Services.AI.AIConfig
     /// <summary>
     /// Loads/saves app config to %AppData%\ProGlassAutomation\config.json.
     /// Auto-upgrades ONLY truly deprecated Gemini model names on load.
+    ///
+    /// v2 SECURITY — API keys never persist in plain text:
+    ///   Load(): legacy plain-text keys in config.json are migrated into
+    ///           the DPAPI SecretVault, then wiped from the file.
+    ///   Save(): key properties are masked to "" for serialization and
+    ///           restored in memory afterwards; the vault is the source
+    ///           of truth (unless RememberApiKeys=false → session only).
     /// </summary>
     public static class ConfigService
     {
+        // SecretVault entry names (one per provider)
+        private const string VaultGemini = "ai.gemini.key";
+        private const string VaultGroq = "ai.groq.key";
+        private const string VaultCohere = "ai.cohere.key";
+
         private static readonly string ConfigFolder =
             Path.Combine(
                 Environment.GetFolderPath(
@@ -79,20 +92,30 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         {
             try
             {
-                if (!File.Exists(ConfigPath))
-                    return new AppConfig();
+                AppConfig config;
 
-                var json = File.ReadAllText(ConfigPath);
-                var config = JsonSerializer.Deserialize<AppConfig>(json)
+                if (!File.Exists(ConfigPath))
+                {
+                    config = new AppConfig();
+                }
+                else
+                {
+                    var json = File.ReadAllText(ConfigPath);
+                    config = JsonSerializer.Deserialize<AppConfig>(json)
                              ?? new AppConfig();
+                }
 
                 // Auto-upgrade only truly deprecated models
                 if (config.Ai != null &&
                     IsDeprecatedModel(config.Ai.Model))
                 {
                     config.Ai.Model = CurrentDefaultModel;
-                    Save(config);
                 }
+
+                // v2: migrate legacy plain-text keys out of config.json
+                // into the encrypted vault, then hydrate from the vault.
+                MigrateLegacyKeys(config);
+                HydrateKeysFromVault(config);
 
                 return config;
             }
@@ -109,14 +132,87 @@ namespace ProGlassAutomation.Services.AI.AIConfig
                 if (!Directory.Exists(ConfigFolder))
                     Directory.CreateDirectory(ConfigFolder);
 
+                // v2: keys go to the vault — never to the JSON file.
+                PersistKeysToVault(config);
+
+                var ai = config.Ai;
+                string g = ai?.GeminiApiKey ?? "";
+                string q = ai?.GroqApiKey ?? "";
+                string c = ai?.CohereApiKey ?? "";
+
+                if (ai != null)
+                {
+                    ai.GeminiApiKey = "";
+                    ai.GroqApiKey = "";
+                    ai.CohereApiKey = "";
+                }
+
                 var json = JsonSerializer.Serialize(config,
                     new JsonSerializerOptions { WriteIndented = true });
                 File.WriteAllText(ConfigPath, json);
+
+                // Restore the in-memory working values.
+                if (ai != null)
+                {
+                    ai.GeminiApiKey = g;
+                    ai.GroqApiKey = q;
+                    ai.CohereApiKey = c;
+                }
             }
             catch
             {
                 // Config is optional — silent fail
             }
+        }
+
+        /// <summary>
+        /// One-time migration: plain-text keys found in the JSON (v1
+        /// installs) are copied into the vault. The masked Save() then
+        /// wipes them from the file on the next write.
+        /// </summary>
+        private static void MigrateLegacyKeys(AppConfig config)
+        {
+            var ai = config.Ai;
+            if (ai == null) return;
+
+            if (!string.IsNullOrEmpty(ai.GeminiApiKey))
+                SecretVault.Store(VaultGemini, ai.GeminiApiKey);
+            if (!string.IsNullOrEmpty(ai.GroqApiKey))
+                SecretVault.Store(VaultGroq, ai.GroqApiKey);
+            if (!string.IsNullOrEmpty(ai.CohereApiKey))
+                SecretVault.Store(VaultCohere, ai.CohereApiKey);
+        }
+
+        private static void HydrateKeysFromVault(AppConfig config)
+        {
+            var ai = config.Ai;
+            if (ai == null) return;
+
+            if (SecretVault.TryRetrieve(VaultGemini, out var g))
+                ai.GeminiApiKey = g;
+            if (SecretVault.TryRetrieve(VaultGroq, out var q))
+                ai.GroqApiKey = q;
+            if (SecretVault.TryRetrieve(VaultCohere, out var c))
+                ai.CohereApiKey = c;
+        }
+
+        private static void PersistKeysToVault(AppConfig config)
+        {
+            var ai = config.Ai;
+            if (ai == null) return;
+
+            if (!ai.RememberApiKeys)
+            {
+                // Session-only mode: wipe anything stored on disk.
+                SecretVault.Remove(VaultGemini);
+                SecretVault.Remove(VaultGroq);
+                SecretVault.Remove(VaultCohere);
+                return;
+            }
+
+            SecretVault.Store(VaultGemini, ai.GeminiApiKey ?? "");
+            SecretVault.Store(VaultGroq, ai.GroqApiKey ?? "");
+            SecretVault.Store(VaultCohere, ai.CohereApiKey ?? "");
         }
 
         private static bool IsDeprecatedModel(string model)

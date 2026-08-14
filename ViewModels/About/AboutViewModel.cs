@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/About/AboutViewModel.cs
 // PROJECT: ProGlassAutomation
 // MODULE: About (Chat 23 v3.0)
@@ -86,9 +86,24 @@ public sealed class AboutViewModel : ViewModelBase
 
     /// <summary>
     /// Semantic version string shown in the version pill.
-    /// v1.1.0 — Chat 23 release cycle.
+    /// v2 — single source of truth lives in Services/Updates/AppInfo.
     /// </summary>
-    public string Version { get; } = "v1.1.0";
+    public string Version { get; } =
+        "v" + Services.Updates.AppInfo.Version;
+
+    // ══════════════════════════════════════════════════════════════════
+    //  PRIVACY (v2) — plain-language data handling summary
+    // ══════════════════════════════════════════════════════════════════
+
+    public IReadOnlyList<string> PrivacyLines { get; } = new[]
+    {
+        "All business data stays on this computer — local SQLite files in your user profile.",
+        "API keys are encrypted with Windows user-level protection (DPAPI); never plain text, never sent anywhere except the AI provider you configure.",
+        "The activity log records meaningful actions only (create, edit, delete, print, login) — never keystrokes or mouse movement.",
+        "Technical logs contain error details and context, not invoice contents or personal data.",
+        "Backups are written to your local Backups folder; nothing is uploaded automatically.",
+        "The AI assistant sends only your questions plus the business summary you allow (Settings → Data Access)."
+    };
 
     // ══════════════════════════════════════════════════════════════════
     //  DEVELOPER ATTRIBUTION

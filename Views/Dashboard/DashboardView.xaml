@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Dashboard/DashboardView.xaml
      PROJECT: ProGlassAutomation
 
@@ -116,6 +116,8 @@
     <Grid Background="{DynamicResource ModuleBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <!-- Welcome banner (v2) -->
+            <RowDefinition Height="Auto"/>
             <!-- Tab strip -->
             <RowDefinition Height="1"/>
             <!-- Divider -->
@@ -124,11 +126,61 @@
         </Grid.RowDefinitions>
 
         <!-- ═══════════════════════════════════════════════════════════════
+             WELCOME BANNER — greets the signed-in user (audit session)
+        ═══════════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="0"
+                Margin="16,14,16,0"
+                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
+                Padding="22,16"
+                SnapsToDevicePixels="True">
+            <!-- Same gradient recipe as HeroCardAccentStyle (CardStyles) -->
+            <Border.Background>
+                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                    <GradientStop Color="{Binding Source={StaticResource AccentDarkBrush},
+                                          Path=Color}" Offset="0"/>
+                    <GradientStop Color="{Binding Source={StaticResource AccentBrush},
+                                          Path=Color}" Offset="1"/>
+                </LinearGradientBrush>
+            </Border.Background>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding WelcomeLine}"
+                               FontSize="19" FontWeight="Bold"
+                               Foreground="White"/>
+                    <TextBlock Text="{Binding WelcomeDateLine}"
+                               FontSize="12" Margin="0,3,0,0"
+                               Foreground="#CCFFFFFF"/>
+                </StackPanel>
+
+                <Border Grid.Column="1"
+                        Background="#33FFFFFF"
+                        CornerRadius="{DynamicResource PillCornerRadius}"
+                        Padding="16,8"
+                        VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="👤" FontSize="14"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,7,0"/>
+                        <TextBlock Text="{Binding CurrentUserDisplay}"
+                                   FontSize="13" FontWeight="SemiBold"
+                                   Foreground="White"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- ═══════════════════════════════════════════════════════════════
              TAB STRIP — auto-generates a tab button for every page in Pages
              The 7th tab (Statements 📊) appears automatically because
              StDashboardVM is added to DashboardViewModel.Pages.
         ═══════════════════════════════════════════════════════════════ -->
-        <Border Grid.Row="0"
+        <Border Grid.Row="1"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 Padding="16,0">
             <ItemsControl ItemsSource="{Binding Pages}">
@@ -208,12 +260,12 @@
         </Border>
 
         <!-- Divider under tabs -->
-        <Border Grid.Row="1"
+        <Border Grid.Row="2"
                 Background="{DynamicResource BorderBrush}"/>
 
         <!-- Active sub-dashboard — ContentPresenter auto-selects
              the correct DataTemplate based on the VM type -->
-        <ContentPresenter Grid.Row="2"
+        <ContentPresenter Grid.Row="3"
                           Content="{Binding ActivePage}"/>
     </Grid>
 </UserControl>

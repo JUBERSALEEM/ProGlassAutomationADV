@@ -36,15 +36,16 @@ namespace ProGlassAutomation.ViewModels.Shared
     /// <summary>
     /// Activity feed filtered to a single section.
     /// Create one per module shell and bind the Activity tab to it.
+    /// Pass section = null for an ALL-sections feed (Diagnostics module).
     /// </summary>
     public class SectionActivityViewModel : ViewModelBase
     {
-        private readonly string _section;
+        private readonly string? _section;
         private const int MaxRows = 200;
 
         public ObservableCollection<ActivityRowViewModel> Rows { get; } = new();
 
-        public string Section => _section;
+        public string Section => _section ?? "All sections";
 
         private bool _isEmpty = true;
         public bool IsEmpty
@@ -55,7 +56,7 @@ namespace ProGlassAutomation.ViewModels.Shared
 
         public ICommand RefreshCommand { get; }
 
-        public SectionActivityViewModel(string section)
+        public SectionActivityViewModel(string? section)
         {
             _section = section;
 
@@ -69,7 +70,7 @@ namespace ProGlassAutomation.ViewModels.Shared
         public async void LoadAsync()
         {
             var entries = await AuditService.GetRecentAsync(
-                MaxRows, _section);
+                MaxRows, string.IsNullOrEmpty(_section) ? null : _section);
 
             Rows.Clear();
             foreach (var e in entries)
@@ -80,7 +81,9 @@ namespace ProGlassAutomation.ViewModels.Shared
 
         private void OnActivityLogged(object? sender, ActivityEventArgs e)
         {
-            if (e.Entry.Section != _section) return;
+            if (!string.IsNullOrEmpty(_section) &&
+                e.Entry.Section != _section)
+                return;
 
             Rows.Insert(0, ToRow(e.Entry));
 
