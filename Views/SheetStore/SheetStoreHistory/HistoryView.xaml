@@ -1,4 +1,4 @@
-﻿<Window x:Class="ProGlassAutomation.Views.SheetStore.SheetStoreHistory.HistoryView"
+<Window x:Class="ProGlassAutomation.Views.SheetStore.SheetStoreHistory.HistoryView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
@@ -81,10 +81,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="#6366F1"/>
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="#3730A3"/>
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentDarkBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -103,7 +103,7 @@
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="#4338CA"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
@@ -216,7 +216,7 @@
                         <TextBlock Text=" " FontSize="11" Margin="0,0,0,6"/>
                         <Button Content="✕ Clear Dates"
                                 Style="{StaticResource FilterActionButtonStyle}"
-                                Background="#B91C1C"
+                                Background="{DynamicResource DangerBrush}"
                                 Command="{Binding ClearDatesCommand}"
                                 Visibility="{Binding HasDateFilter, Converter={StaticResource BoolToVisibilityConverter}}"/>
                     </StackPanel>
