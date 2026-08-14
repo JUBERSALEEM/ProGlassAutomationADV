@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList;
+using ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -35,7 +35,7 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
 
             var menu = new ContextMenu
             {
-                FontFamily = new System.Windows.Media.FontFamily("Segoe UI"),
+                FontFamily = new global::System.Windows.Media.FontFamily("Segoe UI"),
                 FontSize = 12
             };
 
@@ -183,8 +183,8 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
             var deleteItem = new MenuItem
             {
                 Header = "🗑️  Delete",
-                Foreground = new System.Windows.Media.SolidColorBrush(
-                    System.Windows.Media.Color.FromRgb(0xEF, 0x44, 0x44)),
+                Foreground = new global::System.Windows.Media.SolidColorBrush(
+                    global::System.Windows.Media.Color.FromRgb(0xEF, 0x44, 0x44)),
                 Padding = new Thickness(4, 6, 20, 6)
             };
             deleteItem.Click += (_, __) => vm.DeleteJobOrderCommand.Execute(row);

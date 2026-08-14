@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Dashboard/Statement/StDashboardViewModel.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Account Statement / Sales Report (Chat 23 v1.1)
@@ -114,7 +114,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
             // Guard: App.Statements may be null if called before startup
             if (App.Statements == null)
             {
-                System.Diagnostics.Debug.WriteLine(
+                global::System.Diagnostics.Debug.WriteLine(
                     "[StDashboard] App.Statements not yet initialized.");
                 return;
             }

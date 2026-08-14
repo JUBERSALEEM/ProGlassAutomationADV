@@ -77,7 +77,7 @@ namespace ProGlassAutomation.ViewModels.Shared
                 if (param is ActivityRowViewModel row && row.HasChanges)
                 {
                     Views.Shared.ChangesDialog.Show(
-                        System.Windows.Application.Current?.MainWindow,
+                        global::System.Windows.Application.Current?.MainWindow,
                         $"{row.Section} — {row.Action} — {row.Username}",
                         AuditService_ChangesFromRow(row));
                 }

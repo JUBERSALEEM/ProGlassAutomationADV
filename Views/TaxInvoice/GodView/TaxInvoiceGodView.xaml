@@ -109,6 +109,7 @@
                 BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1"
                 ClipToBounds="True">
+                <Grid>
             <DataGrid Style="{StaticResource GodViewGridStyle}"
                       ColumnHeaderStyle="{StaticResource GodViewHeaderStyle}"
                       ItemsSource="{Binding Rows}"
@@ -199,6 +200,7 @@
                                HorizontalAlignment="Center"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </StackPanel>
+                </Grid>
         </Border>
     </Grid>
 </UserControl>

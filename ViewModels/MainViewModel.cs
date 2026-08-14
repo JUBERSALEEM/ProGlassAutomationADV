@@ -244,7 +244,7 @@ namespace ProGlassAutomation.ViewModels
                 _isOnline = App.Connectivity.IsOnline;
                 App.Connectivity.ConnectivityChanged += (_, online) =>
                 {
-                    var dispatcher = System.Windows.Application.Current?.Dispatcher;
+                    var dispatcher = global::System.Windows.Application.Current?.Dispatcher;
                     if (dispatcher == null) return;
 
                     if (dispatcher.CheckAccess()) IsOnline = online;
@@ -312,24 +312,36 @@ namespace ProGlassAutomation.ViewModels
         /// </summary>
         private static void ApplyModuleWallpaper(string? navKey)
         {
-            var w = ProGlassAutomation.Services.Theme.WallpaperModules;
-
+            // Static constants — referenced directly (a static class
+            // cannot be assigned to a variable).
             string moduleKey = navKey switch
             {
-                "Dashboard" => w.Dashboard,
-                "SheetStore" => w.SheetStore,
-                "ProformaInvoice" => w.ProformaInvoice,
-                "JobOrder" => w.JobOrder,
-                "DeliveryNote" => w.DeliveryNote,
-                "TaxInvoice" => w.TaxInvoice,
-                "SalesReport" => w.SalesReport,
+                "Dashboard" =>
+                    ProGlassAutomation.Services.Theme.WallpaperModules.Dashboard,
+                "SheetStore" =>
+                    ProGlassAutomation.Services.Theme.WallpaperModules.SheetStore,
+                "ProformaInvoice" =>
+                    ProGlassAutomation.Services.Theme.WallpaperModules.ProformaInvoice,
+                "JobOrder" =>
+                    ProGlassAutomation.Services.Theme.WallpaperModules.JobOrder,
+                "DeliveryNote" =>
+                    ProGlassAutomation.Services.Theme.WallpaperModules.DeliveryNote,
+                "TaxInvoice" =>
+                    ProGlassAutomation.Services.Theme.WallpaperModules.TaxInvoice,
+                "SalesReport" =>
+                    ProGlassAutomation.Services.Theme.WallpaperModules.SalesReport,
                 "Optimization" or "Cutting" or "HolesCutouts" or "Polish"
                     or "EdgeDeletion" or "Mitring" or "Tempering"
-                    or "Pairing" or "DoublingLamination" => w.Optimization,
-                "Diagnostics" => w.Logs,
-                "SystemCenter" => w.SystemCenter,
-                "Settings" => w.Settings,
-                "About" => w.About,
+                    or "Pairing" or "DoublingLamination" =>
+                    ProGlassAutomation.Services.Theme.WallpaperModules.Optimization,
+                "Diagnostics" =>
+                    ProGlassAutomation.Services.Theme.WallpaperModules.Logs,
+                "SystemCenter" =>
+                    ProGlassAutomation.Services.Theme.WallpaperModules.SystemCenter,
+                "Settings" =>
+                    ProGlassAutomation.Services.Theme.WallpaperModules.Settings,
+                "About" =>
+                    ProGlassAutomation.Services.Theme.WallpaperModules.About,
                 _ => ""
             };
 

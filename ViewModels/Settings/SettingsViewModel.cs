@@ -117,7 +117,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     modelKey,
                     progress =>
                     {
-                        System.Windows.Application.Current?.Dispatcher.Invoke(() =>
+                        global::System.Windows.Application.Current?.Dispatcher.Invoke(() =>
                         {
                             DownloadProgress = progress;
                             VoiceStatus = $"Downloading… {progress}%";
@@ -148,12 +148,12 @@ namespace ProGlassAutomation.ViewModels.Settings
                         {
                             App.SpeechToText?.Dispose();
                             App.SpeechToText = new WhisperSpeechService();
-                            System.Diagnostics.Debug.WriteLine(
+                            global::System.Diagnostics.Debug.WriteLine(
                                 "[Settings] Switched STT → Whisper after download.");
                         }
                         catch (Exception ex)
                         {
-                            System.Diagnostics.Debug.WriteLine(
+                            global::System.Diagnostics.Debug.WriteLine(
                                 $"[Settings] Whisper swap failed: {ex.Message}");
                         }
                     }
@@ -247,17 +247,17 @@ namespace ProGlassAutomation.ViewModels.Settings
         {
             var color = presetKey switch
             {
-                "Emerald" => (System.Windows.Media.Color?)
-                    System.Windows.Media.Color.FromRgb(0x05, 0x96, 0x69),
+                "Emerald" => (global::System.Windows.Media.Color?)
+                    global::System.Windows.Media.Color.FromRgb(0x05, 0x96, 0x69),
                 "Amber" =>
-                    System.Windows.Media.Color.FromRgb(0xD9, 0x77, 0x06),
+                    global::System.Windows.Media.Color.FromRgb(0xD9, 0x77, 0x06),
                 "Rose" =>
-                    System.Windows.Media.Color.FromRgb(0xE1, 0x1D, 0x48),
+                    global::System.Windows.Media.Color.FromRgb(0xE1, 0x1D, 0x48),
                 "Violet" =>
-                    System.Windows.Media.Color.FromRgb(0x7C, 0x3A, 0xED),
+                    global::System.Windows.Media.Color.FromRgb(0x7C, 0x3A, 0xED),
                 "Teal" =>
-                    System.Windows.Media.Color.FromRgb(0x0D, 0x94, 0x88),
-                _ => (System.Windows.Media.Color?)null   // Glass Blue default
+                    global::System.Windows.Media.Color.FromRgb(0x0D, 0x94, 0x88),
+                _ => (global::System.Windows.Media.Color?)null   // Glass Blue default
             };
 
             ThemeManager.ApplyAccent(color);
@@ -622,8 +622,8 @@ namespace ProGlassAutomation.ViewModels.Settings
             }
         }
 
-        public ICommand RemoveSavedKeysCommand { get; }
-        public ICommand ClearAiMemoryCommand { get; }
+        public ICommand RemoveSavedKeysCommand { get; private set; }
+        public ICommand ClearAiMemoryCommand { get; private set; }
 
         // ══════════════════════════════════════════════════════════════
         //  v2 — VISUAL THEME & WALLPAPER (Normal / Monet / Professional)
@@ -676,7 +676,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 var path = App.Config?.Appearance?.WallpaperPath ?? "";
                 return string.IsNullOrEmpty(path)
                     ? "No wallpaper set"
-                    : $"Wallpaper: {System.IO.Path.GetFileName(path)}";
+                    : $"Wallpaper: {global::System.IO.Path.GetFileName(path)}";
             }
         }
 
@@ -728,7 +728,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     var path = Settings().Path;
                     return string.IsNullOrEmpty(path)
                         ? "No image"
-                        : System.IO.Path.GetFileName(path);
+                        : global::System.IO.Path.GetFileName(path);
                 }
             }
 
@@ -813,11 +813,15 @@ namespace ProGlassAutomation.ViewModels.Settings
             private set { _isUpdateAvailable = value; OnPropertyChanged(); }
         }
 
-        private int _downloadProgress;
-        public int DownloadProgress
+        private int _updateDownloadProgress;
+        public int UpdateDownloadProgress
         {
-            get => _downloadProgress;
-            private set { _downloadProgress = value; OnPropertyChanged(); }
+            get => _updateDownloadProgress;
+            private set
+            {
+                _updateDownloadProgress = value;
+                OnPropertyChanged();
+            }
         }
 
         private bool _isDownloadingUpdate;
@@ -833,8 +837,8 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         private Services.Updates.UpdateCheckResult? _lastUpdateCheck;
 
-        public ICommand CheckForUpdatesCommand { get; }
-        public ICommand DownloadUpdateCommand { get; }
+        public ICommand CheckForUpdatesCommand { get; private set; }
+        public ICommand DownloadUpdateCommand { get; private set; }
 
         // ══════════════════════════════════════════════════════════════
         //  v2 — BACKUP & RESTORE (full dataset sets)
@@ -858,10 +862,10 @@ namespace ProGlassAutomation.ViewModels.Settings
             private set { _backupStatus = value; OnPropertyChanged(); }
         }
 
-        public ICommand CreateBackupNowCommand { get; }
-        public ICommand RestoreSelectedBackupCommand { get; }
-        public ICommand RefreshBackupsCommand { get; }
-        public ICommand OpenBackupsFolderCommand { get; }
+        public ICommand CreateBackupNowCommand { get; private set; }
+        public ICommand RestoreSelectedBackupCommand { get; private set; }
+        public ICommand RefreshBackupsCommand { get; private set; }
+        public ICommand OpenBackupsFolderCommand { get; private set; }
 
         // ══════════════════════════════════════════════════════════════
         //  HELPERS
@@ -878,15 +882,15 @@ namespace ProGlassAutomation.ViewModels.Settings
             // ── Security commands ─────────────────────────────────────
             RemoveSavedKeysCommand = new RelayCommand(_ =>
             {
-                var confirm = System.Windows.MessageBox.Show(
+                var confirm = global::System.Windows.MessageBox.Show(
                     "Remove all saved API keys from this device?\n\n" +
                     "They will also be cleared from memory — AI stops " +
                     "working until keys are entered again.",
                     "Remove Saved Keys",
-                    System.Windows.MessageBoxButton.YesNo,
-                    System.Windows.MessageBoxImage.Warning);
+                    global::System.Windows.MessageBoxButton.YesNo,
+                    global::System.Windows.MessageBoxImage.Warning);
 
-                if (confirm != System.Windows.MessageBoxResult.Yes) return;
+                if (confirm != global::System.Windows.MessageBoxResult.Yes) return;
 
                 Services.Security.SecretVault.RemoveAll();
 
@@ -939,7 +943,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 Services.Audit.AuditService.Log(
                     Services.Audit.AuditSections.Settings,
                     "Wallpaper set",
-                    System.IO.Path.GetFileName(dialog.FileName));
+                    global::System.IO.Path.GetFileName(dialog.FileName));
             });
 
             ClearWallpaperCommand = new RelayCommand(_ =>
@@ -980,7 +984,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     Services.Audit.AuditSections.Settings,
                     "Module wallpaper set",
                     $"{row.Label} → " +
-                    System.IO.Path.GetFileName(dialog.FileName));
+                    global::System.IO.Path.GetFileName(dialog.FileName));
             });
 
             ClearModuleWallpaperCommand = new RelayCommand(param =>
@@ -1026,14 +1030,14 @@ namespace ProGlassAutomation.ViewModels.Settings
                 if (update == null || IsDownloadingUpdate) return;
 
                 IsDownloadingUpdate = true;
-                DownloadProgress = 0;
+                UpdateDownloadProgress = 0;
 
                 var (ok, path, error) = await Services.Updates.UpdateService
                     .DownloadUpdateAsync(
                         update,
-                        progress => System.Windows.Application.Current
+                        progress => global::System.Windows.Application.Current
                             ?.Dispatcher.InvokeAsync(
-                                () => DownloadProgress = progress));
+                                () => UpdateDownloadProgress = progress));
 
                 IsDownloadingUpdate = false;
 
@@ -1063,7 +1067,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                     .CreateFullBackupSet("manual (Settings)");
 
                 BackupStatus = set.Length > 0
-                    ? $"✓ Backup created: {System.IO.Path.GetFileName(set)}"
+                    ? $"✓ Backup created: {global::System.IO.Path.GetFileName(set)}"
                     : "✗ Backup failed — see Logs & Activity for details.";
 
                 RefreshBackupSets();
@@ -1074,15 +1078,15 @@ namespace ProGlassAutomation.ViewModels.Settings
                 var selected = SelectedBackup;
                 if (selected == null) return;
 
-                var confirm = System.Windows.MessageBox.Show(
+                var confirm = global::System.Windows.MessageBox.Show(
                     $"Restore backup from {selected.CreatedAt:dd MMM yyyy HH:mm}?\n\n" +
                     "This OVERWRITES all current data with the backup.\n" +
                     "A safety snapshot of the current data is taken first.",
                     "Restore Backup",
-                    System.Windows.MessageBoxButton.YesNo,
-                    System.Windows.MessageBoxImage.Warning);
+                    global::System.Windows.MessageBoxButton.YesNo,
+                    global::System.Windows.MessageBoxImage.Warning);
 
-                if (confirm != System.Windows.MessageBoxResult.Yes) return;
+                if (confirm != global::System.Windows.MessageBoxResult.Yes) return;
 
                 var (ok, message) = Services.Database.DatabaseBackup
                     .BackupService.RestoreBackupSet(selected.FolderPath);
@@ -1095,14 +1099,14 @@ namespace ProGlassAutomation.ViewModels.Settings
             {
                 try
                 {
-                    var folder = System.IO.Path.Combine(
-                        System.Environment.GetFolderPath(
-                            System.Environment.SpecialFolder.ApplicationData),
+                    var folder = global::System.IO.Path.Combine(
+                        global::System.Environment.GetFolderPath(
+                            global::System.Environment.SpecialFolder.ApplicationData),
                         "ProGlassAutomation", "Backups");
 
-                    System.IO.Directory.CreateDirectory(folder);
-                    System.Diagnostics.Process.Start(
-                        new System.Diagnostics.ProcessStartInfo
+                    global::System.IO.Directory.CreateDirectory(folder);
+                    global::System.Diagnostics.Process.Start(
+                        new global::System.Diagnostics.ProcessStartInfo
                         {
                             FileName = folder,
                             UseShellExecute = true

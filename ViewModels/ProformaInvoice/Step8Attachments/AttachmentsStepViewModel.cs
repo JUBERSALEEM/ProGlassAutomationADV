@@ -217,7 +217,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step8Attachments
                     if (!validType)
                     {
                         StatusMessage =
-                            $"⚠ Skipped {System.IO.Path.GetFileName(sourcePath)}" +
+                            $"⚠ Skipped {global::System.IO.Path.GetFileName(sourcePath)}" +
                             " — unsupported file type.";
                         continue;
                     }
@@ -225,14 +225,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step8Attachments
                     if (!_attachments.IsUnderSizeLimit(sourcePath))
                     {
                         StatusMessage =
-                            $"⚠ Skipped {System.IO.Path.GetFileName(sourcePath)}" +
+                            $"⚠ Skipped {global::System.IO.Path.GetFileName(sourcePath)}" +
                             $" — larger than {AttachmentLimits.MaxFileSizeDisplay}.";
                         continue;
                     }
 
                     // ── Optional rename before upload ─────────────────
                     string originalName =
-                        System.IO.Path.GetFileName(sourcePath);
+                        global::System.IO.Path.GetFileName(sourcePath);
 
                     var renameDialog = new RenameAttachmentDialog(originalName)
                     {

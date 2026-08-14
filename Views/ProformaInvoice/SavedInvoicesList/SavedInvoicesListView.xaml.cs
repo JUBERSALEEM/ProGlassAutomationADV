@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.JobOrder.Mapper;
 using ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList;
 using System;
@@ -49,12 +49,12 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
 
             var menu = new ContextMenu
             {
-                FontFamily = new System.Windows.Media.FontFamily("Segoe UI"),
+                FontFamily = new global::System.Windows.Media.FontFamily("Segoe UI"),
                 FontSize = 12,
 
                 // BUG-87: anchor menu to the clicked row explicitly
                 PlacementTarget = element,
-                Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint
+                Placement = global::System.Windows.Controls.Primitives.PlacementMode.MousePoint
             };
 
             menu.Items.Add(CreateMenuItem("📂  Open & Edit", vm.LoadInvoiceCommand, item, bold: true));
@@ -97,8 +97,8 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
             menu.Items.Add(new Separator());
 
             var deleteItem = CreateMenuItem("🗑  Delete", vm.DeleteInvoiceCommand, item);
-            deleteItem.Foreground = new System.Windows.Media.SolidColorBrush(
-                System.Windows.Media.Color.FromRgb(0xEF, 0x44, 0x44));
+            deleteItem.Foreground = new global::System.Windows.Media.SolidColorBrush(
+                global::System.Windows.Media.Color.FromRgb(0xEF, 0x44, 0x44));
             menu.Items.Add(deleteItem);
 
             element.ContextMenu = menu;
@@ -114,7 +114,7 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
         /// a JobOrderConversionService which is out of scope for this
         /// bug-fix session.
         /// </summary>
-        private async System.Threading.Tasks.Task ConvertToJobOrderAsync(
+        private async global::System.Threading.Tasks.Task ConvertToJobOrderAsync(
             SavedInvoiceListItem item,
             SavedInvoicesListViewModel vm)
         {

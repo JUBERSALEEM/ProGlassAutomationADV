@@ -133,7 +133,7 @@ namespace ProGlassAutomation.ViewModels.System
 
         private void RefreshPeers()
         {
-            var dispatcher = System.Windows.Application.Current?.Dispatcher;
+            var dispatcher = global::System.Windows.Application.Current?.Dispatcher;
 
             void Update()
             {

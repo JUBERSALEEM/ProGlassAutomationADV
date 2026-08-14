@@ -1,4 +1,4 @@
-﻿// ╔══════════════════════════════════════════════════════════════════════════╗
+// ╔══════════════════════════════════════════════════════════════════════════╗
 // ║  Controls/AutoCompleteTextBox/AutoCompleteTextBox.xaml.cs                ║
 // ║                                                                          ║
 // ║  CHAT 13 HOTFIX-5 (final) — CUSTOM AUTOCOMPLETE CONTROL                  ║
@@ -383,7 +383,7 @@ namespace ProGlassAutomation.Controls.AutoCompleteTextBox
             // Get the item that was clicked (walk visual tree from mouse hit)
             var element = e.OriginalSource as DependencyObject;
             while (element != null && element is not ListBoxItem)
-                element = System.Windows.Media.VisualTreeHelper.GetParent(element);
+                element = global::System.Windows.Media.VisualTreeHelper.GetParent(element);
 
             if (element is ListBoxItem lbi && lbi.DataContext != null)
             {
@@ -470,7 +470,7 @@ namespace ProGlassAutomation.Controls.AutoCompleteTextBox
             while (current != null)
             {
                 if (current == PART_Popup || current == PART_ListBox) return true;
-                current = System.Windows.Media.VisualTreeHelper.GetParent(current)
+                current = global::System.Windows.Media.VisualTreeHelper.GetParent(current)
                           ?? LogicalTreeHelper.GetParent(current);
             }
             return false;

@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.ViewModels.Dashboard;
+using ProGlassAutomation.ViewModels.Dashboard;
 using System.Windows.Controls;
 
 namespace ProGlassAutomation.Views.Dashboard
@@ -14,7 +14,7 @@ namespace ProGlassAutomation.Views.Dashboard
         /// Fires every time the user navigates to Dashboard.
         /// Delegates to the shell VM which refreshes the active sub-page.
         /// </summary>
-        private void OnLoaded(object sender, System.Windows.RoutedEventArgs e)
+        private void OnLoaded(object sender, global::System.Windows.RoutedEventArgs e)
         {
             if (DataContext is DashboardViewModel vm)
                 vm.OnViewLoaded();

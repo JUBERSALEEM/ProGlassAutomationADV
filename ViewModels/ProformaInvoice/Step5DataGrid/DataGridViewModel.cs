@@ -1,4 +1,4 @@
-﻿// ╔══════════════════════════════════════════════════════════════════════════╗
+// ╔══════════════════════════════════════════════════════════════════════════╗
 // ║  ViewModels/ProformaInvoice/Step5DataGrid/DataGridViewModel.cs           ║
 // ║                                                                          ║
 // ║  CHAT 20 FINAL — Multi-row selection + persistent Find/Replace.         ║
@@ -1114,11 +1114,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 if (row.GlassRef.IndexOf(
                         findText, StringComparison.OrdinalIgnoreCase) >= 0)
                 {
-                    row.GlassRef = System.Text.RegularExpressions.Regex.Replace(
+                    row.GlassRef = global::System.Text.RegularExpressions.Regex.Replace(
                         row.GlassRef,
-                        System.Text.RegularExpressions.Regex.Escape(findText),
+                        global::System.Text.RegularExpressions.Regex.Escape(findText),
                         replace,
-                        System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                        global::System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                     count++;
                 }
 

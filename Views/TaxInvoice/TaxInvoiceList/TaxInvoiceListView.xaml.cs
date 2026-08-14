@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList;
+using ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -106,7 +106,7 @@ namespace ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList
             {
                 Header = $"📋 {family.ProformaId}",
                 IsEnabled = false,
-                Foreground = System.Windows.Media.Brushes.DarkSlateGray
+                Foreground = global::System.Windows.Media.Brushes.DarkSlateGray
             };
             menu.Items.Add(infoHeader);
 

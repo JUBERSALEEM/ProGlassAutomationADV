@@ -462,7 +462,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                global::System.Diagnostics.Debug.WriteLine(
                     $"[TaxInvoiceViewModel] ListVM.LoadAsync failed: {ex.Message}");
             }
         }

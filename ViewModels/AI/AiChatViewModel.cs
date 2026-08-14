@@ -245,7 +245,7 @@ namespace ProGlassAutomation.ViewModels.AI
                                 });
                             };
 
-                            System.Diagnostics.Debug.WriteLine(
+                            global::System.Diagnostics.Debug.WriteLine(
                                 "[AiChatVM] Swapped Whisper → System.Speech.");
 
                             StatusMessage =
@@ -258,7 +258,7 @@ namespace ProGlassAutomation.ViewModels.AI
                         }
                         catch (Exception ex)
                         {
-                            System.Diagnostics.Debug.WriteLine(
+                            global::System.Diagnostics.Debug.WriteLine(
                                 $"[AiChatVM] Fallback swap failed: {ex.Message}");
                             StatusMessage =
                                 "⚠ Voice unavailable — check audio drivers";

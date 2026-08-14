@@ -174,11 +174,11 @@ namespace ProGlassAutomation.ViewModels.JobOrder
             }
             catch (Exception ex)
             {
-                System.Windows.MessageBox.Show(
+                global::System.Windows.MessageBox.Show(
                     $"Could not open job order:\n\n{ex.Message}",
                     "Job Orders",
-                    System.Windows.MessageBoxButton.OK,
-                    System.Windows.MessageBoxImage.Warning);
+                    global::System.Windows.MessageBoxButton.OK,
+                    global::System.Windows.MessageBoxImage.Warning);
             }
         }
 
@@ -199,7 +199,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
+                global::System.Diagnostics.Debug.WriteLine(
                     $"[JobOrderVM] ReturnToList failed: {ex.Message}");
             }
         }
