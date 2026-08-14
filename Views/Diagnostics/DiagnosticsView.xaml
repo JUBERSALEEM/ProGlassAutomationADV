@@ -99,16 +99,16 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <TextBlock Grid.Column="0" Text="TIME"
-                                           Style="{StaticResource ModuleColumnHeaderStyle}"
+                                           Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="White"
                                            ToolTip="When the event was logged"/>
                                 <TextBlock Grid.Column="1" Text="LEVEL"
-                                           Style="{StaticResource ModuleColumnHeaderStyle}"
+                                           Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="White"
                                            ToolTip="Severity: INFO / WARN / ERROR / CRITICAL"/>
                                 <TextBlock Grid.Column="2" Text="MODULE / FUNCTION"
-                                           Style="{StaticResource ModuleColumnHeaderStyle}"
+                                           Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="White"
                                            ToolTip="Module › Class › Method where it happened"/>
                                 <TextBlock Grid.Column="3" Text="MESSAGE"
-                                           Style="{StaticResource ModuleColumnHeaderStyle}"
+                                           Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="White"
                                            Margin="10,0,0,0"
                                            ToolTip="What happened"/>
                             </Grid>

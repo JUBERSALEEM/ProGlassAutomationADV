@@ -417,7 +417,7 @@
             </Border>
 
             <!-- STICKY TABLE COLUMN HEADER -->
-            <Border Background="{DynamicResource MenuHoverBrush}"
+            <Border Background="{DynamicResource AccentBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="1"
                     CornerRadius="14,14,0,0" Padding="12,10" Margin="8,0,8,0"
@@ -442,21 +442,21 @@
                         <ColumnDefinition Width="60"/>
                         <ColumnDefinition Width="200"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="#" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
-                    <TextBlock Grid.Column="1" Text="CATEGORY" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
-                    <TextBlock Grid.Column="2" Text="THICK" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
-                    <TextBlock Grid.Column="3" Text="COLOR" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
-                    <TextBlock Grid.Column="4" Text="SIZE" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
-                    <TextBlock Grid.Column="5" Text="SUPPLIER" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}"/>
-                    <TextBlock Grid.Column="6" Text="SQM" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Right"/>
-                    <TextBlock Grid.Column="7" Text="BUY/SQM" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Right"/>
-                    <TextBlock Grid.Column="8" Text="SELL/SQM" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Right"/>
-                    <TextBlock Grid.Column="9" Text="TOTAL BUY" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Right"/>
-                    <TextBlock Grid.Column="10" Text="TOTAL SELL" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" HorizontalAlignment="Right"/>
-                    <TextBlock Grid.Column="11" Text="STOCK" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center"/>
-                    <TextBlock Grid.Column="12" Text="USED" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center"/>
-                    <TextBlock Grid.Column="13" Text="BAL" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center"/>
-                    <TextBlock Grid.Column="14" Text="ACTIONS" FontSize="10" FontWeight="Bold" Foreground="{DynamicResource MutedForegroundBrush}" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Column="0" Text="#" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Grid.Column="1" Text="CATEGORY" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Grid.Column="2" Text="THICK" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Grid.Column="3" Text="COLOR" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Grid.Column="4" Text="SIZE" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Grid.Column="5" Text="SUPPLIER" FontSize="10" FontWeight="Bold" Foreground="White"/>
+                    <TextBlock Grid.Column="6" Text="SQM" FontSize="10" FontWeight="Bold" Foreground="White" HorizontalAlignment="Right"/>
+                    <TextBlock Grid.Column="7" Text="BUY/SQM" FontSize="10" FontWeight="Bold" Foreground="White" HorizontalAlignment="Right"/>
+                    <TextBlock Grid.Column="8" Text="SELL/SQM" FontSize="10" FontWeight="Bold" Foreground="White" HorizontalAlignment="Right"/>
+                    <TextBlock Grid.Column="9" Text="TOTAL BUY" FontSize="10" FontWeight="Bold" Foreground="White" HorizontalAlignment="Right"/>
+                    <TextBlock Grid.Column="10" Text="TOTAL SELL" FontSize="10" FontWeight="Bold" Foreground="White" HorizontalAlignment="Right"/>
+                    <TextBlock Grid.Column="11" Text="STOCK" FontSize="10" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Column="12" Text="USED" FontSize="10" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Column="13" Text="BAL" FontSize="10" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
+                    <TextBlock Grid.Column="14" Text="ACTIONS" FontSize="10" FontWeight="Bold" Foreground="White" HorizontalAlignment="Center"/>
                 </Grid>
             </Border>
         </StackPanel>

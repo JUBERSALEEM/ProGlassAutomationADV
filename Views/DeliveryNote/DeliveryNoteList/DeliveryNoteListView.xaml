@@ -908,15 +908,15 @@
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0"
                                    Text="JOB ORDER  ·  CUSTOMER  ·  PROJECT"
-                                   Style="{StaticResource ModuleColumnHeaderStyle}"/>
+                                   Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="White"/>
                         <TextBlock Grid.Column="1"
                                    Text="DELIVERY PROGRESS"
-                                   Style="{StaticResource ModuleColumnHeaderStyle}"
+                                   Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="White"
                                    HorizontalAlignment="Right"
                                    Margin="0,0,16,0"/>
                         <TextBlock Grid.Column="2"
                                    Text="QUANTITIES"
-                                   Style="{StaticResource ModuleColumnHeaderStyle}"
+                                   Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="White"
                                    Margin="8,0,6,0"/>
                     </Grid>
                 </Border>

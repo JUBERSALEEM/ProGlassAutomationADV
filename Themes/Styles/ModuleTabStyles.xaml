@@ -143,17 +143,19 @@
     </Style>
 
     <!-- Column header look for the God View grids -->
+    <!-- v2: DataGrid column headers match the Proforma-list reference —
+         solid accent bar with bold on-accent labels. -->
     <Style x:Key="GodViewHeaderStyle" TargetType="DataGridColumnHeader">
         <Setter Property="Background"
-                Value="{DynamicResource ElevatedSurfaceBrush}"/>
+                Value="{DynamicResource AccentBrush}"/>
         <Setter Property="Foreground"
-                Value="{DynamicResource SecondaryForegroundBrush}"/>
+                Value="{DynamicResource OnAccentForegroundBrush}"/>
         <Setter Property="FontSize" Value="11"/>
         <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Padding" Value="10,8"/>
+        <Setter Property="Padding" Value="12,10"/>
         <Setter Property="BorderBrush"
-                Value="{DynamicResource DividerBrush}"/>
-        <Setter Property="BorderThickness" Value="0,0,0,1"/>
+                Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
     </Style>
 
 </ResourceDictionary>

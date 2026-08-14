@@ -532,3 +532,20 @@ PI wizard batch (212) and the earlier text sweep (84), essentially all
 solid theme-agnostic colors in Views now adapt to light AND dark themes.
 Gradient-stop Colors intentionally untouched. All XAML parse clean,
 381/381 CS balanced.
+
+---
+
+## 19. v2 Upgrade — Phase Batch 14: PI-list reference applied globally
+
+The Proforma Invoice list page is the visual reference (solid accent table-header
+bar with bold on-accent labels, center-aligned numeric columns, pill action
+buttons). Applied globally:
+- Sheet Store table header -> solid AccentBrush bar + white bold labels
+  (center/right aligned columns preserved), visible even when empty.
+- God View DataGrid headers (GodViewHeaderStyle) -> accent bar + on-accent
+  bold labels (all three God Views at once).
+- Delivery Note list + Section activity + Diagnostics header bars -> accent bar.
+- Shared toolbar action buttons (ModuleToolbarPrimary/Secondary) -> full pill
+  radius (999) to match the PI-list Export pills.
+All appearance-only; layout/columns untouched. All XAML parse clean,
+381/381 CS balanced.

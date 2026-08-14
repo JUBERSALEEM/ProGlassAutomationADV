@@ -92,8 +92,8 @@
 
                 <!-- v2: column headers with tooltips -->
                 <Border Grid.Row="0"
-                        Background="{DynamicResource MenuHoverBrush}"
-                        BorderBrush="{DynamicResource DividerBrush}"
+                        Background="{DynamicResource AccentBrush}"
+                        BorderBrush="{DynamicResource AccentBrush}"
                         BorderThickness="0,0,0,1"
                         Padding="16,8">
                     <Grid>
@@ -104,17 +104,17 @@
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
                         <TextBlock Grid.Column="0" Text="DATE &amp; TIME"
-                                   Style="{StaticResource ModuleColumnHeaderStyle}"
+                                   Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="White"
                                    ToolTip="When the action happened"/>
                         <TextBlock Grid.Column="1" Text="ACTION"
-                                   Style="{StaticResource ModuleColumnHeaderStyle}"
+                                   Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="White"
                                    ToolTip="What was done"/>
                         <TextBlock Grid.Column="2" Text="DETAILS"
-                                   Style="{StaticResource ModuleColumnHeaderStyle}"
+                                   Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="White"
                                    Margin="12,0,0,0"
                                    ToolTip="Full detail of the action"/>
                         <TextBlock Grid.Column="3" Text="DIFF"
-                                   Style="{StaticResource ModuleColumnHeaderStyle}"
+                                   Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="White"
                                    Margin="10,0,0,0"
                                    ToolTip="Before/after changes (when recorded)"/>
                     </Grid>

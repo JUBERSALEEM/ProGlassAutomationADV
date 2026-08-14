@@ -72,6 +72,8 @@
 
     <!-- ══ TOOLBAR BUTTONS — one primary + one secondary for all ═════ -->
 
+    <!-- Toolbar action buttons use a full pill radius (999) to match
+         the Proforma-list Export pills. -->
     <Style x:Key="ModuleToolbarPrimaryButtonStyle" TargetType="Button">
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="FontSize" Value="12"/>
@@ -87,7 +89,7 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Bg"
                             Background="{TemplateBinding Background}"
-                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            CornerRadius="{DynamicResource PillCornerRadius}"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="Center"
