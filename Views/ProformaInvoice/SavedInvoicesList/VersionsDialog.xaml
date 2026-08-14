@@ -40,7 +40,7 @@
         <Border Grid.Row="1"
                 BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1"
-                CornerRadius="{DynamicResource CardCornerRadius}"
+                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                 ClipToBounds="True">
             <Grid>
                 <TextBlock x:Name="EmptyText"

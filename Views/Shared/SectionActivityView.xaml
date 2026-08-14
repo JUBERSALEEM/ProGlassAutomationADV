@@ -78,7 +78,7 @@
 
         <!-- ══ FEED ═══════════════════════════════════════════════════ -->
         <Border Grid.Row="1"
-                CornerRadius="{DynamicResource CardCornerRadius}"
+                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                 BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1"
                 Background="{DynamicResource ModuleBackgroundBrush}"

@@ -39,7 +39,7 @@
         <Border Grid.Row="1"
                 BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="1"
-                CornerRadius="{DynamicResource CardCornerRadius}"
+                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                 ClipToBounds="True">
             <ScrollViewer VerticalScrollBarVisibility="Auto">
                 <ItemsControl x:Name="ChangesList">

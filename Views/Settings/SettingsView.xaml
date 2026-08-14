@@ -60,7 +60,7 @@
             <Setter Property="Background"          Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="BorderBrush"         Value="{StaticResource PillBorderBrush}"/>
             <Setter Property="BorderThickness"     Value="1.5"/>
-            <Setter Property="CornerRadius"        Value="16"/>
+            <Setter Property="CornerRadius"        Value="20"/>
             <Setter Property="Padding"             Value="24,20"/>
             <Setter Property="Margin"              Value="0,0,0,20"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -837,7 +837,11 @@
                                     </Button.Template>
                                 </Button>
                             </StackPanel>
-                            <ProgressBar Value="{Binding UpdateDownloadProgress}"
+                            <!-- Mode=OneWay: UpdateDownloadProgress is
+                                 read-only from XAML's perspective
+                                 (private setter) — TwoWay would throw
+                                 InvalidOperationException (ERR-441A02). -->
+                            <ProgressBar Value="{Binding UpdateDownloadProgress, Mode=OneWay}"
                                          Maximum="100"
                                          Height="6"
                                          Margin="0,10,0,0">

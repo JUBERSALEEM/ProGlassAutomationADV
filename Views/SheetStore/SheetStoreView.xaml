@@ -1,6 +1,7 @@
 ﻿<UserControl x:Class="ProGlassAutomation.Views.SheetStore.SheetStoreView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
@@ -580,13 +581,10 @@
                 <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
                             IsHitTestVisible="False"
                             Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
-                    <TextBlock Text="📦" FontSize="72" HorizontalAlignment="Center" Opacity="0.4"/>
-                    <TextBlock Text="No glass sheets yet" FontSize="20" FontWeight="SemiBold"
-                               HorizontalAlignment="Center" Margin="0,20,0,8"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock Text="Click '+ Add New' to add your first glass sheet"
-                               FontSize="13" HorizontalAlignment="Center"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                    <emptyState:EmptyStateControl
+                        Icon="📦"
+                        Title="No glass sheets yet"
+                        Message="The Sheet Store is your raw-glass inventory — sizes, thicknesses, colours, stock and value. Click '+ Add New' to add your first glass sheet."/>
                 </StackPanel>
             </Grid>
         </Border>

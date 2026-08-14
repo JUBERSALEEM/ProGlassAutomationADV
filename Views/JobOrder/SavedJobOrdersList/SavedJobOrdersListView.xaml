@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:hero="clr-namespace:ProGlassAutomation.Controls.GradientHeroCard"
+             xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -485,16 +486,10 @@
                         </Style.Triggers>
                     </Style>
                 </StackPanel.Style>
-                <TextBlock Text="📋" FontSize="48"
-                           HorizontalAlignment="Center" Opacity="0.4"/>
-                <TextBlock Text="No job orders yet"
-                           FontSize="16" FontWeight="SemiBold"
-                           HorizontalAlignment="Center"
-                           Margin="0,12,0,4"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                <TextBlock Text="Convert an approved Proforma Invoice to create your first job order."
-                           FontSize="12" HorizontalAlignment="Center"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                <emptyState:EmptyStateControl
+                    Icon="📋"
+                    Title="No job orders yet"
+                    Message="Job orders track production for approved invoices. Convert a Proforma Invoice into a Job Order and it will appear here with its status, priority and delivery schedule."/>
             </StackPanel>
 
         </Grid>

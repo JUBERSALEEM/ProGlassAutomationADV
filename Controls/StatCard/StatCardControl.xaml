@@ -22,7 +22,7 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <Border CornerRadius="{DynamicResource CardCornerRadius}"
+    <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
             BorderThickness="1"
             Padding="16,13"
             MinWidth="170"
