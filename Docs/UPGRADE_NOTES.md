@@ -592,3 +592,41 @@ first on-device build confirms the current batches are clean.
 
 All touched XAML parse clean; symmetric diffs (tokens only, no logic,
 bindings or layout touched).
+
+---
+
+## 22. v2 Upgrade — Phase Batch 17: AI v3 "JARVIS" pass (bugs + upgrade)
+
+Deep analysis of the full AI stack (Services/AI, ViewModels/AI, Views/AI)
+found and fixed five real defects, then upgraded the experience:
+
+Bugs found & fixed:
+1. THINKING STUCK / NO PROGRESS — the "thinking" dots were STATIC (no
+   animation) and the response was one-shot non-streaming: nothing
+   visible for 10-30s, no way to cancel. Now: staggered bouncing dots,
+   phase statuses (Preparing context → Thinking → Responding), a Stop
+   button (CancellationTokenSource), and closing the panel aborts the
+   in-flight request.
+2. MEMORY ONLY RECALLED WHEN RAG ON — BuildLearningContextAsync was
+   called only inside the UseRealData path, so with real-data off the
+   assistant "forgot" everything. Learning context (memory + recent
+   activity) is now recalled ALWAYS; the method is public for it.
+   Memory saves now log failures instead of vanishing silently.
+3. NO STREAMING — Gemini called via one-shot generateContent. Added
+   IAiStreamingService (optional capability interface — Groq/Cohere
+   untouched) + Gemini SSE streamGenerateContent implementation with
+   partial-text retention on cancel/timeout. First tokens in ~1-2s.
+4. VOICE NOT INSTANT — recognized speech waited for Enter. New
+   AiSettings.AutoSendVoice (default true) sends immediately; off =
+   old edit-first behavior.
+5. NO APP AWARENESS — AI didn't know which screen the user was on.
+   New AiScreenContext static tracker updated by MainViewModel on
+   every navigation; injected into the system prompt ("help me with
+   this screen" now works). First-open JARVIS greeting added.
+
+New files: IAiStreamingService.cs, AiScreenContext.cs,
+StreamingChatMessage.cs (mutable live bubble; ChatMessage stays
+immutable). New settings: StreamingEnabled, AutoSendVoice (both
+default true, serialize automatically). All structural checks pass
+(8/8 CS balanced with interpolation-aware scanner, all XAML parse).
+On-device build pending.

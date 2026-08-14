@@ -409,8 +409,11 @@ namespace ProGlassAutomation.Services.AI.AIContext
         /// <summary>
         /// Combines AI memory (previous conversations) with the latest
         /// audit activity so the assistant has session continuity.
+        /// v3: public — memory must be recalled even when the user has
+        /// switched real-data (RAG) off, otherwise the assistant appears
+        /// to forget everything between sessions.
         /// </summary>
-        private static async Task<string> BuildLearningContextAsync()
+        public static async Task<string> BuildLearningContextAsync()
         {
             try
             {

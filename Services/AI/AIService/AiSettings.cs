@@ -95,6 +95,24 @@ namespace ProGlassAutomation.Services.AI.AIService
 
         public bool UseRealData { get; set; } = true;
 
+        // ── v3 JARVIS pass toggles ─────────────────────────────────────
+
+        /// <summary>
+        /// Stream answers token-by-token (providers that support it —
+        /// Gemini). Falls back to one-shot responses automatically for
+        /// providers without streaming. Default ON: first words appear
+        /// in ~1-2s instead of a silent 10-30s wait.
+        /// </summary>
+        public bool StreamingEnabled { get; set; } = true;
+
+        /// <summary>
+        /// Voice UX: when speech recognition finishes, send the
+        /// recognized text immediately (JARVIS-style instant response)
+        /// instead of waiting for Enter. Default ON; users who prefer
+        /// to review/edit transcriptions first can turn it off.
+        /// </summary>
+        public bool AutoSendVoice { get; set; } = true;
+
         // ── Whisper model selection ────────────────────────────────────
 
         /// <summary>

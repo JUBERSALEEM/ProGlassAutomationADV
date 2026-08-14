@@ -436,6 +436,15 @@
                         </ItemsControl>
                     </ScrollViewer>
 
+                    <!-- ═══════════════════════════════════════════════
+                         v3 THINKING INDICATOR — ANIMATED
+                         Previous: three static dots — the user could not
+                         tell whether the AI was working at all.
+                         Now: staggered bouncing dots while IsBusy, plus
+                         a ✕ Stop button bound to StopGenerationCommand.
+                         Hidden while streaming (the live bubble below
+                         takes over once tokens arrive).
+                    ════════════════════════════════════════════════ -->
                     <Border HorizontalAlignment="Left"
                             VerticalAlignment="Bottom"
                             Background="{DynamicResource MenuHoverBrush}"
@@ -452,20 +461,153 @@
                                         <Setter Property="Visibility"
                                                 Value="Visible"/>
                                     </DataTrigger>
+                                    <DataTrigger Binding="{Binding HasActiveStream}"
+                                                 Value="True">
+                                        <Setter Property="Visibility"
+                                                Value="Collapsed"/>
+                                    </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
-                        <StackPanel Orientation="Horizontal">
+                        <Border.Resources>
+                            <!-- Bounce animation, staggered per dot -->
+                            <Storyboard x:Key="DotBounce1"
+                                        RepeatBehavior="Forever">
+                                <DoubleAnimation
+                                    Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                    Values="0;-4;0" Duration="0:0:0.9"
+                                    BeginTime="0:0:0">
+                                    <DoubleAnimation.EasingFunction>
+                                        <SineEase EasingMode="EaseInOut"/>
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                            <Storyboard x:Key="DotBounce2"
+                                        RepeatBehavior="Forever">
+                                <DoubleAnimation
+                                    Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                    Values="0;-4;0" Duration="0:0:0.9"
+                                    BeginTime="0:0:0.15">
+                                    <DoubleAnimation.EasingFunction>
+                                        <SineEase EasingMode="EaseInOut"/>
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                            <Storyboard x:Key="DotBounce3"
+                                        RepeatBehavior="Forever">
+                                <DoubleAnimation
+                                    Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
+                                    Values="0;-4;0" Duration="0:0:0.9"
+                                    BeginTime="0:0:0.3">
+                                    <DoubleAnimation.EasingFunction>
+                                        <SineEase EasingMode="EaseInOut"/>
+                                    </DoubleAnimation.EasingFunction>
+                                </DoubleAnimation>
+                            </Storyboard>
+                        </Border.Resources>
+                        <StackPanel Orientation="Horizontal"
+                                    VerticalAlignment="Center">
                             <Ellipse Width="6" Height="6"
                                      Fill="{DynamicResource SecondaryForegroundBrush}"
-                                     Margin="2,0"/>
+                                     Margin="2,0"
+                                     RenderTransformOrigin="0.5,0.5">
+                                <Ellipse.RenderTransform>
+                                    <TranslateTransform/>
+                                </Ellipse.RenderTransform>
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsBusy}"
+                                                         Value="True">
+                                                <DataTrigger.EnterActions>
+                                                    <BeginStoryboard Storyboard="{StaticResource DotBounce1}"/>
+                                                </DataTrigger.EnterActions>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
                             <Ellipse Width="6" Height="6"
                                      Fill="{DynamicResource SecondaryForegroundBrush}"
-                                     Margin="2,0" Opacity="0.6"/>
+                                     Margin="2,0" Opacity="0.75"
+                                     RenderTransformOrigin="0.5,0.5">
+                                <Ellipse.RenderTransform>
+                                    <TranslateTransform/>
+                                </Ellipse.RenderTransform>
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsBusy}"
+                                                         Value="True">
+                                                <DataTrigger.EnterActions>
+                                                    <BeginStoryboard Storyboard="{StaticResource DotBounce2}"/>
+                                                </DataTrigger.EnterActions>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
                             <Ellipse Width="6" Height="6"
                                      Fill="{DynamicResource SecondaryForegroundBrush}"
-                                     Margin="2,0" Opacity="0.3"/>
+                                     Margin="2,0" Opacity="0.5"
+                                     RenderTransformOrigin="0.5,0.5">
+                                <Ellipse.RenderTransform>
+                                    <TranslateTransform/>
+                                </Ellipse.RenderTransform>
+                                <Ellipse.Style>
+                                    <Style TargetType="Ellipse">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsBusy}"
+                                                         Value="True">
+                                                <DataTrigger.EnterActions>
+                                                    <BeginStoryboard Storyboard="{StaticResource DotBounce3}"/>
+                                                </DataTrigger.EnterActions>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Ellipse.Style>
+                            </Ellipse>
+                            <Button Command="{Binding StopGenerationCommand}"
+                                    Width="18" Height="18"
+                                    Margin="10,0,0,0"
+                                    Content="✕" FontSize="9"
+                                    Background="Transparent"
+                                    BorderThickness="0" Cursor="Hand"
+                                    Foreground="{DynamicResource MutedForegroundBrush}"
+                                    ToolTip="Stop generating"
+                                    VerticalAlignment="Center"/>
                         </StackPanel>
+                    </Border>
+
+                    <!-- ═══════════════════════════════════════════════
+                         v3 LIVE STREAMING BUBBLE — shows the answer
+                         token-by-token while Gemini streams it.
+                         Bound to ActiveStream (StreamingChatMessage).
+                    ════════════════════════════════════════════════ -->
+                    <Border HorizontalAlignment="Left"
+                            VerticalAlignment="Bottom"
+                            Background="{DynamicResource MenuHoverBrush}"
+                            CornerRadius="16,16,16,4"
+                            Padding="14,10"
+                            Margin="16,0,0,8"
+                            MaxWidth="430"
+                            SnapsToDevicePixels="True">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasActiveStream}"
+                                                 Value="True">
+                                        <Setter Property="Visibility"
+                                                Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                        <TextBlock Text="{Binding ActiveStream.Text}"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   FontSize="13"
+                                   TextWrapping="Wrap"/>
                     </Border>
                 </Grid>
 

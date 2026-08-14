@@ -19,6 +19,7 @@ using ProGlassAutomation.Services.AI.AIVoice;
 using System;
 using System.Collections.ObjectModel;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
@@ -47,6 +48,8 @@ namespace ProGlassAutomation.ViewModels.AI
         private bool _isProcessingVoice;
         private float _micAudioLevel;
         private string _statusMessage;
+        private StreamingChatMessage _activeStream;
+        private CancellationTokenSource _cts;
 
         private EventHandler<SpeechRecognizedEventArgs> _activeVoiceHandler;
 
@@ -146,6 +149,22 @@ namespace ProGlassAutomation.ViewModels.AI
             set { _statusMessage = value; OnPropertyChanged(); }
         }
 
+        // ── v3 streaming: live token-by-token answer bubble ───────────
+
+        /// <summary>Live streaming bubble (null when not streaming).</summary>
+        public StreamingChatMessage ActiveStream
+        {
+            get => _activeStream;
+            private set
+            {
+                _activeStream = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasActiveStream));
+            }
+        }
+
+        public bool HasActiveStream => _activeStream != null;
+
         public string ActiveProviderName => App.Ai?.ProviderName ?? "AI";
         public string ActiveProviderIcon => App.Ai?.ProviderIcon ?? "🤖";
         public string ActiveProviderSubtitle => App.Ai != null
@@ -164,6 +183,9 @@ namespace ProGlassAutomation.ViewModels.AI
         public ICommand VoiceInputCommand { get; }
         public ICommand ToggleSpeakerCommand { get; }
         public ICommand StopSpeakingCommand { get; }
+
+        /// <summary>v3: cancels an in-flight (streaming) generation.</summary>
+        public ICommand StopGenerationCommand { get; }
 
         // ══════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
@@ -301,13 +323,24 @@ namespace ProGlassAutomation.ViewModels.AI
                 async _ => await SendAsync(),
                 _ => CanSend);
 
-            ToggleChatCommand = new RelayCommand(
-                _ => IsOpen = !IsOpen);
+            ToggleChatCommand = new RelayCommand(_ =>
+            {
+                IsOpen = !IsOpen;
+
+                // v3 JARVIS: greet once when the panel first opens so
+                // the user is never staring at an empty box.
+                if (IsOpen && Messages.Count == 0)
+                    AddGreeting();
+            });
 
             CloseChatCommand = new RelayCommand(_ =>
             {
                 IsOpen = false;
                 StopAllVoice();
+
+                // v3: closing the panel aborts any in-flight generation
+                // so nothing keeps running (and billing) invisibly.
+                try { _cts?.Cancel(); } catch { }
             });
 
             ClearChatCommand = new RelayCommand(_ =>
@@ -363,8 +396,21 @@ namespace ProGlassAutomation.ViewModels.AI
                         if (!string.IsNullOrWhiteSpace(e.Text))
                         {
                             CurrentInput = e.Text;
-                            StatusMessage =
-                                "✓ Voice recognized — press Enter to send or edit first";
+
+                            // v3 JARVIS: voice = instant. Recognized
+                            // speech is sent immediately unless the
+                            // user disabled AutoSendVoice in settings
+                            // (some prefer to edit the text first).
+                            if (App.Config?.Ai?.AutoSendVoice != false)
+                            {
+                                StatusMessage = "🎤 Voice captured — sending…";
+                                _ = SendAsync();
+                            }
+                            else
+                            {
+                                StatusMessage =
+                                    "✓ Voice recognized — press Enter to send or edit first";
+                            }
                         }
                         else
                         {
@@ -390,6 +436,12 @@ namespace ProGlassAutomation.ViewModels.AI
             StopSpeakingCommand = new RelayCommand(_ =>
             {
                 _tts?.Stop();
+            });
+
+            StopGenerationCommand = new RelayCommand(_ =>
+            {
+                try { _cts?.Cancel(); } catch { }
+                StatusMessage = "⏹ Stopping generation…";
             });
 
             Messages.CollectionChanged +=
@@ -451,10 +503,20 @@ namespace ProGlassAutomation.ViewModels.AI
 
             IsBusy = true;
 
+            // v3: one cancellation source per request — the Stop button
+            // can abort an in-flight generation at any time.
+            try { _cts?.Dispose(); } catch { }
+            _cts = new CancellationTokenSource();
+            var token = _cts.Token;
+
             try
             {
+                // ── Phase 1: context (visible progress, never silent) ──
+                StatusMessage = "🧠 Preparing live data & memory…";
+
                 var systemPrompt = BuildSystemPrompt();
                 string dataContext = string.Empty;
+                string learningContext = string.Empty;
 
                 if (App.Config?.Ai?.UseRealData == true)
                 {
@@ -465,10 +527,25 @@ namespace ProGlassAutomation.ViewModels.AI
                     }
                     catch { }
                 }
+                else
+                {
+                    // v3 MEMORY FIX: memory was only recalled when
+                    // real-data (RAG) was switched on, so with it off
+                    // the assistant "forgot" everything between
+                    // sessions. Learning context is now recalled ALWAYS.
+                    try
+                    {
+                        learningContext = await AiContextBuilder
+                            .BuildLearningContextAsync();
+                    }
+                    catch { }
+                }
 
-                var fullSystemPrompt = string.IsNullOrEmpty(dataContext)
-                    ? systemPrompt
-                    : systemPrompt + "\n" + dataContext;
+                var fullSystemPrompt = systemPrompt;
+                if (!string.IsNullOrEmpty(dataContext))
+                    fullSystemPrompt += "\n" + dataContext;
+                else if (!string.IsNullOrEmpty(learningContext))
+                    fullSystemPrompt += "\n" + learningContext;
 
                 // Detected entity reference (hoisted so the learning
                 // memory below can record it after the response).
@@ -494,60 +571,189 @@ namespace ProGlassAutomation.ViewModels.AI
                     }
                 }
 
-                var response =
-                    await ai.AskAsync(fullSystemPrompt, userMsg);
+                // ── Phase 2: generation ────────────────────────────────
+                StatusMessage = $"🤔 {ai.ProviderName} is thinking…";
 
-                if (response.Success)
+                bool handled = false;
+
+                // v3 STREAMING: providers implementing IAiStreamingService
+                // (Gemini) deliver the answer token-by-token — the user
+                // sees words within ~1-2s instead of a silent 10-30s wait.
+                if (App.Config?.Ai?.StreamingEnabled != false &&
+                    ai is IAiStreamingService streaming)
                 {
-                    var aiText = response.Text?.Trim()
-                        ?? "(empty response)";
-
-                    Messages.Add(new ChatMessage
+                    var sm = new StreamingChatMessage
                     {
-                        Text = aiText,
-                        IsUser = false,
-                        ProviderName = response.ProviderName
-                            ?? ai.ProviderName,
+                        ProviderName = ai.ProviderName,
                         ProviderIcon = ai.ProviderIcon
-                    });
+                    };
+                    ActiveStream = sm;
+                    bool firstTokenSeen = false;
 
-                    OnPropertyChanged(nameof(ActiveProviderName));
-                    OnPropertyChanged(nameof(ActiveProviderIcon));
-                    OnPropertyChanged(nameof(ActiveProviderSubtitle));
-
-                    if (IsSpeakerOn &&
-                        _tts != null &&
-                        _tts.IsAvailable)
+                    try
                     {
-                        _tts.SpeakAsync(aiText);
+                        var res = await streaming.AskStreamingAsync(
+                            fullSystemPrompt, userMsg,
+                            delta => RunOnUi(() =>
+                            {
+                                if (!firstTokenSeen)
+                                {
+                                    firstTokenSeen = true;
+                                    StatusMessage = "📝 Responding…";
+                                }
+                                sm.Text = delta;
+                            }),
+                            token);
+
+                        handled = true;
+                        FinishResponse(res.Success, res.Text,
+                            res.ErrorMessage,
+                            res.ProviderName ?? ai.ProviderName,
+                            res.WasCancelled, userMsg, entityRef);
                     }
-
-                    // v2 learning — remember the exchange so the
-                    // assistant builds continuity across sessions.
-                    _ = ProGlassAutomation.Services.AI.AIMemory
-                        .AiMemoryService.RememberAsync(
-                            userMsg, aiText,
-                            entityRef?.EntityId ?? "");
-
-                    ProGlassAutomation.Services.Audit.AuditService.Log(
-                        ProGlassAutomation.Services.Audit.AuditSections.Ai,
-                        "Question answered",
-                        userMsg.Length > 120 ? userMsg[..120] + "…" : userMsg);
+                    catch (Exception ex)
+                    {
+                        handled = true;
+                        AddError($"⚠ {ai.ProviderName} error: {ex.Message}");
+                    }
                 }
-                else
+
+                // ── Fallback: one-shot request (Groq/Cohere/stream-off) ──
+                if (!handled)
                 {
-                    AddError(
-                        $"⚠ Error from " +
-                        $"{response.ProviderName ?? ai.ProviderName}:\n" +
-                        $"{response.ErrorMessage ?? "Unknown error"}\n\n" +
-                        "Try again or switch providers in ⚙ Settings.",
-                        response.ProviderName ?? ai.ProviderName);
+                    var response =
+                        await ai.AskAsync(fullSystemPrompt, userMsg);
+
+                    FinishResponse(response.Success, response.Text,
+                        response.ErrorMessage,
+                        response.ProviderName ?? ai.ProviderName,
+                        false, userMsg, entityRef);
                 }
             }
             finally
             {
+                ActiveStream = null;
                 IsBusy = false;
+                StatusMessage = string.Empty;
+                try { _cts?.Dispose(); } catch { }
+                _cts = null;
             }
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  SHARED RESPONSE FINISH (streaming + one-shot paths)
+        // ══════════════════════════════════════════════════════════════
+
+        private void FinishResponse(
+            bool success, string text, string errorMessage,
+            string providerName, bool wasCancelled,
+            string userMsg, EntityReference? entityRef)
+        {
+            ActiveStream = null;
+
+            if (wasCancelled)
+            {
+                if (!string.IsNullOrWhiteSpace(text))
+                {
+                    Messages.Add(new ChatMessage
+                    {
+                        Text = text.Trim() + "\n\n⏹ Generation stopped.",
+                        IsUser = false,
+                        ProviderName = providerName,
+                        ProviderIcon = App.Ai?.ProviderIcon ?? "🤖"
+                    });
+                    RememberExchange(userMsg, text, entityRef);
+                }
+                else
+                {
+                    StatusMessage = "⏹ Stopped before any text arrived.";
+                }
+                return;
+            }
+
+            if (success)
+            {
+                var aiText = text?.Trim() ?? "(empty response)";
+
+                Messages.Add(new ChatMessage
+                {
+                    Text = aiText,
+                    IsUser = false,
+                    ProviderName = providerName,
+                    ProviderIcon = App.Ai?.ProviderIcon ?? "🤖"
+                });
+
+                OnPropertyChanged(nameof(ActiveProviderName));
+                OnPropertyChanged(nameof(ActiveProviderIcon));
+                OnPropertyChanged(nameof(ActiveProviderSubtitle));
+
+                if (IsSpeakerOn &&
+                    _tts != null &&
+                    _tts.IsAvailable)
+                {
+                    _tts.SpeakAsync(aiText);
+                }
+
+                RememberExchange(userMsg, aiText, entityRef);
+
+                ProGlassAutomation.Services.Audit.AuditService.Log(
+                    ProGlassAutomation.Services.Audit.AuditSections.Ai,
+                    "Question answered",
+                    userMsg.Length > 120 ? userMsg[..120] + "…" : userMsg);
+            }
+            else
+            {
+                AddError(
+                    $"⚠ Error from {providerName}:\n" +
+                    $"{errorMessage ?? "Unknown error"}\n\n" +
+                    "Try again or switch providers in ⚙ Settings.",
+                    providerName);
+            }
+        }
+
+        /// <summary>
+        /// v2 learning — remember the exchange so the assistant builds
+        /// continuity across sessions. Fire-and-forget with a logged
+        /// failure path (a memory write must never break the chat).
+        /// </summary>
+        private static void RememberExchange(
+            string userMsg, string aiText, EntityReference? entityRef)
+        {
+            _ = ProGlassAutomation.Services.AI.AIMemory
+                .AiMemoryService.RememberAsync(
+                    userMsg, aiText, entityRef?.EntityId ?? "")
+                .ContinueWith(t =>
+                {
+                    if (t.Exception != null)
+                        System.Diagnostics.Debug.WriteLine(
+                            "[AiChatVM] Memory save failed: " +
+                            t.Exception.GetBaseException().Message);
+                }, TaskScheduler.Default);
+        }
+
+        /// <summary>v3 JARVIS: friendly first-open greeting.</summary>
+        private void AddGreeting()
+        {
+            var screen = AiScreenContext.Describe();
+
+            var text =
+                "👋 Hello! I'm ProGlass AI — your factory-floor assistant.\n\n" +
+                "Ask me anything: glass types, pricing math, SQM/VAT " +
+                "calculations, your invoices, job orders, stock levels, " +
+                "delivery status…\n\n" +
+                (string.IsNullOrEmpty(screen)
+                    ? ""
+                    : "I can see which screen you're on, so you can ask " +
+                      "\"help me with this screen\" anytime.\n\n") +
+                "🎤 Tap the mic to talk — I'll answer instantly.";
+
+            Messages.Add(new ChatMessage
+            {
+                Text = text,
+                IsUser = false,
+                ProviderName = ActiveProviderName,
+                ProviderIcon = ActiveProviderIcon
+            });
         }
 
         // ══════════════════════════════════════════════════════════════
@@ -637,7 +843,14 @@ namespace ProGlassAutomation.ViewModels.AI
         //  SYSTEM PROMPT
         // ══════════════════════════════════════════════════════════════
 
-        private static string BuildSystemPrompt() =>
+        private static string BuildSystemPrompt()
+        {
+            // v3 GLOBAL INTEGRATION: the assistant knows which screen
+            // the user is looking at (updated by MainViewModel on every
+            // navigation) — JARVIS-style contextual awareness.
+            var screen = AiScreenContext.Describe();
+
+            return
             "You are ProGlass AI — an expert assistant for glass " +
             "manufacturing in the UAE. You help users of the " +
             "ProGlass Automation ERP system.\n\n" +
@@ -684,6 +897,13 @@ namespace ProGlassAutomation.ViewModels.AI
             "• Format monetary values as AED with commas\n" +
             "• Be professional but friendly — factory floor assistant\n" +
             "• Voice responses: under 100 words, no markdown, " +
-            "conversational tone";
+            "conversational tone" +
+            (string.IsNullOrEmpty(screen)
+                ? ""
+                : "\n\n" + screen +
+                  " If the user asks about \"this screen\" or " +
+                  "\"this module\", they mean the module named above — " +
+                  "guide them through it.");
+        }
     }
 }

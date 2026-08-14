@@ -113,7 +113,45 @@ namespace ProGlassAutomation.ViewModels
         public ViewModelBase CurrentViewModel
         {
             get => _currentViewModel;
-            set { if (_currentViewModel == value) return; _currentViewModel = value; OnPropertyChanged(); }
+            set
+            {
+                if (_currentViewModel == value) return;
+                _currentViewModel = value;
+                OnPropertyChanged();
+
+                // v3 JARVIS: tell the AI assistant which screen the
+                // user is looking at (global screen awareness).
+                UpdateAiScreenContext();
+            }
+        }
+
+        /// <summary>
+        /// Publishes the active module to AiScreenContext so the AI can
+        /// answer "help me with this screen" without being told where
+        /// the user is. Additive — nothing else consumes this.
+        /// </summary>
+        private void UpdateAiScreenContext()
+        {
+            try
+            {
+                var raw = _currentViewModel?.GetType().Name
+                    .Replace("ViewModel", "") ?? "";
+                ProGlassAutomation.Services.AI.AIContext.AiScreenContext
+                    .Set(PrettyModuleName(raw));
+            }
+            catch { /* screen awareness must never break navigation */ }
+        }
+
+        private static string PrettyModuleName(string raw)
+        {
+            if (string.IsNullOrEmpty(raw)) return "";
+            var sb = new System.Text.StringBuilder(raw.Length + 4);
+            foreach (var ch in raw)
+            {
+                if (char.IsUpper(ch) && sb.Length > 0) sb.Append(' ');
+                sb.Append(ch);
+            }
+            return sb.ToString();
         }
 
         /// <summary>
