@@ -233,9 +233,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         {
             if (item == null) return;
 
-            var audit = ProGlassAutomation.Services.Audit;
-
-            var versions = await audit.VersionHistoryService
+            var versions = await VersionHistoryService
                 .GetVersionsAsync("PI", item.ProformaId);
 
             var restoreId = Views.ProformaInvoice.SavedInvoicesList
@@ -245,7 +243,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
             if (restoreId == null) return;
 
-            var full = await audit.VersionHistoryService
+            var full = await VersionHistoryService
                 .GetByIdAsync(restoreId.Value);
 
             if (full == null || string.IsNullOrEmpty(full.SnapshotJson))
@@ -292,12 +290,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     ? $"PROFORMA INVOICES PREPARED {DateTime.Today:dd MMM yyyy}"
                     : "PROFORMA INVOICE REGISTER";
 
-                var layout = new ProformaInvoice.Export
-                    .ProformaInvoiceListExcelLayout(items, title);
-                var engine = new Export.Excel.ExcelExportEngine();
+                var layout = new ProformaInvoiceListExcelLayout(items, title);
+                var engine = new ExcelExportEngine();
 
                 var result = await engine.ExportAsync(layout,
-                    new Export.Core.ExportRequest
+                    new ExportRequest
                     {
                         PromptForLocation = true,
                         OpenAfterSave = true

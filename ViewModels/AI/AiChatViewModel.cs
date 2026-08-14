@@ -470,9 +470,13 @@ namespace ProGlassAutomation.ViewModels.AI
                     ? systemPrompt
                     : systemPrompt + "\n" + dataContext;
 
+                // Detected entity reference (hoisted so the learning
+                // memory below can record it after the response).
+                EntityReference? entityRef = null;
+
                 if (App.Config?.Ai?.UseRealData == true)
                 {
-                    var entityRef = DetectEntityReference(userMsg);
+                    entityRef = DetectEntityReference(userMsg);
                     if (entityRef.HasValue)
                     {
                         try

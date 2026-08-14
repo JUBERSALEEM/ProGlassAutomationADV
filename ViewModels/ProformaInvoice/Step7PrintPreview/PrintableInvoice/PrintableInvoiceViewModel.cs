@@ -364,16 +364,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
         {
             try
             {
-                var audit = ProGlassAutomation.Services.Audit;
-
                 if (isUpdate)
-                    await audit.RecordMetadataService.StampUpdatedAsync(
+                    await RecordMetadataService.StampUpdatedAsync(
                         "PI", entity.ProformaId);
                 else
-                    await audit.RecordMetadataService.StampCreatedAsync(
+                    await RecordMetadataService.StampCreatedAsync(
                         "PI", entity.ProformaId);
 
-                int version = await audit.VersionHistoryService.AddVersionAsync(
+                int version = await VersionHistoryService.AddVersionAsync(
                     "PI", entity.ProformaId,
                     isUpdate ? "Invoice updated" : "Invoice created",
                     entity.FullSnapshotJson);
