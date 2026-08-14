@@ -73,7 +73,7 @@
                     <Border Height="10"
                             HorizontalAlignment="Left"
                             CornerRadius="5"
-                            Background="#4338CA">
+                            Background="{DynamicResource AccentBrush}">
                         <Border.Width>
                             <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
                                 <Binding Path="OverallProgress"/>
@@ -348,7 +348,7 @@
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="bd"
-                                        Background="#4338CA"
+                                        Background="{DynamicResource AccentBrush}"
                                         CornerRadius="9"
                                         Padding="{TemplateBinding Padding}">
                                     <TextBlock Text="CLOSE"

@@ -911,7 +911,7 @@
                                                     <Run Text="{Binding OutstandingDisplay,
                                                              Mode=OneWay}"
                                                          FontWeight="Bold"
-                                                         Foreground="#B45309"/>
+                                                         Foreground="{DynamicResource WarningBrush}"/>
                                                 </TextBlock>
 
                                                 <TextBlock

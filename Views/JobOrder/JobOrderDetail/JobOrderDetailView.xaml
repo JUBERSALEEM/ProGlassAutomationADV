@@ -192,7 +192,7 @@
                     BorderThickness="1"
                     CornerRadius="12" Padding="16" Margin="8,0,8,12">
                 <TextBlock Text="{Binding ErrorMessage}"
-                           Foreground="#B91C1C"
+                           Foreground="{DynamicResource DangerBrush}"
                            FontSize="12" TextWrapping="Wrap"/>
             </Border>
 
@@ -475,7 +475,7 @@
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                             <TextBlock Text="{Binding SelectedGlassType, FallbackValue=SGU}"
                                                        FontSize="10" FontWeight="Bold"
-                                                       Foreground="#4338CA"/>
+                                                       Foreground="{DynamicResource AccentBrush}"/>
                                             <TextBlock Text="  ·  Base Rate: AED "
                                                        FontSize="10"
                                                        Foreground="{DynamicResource SecondaryForegroundBrush}"

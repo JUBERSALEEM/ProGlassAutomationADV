@@ -519,3 +519,16 @@ adapts to light AND dark themes:
 Gradient-stop Colors were intentionally left untouched (cannot safely bind a
 Brush to GradientStop.Color). Contained, appearance-only, no business logic
 touched. All XAML parse clean, 381/381 CS balanced.
+
+---
+
+## 18. v2 Upgrade — Phase Batch 13: global detail/dashboard/report chrome normalization
+
+Applied the same SAFE solid-color normalization (Foreground/Background only)
+across the remaining module views — Job Order, Delivery Note, Tax Invoice,
+Dashboard tabs, Sheet Store, Reports/Statement wizard + dialogs — 128 colors
+across 25 files, mapped to theme DynamicResource brushes. Combined with the
+PI wizard batch (212) and the earlier text sweep (84), essentially all
+solid theme-agnostic colors in Views now adapt to light AND dark themes.
+Gradient-stop Colors intentionally untouched. All XAML parse clean,
+381/381 CS balanced.

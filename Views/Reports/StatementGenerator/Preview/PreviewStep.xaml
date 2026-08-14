@@ -176,14 +176,14 @@
                 </Grid.ColumnDefinitions>
 
                 <Border Grid.Column="0"
-                        Background="#EEF2FF"
+                        Background="{DynamicResource TintIndigoBrush}"
                         BorderBrush="#C7D2FE"
                         BorderThickness="1"
                         CornerRadius="12" Padding="14,12"
                         MinHeight="76">
                     <StackPanel>
                         <TextBlock Text="INVOICED" FontSize="9" FontWeight="Bold"
-                                   Foreground="#4338CA"/>
+                                   Foreground="{DynamicResource AccentBrush}"/>
                         <TextBlock Text="{Binding PreviewVM.TotalInvoicedDisplay}"
                                    FontSize="15" FontWeight="Bold"
                                    Foreground="#1E1B4B"
@@ -213,7 +213,7 @@
                         MinHeight="76">
                     <StackPanel>
                         <TextBlock Text="PAID" FontSize="9" FontWeight="Bold"
-                                   Foreground="#047857"/>
+                                   Foreground="{DynamicResource SuccessBrush}"/>
                         <TextBlock Text="{Binding PreviewVM.TotalPaidDisplay}"
                                    FontSize="15" FontWeight="Bold"
                                    Foreground="#052E16"
@@ -228,7 +228,7 @@
                         MinHeight="76">
                     <StackPanel>
                         <TextBlock Text="OUTSTANDING" FontSize="9" FontWeight="Bold"
-                                   Foreground="#B45309"/>
+                                   Foreground="{DynamicResource WarningBrush}"/>
                         <TextBlock Text="{Binding PreviewVM.TotalOutstandingDisplay}"
                                    FontSize="15" FontWeight="Bold"
                                    Foreground="#451A03"
@@ -243,7 +243,7 @@
                         MinHeight="76">
                     <StackPanel>
                         <TextBlock Text="OVERDUE" FontSize="9" FontWeight="Bold"
-                                   Foreground="#B91C1C"/>
+                                   Foreground="{DynamicResource DangerBrush}"/>
                         <TextBlock Text="{Binding PreviewVM.OverdueAmountDisplay}"
                                    FontSize="15" FontWeight="Bold"
                                    Foreground="#450A0A"
@@ -258,13 +258,13 @@
                         MinHeight="76">
                     <StackPanel>
                         <TextBlock Text="ATTACHMENTS" FontSize="9" FontWeight="Bold"
-                                   Foreground="#1D4ED8"/>
+                                   Foreground="{DynamicResource AccentBrush}"/>
                         <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                             <TextBlock Text="{Binding PreviewVM.SelectedAttachmentCount}"
                                        FontSize="15" FontWeight="Bold"
                                        Foreground="#1E1B4B"/>
                             <TextBlock Text=" files" FontSize="11"
-                                       Foreground="#1E40AF"
+                                       Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
                                        Margin="4,2,0,0"/>
                         </StackPanel>
@@ -310,11 +310,11 @@
                                        Foreground="{DynamicResource MutedForegroundBrush}"
                                        Margin="12,0" MinWidth="90"/>
                             <TextBlock Grid.Column="4" Text="TOTAL AED" FontSize="10" FontWeight="Bold"
-                                       Foreground="#047857"
+                                       Foreground="{DynamicResource SuccessBrush}"
                                        HorizontalAlignment="Right"
                                        Margin="12,0" MinWidth="110"/>
                             <TextBlock Grid.Column="5" Text="BALANCE" FontSize="10" FontWeight="Bold"
-                                       Foreground="#B45309"
+                                       Foreground="{DynamicResource WarningBrush}"
                                        HorizontalAlignment="Right"
                                        Margin="12,0,0,0" MinWidth="110"/>
                         </Grid>
@@ -410,7 +410,7 @@
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="{Binding InvoiceNumber, Mode=OneWay}"
                                                            FontSize="13" FontWeight="Bold"
-                                                           Foreground="#4338CA"/>
+                                                           Foreground="{DynamicResource AccentBrush}"/>
                                                 <!-- CHAT 22 v3: Reconciliation status badge -->
                                                 <TextBlock Text="{Binding ReconciliationBadgeIcon, Mode=OneWay}"
                                                            FontSize="12"
@@ -455,7 +455,7 @@
                                                     Margin="12,0"
                                                     MinWidth="110">
                                             <TextBlock Text="TOTAL AED" FontSize="9" FontWeight="Bold"
-                                                       Foreground="#047857"
+                                                       Foreground="{DynamicResource SuccessBrush}"
                                                        HorizontalAlignment="Right"/>
                                             <TextBlock Text="{Binding GrandTotalDisplay, Mode=OneWay}"
                                                        FontSize="12" FontWeight="Bold"
@@ -468,7 +468,7 @@
                                                     Margin="12,0,0,0"
                                                     MinWidth="110">
                                             <TextBlock Text="BALANCE" FontSize="9" FontWeight="Bold"
-                                                       Foreground="#B45309"
+                                                       Foreground="{DynamicResource WarningBrush}"
                                                        HorizontalAlignment="Right"/>
                                             <TextBlock Text="{Binding BalanceDisplay, Mode=OneWay}"
                                                        FontSize="12" FontWeight="Bold"
@@ -715,7 +715,7 @@
                                                         Orientation="Horizontal"
                                                         VerticalAlignment="Center">
 
-                                                <Border Background="#EEF2FF"
+                                                <Border Background="{DynamicResource TintIndigoBrush}"
                                                         BorderBrush="#C7D2FE"
                                                         BorderThickness="1"
                                                         CornerRadius="8"
@@ -725,7 +725,7 @@
                                                     <StackPanel>
                                                         <TextBlock Text="ORDERED"
                                                                    FontSize="8" FontWeight="Bold"
-                                                                   Foreground="#4338CA"/>
+                                                                   Foreground="{DynamicResource AccentBrush}"/>
                                                         <TextBlock Text="{Binding TotalOrderedQty}"
                                                                    FontSize="13" FontWeight="Bold"
                                                                    Foreground="#1E1B4B"
@@ -743,7 +743,7 @@
                                                     <StackPanel>
                                                         <TextBlock Text="DELIVERED"
                                                                    FontSize="8" FontWeight="Bold"
-                                                                   Foreground="#047857"/>
+                                                                   Foreground="{DynamicResource SuccessBrush}"/>
                                                         <TextBlock Text="{Binding TotalDeliveredQty}"
                                                                    FontSize="13" FontWeight="Bold"
                                                                    Foreground="#052E16"
@@ -761,7 +761,7 @@
                                                     <StackPanel>
                                                         <TextBlock Text="BALANCE"
                                                                    FontSize="8" FontWeight="Bold"
-                                                                   Foreground="#B45309"/>
+                                                                   Foreground="{DynamicResource WarningBrush}"/>
                                                         <TextBlock Text="{Binding TotalBalanceQty}"
                                                                    FontSize="13" FontWeight="Bold"
                                                                    Foreground="#451A03"
@@ -866,15 +866,15 @@
                                                                Foreground="{DynamicResource MutedForegroundBrush}"/>
                                                     <TextBlock Grid.Column="4" Text="ORDERED"
                                                                FontSize="9" FontWeight="Bold"
-                                                               Foreground="#4338CA"
+                                                               Foreground="{DynamicResource AccentBrush}"
                                                                HorizontalAlignment="Center"/>
                                                     <TextBlock Grid.Column="5" Text="DELIVERED"
                                                                FontSize="9" FontWeight="Bold"
-                                                               Foreground="#047857"
+                                                               Foreground="{DynamicResource SuccessBrush}"
                                                                HorizontalAlignment="Center"/>
                                                     <TextBlock Grid.Column="6" Text="BALANCE"
                                                                FontSize="9" FontWeight="Bold"
-                                                               Foreground="#B45309"
+                                                               Foreground="{DynamicResource WarningBrush}"
                                                                HorizontalAlignment="Center"/>
                                                     <TextBlock Grid.Column="7" Text="INVOICED"
                                                                FontSize="9" FontWeight="Bold"
@@ -937,19 +937,19 @@
                                                                     <TextBlock Grid.Column="4"
                                                                                Text="{Binding OrderedQty}"
                                                                                FontSize="12" FontWeight="Bold"
-                                                                               Foreground="#4338CA"
+                                                                               Foreground="{DynamicResource AccentBrush}"
                                                                                HorizontalAlignment="Center"
                                                                                VerticalAlignment="Center"/>
                                                                     <TextBlock Grid.Column="5"
                                                                                Text="{Binding DeliveredQty}"
                                                                                FontSize="12" FontWeight="Bold"
-                                                                               Foreground="#047857"
+                                                                               Foreground="{DynamicResource SuccessBrush}"
                                                                                HorizontalAlignment="Center"
                                                                                VerticalAlignment="Center"/>
                                                                     <TextBlock Grid.Column="6"
                                                                                Text="{Binding BalanceQty}"
                                                                                FontSize="12" FontWeight="Bold"
-                                                                               Foreground="#B45309"
+                                                                               Foreground="{DynamicResource WarningBrush}"
                                                                                HorizontalAlignment="Center"
                                                                                VerticalAlignment="Center"/>
                                                                     <TextBlock Grid.Column="7"

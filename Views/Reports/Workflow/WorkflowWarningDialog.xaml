@@ -87,7 +87,7 @@
 
                 <!-- Invoiced -->
                 <Border Grid.Column="2"
-                        Background="#4338CA"
+                        Background="{DynamicResource AccentBrush}"
                         CornerRadius="10"
                         Padding="12,10">
                     <StackPanel>
@@ -238,7 +238,7 @@
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="bd"
-                                        Background="#4338CA"
+                                        Background="{DynamicResource AccentBrush}"
                                         CornerRadius="10"
                                         Padding="12,10">
                                     <StackPanel>

@@ -155,7 +155,7 @@
                     SnapsToDevicePixels="True">
                 <StackPanel>
                     <TextBlock Text="{Binding Sheet.Category}" FontSize="16" FontWeight="Bold"
-                               Foreground="#4338CA"/>
+                               Foreground="{DynamicResource AccentBrush}"/>
                     <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                         <TextBlock Text="{Binding Sheet.ThicknessDisplay}" FontSize="12" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,12,0"/>
@@ -172,11 +172,11 @@
                         <TextBlock Text="  •  Used: " FontSize="11"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <TextBlock Text="{Binding Sheet.Used}" FontSize="11" FontWeight="Bold"
-                                   Foreground="#B91C1C"/>
+                                   Foreground="{DynamicResource DangerBrush}"/>
                         <TextBlock Text="  •  Balance: " FontSize="11"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <TextBlock Text="{Binding Sheet.Balance}" FontSize="11" FontWeight="Bold"
-                                   Foreground="#047857"/>
+                                   Foreground="{DynamicResource SuccessBrush}"/>
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
                         <TextBlock Text="Price: " FontSize="11"
@@ -261,7 +261,7 @@
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                         <TextBlock Text="{Binding NewBalanceAfterBuy}"
                                    FontSize="12" FontWeight="Bold"
-                                   Foreground="#047857"
+                                   Foreground="{DynamicResource SuccessBrush}"
                                    HorizontalAlignment="Right"/>
                     </DockPanel>
                     <Separator Opacity="0.3" Margin="0,6"/>
@@ -270,7 +270,7 @@
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <TextBlock Text="{Binding TotalCost, StringFormat={}{0:N2} AED}"
                                    FontSize="16" FontWeight="Bold"
-                                   Foreground="#B91C1C" HorizontalAlignment="Right"/>
+                                   Foreground="{DynamicResource DangerBrush}" HorizontalAlignment="Right"/>
                     </DockPanel>
                 </StackPanel>
             </Border>

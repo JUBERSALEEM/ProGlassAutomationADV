@@ -857,7 +857,7 @@
                                 Style="{StaticResource ExportButtonStyle}"
                                 Background="#FEF2F2"
                                 BorderBrush="#B91C1C"
-                                Foreground="#B91C1C"
+                                Foreground="{DynamicResource DangerBrush}"
                                 Margin="0,0,6,0"/>
                         <Button Content="📊  Excel"
                                 Command="{Binding ExportExcelCommand}"
@@ -869,9 +869,9 @@
                         <Button Content="📋  CSV"
                                 Command="{Binding ExportCsvCommand}"
                                 Style="{StaticResource ExportButtonStyle}"
-                                Background="#EEF2FF"
+                                Background="{DynamicResource TintIndigoBrush}"
                                 BorderBrush="#4338CA"
-                                Foreground="#4338CA"
+                                Foreground="{DynamicResource AccentBrush}"
                                 Margin="0,0,12,0"/>
                         <Border Width="1" Margin="0,4,12,4"
                                 Background="{DynamicResource BorderBrush}"/>
@@ -971,7 +971,7 @@
                     Padding="16" Margin="0,0,0,12"
                     SnapsToDevicePixels="True">
                 <TextBlock Text="{Binding ErrorMessage}"
-                           Foreground="#B91C1C"
+                           Foreground="{DynamicResource DangerBrush}"
                            FontSize="13" FontWeight="SemiBold"
                            TextWrapping="Wrap"/>
             </Border>
@@ -1044,10 +1044,10 @@
                                             HorizontalAlignment="Center">
                                     <TextBlock Text="{Binding TotalPreviouslyDeliveredQty}"
                                                Style="{StaticResource CompactStatNumberStyle}"
-                                               Foreground="#4338CA"/>
+                                               Foreground="{DynamicResource AccentBrush}"/>
                                     <TextBlock Text=" pcs"
                                                Style="{StaticResource CompactStatUnitStyle}"
-                                               Foreground="#4338CA" Opacity="0.75"/>
+                                               Foreground="{DynamicResource AccentBrush}" Opacity="0.75"/>
                                 </StackPanel>
                                 <TextBlock Style="{StaticResource PrevDeliveredLabelStyle}"/>
                             </StackPanel>
@@ -1078,14 +1078,14 @@
                                             HorizontalAlignment="Center">
                                     <TextBlock Text="{Binding TotalBalanceQty}"
                                                Style="{StaticResource CompactStatNumberStyle}"
-                                               Foreground="#B45309"/>
+                                               Foreground="{DynamicResource WarningBrush}"/>
                                     <TextBlock Text=" pcs"
                                                Style="{StaticResource CompactStatUnitStyle}"
-                                               Foreground="#B45309" Opacity="0.75"/>
+                                               Foreground="{DynamicResource WarningBrush}" Opacity="0.75"/>
                                 </StackPanel>
                                 <TextBlock Text="BALANCE"
                                            Style="{StaticResource CompactStatLabelStyle}"
-                                           Foreground="#B45309"/>
+                                           Foreground="{DynamicResource WarningBrush}"/>
                             </StackPanel>
                         </Border>
                     </Grid>
@@ -1120,7 +1120,7 @@
                                     Background="{DynamicResource BorderBrush}">
                                 <Border CornerRadius="4"
                                         HorizontalAlignment="Left"
-                                        Background="#4338CA">
+                                        Background="{DynamicResource AccentBrush}">
                                     <Border.Width>
                                         <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
                                             <Binding Path="DeliveryProgressPercent"/>
@@ -1607,7 +1607,7 @@
                                                                                     HorizontalAlignment="Right">
                                                                             <TextBlock Text="SPEC TOTAL: "
                                                                                        FontSize="11" FontWeight="Bold"
-                                                                                       Foreground="#4338CA"
+                                                                                       Foreground="{DynamicResource AccentBrush}"
                                                                                        VerticalAlignment="Center"/>
                                                                             <TextBlock FontSize="11"
                                                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -2018,10 +2018,10 @@
                                                                     HorizontalAlignment="Center">
                                                             <TextBlock Text="BALANCE"
                                                                        Style="{StaticResource CumulativeLabelStyle}"
-                                                                       Foreground="#B45309"/>
+                                                                       Foreground="{DynamicResource WarningBrush}"/>
                                                             <TextBlock Text="{Binding CumulativeBalanceQty, Mode=OneWay}"
                                                                        Style="{StaticResource CumulativeValueStyle}"
-                                                                       Foreground="#B45309"/>
+                                                                       Foreground="{DynamicResource WarningBrush}"/>
                                                         </StackPanel>
                                                     </Grid>
                                                 </Border>
@@ -2066,7 +2066,7 @@
                                 <TextBlock Text="{Binding HistoryTotalBalance}"
                                            FontSize="18" FontWeight="Bold"
                                            HorizontalAlignment="Center"
-                                           Foreground="#B45309"/>
+                                           Foreground="{DynamicResource WarningBrush}"/>
                                 <TextBlock Text="Balance" FontSize="10"
                                            HorizontalAlignment="Center"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>

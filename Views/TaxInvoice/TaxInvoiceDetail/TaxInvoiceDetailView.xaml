@@ -317,7 +317,7 @@
                         </Border.Style>
                         <TextBlock Text="⚠️ TRN INVALID"
                                    FontSize="10" FontWeight="Bold"
-                                   Foreground="#B91C1C"/>
+                                   Foreground="{DynamicResource DangerBrush}"/>
                     </Border>
 
                     <Border CornerRadius="8" Padding="10,3"
@@ -327,7 +327,7 @@
                                 Converter={StaticResource BoolToVisibilityConverter}}">
                         <TextBlock Text="💾 Saving…"
                                    FontSize="10" FontWeight="Bold"
-                                   Foreground="#B45309"/>
+                                   Foreground="{DynamicResource WarningBrush}"/>
                     </Border>
                 </StackPanel>
 
@@ -372,7 +372,7 @@
                             Style="{StaticResource ExportButtonStyle}"
                             Background="#FEF2F2"
                             BorderBrush="#B91C1C"
-                            Foreground="#B91C1C"
+                            Foreground="{DynamicResource DangerBrush}"
                             Margin="0,0,6,0"
                             ToolTip="Export as PDF"/>
 
@@ -487,13 +487,13 @@
                                 <TextBlock Text="{Binding DiscountAmountDisplay}"
                                            FontSize="13" FontWeight="Bold"
                                            HorizontalAlignment="Center"
-                                           Foreground="#B45309"
+                                           Foreground="{DynamicResource WarningBrush}"
                                            TextTrimming="CharacterEllipsis"/>
                                 <TextBlock Text="DISCOUNT"
                                            FontSize="10" FontWeight="Bold"
                                            HorizontalAlignment="Center"
                                            Margin="0,4,0,0"
-                                           Foreground="#B45309"/>
+                                           Foreground="{DynamicResource WarningBrush}"/>
                             </StackPanel>
                         </Border>
 
@@ -504,13 +504,13 @@
                                 <TextBlock Text="{Binding GrandTotalDisplay}"
                                            FontSize="13" FontWeight="Bold"
                                            HorizontalAlignment="Center"
-                                           Foreground="#047857"
+                                           Foreground="{DynamicResource SuccessBrush}"
                                            TextTrimming="CharacterEllipsis"/>
                                 <TextBlock Text="GRAND TOTAL"
                                            FontSize="10" FontWeight="Bold"
                                            HorizontalAlignment="Center"
                                            Margin="0,4,0,0"
-                                           Foreground="#047857"/>
+                                           Foreground="{DynamicResource SuccessBrush}"/>
                             </StackPanel>
                         </Border>
                     </Grid>
@@ -1335,7 +1335,7 @@
                                                         <TextBlock Grid.Column="12" Text="RATE · VALUE"
                                                                    Style="{StaticResource GridHeaderCell}"
                                                                    HorizontalAlignment="Right"
-                                                                   Foreground="#4338CA"
+                                                                   Foreground="{DynamicResource AccentBrush}"
                                                                    Margin="6,8,10,8"/>
                                                         <TextBlock Grid.Column="13" Text=""
                                                                    Style="{StaticResource GridHeaderCell}"/>
@@ -1425,7 +1425,7 @@
                                                                              TextAlignment="Right"
                                                                              Padding="4,4,8,4" Margin="2,3"
                                                                              BorderBrush="#4338CA"
-                                                                             Background="#EEF2FF"
+                                                                             Background="{DynamicResource TintIndigoBrush}"
                                                                              Foreground="#3730A3"
                                                                              VerticalContentAlignment="Center"/>
 
@@ -1469,7 +1469,7 @@
                                                                                    FontSize="11" FontWeight="Bold"
                                                                                    HorizontalAlignment="Right"
                                                                                    Margin="0,2,4,0"
-                                                                                   Foreground="#047857"/>
+                                                                                   Foreground="{DynamicResource SuccessBrush}"/>
                                                                     </StackPanel>
 
                                                                     <Button Grid.Column="13"
@@ -1498,7 +1498,7 @@
                                                                 HorizontalAlignment="Right">
                                                         <TextBlock Text="GROUP TOTAL: "
                                                                    FontSize="11" FontWeight="Bold"
-                                                                   Foreground="#4338CA"
+                                                                   Foreground="{DynamicResource AccentBrush}"
                                                                    VerticalAlignment="Center"/>
                                                         <TextBlock FontSize="11"
                                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -1513,7 +1513,7 @@
                                                             <Run Text=" SQM"/>
                                                         </TextBlock>
                                                         <TextBlock FontSize="13" FontWeight="Bold"
-                                                                   Foreground="#047857"
+                                                                   Foreground="{DynamicResource SuccessBrush}"
                                                                    VerticalAlignment="Center">
                                                             <Run Text="AED "/>
                                                             <Run Text="{Binding GroupTotalValue, Mode=OneWay,
@@ -1707,7 +1707,7 @@
                                                     <TextBlock Grid.Column="1"
                                                                Text="{Binding GrandTotalDisplay}"
                                                                FontSize="12" FontWeight="Bold"
-                                                               Foreground="#047857"/>
+                                                               Foreground="{DynamicResource SuccessBrush}"/>
                                                 </Grid>
                                             </StackPanel>
                                         </Border>
@@ -1726,7 +1726,7 @@
                         <StackPanel>
                             <TextBlock Text="FAMILY TOTALS"
                                        FontSize="10" FontWeight="Bold"
-                                       Foreground="#4338CA"
+                                       Foreground="{DynamicResource AccentBrush}"
                                        Margin="0,0,0,8"/>
 
                             <Grid Margin="0,0,0,6">
@@ -1746,7 +1746,7 @@
                                 <TextBlock Text="{Binding FamilyInvoicedTotalDisplay}"
                                            FontSize="11" FontWeight="Bold"
                                            HorizontalAlignment="Right"
-                                           Foreground="#047857"/>
+                                           Foreground="{DynamicResource SuccessBrush}"/>
                             </Grid>
 
                             <Border BorderBrush="{DynamicResource BorderBrush}"
@@ -1759,7 +1759,7 @@
                                     <TextBlock Text="{Binding FamilyBalanceTotalDisplay}"
                                                FontSize="13" FontWeight="Bold"
                                                HorizontalAlignment="Right"
-                                               Foreground="#B45309"/>
+                                               Foreground="{DynamicResource WarningBrush}"/>
                                 </Grid>
                             </Border>
                         </StackPanel>

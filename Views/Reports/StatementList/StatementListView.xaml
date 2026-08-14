@@ -34,7 +34,7 @@
 
                     <Border Grid.Column="0"
                             Width="56" Height="56"
-                            Background="#4338CA"
+                            Background="{DynamicResource AccentBrush}"
                             CornerRadius="14"
                             Margin="0,0,18,0">
                         <TextBlock Text="≡"
@@ -66,7 +66,7 @@
                                     HorizontalAlignment="Right"
                                     Margin="0,0,0,10">
                             <Border Width="10" Height="10" CornerRadius="5"
-                                    Background="#4338CA" Margin="0,0,5,0"/>
+                                    Background="{DynamicResource AccentBrush}" Margin="0,0,5,0"/>
                             <Border Width="10" Height="10" CornerRadius="5"
                                     Background="{DynamicResource SuccessBrush}" Margin="0,0,5,0"/>
                             <Border Width="10" Height="10" CornerRadius="5"
@@ -124,7 +124,7 @@
             </Grid.ColumnDefinitions>
 
             <Border Grid.Column="0"
-                    Background="#4338CA"
+                    Background="{DynamicResource AccentBrush}"
                     CornerRadius="12"
                     Padding="16,14">
                 <StackPanel>
@@ -274,7 +274,7 @@
                         </Grid.ColumnDefinitions>
 
                         <Border Grid.Column="0"
-                                Background="#4338CA"
+                                Background="{DynamicResource AccentBrush}"
                                 CornerRadius="10,0,0,10">
                             <TextBlock Text="⌕"
                                        FontSize="15"
@@ -352,7 +352,7 @@
                     <Button.Template>
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="bd"
-                                    Background="#4338CA"
+                                    Background="{DynamicResource AccentBrush}"
                                     CornerRadius="10"
                                     Padding="{TemplateBinding Padding}">
                                 <StackPanel Orientation="Horizontal">
@@ -412,12 +412,12 @@
                            Text="INVOICED"
                            FontSize="10"
                            FontWeight="Bold"
-                           Foreground="#047857"/>
+                           Foreground="{DynamicResource SuccessBrush}"/>
                 <TextBlock Grid.Column="3"
                            Text="OUTSTANDING"
                            FontSize="10"
                            FontWeight="Bold"
-                           Foreground="#B45309"/>
+                           Foreground="{DynamicResource WarningBrush}"/>
                 <TextBlock Grid.Column="4"
                            Text="STATUS"
                            FontSize="10"
@@ -435,7 +435,7 @@
         <!-- ══ ROW 4 — CONTENT ══ -->
         <Grid Grid.Row="4" Margin="24,8,24,16">
 
-            <Border Background="#4338CA"
+            <Border Background="{DynamicResource AccentBrush}"
                     CornerRadius="14"
                     Visibility="{Binding IsLoading,
                         Converter={StaticResource BoolToVisibilityConverter}}">
@@ -491,7 +491,7 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <Border Grid.Row="0" Grid.Column="0" Background="#4338CA"/>
+                            <Border Grid.Row="0" Grid.Column="0" Background="{DynamicResource AccentBrush}"/>
                             <Border Grid.Row="0" Grid.Column="1" Background="{DynamicResource SuccessBrush}"/>
                             <Border Grid.Row="1" Grid.Column="0" Background="#B45309"/>
                             <Border Grid.Row="1" Grid.Column="1" Background="#B91C1C"/>
@@ -524,7 +524,7 @@
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="bd"
-                                        Background="#4338CA"
+                                        Background="{DynamicResource AccentBrush}"
                                         CornerRadius="10"
                                         Padding="{TemplateBinding Padding}">
                                     <ContentPresenter HorizontalAlignment="Center"
@@ -626,7 +626,7 @@
                                             <TextBlock Text="{Binding StatementNumber, Mode=OneWay}"
                                                        FontSize="13"
                                                        FontWeight="Bold"
-                                                       Foreground="#4338CA"/>
+                                                       Foreground="{DynamicResource AccentBrush}"/>
                                             <TextBlock Text="  /  "
                                                        FontSize="13"
                                                        Foreground="{DynamicResource MutedForegroundBrush}"/>
@@ -638,7 +638,7 @@
 
                                         <StackPanel Orientation="Horizontal">
                                             <!-- FIX: Invoice count badge Runs need Mode=OneWay -->
-                                            <Border Background="#4338CA"
+                                            <Border Background="{DynamicResource AccentBrush}"
                                                     CornerRadius="6"
                                                     Padding="8,3"
                                                     Margin="0,0,8,0">
@@ -772,7 +772,7 @@
                                             <Button.Template>
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="bd"
-                                                            Background="#4338CA"
+                                                            Background="{DynamicResource AccentBrush}"
                                                             CornerRadius="8"
                                                             Padding="{TemplateBinding Padding}">
                                                         <TextBlock Text="PDF"

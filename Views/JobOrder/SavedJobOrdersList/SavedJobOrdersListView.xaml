@@ -160,7 +160,7 @@
                     CornerRadius="12"
                     Padding="16" Margin="8,0,8,12">
                 <TextBlock Text="{Binding ErrorMessage}"
-                           Foreground="#B91C1C"
+                           Foreground="{DynamicResource DangerBrush}"
                            FontSize="12" TextWrapping="Wrap"/>
             </Border>
 

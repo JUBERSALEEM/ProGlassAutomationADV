@@ -420,7 +420,7 @@ FLAG FOR LATER:
                 <!-- Error (semantic red) -->
                 <Border Visibility="{Binding HasError,
                                      Converter={StaticResource BoolToVisibilityConverter}}"
-                        Background="#FEE2E2"
+                        Background="{DynamicResource TintRedBrush}"
                         BorderBrush="#FCA5A5"
                         BorderThickness="1.5"
                         CornerRadius="12"
@@ -436,7 +436,7 @@ FLAG FOR LATER:
                 <!-- Overdue Alert Banner (semantic red — critical) -->
                 <Border Visibility="{Binding HasOverdueInvoices,
                                      Converter={StaticResource BoolToVisibilityConverter}}"
-                        Background="#FEE2E2"
+                        Background="{DynamicResource TintRedBrush}"
                         BorderBrush="#EF4444"
                         BorderThickness="1.5"
                         CornerRadius="12"
@@ -464,7 +464,7 @@ FLAG FOR LATER:
                                 <TextBlock
                                     Text="Action required: follow up with customers on outstanding payments."
                                     FontSize="11"
-                                    Foreground="#B91C1C"
+                                    Foreground="{DynamicResource DangerBrush}"
                                     Margin="0,2,0,0"/>
                             </StackPanel>
                         </StackPanel>
@@ -489,7 +489,7 @@ FLAG FOR LATER:
                                             Padding="14,7">
                                         <TextBlock Text="{TemplateBinding Content}"
                                                    FontSize="11" FontWeight="Bold"
-                                                   Foreground="#B91C1C"
+                                                   Foreground="{DynamicResource DangerBrush}"
                                                    VerticalAlignment="Center"/>
                                     </Border>
                                     <ControlTemplate.Triggers>

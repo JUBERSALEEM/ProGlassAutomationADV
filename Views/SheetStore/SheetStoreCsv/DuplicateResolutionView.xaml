@@ -99,7 +99,7 @@
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     <TextBlock Text="{Binding HeaderText}"
                                FontSize="11" FontWeight="Bold"
-                               Foreground="#4338CA" Margin="0,2,0,0"/>
+                               Foreground="{DynamicResource AccentBrush}" Margin="0,2,0,0"/>
                 </StackPanel>
             </StackPanel>
             <TextBlock Text="This sheet already exists. Choose how to handle it:"

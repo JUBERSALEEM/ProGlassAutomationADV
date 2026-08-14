@@ -104,7 +104,7 @@
                                     Visibility="{Binding HasFoc,
                                                  Converter={StaticResource BoolToVisibilityConverter}}">
                                 <TextBlock Text="FOC" FontSize="9" FontWeight="Bold"
-                                           Foreground="#B45309"/>
+                                           Foreground="{DynamicResource WarningBrush}"/>
                             </Border>
 
                             <Border CornerRadius="6" Padding="7,2"
@@ -113,7 +113,7 @@
                                     Visibility="{Binding HasRework,
                                                  Converter={StaticResource BoolToVisibilityConverter}}">
                                 <TextBlock Text="🔧 REWORK" FontSize="9" FontWeight="Bold"
-                                           Foreground="#B45309"/>
+                                           Foreground="{DynamicResource WarningBrush}"/>
                             </Border>
 
                             <Border CornerRadius="6" Padding="7,2"
@@ -122,7 +122,7 @@
         Visibility="{Binding HasReturn,
                      Converter={StaticResource BoolToVisibilityConverter}}">
                                 <TextBlock Text="↩ RETURN" FontSize="9" FontWeight="Bold"
-               Foreground="#B91C1C"/>
+               Foreground="{DynamicResource DangerBrush}"/>
                             </Border>
 
                             <!-- CHAT 19 INVOICED: Fully Invoiced badge — green -->
@@ -157,7 +157,7 @@
                                 </Border.Style>
                                 <TextBlock Text="{Binding InvoicedBadgeText}"
                FontSize="9" FontWeight="Bold"
-               Foreground="#4338CA"/>
+               Foreground="{DynamicResource AccentBrush}"/>
                             </Border>
                         </StackPanel>
 
@@ -259,7 +259,7 @@
                                  FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}"/>
                             <Run Text=" del · "/>
                             <Run Text="{Binding TotalBalance, Mode=OneWay}"
-                                 FontWeight="SemiBold" Foreground="#B45309"/>
+                                 FontWeight="SemiBold" Foreground="{DynamicResource WarningBrush}"/>
                             <Run Text=" bal"/>
                         </TextBlock>
 
@@ -278,7 +278,7 @@
     <Run Text=" del · "/>
     <Run Text="{Binding TotalBalanceSqm, Mode=OneWay,
                 StringFormat={}{0:0.000}}"
-         FontWeight="SemiBold" Foreground="#B45309"/>
+         FontWeight="SemiBold" Foreground="{DynamicResource WarningBrush}"/>
     <Run Text=" bal"/>
                         </TextBlock>
 
@@ -524,7 +524,7 @@
                                 </TextBlock>
                                 <Border CornerRadius="10" Padding="7,2"
                                         Margin="8,0,0,0" VerticalAlignment="Center"
-                                        Background="#4338CA">
+                                        Background="{DynamicResource AccentBrush}">
                                     <TextBlock Text="{TemplateBinding CommandParameter}"
                                                FontSize="10" FontWeight="Bold"
                                                Foreground="White"/>
@@ -613,7 +613,7 @@
                     BorderThickness="1" CornerRadius="12"
                     Padding="14" Margin="4,0,4,10">
                 <TextBlock Text="{Binding ErrorMessage}"
-                           Foreground="#B91C1C"
+                           Foreground="{DynamicResource DangerBrush}"
                            FontSize="12" TextWrapping="Wrap"/>
             </Border>
 

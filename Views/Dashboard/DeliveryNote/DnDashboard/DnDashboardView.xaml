@@ -355,7 +355,7 @@
                 <!-- Error (hardcoded text — VM doesn't expose ErrorMessage) -->
                 <Border Visibility="{Binding HasError,
                                      Converter={StaticResource BoolToVisibilityConverter}}"
-                        Background="#FEE2E2"
+                        Background="{DynamicResource TintRedBrush}"
                         BorderBrush="#FCA5A5"
                         BorderThickness="1.5"
                         CornerRadius="12"
