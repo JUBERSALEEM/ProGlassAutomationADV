@@ -453,3 +453,32 @@ incrementally per the documented rules — each a small reviewable change.
 - Section cards standardized to a 14px corner radius.
 
 Verified: all XAML parse clean, 381/381 CS balanced.
+
+---
+
+## 15. v2 Upgrade — Phase Batch 10: AI fixes (models, listening feedback, draggable bot)
+
+### Latest AI models
+- Google SHUT DOWN gemini-2.0-flash on 2026-06-01 (why AI reported
+  "no longer supported"). Default Gemini model is now **gemini-3.5-flash**
+  (Google's recommended replacement), in both AiSettings and
+  ConfigService.
+- ConfigService's deprecated list now includes the whole shut-down 2.0 GA
+  family (2.0-flash, -001, -lite, -lite-001), so existing installs
+  auto-migrate to the current model on next load.
+- Groq (llama-3.3-70b-versatile) and Cohere (command-r-plus) confirmed
+  still current — left unchanged.
+
+### Clear "is it listening?" feedback
+- Added a continuous animated **pulse ring** around the mic button that
+  pulses while IsListening=True — visible even in silence (the old
+  audio-level-only ring stayed at 0 with no sound, giving no cue).
+
+### Draggable AI bot icon
+- The floating bot is now draggable: click (no movement) opens the chat,
+  dragging moves it anywhere in the window (offset via TranslateTransform,
+  clamped so it stays fully visible). Wired via AddHandler(handledEventsToo)
+  because Button marks MouseLeftButton* as handled.
+
+Verified: all XAML parse clean, 381/381 CS balanced. Model availability
+confirmed via current Google/Groq/Cohere documentation.

@@ -63,13 +63,12 @@ namespace ProGlassAutomation.Services.AI.AIService
 
         /// <summary>
         /// Gemini model.
-        /// FIX: Changed from "gemini-flash-latest" (vague alias that
-        /// occasionally resolves to older models) to "gemini-2.0-flash"
-        /// which is the current stable free-tier model with confirmed
-        /// 15 req/min 1500/day quota.
-        /// Upgrade path: "gemini-2.5-flash" for higher quality (same quota).
+        /// v2 FIX: "gemini-2.0-flash" was SHUT DOWN by Google on
+        /// 2026-06-01. Default is now "gemini-3.5-flash", Google's
+        /// recommended replacement and the current stable free-tier
+        /// model. ConfigService auto-migrates any saved 2.0.x value.
         /// </summary>
-        public string Model { get; set; } = "gemini-2.0-flash";
+        public string Model { get; set; } = "gemini-3.5-flash";
 
         /// <summary>
         /// Groq model.

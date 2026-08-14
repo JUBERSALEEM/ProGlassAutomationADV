@@ -57,21 +57,19 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// gemini-2.0-flash is the current stable free-tier Gemini model
         /// with confirmed 15 req/min 1500/day quota on free tier.
         /// </summary>
-        private const string CurrentDefaultModel = "gemini-2.0-flash";
+        private const string CurrentDefaultModel = "gemini-3.5-flash";
 
         /// <summary>
-        /// ONLY truly discontinued / removed model names.
+        /// Discontinued / shut-down model names. Any saved value here is
+        /// auto-migrated to CurrentDefaultModel on load.
         ///
-        /// REMOVED FROM LIST (these are CURRENT models — not deprecated):
-        ///   gemini-2.5-flash      ← Google's latest flagship (better quality)
-        ///   gemini-2.5-pro        ← Google's latest pro model
-        ///   gemini-2.5-flash-lite ← Lightweight current model
-        ///   gemini-2.0-flash      ← Current stable free-tier model
-        ///   gemini-2.0-flash-001  ← Stable pinned version
-        ///   gemini-2.0-flash-lite ← Lightweight current model
+        /// CURRENT (NOT deprecated — left out of this list):
+        ///   gemini-3.5-flash      ← default (Google's recommended target)
+        ///   gemini-2.5-flash      ← valid until Oct 2026
+        ///   gemini-2.5-pro        ← valid
         ///
-        /// These were incorrectly in the deprecated list and caused users
-        /// on better models to be silently downgraded.
+        /// The 2.0 GA family was SHUT DOWN by Google on 2026-06-01, so it
+        /// is listed below and auto-migrated for existing installs.
         /// </summary>
         private static readonly string[] DeprecatedModels =
         {
@@ -86,6 +84,13 @@ namespace ProGlassAutomation.Services.AI.AIConfig
 
             // 2.0 experimental — replaced by stable release
             "gemini-2.0-flash-exp",
+
+            // 2.0 GA family — SHUT DOWN by Google on 2026-06-01.
+            // Auto-migrated to the current default (gemini-3.5-flash).
+            "gemini-2.0-flash",
+            "gemini-2.0-flash-001",
+            "gemini-2.0-flash-lite",
+            "gemini-2.0-flash-lite-001",
         };
 
         public static AppConfig Load()
