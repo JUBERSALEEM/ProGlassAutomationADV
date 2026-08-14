@@ -549,3 +549,12 @@ buttons). Applied globally:
   radius (999) to match the PI-list Export pills.
 All appearance-only; layout/columns untouched. All XAML parse clean,
 381/381 CS balanced.
+
+---
+
+## 20. v2 Upgrade — Phase Batch 15: shared Controls consistency
+
+AutoCompleteTextBox accent hexes (#4338CA hover/selection/border) converted to
+theme AccentBrush so the shared control adapts to both themes. GradientHeroCard
+brand gradient intentionally preserved (it is a deliberate brand gradient).
+All XAML parse clean, 381/381 CS balanced.

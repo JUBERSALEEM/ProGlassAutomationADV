@@ -37,7 +37,7 @@
                                 <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
                             </Trigger>
                             <Trigger Property="IsSelected" Value="True">
-                                <Setter TargetName="ItemBorder" Property="Background" Value="#4338CA"/>
+                                <Setter TargetName="ItemBorder" Property="Background" Value="{DynamicResource AccentBrush}"/>
                                 <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -75,7 +75,7 @@
                          VerticalContentAlignment="Center"
                          FontSize="13"
                          CaretBrush="{DynamicResource PrimaryForegroundBrush}"
-                         SelectionBrush="#4338CA"
+                         SelectionBrush="{DynamicResource AccentBrush}"
                          Focusable="True"/>
 
                 <!-- Chevron button — toggles popup open/close -->
@@ -112,7 +112,7 @@
             <Border Width="{Binding ActualWidth, ElementName=MainBorder}"
                     MaxHeight="300"
                     Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="#4338CA"
+                    BorderBrush="{DynamicResource AccentBrush}"
                     BorderThickness="1.5"
                     CornerRadius="8"
                     Margin="0,4,0,0">
