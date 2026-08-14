@@ -264,6 +264,34 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         // ── Editable fields ──────────────────────────────────────────────
 
         private string _status = "Draft";
+        // ── v2 §28: unsaved-changes tracking ────────────────────────────
+        private bool _hasUnsavedChanges;
+        public bool HasUnsavedChanges
+        {
+            get => _hasUnsavedChanges;
+            private set
+            {
+                if (_hasUnsavedChanges == value) return;
+                _hasUnsavedChanges = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>True while hydrating — setters must not mark dirty.</summary>
+        private bool _suppressDirty;
+
+        private void MarkDirty()
+        {
+            if (!_suppressDirty) HasUnsavedChanges = true;
+        }
+
+        /// <summary>v2 §28: public save entry for the unsaved-changes guard.</summary>
+        public async Task<bool> TrySaveAsync()
+        {
+            await SaveAsync();
+            return !HasUnsavedChanges;
+        }
+
         public string Status
         {
             get => _status;
@@ -272,6 +300,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 if (_status == value) return;
                 _status = value;
                 OnPropertyChanged();
+                MarkDirty();
                 CommandManager.InvalidateRequerySuggested();
             }
         }
@@ -285,6 +314,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 if (_isFoc == value) return;
                 _isFoc = value;
                 OnPropertyChanged();
+                MarkDirty();
             }
         }
 
@@ -297,6 +327,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 if (_driverName == value) return;
                 _driverName = value;
                 OnPropertyChanged();
+                MarkDirty();
             }
         }
 
@@ -309,6 +340,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 if (_vehicleNumber == value) return;
                 _vehicleNumber = value;
                 OnPropertyChanged();
+                MarkDirty();
             }
         }
 
@@ -321,6 +353,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 if (_receiverName == value) return;
                 _receiverName = value;
                 OnPropertyChanged();
+                MarkDirty();
             }
         }
 
@@ -333,6 +366,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 if (_notes == value) return;
                 _notes = value;
                 OnPropertyChanged();
+                MarkDirty();
             }
         }
 
@@ -814,7 +848,42 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     return;
                 }
 
-                _snapshot = DeliveryNoteMapper.DeserializeSnapshot(_entity);
+                await HydrateFromEntityAsync();
+            }
+            catch (Exception ex)
+            {
+                HasError = true;
+                ErrorMessage = $"Failed to load delivery note: {ex.Message}";
+            }
+            finally
+            {
+                IsLoading = false;
+            }
+        }
+
+        /// <summary>
+        /// Rebuilds all UI state from the CURRENT _entity (no DB read).
+        /// Shared by LoadAsync and RestoreVersionAsync (v2 §24).
+        /// </summary>
+        private async Task HydrateFromEntityAsync()
+        {
+            if (_entity == null) return;
+
+            _suppressDirty = true;
+            try
+            {
+                await HydrateCoreAsync();
+            }
+            finally
+            {
+                _suppressDirty = false;
+                HasUnsavedChanges = false;   // freshly loaded = clean
+            }
+        }
+
+        private async Task HydrateCoreAsync()
+        {
+            _snapshot = DeliveryNoteMapper.DeserializeSnapshot(_entity);
 
                 DeliveryNoteId = _entity.DeliveryNoteId;
                 JobOrderId = _entity.JobOrderId;
@@ -881,19 +950,9 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     OnPropertyChanged(nameof(SelectedDnHeaderText));
                 }
 
-                await LoadAttachmentsDirectlyAsync(DeliveryNoteId);
+            await LoadAttachmentsDirectlyAsync(DeliveryNoteId);
 
-                CommandManager.InvalidateRequerySuggested();
-            }
-            catch (Exception ex)
-            {
-                HasError = true;
-                ErrorMessage = $"Failed to load delivery note: {ex.Message}";
-            }
-            finally
-            {
-                IsLoading = false;
-            }
+            CommandManager.InvalidateRequerySuggested();
         }
 
         private async Task HealItemPrevQtyAsync(SavedDeliveryNote entity)
@@ -1018,6 +1077,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
                 await App.DeliveryNotes.UpdateAsync(_entity);
 
+                HasUnsavedChanges = false;   // v2 §28: clean after save
+
                 // v2 §24: append a restorable version of every save.
                 // (Restore for DN needs relational-item support — the
                 // snapshots are preserved now so that can ship later
@@ -1062,8 +1123,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         /// <summary>
         /// v2 §24: shows the version history for the delivery note being
-        /// edited. Restore is deferred (DN line items live in relational
-        /// rows), but every save is preserved so no history is lost.
+        /// edited and applies a chosen restore as a PENDING change.
         /// </summary>
         private async Task ShowVersionsAsync()
         {
@@ -1081,21 +1141,94 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 .VersionHistoryService
                 .GetVersionsAsync("DN", DeliveryNoteId);
 
-            // Reuse the shared dialog. DN restore is not wired (returns
-            // are ignored here) — the list still documents every save.
             var restoreId = Views.ProformaInvoice.SavedInvoicesList
                 .VersionsDialog.Show(
                     Application.Current?.MainWindow,
                     DeliveryNoteId, versions);
 
-            if (restoreId != null)
+            if (restoreId == null) return;
+
+            bool ok = await RestoreVersionAsync(restoreId.Value);
+            if (!ok)
             {
                 MessageBox.Show(
-                    "Delivery-note restore ships in a later phase.\n" +
-                    "The selected version has been recorded and preserved.",
-                    "Version History",
+                    "This version could not be applied.",
+                    "Restore Version",
                     MessageBoxButton.OK,
-                    MessageBoxImage.Information);
+                    MessageBoxImage.Warning);
+            }
+        }
+
+        /// <summary>
+        /// v2 §24: applies an old version to the CURRENT entity in memory.
+        /// Header fields are restored fully; line items are restored
+        /// quantity-by-quantity (matched by spec group + serial) so the
+        /// relational structure is never broken. Nothing is written to
+        /// the DB until the user saves — saving appends a NEW version.
+        /// </summary>
+        public async Task<bool> RestoreVersionAsync(int versionId)
+        {
+            try
+            {
+                if (_entity == null || _entity.IsMasterDn) return false;
+
+                var version = await ProGlassAutomation.Services.Audit
+                    .VersionHistoryService.GetByIdAsync(versionId);
+
+                if (version == null ||
+                    string.IsNullOrEmpty(version.SnapshotJson))
+                    return false;
+
+                // Deserialize the old snapshot via a throwaway shell.
+                var shell = new SavedDeliveryNote
+                {
+                    FullSnapshotJson = version.SnapshotJson
+                };
+                var snap = DeliveryNoteMapper.DeserializeSnapshot(shell);
+                if (snap == null) return false;
+
+                // Header fields
+                _entity.Status = snap.Header.Status;
+                _entity.IsFoc = snap.Header.IsFoc;
+                _entity.DriverName = snap.Header.DriverName;
+                _entity.VehicleNumber = snap.Header.VehicleNumber;
+                _entity.ReceiverName = snap.Header.ReceiverName;
+                _entity.Notes = snap.Header.Notes;
+                _entity.DeliveryTime = snap.Header.DeliveryTime;
+
+                // Item quantities (structure preserved, quantities restored)
+                foreach (var sItem in snap.Items)
+                {
+                    var item = _entity.Items.FirstOrDefault(i =>
+                        i.SpecGroupNumber == sItem.SpecGroupNumber &&
+                        i.SerialNumber == sItem.SerialNumber);
+                    if (item == null) continue;
+
+                    item.DeliveredQty = sItem.DeliveredQty;
+                    item.BalanceQty = Math.Max(0,
+                        item.OrderedQty
+                        - item.PreviouslyDeliveredQty
+                        - item.DeliveredQty);
+                    item.Notes = sItem.Notes ?? "";
+                }
+
+                // Rebuild the whole UI from the updated entity (no DB read)
+                await HydrateFromEntityAsync();
+
+                ProGlassAutomation.Services.Audit.AuditService.Log(
+                    ProGlassAutomation.Services.Audit.AuditSections.DeliveryNote,
+                    "Version restored",
+                    $"{_entity.DeliveryNoteId} → version {version.VersionNo} " +
+                    "(pending save)",
+                    "DN", _entity.DeliveryNoteId);
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[DN] RestoreVersion failed: {ex.Message}");
+                return false;
             }
         }
 
@@ -1716,7 +1849,11 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         // ─────────────────────────────────────────────────────────────────
 
-        private void OnItemDeliveredQtyChanged() => RecalculateTotals();
+        private void OnItemDeliveredQtyChanged()
+        {
+            RecalculateTotals();
+            MarkDirty();   // v2 §28: user changed a delivered quantity
+        }
 
         private void RecalculateTotals()
         {

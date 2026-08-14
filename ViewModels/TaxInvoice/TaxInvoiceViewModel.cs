@@ -192,12 +192,29 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
 
         private async Task LoadDetailAsync(int invoiceId)
         {
+            // v2 §28: switching records while edits are pending → confirm.
+            if (IsDetailView &&
+                !await ProGlassAutomation.Services.Safety
+                    .UnsavedChangesGuard.ConfirmLeaveAsync(
+                        () => DetailVM.IsDirtyNow(),
+                        () => DetailVM.TrySaveAsync(),
+                        "tax invoice"))
+                return;
+
             await DetailVM.LoadAsync(invoiceId);
             IsListView = false;
         }
 
         private async Task ReturnToList()
         {
+            // v2 §28: confirm before discarding unsaved invoice edits.
+            if (!await ProGlassAutomation.Services.Safety
+                .UnsavedChangesGuard.ConfirmLeaveAsync(
+                    () => DetailVM.IsDirtyNow(),
+                    () => DetailVM.TrySaveAsync(),
+                    "tax invoice"))
+                return;
+
             IsListView = true;
             await SafeLoadListAsync();
         }

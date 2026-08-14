@@ -298,12 +298,29 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
 
         private async Task LoadDetailAsync(int deliveryNoteId)
         {
+            // v2 §28: switching records while edits are pending → confirm.
+            if (IsDetailView &&
+                !await ProGlassAutomation.Services.Safety
+                    .UnsavedChangesGuard.ConfirmLeaveAsync(
+                        () => DetailVM.HasUnsavedChanges,
+                        () => DetailVM.TrySaveAsync(),
+                        "delivery note"))
+                return;
+
             await DetailVM.LoadAsync(deliveryNoteId);
             IsListView = false;
         }
 
         private async Task ReturnToList()
         {
+            // v2 §28: confirm before discarding unsaved DN edits.
+            if (!await ProGlassAutomation.Services.Safety
+                .UnsavedChangesGuard.ConfirmLeaveAsync(
+                    () => DetailVM.HasUnsavedChanges,
+                    () => DetailVM.TrySaveAsync(),
+                    "delivery note"))
+                return;
+
             IsListView = true;
             await SafeLoadListAsync();
         }

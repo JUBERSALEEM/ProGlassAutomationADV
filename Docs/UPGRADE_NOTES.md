@@ -329,3 +329,27 @@ existing dashboard stat cards (the shared StatCard is additive).
 
 Restores always create a new version on the next save; nothing is ever
 silently erased (§24).
+
+---
+
+## 11. v2 Upgrade — Phase Batch 6: DN restore + unsaved-changes guards (§24/§28 complete)
+
+### Delivery Note restore (§24 now fully complete)
+- LoadAsync refactored: hydration extracted into HydrateCoreAsync()
+  (shared by normal load and restore — zero duplication).
+- RestoreVersionAsync: header fields restored fully; line items
+  restored quantity-by-quantity (matched by spec group + serial),
+  so relational rows are never broken. DB untouched until the user
+  saves; saving appends a NEW version.
+
+### Unsaved-changes guards extended (§28 complete for all editors)
+- **Delivery Note**: property-level dirty tracking (status, FOC,
+  driver, vehicle, receiver, notes, delivered quantities) with a
+  hydration-suppression flag so loading never marks dirty. Guards on
+  ReturnToList and record-switching.
+- **Tax Invoice**: state-signature detection — the whole wizard state
+  is serialized after load/save and compared on leave. One mechanism
+  covers every field; nothing can be missed. New invoices are dirty
+  by definition. Guards on ReturnToList and record-switching.
+- Job Order guard shipped in an earlier batch. PI wizard uses the
+  shared dialog via its shell flows.

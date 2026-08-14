@@ -759,6 +759,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 // Chat 16: load family sidebar
                 await LoadFamilyAsync(entity.ProformaId);
 
+                CaptureCleanState();   // v2 §28: freshly loaded = clean
                 StatusMessage = "";
             }
             catch (Exception ex)
@@ -798,6 +799,50 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             StatusMessage = ok
                 ? "Version loaded — save to keep it."
                 : "This version could not be applied.";
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  v2 §28 — UNSAVED-CHANGES DETECTION
+        //
+        //  TI has dozens of editable fields; instead of wiring every
+        //  setter, we serialize the wizard state into a signature after
+        //  each load/save and compare on demand. One mechanism covers
+        //  every field — nothing can be missed.
+        // ══════════════════════════════════════════════════════════════
+
+        private string _cleanStateSignature;
+
+        private string BuildStateSignature()
+        {
+            try
+            {
+                return System.Text.Json.JsonSerializer
+                    .Serialize(BuildWizardState());
+            }
+            catch
+            {
+                // Never block on a signature failure — treat as changed.
+                return Guid.NewGuid().ToString();
+            }
+        }
+
+        /// <summary>Call after a successful load/save.</summary>
+        private void CaptureCleanState() =>
+            _cleanStateSignature = BuildStateSignature();
+
+        /// <summary>True when the editor differs from the last load/save.</summary>
+        public bool IsDirtyNow()
+        {
+            if (IsNewInvoice) return true;
+            if (_cleanStateSignature == null) return false;
+            return _cleanStateSignature != BuildStateSignature();
+        }
+
+        /// <summary>v2 §28: save entry used by the unsaved-changes guard.</summary>
+        public async Task<bool> TrySaveAsync()
+        {
+            await SaveAsync();
+            return !IsDirtyNow();
         }
 
         /// <summary>
@@ -1382,6 +1427,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                     AuditSections.TaxInvoice, "Tax invoice saved",
                     $"{savedInvoiceNumber} — status {Status}",
                     "TI", savedInvoiceNumber);
+
+                CaptureCleanState();   // v2 §28: saved = clean
 
                 // v2 §24: append a restorable version of every save.
                 if (!string.IsNullOrEmpty(savedSnapshotJson))
