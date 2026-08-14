@@ -88,7 +88,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.GodView
             }
             catch (Exception ex)
             {
-                global::System.Diagnostics.Debug.WriteLine(
+                System.Diagnostics.Debug.WriteLine(
                     $"[JO GodView] Load failed: {ex.Message}");
             }
             finally

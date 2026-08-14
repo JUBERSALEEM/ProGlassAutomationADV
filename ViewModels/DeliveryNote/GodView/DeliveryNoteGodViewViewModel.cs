@@ -91,7 +91,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.GodView
             }
             catch (Exception ex)
             {
-                global::System.Diagnostics.Debug.WriteLine(
+                System.Diagnostics.Debug.WriteLine(
                     $"[DN GodView] Load failed: {ex.Message}");
             }
             finally

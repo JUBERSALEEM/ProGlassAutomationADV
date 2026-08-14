@@ -76,7 +76,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         private void OnThemeManagerChanged(object sender, EventArgs e)
         {
             // marshal to UI thread for safety when force-refreshing bindings
-            var dispatcher = global::System.Windows.Application.Current?.Dispatcher;
+            var dispatcher = System.Windows.Application.Current?.Dispatcher;
             if (dispatcher != null && !dispatcher.CheckAccess())
             {
                 dispatcher.BeginInvoke(new Action(OnThemeChanged));

@@ -88,7 +88,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.GodView
             }
             catch (Exception ex)
             {
-                global::System.Diagnostics.Debug.WriteLine(
+                System.Diagnostics.Debug.WriteLine(
                     $"[TI GodView] Load failed: {ex.Message}");
             }
             finally

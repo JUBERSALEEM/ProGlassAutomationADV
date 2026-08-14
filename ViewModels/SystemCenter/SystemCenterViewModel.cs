@@ -21,7 +21,7 @@ using System.Collections.ObjectModel;
 using System.Windows;
 using System.Windows.Input;
 
-namespace ProGlassAutomation.ViewModels.System
+namespace ProGlassAutomation.ViewModels.SystemCenter
 {
     /// <summary>One user row on the Users tab.</summary>
     public class UserRowViewModel : ViewModelBase
@@ -133,7 +133,7 @@ namespace ProGlassAutomation.ViewModels.System
 
         private void RefreshPeers()
         {
-            var dispatcher = global::System.Windows.Application.Current?.Dispatcher;
+            var dispatcher = System.Windows.Application.Current?.Dispatcher;
 
             void Update()
             {

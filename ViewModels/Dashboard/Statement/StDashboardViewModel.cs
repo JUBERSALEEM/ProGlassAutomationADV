@@ -114,7 +114,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
             // Guard: App.Statements may be null if called before startup
             if (App.Statements == null)
             {
-                global::System.Diagnostics.Debug.WriteLine(
+                System.Diagnostics.Debug.WriteLine(
                     "[StDashboard] App.Statements not yet initialized.");
                 return;
             }

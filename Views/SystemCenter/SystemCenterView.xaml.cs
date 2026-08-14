@@ -1,8 +1,8 @@
-using ProGlassAutomation.ViewModels.System;
+using ProGlassAutomation.ViewModels.SystemCenter;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace ProGlassAutomation.Views.System
+namespace ProGlassAutomation.Views.SystemCenter
 {
     /// <summary>
     /// System Center — Users + Activity Log.

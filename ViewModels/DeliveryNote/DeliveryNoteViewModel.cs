@@ -323,7 +323,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             }
             catch (Exception ex)
             {
-                global::System.Diagnostics.Debug.WriteLine(
+                System.Diagnostics.Debug.WriteLine(
                     $"[DeliveryNoteViewModel] ListVM.LoadAsync failed: {ex.Message}");
             }
         }
@@ -605,7 +605,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
             // PreviouslyDeliveredQty = already delivered total
             // DeliveredQty = 0 → user fills or clicks SELECT ALL REMAINING
             // BalanceQty = full remaining balance pcs
-            var items = new global::System.Collections.Generic.List<
+            var items = new System.Collections.Generic.List<
                 Models.DeliveryNote.SavedDeliveryNote.DeliveryNoteItem>();
 
             foreach (var masterItem in masterDn.Items

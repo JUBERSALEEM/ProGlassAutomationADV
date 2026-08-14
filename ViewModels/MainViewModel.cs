@@ -48,7 +48,7 @@ using ProGlassAutomation.ViewModels.Reports;
 using ProGlassAutomation.ViewModels.Settings;
 using ProGlassAutomation.ViewModels.Diagnostics;
 using ProGlassAutomation.ViewModels.SheetStore;
-using ProGlassAutomation.ViewModels.System;
+using ProGlassAutomation.ViewModels.SystemCenter;
 using ProGlassAutomation.ViewModels.TaxInvoice;
 using System.Windows.Input;
 
@@ -244,7 +244,7 @@ namespace ProGlassAutomation.ViewModels
                 _isOnline = App.Connectivity.IsOnline;
                 App.Connectivity.ConnectivityChanged += (_, online) =>
                 {
-                    var dispatcher = global::System.Windows.Application.Current?.Dispatcher;
+                    var dispatcher = System.Windows.Application.Current?.Dispatcher;
                     if (dispatcher == null) return;
 
                     if (dispatcher.CheckAccess()) IsOnline = online;

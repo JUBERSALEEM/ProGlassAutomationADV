@@ -231,7 +231,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
         {
             try
             {
-                var dialog = new global::System.Windows.Controls.PrintDialog();
+                var dialog = new System.Windows.Controls.PrintDialog();
                 if (dialog.ShowDialog() != true) return;
 
                 FixedDocument fixedDoc;
@@ -603,7 +603,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
         // ══════════════════════════════════════════════════════════════════
 
         private FixedDocument BuildPrintableDocument(
-            global::System.Windows.Controls.PrintDialog dialog)
+            System.Windows.Controls.PrintDialog dialog)
         {
             double pageWidth = dialog.PrintableAreaWidth;
             double pageHeight = dialog.PrintableAreaHeight;
@@ -1181,7 +1181,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                 return stack;
             }
 
-            global::System.Collections.Generic.List<
+            System.Collections.Generic.List<
                 Models.ProformaInvoice.Step7PrintPreview
                     .TermsAndConditions.TermClause> activeClauses;
 

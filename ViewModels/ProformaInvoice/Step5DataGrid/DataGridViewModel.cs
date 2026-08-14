@@ -1114,11 +1114,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 if (row.GlassRef.IndexOf(
                         findText, StringComparison.OrdinalIgnoreCase) >= 0)
                 {
-                    row.GlassRef = global::System.Text.RegularExpressions.Regex.Replace(
+                    row.GlassRef = System.Text.RegularExpressions.Regex.Replace(
                         row.GlassRef,
-                        global::System.Text.RegularExpressions.Regex.Escape(findText),
+                        System.Text.RegularExpressions.Regex.Escape(findText),
                         replace,
-                        global::System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                        System.Text.RegularExpressions.RegexOptions.IgnoreCase);
                     count++;
                 }
 

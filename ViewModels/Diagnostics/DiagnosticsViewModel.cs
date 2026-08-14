@@ -24,7 +24,7 @@ namespace ProGlassAutomation.ViewModels.Diagnostics
     /// <summary>Live technical log tab content.</summary>
     public class AppLogPanelViewModel : ViewModelBase
     {
-        public global::System.Collections.ObjectModel.ObservableCollection
+        public System.Collections.ObjectModel.ObservableCollection
             <Services.Logging.LogEntry> Entries { get; } = new();
 
         public List<string> LevelOptions { get; } = new()
@@ -89,14 +89,14 @@ namespace ProGlassAutomation.ViewModels.Diagnostics
         {
             try
             {
-                var folder = global::System.IO.Path.Combine(
-                    global::System.Environment.GetFolderPath(
-                        global::System.Environment.SpecialFolder.ApplicationData),
+                var folder = System.IO.Path.Combine(
+                    System.Environment.GetFolderPath(
+                        System.Environment.SpecialFolder.ApplicationData),
                     "ProGlassAutomation", "logs");
 
-                global::System.IO.Directory.CreateDirectory(folder);
-                global::System.Diagnostics.Process.Start(
-                    new global::System.Diagnostics.ProcessStartInfo
+                System.IO.Directory.CreateDirectory(folder);
+                System.Diagnostics.Process.Start(
+                    new System.Diagnostics.ProcessStartInfo
                     {
                         FileName = folder,
                         UseShellExecute = true

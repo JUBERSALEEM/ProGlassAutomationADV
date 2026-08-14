@@ -438,7 +438,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
 
                 HasUnsavedChanges = false;
 
-                var diff = new global::System.Collections.Generic.List<AuditChange>();
+                var diff = new System.Collections.Generic.List<AuditChange>();
                 if (!string.Equals(previousStatus, SelectedStatus))
                     diff.Add(AuditChangeSerializer.Modified(
                         "Status", previousStatus, SelectedStatus));

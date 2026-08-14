@@ -303,7 +303,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         ///         of blocking MessageBox for success. Errors still use
         ///         MessageBox because they need to interrupt user attention.
         /// </summary>
-        private async global::System.Threading.Tasks.Task ApplyRateAsync()
+        private async System.Threading.Tasks.Task ApplyRateAsync()
         {
             if (SelectedGlassType == null || EstimatedRatePerSqm <= 0m)
             {

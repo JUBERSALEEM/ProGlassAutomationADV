@@ -833,7 +833,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             }
             catch (Exception ex)
             {
-                global::System.Diagnostics.Debug.WriteLine(
+                System.Diagnostics.Debug.WriteLine(
                     $"[TaxInvoiceDetailVM] Load family failed: {ex.Message}");
             }
         }
@@ -1354,7 +1354,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 await App.DeliveryNotes.MarkMultipleAsInvoicedAsync(
                     dnIds, taxInvoiceId);
 
-                global::System.Diagnostics.Debug.WriteLine(
+                System.Diagnostics.Debug.WriteLine(
                     $"[TaxInvoiceDetailVM] Marked {dnIds.Count} DN(s) as " +
                     $"invoiced with TI '{taxInvoiceId}': " +
                     string.Join(", ", dnIds));
@@ -1363,7 +1363,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             {
                 // Non-fatal — TI is already saved successfully
                 // DN invoiced state will be corrected on next save
-                global::System.Diagnostics.Debug.WriteLine(
+                System.Diagnostics.Debug.WriteLine(
                     $"[TaxInvoiceDetailVM] MarkDnsAsInvoicedAsync failed " +
                     $"(non-fatal): {ex.Message}");
             }
@@ -1415,7 +1415,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                     return;
                 }
 
-                StatusMessage = $"✅ PDF saved: {global::System.IO.Path.GetFileName(savedPath)}";
+                StatusMessage = $"✅ PDF saved: {System.IO.Path.GetFileName(savedPath)}";
 
                 var open = MessageBox.Show(
                     $"PDF saved:\n\n{savedPath}\n\nOpen now?",
@@ -1424,8 +1424,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
                 if (open == MessageBoxResult.Yes)
                 {
-                    global::System.Diagnostics.Process.Start(
-                        new global::System.Diagnostics.ProcessStartInfo(savedPath)
+                    System.Diagnostics.Process.Start(
+                        new System.Diagnostics.ProcessStartInfo(savedPath)
                         {
                             UseShellExecute = true
                         });
@@ -1513,8 +1513,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             try
             {
                 string path = dialog.FileName;
-                string fileName = global::System.IO.Path.GetFileName(path);
-                byte[] bytes = await global::System.IO.File.ReadAllBytesAsync(path);
+                string fileName = System.IO.Path.GetFileName(path);
+                byte[] bytes = await System.IO.File.ReadAllBytesAsync(path);
 
                 if (bytes.Length > 10 * 1024 * 1024)
                 {
@@ -1524,7 +1524,7 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                     return;
                 }
 
-                string ext = global::System.IO.Path.GetExtension(fileName).ToLowerInvariant();
+                string ext = System.IO.Path.GetExtension(fileName).ToLowerInvariant();
                 string mime = ext switch
                 {
                     ".pdf" => "application/pdf",

@@ -106,7 +106,7 @@ namespace ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList
             {
                 Header = $"📋 {family.ProformaId}",
                 IsEnabled = false,
-                Foreground = global::System.Windows.Media.Brushes.DarkSlateGray
+                Foreground = System.Windows.Media.Brushes.DarkSlateGray
             };
             menu.Items.Add(infoHeader);
 

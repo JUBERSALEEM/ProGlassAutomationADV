@@ -128,7 +128,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsA
             // Backward-compat fallback (deprecated) — string only
             if (p is string line)
             {
-                global::System.Diagnostics.Debug.WriteLine(
+                System.Diagnostics.Debug.WriteLine(
                     "[TermsAndConditionsVM] RemovePaymentSubLineCommand " +
                     "was called with a plain string. Update XAML to pass " +
                     "Tuple<TermClause,string> for correct removal.");

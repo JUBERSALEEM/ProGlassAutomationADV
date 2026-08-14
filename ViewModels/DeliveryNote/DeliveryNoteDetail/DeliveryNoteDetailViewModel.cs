@@ -336,7 +336,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             }
         }
 
-        public global::System.Collections.Generic.List<string> StatusOptions { get; } = new()
+        public System.Collections.Generic.List<string> StatusOptions { get; } = new()
         {
             "Draft", "Dispatched", "Delivered", "Signed", "Received"
         };
