@@ -48,10 +48,6 @@
         <SolidColorBrush x:Key="ComingSoonBg"         Color="#F1F5F9" po:Freeze="True"/>
         <SolidColorBrush x:Key="ComingSoonBorder"     Color="#CBD5E1" po:Freeze="True"/>
         <SolidColorBrush x:Key="ComingSoonText"       Color="#94A3B8" po:Freeze="True"/>
-        <SolidColorBrush x:Key="ActiveProviderBg"     Color="#DBEAFE" po:Freeze="True"/>
-        <SolidColorBrush x:Key="ActiveProviderText"   Color="#1D4ED8" po:Freeze="True"/>
-        <SolidColorBrush x:Key="DangerBrush"          Color="#DC2626" po:Freeze="True"/>
-        <SolidColorBrush x:Key="DangerLightBrush"     Color="#FEE2E2" po:Freeze="True"/>
 
         <!-- ═══════════════════════════════════════════════════════════
              SECTION CARD
@@ -133,7 +129,7 @@
             <Setter Property="Padding"             Value="14,0"/>
             <Setter Property="FontSize"            Value="11"/>
             <Setter Property="FontWeight"          Value="Bold"/>
-            <Setter Property="Foreground"          Value="{StaticResource DangerBrush}"/>
+            <Setter Property="Foreground"          Value="{DynamicResource DangerBrush}"/>
             <Setter Property="BorderThickness"     Value="0"/>
             <Setter Property="Cursor"              Value="Hand"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -144,7 +140,7 @@
                         <Border x:Name="Bd"
                                 CornerRadius="17"
                                 Padding="{TemplateBinding Padding}"
-                                Background="{StaticResource DangerLightBrush}"
+                                Background="{DynamicResource TintRedBrush}"
                                 SnapsToDevicePixels="True"
                                 UseLayoutRounding="True">
                             <ContentPresenter HorizontalAlignment="Center"
@@ -174,7 +170,7 @@
             <Setter Property="Padding"             Value="14,0"/>
             <Setter Property="FontSize"            Value="11"/>
             <Setter Property="FontWeight"          Value="Bold"/>
-            <Setter Property="Foreground"          Value="{StaticResource DangerBrush}"/>
+            <Setter Property="Foreground"          Value="{DynamicResource DangerBrush}"/>
             <Setter Property="BorderThickness"     Value="0"/>
             <Setter Property="Cursor"              Value="Hand"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -196,7 +192,7 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Bd" Property="Background"
-                                        Value="{StaticResource DangerLightBrush}"/>
+                                        Value="{DynamicResource TintRedBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="Bd" Property="Opacity" Value="0.75"/>
@@ -1115,7 +1111,7 @@
                                                 <Setter Property="BorderBrush"
                                                         Value="{StaticResource PillBorderBrush}"/>
                                                 <Setter Property="Background"
-                                                        Value="{StaticResource ActiveProviderBg}"/>
+                                                        Value="{DynamicResource TintIndigoBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -1198,7 +1194,7 @@
                                                 <Setter Property="BorderBrush"
                                                         Value="{StaticResource PillBorderBrush}"/>
                                                 <Setter Property="Background"
-                                                        Value="{StaticResource ActiveProviderBg}"/>
+                                                        Value="{DynamicResource TintIndigoBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -1281,7 +1277,7 @@
                                                 <Setter Property="BorderBrush"
                                                         Value="{StaticResource PillBorderBrush}"/>
                                                 <Setter Property="Background"
-                                                        Value="{StaticResource ActiveProviderBg}"/>
+                                                        Value="{DynamicResource TintIndigoBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -1554,7 +1550,7 @@
                                                 <Setter Property="BorderBrush"
                                                         Value="{StaticResource PillBorderBrush}"/>
                                                 <Setter Property="Background"
-                                                        Value="{StaticResource ActiveProviderBg}"/>
+                                                        Value="{DynamicResource TintIndigoBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -1572,12 +1568,12 @@
                                             <Border.Style>
                                                 <Style TargetType="Border">
                                                     <Setter Property="Background"
-                                                            Value="{StaticResource DangerLightBrush}"/>
+                                                            Value="{DynamicResource TintRedBrush}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsWhisperModelReady}"
                                                                      Value="True">
                                                             <Setter Property="Background"
-                                                                    Value="{StaticResource ActiveProviderBg}"/>
+                                                                    Value="{DynamicResource TintIndigoBrush}"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -1589,14 +1585,14 @@
                                                         <Setter Property="Text"
                                                                 Value="NOT INSTALLED"/>
                                                         <Setter Property="Foreground"
-                                                                Value="{StaticResource DangerBrush}"/>
+                                                                Value="{DynamicResource DangerBrush}"/>
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding IsWhisperModelReady}"
                                                                          Value="True">
                                                                 <Setter Property="Text"
                                                                         Value="INSTALLED"/>
                                                                 <Setter Property="Foreground"
-                                                                        Value="{StaticResource ActiveProviderText}"/>
+                                                                        Value="{DynamicResource AccentBrush}"/>
                                                             </DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>
