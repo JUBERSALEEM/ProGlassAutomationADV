@@ -187,7 +187,14 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     ProformaId = company.ProformaId ?? "",
                     IssueDate = company.IssueDate,
                     ValidUntil = company.ValidUntil,
-                    ProformaStatus = company.ProformaStatus ?? "Draft"
+                    ProformaStatus = company.ProformaStatus ?? "Draft",
+                    Representative = company.Representative ?? "",
+                    RepresentativeMobile = company.RepresentativeMobile ?? "",
+                    CompanyEmail = company.CompanyEmail ?? "",
+                    AccountNumber = company.AccountNumber ?? "",
+                    BankName = company.BankName ?? "",
+                    LogoPath = company.LogoPath ?? "",
+                    CompanyRecordId = company.CompanyRecordId
                 },
 
                 Client = new ClientSnapshot

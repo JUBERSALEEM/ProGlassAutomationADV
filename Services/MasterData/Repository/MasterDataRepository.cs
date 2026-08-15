@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/MasterData/Repository/MasterDataRepository.cs
 // ═══════════════════════════════════════════════════════════════════════
 // CHAT 15 — PROJECT REFERENCE FIELD ADDED
@@ -50,6 +50,49 @@ namespace ProGlassAutomation.Services.MasterData.Repository
         {
             using var ctx = new MasterDataDbContext();
             await ctx.Database.EnsureCreatedAsync();
+
+            // Schema evolution for databases created before v2 company
+            // profile fields existed. EnsureCreated never ALTERs an
+            // existing file, so add missing columns explicitly.
+            await EvolveCompanyColumnsAsync(ctx);
+        }
+
+        private static async Task EvolveCompanyColumnsAsync(
+            MasterDataDbContext ctx)
+        {
+            var existing = new System.Collections.Generic.HashSet<string>(
+                System.StringComparer.OrdinalIgnoreCase);
+
+            using (var cmd = ctx.Database.GetDbConnection().CreateCommand())
+            {
+                cmd.CommandText = "PRAGMA table_info(Companies);";
+                await ctx.Database.OpenConnectionAsync();
+                using var reader = await cmd.ExecuteReaderAsync();
+                while (await reader.ReadAsync())
+                    existing.Add(reader.GetString(1));
+            }
+
+            // (column, DDL type + default) — order matters only for
+            // readability; each ALTER is independent.
+            var columns = new (string Name, string Ddl)[]
+            {
+                ("LogoPath", "TEXT NOT NULL DEFAULT ''"),
+                ("Representative", "TEXT NOT NULL DEFAULT ''"),
+                ("RepresentativeMobile", "TEXT NOT NULL DEFAULT ''"),
+                ("CompanyEmail", "TEXT NOT NULL DEFAULT ''"),
+                ("AccountNumber", "TEXT NOT NULL DEFAULT ''"),
+                ("BankName", "TEXT NOT NULL DEFAULT ''"),
+                ("IsDefault", "INTEGER NOT NULL DEFAULT 0"),
+            };
+
+            foreach (var (name, ddl) in columns)
+            {
+                if (existing.Contains(name)) continue;
+
+                using var cmd = ctx.Database.GetDbConnection().CreateCommand();
+                cmd.CommandText = $"ALTER TABLE Companies ADD COLUMN {name} {ddl};";
+                await cmd.ExecuteNonQueryAsync();
+            }
         }
 
         // ══════════════════════════════════════════════════════════════════

@@ -45,7 +45,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step2ClientProfile
         public string CustomerTrn { get; set; } = "";
         public string CustomerReferenceCode { get; set; } = "";
         public string SalesRepresentative { get; set; } = "";
-        public string DocumentPreparedBy { get; set; } = "";
+
+        private string _documentPreparedBy =
+            Services.Audit.AuditService.CurrentUser?.DisplayName ?? "";
+        /// <summary>
+        /// Auto-filled from the active User Center user; editable.
+        /// </summary>
+        public string DocumentPreparedBy
+        {
+            get => _documentPreparedBy;
+            set { _documentPreparedBy = value; OnPropertyChanged(); }
+        }
         public string BillingAddress { get; set; } = "";
         public string AttentionExecutiveName { get; set; } = "";
         public string ClientContactPhone { get; set; } = "";

@@ -1,0 +1,283 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/CompanyCenter/CompanyCenterView.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Company Center (Phase 1)
+
+     Left: company cards (logo / initials, TRN, default badge).
+     Right: full profile editor (identity, representative, banking).
+     The DEFAULT company pre-fills Proforma Invoice Step 1.
+═══════════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.CompanyCenter.CompanyCenterView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <Style x:Key="CcFieldLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+        <Style x:Key="CcTextBox" TargetType="TextBox">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  Focusable="False"
+                  Background="Transparent">
+        <StackPanel Margin="32,26,32,32">
+
+            <!-- HEADER -->
+            <DockPanel Margin="0,0,0,18">
+                <StackPanel>
+                    <TextBlock Text="Company Center"
+                               FontSize="24" FontWeight="Bold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    <TextBlock Text="Your companies — identity, TRN, banking and logo. The default company pre-fills every new proforma invoice."
+                               FontSize="12" Margin="0,4,0,0"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal"
+                            HorizontalAlignment="Right"
+                            VerticalAlignment="Center">
+                    <Button Style="{StaticResource PrimaryPillButton}"
+                            Tag="&#xE710;" Content="NEW COMPANY"
+                            Command="{Binding NewCompanyCommand}"/>
+                    <Button Style="{StaticResource OutlinedPillButton}"
+                            Tag="&#xE72C;" Content="REFRESH"
+                            Command="{Binding RefreshCommand}"
+                            Margin="10,0,0,0"/>
+                </StackPanel>
+            </DockPanel>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="340"/>
+                    <ColumnDefinition Width="24"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- ── COMPANY CARDS ── -->
+                <ItemsControl Grid.Column="0"
+                              ItemsSource="{Binding Companies}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="0,0,0,10" Padding="14,12"
+                                    CornerRadius="12" Cursor="Hand"
+                                    BorderThickness="1.5"
+                                    Background="{DynamicResource ModuleBackgroundBrush}"
+                                    SnapsToDevicePixels="True">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="BorderBrush"
+                                                Value="{DynamicResource BorderBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                <Setter Property="BorderBrush"
+                                                        Value="{DynamicResource AccentBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Width="46" Height="46"
+                                            CornerRadius="12"
+                                            VerticalAlignment="Center"
+                                            Background="{DynamicResource TintIndigoBrush}">
+                                        <TextBlock Text="&#xE822;"
+                                                   FontFamily="Segoe MDL2 Assets"
+                                                   FontSize="18"
+                                                   Foreground="{DynamicResource AccentBrush}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                    </Border>
+
+                                    <StackPanel Grid.Column="1" Margin="12,0,8,0"
+                                                VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding CompanyName}"
+                                                   FontSize="13.5" FontWeight="Bold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock FontSize="10.5" Margin="0,2,0,0"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                            <Run Text="TRN:"/>
+                                            <Run Text="{Binding CompanyTrn, Mode=OneWay}"/>
+                                            <Run Text="  ·  "/>
+                                            <Run Text="{Binding UsageCount, Mode=OneWay}"/>
+                                            <Run Text=" invoices"/>
+                                        </TextBlock>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2"
+                                                VerticalAlignment="Center">
+                                        <Border Background="{DynamicResource TintIndigoBrush}"
+                                                CornerRadius="8" Padding="8,3"
+                                                Visibility="Collapsed">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsDefault}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock Text="DEFAULT" FontSize="9"
+                                                       FontWeight="Bold"
+                                                       Foreground="{DynamicResource AccentBrush}"/>
+                                        </Border>
+                                        <Button Style="{StaticResource RowOutlinedButton}"
+                                                Tag="&#xE8E5;" Content="EDIT"
+                                                Command="{Binding DataContext.SelectCompanyCommand,
+                                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                Margin="0,6,0,0"/>
+                                        <Button Style="{StaticResource RowDangerButton}"
+                                                Tag="&#xE74D;" Content=""
+                                                Command="{Binding DataContext.DeleteCompanyCommand,
+                                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                Margin="0,6,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- ── EDITOR ── -->
+                <Border Grid.Column="2"
+                        Background="{DynamicResource ModuleBackgroundBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="1" CornerRadius="14"
+                        Padding="24,20">
+                    <StackPanel>
+                        <TextBlock Text="{Binding EditorTitle}"
+                                   FontSize="12" FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   Margin="0,0,0,14"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="14"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="14"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="14"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="14"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Grid.ColumnSpan="3">
+                                <TextBlock Text="COMPANY NAME *" Style="{StaticResource CcFieldLabel}"/>
+                                <TextBox Text="{Binding CompanyName, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource CcTextBox}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="2" Grid.Column="0">
+                                <TextBlock Text="TRN" Style="{StaticResource CcFieldLabel}"/>
+                                <TextBox Text="{Binding CompanyTrn, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource CcTextBox}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="2" Grid.Column="2">
+                                <TextBlock Text="LOCATION" Style="{StaticResource CcFieldLabel}"/>
+                                <TextBox Text="{Binding CompanyLocation, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource CcTextBox}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="4" Grid.Column="0">
+                                <TextBlock Text="REPRESENTATIVE" Style="{StaticResource CcFieldLabel}"/>
+                                <TextBox Text="{Binding Representative, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource CcTextBox}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="4" Grid.Column="2">
+                                <TextBlock Text="REPRESENTATIVE MOBILE" Style="{StaticResource CcFieldLabel}"/>
+                                <TextBox Text="{Binding RepresentativeMobile, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource CcTextBox}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="6" Grid.Column="0">
+                                <TextBlock Text="COMPANY E-MAIL" Style="{StaticResource CcFieldLabel}"/>
+                                <TextBox Text="{Binding CompanyEmail, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource CcTextBox}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="6" Grid.Column="2">
+                                <TextBlock Text="BANK NAME" Style="{StaticResource CcFieldLabel}"/>
+                                <TextBox Text="{Binding BankName, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource CcTextBox}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="8" Grid.ColumnSpan="3">
+                                <TextBlock Text="ACCOUNT NUMBER / IBAN" Style="{StaticResource CcFieldLabel}"/>
+                                <TextBox Text="{Binding AccountNumber, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource CcTextBox}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <DockPanel Margin="0,16,0,0">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Button Style="{StaticResource OutlinedPillButton}"
+                                        Tag="&#xE8B9;" Content="CHOOSE LOGO"
+                                        Command="{Binding PickLogoCommand}"/>
+                                <Button Style="{StaticResource RowOutlinedButton}"
+                                        Tag="&#xE711;" Content="CLEAR"
+                                        Command="{Binding ClearLogoCommand}"
+                                        Margin="10,0,0,0"/>
+                                <TextBlock Text="{Binding LogoPath}"
+                                           FontSize="10.5" Margin="12,0,0,0"
+                                           VerticalAlignment="Center"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           TextTrimming="CharacterEllipsis"
+                                           MaxWidth="220"/>
+                            </StackPanel>
+                            <CheckBox Content="Default company (pre-fills new invoices)"
+                                      IsChecked="{Binding IsDefaultCompany}"
+                                      HorizontalAlignment="Right"
+                                      VerticalAlignment="Center"/>
+                        </DockPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                            <Button Style="{StaticResource SuccessPillButton}"
+                                    Tag="&#xE74E;" Content="SAVE COMPANY"
+                                    Command="{Binding SaveCompanyCommand}"/>
+                        </StackPanel>
+
+                        <TextBlock Text="{Binding Status}"
+                                   FontSize="11" FontWeight="SemiBold"
+                                   Margin="0,10,0,0"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>

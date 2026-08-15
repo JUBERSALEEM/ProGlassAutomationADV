@@ -20,6 +20,8 @@ namespace ProGlassAutomation.Services.Theme
         public const string SystemCenter = "SystemCenter";
         public const string Settings = "Settings";
         public const string About = "About";
+        public const string CompanyCenter = "CompanyCenter";
+        public const string UserCenter = "UserCenter";
 
         /// <summary>Display order used by the Settings UI.</summary>
         public static readonly (string Key, string Label)[] All =
@@ -37,7 +39,9 @@ namespace ProGlassAutomation.Services.Theme
             (ActivitySessions, "Activity Sessions"),
             (SystemCenter, "System Center"),
             (Settings, "Settings"),
-            (About, "About")
+            (About, "About"),
+            (CompanyCenter, "Company Center"),
+            (UserCenter, "User Center")
         };
     }
 }

@@ -82,6 +82,17 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public DateTime ValidUntil { get; set; } = default;
 
         public string ProformaStatus { get; set; } = "Draft";
+
+        // v2 — richer company identity (Company Center module).
+        // Additive: older invoice JSON deserializes with empty values.
+        public string Representative { get; set; } = "";
+        public string RepresentativeMobile { get; set; } = "";
+        public string CompanyEmail { get; set; } = "";
+        public string AccountNumber { get; set; } = "";
+        public string BankName { get; set; } = "";
+        public string LogoPath { get; set; } = "";
+        /// <summary>Id of the Company Center record this invoice uses.</summary>
+        public int CompanyRecordId { get; set; }
     }
 
     // ── Project data ────────────────────────────────────────────────────

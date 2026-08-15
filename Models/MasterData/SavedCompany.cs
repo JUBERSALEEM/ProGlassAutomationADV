@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -43,5 +43,37 @@ namespace ProGlassAutomation.Models.MasterData
 
         /// <summary>When this record was first created.</summary>
         public DateTime CreatedAt { get; set; }
+
+        // ═══ v2 — full company profile (Company Center module) ═══
+        // All optional; older rows simply carry empty values. Schema
+        // evolution is handled by MasterDataRepository.InitializeAsync
+        // (ALTER TABLE ADD COLUMN for existing databases).
+
+        /// <summary>Path to the company logo image (empty = none).</summary>
+        [MaxLength(500)]
+        public string LogoPath { get; set; } = "";
+
+        /// <summary>Authorized representative / contact person.</summary>
+        [MaxLength(120)]
+        public string Representative { get; set; } = "";
+
+        /// <summary>Representative mobile number.</summary>
+        [MaxLength(30)]
+        public string RepresentativeMobile { get; set; } = "";
+
+        /// <summary>Company e-mail shown on documents.</summary>
+        [MaxLength(120)]
+        public string CompanyEmail { get; set; } = "";
+
+        /// <summary>Bank account number / IBAN for invoice footers.</summary>
+        [MaxLength(80)]
+        public string AccountNumber { get; set; } = "";
+
+        /// <summary>Bank name.</summary>
+        [MaxLength(120)]
+        public string BankName { get; set; } = "";
+
+        /// <summary>The primary company pre-selected in Step 1.</summary>
+        public bool IsDefault { get; set; }
     }
 }

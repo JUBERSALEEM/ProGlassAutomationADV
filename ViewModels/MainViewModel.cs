@@ -37,6 +37,8 @@
 
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.ViewModels.About;
+using ProGlassAutomation.ViewModels.CompanyCenter;
+using ProGlassAutomation.ViewModels.UserCenter;
 using ProGlassAutomation.ViewModels.AI;
 using ProGlassAutomation.ViewModels.Dashboard;
 using ProGlassAutomation.ViewModels.DeliveryNote;
@@ -108,6 +110,12 @@ namespace ProGlassAutomation.ViewModels
         public DeliveryNoteViewModel DeliveryNoteVM { get; } = new DeliveryNoteViewModel();
         public TaxInvoiceViewModel TaxInvoiceVM { get; } = new TaxInvoiceViewModel();
         public SalesReportViewModel SalesReportVM { get; } = new SalesReportViewModel();
+
+        // Phase 1 — master data modules.
+        public CompanyCenterViewModel CompanyCenterVM { get; } =
+            new CompanyCenterViewModel();
+        public UserCenterViewModel UserCenterVM { get; } =
+            new UserCenterViewModel();
 
         // ── current view ──────────────────────────────────────────────────
         public ViewModelBase CurrentViewModel
@@ -379,6 +387,14 @@ namespace ProGlassAutomation.ViewModels
                     SystemCenterVM.LoadUsersAsync();
                     break;
 
+                // Phase 1: Company Center + User Center modules.
+                case "CompanyCenter":
+                    CurrentViewModel = CompanyCenterVM;
+                    break;
+                case "UserCenter":
+                    CurrentViewModel = UserCenterVM;
+                    break;
+
                 // NEW: Logs & Activity (technical log + per-module feeds)
                 case "Diagnostics":
                     CurrentViewModel = DiagnosticsVM;
@@ -429,6 +445,10 @@ namespace ProGlassAutomation.ViewModels
                     ProGlassAutomation.Services.Theme.WallpaperModules.Settings,
                 "About" =>
                     ProGlassAutomation.Services.Theme.WallpaperModules.About,
+                "CompanyCenter" =>
+                    ProGlassAutomation.Services.Theme.WallpaperModules.CompanyCenter,
+                "UserCenter" =>
+                    ProGlassAutomation.Services.Theme.WallpaperModules.UserCenter,
                 _ => ""
             };
 

@@ -56,6 +56,8 @@
         xmlns:vmTaxInvoice="clr-namespace:ProGlassAutomation.ViewModels.TaxInvoice"
         xmlns:vmReports="clr-namespace:ProGlassAutomation.ViewModels.Reports"
         xmlns:vmSystem="clr-namespace:ProGlassAutomation.ViewModels.SystemCenter"
+             xmlns:vmCompany="clr-namespace:ProGlassAutomation.ViewModels.CompanyCenter"
+             xmlns:vmUsers="clr-namespace:ProGlassAutomation.ViewModels.UserCenter"
         xmlns:vmDiagnostics="clr-namespace:ProGlassAutomation.ViewModels.Diagnostics"
         xmlns:viewsDashboard="clr-namespace:ProGlassAutomation.Views.Dashboard"
         xmlns:viewsProforma="clr-namespace:ProGlassAutomation.Views.ProformaInvoice"
@@ -70,6 +72,8 @@
         xmlns:viewsReports="clr-namespace:ProGlassAutomation.Views.Reports"
         xmlns:viewsAi="clr-namespace:ProGlassAutomation.Views.AI"
         xmlns:viewsSystem="clr-namespace:ProGlassAutomation.Views.SystemCenter"
+             xmlns:viewsCompany="clr-namespace:ProGlassAutomation.Views.CompanyCenter"
+             xmlns:viewsUsers="clr-namespace:ProGlassAutomation.Views.UserCenter"
         xmlns:viewsDiagnostics="clr-namespace:ProGlassAutomation.Views.Diagnostics"
         Title="ProGlass Automation"
         Height="720" Width="1280"
@@ -215,6 +219,12 @@
         <DataTemplate DataType="{x:Type vmSystem:SystemCenterViewModel}">
             <viewsSystem:SystemCenterView/>
         </DataTemplate>
+        <DataTemplate DataType="{x:Type vmCompany:CompanyCenterViewModel}">
+            <viewsCompany:CompanyCenterView/>
+        </DataTemplate>
+        <DataTemplate DataType="{x:Type vmUsers:UserCenterViewModel}">
+            <viewsUsers:UserCenterView/>
+        </DataTemplate>
 
         <!-- NEW: Logs & Activity — technical log + per-module activity -->
         <DataTemplate DataType="{x:Type vmDiagnostics:DiagnosticsViewModel}">
@@ -295,6 +305,7 @@
                                 VerticalAlignment="Center"
                                 SnapsToDevicePixels="True">
                             <TextBlock Text="{TemplateBinding Tag}"
+                                       FontFamily="Segoe MDL2 Assets"
                                        FontSize="14"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"
@@ -597,12 +608,14 @@
                     </Border>
 
                     <Button Style="{StaticResource TopBarIconButtonStyle}"
-                            Content="&#9881;" FontSize="20"
+                            Content="&#xE713;" FontFamily="Segoe MDL2 Assets"
+                            FontSize="16"
                             Command="{Binding ShowSettingsCommand}"
                             ToolTip="Settings"
                             Margin="0,0,4,0"/>
                     <Button Style="{StaticResource TopBarIconButtonStyle}"
-                            Content="&#8505;" FontSize="20"
+                            Content="&#xE946;" FontFamily="Segoe MDL2 Assets"
+                            FontSize="16"
                             Command="{Binding ShowAboutCommand}"
                             ToolTip="About"
                             Margin="0,0,4,0"/>
@@ -692,93 +705,104 @@
                             <TextBlock Text="MAIN"
                                        Style="{StaticResource SidebarGroupHeaderStyle}"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Dashboard" Tag="&#128200;"
+                                    Content="Dashboard" Tag="&#xE80F;"
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="Dashboard"/>
 
                             <TextBlock Text="INVENTORY"
                                        Style="{StaticResource SidebarGroupHeaderStyle}"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Sheet Store" Tag="&#128230;"
+                                    Content="Sheet Store" Tag="&#xE7B8;"
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="SheetStore"/>
 
                             <TextBlock Text="SALES"
                                        Style="{StaticResource SidebarGroupHeaderStyle}"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Proforma Invoice" Tag="&#128221;"
+                                    Content="Proforma Invoice" Tag="&#xE8A5;"
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="ProformaInvoice"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Job Order" Tag="&#128203;"
+                                    Content="Job Order" Tag="&#xE8C8;"
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="JobOrder"/>
 
                             <TextBlock Text="PRODUCTION"
                                        Style="{StaticResource SidebarGroupHeaderStyle}"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Optimization" Tag="&#9881;"
+                                    Content="Optimization" Tag="&#xE713;"
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="Optimization"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Cutting" Tag="&#9986;"
+                                    Content="Cutting" Tag="&#xE8C6;"
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="Cutting"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Holes &amp; Cutouts" Tag="&#128371;"
+                                    Content="Holes &amp; Cutouts" Tag="&#xE71D;"
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="HolesCutouts"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Polish" Tag="&#10024;"
+                                    Content="Polish" Tag="&#xE895;"
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="Polish"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Edge Deletion" Tag="&#128208;"
+                                    Content="Edge Deletion" Tag="&#xE774;"
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="EdgeDeletion"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Mitring" Tag="&#128314;"
+                                    Content="Mitring" Tag="&#xE7E8;"
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="Mitring"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Tempering" Tag="&#128293;"
+                                    Content="Tempering" Tag="&#xE728;"
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="Tempering"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Pairing" Tag="&#128279;"
+                                    Content="Pairing" Tag="&#xE71B;"
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="Pairing"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Doubling / Lamination" Tag="&#128218;"
+                                    Content="Doubling / Lamination" Tag="&#xE81C;"
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="DoublingLamination"/>
 
                             <TextBlock Text="DISPATCH"
                                        Style="{StaticResource SidebarGroupHeaderStyle}"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Delivery Note" Tag="&#128666;"
+                                    Content="Delivery Note" Tag="&#xE7F4;"
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="DeliveryNote"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Tax Invoice" Tag="&#129534;"
+                                    Content="Tax Invoice" Tag="&#xE7BF;"
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="TaxInvoice"/>
 
                             <TextBlock Text="REPORTS"
                                        Style="{StaticResource SidebarGroupHeaderStyle}"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Sales Report" Tag="&#128202;"
+                                    Content="Sales Report" Tag="&#xE9F9;"
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="SalesReport"/>
+
+                            <TextBlock Text="MASTER DATA"
+                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                            <Button Style="{StaticResource SidebarItemStyle}"
+                                    Content="Company Center" Tag="&#xE822;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="CompanyCenter"/>
+                            <Button Style="{StaticResource SidebarItemStyle}"
+                                    Content="User Center" Tag="&#xE716;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="UserCenter"/>
 
                             <TextBlock Text="SYSTEM"
                                        Style="{StaticResource SidebarGroupHeaderStyle}"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="System Center" Tag="&#128736;"
+                                    Content="System Center" Tag="&#xE713;"
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="SystemCenter"/>
                             <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Logs &amp; Activity" Tag="&#129657;"
+                                    Content="Logs &amp; Activity" Tag="&#xE81C;"
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="Diagnostics"/>
 

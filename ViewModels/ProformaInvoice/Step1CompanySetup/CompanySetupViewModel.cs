@@ -43,6 +43,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
         public string Location { get; set; } = "";
         public int UsageCount { get; set; }
         public string LastUsed { get; set; } = "";
+        public string LogoPath { get; set; } = "";
+        public string Representative { get; set; } = "";
+        public bool IsDefault { get; set; }
 
         /// <summary>
         /// Privacy-safe TRN display — "100**********003".
@@ -238,6 +241,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
         //  REQUIRED FIELD VALIDATIONS (C-08, C-09)
         // ═══════════════════════════════════════════════════════════════
 
+        // v2 — rich company profile carried from Company Center.
+        public string Representative { get; set; } = "";
+        public string RepresentativeMobile { get; set; } = "";
+        public string CompanyEmail { get; set; } = "";
+        public string AccountNumber { get; set; } = "";
+        public string BankName { get; set; } = "";
+        public string LogoPath { get; set; } = "";
+        public int CompanyRecordId { get; set; }
+
         public string? CompanyNameValidationMessage =>
             string.IsNullOrWhiteSpace(_companyName)
                 ? "Company name is required for invoice generation."
@@ -357,6 +369,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
             {
                 _showingAll = true;
                 RebuildVisibleCards();
+
+                // Phase 1: the DEFAULT company pre-fills a new invoice.
+                if (string.IsNullOrWhiteSpace(CompanyName))
+                {
+                    var def = _allCompanyCards
+                        .FirstOrDefault(c => c.IsDefault);
+                    if (def != null) LoadProfile(def);
+                }
                 OnPropertyChanged(nameof(HasMoreCompanies));
             });
 
@@ -393,6 +413,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                         Trn = c.CompanyTrn ?? "",
                         Location = c.CompanyLocation ?? "",
                         UsageCount = c.UsageCount,
+                        LogoPath = c.LogoPath ?? "",
+                        Representative = c.Representative ?? "",
+                        IsDefault = c.IsDefault,
                         // E-FIX: DateTime is non-nullable — check against default
                         LastUsed = c.LastUsedAt != default(DateTime)
                                         ? c.LastUsedAt.ToString("dd MMM yyyy")
@@ -473,6 +496,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
                 CompanyTrn = profile.Trn;
                 CompanyLocation = profile.Location;
                 LoadedProfileName = profile.CompanyName;
+                Representative = profile.Representative;
+                LogoPath = profile.LogoPath;
+                CompanyRecordId = profile.Id;
             }
             finally
             {

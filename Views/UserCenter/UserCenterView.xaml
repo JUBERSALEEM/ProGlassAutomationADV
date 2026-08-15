@@ -1,0 +1,267 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/UserCenter/UserCenterView.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: User Center (Phase 1)
+
+     Left: user cards (role, active/current badges).
+     Right: create user + switch active user (passwords stay in
+     PasswordBoxes; code-behand hands them straight to the VM).
+     The active user auto-fills "Document Prepared By" in PI Step 2
+     and signs every audit entry.
+═══════════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.UserCenter.UserCenterView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <Style x:Key="UcFieldLabel" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Margin" Value="0,0,0,4"/>
+        </Style>
+        <Style x:Key="UcTextBox" TargetType="TextBox">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+        <Style x:Key="UcPasswordBox" TargetType="PasswordBox">
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+        </Style>
+    </UserControl.Resources>
+
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  Focusable="False"
+                  Background="Transparent">
+        <StackPanel Margin="32,26,32,32">
+
+            <!-- HEADER -->
+            <DockPanel Margin="0,0,0,18">
+                <StackPanel>
+                    <TextBlock Text="User Center"
+                               FontSize="24" FontWeight="Bold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    <TextBlock FontSize="12" Margin="0,4,0,0"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}">
+                        <Run Text="Signed in as"/>
+                        <Run Text="{Binding CurrentUserName, Mode=OneWay}" FontWeight="Bold"/>
+                        <Run Text=" — the active user signs audit entries and fills 'Document Prepared By'."/>
+                    </TextBlock>
+                </StackPanel>
+                <Button Style="{StaticResource OutlinedPillButton}"
+                        Tag="&#xE72C;" Content="REFRESH"
+                        Command="{Binding RefreshCommand}"
+                        HorizontalAlignment="Right"
+                        VerticalAlignment="Center"/>
+            </DockPanel>
+
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="340"/>
+                    <ColumnDefinition Width="24"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <!-- ── USER CARDS ── -->
+                <ItemsControl Grid.Column="0" ItemsSource="{Binding Users}">
+                    <ItemsControl.ItemTemplate>
+                        <DataTemplate>
+                            <Border Margin="0,0,0,10" Padding="14,12"
+                                    CornerRadius="12" Cursor="Hand"
+                                    BorderThickness="1.5"
+                                    Background="{DynamicResource ModuleBackgroundBrush}"
+                                    MouseLeftButtonDown="UserCard_Click"
+                                    Tag="{Binding}"
+                                    SnapsToDevicePixels="True">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="BorderBrush"
+                                                Value="{DynamicResource BorderBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                                <Setter Property="BorderBrush"
+                                                        Value="{DynamicResource AccentBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <Border Width="44" Height="44"
+                                            CornerRadius="22"
+                                            VerticalAlignment="Center"
+                                            Background="{DynamicResource TintIndigoBrush}">
+                                        <TextBlock Text="&#xE77B;"
+                                                   FontFamily="Segoe MDL2 Assets"
+                                                   FontSize="17"
+                                                   Foreground="{DynamicResource AccentBrush}"
+                                                   HorizontalAlignment="Center"
+                                                   VerticalAlignment="Center"/>
+                                    </Border>
+
+                                    <StackPanel Grid.Column="1" Margin="12,0,8,0"
+                                                VerticalAlignment="Center">
+                                        <TextBlock Text="{Binding DisplayName}"
+                                                   FontSize="13.5" FontWeight="Bold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   TextTrimming="CharacterEllipsis"/>
+                                        <TextBlock FontSize="10.5" Margin="0,2,0,0"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                            <Run Text="{Binding Username, Mode=OneWay}"/>
+                                            <Run Text="  ·  "/>
+                                            <Run Text="{Binding Role, Mode=OneWay}"/>
+                                        </TextBlock>
+                                    </StackPanel>
+
+                                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                                        <Border Background="{DynamicResource TintIndigoBrush}"
+                                                CornerRadius="8" Padding="8,3">
+                                            <Border.Style>
+                                                <Style TargetType="Border">
+                                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsCurrent}" Value="True">
+                                                            <Setter Property="Visibility" Value="Visible"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Border.Style>
+                                            <TextBlock Text="SIGNED IN" FontSize="9"
+                                                       FontWeight="Bold"
+                                                       Foreground="{DynamicResource AccentBrush}"/>
+                                        </Border>
+                                        <Button Style="{StaticResource RowOutlinedButton}"
+                                                Tag="&#xE716;" Content=""
+                                                ToolTip="Activate / deactivate"
+                                                Command="{Binding DataContext.ToggleActiveCommand,
+                                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                CommandParameter="{Binding}"
+                                                Margin="0,6,0,0"/>
+                                    </StackPanel>
+                                </Grid>
+                            </Border>
+                        </DataTemplate>
+                    </ItemsControl.ItemTemplate>
+                </ItemsControl>
+
+                <!-- ── RIGHT PANEL ── -->
+                <Border Grid.Column="2"
+                        Background="{DynamicResource ModuleBackgroundBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="1" CornerRadius="14"
+                        Padding="24,20">
+                    <StackPanel>
+
+                        <TextBlock Text="CREATE USER"
+                                   FontSize="12" FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   Margin="0,0,0,14"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="14"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="14"/>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="14"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <StackPanel Grid.Row="0" Grid.Column="0">
+                                <TextBlock Text="USERNAME *" Style="{StaticResource UcFieldLabel}"/>
+                                <TextBox Text="{Binding Username, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource UcTextBox}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="0" Grid.Column="2">
+                                <TextBlock Text="DISPLAY NAME *" Style="{StaticResource UcFieldLabel}"/>
+                                <TextBox Text="{Binding DisplayName, UpdateSourceTrigger=PropertyChanged}"
+                                         Style="{StaticResource UcTextBox}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="2" Grid.Column="0">
+                                <TextBlock Text="ROLE" Style="{StaticResource UcFieldLabel}"/>
+                                <ComboBox ItemsSource="{Binding RoleOptions}"
+                                          SelectedItem="{Binding SelectedRole}"
+                                          Height="38" FontSize="12.5"
+                                          VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                            <StackPanel Grid.Row="2" Grid.Column="2">
+                                <TextBlock Text="PASSWORD *" Style="{StaticResource UcFieldLabel}"/>
+                                <PasswordBox x:Name="NewPasswordBox"
+                                             Style="{StaticResource UcPasswordBox}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="4" Grid.ColumnSpan="3">
+                                <TextBlock Text="CONFIRM PASSWORD *" Style="{StaticResource UcFieldLabel}"/>
+                                <PasswordBox x:Name="ConfirmPasswordBox"
+                                             Style="{StaticResource UcPasswordBox}"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Row="6" Grid.ColumnSpan="3"
+                                        Orientation="Horizontal" Margin="0,4,0,0">
+                                <Button Style="{StaticResource SuccessPillButton}"
+                                        Tag="&#xE710;" Content="CREATE USER"
+                                        Click="CreateUser_Click"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <Border Height="1" Margin="0,20,0,20"
+                                Background="{DynamicResource DividerBrush}"/>
+
+                        <TextBlock Text="SWITCH ACTIVE USER"
+                                   FontSize="12" FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   Margin="0,0,0,6"/>
+                        <TextBlock Text="Select a user card, enter their password, and sign in as them. Prepared-by fields and the audit trail follow."
+                                   Style="{StaticResource UcFieldLabel}"
+                                   TextWrapping="Wrap" Margin="0,0,0,10"/>
+                        <StackPanel Orientation="Horizontal">
+                            <PasswordBox x:Name="SwitchPasswordBox"
+                                         Width="240"
+                                         Style="{StaticResource UcPasswordBox}"/>
+                            <Button Style="{StaticResource PrimaryPillButton}"
+                                    Tag="&#xE895;" Content="SIGN IN AS SELECTED"
+                                    Click="SwitchUser_Click"
+                                    Margin="12,0,0,0"/>
+                        </StackPanel>
+
+                        <TextBlock Text="{Binding Status}"
+                                   FontSize="11" FontWeight="SemiBold"
+                                   Margin="0,14,0,0"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   TextWrapping="Wrap"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </StackPanel>
+    </ScrollViewer>
+</UserControl>
