@@ -18,6 +18,7 @@ using ProGlassAutomation.Services.Audit;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Input;
 
@@ -75,14 +76,32 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
 
         private const int MaxActivityRows = 300;
 
+        // PERF: tab switches must be instant. A reload only happens when
+        // the data is stale/empty; the live subscriptions already keep
+        // both lists current between reloads.
+        private static readonly TimeSpan ReloadStale =
+            TimeSpan.FromSeconds(30);
+        private DateTime _lastActivityLoadUtc = DateTime.MinValue;
+        private DateTime _lastUsersLoadUtc = DateTime.MinValue;
+
         public SystemCenterViewModel()
         {
             // ── Tab state ─────────────────────────────────────────────
             SwitchTabCommand = new RelayCommand(param =>
             {
                 ActiveTab = param as string ?? TabUsers;
-                if (ActiveTab == TabActivity) LoadActivityAsync();
-                else LoadUsersAsync();
+                if (ActiveTab == TabActivity)
+                {
+                    if (ActivityRows.Count == 0 ||
+                        DateTime.UtcNow - _lastActivityLoadUtc > ReloadStale)
+                        LoadActivityAsync();
+                }
+                else
+                {
+                    if (Users.Count == 0 ||
+                        DateTime.UtcNow - _lastUsersLoadUtc > ReloadStale)
+                        LoadUsersAsync();
+                }
             });
 
             // ── Users commands ────────────────────────────────────────
@@ -174,7 +193,12 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
         //  USERS TAB
         // ══════════════════════════════════════════════════════════════
 
-        public ObservableCollection<UserRowViewModel> Users { get; } = new();
+        private ObservableCollection<UserRowViewModel> _users = new();
+        public ObservableCollection<UserRowViewModel> Users
+        {
+            get => _users;
+            private set { _users = value; OnPropertyChanged(); }
+        }
 
         public string CurrentUserDisplay =>
             AuditService.CurrentUser?.DisplayName ?? "(no active user)";
@@ -227,21 +251,22 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
         {
             var users = await AuditService.GetUsersAsync();
 
-            Users.Clear();
-            foreach (var u in users)
+            // PERF: build the rows, then swap the collection ONCE —
+            // one CollectionChanged event instead of one per row.
+            var rows = users.Select(u => new UserRowViewModel
             {
-                Users.Add(new UserRowViewModel
-                {
-                    Id = u.Id,
-                    Username = u.Username,
-                    DisplayName = u.DisplayName,
-                    Role = u.Role,
-                    IsActive = u.IsActive,
-                    CreatedDisplay = u.CreatedAtUtc.ToLocalTime()
-                        .ToString("dd MMM yyyy"),
-                    IsCurrent = u.Username == AuditService.CurrentUsername
-                });
-            }
+                Id = u.Id,
+                Username = u.Username,
+                DisplayName = u.DisplayName,
+                Role = u.Role,
+                IsActive = u.IsActive,
+                CreatedDisplay = u.CreatedAtUtc.ToLocalTime()
+                    .ToString("dd MMM yyyy"),
+                IsCurrent = u.Username == AuditService.CurrentUsername
+            }).ToList();
+
+            Users = new ObservableCollection<UserRowViewModel>(rows);
+            _lastUsersLoadUtc = DateTime.UtcNow;
         }
 
         private async void CreateUser()
@@ -334,8 +359,13 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
         //  ACTIVITY TAB
         // ══════════════════════════════════════════════════════════════
 
-        public ObservableCollection<Shared.ActivityRowViewModel>
-            ActivityRows { get; } = new();
+        private ObservableCollection<Shared.ActivityRowViewModel>
+            _activityRows = new();
+        public ObservableCollection<Shared.ActivityRowViewModel> ActivityRows
+        {
+            get => _activityRows;
+            private set { _activityRows = value; OnPropertyChanged(); }
+        }
 
         private List<string> _sectionFilters = new();
         /// <summary>"All sections" + every section that has activity.</summary>
@@ -383,11 +413,13 @@ namespace ProGlassAutomation.ViewModels.SystemCenter
             var entries = await AuditService.GetRecentAsync(
                 MaxActivityRows, section);
 
-            ActivityRows.Clear();
-            foreach (var e in entries)
-                ActivityRows.Add(ToRow(e));
+            // PERF: single collection swap instead of 300 Add() calls.
+            var rows = entries.Select(ToRow).ToList();
+            ActivityRows =
+                new ObservableCollection<Shared.ActivityRowViewModel>(rows);
+            _lastActivityLoadUtc = DateTime.UtcNow;
 
-            ActivityEmpty = ActivityRows.Count == 0;
+            ActivityEmpty = rows.Count == 0;
 
             // Refresh the section filter list (cheap, keeps it honest).
             var sections = await AuditService.GetSectionsWithActivityAsync();
