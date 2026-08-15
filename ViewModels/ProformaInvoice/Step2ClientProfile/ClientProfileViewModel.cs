@@ -45,17 +45,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step2ClientProfile
         public string CustomerTrn { get; set; } = "";
         public string CustomerReferenceCode { get; set; } = "";
         public string SalesRepresentative { get; set; } = "";
-
-        private string _documentPreparedBy =
-            Services.Audit.AuditService.CurrentUser?.DisplayName ?? "";
-        /// <summary>
-        /// Auto-filled from the active User Center user; editable.
-        /// </summary>
-        public string DocumentPreparedBy
-        {
-            get => _documentPreparedBy;
-            set { _documentPreparedBy = value; OnPropertyChanged(); }
-        }
+        public string DocumentPreparedBy { get; set; } = "";
         public string BillingAddress { get; set; } = "";
         public string AttentionExecutiveName { get; set; } = "";
         public string ClientContactPhone { get; set; } = "";
@@ -184,7 +174,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step2ClientProfile
             }
         }
 
-        private string _documentPreparedBy = string.Empty;
+        // Phase 1: defaults to the active User Center user so
+        // "Document Prepared By" fills itself on new invoices.
+        private string _documentPreparedBy =
+            Services.Audit.AuditService.CurrentUser?.DisplayName ?? "";
         public string DocumentPreparedBy
         {
             get => _documentPreparedBy;

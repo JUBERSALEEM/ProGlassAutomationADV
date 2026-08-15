@@ -691,7 +691,7 @@
 
                     <ScrollViewer x:Name="MenuScrollViewer"
                                   Grid.Column="0"
-                                  VerticalScrollBarVisibility="Hidden"
+                                  VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled"
                                   CanContentScroll="False"
                                   IsDeferredScrollingEnabled="False"
