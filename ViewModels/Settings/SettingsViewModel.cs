@@ -676,6 +676,10 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// <summary>Seeds the first-run demo dataset (all modules).</summary>
         public ICommand LoadSampleDataCommand { get; private set; }
 
+        /// <summary>Wipes every record across all modules (e.g. after
+        /// evaluating the sample data) so real data entry starts clean.</summary>
+        public ICommand ClearAllDataCommand { get; private set; }
+
         // ══════════════════════════════════════════════════════════════
         //  v2 — VISUAL THEME & WALLPAPER (Normal / Monet / Professional)
         // ══════════════════════════════════════════════════════════════
@@ -1162,6 +1166,42 @@ namespace ProGlassAutomation.ViewModels.Settings
                 }
             });
 
+            ClearAllDataCommand = new RelayCommand(async _ =>
+            {
+                var confirm = System.Windows.MessageBox.Show(
+                    "This will PERMANENTLY DELETE every record in all " +
+                    "modules:\n\n" +
+                    "  • Glass sheets\n" +
+                    "  • Proforma invoices\n" +
+                    "  • Job orders\n" +
+                    "  • Delivery notes\n" +
+                    "  • Tax invoices\n\n" +
+                    "This cannot be undone (take a backup first if in " +
+                    "doubt).\n\nContinue?",
+                    "Clear All Data",
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Warning);
+
+                if (confirm != System.Windows.MessageBoxResult.Yes) return;
+
+                try
+                {
+                    var summary = await ProGlassAutomation.Services
+                        .SampleData.SampleDataService.ClearAllDataAsync();
+                    System.Windows.MessageBox.Show(
+                        summary, "Clear All Data",
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    System.Windows.MessageBox.Show(
+                        "Could not clear data: " + ex.Message,
+                        "Clear All Data", System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Warning);
+                }
+            });
+
                         ClearAiMemoryCommand = new RelayCommand(async _ =>
             {
                 await Services.AI.AIMemory.AiMemoryService.ClearAsync();
@@ -1401,7 +1441,15 @@ namespace ProGlassAutomation.ViewModels.Settings
             });
 
             // ── Backup commands ───────────────────────────────────────
-            RefreshBackupsCommand = new RelayCommand(_ => RefreshBackupSets());
+            RefreshBackupsCommand = new RelayCommand(_ =>
+            {
+                // Visible feedback so the click never feels dead.
+                BackupStatus = "Refreshing backup list…";
+                RefreshBackupSets();
+                BackupStatus = BackupSets.Count > 0
+                    ? $"✓ {BackupSets.Count} backup set(s) listed."
+                    : "No backup sets found yet.";
+            });
 
             CreateBackupNowCommand = new RelayCommand(_ =>
             {
@@ -1440,7 +1488,13 @@ namespace ProGlassAutomation.ViewModels.Settings
             RestoreSelectedBackupCommand = new RelayCommand(_ =>
             {
                 var selected = SelectedBackup;
-                if (selected == null) return;
+                if (selected == null)
+                {
+                    // Never fail silently — tell the user what to do.
+                    BackupStatus =
+                        "Select a backup set from the list first.";
+                    return;
+                }
 
                 var confirm = System.Windows.MessageBox.Show(
                     $"Restore backup from {selected.CreatedAt:dd MMM yyyy HH:mm}?\n\n" +
@@ -1452,11 +1506,28 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                 if (confirm != System.Windows.MessageBoxResult.Yes) return;
 
+                BackupStatus = "Restoring backup — please wait…";
+
                 var (ok, message) = Services.Database.DatabaseBackup
                     .BackupService.RestoreBackupSet(selected.FolderPath);
 
                 BackupStatus = (ok ? "✓ " : "✗ ") + message;
                 RefreshBackupSets();
+
+                if (!ok) return;
+
+                // The restored database only loads after a restart —
+                // surface that explicitly instead of a tiny status line.
+                var restart = System.Windows.MessageBox.Show(
+                    "Backup restored successfully.\n\n" +
+                    "ProGlass must restart to load the restored data.\n" +
+                    "Restart now?",
+                    "Restart Required",
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Question);
+
+                if (restart == System.Windows.MessageBoxResult.Yes)
+                    RestartApplication();
             });
 
             OpenBackupsFolderCommand = new RelayCommand(_ =>
@@ -1489,6 +1560,31 @@ namespace ProGlassAutomation.ViewModels.Settings
                 .BackupService.GetBackupSets())
             {
                 BackupSets.Add(set);
+            }
+        }
+
+        /// <summary>Relaunches the exe and closes this instance (used
+        /// after a backup restore, which only loads after a restart).</summary>
+        private static void RestartApplication()
+        {
+            try
+            {
+                var exe = System.Diagnostics.Process
+                    .GetCurrentProcess().MainModule?.FileName;
+                if (string.IsNullOrEmpty(exe)) return;
+
+                System.Diagnostics.Process.Start(
+                    new System.Diagnostics.ProcessStartInfo
+                    {
+                        FileName = exe,
+                        UseShellExecute = true
+                    });
+
+                System.Windows.Application.Current.Shutdown();
+            }
+            catch
+            {
+                // Restart is a convenience — never crash for it.
             }
         }
     }

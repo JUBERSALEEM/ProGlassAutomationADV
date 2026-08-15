@@ -141,6 +141,98 @@ namespace ProGlassAutomation.Services.SampleData
                    "records individually when done.";
         }
 
+        /// <summary>
+        /// Removes EVERY record across all business modules (sheets,
+        /// proformas, job orders, delivery notes — including Master DNs —
+        /// and tax invoices). Intended for wiping the demo dataset after
+        /// evaluation so users can start entering real data on a clean
+        /// database without deleting records one by one.
+        /// Caller MUST confirm with the user before invoking this.
+        /// </summary>
+        public static async Task<string> ClearAllDataAsync()
+        {
+            int ti = 0, dn = 0, jo = 0, pi = 0, sh = 0;
+
+            try
+            {
+                // Tax Invoices
+                if (App.TaxInvoices != null)
+                {
+                    foreach (var x in await App.TaxInvoices.GetAllAsync())
+                    {
+                        await App.TaxInvoices.DeleteAsync(x.Id);
+                        ti++;
+                    }
+                }
+
+                // Delivery Notes — GetAllAsync excludes Master DNs,
+                // so Master DNs are cleared through their own query.
+                if (App.DeliveryNotes != null)
+                {
+                    foreach (var x in await App.DeliveryNotes.GetAllAsync())
+                    {
+                        await App.DeliveryNotes.DeleteAsync(x.Id);
+                        dn++;
+                    }
+                    foreach (var x in await App.DeliveryNotes.GetMasterDnsAsync())
+                    {
+                        await App.DeliveryNotes.DeleteAsync(x.Id);
+                        dn++;
+                    }
+                }
+
+                // Job Orders
+                if (App.Jobs != null)
+                {
+                    foreach (var x in await App.Jobs.GetAllAsync())
+                    {
+                        await App.Jobs.DeleteAsync(x.Id);
+                        jo++;
+                    }
+                }
+
+                // Proforma Invoices
+                if (App.Invoices != null)
+                {
+                    foreach (var x in await App.Invoices.GetAllAsync())
+                    {
+                        await App.Invoices.DeleteAsync(x.Id);
+                        pi++;
+                    }
+                }
+
+                // Sheet Store
+                var sheets = new SheetStoreRepository();
+                foreach (var x in await sheets.GetAllAsync())
+                {
+                    await sheets.DeleteAsync(x.Id);
+                    sh++;
+                }
+            }
+            catch (Exception ex)
+            {
+                AuditService.Log(AuditSections.Settings,
+                    "Clear all data failed", ex.Message);
+                return "Could not clear all data: " + ex.Message;
+            }
+
+            AuditService.Log(AuditSections.Settings,
+                "All data cleared",
+                $"Removed {sh} sheets, {pi} PIs, {jo} JOs, {dn} DNs, {ti} TIs");
+
+            // Re-uses the seed event on purpose: every subscribed list
+            // reloads and shows the now-empty database immediately.
+            try { DataSeeded?.Invoke(); } catch { }
+
+            return "All data cleared ✔\n\n" +
+                   $"• Sheet Store: {sh} sheet(s) removed\n" +
+                   $"• Proforma Invoices: {pi} removed\n" +
+                   $"• Job Orders: {jo} removed\n" +
+                   $"• Delivery Notes: {dn} removed (incl. master)\n" +
+                   $"• Tax Invoices: {ti} removed\n\n" +
+                   "The database is empty and ready for real data.";
+        }
+
         // ── builders ──────────────────────────────────────────────────
 
         private static GlassSheet Sheet(string cat, int th, string color,

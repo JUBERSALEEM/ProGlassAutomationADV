@@ -19,6 +19,7 @@
 // GetAvailableBackups) is preserved for backward compatibility.
 // ═══════════════════════════════════════════════════════════════════════
 
+using Microsoft.Data.Sqlite;
 using ProGlassAutomation.Services.Logging;
 using System;
 using System.IO;
@@ -150,6 +151,10 @@ namespace ProGlassAutomation.Services.Database.DatabaseBackup
 
         private static int CopyDataFilesInto(string setFolder)
         {
+            // Release pooled SQLite connections so the live .db files are
+            // not locked (or mid-write) while we copy them.
+            try { SqliteConnection.ClearAllPools(); } catch { }
+
             int copied = 0;
             var source = new DirectoryInfo(AppDataFolder);
 
@@ -240,6 +245,11 @@ namespace ProGlassAutomation.Services.Database.DatabaseBackup
                 if (safety.Length == 0)
                     return (false,
                         "Could not create the pre-restore safety backup.");
+
+                // Release pooled SQLite connections so the live .db files
+                // can actually be overwritten (otherwise the copy is
+                // skipped and the restore silently does nothing).
+                try { SqliteConnection.ClearAllPools(); } catch { }
 
                 int restored = 0;
                 foreach (var file in files)
