@@ -1,3 +1,14 @@
+<!-- ═══════════════════════════════════════════════════════════════
+     MIGRATION LOG — Button Standardization (master prompt v1.0)
+     Date: 2026-08-15 — SheetStore module batch
+     • All buttons -> centralized PrimaryPill/SuccessPill/OutlinedPill/
+       DangerButton styles with MDL2 Tag glyphs + UPPERCASE content
+     • Removed legacy local styles (ActionBtn, HeaderActionBtn,
+       QtyButtonStyle, Cancel/Save/ConfirmButtonStyle,
+       FilterActionButtonStyle, CancelImportBtn)
+     • Decorative emojis (search/clock/empty/mailbox) -> MDL2 glyphs
+     Commands/bindings preserved; no ViewModel changes.
+═══════════════════════════════════════════════════════════════ -->
 <Window x:Class="ProGlassAutomation.Views.SheetStore.SheetStoreBuy.BuyDialogView"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -29,98 +40,10 @@
         </Style>
 
         <!-- Quantity ± button (large, high contrast) -->
-        <Style x:Key="QtyButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="44"/>
-            <Setter Property="FontSize" Value="22"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="8"
-                                SnapsToDevicePixels="True">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.88"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.72"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <!-- Cancel button — secondary neutral -->
-        <Style x:Key="CancelButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg"
-                                Background="{DynamicResource MenuHoverBrush}"
-                                CornerRadius="8"
-                                SnapsToDevicePixels="True">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background"
-                                        Value="{DynamicResource BorderBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.75"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <!-- Confirm button — primary Deep Forest (constructive) -->
-        <Style x:Key="ConfirmButtonStyle" TargetType="Button">
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg"
-                                Background="{DynamicResource SuccessBrush}"
-                                CornerRadius="8"
-                                SnapsToDevicePixels="True">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.85"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.7"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
     </Window.Resources>
 
@@ -138,7 +61,7 @@
             <!-- Header -->
             <StackPanel Margin="0,0,0,16">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="📦" FontSize="24" VerticalAlignment="Center"/>
+                    <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets" FontSize="24" VerticalAlignment="Center"/>
                     <TextBlock Text="BUY STOCK" FontSize="22" FontWeight="Bold" Margin="12,0,0,0"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                 </StackPanel>
@@ -209,9 +132,9 @@
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="50"/>
                         </Grid.ColumnDefinitions>
-                        <Button Grid.Column="0" Content="−"
-                                Style="{StaticResource QtyButtonStyle}"
-                                Background="{DynamicResource DangerBrush}"
+                        <Button Grid.Column="0" Style="{StaticResource OutlinedPillButton}"
+                                Content="−" MinWidth="50"
+                                ToolTip="Decrease quantity"
                                 Command="{Binding DecreaseCommand}"/>
                         <!-- Quantity TextBox — integer-only, big centered number -->
                         <TextBox Grid.Column="1"
@@ -222,9 +145,9 @@
                                  Background="{DynamicResource MenuHoverBrush}"
                                  Foreground="{DynamicResource PrimaryForegroundBrush}"
                                  BorderThickness="0" Margin="8,0"/>
-                        <Button Grid.Column="2" Content="+"
-                                Style="{StaticResource QtyButtonStyle}"
-                                Background="{DynamicResource SuccessBrush}"
+                        <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
+                                Content="+" MinWidth="50"
+                                ToolTip="Increase quantity"
                                 Command="{Binding IncreaseCommand}"/>
                     </Grid>
                 </StackPanel>
@@ -282,12 +205,14 @@
                     <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Button Grid.Column="0" Content="Cancel"
-                        Style="{StaticResource CancelButtonStyle}"
+                <Button Grid.Column="0" Style="{StaticResource OutlinedPillButton}"
+                        Tag="&#xE711;" Content="CANCEL"
+                        ToolTip="Close without buying"
                         Command="{Binding CancelCommand}"
                         IsCancel="True"/>
-                <Button Grid.Column="2" Content="✓ Confirm Purchase"
-                        Style="{StaticResource ConfirmButtonStyle}"
+                <Button Grid.Column="2" Style="{StaticResource SuccessPillButton}"
+                        Tag="&#xE73E;" Content="CONFIRM PURCHASE"
+                        ToolTip="Confirm and add to stock"
                         Command="{Binding ConfirmCommand}"
                         IsDefault="True"/>
             </Grid>

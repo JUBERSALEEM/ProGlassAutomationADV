@@ -1,3 +1,14 @@
+<!-- ═══════════════════════════════════════════════════════════════
+     MIGRATION LOG — Button Standardization (master prompt v1.0)
+     Date: 2026-08-15 — SheetStore module batch
+     • All buttons -> centralized PrimaryPill/SuccessPill/OutlinedPill/
+       DangerButton styles with MDL2 Tag glyphs + UPPERCASE content
+     • Removed legacy local styles (ActionBtn, HeaderActionBtn,
+       QtyButtonStyle, Cancel/Save/ConfirmButtonStyle,
+       FilterActionButtonStyle, CancelImportBtn)
+     • Decorative emojis (search/clock/empty/mailbox) -> MDL2 glyphs
+     Commands/bindings preserved; no ViewModel changes.
+═══════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.SheetStore.SheetStoreView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -42,69 +53,8 @@
         </Style>
 
         <!-- Action button (Buy/Use/Edit/Del) with hover + press -->
-        <Style x:Key="ActionBtn" TargetType="Button">
-            <Setter Property="Height" Value="28"/>
-            <Setter Property="Padding" Value="12,0"/>
-            <Setter Property="Margin" Value="2,0"/>
-            <Setter Property="FontSize" Value="11"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="6"
-                                Padding="{TemplateBinding Padding}"
-                                SnapsToDevicePixels="True">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.85"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.70"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <!-- Header action button (Import/CSV/Excel/PDF/History) with hover -->
-        <Style x:Key="HeaderActionBtn" TargetType="Button">
-            <Setter Property="Height" Value="40"/>
-            <Setter Property="Padding" Value="14,0"/>
-            <Setter Property="Margin" Value="0,0,10,0"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Padding="{TemplateBinding Padding}"
-                                SnapsToDevicePixels="True">
-                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.88"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.75"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <!-- Data row style with hover -->
         <Style x:Key="DataRowStyle" TargetType="Border">
@@ -179,31 +129,29 @@
                                Margin="0,4,0,0"/>
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Content="📥 Import" Style="{StaticResource HeaderActionBtn}"
-                            Background="{DynamicResource MenuHoverBrush}"
-                            Foreground="{DynamicResource PrimaryForegroundBrush}"
+                    <Button Style="{StaticResource PrimaryPillButton}"
+                            Tag="&#xE896;" Content="IMPORT"
                             ToolTip="Import sheets from CSV file"
                             Command="{Binding ImportCsvCommand}"/>
-                    <Button Content="📤 CSV" Style="{StaticResource HeaderActionBtn}"
-                            Background="{DynamicResource MenuHoverBrush}"
-                            Foreground="{DynamicResource PrimaryForegroundBrush}"
+                    <Button Style="{StaticResource SuccessPillButton}"
+                            Tag="&#xE72D;" Content="CSV"
                             ToolTip="Export current view to CSV"
                             Command="{Binding ExportCsvCommand}"/>
-                    <Button Content="📊 Excel" Style="{StaticResource HeaderActionBtn}"
-                            Background="{DynamicResource SuccessBrush}" Foreground="White"
+                    <Button Style="{StaticResource SuccessPillButton}"
+                            Tag="&#xE9F9;" Content="EXCEL"
                             ToolTip="Export current view to formatted Excel (.xlsx)"
                             Command="{Binding ExportExcelCommand}"/>
-                    <Button Content="📄 PDF" Style="{StaticResource HeaderActionBtn}"
-                            Background="{DynamicResource DangerBrush}" Foreground="White"
+                    <Button Style="{StaticResource SuccessPillButton}"
+                            Tag="&#xE8A5;" Content="PDF"
                             ToolTip="Generate PDF inventory report"
                             Command="{Binding ExportPdfCommand}"/>
-                    <Button Content="📜 History" Style="{StaticResource HeaderActionBtn}"
-                            Background="{DynamicResource MenuHoverBrush}"
-                            Foreground="{DynamicResource PrimaryForegroundBrush}"
+                    <Button Style="{StaticResource OutlinedPillButton}"
+                            Tag="&#xE81C;" Content="HISTORY"
+                            ToolTip="Show sheet history"
                             Command="{Binding ShowHistoryCommand}"/>
-                    <Button Content="+ Add New" Style="{StaticResource HeaderActionBtn}"
-                            Padding="16,0" Margin="0"
-                            Background="{DynamicResource AccentBrush}" Foreground="White"
+                    <Button Style="{StaticResource PrimaryPillButton}"
+                            Tag="&#xE710;" Content="ADD NEW"
+                            ToolTip="Add a new glass sheet"
                             Command="{Binding AddCommand}"/>
                 </StackPanel>
             </DockPanel>
@@ -215,7 +163,7 @@
                     CornerRadius="10" Padding="14,8" Margin="8,0,8,12"
                     SnapsToDevicePixels="True">
                 <DockPanel>
-                    <TextBlock Text="🕒" FontSize="14" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <TextBlock Text="{Binding LastUpdatedDisplay}"
                                FontSize="12"
                                VerticalAlignment="Center"
@@ -229,19 +177,18 @@
                     SnapsToDevicePixels="True"
                     Visibility="{Binding IsRowSelected, Converter={StaticResource BoolToVisibilityConverter}}">
                 <DockPanel>
-                    <TextBlock Text="🎯" FontSize="16" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                    <TextBlock Text="&#xE71D;" FontFamily="Segoe MDL2 Assets" FontSize="16" VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <StackPanel>
                         <TextBlock Text="SHOWING VALUES FOR SELECTED ROW"
                                    FontSize="10" FontWeight="Bold" Foreground="White" Opacity="0.9"/>
                         <TextBlock Text="{Binding SelectionLabel}"
                                    FontSize="13" FontWeight="SemiBold" Foreground="White" Margin="0,2,0,0"/>
                     </StackPanel>
-                    <Button DockPanel.Dock="Right" Content="✕ Clear Selection"
-                            Height="30" Padding="14,0" HorizontalAlignment="Right"
-                            Background="{DynamicResource OverlayButtonBackgroundBrush}"
-                            Foreground="{DynamicResource OverlayButtonForegroundBrush}"
-                            FontSize="11" FontWeight="SemiBold"
-                            BorderThickness="0" Cursor="Hand"
+                    <Button DockPanel.Dock="Right"
+                            Style="{StaticResource OutlinedPillButton}"
+                            Tag="&#xE711;" Content="CLEAR SELECTION"
+                            HorizontalAlignment="Right"
+                            ToolTip="Clear the current row selection"
                             Command="{Binding ClearSelectionCommand}"/>
                 </DockPanel>
             </Border>
@@ -283,7 +230,7 @@
                 <Border Style="{StaticResource StatBox}" Background="{DynamicResource TintRedBrush}" BorderBrush="{DynamicResource DangerBrush}" BorderThickness="1">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="💸" FontSize="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xE7BF;" FontFamily="Segoe MDL2 Assets" FontSize="14" VerticalAlignment="Center"/>
                             <TextBlock Text="BUYING VALUE" Margin="6,0,0,0" Style="{StaticResource StatLabel}" Foreground="{DynamicResource DangerBrush}"/>
                         </StackPanel>
                         <TextBlock Text="{Binding DisplayBuyingValue, StringFormat={}{0:N0}}" Style="{StaticResource StatValueBig}" Foreground="{DynamicResource DangerBrush}"/>
@@ -293,7 +240,7 @@
                 <Border Style="{StaticResource StatBox}" Background="{DynamicResource TintGreenBrush}" BorderBrush="{DynamicResource SuccessBrush}" BorderThickness="1">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="💰" FontSize="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xE7BF;" FontFamily="Segoe MDL2 Assets" FontSize="14" VerticalAlignment="Center"/>
                             <TextBlock Text="SELLING VALUE" Margin="6,0,0,0" Style="{StaticResource StatLabel}" Foreground="{DynamicResource SuccessBrush}"/>
                         </StackPanel>
                         <TextBlock Text="{Binding DisplaySellingValue, StringFormat={}{0:N0}}" Style="{StaticResource StatValueBig}" Foreground="{DynamicResource SuccessBrush}"/>
@@ -303,7 +250,7 @@
                 <Border Style="{StaticResource StatBox}" Background="{DynamicResource TintBlueBrush}" BorderBrush="{DynamicResource AccentBrush}" BorderThickness="1">
                     <StackPanel>
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="📈" FontSize="14" VerticalAlignment="Center"/>
+                            <TextBlock Text="&#xE9F9;" FontFamily="Segoe MDL2 Assets" FontSize="14" VerticalAlignment="Center"/>
                             <TextBlock Text="EXPECTED PROFIT" Margin="6,0,0,0" Style="{StaticResource StatLabel}" Foreground="{DynamicResource AccentBrush}"/>
                         </StackPanel>
                         <TextBlock Text="{Binding DisplayProfit, StringFormat={}{0:N0}}" Style="{StaticResource StatValueBig}" Foreground="{DynamicResource AccentBrush}"/>
@@ -392,11 +339,10 @@
 
                         <StackPanel Grid.Column="10" VerticalAlignment="Bottom">
                             <TextBlock Text=" " FontSize="11" Margin="0,0,0,4"/>
-                            <Button Content="✕ Clear"
-                                    Height="34" Padding="14,0"
-                                    Background="{DynamicResource AccentBrush}" Foreground="White"
-                                    BorderThickness="0" Cursor="Hand" FontWeight="SemiBold"
-                                    FontSize="12"
+                            <Button Style="{StaticResource OutlinedPillButton}"
+                                    Tag="&#xE711;" Content="CLEAR"
+                                    ToolTip="Clear all filters"
+                                    MinWidth="92"
                                     Command="{Binding ClearFiltersCommand}"
                                     Visibility="{Binding HasActiveFilters, Converter={StaticResource BoolToVisibilityConverter}}"/>
                         </StackPanel>
@@ -407,7 +353,7 @@
                             CornerRadius="8" Padding="12,8" Margin="0,10,0,0"
                             SnapsToDevicePixels="True">
                         <DockPanel>
-                            <TextBlock Text="🔍" FontSize="14" VerticalAlignment="Center" Margin="0,0,10,0"/>
+                            <TextBlock Text="&#xE721;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                             <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
                                      BorderThickness="0" Background="Transparent"
                                      FontSize="13" Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -563,16 +509,28 @@
                                         <TextBlock Text="{Binding Balance}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
                                     </Border>
                                     <StackPanel Grid.Column="14" Orientation="Horizontal" HorizontalAlignment="Center">
-                                        <Button Content="Buy" Style="{StaticResource ActionBtn}" Background="{DynamicResource SuccessBrush}"
+                                        <Button Style="{StaticResource SuccessPillButton}"
+                                                Tag="&#xE7B8;" Content="BUY"
+                                                ToolTip="Buy more of this sheet"
+                                                MinWidth="60"
                                                 Command="{Binding DataContext.BuyCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"/>
-                                        <Button Content="Use" Style="{StaticResource ActionBtn}" Background="{DynamicResource AccentBrush}"
+                                        <Button Style="{StaticResource PrimaryPillButton}"
+                                                Tag="&#xE896;" Content="USE"
+                                                ToolTip="Use stock of this sheet"
+                                                MinWidth="60"
                                                 Command="{Binding DataContext.UseCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"/>
-                                        <Button Content="Edit" Style="{StaticResource ActionBtn}" Background="{DynamicResource WarningBrush}"
+                                        <Button Style="{StaticResource OutlinedPillButton}"
+                                                Tag="&#xE8E5;" Content="EDIT"
+                                                ToolTip="Edit this sheet"
+                                                MinWidth="60"
                                                 Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"/>
-                                        <Button Content="Del" Style="{StaticResource ActionBtn}" Background="{DynamicResource DangerBrush}"
+                                        <Button Style="{StaticResource DangerButton}"
+                                                Tag="&#xE74D;" Content="DEL"
+                                                ToolTip="Delete this sheet"
+                                                MinWidth="60"
                                                 Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"/>
                                     </StackPanel>
@@ -587,7 +545,7 @@
                             IsHitTestVisible="False"
                             Visibility="{Binding IsEmpty, Converter={StaticResource BoolToVisibilityConverter}}">
                     <emptyState:EmptyStateControl
-                        Icon="📦"
+                        Icon="&#xE7B8;"
                         Title="No glass sheets yet"
                         Message="The Sheet Store is your raw-glass inventory — sizes, thicknesses, colours, stock and value. Click '+ Add New' to add your first glass sheet."/>
                 </StackPanel>
