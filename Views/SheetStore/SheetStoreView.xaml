@@ -511,28 +511,24 @@
                                         <TextBlock Text="{Binding Balance}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
                                     </Border>
                                     <StackPanel Grid.Column="14" Orientation="Horizontal" HorizontalAlignment="Center">
-                                        <Button Style="{StaticResource SuccessPillButton}"
+                                        <Button Style="{StaticResource RowSuccessButton}"
                                                 Tag="&#xE7B8;" Content="BUY"
                                                 ToolTip="Buy more of this sheet"
-                                                Height="26" Padding="10,0" MinWidth="46"
                                                 Command="{Binding DataContext.BuyCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"/>
-                                        <Button Style="{StaticResource PrimaryPillButton}"
+                                        <Button Style="{StaticResource RowPrimaryButton}"
                                                 Tag="&#xE896;" Content="USE"
                                                 ToolTip="Use stock of this sheet"
-                                                Height="26" Padding="10,0" MinWidth="46"
                                                 Command="{Binding DataContext.UseCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"/>
-                                        <Button Style="{StaticResource OutlinedPillButton}"
+                                        <Button Style="{StaticResource RowOutlinedButton}"
                                                 Tag="&#xE8E5;" Content="EDIT"
                                                 ToolTip="Edit this sheet"
-                                                Height="26" Padding="10,0" MinWidth="46"
                                                 Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"/>
-                                        <Button Style="{StaticResource DangerButton}"
+                                        <Button Style="{StaticResource RowDangerButton}"
                                                 Tag="&#xE74D;" Content="DEL"
                                                 ToolTip="Delete this sheet"
-                                                Height="26" Padding="8,0" MinWidth="44"
                                                 Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"/>
                                     </StackPanel>

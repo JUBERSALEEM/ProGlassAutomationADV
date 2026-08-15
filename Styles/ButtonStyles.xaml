@@ -304,4 +304,110 @@
     <Style x:Key="TabPillButton" TargetType="Button"
            BasedOn="{StaticResource OutlinedPillButton}"/>
 
+
+    <!-- ═════════════════════════════════════════════════════════════
+         COMPACT ROW VARIANTS (extension per spec "HOW TO EXTEND")
+         Unified rectangle family (R8, H26) for in-row actions so all
+         row buttons share ONE shape language. Colors per role.
+    ════════════════════════════════════════════════════════════════ -->
+    <ControlTemplate x:Key="RowButtonTemplate" TargetType="Button">
+        <Border x:Name="Bg"
+                Background="{TemplateBinding Background}"
+                BorderBrush="{TemplateBinding BorderBrush}"
+                BorderThickness="{TemplateBinding BorderThickness}"
+                CornerRadius="8"
+                Padding="{TemplateBinding Padding}"
+                Height="{TemplateBinding Height}"
+                SnapsToDevicePixels="True">
+            <StackPanel Orientation="Horizontal"
+                        HorizontalAlignment="Center"
+                        VerticalAlignment="Center">
+                <TextBlock Text="{TemplateBinding Tag}"
+                           FontFamily="Segoe MDL2 Assets"
+                           FontSize="10"
+                           Foreground="{TemplateBinding Foreground}"
+                           VerticalAlignment="Center"
+                           Margin="0,0,6,0">
+                    <TextBlock.Style>
+                        <Style TargetType="TextBlock">
+                            <Style.Triggers>
+                                <Trigger Property="Text" Value="">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </Trigger>
+                                <Trigger Property="Text" Value="{x:Null}">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </Trigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBlock.Style>
+                </TextBlock>
+                <ContentPresenter VerticalAlignment="Center"
+                                  TextElement.FontSize="10"
+                                  TextElement.FontWeight="Bold"
+                                  TextElement.Foreground="{TemplateBinding Foreground}"/>
+            </StackPanel>
+        </Border>
+        <ControlTemplate.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="Bg" Property="Opacity" Value="0.85"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+                <Setter TargetName="Bg" Property="Opacity" Value="0.7"/>
+            </Trigger>
+            <Trigger Property="IsKeyboardFocused" Value="True">
+                <Setter TargetName="Bg" Property="BorderBrush" Value="White"/>
+                <Setter TargetName="Bg" Property="BorderThickness" Value="1.5"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName="Bg" Property="Opacity" Value="0.5"/>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <Style x:Key="RowSuccessButton" TargetType="Button"
+           BasedOn="{StaticResource PillButtonBase}">
+        <Setter Property="Height" Value="26"/>
+        <Setter Property="Padding" Value="10,0"/>
+        <Setter Property="MinWidth" Value="46"/>
+        <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Template" Value="{StaticResource RowButtonTemplate}"/>
+    </Style>
+
+    <Style x:Key="RowPrimaryButton" TargetType="Button"
+           BasedOn="{StaticResource PillButtonBase}">
+        <Setter Property="Height" Value="26"/>
+        <Setter Property="Padding" Value="10,0"/>
+        <Setter Property="MinWidth" Value="46"/>
+        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Template" Value="{StaticResource RowButtonTemplate}"/>
+    </Style>
+
+    <Style x:Key="RowOutlinedButton" TargetType="Button"
+           BasedOn="{StaticResource PillButtonBase}">
+        <Setter Property="Height" Value="26"/>
+        <Setter Property="Padding" Value="10,0"/>
+        <Setter Property="MinWidth" Value="46"/>
+        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Template" Value="{StaticResource RowButtonTemplate}"/>
+    </Style>
+
+    <Style x:Key="RowDangerButton" TargetType="Button"
+           BasedOn="{StaticResource PillButtonBase}">
+        <Setter Property="Height" Value="26"/>
+        <Setter Property="Padding" Value="8,0"/>
+        <Setter Property="MinWidth" Value="44"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="Foreground" Value="#B91C1C"/>
+        <Setter Property="BorderBrush" Value="#B91C1C"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
+        <Setter Property="Template" Value="{StaticResource RowButtonTemplate}"/>
+    </Style>
+
 </ResourceDictionary>
