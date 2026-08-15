@@ -43,6 +43,7 @@
                           po:Freeze="True"/>
 
         <Style x:Key="ChatIconBtn" TargetType="Button">
+            <Setter Property="FontFamily"      Value="Segoe MDL2 Assets"/>
             <Setter Property="Width"           Value="32"/>
             <Setter Property="Height"          Value="32"/>
             <Setter Property="Background"      Value="Transparent"/>
@@ -278,13 +279,13 @@
 
                         <Button Grid.Column="2"
                                 Style="{StaticResource ChatIconBtn}"
-                                Content="🗑"
+                                Content="&#xE74D;"
                                 ToolTip="Clear chat"
                                 Command="{Binding ClearChatCommand}"/>
 
                         <Button Grid.Column="3"
                                 Style="{StaticResource ChatIconBtn}"
-                                Content="✕"
+                                Content="&#xE711;"
                                 ToolTip="Close"
                                 Margin="6,0,0,0"
                                 Command="{Binding CloseChatCommand}"/>
@@ -585,7 +586,7 @@
                             <Button Command="{Binding StopGenerationCommand}"
                                     Width="18" Height="18"
                                     Margin="10,0,0,0"
-                                    Content="✕" FontSize="9"
+                                    Content="&#xE711;" FontSize="9"
                                     Background="Transparent"
                                     BorderThickness="0" Cursor="Hand"
                                     Foreground="{DynamicResource MutedForegroundBrush}"

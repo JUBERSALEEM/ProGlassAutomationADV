@@ -948,7 +948,7 @@
 
                                         <!-- PDF BUTTON -->
                                         <Button Grid.Column="4"
-                                                Content="📄  PDF"
+                                                Content="PDF"
                                                 Style="{StaticResource PdfChipButtonStyle}"
                                                 Command="{Binding DataContext.OpenPdfCommand,
                                                     RelativeSource={RelativeSource

@@ -418,7 +418,7 @@
                 </StackPanel>
 
                 <Button Grid.Column="1"
-                        Content="🧾  New Invoice"
+                        Content="NEW INVOICE"
                         Command="{Binding CreateInvoiceCommand}"
                         Style="{StaticResource InvHeaderButtonStyle}"
                         VerticalAlignment="Center" Margin="16,0,0,0"/>

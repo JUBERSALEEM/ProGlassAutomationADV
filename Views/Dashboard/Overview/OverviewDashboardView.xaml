@@ -320,6 +320,7 @@
                             </Border.Background>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{TemplateBinding Tag}"
+                                           FontFamily="Segoe MDL2 Assets"
                                            FontSize="14" VerticalAlignment="Center"
                                            Margin="0,0,8,0"/>
                                 <TextBlock Text="{TemplateBinding Content}"
@@ -378,6 +379,7 @@
                             </Border.BorderBrush>
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{TemplateBinding Tag}"
+                                           FontFamily="Segoe MDL2 Assets"
                                            FontSize="14" VerticalAlignment="Center"
                                            Margin="0,0,8,0"/>
                                 <TextBlock Text="{TemplateBinding Content}"
@@ -488,16 +490,16 @@
                                 Content="New Invoice" Tag="➕"
                                 Command="{Binding NewInvoiceCommand}"/>
                         <Button Style="{StaticResource QuickActionSecondary}"
-                                Content="Invoices" Tag="📋"
+                                Content="Invoices" Tag="&#xE8C8;"
                                 Command="{Binding SavedInvoicesCommand}"/>
                         <Button Style="{StaticResource QuickActionSecondary}"
-                                Content="Jobs" Tag="🏭"
+                                Content="Jobs" Tag="&#xE822;"
                                 Command="{Binding ViewJobsCommand}"/>
                         <Button Style="{StaticResource QuickActionSecondary}"
-                                Content="Deliveries" Tag="🚚"
+                                Content="Deliveries" Tag="&#xE7F4;"
                                 Command="{Binding ViewDeliveriesCommand}"/>
                         <Button Style="{StaticResource QuickActionSecondary}"
-                                Content="Stock" Tag="📦"
+                                Content="Stock" Tag="&#xE7B8;"
                                 Command="{Binding ViewStockCommand}"/>
                     </StackPanel>
                 </Grid>

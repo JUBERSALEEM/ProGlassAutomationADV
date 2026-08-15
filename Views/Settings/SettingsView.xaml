@@ -668,9 +668,9 @@
                                        Style="{StaticResource SectionLabelStyle}"/>
                             <WrapPanel Margin="0,8,0,0">
                                 <Button Content="Glass Blue" Command="{Binding ApplyAccentCommand}" CommandParameter="GlassBlue" Style="{StaticResource AccentChipStyle}"/>
-                                <Button Content="🟢 Emerald"    Command="{Binding ApplyAccentCommand}" CommandParameter="Emerald"   Style="{StaticResource AccentChipStyle}" Margin="8,0,0,0"/>
+                                <Button Content="Emerald"    Command="{Binding ApplyAccentCommand}" CommandParameter="Emerald"   Style="{StaticResource AccentChipStyle}" Margin="8,0,0,0"/>
                                 <Button Content="Amber"      Command="{Binding ApplyAccentCommand}" CommandParameter="Amber"     Style="{StaticResource AccentChipStyle}" Margin="8,0,0,0"/>
-                                <Button Content="🌹 Rose"       Command="{Binding ApplyAccentCommand}" CommandParameter="Rose"      Style="{StaticResource AccentChipStyle}" Margin="8,0,0,0"/>
+                                <Button Content="Rose"       Command="{Binding ApplyAccentCommand}" CommandParameter="Rose"      Style="{StaticResource AccentChipStyle}" Margin="8,0,0,0"/>
                                 <Button Content="🟣 Violet"     Command="{Binding ApplyAccentCommand}" CommandParameter="Violet"    Style="{StaticResource AccentChipStyle}" Margin="8,0,0,0"/>
                                 <Button Content="Teal"       Command="{Binding ApplyAccentCommand}" CommandParameter="Teal"      Style="{StaticResource AccentChipStyle}" Margin="8,0,0,0"/>
                             </WrapPanel>
