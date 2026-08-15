@@ -249,6 +249,7 @@
             </Style.Triggers>
         </Style>
 
+        <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
     </UserControl.Resources>
 
     <!--
@@ -260,9 +261,6 @@
     -->
     <Grid Margin="24,16,24,16"
           Background="{DynamicResource ModuleBackgroundBrush}">
-        <Grid.Resources>
-            <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
-        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
