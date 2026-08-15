@@ -400,21 +400,27 @@ namespace ProGlassAutomation.Services.AI.AIService
                     ProviderName = ProviderName
                 };
             }
+            // ONE catch for the whole cancellation family (CS0160-safe:
+            // TaskCanceledException DERIVES from OperationCanceled-
+            // Exception, so it must never appear after it). We tell the
+            // two causes apart via the token: cancelled = user pressed
+            // Stop; otherwise = HttpClient timeout / network drop.
             catch (OperationCanceledException)
             {
-                // User pressed Stop — keep whatever already arrived.
-                return new AiStreamingResult
+                if (cancellationToken.IsCancellationRequested)
                 {
-                    Success = accumulated.Length > 0,
-                    WasCancelled = true,
-                    Text = accumulated.ToString(),
-                    ProviderName = ProviderName
-                };
-            }
-            catch (TaskCanceledException)
-            {
-                // HttpClient timeout or network drop mid-stream:
-                // keep partial text if we already have words to show.
+                    // User pressed Stop — keep whatever already arrived.
+                    return new AiStreamingResult
+                    {
+                        Success = accumulated.Length > 0,
+                        WasCancelled = true,
+                        Text = accumulated.ToString(),
+                        ProviderName = ProviderName
+                    };
+                }
+
+                // Timeout or network drop mid-stream: keep partial text
+                // if we already have words to show.
                 if (accumulated.Length > 0)
                     return new AiStreamingResult
                     {
