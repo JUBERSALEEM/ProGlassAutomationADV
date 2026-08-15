@@ -185,8 +185,13 @@ namespace ProGlassAutomation.Services
                 : Color.FromRgb(0xFF, 0xFF, 0xFF);
 
             // Ambient page gradient — accent tinted, theme aware.
-            var ambient = new LinearGradientBrush(
-                new Point(0, 0), new Point(1, 1));
+            // (LinearGradientBrush has no (Point,Point) ctor — set
+            // StartPoint/EndPoint as properties.)
+            var ambient = new LinearGradientBrush
+            {
+                StartPoint = new Point(0, 0),
+                EndPoint = new Point(1, 1)
+            };
             ambient.GradientStops.Add(new GradientStop(
                 ColorMath.Tint(core, surface, dark ? 0.10 : 0.07), 0.0));
             ambient.GradientStops.Add(new GradientStop(
