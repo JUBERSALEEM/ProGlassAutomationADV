@@ -1,5 +1,6 @@
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
     <!-- Shared styles for Delivery Note detail sections (also merged by
          the detail view itself - single source, no duplication). -->
         <Style x:Key="BalanceCellStyle" TargetType="TextBlock"
