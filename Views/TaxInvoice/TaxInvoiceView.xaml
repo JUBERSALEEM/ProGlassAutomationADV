@@ -10,6 +10,20 @@
        • Activity  — live per-section audit feed
 ═══════════════════════════════════════════════════════════════════════ -->
 
+<!-- MIGRATION LOG — Button Standardization (master prompt v1.0)
+     Date: 2026-08-15 — DN/TI/JO batch 4a
+     • Shell tabs (Workspace/God View/Activity) -> STEP D two-button
+       visibility pattern with MDL2 glyphs (E8B7/E774/E81C)
+     • List toolbars: Clear/Refresh/Create -> Row*/Primary pills
+     • Row actions (Open/Master Invoice) -> Row* variants
+     • Tab-card filter icons: emoji Tags -> MDL2 glyphs + MDL2 font
+       on the template icon TextBlocks
+     • Hero/Empty-state icon slots -> MDL2 glyphs (controls render
+       glyph-or-emoji via IconFontFamilyConverter)
+     • Decorative inline meta-text emoji (dates, runs) intentionally
+       left for the visual polish pass (not buttons/tabs/badges)
+     Commands/bindings/code-behind preserved; no VM changes.
+═══════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.TaxInvoice.TaxInvoiceView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -49,61 +63,94 @@
                 Margin="20,14,20,0">
             <StackPanel Orientation="Horizontal">
 
-                <Button Style="{StaticResource ModuleTabButtonStyle}"
-                        Command="{Binding SwitchTabCommand}"
-                        CommandParameter="Workspace">
-                    <TextBlock Text="🗂  Workspace">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground"
-                                        Value="{DynamicResource SecondaryForegroundBrush}"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsWorkspaceTab}" Value="True">
-                                        <Setter Property="Foreground"
-                                                Value="{DynamicResource AccentBrush}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
+                <!-- TAB WORKSPACE — STEP D two-button visibility pattern -->
+                <Button Command="{Binding SwitchTabCommand}"
+                        CommandParameter="Workspace"
+                        Tag="&#xE8B7;" Content="WORKSPACE"
+                        ToolTip="Open the document workspace" Margin="0,0,10,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsWorkspaceTab}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Command="{Binding SwitchTabCommand}"
+                        CommandParameter="Workspace"
+                        Tag="&#xE8B7;" Content="WORKSPACE"
+                        ToolTip="Open the document workspace" Margin="0,0,10,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsWorkspaceTab}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
                 </Button>
 
-                <Button Style="{StaticResource ModuleTabButtonStyle}"
-                        Command="{Binding SwitchTabCommand}"
-                        CommandParameter="GodView">
-                    <TextBlock Text="🌐  God View">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground"
-                                        Value="{DynamicResource SecondaryForegroundBrush}"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsGodViewTab}" Value="True">
-                                        <Setter Property="Foreground"
-                                                Value="{DynamicResource AccentBrush}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
+                <!-- TAB GOD VIEW — STEP D two-button visibility pattern -->
+                <Button Command="{Binding SwitchTabCommand}"
+                        CommandParameter="GodView"
+                        Tag="&#xE774;" Content="GOD VIEW"
+                        ToolTip="Cross-document overview" Margin="0,0,10,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsGodViewTab}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Command="{Binding SwitchTabCommand}"
+                        CommandParameter="GodView"
+                        Tag="&#xE774;" Content="GOD VIEW"
+                        ToolTip="Cross-document overview" Margin="0,0,10,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsGodViewTab}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
                 </Button>
 
-                <Button Style="{StaticResource ModuleTabButtonStyle}"
-                        Command="{Binding SwitchTabCommand}"
-                        CommandParameter="Activity">
-                    <TextBlock Text="📜  Activity">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground"
-                                        Value="{DynamicResource SecondaryForegroundBrush}"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsActivityTab}" Value="True">
-                                        <Setter Property="Foreground"
-                                                Value="{DynamicResource AccentBrush}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
+                <!-- TAB ACTIVITY — STEP D two-button visibility pattern -->
+                <Button Command="{Binding SwitchTabCommand}"
+                        CommandParameter="Activity"
+                        Tag="&#xE81C;" Content="ACTIVITY"
+                        ToolTip="Activity trail for this module" Margin="0,0,10,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsActivityTab}" Value="True">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Command="{Binding SwitchTabCommand}"
+                        CommandParameter="Activity"
+                        Tag="&#xE81C;" Content="ACTIVITY"
+                        ToolTip="Activity trail for this module" Margin="0,0,10,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsActivityTab}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
                 </Button>
             </StackPanel>
         </Border>

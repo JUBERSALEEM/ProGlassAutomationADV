@@ -1,4 +1,18 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.DeliveryNoteListView"
+﻿<!-- MIGRATION LOG — Button Standardization (master prompt v1.0)
+     Date: 2026-08-15 — DN/TI/JO batch 4a
+     • Shell tabs (Workspace/God View/Activity) -> STEP D two-button
+       visibility pattern with MDL2 glyphs (E8B7/E774/E81C)
+     • List toolbars: Clear/Refresh/Create -> Row*/Primary pills
+     • Row actions (Open/Master Invoice) -> Row* variants
+     • Tab-card filter icons: emoji Tags -> MDL2 glyphs + MDL2 font
+       on the template icon TextBlocks
+     • Hero/Empty-state icon slots -> MDL2 glyphs (controls render
+       glyph-or-emoji via IconFontFamilyConverter)
+     • Decorative inline meta-text emoji (dates, runs) intentionally
+       left for the visual polish pass (not buttons/tabs/badges)
+     Commands/bindings/code-behind preserved; no VM changes.
+═══════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.DeliveryNoteListView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
@@ -52,7 +66,7 @@
                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
 
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="📋 " FontSize="14"
+                            <TextBlock Text="&#xE8C8;" FontFamily="Segoe MDL2 Assets" FontSize="14"
                                        VerticalAlignment="Center" Opacity="0.7"/>
                             <TextBlock Text="{Binding JobOrderId}"
                                        FontSize="15" FontWeight="Bold"
@@ -112,8 +126,8 @@
                                     Background="{DynamicResource TintAmberBrush}"
                                     Visibility="{Binding HasRework,
                                                  Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Text="🔧 REWORK" FontSize="9" FontWeight="Bold"
-                                           Foreground="{DynamicResource WarningBrush}"/>
+                                <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="9" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,4,0"/><TextBlock Text="REWORK" FontSize="9" FontWeight="Bold"
+                                           Foreground="{DynamicResource WarningBrush}"/></StackPanel>
                             </Border>
 
                             <Border CornerRadius="6" Padding="7,2"
@@ -321,67 +335,19 @@
                                 VerticalAlignment="Center"
                                 Width="150">
 
-                        <Button Command="{Binding DataContext.OpenGroupCommand,
+                        <Button Style="{StaticResource RowPrimaryButton}"
+                                Tag="&#xE8B7;" Content="OPEN"
+                                ToolTip="Open this delivery note group"
+                                Command="{Binding DataContext.OpenGroupCommand,
                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                CommandParameter="{Binding}"
-                                Cursor="Hand" Margin="0,0,0,6">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border x:Name="Bg"
-                                            Background="{DynamicResource AccentBrush}"
-                                            CornerRadius="7" Padding="0,8">
-                                        <TextBlock Text="📂  Open"
-                                                   FontSize="11" FontWeight="Bold"
-                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                                   HorizontalAlignment="Center"/>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="Bg" Property="Background" Value="#6366F1"/>
-                                        </Trigger>
-                                        <Trigger Property="IsPressed" Value="True">
-                                            <Setter TargetName="Bg" Property="Background" Value="#3730A3"/>
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Button.Template>
-                        </Button>
+                                CommandParameter="{Binding}"/>
 
-                        <Button Command="{Binding DataContext.GenerateMasterInvoiceCommand,
+                        <Button Style="{StaticResource RowSuccessButton}"
+                                Tag="&#xE8A5;" Content="MASTER INVOICE"
+                                ToolTip="Generate Master Tax Invoice for this order."
+                                Command="{Binding DataContext.GenerateMasterInvoiceCommand,
                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                CommandParameter="{Binding}"
-                                Cursor="Hand"
-                                ToolTip="Generate Master Tax Invoice for this order.">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border x:Name="Bg"
-                                            CornerRadius="7" Padding="0,8"
-                                            BorderThickness="1.5"
-                                            Background="{DynamicResource TintGreenBrush}"
-                                            BorderBrush="{DynamicResource SuccessBrush}">
-                                        <TextBlock Text="🧾  Master Invoice"
-                                                   FontSize="10" FontWeight="Bold"
-                                                   Foreground="{DynamicResource SuccessBrush}"
-                                                   HorizontalAlignment="Center"/>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="Bg" Property="Opacity" Value="0.82"/>
-                                        </Trigger>
-                                        <Trigger Property="IsPressed" Value="True">
-                                            <Setter TargetName="Bg" Property="Opacity" Value="0.65"/>
-                                        </Trigger>
-                                        <Trigger Property="IsEnabled" Value="False">
-                                            <Setter TargetName="Bg" Property="Background"
-                                                    Value="{DynamicResource ModuleBackgroundBrush}"/>
-                                            <Setter TargetName="Bg" Property="BorderBrush"
-                                                    Value="{DynamicResource BorderBrush}"/>
-                                            <Setter TargetName="Bg" Property="Opacity" Value="0.45"/>
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Button.Template>
-                        </Button>
+                                CommandParameter="{Binding}"/>
                     </StackPanel>
                 </Grid>
             </Border>
@@ -455,7 +421,7 @@
                             <StackPanel Orientation="Horizontal"
                                         VerticalAlignment="Center"
                                         HorizontalAlignment="Center">
-                                <TextBlock Text="{TemplateBinding Tag}"
+                                <TextBlock Text="{TemplateBinding Tag}" FontFamily="Segoe MDL2 Assets"
                                            FontSize="15" VerticalAlignment="Center"
                                            Opacity="0.7" Margin="0,0,8,0"/>
                                 <TextBlock Text="{TemplateBinding Content}"
@@ -509,7 +475,7 @@
                             <StackPanel Orientation="Horizontal"
                                         VerticalAlignment="Center"
                                         HorizontalAlignment="Center">
-                                <TextBlock Text="{TemplateBinding Tag}"
+                                <TextBlock Text="{TemplateBinding Tag}" FontFamily="Segoe MDL2 Assets"
                                            FontSize="15" VerticalAlignment="Center"
                                            Margin="0,0,8,0"/>
                                 <TextBlock Text="{TemplateBinding Content}"
@@ -590,281 +556,36 @@
                                Style="{StaticResource ModulePageSubtitleStyle}"
                                Margin="0,3,0,0"/>
                 </StackPanel>
-                <Button Grid.Column="1"
-                        Content="🚚  Create DN"
-                        Command="{Binding CreateDnCommand}"
-                        Style="{StaticResource HeaderActionButtonStyle}"
-                        VerticalAlignment="Center"
-                        Margin="16,0,0,0"
-                        ToolTip="Pick a Job Order and create a Draft Delivery Note"/>
-            </Grid>
+                <Button Style="{StaticResource PrimaryPillButton}"
+                        Tag="&#xE7F4;" Content="CREATE DN"
+                        ToolTip="Create a new delivery note"
+                        Command="{Binding CreateDnCommand}"/>
 
-            <Border Visibility="{Binding IsLoading,
-                                 Converter={StaticResource BoolToVisibilityConverter}}"
-                    Padding="10" Margin="4,0,4,10">
-                <TextBlock Text="⏳  Loading delivery notes…"
-                           FontSize="12" HorizontalAlignment="Center"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-            </Border>
-
-            <Border Visibility="{Binding HasError,
-                                 Converter={StaticResource BoolToVisibilityConverter}}"
-                    Background="#FEF2F2" BorderBrush="#FECACA"
-                    BorderThickness="1" CornerRadius="12"
-                    Padding="14" Margin="4,0,4,10">
-                <TextBlock Text="{Binding ErrorMessage}"
-                           Foreground="{DynamicResource DangerBrush}"
-                           FontSize="12" TextWrapping="Wrap"/>
-            </Border>
-
-            <!-- KPI HERO CARDS -->
-            <Grid Margin="0,0,0,10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <hero:GradientHeroCard Grid.Column="0" Icon="📦"
-                           Value="{Binding HeroCard1Value}"
-                           Label="{Binding HeroCard1Label}"
-                           GradientStartColor="#4338CA"
-                           GradientEndColor="#6366F1"
-                           Margin="4" MinHeight="92"/>
-
-                <hero:GradientHeroCard Grid.Column="1" Icon="⏳"
-                           Value="{Binding HeroCard2Value}"
-                           Label="{Binding HeroCard2Label}"
-                           GradientStartColor="#B45309"
-                           GradientEndColor="#F59E0B"
-                           Margin="4" MinHeight="92"/>
-
-                <Border Grid.Column="2"
-                        Background="{DynamicResource TintAmberBrush}"
-                        CornerRadius="12" Padding="14" Margin="4"
-                        MinHeight="92" SnapsToDevicePixels="True">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Width="36" Height="36"
-                                CornerRadius="9" Background="#B45309"
-                                VerticalAlignment="Center">
-                            <TextBlock Text="🔧" FontSize="17"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Grid.Column="1" Margin="10,0,0,0"
-                                    VerticalAlignment="Center">
-                            <TextBlock Text="{Binding HeroCard3Value}"
-                                       FontSize="20" FontWeight="Bold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                       TextTrimming="CharacterEllipsis"/>
-                            <TextBlock Text="{Binding HeroCard3Label}"
-                                       FontSize="10" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       Margin="0,3,0,0"
-                                       TextTrimming="CharacterEllipsis"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-
-                <Border Grid.Column="3"
-                        Background="{DynamicResource TintRedBrush}"
-                        CornerRadius="12" Padding="14" Margin="4"
-                        MinHeight="92" SnapsToDevicePixels="True">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Width="36" Height="36"
-                                CornerRadius="9" Background="#B91C1C"
-                                VerticalAlignment="Center">
-                            <TextBlock Text="↩️" FontSize="17"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Grid.Column="1" Margin="10,0,0,0"
-                                    VerticalAlignment="Center">
-                            <TextBlock Text="{Binding HeroCard4Value}"
-                                       FontSize="20" FontWeight="Bold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                       TextTrimming="CharacterEllipsis"/>
-                            <TextBlock Text="{Binding HeroCard4Label}"
-                                       FontSize="10" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       Margin="0,3,0,0"
-                                       TextTrimming="CharacterEllipsis"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-
-                <Border Grid.Column="4"
-                        Background="{DynamicResource TintGreenBrush}"
-                        CornerRadius="12" Padding="14" Margin="4"
-                        MinHeight="92" SnapsToDevicePixels="True">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Width="36" Height="36"
-                                CornerRadius="9" Background="{DynamicResource AccentBrush}"
-                                VerticalAlignment="Center">
-                            <TextBlock Text="{Binding HeroCard5Icon}"
-                                       FontSize="17"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Grid.Column="1" Margin="10,0,0,0"
-                                    VerticalAlignment="Center">
-                            <TextBlock Text="{Binding HeroCard5Value}"
-                                       FontSize="20" FontWeight="Bold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                       TextTrimming="CharacterEllipsis"/>
-                            <TextBlock Text="{Binding HeroCard5Label}"
-                                       FontSize="10" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       Margin="0,3,0,0"
-                                       TextTrimming="CharacterEllipsis"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-            </Grid>
-
-            <!-- Selected DN meta bar -->
-            <Border Margin="4,6,4,10" Padding="12,8" CornerRadius="10"
-                    Background="{DynamicResource TintIndigoBrush}"
-                    Visibility="{Binding HasSelection,
-                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="🔍  Selected:"
-                               FontSize="11" FontWeight="Bold"
-                               VerticalAlignment="Center"
-                               Margin="0,0,10,0"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock Grid.Column="1"
-                               Text="{Binding SelectedDnMetaLine}"
-                               FontSize="11" FontWeight="SemiBold"
-                               VerticalAlignment="Center"
-                               TextTrimming="CharacterEllipsis"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <Button Grid.Column="2" Content="✕ Clear"
-                            Command="{Binding ClearSelectionCommand}"
-                            FontSize="10" FontWeight="Bold"
-                            Padding="10,4" Cursor="Hand"
-                            Background="{DynamicResource ModuleBackgroundBrush}"
-                            Foreground="{DynamicResource PrimaryForegroundBrush}"
-                            BorderThickness="0"/>
-                </Grid>
-            </Border>
-
-            <!-- FILTER BAR — hidden on Tab 3 (Pending) only -->
-            <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource BorderBrush}"
-                    BorderThickness="1" CornerRadius="10"
-                    Padding="12,10" Margin="0,0,0,12"
-                    SnapsToDevicePixels="True">
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Visibility" Value="Visible"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding SelectedTabIndex}" Value="3">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0"
-                             Text="{Binding SearchText,
-                                    UpdateSourceTrigger=PropertyChanged}"
-                             FontSize="12" Padding="10,7"
-                             Margin="0,0,8,0"
-                             VerticalContentAlignment="Center"/>
-                    <ComboBox Grid.Column="1"
-                              ItemsSource="{Binding StatusFilterOptions}"
-                              SelectedItem="{Binding SelectedStatusFilter}"
-                              FontSize="12" Margin="0,0,8,0"
-                              VerticalContentAlignment="Center"/>
-                    <Button Grid.Column="2" Content="Clear"
-                            Command="{Binding ClearFiltersCommand}"
-                            FontSize="11" FontWeight="SemiBold"
-                            Padding="14,7" Margin="0,0,8,0" Cursor="Hand"
-                            Background="{DynamicResource MenuHoverBrush}"
-                            Foreground="{DynamicResource PrimaryForegroundBrush}"
-                            BorderThickness="0"/>
-                    <Button Grid.Column="3" Content="🔄"
-                            Command="{Binding RefreshCommand}"
-                            FontSize="13" Padding="10,5" Cursor="Hand"
-                            Background="{DynamicResource MenuHoverBrush}"
-                            Foreground="{DynamicResource PrimaryForegroundBrush}"
-                            BorderThickness="0"
-                            ToolTip="Refresh list"/>
-                </Grid>
-            </Border>
-
-            <!-- TAB BAR — 6 tabs only, no Master DN tab -->
-            <Grid Margin="4,0,4,12">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <Button Grid.Column="0" Tag="📦" Content="ALL"
-                        CommandParameter="{Binding AllGroupedCount}"
-                        Margin="0,0,3,0" Click="OnTabCardClick"
-                        x:Name="TabAll">
-                    <Button.Style>
-                        <Style TargetType="Button"
-                               BasedOn="{StaticResource TabCardActiveStyle}"/>
-                    </Button.Style>
-                </Button>
-
-                <Button Grid.Column="1" Tag="📝" Content="PREPARED"
+                <Button Grid.Column="1" Tag="&#xE70F;" Content="PREPARED"
                         CommandParameter="{Binding PreparedGroupedCount}"
                         Margin="3,0,3,0" Click="OnTabCardClick"
                         x:Name="TabPrepared"
                         Style="{StaticResource TabCardInactiveStyle}"/>
 
-                <Button Grid.Column="2" Tag="✅" Content="DELIVERED"
+                <Button Grid.Column="2" Tag="&#xE73E;" Content="DELIVERED"
                         CommandParameter="{Binding DeliveredGroupedCount}"
                         Margin="3,0,3,0" Click="OnTabCardClick"
                         x:Name="TabDelivered"
                         Style="{StaticResource TabCardInactiveStyle}"/>
 
-                <Button Grid.Column="3" Tag="⏳" Content="PENDING"
+                <Button Grid.Column="3" Tag="&#xE81C;" Content="PENDING"
                         CommandParameter="{Binding PendingItems.Count}"
                         Margin="3,0,3,0" Click="OnTabCardClick"
                         x:Name="TabPending"
                         Style="{StaticResource TabCardInactiveStyle}"/>
 
-                <Button Grid.Column="4" Tag="🔧" Content="REWORK"
+                <Button Grid.Column="4" Tag="&#xE713;" Content="REWORK"
                         CommandParameter="{Binding ReworkGroupedCount}"
                         Margin="3,0,3,0" Click="OnTabCardClick"
                         x:Name="TabRework"
                         Style="{StaticResource TabCardInactiveStyle}"/>
 
-                <Button Grid.Column="5" Tag="↩️" Content="RETURNED"
+                <Button Grid.Column="5" Tag="&#xE7A7;" Content="RETURNED"
                         CommandParameter="{Binding ReturnedGroupedCount}"
                         Margin="3,0,0,0" Click="OnTabCardClick"
                         x:Name="TabReturned"
@@ -960,7 +681,7 @@
                         </Style>
                     </StackPanel.Style>
                     <emptyState:EmptyStateControl
-                        Icon="🚚"
+                        Icon="&#xE7F4;"
                         Title="No delivery notes yet"
                         Message="Delivery notes record what leaves the factory — quantities, driver, vehicle and status. Create one from a Job Order ('🚚 Create DN' above) and every shipment will be tracked here."/>
                 </StackPanel>
@@ -1009,7 +730,7 @@
                         </Style>
                     </StackPanel.Style>
                     <emptyState:EmptyStateControl
-                        Icon="📝"
+                        Icon="&#xE70F;"
                         Title="No prepared delivery notes"
                         Message="Notes you prepare (not dispatched yet) wait in this tab until they go out."/>
                 </StackPanel>
@@ -1058,7 +779,7 @@
                         </Style>
                     </StackPanel.Style>
                     <emptyState:EmptyStateControl
-                        Icon="✅"
+                        Icon="&#xE73E;"
                         Title="No delivered notes yet"
                         Message="Notes move to this tab once their status becomes Delivered / Signed / Received."/>
                 </StackPanel>
@@ -1214,7 +935,7 @@
                         </Style>
                     </StackPanel.Style>
                     <emptyState:EmptyStateControl
-                        Icon="🔧"
+                        Icon="&#xE713;"
                         Title="No rework delivery notes"
                         Message="Delivery notes of type Rework — glass coming back for reprocessing — are listed here."/>
                 </StackPanel>
