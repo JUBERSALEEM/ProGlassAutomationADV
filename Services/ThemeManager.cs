@@ -160,8 +160,81 @@ namespace ProGlassAutomation.Services
                     ColorMath.FromHsl(h + 18, s, l), surface,
                     dark ? 0.18 : 0.09));
 
+            // ── Dashboard ambience — derived, never hard-coded ──────
+            // The dashboards consume these via DynamicResource, so the
+            // whole analytics surface follows the theme AND the accent.
+            PublishDashAmbience(resources, core, dark);
+
             if (raiseEvent)
                 AccentChanged?.Invoke(null, EventArgs.Empty);
+        }
+
+        /// <summary>
+        /// Derives the dashboard ambience family (ambient gradient,
+        /// accent blobs, glass surfaces, accent text) from the active
+        /// accent + theme. Published at application level so every
+        /// dashboard's DynamicResource references update instantly and
+        /// stay correct across light/dark swaps and accent changes.
+        /// </summary>
+        private static void PublishDashAmbience(
+            ResourceDictionary resources,
+            Color core, bool dark)
+        {
+            Color surface = dark
+                ? Color.FromRgb(0x0F, 0x17, 0x2A)
+                : Color.FromRgb(0xFF, 0xFF, 0xFF);
+
+            // Ambient page gradient — accent tinted, theme aware.
+            var ambient = new LinearGradientBrush(
+                new Point(0, 0), new Point(1, 1));
+            ambient.GradientStops.Add(new GradientStop(
+                ColorMath.Tint(core, surface, dark ? 0.10 : 0.07), 0.0));
+            ambient.GradientStops.Add(new GradientStop(
+                ColorMath.Tint(core, surface, dark ? 0.14 : 0.11), 0.5));
+            ambient.GradientStops.Add(new GradientStop(
+                ColorMath.Tint(core, surface, dark ? 0.20 : 0.16), 1.0));
+            ambient.Freeze();
+            resources["DashAmbientBrush"] = ambient;
+
+            // Top-right glow blob.
+            var blob1 = new RadialGradientBrush();
+            blob1.Center = new Point(0.85, 0.15);
+            blob1.GradientOrigin = new Point(0.85, 0.15);
+            blob1.RadiusX = 0.35;
+            blob1.RadiusY = 0.35;
+            blob1.GradientStops.Add(new GradientStop(
+                Color.FromArgb(dark ? (byte)0x45 : (byte)0x38,
+                    core.R, core.G, core.B), 0.0));
+            blob1.GradientStops.Add(new GradientStop(
+                Color.FromArgb(0, core.R, core.G, core.B), 1.0));
+            blob1.Freeze();
+            resources["DashAmbientBlob1Brush"] = blob1;
+
+            // Bottom-left deep blob.
+            Color deep = LookupColor(resources, "AccentDarkBrush", core);
+            var blob2 = new RadialGradientBrush();
+            blob2.Center = new Point(0.12, 0.88);
+            blob2.GradientOrigin = new Point(0.12, 0.88);
+            blob2.RadiusX = 0.30;
+            blob2.RadiusY = 0.30;
+            blob2.GradientStops.Add(new GradientStop(
+                Color.FromArgb(dark ? (byte)0x30 : (byte)0x20,
+                    deep.R, deep.G, deep.B), 0.0));
+            blob2.GradientStops.Add(new GradientStop(
+                Color.FromArgb(0, deep.R, deep.G, deep.B), 1.0));
+            blob2.Freeze();
+            resources["DashAmbientBlob2Brush"] = blob2;
+
+            // Glass card fill.
+            var glass = new SolidColorBrush(
+                ColorMath.Tint(core, surface, dark ? 0.06 : 0.03))
+            { Opacity = 0.82 };
+            glass.Freeze();
+            resources["DashGlassSurfaceBrush"] = glass;
+
+            // Accent text on the dashboard.
+            FreezeAndSet(resources, "DashAccentTextBrush",
+                dark ? ColorMath.Lighten(core, 0.18) : deep);
         }
 
         /// <summary>Back to the theme's built-in blue accent.</summary>

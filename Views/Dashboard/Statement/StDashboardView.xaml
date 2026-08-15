@@ -73,32 +73,8 @@
     <UserControl.Resources>
 
         <!-- ── AMBIENT BACKGROUND — glass blue wash ─────────────────── -->
-        <LinearGradientBrush x:Key="AmbientBg"
-                             StartPoint="0,0" EndPoint="1,1"
-                             po:Freeze="True">
-            <GradientStop Color="#E8F0FE" Offset="0.0"/>
-            <GradientStop Color="#DBE7F9" Offset="0.5"/>
-            <GradientStop Color="#C7D9F0" Offset="1.0"/>
-        </LinearGradientBrush>
 
         <!-- ── AMBIENT BLOBS (radial glow overlays) ─────────────────── -->
-        <RadialGradientBrush x:Key="Blob1"
-                             Center="0.85,0.15"
-                             GradientOrigin="0.85,0.15"
-                             RadiusX="0.4" RadiusY="0.4"
-                             po:Freeze="True">
-            <GradientStop Color="#3B82F640" Offset="0.0"/>
-            <GradientStop Color="#3B82F600" Offset="1.0"/>
-        </RadialGradientBrush>
-
-        <RadialGradientBrush x:Key="Blob2"
-                             Center="0.12,0.88"
-                             GradientOrigin="0.12,0.88"
-                             RadiusX="0.35" RadiusY="0.35"
-                             po:Freeze="True">
-            <GradientStop Color="#1E40AF30" Offset="0.0"/>
-            <GradientStop Color="#1E40AF00" Offset="1.0"/>
-        </RadialGradientBrush>
 
         <!-- ── GLASS SURFACES ───────────────────────────────────────── -->
         <SolidColorBrush x:Key="GlassSurface"
@@ -363,14 +339,14 @@
     <!-- ═══════════════════════════════════════════════════════════════
          ROOT — INLINE GLASS BLUE GRADIENT (guaranteed render)
     ═══════════════════════════════════════════════════════════════════ -->
-    <Grid Background="{StaticResource AmbientBg}">
+    <Grid Background="{DynamicResource DashAmbientBrush}">
 
         <!-- ── AMBIENT BLOB OVERLAYS ────────────────────────────────── -->
         <Canvas Panel.ZIndex="0"
                 IsHitTestVisible="False"
                 CacheMode="BitmapCache">
 
-            <Rectangle Fill="{StaticResource Blob1}"
+            <Rectangle Fill="{DynamicResource DashAmbientBlob1Brush}"
                        Width="{Binding ActualWidth,
                            RelativeSource={RelativeSource
                                AncestorType=Canvas}}"
@@ -378,7 +354,7 @@
                            RelativeSource={RelativeSource
                                AncestorType=Canvas}}"/>
 
-            <Rectangle Fill="{StaticResource Blob2}"
+            <Rectangle Fill="{DynamicResource DashAmbientBlob2Brush}"
                        Width="{Binding ActualWidth,
                            RelativeSource={RelativeSource
                                AncestorType=Canvas}}"

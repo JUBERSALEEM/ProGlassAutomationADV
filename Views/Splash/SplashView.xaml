@@ -105,16 +105,18 @@
         <DropShadowEffect x:Key="ChipShadow" Color="#000000"
                           BlurRadius="14" ShadowDepth="2" Opacity="0.35"/>
 
-        <!-- ═══ TRUST CHIP ═══ -->
+        <!-- ═══ TRUST CHIP — global pill geometry (H34 / R17 / 1.5) ═══ -->
         <Style x:Key="TrustChipStyle" TargetType="Border">
-            <Setter Property="Background" Value="#14FFFFFF"/>
-            <Setter Property="BorderBrush" Value="#2EFFFFFF"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius" Value="999"/>
-            <Setter Property="Padding" Value="16,8"/>
+            <Setter Property="Background" Value="#1A60A5FA"/>
+            <Setter Property="BorderBrush" Value="#6660A5FA"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
+            <Setter Property="CornerRadius" Value="17"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Padding" Value="16,0"/>
             <Setter Property="Opacity" Value="0"/>
             <Setter Property="Effect" Value="{StaticResource ChipShadow}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="UseLayoutRounding" Value="True"/>
         </Style>
 
         <Style x:Key="ChipGlyphStyle" TargetType="TextBlock">
