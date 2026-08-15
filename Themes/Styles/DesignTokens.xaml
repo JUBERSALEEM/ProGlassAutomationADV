@@ -123,6 +123,14 @@
                 Value="{DynamicResource MenuHoverBrush}"/>
     </Style>
 
+    <!-- Success (green) pill — "SHARE EXCEL"-style confirmations. -->
+    <Style x:Key="ModuleToolbarSuccessButtonStyle"
+           TargetType="Button"
+           BasedOn="{StaticResource ModuleToolbarPrimaryButtonStyle}">
+        <Setter Property="Background"
+                Value="{DynamicResource SuccessBrush}"/>
+    </Style>
+
     <!-- ══ TAB PILL (in-page tabs, e.g. list filters) ════════════════ -->
 
     <Style x:Key="ModuleTabPillStyle" TargetType="Button">

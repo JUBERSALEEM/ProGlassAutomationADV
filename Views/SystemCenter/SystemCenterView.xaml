@@ -67,7 +67,7 @@
 
     </UserControl.Resources>
 
-    <Grid Margin="24" MaxWidth="1180" HorizontalAlignment="Center">
+    <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -328,7 +328,32 @@
                     BorderThickness="1"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     ClipToBounds="True">
-                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <!-- Column heading strip (v2 table reference) -->
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource AccentBrush}"
+                            Padding="16,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="50"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="90"/>
+                                <ColumnDefinition Width="100"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="USER" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Grid.Column="1" Text="ROLE &amp; PERMISSIONS"
+                                       Margin="12,0,0,0" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Grid.Column="2" Text="STATUS"
+                                       HorizontalAlignment="Center" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Grid.Column="3" Text="ACTION"
+                                       HorizontalAlignment="Center" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                        </Grid>
+                    </Border>
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
                               behaviors:SmoothScrollBehavior.IsEnabled="True">
                     <ItemsControl ItemsSource="{Binding Users}" Margin="6">
                         <ItemsControl.ItemTemplate>
@@ -340,10 +365,10 @@
                                         CornerRadius="{DynamicResource ControlCornerRadius}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="50"/>
                                             <ColumnDefinition Width="*"/>
-                                            <ColumnDefinition Width="Auto"/>
-                                            <ColumnDefinition Width="Auto"/>
+                                            <ColumnDefinition Width="90"/>
+                                            <ColumnDefinition Width="100"/>
                                         </Grid.ColumnDefinitions>
 
                                         <Border Grid.Column="0"
@@ -417,12 +442,11 @@
                                         </TextBlock>
 
                                         <Button Grid.Column="3"
-                                                Cursor="Hand"
+                                                Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
                                                 FontSize="11"
                                                 Padding="12,5"
-                                                BorderThickness="0"
-                                                Background="{DynamicResource MenuHoverBrush}"
-                                                Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
                                                 Command="{Binding DataContext.ToggleActiveCommand,
                                                             RelativeSource={RelativeSource
                                                                 AncestorType=ItemsControl}}"
@@ -446,6 +470,7 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
                 </ScrollViewer>
+                </Grid>
             </Border>
         </Grid>
 
@@ -497,8 +522,31 @@
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     ClipToBounds="True">
                 <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <!-- Column heading strip (v2 table reference) -->
+                    <Border Grid.Row="0"
+                            Background="{DynamicResource AccentBrush}"
+                            Padding="16,8">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="160"/>
+                                <ColumnDefinition Width="140"/>
+                                <ColumnDefinition Width="150"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <TextBlock Grid.Column="0" Text="TIME" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Grid.Column="1" Text="SECTION" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Grid.Column="2" Text="ACTION"
+                                       Margin="10,0,0,0" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Grid.Column="3" Text="DETAILS"
+                                       Margin="10,0,0,0" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                        </Grid>
+                    </Border>
                     <!-- Empty state -->
-                    <StackPanel VerticalAlignment="Center"
+                    <StackPanel Grid.Row="1" VerticalAlignment="Center"
                                 HorizontalAlignment="Center">
                         <StackPanel.Style>
                             <Style TargetType="StackPanel">
@@ -524,7 +572,7 @@
                     </StackPanel>
 
                     <!-- Virtualized activity feed -->
-                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
                                   CanContentScroll="True"
                                   VirtualizingPanel.IsVirtualizing="True"
                                   VirtualizingPanel.VirtualizationMode="Recycling">

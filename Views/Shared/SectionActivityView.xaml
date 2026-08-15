@@ -57,22 +57,8 @@
 
             <Button Grid.Column="1"
                     Command="{Binding RefreshCommand}"
-                    Cursor="Hand"
-                    Padding="16,9"
-                    BorderThickness="0">
-                <Button.Template>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{DynamicResource AccentBrush}"
-                                CornerRadius="{DynamicResource PillCornerRadius}"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                    </ControlTemplate>
-                </Button.Template>
-                <TextBlock Text="↻  Refresh"
-                           Foreground="White"
-                           FontSize="13" FontWeight="SemiBold"/>
+                    Style="{StaticResource ModuleToolbarPrimaryButtonStyle}">
+                <TextBlock Text="↻  Refresh"/>
             </Button>
         </Grid>
 

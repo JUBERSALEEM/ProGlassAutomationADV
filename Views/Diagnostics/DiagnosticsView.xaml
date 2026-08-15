@@ -53,23 +53,9 @@
                               VerticalAlignment="Center"/>
 
                     <Button Command="{Binding OpenLogsFolderCommand}"
-                            Cursor="Hand"
-                            Margin="12,0,0,0"
-                            Padding="16,9"
-                            BorderThickness="0">
-                        <Button.Template>
-                            <ControlTemplate TargetType="Button">
-                                <Border Background="{DynamicResource AccentBrush}"
-                                        CornerRadius="{DynamicResource PillCornerRadius}"
-                                        Padding="{TemplateBinding Padding}">
-                                    <ContentPresenter HorizontalAlignment="Center"
-                                                      VerticalAlignment="Center"/>
-                                </Border>
-                            </ControlTemplate>
-                        </Button.Template>
-                        <TextBlock Text="📂  Open log folder"
-                                   Foreground="White"
-                                   FontSize="13" FontWeight="SemiBold"/>
+                            Style="{StaticResource ModuleToolbarPrimaryButtonStyle}"
+                            Margin="12,0,0,0">
+                        <TextBlock Text="📂  Open log folder"/>
                     </Button>
                 </StackPanel>
 
@@ -256,7 +242,7 @@
 
     </UserControl.Resources>
 
-    <Grid Margin="24" MaxWidth="1180" HorizontalAlignment="Center">
+    <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
