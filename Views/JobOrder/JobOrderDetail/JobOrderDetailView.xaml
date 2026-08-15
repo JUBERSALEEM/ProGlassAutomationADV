@@ -83,88 +83,8 @@
             <Setter Property="Foreground" Value="#4338CA"/>
         </Style>
 
-        <Style x:Key="ExportButtonStyle" TargetType="Button">
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="Margin" Value="4,0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg"
-                                Background="{DynamicResource MenuHoverBrush}"
-                                BorderBrush="{DynamicResource BorderBrush}"
-                                BorderThickness="1"
-                                CornerRadius="8"
-                                Padding="14,10">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{TemplateBinding Tag}"
-                                           FontSize="14"
-                                           VerticalAlignment="Center"
-                                           Margin="0,0,7,0"/>
-                                <TextBlock Text="{TemplateBinding Content}"
-                                           FontSize="12" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                           VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="BorderBrush" Value="#4338CA"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.85"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <!-- Phase 10.5: Create Delivery Note button — indigo accent -->
-        <Style x:Key="CreateDnButtonStyle" TargetType="Button">
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg"
-                                CornerRadius="8"
-                                Padding="18,10">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#4338CA" Offset="0"/>
-                                    <GradientStop Color="#6366F1" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="10" ShadowDepth="0"
-                                                  Opacity="0.25" Color="#4338CA"/>
-                            </Border.Effect>
-                            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
-                                <TextBlock Text="🚚"
-                                           FontSize="14"
-                                           VerticalAlignment="Center"
-                                           Margin="0,0,8,0"/>
-                                <TextBlock Text="Create Delivery Note"
-                                           FontSize="12" FontWeight="Bold"
-                                           Foreground="White"
-                                           VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.9"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.75"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
@@ -610,10 +530,11 @@
                          PHASE 10.5: Create DN button — full width, prominent
                     ══════════════════════════════════════════════════ -->
                     <Button Command="{Binding CreateDeliveryNoteCommand}"
-                            Style="{StaticResource CreateDnButtonStyle}"
+                            Style="{StaticResource SuccessPillButton}"
+                            Tag="&#xE7F4;" Content="CREATE DN"
+                            ToolTip="Create a new Delivery Note for this Job Order"
                             HorizontalAlignment="Stretch"
-                            Margin="0,0,0,16"
-                            ToolTip="Create a new Delivery Note for this Job Order"/>
+                            Margin="0,0,0,16"/>
 
                     <!-- ════════════════════════════════════════════════
                          ACTION BUTTONS ROW
@@ -630,76 +551,32 @@
                         </Grid.ColumnDefinitions>
 
                         <Button Grid.Column="0"
-                                Command="{Binding BackToListCommand}"
-                                Cursor="Hand" BorderThickness="0" Padding="0">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border x:Name="Bg"
-                                            Background="{DynamicResource MenuHoverBrush}"
-                                            CornerRadius="8" Padding="14,10">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="←" FontSize="14" FontWeight="Bold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                       VerticalAlignment="Center"
-                                                       Margin="0,0,7,0"/>
-                                            <TextBlock Text="Back"
-                                                       FontSize="12" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                       VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="Bg" Property="Opacity" Value="0.8"/>
-                                        </Trigger>
-                                        <Trigger Property="IsPressed" Value="True">
-                                            <Setter TargetName="Bg" Property="Opacity" Value="0.65"/>
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Button.Template>
-                        </Button>
+                                Style="{StaticResource OutlinedPillButton}"
+                                Tag="&#xE72B;" Content="BACK"
+                                ToolTip="Back to the job order list"
+                                Command="{Binding BackToListCommand}"/>
 
                         <Button Grid.Column="2"
-                                Style="{StaticResource ExportButtonStyle}"
-                                Command="{Binding ExportPdfCommand}"
-                                Content="PDF" Tag="📄"
-                                ToolTip="Export production sheet as PDF"/>
+                                Style="{StaticResource SuccessPillButton}"
+                                Tag="&#xE8A5;" Content="PDF"
+                                ToolTip="Export PDF"
+                                Command="{Binding ExportPdfCommand}"/>
                         <Button Grid.Column="3"
-                                Style="{StaticResource ExportButtonStyle}"
-                                Command="{Binding ExportExcelCommand}"
-                                Content="Excel" Tag="📊"
-                                ToolTip="Export as Excel workbook (multi-sheet)"/>
+                                Style="{StaticResource SuccessPillButton}"
+                                Tag="&#xE9F9;" Content="EXCEL"
+                                ToolTip="Export Excel"
+                                Command="{Binding ExportExcelCommand}"/>
                         <Button Grid.Column="4"
-                                Style="{StaticResource ExportButtonStyle}"
-                                Command="{Binding ExportCsvCommand}"
-                                Content="CSV" Tag="📋"
-                                ToolTip="Export cut list as CSV"/>
+                                Style="{StaticResource SuccessPillButton}"
+                                Tag="&#xE72D;" Content="CSV"
+                                ToolTip="Export CSV"
+                                Command="{Binding ExportCsvCommand}"/>
 
                         <Button Grid.Column="6"
-                                Command="{Binding SaveCommand}"
-                                Cursor="Hand" BorderThickness="0" Padding="0">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border x:Name="Bg"
-                                            Background="{DynamicResource AccentBrush}"
-                                            CornerRadius="8" Padding="16,10">
-                                        <TextBlock Text="💾  Save"
-                                                   FontSize="13" FontWeight="Bold"
-                                                   Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                                   VerticalAlignment="Center"/>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="Bg" Property="Background" Value="#6366F1"/>
-                                        </Trigger>
-                                        <Trigger Property="IsPressed" Value="True">
-                                            <Setter TargetName="Bg" Property="Background" Value="#3730A3"/>
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Button.Template>
-                        </Button>
+                                Style="{StaticResource PrimaryPillButton}"
+                                Tag="&#xE74E;" Content="SAVE"
+                                ToolTip="Save the job order"
+                                Command="{Binding SaveCommand}"/>
                     </Grid>
 
                 </StackPanel>

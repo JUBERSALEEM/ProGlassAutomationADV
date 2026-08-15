@@ -19,110 +19,10 @@
     <Window.Resources>
 
         <!-- ── PRIMARY BUTTON (Save) — indigo gradient ──────────────────── -->
-        <Style x:Key="PrimaryButtonStyle" TargetType="Button">
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Width" Value="110"/>
-            <Setter Property="Height" Value="38"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg"
-                                CornerRadius="10"
-                                Padding="{TemplateBinding Padding}">
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#4338CA" Offset="0"/>
-                                    <GradientStop Color="#6366F1" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                            <Border.Effect>
-                                <DropShadowEffect BlurRadius="12" ShadowDepth="0"
-                                                  Opacity="0.28" Color="#4338CA"/>
-                            </Border.Effect>
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background">
-                                    <Setter.Value>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                            <GradientStop Color="#3730A3" Offset="0"/>
-                                            <GradientStop Color="#4F46E5" Offset="1"/>
-                                        </LinearGradientBrush>
-                                    </Setter.Value>
-                                </Setter>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <!-- ── SECONDARY BUTTON (Cancel) — soft grey ────────────────────── -->
-        <Style x:Key="SecondaryButtonStyle" TargetType="Button">
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Width" Value="100"/>
-            <Setter Property="Height" Value="38"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg"
-                                CornerRadius="10"
-                                Background="{DynamicResource MenuHoverBrush}"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background"
-                                        Value="{DynamicResource BorderBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <!-- ── CLOSE (X) button — subtle circle top-right ──────────────── -->
-        <Style x:Key="CloseButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="32"/>
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-            <Setter Property="FontSize" Value="14"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg"
-                                CornerRadius="16"
-                                Background="Transparent">
-                            <TextBlock Text="✕"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       FontSize="{TemplateBinding FontSize}"
-                                       Foreground="{TemplateBinding Foreground}"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background"
-                                        Value="{DynamicResource MenuHoverBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <!-- ── FILENAME TEXTBOX — rounded, indigo focus glow ───────────── -->
         <Style x:Key="FileNameTextBoxStyle" TargetType="TextBox">
@@ -205,7 +105,8 @@
                 <Border Grid.Column="0" Background="Transparent"/>
 
                 <Button Grid.Column="1"
-                        Style="{StaticResource CloseButtonStyle}"
+                        Style="{StaticResource RowOutlinedButton}"
+                        Tag="&#xE711;" MinWidth="40"
                         Margin="0,8,10,0"
                         VerticalAlignment="Top"
                         Click="OnCancelClick"
@@ -294,13 +195,15 @@
                     Padding="20,14">
                 <StackPanel Orientation="Horizontal"
                             HorizontalAlignment="Right">
-                    <Button Content="Cancel"
-                            Style="{StaticResource SecondaryButtonStyle}"
+                    <Button Style="{StaticResource OutlinedPillButton}"
+                            Tag="&#xE711;" Content="CANCEL"
                             Margin="0,0,10,0"
+                            ToolTip="Close without saving"
                             Click="OnCancelClick"
                             IsCancel="True"/>
-                    <Button Content="💾  Save"
-                            Style="{StaticResource PrimaryButtonStyle}"
+                    <Button Style="{StaticResource PrimaryPillButton}"
+                            Tag="&#xE74E;" Content="SAVE"
+                            ToolTip="Save the new file name"
                             Click="OnSaveClick"
                             IsDefault="True"/>
                 </StackPanel>
