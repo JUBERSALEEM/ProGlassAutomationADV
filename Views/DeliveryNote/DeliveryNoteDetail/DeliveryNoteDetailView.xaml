@@ -786,11 +786,9 @@
                 </Grid.ColumnDefinitions>
 
                 <Button Grid.Column="0"
-                        Content="← Back"
+                        Style="{StaticResource OutlinedPillButton}"
+                        Tag="&#xE72B;" Content="BACK"
                         Command="{Binding BackCommand}"
-                        Style="{StaticResource ActionButtonStyle}"
-                        Background="{DynamicResource MenuHoverBrush}"
-                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                         Margin="0,0,12,0"
                         ToolTip="Back to list (Esc)"/>
 
@@ -809,9 +807,14 @@
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     </Border>
                     <Border Style="{StaticResource MasterDnBadgeStyle}">
-                        <TextBlock Text="📌 MASTER DN — READ ONLY"
-                                   FontSize="10" FontWeight="Bold"
-                                   Foreground="White"/>
+<StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <TextBlock Text="&#xE718;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="10" Foreground="White"
+                                       VerticalAlignment="Center" Margin="0,0,5,0"/>
+                            <TextBlock Text="MASTER DN — READ ONLY"
+                                       FontSize="10" FontWeight="Bold"
+                                       Foreground="White"/>
+                        </StackPanel>
                     </Border>
                     <Border Style="{StaticResource FocBadgeStyle}">
                         <TextBlock Text="FREE OF CHARGE"
@@ -834,59 +837,50 @@
                     <!-- Real DN actions -->
                     <StackPanel Style="{StaticResource RealDnActionsStyle}">
                         <!-- v2 §24: version history -->
-                        <Button Content="🕘"
+                        <Button Style="{StaticResource RowOutlinedButton}"
+                                Tag="&#xE81C;" Content="HISTORY"
                                 Command="{Binding ShowVersionsCommand}"
-                                Style="{StaticResource ActionButtonStyle}"
-                                Background="{DynamicResource TintIndigoBrush}"
-                                Foreground="{DynamicResource AccentBrush}"
                                 Margin="0,0,6,0"
                                 ToolTip="Version history — every save is preserved"/>
-                        <Button Content="💾  Save"
+                        <Button Style="{StaticResource PrimaryPillButton}"
+                                Tag="&#xE74E;" Content="SAVE"
                                 Command="{Binding SaveCommand}"
-                                Style="{StaticResource ActionButtonStyle}"
                                 Margin="0,0,6,0"
                                 ToolTip="Save (Ctrl+S)"/>
-                        <Button Content="🚚  Make DN"
+                        <Button Style="{StaticResource SuccessPillButton}"
+                                Tag="&#xE7F4;" Content="MAKE DN"
                                 Command="{Binding MakeDnCommand}"
-                                Style="{StaticResource ActionButtonStyle}"
-                                Background="{DynamicResource SuccessBrush}"
-                                Margin="0,0,12,0"/>
+                                Margin="0,0,12,0"
+                                ToolTip="Create a split delivery note"/>
                         <Border Width="1" Margin="0,4,12,4"
                                 Background="{DynamicResource BorderBrush}"/>
-                        <Button Content="📄  PDF"
+                        <Button Style="{StaticResource SuccessPillButton}"
+                                Tag="&#xE8A5;" Content="PDF"
                                 Command="{Binding ExportPdfCommand}"
-                                Style="{StaticResource ExportButtonStyle}"
-                                Background="#FEF2F2"
-                                BorderBrush="#B91C1C"
-                                Foreground="{DynamicResource DangerBrush}"
-                                Margin="0,0,6,0"/>
-                        <Button Content="📊  Excel"
+                                Margin="0,0,6,0"
+                                ToolTip="Export PDF"/>
+                        <Button Style="{StaticResource SuccessPillButton}"
+                                Tag="&#xE9F9;" Content="EXCEL"
                                 Command="{Binding ExportExcelCommand}"
-                                Style="{StaticResource ExportButtonStyle}"
-                                Background="{DynamicResource TintGreenBrush}"
-                                BorderBrush="{DynamicResource SuccessBrush}"
-                                Foreground="{DynamicResource SuccessBrush}"
-                                Margin="0,0,6,0"/>
-                        <Button Content="📋  CSV"
+                                Margin="0,0,6,0"
+                                ToolTip="Export Excel"/>
+                        <Button Style="{StaticResource SuccessPillButton}"
+                                Tag="&#xE72D;" Content="CSV"
                                 Command="{Binding ExportCsvCommand}"
-                                Style="{StaticResource ExportButtonStyle}"
-                                Background="{DynamicResource TintIndigoBrush}"
-                                BorderBrush="#4338CA"
-                                Foreground="{DynamicResource AccentBrush}"
-                                Margin="0,0,12,0"/>
+                                Margin="0,0,12,0"
+                                ToolTip="Export CSV"/>
                         <Border Width="1" Margin="0,4,12,4"
                                 Background="{DynamicResource BorderBrush}"/>
-                        <Button Content="🗑️  Delete"
+                        <Button Style="{StaticResource DangerButton}"
+                                Tag="&#xE74D;" Content="DELETE"
                                 Command="{Binding DeleteDnCommand}"
-                                Style="{StaticResource ActionButtonStyle}"
-                                Background="#B91C1C"
-                                Foreground="White"/>
+                                ToolTip="Delete this delivery note"/>
                     </StackPanel>
 
                     <!-- Master DN button -->
-                    <Button Content="📦  Create New DN from Balance"
+                    <Button Style="{StaticResource PrimaryPillButton}"
+                            Tag="&#xE7B8;" Content="CREATE NEW DN FROM BALANCE"
                             Command="{Binding CreateNewDnFromMasterCommand}"
-                            Style="{StaticResource CreateFromMasterButtonStyle}"
                             ToolTip="Create a new DN pre-filled with balance quantities"/>
                 </StackPanel>
             </Grid>
