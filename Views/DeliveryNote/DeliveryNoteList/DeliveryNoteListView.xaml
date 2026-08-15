@@ -561,6 +561,16 @@
                         ToolTip="Create a new delivery note"
                         Command="{Binding CreateDnCommand}"/>
 
+                <Button Grid.Column="0" Tag="&#xE7B8;" Content="ALL"
+                        CommandParameter="{Binding AllGroupedCount}"
+                        Margin="0,0,3,0" Click="OnTabCardClick"
+                        x:Name="TabAll">
+                    <Button.Style>
+                        <Style TargetType="Button"
+                               BasedOn="{StaticResource TabCardActiveStyle}"/>
+                    </Button.Style>
+                </Button>
+
                 <Button Grid.Column="1" Tag="&#xE70F;" Content="PREPARED"
                         CommandParameter="{Binding PreparedGroupedCount}"
                         Margin="3,0,3,0" Click="OnTabCardClick"
