@@ -1,4 +1,13 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.JobOrder.SavedJobOrdersList.SavedJobOrdersListView"
+﻿<!-- MIGRATION LOG — Button Standardization batch 4b (2026-08-15)
+     • Grey oval ModuleTabStripStyle container removed from shells —
+       pills now sit directly on the page (reference look)
+     • JO saved list: CLEAR/REFRESH -> Row pills; row OPEN/HISTORY ->
+       RowPrimary/RowOutlined; OpenButtonStyle/HistoryButtonStyle removed
+     • God Views: header Refresh -> PrimaryPillButton; row Open ->
+       RowPrimaryButton; hero/empty icon slots -> MDL2 glyphs
+     Commands/bindings/code-behind preserved; no VM changes.
+═══════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.JobOrder.SavedJobOrdersList.SavedJobOrdersListView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
@@ -32,70 +41,8 @@
         </Style>
 
         <!-- Open button accent pill -->
-        <Style x:Key="OpenButtonStyle" TargetType="Button">
-            <Setter Property="Background"      Value="{DynamicResource AccentBrush}"/>
-            <Setter Property="Foreground"      Value="{DynamicResource OnAccentForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding"         Value="16,6"/>
-            <Setter Property="Cursor"          Value="Hand"/>
-            <Setter Property="FontSize"        Value="11"/>
-            <Setter Property="FontWeight"      Value="Bold"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="8"
-                                Padding="{TemplateBinding Padding}">
-                            <TextBlock Text="OPEN"
-                                       FontSize="{TemplateBinding FontSize}"
-                                       FontWeight="{TemplateBinding FontWeight}"
-                                       Foreground="{TemplateBinding Foreground}"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="#6366F1"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="#3730A3"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <!-- v2 §24: version history button -->
-        <Style x:Key="HistoryButtonStyle" TargetType="Button">
-            <Setter Property="Background"      Value="{DynamicResource TintIndigoBrush}"/>
-            <Setter Property="Foreground"      Value="{DynamicResource AccentBrush}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding"         Value="9,6"/>
-            <Setter Property="Cursor"          Value="Hand"/>
-            <Setter Property="ToolTip"         Value="Version history"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="8"
-                                Padding="{TemplateBinding Padding}">
-                            <TextBlock Text="🕘"
-                                       FontSize="12"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.8"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <!-- ListBoxItem container style — removes default selection padding/highlight,
              lets our JobRowCardStyle be the full row.  -->
@@ -175,7 +122,7 @@
 
                 <!-- Total Job Orders — Indigo hero (brand-aligned) -->
                 <hero:GradientHeroCard Grid.Column="0"
-                                       Icon="📋"
+                                       Icon="&#xE8C8;"
                                        Value="{Binding TotalCount}"
                                        Label="Total Job Orders"
                                        GradientStartColor="#4338CA"
@@ -185,7 +132,7 @@
 
                 <!-- In Production — Blue hero -->
                 <hero:GradientHeroCard Grid.Column="1"
-                                       Icon="🔨"
+                                       Icon="&#xE713;"
                                        Value="{Binding InProductionCount}"
                                        Label="In Production"
                                        GradientStartColor="#1E40AF"
@@ -311,28 +258,17 @@
                               VerticalContentAlignment="Center"/>
 
                     <!-- Clear -->
-                    <Button Grid.Column="4"
-                            Content="Clear"
-                            Command="{Binding ClearFiltersCommand}"
-                            FontSize="11" FontWeight="SemiBold"
-                            Padding="14,8"
+                    <Button Grid.Column="4" Style="{StaticResource RowOutlinedButton}"
+                            Tag="&#xE711;" Content="CLEAR"
                             Margin="0,0,8,0"
-                            Cursor="Hand"
-                            Background="{DynamicResource MenuHoverBrush}"
-                            Foreground="{DynamicResource PrimaryForegroundBrush}"
-                            BorderThickness="0"/>
+                            ToolTip="Clear filters"
+                            Command="{Binding ClearFiltersCommand}"/>
 
                     <!-- Refresh -->
-                    <Button Grid.Column="5"
-                            Content="🔄"
-                            Command="{Binding RefreshCommand}"
-                            FontSize="14"
-                            Padding="10,6"
-                            Cursor="Hand"
-                            Background="{DynamicResource MenuHoverBrush}"
-                            Foreground="{DynamicResource PrimaryForegroundBrush}"
-                            BorderThickness="0"
-                            ToolTip="Refresh list"/>
+                    <Button Grid.Column="5" Style="{StaticResource RowPrimaryButton}"
+                            Tag="&#xE72C;" Content="REFRESH"
+                            ToolTip="Refresh list"
+                            Command="{Binding RefreshCommand}"/>
                 </Grid>
             </Border>
         </StackPanel>
@@ -535,12 +471,16 @@
                                             Orientation="Horizontal"
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Center">
-                                    <Button Style="{StaticResource OpenButtonStyle}"
+                                    <Button Style="{StaticResource RowPrimaryButton}"
+                                            Tag="&#xE8E5;" Content="OPEN"
+                                            ToolTip="Open this job order"
                                             Command="{Binding DataContext.OpenJobOrderCommand,
                                                       RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}"/>
-                                    <Button Style="{StaticResource HistoryButtonStyle}"
+                                    <Button Style="{StaticResource RowOutlinedButton}"
+                                            Tag="&#xE81C;" Content="HISTORY"
                                             Margin="6,0,0,0"
+                                            ToolTip="Version history"
                                             Command="{Binding DataContext.ShowVersionsCommand,
                                                       RelativeSource={RelativeSource AncestorType=UserControl}}"
                                             CommandParameter="{Binding}"/>
@@ -572,7 +512,7 @@
                     </Style>
                 </StackPanel.Style>
                 <emptyState:EmptyStateControl
-                    Icon="📋"
+                    Icon="&#xE8C8;"
                     Title="No job orders yet"
                     Message="Job orders track production for approved invoices. Convert a Proforma Invoice into a Job Order and it will appear here with its status, priority and delivery schedule."/>
             </StackPanel>

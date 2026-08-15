@@ -24,6 +24,15 @@
        left for the visual polish pass (not buttons/tabs/badges)
      Commands/bindings/code-behind preserved; no VM changes.
 ═══════════════════════════════════════════════════════════════ -->
+<!-- MIGRATION LOG — Button Standardization batch 4b (2026-08-15)
+     • Grey oval ModuleTabStripStyle container removed from shells —
+       pills now sit directly on the page (reference look)
+     • JO saved list: CLEAR/REFRESH -> Row pills; row OPEN/HISTORY ->
+       RowPrimary/RowOutlined; OpenButtonStyle/HistoryButtonStyle removed
+     • God Views: header Refresh -> PrimaryPillButton; row Open ->
+       RowPrimaryButton; hero/empty icon slots -> MDL2 glyphs
+     Commands/bindings/code-behind preserved; no VM changes.
+═══════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.JobOrder.JobOrderView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -45,7 +54,6 @@
 
         <!-- ══ TAB STRIP ══════════════════════════════════════════════ -->
         <Border Grid.Row="0"
-                Style="{StaticResource ModuleTabStripStyle}"
                 Margin="20,14,20,0">
             <StackPanel Orientation="Horizontal">
 
