@@ -34,20 +34,29 @@
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
-    <!-- ══ TAB BUTTON (base chrome; state triggers added per usage) ═══ -->
+    <!-- ══ TAB BUTTON (base chrome; state triggers added per usage) ═══
+         v3 reference fidelity: inactive tab = light pill with border
+         (the "TODAY" look), hover = accent text, active (set per-view
+         via DataTriggers on Background/Foreground) = solid accent pill. -->
     <Style x:Key="ModuleTabButtonStyle" TargetType="Button">
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="FontSize" Value="13"/>
         <Setter Property="FontWeight" Value="SemiBold"/>
         <Setter Property="Padding" Value="18,8"/>
-        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="Background"
+                Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource BorderBrush}"/>
         <Setter Property="Foreground"
                 Value="{DynamicResource SecondaryForegroundBrush}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="bd"
-                            Background="Transparent"
+                            Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
                             CornerRadius="{DynamicResource PillCornerRadius}"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">
@@ -56,8 +65,10 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="bd" Property="Background"
-                                    Value="{DynamicResource BorderBrush}"/>
+                            <Setter Property="Foreground"
+                                    Value="{DynamicResource AccentBrush}"/>
+                            <Setter Property="BorderBrush"
+                                    Value="{DynamicResource AccentBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

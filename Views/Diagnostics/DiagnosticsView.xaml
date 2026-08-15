@@ -304,7 +304,9 @@
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="bd"
-                                            Background="{DynamicResource MenuHoverBrush}"
+                                            Background="{DynamicResource ModuleBackgroundBrush}"
+                                            BorderBrush="{DynamicResource BorderBrush}"
+                                            BorderThickness="1"
                                             CornerRadius="{DynamicResource PillCornerRadius}"
                                             Padding="{TemplateBinding Padding}"
                                             SnapsToDevicePixels="True">
@@ -328,8 +330,10 @@
                                         <DataTrigger Binding="{Binding IsActive}" Value="True">
                                             <Setter TargetName="bd" Property="Background"
                                                     Value="{DynamicResource AccentBrush}"/>
+                                            <Setter TargetName="bd" Property="BorderBrush"
+                                                    Value="{DynamicResource AccentBrush}"/>
                                             <Setter TargetName="lbl" Property="Foreground"
-                                                    Value="White"/>
+                                                    Value="{DynamicResource OnAccentForegroundBrush}"/>
                                         </DataTrigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>

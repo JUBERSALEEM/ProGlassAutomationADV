@@ -94,42 +94,44 @@
                 Margin="0,0,0,16">
             <StackPanel Orientation="Horizontal">
 
-                <Button Style="{StaticResource ModuleTabButtonStyle}"
-                        Command="{Binding SwitchTabCommand}"
+                <Button Command="{Binding SwitchTabCommand}"
                         CommandParameter="Users">
-                    <TextBlock Text="👥  Users">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground"
-                                        Value="{DynamicResource SecondaryForegroundBrush}"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsUsersTab}" Value="True">
-                                        <Setter Property="Foreground"
-                                                Value="{DynamicResource AccentBrush}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
+                    <Button.Style>
+                        <Style TargetType="Button"
+                               BasedOn="{StaticResource ModuleTabButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsUsersTab}" Value="True">
+                                    <Setter Property="Background"
+                                            Value="{DynamicResource AccentBrush}"/>
+                                    <Setter Property="BorderBrush"
+                                            Value="{DynamicResource AccentBrush}"/>
+                                    <Setter Property="Foreground"
+                                            Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                    <TextBlock Text="👥  Users"/>
                 </Button>
 
-                <Button Style="{StaticResource ModuleTabButtonStyle}"
-                        Command="{Binding SwitchTabCommand}"
+                <Button Command="{Binding SwitchTabCommand}"
                         CommandParameter="Activity">
-                    <TextBlock Text="📜  Activity Log">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground"
-                                        Value="{DynamicResource SecondaryForegroundBrush}"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsActivityTab}" Value="True">
-                                        <Setter Property="Foreground"
-                                                Value="{DynamicResource AccentBrush}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
+                    <Button.Style>
+                        <Style TargetType="Button"
+                               BasedOn="{StaticResource ModuleTabButtonStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsActivityTab}" Value="True">
+                                    <Setter Property="Background"
+                                            Value="{DynamicResource AccentBrush}"/>
+                                    <Setter Property="BorderBrush"
+                                            Value="{DynamicResource AccentBrush}"/>
+                                    <Setter Property="Foreground"
+                                            Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                    <TextBlock Text="📜  Activity Log"/>
                 </Button>
             </StackPanel>
         </Border>
@@ -161,10 +163,20 @@
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="18">
                     <StackPanel>
-                        <TextBlock Text="➕  Create user"
-                                   FontSize="14" FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   Margin="0,0,0,12"/>
+<StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                            <Border Width="28" Height="28" CornerRadius="8"
+                                    Background="{DynamicResource TintIndigoBrush}"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="➕" FontSize="13"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Create user"
+                                       FontSize="14" FontWeight="Bold"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       Margin="10,0,0,0"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
 
                         <TextBlock Text="USERNAME" Style="{StaticResource ScFieldLabel}"/>
                         <TextBox Style="{StaticResource ScTextBox}"
@@ -214,10 +226,20 @@
                         Padding="18"
                         Margin="0,14,0,0">
                     <StackPanel>
-                        <TextBlock Text="🔁  Switch active user"
-                                   FontSize="14" FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   Margin="0,0,0,4"/>
+<StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <Border Width="28" Height="28" CornerRadius="8"
+                                    Background="{DynamicResource TintIndigoBrush}"
+                                    VerticalAlignment="Center">
+                                <TextBlock Text="🔁" FontSize="13"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <TextBlock Text="Switch active user"
+                                       FontSize="14" FontWeight="Bold"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       Margin="10,0,0,0"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
                         <TextBlock Text="All future actions are recorded under the active user."
                                    FontSize="11" TextWrapping="Wrap"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
