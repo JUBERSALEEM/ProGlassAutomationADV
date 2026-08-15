@@ -258,11 +258,11 @@
         Row 2: Stats + Attach    (Auto)
         Row 3: Main content + Family sidebar (* fills)
     -->
-    <Grid.Resources>
-        <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
-    </Grid.Resources>
     <Grid Margin="24,16,24,16"
           Background="{DynamicResource ModuleBackgroundBrush}">
+        <Grid.Resources>
+            <conv:InverseBoolToVisibilityConverter x:Key="InverseBoolToVisibilityConverter"/>
+        </Grid.Resources>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
