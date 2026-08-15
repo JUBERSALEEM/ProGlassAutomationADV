@@ -41,9 +41,8 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
                             <StackPanel Grid.Column="0">
-                                <TextBlock Text="📋  DELIVERY HISTORY"
-                                           FontSize="11" FontWeight="Bold"
-                                           Foreground="White"/>
+                                <TextBlock FontSize="11" FontWeight="Bold"
+                                           Foreground="White"><Run Text="&#xE8C8;" FontFamily="Segoe MDL2 Assets"/><Run Text="  DELIVERY HISTORY"/></TextBlock>
                                 <TextBlock Text="Click to open · Right-click for options"
                                            FontSize="10" Foreground="#CCFFFFFF"
                                            Margin="0,2,0,0"
@@ -89,7 +88,7 @@
                                                                         RelativeSource={RelativeSource AncestorType=ContextMenu}}"
                                                               CommandParameter="{Binding}"/>
                                                     <Separator/>
-                                                    <MenuItem Header="🧾  Convert to Tax Invoice"
+                                                    <MenuItem Header="Convert to Tax Invoice"
                                                               Style="{StaticResource HistoryContextMenuItemStyle}"
                                                               Command="{Binding PlacementTarget.Tag.ConvertToTaxInvoiceCommand,
                                                                         RelativeSource={RelativeSource AncestorType=ContextMenu}}"
@@ -132,9 +131,8 @@
                                                                     VerticalAlignment="Center"
                                                                     Visibility="{Binding IsCurrentDn,
                                                                         Converter={StaticResource BoolToVisibilityConverter}}">
-                                                                <TextBlock Text="✏️  EDITING"
-                                                                           FontSize="10" FontWeight="Bold"
-                                                                           Foreground="White"/>
+                                                                <TextBlock FontSize="10" FontWeight="Bold"
+                                                                           Foreground="White"><Run Text="&#xE8E5;" FontFamily="Segoe MDL2 Assets"/><Run Text="  EDITING"/></TextBlock>
                                                             </Border>
                                                             <Border CornerRadius="4" Padding="5,1"
         Margin="5,0,0,0"
@@ -144,13 +142,13 @@
             Converter={StaticResource BoolToVisibilityConverter}}">
                                                                 <TextBlock FontSize="9" FontWeight="Bold"
                Foreground="{DynamicResource PrimaryForegroundBrush}">
-        <Run Text="📎 "/>
+        <Run Text="&#xE723;" FontFamily="Segoe MDL2 Assets"/><Run Text=" "/>
         <Run Text="{Binding AttachmentCount, Mode=OneWay}"/>
                                                                 </TextBlock>
                                                             </Border>
 
                                                             <!-- CHAT 19 INVOICED: invoiced badge in history row
-     Shows "✅ TI-2026-001" when this DN has been invoiced.
+     Shows a CHECK badge (TI number) when this DN has been invoiced.
      Hidden when InvoicedBadgeText is empty (not yet invoiced). -->
                                                             <Border CornerRadius="4" Padding="7,2"
         Margin="5,0,0,0"
@@ -167,7 +165,7 @@
                                                         <TextBlock FontSize="11" Margin="0,3,0,0"
                                                                    Foreground="{DynamicResource SecondaryForegroundBrush}">
                                                             <Run Text="{Binding DeliveryDate, Mode=OneWay}"/>
-                                                            <Run Text="  ·  🚚 "/>
+                                                            <Run Text="  ·  "/><Run Text="&#xE7F4;" FontFamily="Segoe MDL2 Assets"/><Run Text=" "/>
                                                             <Run Text="{Binding DriverName, Mode=OneWay}"/>
                                                         </TextBlock>
 
@@ -199,8 +197,8 @@
                                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                                         </Border>
                                                         <!-- CHAT 19 INVOICED:
-     When CanInvoice = true  → shows "🧾 Tax Invoice" (blue, active)
-     When CanInvoice = false → shows "✅ Invoiced" (green, disabled)
+     When CanInvoice = true  → shows "Tax Invoice" (blue, active)
+     When CanInvoice = false → shows "Invoiced" (green, disabled)
      CanInvoice is false when already invoiced OR status not eligible -->
                                                         <Button Command="{Binding DataContext.ConvertToTaxInvoiceCommand,
                   RelativeSource={RelativeSource AncestorType=UserControl}}"

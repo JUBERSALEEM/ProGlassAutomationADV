@@ -34,9 +34,8 @@
                             </LinearGradientBrush>
                         </Border.Background>
                         <StackPanel>
-                            <TextBlock Text="📊  QUICK STATS"
-                                       FontSize="11" FontWeight="Bold"
-                                       Foreground="White"/>
+                            <TextBlock FontSize="11" FontWeight="Bold"
+                                       Foreground="White"><Run Text="&#xE9F9;" FontFamily="Segoe MDL2 Assets"/><Run Text="  QUICK STATS"/></TextBlock>
                             <TextBlock Text="Delivery numbers at a glance"
                                        FontSize="10" Foreground="#CCFFFFFF"
                                        Margin="0,2,0,0"/>
@@ -182,14 +181,8 @@
                     </Grid.RowDefinitions>
 
                     <!-- Hero strip -->
-                    <Border Grid.Row="0" Style="{StaticResource MasterHeroStripStyle}">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <!-- v2: brand blue hero (was green) -->
-                                <GradientStop Color="#1E3A8A" Offset="0"/>
-                                <GradientStop Color="#3B82F6" Offset="1"/>
-                            </LinearGradientBrush>
-                        </Border.Background>
+                    <Border Grid.Row="0" Style="{StaticResource MasterHeroStripStyle}"
+                        Background="{DynamicResource AccentBrush}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>

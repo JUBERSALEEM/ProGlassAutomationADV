@@ -531,7 +531,7 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Grid.Column="0" Text="📌"
+                <TextBlock Grid.Column="0" Text="&#xE718;" FontFamily="Segoe MDL2 Assets"
                            FontSize="28" VerticalAlignment="Center"
                            Margin="0,0,14,0"/>
                 <StackPanel Grid.Column="1" VerticalAlignment="Center">

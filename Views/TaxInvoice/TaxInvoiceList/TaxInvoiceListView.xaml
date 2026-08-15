@@ -1,4 +1,4 @@
-﻿<!-- MIGRATION LOG — Button Standardization (master prompt v1.0)
+<!-- MIGRATION LOG — Button Standardization (master prompt v1.0)
      Date: 2026-08-15 — DN/TI/JO batch 4a
      • Shell tabs (Workspace/God View/Activity) -> STEP D two-button
        visibility pattern with MDL2 glyphs (E8B7/E774/E81C)
@@ -246,7 +246,7 @@
                                     Background="{DynamicResource TintIndigoBrush}">
                                 <TextBlock FontSize="9" FontWeight="Bold"
                                            Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                    <Run Text="🧾 "/>
+                                    <Run Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets"/><Run Text=" "/>
                                     <Run Text="{Binding InvoiceCount, Mode=OneWay}"/>
                                     <Run Text=" invoice(s)"/>
                                 </TextBlock>
@@ -292,13 +292,13 @@
 
                         <!-- Latest invoice info -->
                         <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                            <TextBlock Text="📅 Latest: " FontSize="10" Opacity="0.7"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                            <TextBlock FontSize="10" Opacity="0.7"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"><Run Text="&#xE787;" FontFamily="Segoe MDL2 Assets"/><Run Text=" Latest: "/></TextBlock>
                             <TextBlock Text="{Binding LatestIssueDateDisplay}"
                                        FontSize="10" FontWeight="SemiBold"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            <TextBlock Text=" · 🧾 " FontSize="10" Margin="6,0,0,0"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                            <TextBlock FontSize="10" Margin="6,0,0,0"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"><Run Text=" · "/><Run Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets"/><Run Text=" "/></TextBlock>
                             <TextBlock Text="{Binding LatestInvoiceNumber}"
                                        FontSize="10" FontWeight="SemiBold"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -504,10 +504,9 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0"
-                               Text="🔍  Selected:"
                                FontSize="11" FontWeight="Bold"
                                VerticalAlignment="Center" Margin="0,0,10,0"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"><Run Text="&#xE721;" FontFamily="Segoe MDL2 Assets"/><Run Text="  Selected:"/></TextBlock>
                     <TextBlock Grid.Column="1"
                                Text="{Binding SelectedFamilyMetaLine}"
                                FontSize="11" FontWeight="SemiBold"
@@ -685,7 +684,7 @@
                     <emptyState:EmptyStateControl
                         Icon="&#xE8A5;"
                         Title="No invoice families yet"
-                        Message="A family groups every tax invoice belonging to one proforma invoice. Create a tax invoice ('🧾 New Invoice' above) and its family appears here with totals, balance and status."/>
+                        Message="A family groups every tax invoice belonging to one proforma invoice. Create a tax invoice ('New Invoice' above) and its family appears here with totals, balance and status."/>
                 </StackPanel>
             </Grid>
 

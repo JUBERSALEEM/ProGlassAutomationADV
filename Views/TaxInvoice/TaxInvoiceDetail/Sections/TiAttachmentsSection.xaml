@@ -78,7 +78,7 @@
                         <TextBlock FontSize="11" FontWeight="SemiBold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    TextWrapping="Wrap">
-                            <Run Text="👁  Attachments shown are for the selected family member (not the currently loaded invoice)."/>
+                            <Run Text="&#xE7B3;" FontFamily="Segoe MDL2 Assets"/><Run Text="  Attachments shown are for the selected family member (not the currently loaded invoice)."/>
                         </TextBlock>
                     </Border>
 
@@ -104,7 +104,7 @@
                                     </Style>
                                 </Border.Style>
                                 <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="📎" FontSize="32"
+                                    <TextBlock Text="&#xE723;" FontFamily="Segoe MDL2 Assets" FontSize="32"
                                                HorizontalAlignment="Center"
                                                Opacity="0.4"/>
                                     <TextBlock Text="No attachments yet"

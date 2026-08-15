@@ -1,4 +1,4 @@
-﻿<!-- MIGRATION LOG — Button Standardization (rebuilt cleanly 2026-08-15)
+<!-- MIGRATION LOG — Button Standardization (rebuilt cleanly 2026-08-15)
      Previous migration regex overran and deleted the loading/error
      overlays, KPI hero cards, meta bar and filter bar. File rebuilt
      from the pre-migration baseline with ALL intended conversions:
@@ -188,17 +188,17 @@
                         </StackPanel>
 
                         <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                            <TextBlock Text="📅 Latest: " FontSize="10"
+                            <TextBlock FontSize="10"
                                        VerticalAlignment="Center" Opacity="0.7"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                       Foreground="{DynamicResource MutedForegroundBrush}"><Run Text="&#xE787;" FontFamily="Segoe MDL2 Assets"/><Run Text=" Latest: "/></TextBlock>
                             <TextBlock Text="{Binding LatestDeliveryDateDisplay}"
                                        FontSize="10" FontWeight="SemiBold"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            <TextBlock Text=" · 🚚 " FontSize="10"
+                            <TextBlock FontSize="10"
                                        VerticalAlignment="Center"
                                        Foreground="{DynamicResource MutedForegroundBrush}"
-                                       Margin="6,0,0,0"/>
+                                       Margin="6,0,0,0"><Run Text=" · "/><Run Text="&#xE7F4;" FontFamily="Segoe MDL2 Assets"/><Run Text=" "/></TextBlock>
                             <TextBlock Text="{Binding LatestDriverName}"
                                        FontSize="10" FontWeight="SemiBold"
                                        VerticalAlignment="Center"
@@ -306,8 +306,7 @@
                                     </Style.Triggers>
                                 </Style>
                             </TextBlock.Style>
-    <Run Text="🧾 "
-         Foreground="{DynamicResource MutedForegroundBrush}"/>
+    <Run Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource MutedForegroundBrush}"/><Run Text=" " Foreground="{DynamicResource MutedForegroundBrush}"/>
     <Run Text="{Binding InvoicedCountDisplay, Mode=OneWay}">
         <Run.Style>
             <Style TargetType="Run">
@@ -884,7 +883,7 @@
                     <emptyState:EmptyStateControl
                         Icon="&#xE7F4;"
                         Title="No delivery notes yet"
-                        Message="Delivery notes record what leaves the factory — quantities, driver, vehicle and status. Create one from a Job Order ('🚚 Create DN' above) and every shipment will be tracked here."/>
+                        Message="Delivery notes record what leaves the factory — quantities, driver, vehicle and status. Create one from a Job Order ('Create DN' above) and every shipment will be tracked here."/>
                 </StackPanel>
             </Grid>
 

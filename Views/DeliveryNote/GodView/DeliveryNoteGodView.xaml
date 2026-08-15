@@ -56,7 +56,7 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                <TextBlock Text="🌐  Delivery Notes — God View"
+                <TextBlock Text="Delivery Notes — God View"
                            FontSize="18" FontWeight="Bold"
                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                 <TextBlock Text="Every delivery note in the system, at a glance"

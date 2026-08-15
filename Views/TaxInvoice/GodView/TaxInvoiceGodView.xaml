@@ -55,7 +55,7 @@
             </Grid.ColumnDefinitions>
 
             <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                <TextBlock Text="🌐  Tax Invoices — God View"
+                <TextBlock Text="Tax Invoices — God View"
                            FontSize="18" FontWeight="Bold"
                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                 <TextBlock Text="Every tax invoice in the system, at a glance"

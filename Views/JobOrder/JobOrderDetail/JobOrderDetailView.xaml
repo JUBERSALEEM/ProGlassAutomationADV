@@ -67,10 +67,10 @@
             </Border>
 
             <!-- ── HERO HEADER — Indigo brand gradient ─────────────── -->
-            <hero:GradientHeroCard Icon="📋"
+            <hero:GradientHeroCard Icon="&#xE8C8;"
                                    Value="{Binding JobOrderId}"
                                    Label="{Binding GrandTotalDisplay}"
-                                   TrendArrow="📄"
+                                   TrendArrow="&#xE8A5;"
                                    TrendText="{Binding SourceProformaId}"
                                    TrendVisibility="Visible"
                                    GradientStartColor="#4338CA"

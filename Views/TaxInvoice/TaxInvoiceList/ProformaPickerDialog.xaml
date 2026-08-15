@@ -43,7 +43,7 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="📋  Select Proforma Invoice"
+                        <TextBlock Text="Select Proforma Invoice"
                                    FontSize="16" FontWeight="Bold"
                                    Foreground="White"/>
                         <TextBlock Text="Choose a PI to create a Tax Invoice from"

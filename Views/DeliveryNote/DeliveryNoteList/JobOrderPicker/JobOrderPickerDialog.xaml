@@ -39,7 +39,7 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="📋  Select Job Order"
+                        <TextBlock Text="Select Job Order"
                                    FontSize="16" FontWeight="Bold"
                                    Foreground="White"/>
                         <TextBlock Text="Choose a Job Order to create a Delivery Note from"

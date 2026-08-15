@@ -160,10 +160,10 @@
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="#CCFFFFFF"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Text" Value="✏️  DELIVERY NOTE  ·  "/>
+            <Setter Property="Text" Value="DELIVERY NOTE  ·  "/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsMasterDn}" Value="True">
-                    <Setter Property="Text" Value="📌  MASTER DELIVERY NOTE  ·  "/>
+                    <Setter Property="Text" Value="MASTER DELIVERY NOTE  ·  "/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -239,10 +239,10 @@
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground"
                     Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="Text" Value="📦  DELIVERY ITEMS"/>
+            <Setter Property="Text" Value="DELIVERY ITEMS"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsMasterDn}" Value="True">
-                    <Setter Property="Text" Value="📦  BALANCE ITEMS — PENDING DELIVERY"/>
+                    <Setter Property="Text" Value="BALANCE ITEMS — PENDING DELIVERY"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -263,7 +263,7 @@
         <Style x:Key="MasterHeroMetaValueStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="12"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
         </Style>
         <Style x:Key="MasterHeroStripStyle" TargetType="Border">
@@ -279,7 +279,7 @@
         <Style x:Key="MasterHeroTitleStyle" TargetType="TextBlock">
             <Setter Property="FontSize" Value="16"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
             <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
         </Style>
@@ -326,7 +326,7 @@
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Background" Value="#1E40AF"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">

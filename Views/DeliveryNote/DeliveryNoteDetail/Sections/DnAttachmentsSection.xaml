@@ -85,7 +85,7 @@
                                     Visibility="{Binding HasNoAttachments,
                                                  Converter={StaticResource BoolToVisibilityConverter}}">
                                 <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="📎" FontSize="32"
+                                    <TextBlock Text="&#xE723;" FontFamily="Segoe MDL2 Assets" FontSize="32"
                                                HorizontalAlignment="Center" Opacity="0.4"/>
                                     <TextBlock Text="No attachments yet"
                                                FontSize="13" FontWeight="SemiBold"
