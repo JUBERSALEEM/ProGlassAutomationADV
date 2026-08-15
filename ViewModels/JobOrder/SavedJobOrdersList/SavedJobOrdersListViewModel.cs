@@ -235,6 +235,10 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 
             RefreshCommand = new RelayCommand(async _ => await LoadJobOrdersAsync());
 
+            // Instant refresh when sample data is seeded.
+            ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded +=
+                async () => { try { await LoadJobOrdersAsync(); } catch { } };
+
             // v2 §24: version history dialog (shared with Proforma).
             ShowVersionsCommand = new RelayCommand(
                 async param => await ShowVersionsAsync(

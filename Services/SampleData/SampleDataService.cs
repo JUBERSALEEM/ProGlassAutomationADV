@@ -36,6 +36,9 @@ namespace ProGlassAutomation.Services.SampleData
     /// <summary>Seeds a consistent demo dataset across all modules.</summary>
     public static class SampleDataService
     {
+        /// <summary>Raised (UI thread) after a successful seed so open
+        /// lists refresh instantly without a manual refresh.</summary>
+        public static event Action DataSeeded;
         /// <summary>
         /// Returns true when any business table already has data
         /// (seeding would mix demo with real records — refuse).
@@ -124,6 +127,8 @@ namespace ProGlassAutomation.Services.SampleData
             AuditService.Log(AuditSections.Settings,
                 "Sample data loaded",
                 "6 sheets, 3 PIs, 2 JOs, 2 DNs, 3 TIs seeded for first-run exploration");
+
+            try { DataSeeded?.Invoke(); } catch { }
 
             return "Sample data loaded ✔\n\n" +
                    "• Sheet Store: 6 glass sheets\n" +

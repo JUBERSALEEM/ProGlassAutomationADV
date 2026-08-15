@@ -528,7 +528,7 @@
                             <ColumnDefinition Width="100"/>
                             <ColumnDefinition Width="1.4*"/>
                             <ColumnDefinition Width="120"/>
-                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="160"/>
                         </Grid.ColumnDefinitions>
 
                         <TextBlock Grid.Column="0" Text="REF #"
@@ -704,7 +704,7 @@
                                             <ColumnDefinition Width="100"/>
                                             <ColumnDefinition Width="1.4*"/>
                                             <ColumnDefinition Width="120"/>
-                                            <ColumnDefinition Width="110"/>
+                                            <ColumnDefinition Width="160"/>
                                         </Grid.ColumnDefinitions>
 
                                         <!-- Status-driven left accent border -->
@@ -827,7 +827,7 @@
                                                     Orientation="Horizontal"
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center">
-<Button Style="{StaticResource PrimaryPillButton}"
+<Button Style="{StaticResource RowPrimaryButton}"
                                                 Command="{Binding DataContext.LoadInvoiceCommand,
                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
@@ -837,7 +837,7 @@
                                                 Margin="6,0"
                                                 MinWidth="90"
                                                 Tag="&#xE8E5;" Content="OPEN"/>
-                                        <Button Style="{StaticResource OutlinedPillButton}"
+                                        <Button Style="{StaticResource RowOutlinedButton}"
                                                 Command="{Binding DataContext.ShowVersionsCommand,
                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"

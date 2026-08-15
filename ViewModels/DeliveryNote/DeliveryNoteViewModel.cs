@@ -119,6 +119,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
         public DeliveryNoteViewModel()
         {
             ListVM = new DeliveryNoteListViewModel();
+            ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded +=
+                async () => { try { await ListVM.LoadAsync(); } catch { } };
             DetailVM = new DeliveryNoteDetailViewModel();
 
             // ── List → open real DN detail ────────────────────────────────

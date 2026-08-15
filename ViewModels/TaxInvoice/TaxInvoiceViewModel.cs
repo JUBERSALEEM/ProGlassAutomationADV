@@ -114,6 +114,8 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
         public TaxInvoiceViewModel()
         {
             ListVM = new TaxInvoiceListViewModel();
+            ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded +=
+                async () => { try { await ListVM.LoadAsync(); } catch { } };
             DetailVM = new TaxInvoiceDetailViewModel();
 
             // Wire list → detail navigation

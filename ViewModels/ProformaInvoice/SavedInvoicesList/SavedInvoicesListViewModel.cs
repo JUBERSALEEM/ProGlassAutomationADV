@@ -163,6 +163,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         public SavedInvoicesListViewModel()
         {
             RefreshCommand = new RelayCommand(async _ => await LoadInvoicesAsync());
+
+            // Instant refresh when sample data is seeded.
+            ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded +=
+                async () => { try { await LoadInvoicesAsync(); } catch { } };
             ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
             LoadInvoiceCommand = new RelayCommand(p => RequestLoad(p as SavedInvoiceListItem));
 
