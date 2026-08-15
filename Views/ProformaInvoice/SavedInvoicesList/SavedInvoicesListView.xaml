@@ -13,6 +13,18 @@
              TextOptions.TextHintingMode="Fixed"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
+    <!-- ═══════════════════════════════════════════════════════════════
+         MIGRATION LOG — Button Standardization (master prompt v1.0)
+         Date: 2026-08-15
+         • 5 inline button templates -> centralized styles:
+           REFRESH->PrimaryPill, TODAY->OutlinedPill, SHARE EXCEL->SuccessPill,
+           CLEAR->OutlinedPill, OPEN->PrimaryPill (MinWidth 90 row variant)
+         • Version-history emoji button -> OutlinedPill icon-only (E81C)
+         • Emojis removed: calendar, share, clock
+         • All buttons now carry the 4 required state triggers via the
+           centralized templates + ToolTips
+         Commands/bindings preserved; no ViewModel changes.
+    ═══════════════════════════════════════════════════════════════ -->
 
     <!--
     ═══════════════════════════════════════════════════════════════════
@@ -316,130 +328,25 @@
                     NEW-N8: VerticalAlignment="Center" anchors to stat card
                     row center.
                 -->
-                <Button Command="{Binding RefreshCommand}"
+                <Button Style="{StaticResource PrimaryPillButton}"
+                        Command="{Binding RefreshCommand}"
                         Margin="16,0,0,0"
-                        VerticalAlignment="Center"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Cursor="Hand">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="RefreshBg"
-                                    Background="{DynamicResource AccentBrush}"
-                                    CornerRadius="20"
-                                    Padding="22,0"
-                                    Height="40"
-                                    SnapsToDevicePixels="True">
-                                <StackPanel Orientation="Horizontal"
-                                            VerticalAlignment="Center">
-                                    <TextBlock Text="&#xE72C;"
-                                               FontFamily="Segoe MDL2 Assets"
-                                               FontSize="13"
-                                               Foreground="White"
-                                               VerticalAlignment="Center"
-                                               Margin="0,0,10,0"/>
-                                    <TextBlock Text="REFRESH"
-                                               FontSize="12"
-                                               FontWeight="Bold"
-                                               Foreground="White"
-                                               VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="RefreshBg"
-                                            Property="Background"
-                                            Value="#6366F1"/>
-                                </Trigger>
-                                <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="RefreshBg"
-                                            Property="Background"
-                                            Value="#3730A3"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
+                        Tag="&#xE72C;" Content="REFRESH"
+                        ToolTip="Reload the invoice list"/>
 
                 <!-- v2: one-tap TODAY filter -->
-                <Button Command="{Binding SetTodayFilterCommand}"
+                <Button Style="{StaticResource OutlinedPillButton}"
+                        Command="{Binding SetTodayFilterCommand}"
                         Margin="10,0,0,0"
-                        VerticalAlignment="Center"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Cursor="Hand"
-                        ToolTip="Filter invoices prepared today">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="TodayBg"
-                                    Background="{DynamicResource TintIndigoBrush}"
-                                    BorderBrush="{DynamicResource AccentBrush}"
-                                    BorderThickness="1"
-                                    CornerRadius="20"
-                                    Padding="18,0"
-                                    Height="40"
-                                    SnapsToDevicePixels="True">
-                                <StackPanel Orientation="Horizontal"
-                                            VerticalAlignment="Center">
-                                    <TextBlock Text="📅"
-                                               FontSize="13"
-                                               VerticalAlignment="Center"
-                                               Margin="0,0,8,0"/>
-                                    <TextBlock Text="TODAY"
-                                               FontSize="12"
-                                               FontWeight="Bold"
-                                               Foreground="{DynamicResource AccentBrush}"
-                                               VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="TodayBg"
-                                            Property="Opacity" Value="0.8"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
+                        Tag="&#xE787;" Content="TODAY"
+                        ToolTip="Filter invoices prepared today"/>
 
                 <!-- v2: share the filtered list as one Excel table -->
-                <Button Command="{Binding ExportFilteredExcelCommand}"
+                <Button Style="{StaticResource SuccessPillButton}"
+                        Command="{Binding ExportFilteredExcelCommand}"
                         Margin="10,0,0,0"
-                        VerticalAlignment="Center"
-                        Background="Transparent"
-                        BorderThickness="0"
-                        Cursor="Hand"
-                        ToolTip="Export the filtered invoices as one Excel table">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="ExcelBg"
-                                    Background="{DynamicResource SuccessBrush}"
-                                    CornerRadius="20"
-                                    Padding="18,0"
-                                    Height="40"
-                                    SnapsToDevicePixels="True">
-                                <StackPanel Orientation="Horizontal"
-                                            VerticalAlignment="Center">
-                                    <TextBlock Text="📤"
-                                               FontSize="13"
-                                               VerticalAlignment="Center"
-                                               Margin="0,0,8,0"/>
-                                    <TextBlock Text="SHARE EXCEL"
-                                               FontSize="12"
-                                               FontWeight="Bold"
-                                               Foreground="White"
-                                               VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="ExcelBg"
-                                            Property="Opacity" Value="0.85"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
+                        Tag="&#xE72D;" Content="SHARE EXCEL"
+                        ToolTip="Export the filtered invoices as one Excel table"/>
             </StackPanel>
 
             <!-- ── SEARCH & FILTER SECTION ──────────────────────────── -->
@@ -556,59 +463,12 @@
 
                                 <!-- Clear button -->
                                 <Button Grid.Column="10"
+                                        Style="{StaticResource OutlinedPillButton}"
                                         Command="{Binding ClearFiltersCommand}"
                                         Margin="0,22,0,0"
-                                        Cursor="Hand"
-                                        Background="Transparent"
-                                        BorderThickness="0">
-                                    <Button.Template>
-                                        <ControlTemplate TargetType="Button">
-                                            <Border x:Name="ClearBg"
-                                                    Background="Transparent"
-                                                    BorderBrush="{DynamicResource BorderBrush}"
-                                                    BorderThickness="1.5"
-                                                    CornerRadius="8"
-                                                    Padding="16,0"
-                                                    Height="38"
-                                                    SnapsToDevicePixels="True">
-                                                <StackPanel Orientation="Horizontal"
-                                                            VerticalAlignment="Center">
-                                                    <TextBlock x:Name="ClearIcon"
-                                                               Text="&#xE711;"
-                                                               FontFamily="Segoe MDL2 Assets"
-                                                               FontSize="11"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                               VerticalAlignment="Center"
-                                                               Margin="0,0,8,0"/>
-                                                    <TextBlock x:Name="ClearText"
-                                                               Text="Clear"
-                                                               FontSize="11"
-                                                               FontWeight="Bold"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                               VerticalAlignment="Center"/>
-                                                </StackPanel>
-                                            </Border>
-                                            <ControlTemplate.Triggers>
-                                                <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter TargetName="ClearBg"
-                                                            Property="BorderBrush"
-                                                            Value="#B91C1C"/>
-                                                    <Setter TargetName="ClearIcon"
-                                                            Property="Foreground"
-                                                            Value="#B91C1C"/>
-                                                    <Setter TargetName="ClearText"
-                                                            Property="Foreground"
-                                                            Value="#B91C1C"/>
-                                                </Trigger>
-                                                <Trigger Property="IsPressed" Value="True">
-                                                    <Setter TargetName="ClearBg"
-                                                            Property="Background"
-                                                            Value="#FEE2E2"/>
-                                                </Trigger>
-                                            </ControlTemplate.Triggers>
-                                        </ControlTemplate>
-                                    </Button.Template>
-                                </Button>
+                                        MinWidth="92"
+                                        Tag="&#xE711;" Content="CLEAR"
+                                        ToolTip="Clear all search filters"/>
                             </Grid>
                         </StackPanel>
                     </Border>
@@ -967,69 +827,26 @@
                                                     Orientation="Horizontal"
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center">
-<Button
+<Button Style="{StaticResource PrimaryPillButton}"
                                                 Command="{Binding DataContext.LoadInvoiceCommand,
                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 ToolTip="Open &amp; Edit (right-click for more options)"
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
-                                                Cursor="Hand"
-                                                Background="Transparent"
-                                                BorderThickness="0"
                                                 Margin="6,0"
-                                                MinWidth="90">
-                                            <Button.Template>
-                                                <ControlTemplate TargetType="Button">
-                                                    <Border x:Name="OpenBtnBg"
-                                                            Background="{DynamicResource AccentBrush}"
-                                                            CornerRadius="8"
-                                                            Padding="12,7"
-                                                            SnapsToDevicePixels="True">
-                                                        <StackPanel Orientation="Horizontal"
-                                                                    HorizontalAlignment="Center">
-                                                            <TextBlock Text="&#xE8E5;"
-                                                                       FontFamily="Segoe MDL2 Assets"
-                                                                       FontSize="11"
-                                                                       Foreground="White"
-                                                                       VerticalAlignment="Center"
-                                                                       Margin="0,0,6,0"/>
-                                                            <TextBlock Text="OPEN"
-                                                                       FontWeight="Bold"
-                                                                       FontSize="11"
-                                                                       Foreground="White"
-                                                                       VerticalAlignment="Center"/>
-                                                        </StackPanel>
-                                                    </Border>
-                                                    <ControlTemplate.Triggers>
-                                                        <Trigger Property="IsMouseOver"
-                                                                 Value="True">
-                                                            <Setter TargetName="OpenBtnBg"
-                                                                    Property="Background"
-                                                                    Value="#6366F1"/>
-                                                        </Trigger>
-                                                        <Trigger Property="IsPressed"
-                                                                 Value="True">
-                                                            <Setter TargetName="OpenBtnBg"
-                                                                    Property="Background"
-                                                                    Value="#3730A3"/>
-                                                        </Trigger>
-                                                    </ControlTemplate.Triggers>
-                                                </ControlTemplate>
-                                            </Button.Template>
-                                        </Button>
-                                        <Button Command="{Binding DataContext.ShowVersionsCommand,
+                                                MinWidth="90"
+                                                Tag="&#xE8E5;" Content="OPEN"/>
+                                        <Button Style="{StaticResource OutlinedPillButton}"
+                                                Command="{Binding DataContext.ShowVersionsCommand,
                                                     RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"
                                                 ToolTip="Version history"
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
-                                                Cursor="Hand"
-                                                Background="Transparent"
-                                                BorderThickness="0"
                                                 Margin="6,0,0,0"
-                                                FontSize="14"
-                                                Content="🕘"/>
+                                                MinWidth="40"
+                                                Tag="&#xE81C;"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>
