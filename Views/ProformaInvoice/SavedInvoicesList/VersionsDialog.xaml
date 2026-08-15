@@ -29,9 +29,14 @@
         </Grid.RowDefinitions>
 
         <StackPanel Grid.Row="0" Margin="0,0,0,14">
-            <TextBlock Text="🕘  Version history"
-                       FontSize="17" FontWeight="Bold"
-                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets"
+                           FontSize="16" Foreground="{DynamicResource AccentBrush}"
+                           VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <TextBlock Text="Version history"
+                           FontSize="17" FontWeight="Bold"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+            </StackPanel>
             <TextBlock x:Name="SubtitleText"
                        FontSize="12" Margin="0,3,0,0"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>

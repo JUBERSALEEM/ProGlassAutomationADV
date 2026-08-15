@@ -118,8 +118,10 @@
                         CornerRadius="14"
                         Background="{DynamicResource TintIndigoBrush}"
                         VerticalAlignment="Center">
-                    <TextBlock Text="📎"
-                               FontSize="22"
+                    <TextBlock Text="&#xE723;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="20"
+                               Foreground="{DynamicResource AccentBrush}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
                 </Border>
@@ -163,7 +165,7 @@
                     Command="{Binding AddImageCommand}"
                     IsEnabled="{Binding HasProformaId}">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="🖼️" Margin="0,0,8,0"/>
+                    <TextBlock Text="&#xE728;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0"/>
                     <TextBlock Text="Add Image"/>
                 </StackPanel>
             </Button>
@@ -173,7 +175,7 @@
                     Command="{Binding AddPdfCommand}"
                     IsEnabled="{Binding HasProformaId}">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="📄" Margin="0,0,8,0"/>
+                    <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0"/>
                     <TextBlock Text="Add PDF"/>
                 </StackPanel>
             </Button>
@@ -206,8 +208,10 @@
                 <StackPanel VerticalAlignment="Center"
                             HorizontalAlignment="Center"
                             Margin="30">
-                    <TextBlock Text="🗂️"
-                               FontSize="40"
+                    <TextBlock Text="&#xE8B7;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="36"
+                               Foreground="{DynamicResource AccentBrush}"
                                HorizontalAlignment="Center"
                                Opacity="0.7"/>
                     <TextBlock Text="No attachments yet"

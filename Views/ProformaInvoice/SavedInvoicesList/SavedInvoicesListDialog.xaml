@@ -45,69 +45,10 @@
 
                 <!-- Close button — fixed: hover + press states, CornerRadius=10 -->
                 <Button Grid.Column="1"
-                        Click="OnCloseClick"
-                        Cursor="Hand"
-                        BorderThickness="0"
-                        Background="Transparent"
-                        MinWidth="110"
-                        Height="40">
-                    <Button.Template>
-                        <ControlTemplate TargetType="Button">
-                            <Border x:Name="bd"
-                                    Background="Transparent"
-                                    BorderBrush="{DynamicResource BorderBrush}"
-                                    BorderThickness="1.5"
-                                    CornerRadius="10"
-                                    Padding="18,0"
-                                    SnapsToDevicePixels="True">
-                                <StackPanel Orientation="Horizontal"
-                                            HorizontalAlignment="Center"
-                                            VerticalAlignment="Center">
-                                    <TextBlock x:Name="CloseIcon"
-                                               Text="&#xE711;"
-                                               FontFamily="Segoe MDL2 Assets"
-                                               FontSize="11"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               VerticalAlignment="Center"
-                                               Margin="0,0,8,0"/>
-                                    <TextBlock x:Name="CloseText"
-                                               Text="Close"
-                                               FontSize="12"
-                                               FontWeight="Bold"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Border>
-                            <ControlTemplate.Triggers>
-                                <Trigger Property="IsMouseOver" Value="True">
-                                    <Setter TargetName="bd"
-                                            Property="BorderBrush"
-                                            Value="#B91C1C"/>
-                                    <Setter TargetName="CloseIcon"
-                                            Property="Foreground"
-                                            Value="#B91C1C"/>
-                                    <Setter TargetName="CloseText"
-                                            Property="Foreground"
-                                            Value="#B91C1C"/>
-                                </Trigger>
-                                <Trigger Property="IsPressed" Value="True">
-                                    <Setter TargetName="bd"
-                                            Property="Background"
-                                            Value="#FEE2E2"/>
-                                    <Setter TargetName="bd"
-                                            Property="BorderBrush"
-                                            Value="#B91C1C"/>
-                                    <Setter TargetName="CloseIcon"
-                                            Property="Foreground"
-                                            Value="#B91C1C"/>
-                                    <Setter TargetName="CloseText"
-                                            Property="Foreground"
-                                            Value="#B91C1C"/>
-                                </Trigger>
-                            </ControlTemplate.Triggers>
-                        </ControlTemplate>
-                    </Button.Template>
-                </Button>
+                        Style="{StaticResource OutlinedPillButton}"
+                        Tag="&#xE711;" Content="CLOSE"
+                        ToolTip="Close"
+                        Click="OnCloseClick"/>
             </Grid>
         </Border>
     </Grid>
