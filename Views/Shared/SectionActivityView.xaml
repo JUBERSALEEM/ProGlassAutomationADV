@@ -16,7 +16,7 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <Grid Margin="20" MaxWidth="1100" HorizontalAlignment="Center">
+    <Grid Margin="20">
 
         <!-- Fade-in uses the hardware-scaled motion token: snappier on
              120/144/165 Hz panels, calmer on 60 Hz (PerformanceProfileService). -->
