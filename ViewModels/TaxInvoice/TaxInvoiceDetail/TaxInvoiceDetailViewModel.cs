@@ -561,6 +561,27 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
         public ICommand RemoveSpecGroupCommand { get; }
         public ICommand RecalculateCommand { get; }
         public ICommand ExportPdfCommand { get; }
+        // ═══ DETAIL TAB SWITCHER (Overview / Attachments / Family) ═══
+        private string _detailTab = "Overview";
+        public string DetailTab
+        {
+            get => _detailTab;
+            set
+            {
+                if (_detailTab == value) return;
+                _detailTab = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsOverviewTab));
+                OnPropertyChanged(nameof(IsAttachmentsTab));
+                OnPropertyChanged(nameof(IsFamilyTab));
+            }
+        }
+        public bool IsOverviewTab => DetailTab == "Overview";
+        public bool IsAttachmentsTab => DetailTab == "Attachments";
+        public bool IsFamilyTab => DetailTab == "Family";
+
+        public ICommand SwitchDetailTabCommand { get; }
+
         public ICommand DeleteCommand { get; }
 
         /// <summary>
@@ -616,6 +637,9 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             ExportPdfCommand = new RelayCommand(
                 async _ => await ExportPdfAsync(),
                 _ => !IsNewInvoice && !IsSaving);
+
+            SwitchDetailTabCommand = new RelayCommand(p =>
+                DetailTab = p as string ?? "Overview");
 
             DeleteCommand = new RelayCommand(async _ =>
             {
