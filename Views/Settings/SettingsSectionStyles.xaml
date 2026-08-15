@@ -431,12 +431,16 @@
          5. SHELL — NAVIGATION RAIL
     ═══════════════════════════════════════════════════════════════ -->
 
-    <!-- One navigation entry in the left rail. The per-item Style adds
-         a DataTrigger on its Is{Page}Page VM property to light up the
-         active state (accent bar + tinted background). -->
+    <!-- One navigation entry in the left rail. Active state is driven by
+         the Button's Tag: the per-item Style sets Tag="Active" from a
+         DataTrigger on its Is{Page}Page VM property; the template then
+         lights the tinted background + accent bar (ControlTemplate
+         triggers are the ONLY place TargetName is legal). -->
     <Style x:Key="SettingsNavButtonStyle" TargetType="Button">
         <Setter Property="Cursor"              Value="Hand"/>
         <Setter Property="Margin"              Value="10,2"/>
+        <Setter Property="Tag"                 Value="Inactive"/>
+        <Setter Property="Background"          Value="Transparent"/>
         <Setter Property="HorizontalContentAlignment" Value="Left"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding"   Value="True"/>
@@ -447,7 +451,7 @@
                         <Border x:Name="Bd"
                                 CornerRadius="10"
                                 Padding="12,10"
-                                Background="Transparent"
+                                Background="{TemplateBinding Background}"
                                 SnapsToDevicePixels="True"
                                 UseLayoutRounding="True">
                             <ContentPresenter VerticalAlignment="Center"/>
@@ -469,6 +473,11 @@
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
                             <Setter TargetName="Bd" Property="Opacity" Value="0.8"/>
+                        </Trigger>
+                        <Trigger Property="Tag" Value="Active">
+                            <Setter TargetName="Bd" Property="Background"
+                                    Value="{DynamicResource TintIndigoBrush}"/>
+                            <Setter TargetName="ActiveBar" Property="Opacity" Value="1"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>

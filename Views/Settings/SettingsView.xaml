@@ -90,9 +90,7 @@
                                    BasedOn="{StaticResource SettingsNavButtonStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsAppearancePage}" Value="True">
-                                        <Setter TargetName="Bd" Property="Background"
-                                                Value="{DynamicResource TintIndigoBrush}"/>
-                                        <Setter TargetName="ActiveBar" Property="Opacity" Value="1"/>
+                                        <Setter Property="Tag" Value="Active"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -111,9 +109,7 @@
                                    BasedOn="{StaticResource SettingsNavButtonStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsAiPage}" Value="True">
-                                        <Setter TargetName="Bd" Property="Background"
-                                                Value="{DynamicResource TintIndigoBrush}"/>
-                                        <Setter TargetName="ActiveBar" Property="Opacity" Value="1"/>
+                                        <Setter Property="Tag" Value="Active"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -132,9 +128,7 @@
                                    BasedOn="{StaticResource SettingsNavButtonStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsVoicePage}" Value="True">
-                                        <Setter TargetName="Bd" Property="Background"
-                                                Value="{DynamicResource TintIndigoBrush}"/>
-                                        <Setter TargetName="ActiveBar" Property="Opacity" Value="1"/>
+                                        <Setter Property="Tag" Value="Active"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -153,9 +147,7 @@
                                    BasedOn="{StaticResource SettingsNavButtonStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsUpdatesPage}" Value="True">
-                                        <Setter TargetName="Bd" Property="Background"
-                                                Value="{DynamicResource TintIndigoBrush}"/>
-                                        <Setter TargetName="ActiveBar" Property="Opacity" Value="1"/>
+                                        <Setter Property="Tag" Value="Active"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -174,9 +166,7 @@
                                    BasedOn="{StaticResource SettingsNavButtonStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsDataPage}" Value="True">
-                                        <Setter TargetName="Bd" Property="Background"
-                                                Value="{DynamicResource TintIndigoBrush}"/>
-                                        <Setter TargetName="ActiveBar" Property="Opacity" Value="1"/>
+                                        <Setter Property="Tag" Value="Active"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
@@ -195,9 +185,7 @@
                                    BasedOn="{StaticResource SettingsNavButtonStyle}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsAboutPage}" Value="True">
-                                        <Setter TargetName="Bd" Property="Background"
-                                                Value="{DynamicResource TintIndigoBrush}"/>
-                                        <Setter TargetName="ActiveBar" Property="Opacity" Value="1"/>
+                                        <Setter Property="Tag" Value="Active"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
