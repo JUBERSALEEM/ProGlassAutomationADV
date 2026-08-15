@@ -70,6 +70,7 @@
 
 	<ItemGroup>
 		<Resource Include="favicon.ico" />
+		<Resource Include="Resources/proglass_icon_256.png" />
 	</ItemGroup>
 
 	<!-- ═══════════════════════════════════════════════════════════════

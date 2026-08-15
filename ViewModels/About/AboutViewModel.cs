@@ -151,9 +151,9 @@ public sealed class AboutViewModel : ViewModelBase
     /// </summary>
     public IReadOnlyList<HeroPillar> LeftPillars { get; } = new[]
     {
-        new HeroPillar("🧩", "8",     "MODULES"),
+        new HeroPillar("\uE9F9", "8",     "MODULES"),
         new HeroPillar("🇦🇪", "UAE",   "BUILT"),
-        new HeroPillar("🎨", "DARK",  "+ LIGHT"),
+        new HeroPillar("\uE790", "DARK",  "+ LIGHT"),
     };
 
     /// <summary>
@@ -163,9 +163,9 @@ public sealed class AboutViewModel : ViewModelBase
     /// </summary>
     public IReadOnlyList<HeroPillar> RightPillars { get; } = new[]
     {
-        new HeroPillar("💾", "5",       "DATABASES"),
-        new HeroPillar("🔒", "OFFLINE", "FIRST"),
-        new HeroPillar("🤖", "AI",      "READY"),
+        new HeroPillar("\uE74E", "5",       "DATABASES"),
+        new HeroPillar("\uE72E", "OFFLINE", "FIRST"),
+        new HeroPillar("\uE8F2", "AI",      "READY"),
     };
 
     // ══════════════════════════════════════════════════════════════════
@@ -178,11 +178,11 @@ public sealed class AboutViewModel : ViewModelBase
     /// </summary>
     public IReadOnlyList<WorkflowStage> SalesCycle { get; } = new[]
     {
-        new WorkflowStage("📦", "Sheet Store",
+        new WorkflowStage("\uE7B8", "Sheet Store",
             "Raw glass inventory · Buy/Use tracking · SQM pricing"),
-        new WorkflowStage("📄", "Proforma Invoice",
+        new WorkflowStage("\uE8A5", "Proforma Invoice",
             "7-step wizard · Quotation · Customer approval"),
-        new WorkflowStage("🏭", "Job Order",
+        new WorkflowStage("\uE822", "Job Order",
             "Convert PI · Priority · Factory sheet · Status tracking"),
     };
 
@@ -192,21 +192,21 @@ public sealed class AboutViewModel : ViewModelBase
     /// </summary>
     public IReadOnlyList<WorkflowStage> ProductionStages { get; } = new[]
     {
-        new WorkflowStage("✂",  "Cutting",
+        new WorkflowStage("\uE8C6",  "Cutting",
             "CNC-guided cuts · Waste optimization · Piece labels"),
-        new WorkflowStage("🕳",  "Holes & Cutouts",
+        new WorkflowStage("\uE71D",  "Holes & Cutouts",
             "Circular / rectangular · Position tracking · QC gate"),
-        new WorkflowStage("✨",  "Polish",
+        new WorkflowStage("\uE895",  "Polish",
             "Edge finishing · Grit selection · Batch grouping"),
-        new WorkflowStage("📐",  "Edge Deletion",
+        new WorkflowStage("\uE774",  "Edge Deletion",
             "Coating removal for tempered/insulated units"),
-        new WorkflowStage("🔺",  "Mitring",
+        new WorkflowStage("\uE7E8",  "Mitring",
             "Angled edges for corner assemblies"),
-        new WorkflowStage("🔥",  "Tempering",
+        new WorkflowStage("\uE728",  "Tempering",
             "Heat treatment · Batch logging · Fragmentation test"),
-        new WorkflowStage("🔗",  "Pairing",
+        new WorkflowStage("\uE71B",  "Pairing",
             "Match panes for laminated / insulated units"),
-        new WorkflowStage("📚",  "Doubling / DGU",
+        new WorkflowStage("\uE81C",  "Doubling / DGU",
             "Double-glazed unit assembly · Spacer selection · Seal"),
     };
 
@@ -216,11 +216,11 @@ public sealed class AboutViewModel : ViewModelBase
     /// </summary>
     public IReadOnlyList<WorkflowStage> DispatchBilling { get; } = new[]
     {
-        new WorkflowStage("🚚", "Delivery Note",
+        new WorkflowStage("\uE7F4", "Delivery Note",
             "Partial deliveries · Sibling chain · Photo proof"),
-        new WorkflowStage("🧾", "Tax Invoice",
+        new WorkflowStage("\uE8C8", "Tax Invoice",
             "FTA-compliant · UAE 5% VAT · Zero-rated export support"),
-        new WorkflowStage("📊", "Sales Report",
+        new WorkflowStage("\uE9F9", "Sales Report",
             "Account statements · Aging · Top customers · Trend analytics"),
     };
 
@@ -235,27 +235,27 @@ public sealed class AboutViewModel : ViewModelBase
     /// </summary>
     public ObservableCollection<ModuleInfo> Modules { get; } = new()
     {
-        new ModuleInfo("📦", "Sheet Store",
+        new ModuleInfo("\uE7B8", "Sheet Store",
             "Raw glass inventory · SQM pricing · Buy/Use tracking"),
-        new ModuleInfo("📄", "Proforma Invoice",
+        new ModuleInfo("\uE8A5", "Proforma Invoice",
             "7-step wizard · SGU/DGU/LAM · Excel-like paste"),
-        new ModuleInfo("🏭", "Job Order",
+        new ModuleInfo("\uE822", "Job Order",
             "Convert PI · Priority · Status tracking · Factory sheet"),
-        new ModuleInfo("🚚", "Delivery Note",
+        new ModuleInfo("\uE7F4", "Delivery Note",
             "Partial deliveries · Sibling chain · Photo proof"),
-        new ModuleInfo("🧾", "Tax Invoice",
+        new ModuleInfo("\uE8C8", "Tax Invoice",
             "VAT-compliant · Partial invoices · Family tracking"),
-        new ModuleInfo("📈", "Statements & Reports",
+        new ModuleInfo("\uE81C", "Statements & Reports",
             "Account statements · Sales report · PDF export"),
-        new ModuleInfo("🛡", "Users · Audit · Activity",
+        new ModuleInfo("\uE72E", "Users · Audit · Activity",
             "Roles & permissions · Before/after diffs · Live log"),
-        new ModuleInfo("📊", "Multi-page Dashboard",
+        new ModuleInfo("\uE9F9", "Multi-page Dashboard",
             "Real-time KPIs · Activity feed · Cross-module stats"),
-        new ModuleInfo("📤", "Shared Export Engine",
+        new ModuleInfo("\uE72D", "Shared Export Engine",
             "PDF (QuestPDF) · Excel (ClosedXML) · CSV · Print"),
-        new ModuleInfo("🤖", "AI Assistant",
+        new ModuleInfo("\uE8F2", "AI Assistant",
             "Gemini-powered · Glass industry expertise · Chat"),
-        new ModuleInfo("🎨", "Light + Dark Themes",
+        new ModuleInfo("\uE790", "Light + Dark Themes",
             "Instant swap · 25 brushes · Design system foundation"),
     };
 
@@ -269,14 +269,14 @@ public sealed class AboutViewModel : ViewModelBase
     /// </summary>
     public ObservableCollection<TechItem> TechStack { get; } = new()
     {
-        new TechItem("🖥",  "PLATFORM",     ".NET 8 · WPF"),
-        new TechItem("💾",  "DATABASE",     "SQLite · EF Core 8"),
-        new TechItem("🧩",  "PATTERN",      "MVVM Strict"),
-        new TechItem("⌨",  "LANGUAGE",     "C# 12"),
-        new TechItem("📄",  "PDF ENGINE",   "QuestPDF 2024.12"),
-        new TechItem("📊",  "EXCEL ENGINE", "ClosedXML 0.105"),
-        new TechItem("📋",  "CSV ENGINE",   "CsvHelper 33.1"),
-        new TechItem("🤖",  "AI PROVIDER",  "Google Gemini"),
+        new TechItem("\uE770",  "PLATFORM",     ".NET 8 · WPF"),
+        new TechItem("\uE74E",  "DATABASE",     "SQLite · EF Core 8"),
+        new TechItem("\uE9F9",  "PATTERN",      "MVVM Strict"),
+        new TechItem("\uE765",  "LANGUAGE",     "C# 12"),
+        new TechItem("\uE8A5",  "PDF ENGINE",   "QuestPDF 2024.12"),
+        new TechItem("\uE9F9",  "EXCEL ENGINE", "ClosedXML 0.105"),
+        new TechItem("\uE8C8",  "CSV ENGINE",   "CsvHelper 33.1"),
+        new TechItem("\uE8F2",  "AI PROVIDER",  "Google Gemini"),
     };
 
     // ══════════════════════════════════════════════════════════════════
@@ -289,11 +289,11 @@ public sealed class AboutViewModel : ViewModelBase
     /// </summary>
     public IReadOnlyList<CapabilityInfo> CapabilitiesTop { get; } = new[]
     {
-        new CapabilityInfo("🧮", "Deterministic Calculations",
+        new CapabilityInfo("\uE8EF", "Deterministic Calculations",
             "Every formula produces the same result every time. No hidden state."),
-        new CapabilityInfo("📋", "Excel-Like Data Entry",
+        new CapabilityInfo("\uE8C8", "Excel-Like Data Entry",
             "Paste 150+ rows from Excel · Tab/Enter navigation · Auto-numbering"),
-        new CapabilityInfo("🔗", "Sibling Delivery Chain",
+        new CapabilityInfo("\uE71B", "Sibling Delivery Chain",
             "Track partial deliveries · Auto-create Dummy DNs for balance qty"),
     };
 
@@ -303,11 +303,11 @@ public sealed class AboutViewModel : ViewModelBase
     /// </summary>
     public IReadOnlyList<CapabilityInfo> CapabilitiesBottom { get; } = new[]
     {
-        new CapabilityInfo("📸", "Photo Proof of Delivery",
+        new CapabilityInfo("\uE722", "Photo Proof of Delivery",
             "Attach signed copies + site photos to every delivery note"),
-        new CapabilityInfo("🎨", "Instant Theme Swap",
+        new CapabilityInfo("\uE790", "Instant Theme Swap",
             "Light + Dark modes with 25-brush palette — swap without reload"),
-        new CapabilityInfo("💾", "Auto Backup on Exit",
+        new CapabilityInfo("\uE74E", "Auto Backup on Exit",
             "Keeps last 7 database copies · Never lose a day of work"),
     };
 
