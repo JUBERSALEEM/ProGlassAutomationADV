@@ -831,7 +831,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 ProGlassAutomation.Services.Theme.VisualThemeEngine
                     .ApplyModule(
                         ProGlassAutomation.Services.Theme.VisualThemeEngine
-                            .CurrentModule,
+                            .LastRequestedModule,
                         App.Config?.Appearance);
         }
 
@@ -849,11 +849,11 @@ namespace ProGlassAutomation.ViewModels.Settings
                 appearance?.WallpaperPath ?? "",
                 appearance?.WallpaperOpacity ?? 0.85);
 
-            // Re-layer the module on screen (system-wide wallpaper or
-            // its module override) so changes apply instantly.
+            // Re-layer the module on screen (its own wallpaper override
+            // or the system-wide wallpaper) so changes apply instantly.
             ProGlassAutomation.Services.Theme.VisualThemeEngine.ApplyModule(
                 ProGlassAutomation.Services.Theme.VisualThemeEngine
-                    .CurrentModule,
+                    .LastRequestedModule,
                 appearance);
         }
 
@@ -1240,7 +1240,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 ProGlassAutomation.Services.Theme.VisualThemeEngine
                     .ApplyModule(
                         ProGlassAutomation.Services.Theme.VisualThemeEngine
-                            .CurrentModule,
+                            .LastRequestedModule,
                         App.Config.Appearance);
 
                 OnPropertyChanged(nameof(WallpaperStatus));
@@ -1264,7 +1264,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 ProGlassAutomation.Services.Theme.VisualThemeEngine
                     .ApplyModule(
                         ProGlassAutomation.Services.Theme.VisualThemeEngine
-                            .CurrentModule,
+                            .LastRequestedModule,
                         App.Config.Appearance);
 
                 OnPropertyChanged(nameof(WallpaperStatus));

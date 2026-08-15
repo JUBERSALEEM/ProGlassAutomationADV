@@ -68,6 +68,14 @@ namespace ProGlassAutomation.Services.Theme
         /// <summary>Module whose wallpaper is currently layered (or "").</summary>
         public static string CurrentModule { get; private set; } = "";
 
+        /// <summary>
+        /// Last module key the engine was asked to render — preserved
+        /// across re-applies (accent change, opacity drag, theme swap)
+        /// so that module's own wallpaper override is restored instead
+        /// of being forgotten.
+        /// </summary>
+        public static string LastRequestedModule { get; private set; } = "";
+
         // Last wallpaper the engine was asked to use — lets the accent
         // re-apply (Monet) rebuild the exact same scene.
         private static string _lastWallpaperPath = "";
@@ -75,8 +83,9 @@ namespace ProGlassAutomation.Services.Theme
 
         /// <summary>
         /// Re-derive Monet's accent-tinted palette whenever the user
-        /// changes the accent colour. Subscribed exactly once (static
-        /// engine lives for the whole process).
+        /// changes the accent colour, then re-layer the wallpaper of
+        /// the module on screen so nothing disappears. Subscribed
+        /// exactly once (static engine lives for the whole process).
         /// </summary>
         static VisualThemeEngine()
         {
@@ -84,6 +93,7 @@ namespace ProGlassAutomation.Services.Theme
             {
                 if (Current != Monet) return;
                 Apply(Monet, _lastWallpaperPath, _lastWallpaperOpacity);
+                ApplyModule(LastRequestedModule, App.Config?.Appearance);
             };
         }
 
@@ -171,6 +181,8 @@ namespace ProGlassAutomation.Services.Theme
             {
                 var resources = Application.Current?.Resources;
                 if (resources == null) return;
+
+                LastRequestedModule = moduleKey ?? "";
 
                 _lastWallpaperPath = appearance?.WallpaperPath ?? "";
                 _lastWallpaperOpacity =
@@ -364,19 +376,20 @@ namespace ProGlassAutomation.Services.Theme
 
             // Glass surfaces — the active base theme's colours tinted
             // toward the accent hue, then made translucent so the
-            // wallpaper reads through.
+            // wallpaper reads through. Tint strength is deliberately
+            // visible so the colour adaptation is unmistakable.
             resources["ModuleBackgroundBrush"] = GlassSurface(
                 resources, "ModuleBackgroundBrush", accent,
-                Colors.White, 0.72, dark);
+                Colors.White, 0.74, dark);
             resources["ElevatedSurfaceBrush"] = GlassSurface(
                 resources, "ElevatedSurfaceBrush", accent,
-                Colors.White, 0.80, dark);
+                Colors.White, 0.82, dark);
             resources["SideMenuBackgroundBrush"] = GlassSurface(
                 resources, "SideMenuBackgroundBrush", accent,
-                Colors.White, 0.86, dark);
+                Colors.White, 0.88, dark);
             resources["MenuHoverBrush"] = GlassSurface(
                 resources, "MenuHoverBrush", accent,
-                Color.FromRgb(0xF3, 0xF4, 0xF6), 0.60, dark);
+                Color.FromRgb(0xF3, 0xF4, 0xF6), 0.62, dark);
 
             // Softer, rounder cards fit the artistic look.
             resources["CardCornerRadius"] = new CornerRadius(18);
@@ -394,7 +407,7 @@ namespace ProGlassAutomation.Services.Theme
         {
             Color baseColor = ThemeManager.GetThemeColor(key, fallback);
             Color tinted = ColorMath.Tint(accent, baseColor,
-                dark ? 0.10 : 0.06);
+                dark ? 0.18 : 0.12);
 
             var brush = new SolidColorBrush(tinted) { Opacity = opacity };
             brush.Freeze();
@@ -418,24 +431,34 @@ namespace ProGlassAutomation.Services.Theme
             window.Freeze();
             resources["WindowBackgroundBrush"] = window;
 
-            // Crisp, slightly cooler surfaces (all views consume these
-            // via DynamicResource, so the change is global).
+            // Crisp, clearly cooler surfaces (all views consume these
+            // via DynamicResource, so the change is global). The mix
+            // ratios are strong enough to be seen at a glance — this
+            // is what separates Professional from Normal.
+            Color cool = dark
+                ? Color.FromRgb(0x13, 0x1B, 0x2A)
+                : Color.FromRgb(0xEA, 0xF0, 0xF7);
+
             Color moduleBg = ThemeManager.GetThemeColor(
                 "ModuleBackgroundBrush", Colors.White);
-            Color cool = dark
-                ? Color.FromRgb(0x14, 0x1C, 0x2B)
-                : Color.FromRgb(0xEE, 0xF2, 0xF7);
             var moduleBrush = new SolidColorBrush(
-                ColorMath.Mix(moduleBg, cool, 0.30));
+                ColorMath.Mix(moduleBg, cool, 0.55));
             moduleBrush.Freeze();
             resources["ModuleBackgroundBrush"] = moduleBrush;
 
             Color elevated = ThemeManager.GetThemeColor(
                 "ElevatedSurfaceBrush", Colors.White);
             var elevatedBrush = new SolidColorBrush(
-                ColorMath.Mix(elevated, cool, 0.22));
+                ColorMath.Mix(elevated, cool, 0.45));
             elevatedBrush.Freeze();
             resources["ElevatedSurfaceBrush"] = elevatedBrush;
+
+            Color sideMenu = ThemeManager.GetThemeColor(
+                "SideMenuBackgroundBrush", Colors.White);
+            var sideMenuBrush = new SolidColorBrush(
+                ColorMath.Mix(sideMenu, cool, 0.40));
+            sideMenuBrush.Freeze();
+            resources["SideMenuBackgroundBrush"] = sideMenuBrush;
 
             // Tighter radii + restrained hover tint.
             resources["CardCornerRadius"] = new CornerRadius(10);
