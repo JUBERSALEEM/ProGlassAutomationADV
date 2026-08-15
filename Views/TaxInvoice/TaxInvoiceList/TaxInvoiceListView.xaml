@@ -386,6 +386,13 @@
                                 Command="{Binding DataContext.OpenFamilyCommand,
                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"/>
+                        <Button Style="{StaticResource RowDangerButton}"
+                                Tag="&#xE74D;" Content="DEL"
+                                Margin="6,0,0,0"
+                                ToolTip="Delete this invoice family (asks for confirmation)"
+                                Command="{Binding DataContext.DeleteFamilyCommand,
+                                          RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                CommandParameter="{Binding}"/>
                     </StackPanel>
                 </Grid>
             </Border>

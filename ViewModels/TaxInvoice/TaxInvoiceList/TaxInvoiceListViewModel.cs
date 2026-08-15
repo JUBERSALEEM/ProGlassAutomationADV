@@ -350,6 +350,9 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
         public ICommand ClearSelectionCommand { get; }
         public ICommand CreateInvoiceCommand { get; }
 
+        /// <summary>Deletes a family after explicit Yes/No confirmation.</summary>
+        public ICommand DeleteFamilyCommand { get; }
+
         // ══════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
         // ══════════════════════════════════════════════════════════════════
@@ -381,6 +384,44 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceList
 
             CreateInvoiceCommand = new RelayCommand(_ =>
                 OnCreateInvoiceRequested?.Invoke());
+
+            DeleteFamilyCommand = new RelayCommand(async param =>
+            {
+                if (param is not InvoiceFamilyRowViewModel fam) return;
+                if (App.TaxInvoices == null) return;
+
+                // NEVER delete directly — explicit confirmation first.
+                var result = System.Windows.MessageBox.Show(
+                    $"Delete tax invoice family '{fam.ProformaId}'?\n\n" +
+                    $"{fam.InvoiceCount} invoice(s) will be permanently " +
+                    "deleted.\nThis cannot be undone.",
+                    "Confirm Delete",
+                    System.Windows.MessageBoxButton.YesNo,
+                    System.Windows.MessageBoxImage.Warning);
+
+                if (result != System.Windows.MessageBoxResult.Yes) return;
+
+                try
+                {
+                    foreach (var m in fam.Members)
+                        await App.TaxInvoices.DeleteAsync(m.Id);
+
+                    ProGlassAutomation.Services.Audit.AuditService.Log(
+                        ProGlassAutomation.Services.Audit.AuditSections.TaxInvoice,
+                        "Invoice family deleted",
+                        $"{fam.ProformaId} ({fam.InvoiceCount} invoice(s))");
+
+                    await LoadAsync();
+                }
+                catch (Exception ex)
+                {
+                    System.Windows.MessageBox.Show(
+                        $"Delete failed:\n\n{ex.Message}",
+                        "Delete Failed",
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Error);
+                }
+            });
         }
 
         // ══════════════════════════════════════════════════════════════════
