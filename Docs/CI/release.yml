@@ -57,21 +57,25 @@ jobs:
           Compress-Archive -Path publish/* -DestinationPath $name
           echo "ASSET=$name" | Out-File -FilePath $env:GITHUB_ENV -Append
 
-      # ── PHASE 2 (Velopack — enable after the package is added) ─────
-      # - name: Install Velopack CLI
-      #   run: dotnet tool install -g vpk
-      # - name: Velopack pack
-      #   run: >
-      #     vpk pack --packId ProGlassAutomation
-      #     --packVersion ${{ github.ref_name }}.TrimStart('v')
-      #     --packDir publish --outputDir releases
-      # - name: Velopack publish to GitHub Releases
-      #   run: >
-      #     vpk publish github --repoUrl
-      #     https://github.com/${{ github.repository }}
-      #     --packDir releases --pre false
-      #   env:
-      #     GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # ── PHASE 2 (Velopack — active) ────────────────────────────────
+      - name: Install Velopack CLI
+        run: dotnet tool install -g vpk
+
+      - name: Velopack pack
+        shell: pwsh
+        run: >
+          vpk pack --packId ProGlassAutomation
+          --packVersion $("${{ github.ref_name }}".TrimStart('v'))
+          --packDir publish --packTitle "ProGlass Automation"
+          --packAuthors "Juber Saleem" --outputDir releases
+
+      - name: Velopack publish to GitHub Releases
+        run: >
+          vpk publish github --repoUrl
+          https://github.com/${{ github.repository }}
+          --packDir releases --pre false --tag ${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Create GitHub Release + upload asset
         uses: softprops/action-gh-release@v2
