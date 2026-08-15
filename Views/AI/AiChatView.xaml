@@ -471,38 +471,53 @@
                         </Border.Style>
                         <Border.Resources>
                             <!-- Bounce animation, staggered per dot -->
+                            <!-- MC3072-safe: DoubleAnimation has no Values
+                                 property — keyframes are the proven pattern
+                                 in this file (commit 08e6187). -->
                             <Storyboard x:Key="DotBounce1"
                                         RepeatBehavior="Forever">
-                                <DoubleAnimation
+                                <DoubleAnimationUsingKeyFrames
                                     Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
-                                    Values="0;-4;0" Duration="0:0:0.9"
                                     BeginTime="0:0:0">
-                                    <DoubleAnimation.EasingFunction>
-                                        <SineEase EasingMode="EaseInOut"/>
-                                    </DoubleAnimation.EasingFunction>
-                                </DoubleAnimation>
+                                    <LinearDoubleKeyFrame Value="0"
+                                                          KeyTime="0:0:0"/>
+                                    <LinearDoubleKeyFrame Value="-4"
+                                                          KeyTime="0:0:0.45"/>
+                                    <LinearDoubleKeyFrame Value="0"
+                                                          KeyTime="0:0:0.9"/>
+                                </DoubleAnimationUsingKeyFrames>
                             </Storyboard>
+                            <!-- MC3072-safe: DoubleAnimation has no Values
+                                 property — keyframes are the proven pattern
+                                 in this file (commit 08e6187). -->
                             <Storyboard x:Key="DotBounce2"
                                         RepeatBehavior="Forever">
-                                <DoubleAnimation
+                                <DoubleAnimationUsingKeyFrames
                                     Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
-                                    Values="0;-4;0" Duration="0:0:0.9"
                                     BeginTime="0:0:0.15">
-                                    <DoubleAnimation.EasingFunction>
-                                        <SineEase EasingMode="EaseInOut"/>
-                                    </DoubleAnimation.EasingFunction>
-                                </DoubleAnimation>
+                                    <LinearDoubleKeyFrame Value="0"
+                                                          KeyTime="0:0:0"/>
+                                    <LinearDoubleKeyFrame Value="-4"
+                                                          KeyTime="0:0:0.45"/>
+                                    <LinearDoubleKeyFrame Value="0"
+                                                          KeyTime="0:0:0.9"/>
+                                </DoubleAnimationUsingKeyFrames>
                             </Storyboard>
+                            <!-- MC3072-safe: DoubleAnimation has no Values
+                                 property — keyframes are the proven pattern
+                                 in this file (commit 08e6187). -->
                             <Storyboard x:Key="DotBounce3"
                                         RepeatBehavior="Forever">
-                                <DoubleAnimation
+                                <DoubleAnimationUsingKeyFrames
                                     Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.Y)"
-                                    Values="0;-4;0" Duration="0:0:0.9"
                                     BeginTime="0:0:0.3">
-                                    <DoubleAnimation.EasingFunction>
-                                        <SineEase EasingMode="EaseInOut"/>
-                                    </DoubleAnimation.EasingFunction>
-                                </DoubleAnimation>
+                                    <LinearDoubleKeyFrame Value="0"
+                                                          KeyTime="0:0:0"/>
+                                    <LinearDoubleKeyFrame Value="-4"
+                                                          KeyTime="0:0:0.45"/>
+                                    <LinearDoubleKeyFrame Value="0"
+                                                          KeyTime="0:0:0.9"/>
+                                </DoubleAnimationUsingKeyFrames>
                             </Storyboard>
                         </Border.Resources>
                         <StackPanel Orientation="Horizontal"
