@@ -1,0 +1,10 @@
+using System.Windows.Controls;
+
+namespace ProGlassAutomation.Views.JobOrder.JobOrderDetail.Sections
+{
+    /// <summary></summary>
+    public partial class JoOverviewSection : UserControl
+    {
+        public JoOverviewSection() => InitializeComponent();
+    }
+}

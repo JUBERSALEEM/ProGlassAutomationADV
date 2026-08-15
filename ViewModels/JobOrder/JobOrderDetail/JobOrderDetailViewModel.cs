@@ -255,6 +255,23 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
 
         // ── commands ──────────────────────────────────────────────────────
 
+        private string _detailTab = "Overview";
+        public string DetailTab
+        {
+            get => _detailTab;
+            set
+            {
+                if (_detailTab == value) return;
+                _detailTab = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsOverviewTab));
+                OnPropertyChanged(nameof(IsProductionTab));
+            }
+        }
+        public bool IsOverviewTab => DetailTab == "Overview";
+        public bool IsProductionTab => DetailTab == "Production";
+        public ICommand SwitchDetailTabCommand { get; }
+
         public ICommand SaveCommand { get; }
         public ICommand BackToListCommand { get; }
 
@@ -272,6 +289,9 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
 
         public JobOrderDetailViewModel()
         {
+            SwitchDetailTabCommand = new RelayCommand(p2 =>
+                DetailTab = p2 as string ?? "Overview");
+
             SaveCommand = new RelayCommand(async _ => await SaveAsync());
             BackToListCommand = new RelayCommand(_ => OnRequestBackToList?.Invoke());
 

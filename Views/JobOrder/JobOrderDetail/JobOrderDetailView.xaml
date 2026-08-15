@@ -2,6 +2,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:sections="clr-namespace:ProGlassAutomation.Views.JobOrder.JobOrderDetail.Sections"
              xmlns:hero="clr-namespace:ProGlassAutomation.Controls.GradientHeroCard"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
@@ -10,81 +11,28 @@
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
-        <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="11"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-            <Setter Property="Margin"     Value="0,0,0,4"/>
-        </Style>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Sections/JoSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
 
-        <Style x:Key="FieldInputStyle" TargetType="TextBox">
-            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="FontSize"    Value="13"/>
-            <Setter Property="Padding"     Value="10,8"/>
-            <Setter Property="Margin"      Value="0,0,0,14"/>
-            <Setter Property="Background"  Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground"  Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-        </Style>
 
-        <Style x:Key="MultiLineInputStyle" TargetType="TextBox"
-               BasedOn="{StaticResource FieldInputStyle}">
-            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="False"/>
-            <Setter Property="AcceptsReturn" Value="True"/>
-            <Setter Property="TextWrapping"  Value="Wrap"/>
-            <Setter Property="MinHeight"     Value="70"/>
-            <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
-        </Style>
 
-        <Style x:Key="ReadOnlyFieldStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="12"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="Margin"     Value="0,1,0,0"/>
-        </Style>
 
-        <Style x:Key="ReadOnlyLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="11"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-        </Style>
 
-        <Style x:Key="SpecHeaderCellStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="9"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
-            <Setter Property="Padding"    Value="6,5"/>
-        </Style>
 
-        <Style x:Key="SpecDataCellStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"          Value="9"/>
-            <Setter Property="Foreground"        Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="Padding"           Value="6,4"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
+
 
         <!-- Section title style (page-level section) -->
-        <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="18"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#4338CA"/>
-        </Style>
 
         <!-- Card label style (small label inside a card) -->
-        <Style x:Key="CardLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="11"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#4338CA"/>
-        </Style>
 
         <!-- Sub-section separator (── Site Delivery ── etc.) -->
-        <Style x:Key="SubSectionHeaderStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="11"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#4338CA"/>
-        </Style>
 
 
         <!-- Phase 10.5: Create Delivery Note button — indigo accent -->
+    
+        </ResourceDictionary>
     </UserControl.Resources>
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
@@ -131,455 +79,42 @@
                                    MinHeight="160"/>
 
             <!-- ── TWO-COLUMN LAYOUT ──────────────────────────────── -->
+            <!-- ══ DETAIL TABS — Overview / Production ═══════════════ -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,12">
+                <Button Content="OVERVIEW" Tag="&#xE8A5;" Margin="0,0,8,0"
+                        ToolTip="Source invoice snapshot"
+                        Command="{Binding SwitchDetailTabCommand}" CommandParameter="Overview">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsOverviewTab}" Value="True">
+                                    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+                <Button Content="PRODUCTION" Tag="&#xE713;"
+                        ToolTip="Editable production panel"
+                        Command="{Binding SwitchDetailTabCommand}" CommandParameter="Production">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource RowOutlinedButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsProductionTab}" Value="True">
+                                    <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                    <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
+                </Button>
+            </StackPanel>
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="2*"/>
-                    <ColumnDefinition Width="24"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <!-- ════════════════════════════════════════════════════
-                     LEFT COLUMN — Read-only PI snapshot
-                ════════════════════════════════════════════════════ -->
-                <StackPanel Grid.Column="0">
-
-                    <TextBlock Text="SOURCE INVOICE SNAPSHOT"
-                               Style="{StaticResource SectionTitleStyle}"
-                               Margin="8,0,0,4"/>
-                    <TextBlock Text="{Binding ConvertedDisplay}"
-                               FontSize="11"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               Margin="8,0,0,16"/>
-
-                    <Grid Margin="0,0,0,14">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Border Grid.Column="0"
-                                Background="{DynamicResource ModuleBackgroundBrush}"
-                                BorderBrush="{DynamicResource BorderBrush}"
-                                BorderThickness="1" CornerRadius="12"
-                                Padding="16,14"
-                                SnapsToDevicePixels="True">
-                            <StackPanel>
-                                <TextBlock Text="COMPANY"
-                                           Style="{StaticResource CardLabelStyle}"
-                                           Margin="0,0,0,8"/>
-                                <TextBlock Text="{Binding InvoiceSnapshot.Company.CompanyName, FallbackValue=—}"
-                                           FontSize="13" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                    <TextBlock Text="TRN: " Style="{StaticResource ReadOnlyLabelStyle}"/>
-                                    <TextBlock Text="{Binding InvoiceSnapshot.Company.CompanyTrn, FallbackValue=—}"
-                                               Style="{StaticResource ReadOnlyFieldStyle}"/>
-                                </StackPanel>
-                                <TextBlock Text="{Binding InvoiceSnapshot.Company.CompanyLocation, FallbackValue=—}"
-                                           Style="{StaticResource ReadOnlyFieldStyle}" Margin="0,2,0,0"/>
-                            </StackPanel>
-                        </Border>
-
-                        <Border Grid.Column="2"
-                                Background="{DynamicResource ModuleBackgroundBrush}"
-                                BorderBrush="{DynamicResource BorderBrush}"
-                                BorderThickness="1" CornerRadius="12"
-                                Padding="16,14"
-                                SnapsToDevicePixels="True">
-                            <StackPanel>
-                                <TextBlock Text="CLIENT"
-                                           Style="{StaticResource CardLabelStyle}"
-                                           Margin="0,0,0,8"/>
-                                <TextBlock Text="{Binding InvoiceSnapshot.Client.CustomerName, FallbackValue=—}"
-                                           FontSize="13" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                    <TextBlock Text="TRN: " Style="{StaticResource ReadOnlyLabelStyle}"/>
-                                    <TextBlock Text="{Binding InvoiceSnapshot.Client.CustomerTrn, FallbackValue=—}"
-                                               Style="{StaticResource ReadOnlyFieldStyle}"/>
-                                </StackPanel>
-                                <TextBlock Text="{Binding InvoiceSnapshot.Client.BillingAddress, FallbackValue=—}"
-                                           Style="{StaticResource ReadOnlyFieldStyle}"
-                                           TextWrapping="Wrap" Margin="0,2,0,0"/>
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-
-                    <Border Background="{DynamicResource ModuleBackgroundBrush}"
-        BorderBrush="{DynamicResource BorderBrush}"
-        BorderThickness="1" CornerRadius="12"
-        Padding="16,14" Margin="0,0,0,14"
-        SnapsToDevicePixels="True">
-                        <StackPanel>
-                            <TextBlock Text="PROJECT"
-                   Style="{StaticResource CardLabelStyle}"
-                   Margin="0,0,0,8"/>
-
-                            <!-- Row 1: Project Identifier Name | Project Name / No -->
-                            <Grid Margin="0,0,0,10">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="16"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Project Identifier Name"
-                           Style="{StaticResource ReadOnlyLabelStyle}"/>
-                                    <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectIdentifierName,
-                                FallbackValue=—}"
-                           Style="{StaticResource ReadOnlyFieldStyle}"
-                           TextWrapping="Wrap"/>
-                                </StackPanel>
-
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Project Name / No"
-                           Style="{StaticResource ReadOnlyLabelStyle}"/>
-                                    <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectContractNo,
-                                FallbackValue=—}"
-                           Style="{StaticResource ReadOnlyFieldStyle}"
-                           TextWrapping="Wrap"/>
-                                </StackPanel>
-                            </Grid>
-
-                            <!-- Row 2: Project Reference (full width) -->
-                            <StackPanel>
-                                <TextBlock Text="Project Reference"
-                       Style="{StaticResource ReadOnlyLabelStyle}"/>
-                                <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectReference,
-                            FallbackValue=—}"
-                       Style="{StaticResource ReadOnlyFieldStyle}"
-                       TextWrapping="Wrap"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-
-                    <TextBlock Text="GLASS SPECIFICATIONS"
-                               FontSize="15" FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"
-                               Margin="0,10,0,12"/>
-
-                    <ItemsControl ItemsSource="{Binding InvoiceSnapshot.SpecGroups}">
-                        <ItemsControl.ItemTemplate>
-                            <DataTemplate>
-                                <StackPanel Margin="0,0,0,16">
-
-                                    <Border Background="{DynamicResource AccentBrush}"
-                                            Padding="10,8"
-                                            CornerRadius="8,8,0,0">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="SPEC "
-                                                       FontSize="11" FontWeight="Bold"
-                                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                                            <TextBlock Text="{Binding GroupNumber}"
-                                                       FontSize="11" FontWeight="Bold"
-                                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                                            <TextBlock Text=": "
-                                                       FontSize="11" FontWeight="Bold"
-                                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                                            <TextBlock Text="{Binding SelectedSpecName, FallbackValue=—}"
-                                                       FontSize="11" FontWeight="Bold"
-                                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
-                                                       TextTrimming="CharacterEllipsis"/>
-                                        </StackPanel>
-                                    </Border>
-
-                                    <Border Background="{DynamicResource MenuHoverBrush}"
-                                            Padding="0,2">
-                                        <Grid>
-                                            <Grid.ColumnDefinitions>
-                                                <ColumnDefinition Width="30"/>
-                                                <ColumnDefinition Width="1.8*"/>
-                                                <ColumnDefinition Width="45"/>
-                                                <ColumnDefinition Width="45"/>
-                                                <ColumnDefinition Width="45"/>
-                                                <ColumnDefinition Width="45"/>
-                                                <ColumnDefinition Width="40"/>
-                                                <ColumnDefinition Width="0.8*"/>
-                                            </Grid.ColumnDefinitions>
-                                            <TextBlock Grid.Column="0" Text="#"
-                                                       Style="{StaticResource SpecHeaderCellStyle}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       HorizontalAlignment="Center"/>
-                                            <TextBlock Grid.Column="1" Text="GLASS REF"
-                                                       Style="{StaticResource SpecHeaderCellStyle}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                            <TextBlock Grid.Column="2" Text="W1"
-                                                       Style="{StaticResource SpecHeaderCellStyle}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       HorizontalAlignment="Right"/>
-                                            <TextBlock Grid.Column="3" Text="H1"
-                                                       Style="{StaticResource SpecHeaderCellStyle}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       HorizontalAlignment="Right"/>
-                                            <TextBlock Grid.Column="4" Text="W2"
-                                                       Style="{StaticResource SpecHeaderCellStyle}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       HorizontalAlignment="Right"/>
-                                            <TextBlock Grid.Column="5" Text="H2"
-                                                       Style="{StaticResource SpecHeaderCellStyle}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       HorizontalAlignment="Right"/>
-                                            <TextBlock Grid.Column="6" Text="QTY"
-                                                       Style="{StaticResource SpecHeaderCellStyle}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       HorizontalAlignment="Center"/>
-                                            <TextBlock Grid.Column="7" Text="RATE"
-                                                       Style="{StaticResource SpecHeaderCellStyle}"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       HorizontalAlignment="Right"/>
-                                        </Grid>
-                                    </Border>
-
-                                    <ItemsControl ItemsSource="{Binding ItemRows}">
-                                        <ItemsControl.ItemTemplate>
-                                            <DataTemplate>
-                                                <Border BorderThickness="0,0,0,1"
-                                                        BorderBrush="{DynamicResource BorderBrush}"
-                                                        Padding="0,1">
-                                                    <Grid>
-                                                        <Grid.ColumnDefinitions>
-                                                            <ColumnDefinition Width="30"/>
-                                                            <ColumnDefinition Width="1.8*"/>
-                                                            <ColumnDefinition Width="45"/>
-                                                            <ColumnDefinition Width="45"/>
-                                                            <ColumnDefinition Width="45"/>
-                                                            <ColumnDefinition Width="45"/>
-                                                            <ColumnDefinition Width="40"/>
-                                                            <ColumnDefinition Width="0.8*"/>
-                                                        </Grid.ColumnDefinitions>
-                                                        <TextBlock Grid.Column="0"
-                                                                   Text="{Binding SerialNumber}"
-                                                                   Style="{StaticResource SpecDataCellStyle}"
-                                                                   HorizontalAlignment="Center"/>
-                                                        <TextBlock Grid.Column="1"
-                                                                   Text="{Binding GlassRef}"
-                                                                   Style="{StaticResource SpecDataCellStyle}"
-                                                                   TextTrimming="CharacterEllipsis"/>
-                                                        <TextBlock Grid.Column="2"
-                                                                   Text="{Binding W1}"
-                                                                   Style="{StaticResource SpecDataCellStyle}"
-                                                                   HorizontalAlignment="Right"/>
-                                                        <TextBlock Grid.Column="3"
-                                                                   Text="{Binding H1}"
-                                                                   Style="{StaticResource SpecDataCellStyle}"
-                                                                   HorizontalAlignment="Right"/>
-                                                        <TextBlock Grid.Column="4"
-                                                                   Text="{Binding W2}"
-                                                                   Style="{StaticResource SpecDataCellStyle}"
-                                                                   HorizontalAlignment="Right"/>
-                                                        <TextBlock Grid.Column="5"
-                                                                   Text="{Binding H2}"
-                                                                   Style="{StaticResource SpecDataCellStyle}"
-                                                                   HorizontalAlignment="Right"/>
-                                                        <TextBlock Grid.Column="6"
-                                                                   Text="{Binding Qty}"
-                                                                   Style="{StaticResource SpecDataCellStyle}"
-                                                                   HorizontalAlignment="Center"/>
-                                                        <TextBlock Grid.Column="7"
-                                                                   Text="{Binding Rate, StringFormat={}{0:N2}}"
-                                                                   Style="{StaticResource SpecDataCellStyle}"
-                                                                   HorizontalAlignment="Right"
-                                                                   FontWeight="SemiBold"/>
-                                                    </Grid>
-                                                </Border>
-                                            </DataTemplate>
-                                        </ItemsControl.ItemTemplate>
-                                    </ItemsControl>
-
-                                    <Border Background="{DynamicResource TintGrayBrush}"
-                                            Padding="10,8"
-                                            CornerRadius="0,0,8,8">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="Glass Type: "
-                                                       FontSize="10" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                            <TextBlock Text="{Binding SelectedGlassType, FallbackValue=SGU}"
-                                                       FontSize="10" FontWeight="Bold"
-                                                       Foreground="{DynamicResource AccentBrush}"/>
-                                            <TextBlock Text="  ·  Base Rate: AED "
-                                                       FontSize="10"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       Margin="14,0,0,0"/>
-                                            <TextBlock Text="{Binding BaseRate, StringFormat={}{0:N2}}"
-                                                       FontSize="10" FontWeight="Bold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                            <TextBlock Text="  ·  Surcharge: "
-                                                       FontSize="10"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       Margin="14,0,0,0"/>
-                                            <TextBlock Text="{Binding SurchargePercent, StringFormat={}{0:0.##}%}"
-                                                       FontSize="10" FontWeight="Bold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                        </StackPanel>
-                                    </Border>
-
-                                </StackPanel>
-                            </DataTemplate>
-                        </ItemsControl.ItemTemplate>
-                    </ItemsControl>
-
-                    <Border Background="{DynamicResource TintGreenBrush}"
-                            CornerRadius="12" Padding="20,16"
-                            Margin="0,14,0,12"
-                            SnapsToDevicePixels="True">
-                        <StackPanel>
-                            <TextBlock Text="INVOICE VALUE"
-                                       Style="{StaticResource CardLabelStyle}"
-                                       Margin="0,0,0,6"/>
-                            <TextBlock Text="{Binding GrandTotalDisplay}"
-                                       FontSize="26" FontWeight="Bold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                            <TextBlock Text="VAT inclusive · immutable from source PI"
-                                       FontSize="11"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       Margin="0,4,0,0"/>
-                        </StackPanel>
-                    </Border>
-
-                </StackPanel>
-
-                <!-- ════════════════════════════════════════════════════
-                     RIGHT COLUMN — Editable production panel
-                ════════════════════════════════════════════════════ -->
-                <StackPanel Grid.Column="2">
-
-                    <TextBlock Text="PRODUCTION DETAILS"
-                               Style="{StaticResource SectionTitleStyle}"
-                               Margin="0,0,0,16"/>
-
-                    <Grid Margin="0,0,0,14">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="16"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-
-                        <StackPanel Grid.Column="0">
-                            <TextBlock Text="Status" Style="{StaticResource FieldLabelStyle}"/>
-                            <ComboBox ItemsSource="{Binding StatusOptions}"
-                                      SelectedItem="{Binding SelectedStatus}"
-                                      FontSize="13" Padding="8,6"
-                                      Height="38"
-                                      VerticalContentAlignment="Center"/>
-                        </StackPanel>
-
-                        <StackPanel Grid.Column="2">
-                            <TextBlock Text="Priority" Style="{StaticResource FieldLabelStyle}"/>
-                            <ComboBox ItemsSource="{Binding PriorityOptions}"
-                                      SelectedItem="{Binding SelectedPriority}"
-                                      FontSize="13" Padding="8,6"
-                                      Height="38"
-                                      VerticalContentAlignment="Center"/>
-                        </StackPanel>
-                    </Grid>
-
-                    <TextBlock Text="Delivery Date" Style="{StaticResource FieldLabelStyle}"/>
-                    <DatePicker SelectedDate="{Binding DeliveryDate}"
-                                FontSize="13" Padding="8,6"
-                                Height="38"
-                                Margin="0,0,0,14"/>
-
-                    <TextBlock Text="── Site Delivery ──"
-                               Style="{StaticResource SubSectionHeaderStyle}"
-                               Margin="0,0,0,12"/>
-
-                    <TextBlock Text="Contact Name" Style="{StaticResource FieldLabelStyle}"/>
-                    <TextBox Text="{Binding SiteDeliveryContact, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource FieldInputStyle}"/>
-
-                    <TextBlock Text="Contact Phone" Style="{StaticResource FieldLabelStyle}"/>
-                    <TextBox Text="{Binding SiteDeliveryPhone, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource FieldInputStyle}"/>
-
-                    <TextBlock Text="Delivery Address" Style="{StaticResource FieldLabelStyle}"/>
-                    <TextBox Text="{Binding SiteDeliveryAddress, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource MultiLineInputStyle}"/>
-
-                    <TextBlock Text="── Assignment ──"
-                               Style="{StaticResource SubSectionHeaderStyle}"
-                               Margin="0,8,0,12"/>
-
-                    <TextBlock Text="Assigned To" Style="{StaticResource FieldLabelStyle}"/>
-                    <TextBox Text="{Binding AssignedTo, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource FieldInputStyle}"/>
-
-                    <TextBlock Text="── Factory Floor ──"
-                               Style="{StaticResource SubSectionHeaderStyle}"
-                               Margin="0,8,0,12"/>
-
-                    <TextBlock Text="Cutting Instructions" Style="{StaticResource FieldLabelStyle}"/>
-                    <TextBox Text="{Binding CuttingInstructions, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource MultiLineInputStyle}"/>
-
-                    <TextBlock Text="Drawing Reference" Style="{StaticResource FieldLabelStyle}"/>
-                    <TextBox Text="{Binding DrawingReference, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource FieldInputStyle}"/>
-
-                    <TextBlock Text="Internal Notes" Style="{StaticResource FieldLabelStyle}"/>
-                    <TextBox Text="{Binding InternalNotes, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource MultiLineInputStyle}"/>
-
-                    <TextBlock Text="{Binding LastEditedDisplay}"
-                               FontSize="10" FontStyle="Italic"
-                               Foreground="{DynamicResource MutedForegroundBrush}"
-                               Margin="0,12,0,16"/>
-
-                    <!-- ══════════════════════════════════════════════════
-                         PHASE 10.5: Create DN button — full width, prominent
-                    ══════════════════════════════════════════════════ -->
-                    <Button Command="{Binding CreateDeliveryNoteCommand}"
-                            Style="{StaticResource SuccessPillButton}"
-                            Tag="&#xE7F4;" Content="CREATE DN"
-                            ToolTip="Create a new Delivery Note for this Job Order"
-                            HorizontalAlignment="Stretch"
-                            Margin="0,0,0,16"/>
-
-                    <!-- ════════════════════════════════════════════════
-                         ACTION BUTTONS ROW
-                    ════════════════════════════════════════════════ -->
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="12"/>
-                            <ColumnDefinition Width="Auto"/>
-                        </Grid.ColumnDefinitions>
-
-                        <Button Grid.Column="0"
-                                Style="{StaticResource OutlinedPillButton}"
-                                Tag="&#xE72B;" Content="BACK"
-                                ToolTip="Back to the job order list"
-                                Command="{Binding BackToListCommand}"/>
-
-                        <Button Grid.Column="2"
-                                Style="{StaticResource SuccessPillButton}"
-                                Tag="&#xE8A5;" Content="PDF"
-                                ToolTip="Export PDF"
-                                Command="{Binding ExportPdfCommand}"/>
-                        <Button Grid.Column="3"
-                                Style="{StaticResource SuccessPillButton}"
-                                Tag="&#xE9F9;" Content="EXCEL"
-                                ToolTip="Export Excel"
-                                Command="{Binding ExportExcelCommand}"/>
-                        <Button Grid.Column="4"
-                                Style="{StaticResource SuccessPillButton}"
-                                Tag="&#xE72D;" Content="CSV"
-                                ToolTip="Export CSV"
-                                Command="{Binding ExportCsvCommand}"/>
-
-                        <Button Grid.Column="6"
-                                Style="{StaticResource PrimaryPillButton}"
-                                Tag="&#xE74E;" Content="SAVE"
-                                ToolTip="Save the job order"
-                                Command="{Binding SaveCommand}"/>
-                    </Grid>
-
-                </StackPanel>
+                <sections:JoOverviewSection
+                    Visibility="{Binding IsOverviewTab, Converter={StaticResource BoolToVisibilityConverter}}"/>
+                <sections:JoProductionSection
+                    Visibility="{Binding IsProductionTab, Converter={StaticResource BoolToVisibilityConverter}}"/>
             </Grid>
 
         </StackPanel>

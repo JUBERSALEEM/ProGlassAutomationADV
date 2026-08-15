@@ -1,0 +1,154 @@
+<UserControl x:Class="ProGlassAutomation.Views.JobOrder.JobOrderDetail.Sections.JoProductionSection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="JoSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <StackPanel Grid.Column="2">
+
+                        <TextBlock Text="PRODUCTION DETAILS"
+                                   Style="{StaticResource SectionTitleStyle}"
+                                   Margin="0,0,0,16"/>
+
+                        <Grid Margin="0,0,0,14">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="16"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="Status" Style="{StaticResource FieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding StatusOptions}"
+                                          SelectedItem="{Binding SelectedStatus}"
+                                          FontSize="13" Padding="8,6"
+                                          Height="38"
+                                          VerticalContentAlignment="Center"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="Priority" Style="{StaticResource FieldLabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding PriorityOptions}"
+                                          SelectedItem="{Binding SelectedPriority}"
+                                          FontSize="13" Padding="8,6"
+                                          Height="38"
+                                          VerticalContentAlignment="Center"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Text="Delivery Date" Style="{StaticResource FieldLabelStyle}"/>
+                        <DatePicker SelectedDate="{Binding DeliveryDate}"
+                                    FontSize="13" Padding="8,6"
+                                    Height="38"
+                                    Margin="0,0,0,14"/>
+
+                        <TextBlock Text="── Site Delivery ──"
+                                   Style="{StaticResource SubSectionHeaderStyle}"
+                                   Margin="0,0,0,12"/>
+
+                        <TextBlock Text="Contact Name" Style="{StaticResource FieldLabelStyle}"/>
+                        <TextBox Text="{Binding SiteDeliveryContact, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource FieldInputStyle}"/>
+
+                        <TextBlock Text="Contact Phone" Style="{StaticResource FieldLabelStyle}"/>
+                        <TextBox Text="{Binding SiteDeliveryPhone, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource FieldInputStyle}"/>
+
+                        <TextBlock Text="Delivery Address" Style="{StaticResource FieldLabelStyle}"/>
+                        <TextBox Text="{Binding SiteDeliveryAddress, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource MultiLineInputStyle}"/>
+
+                        <TextBlock Text="── Assignment ──"
+                                   Style="{StaticResource SubSectionHeaderStyle}"
+                                   Margin="0,8,0,12"/>
+
+                        <TextBlock Text="Assigned To" Style="{StaticResource FieldLabelStyle}"/>
+                        <TextBox Text="{Binding AssignedTo, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource FieldInputStyle}"/>
+
+                        <TextBlock Text="── Factory Floor ──"
+                                   Style="{StaticResource SubSectionHeaderStyle}"
+                                   Margin="0,8,0,12"/>
+
+                        <TextBlock Text="Cutting Instructions" Style="{StaticResource FieldLabelStyle}"/>
+                        <TextBox Text="{Binding CuttingInstructions, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource MultiLineInputStyle}"/>
+
+                        <TextBlock Text="Drawing Reference" Style="{StaticResource FieldLabelStyle}"/>
+                        <TextBox Text="{Binding DrawingReference, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource FieldInputStyle}"/>
+
+                        <TextBlock Text="Internal Notes" Style="{StaticResource FieldLabelStyle}"/>
+                        <TextBox Text="{Binding InternalNotes, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource MultiLineInputStyle}"/>
+
+                        <TextBlock Text="{Binding LastEditedDisplay}"
+                                   FontSize="10" FontStyle="Italic"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   Margin="0,12,0,16"/>
+
+                        <!-- ══════════════════════════════════════════════════
+                             PHASE 10.5: Create DN button — full width, prominent
+                        ══════════════════════════════════════════════════ -->
+                        <Button Command="{Binding CreateDeliveryNoteCommand}"
+                                Style="{StaticResource SuccessPillButton}"
+                                Tag="&#xE7F4;" Content="CREATE DN"
+                                ToolTip="Create a new Delivery Note for this Job Order"
+                                HorizontalAlignment="Stretch"
+                                Margin="0,0,0,16"/>
+
+                        <!-- ════════════════════════════════════════════════
+                             ACTION BUTTONS ROW
+                        ════════════════════════════════════════════════ -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="12"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <Button Grid.Column="0"
+                                    Style="{StaticResource OutlinedPillButton}"
+                                    Tag="&#xE72B;" Content="BACK"
+                                    ToolTip="Back to the job order list"
+                                    Command="{Binding BackToListCommand}"/>
+
+                            <Button Grid.Column="2"
+                                    Style="{StaticResource SuccessPillButton}"
+                                    Tag="&#xE8A5;" Content="PDF"
+                                    ToolTip="Export PDF"
+                                    Command="{Binding ExportPdfCommand}"/>
+                            <Button Grid.Column="3"
+                                    Style="{StaticResource SuccessPillButton}"
+                                    Tag="&#xE9F9;" Content="EXCEL"
+                                    ToolTip="Export Excel"
+                                    Command="{Binding ExportExcelCommand}"/>
+                            <Button Grid.Column="4"
+                                    Style="{StaticResource SuccessPillButton}"
+                                    Tag="&#xE72D;" Content="CSV"
+                                    ToolTip="Export CSV"
+                                    Command="{Binding ExportCsvCommand}"/>
+
+                            <Button Grid.Column="6"
+                                    Style="{StaticResource PrimaryPillButton}"
+                                    Tag="&#xE74E;" Content="SAVE"
+                                    ToolTip="Save the job order"
+                                    Command="{Binding SaveCommand}"/>
+                        </Grid>
+
+                    </StackPanel>
+</UserControl>
