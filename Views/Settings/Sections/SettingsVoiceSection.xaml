@@ -43,8 +43,7 @@
                       behaviors:SmoothScrollBehavior.IsEnabled="True"
                       Focusable="False"
                       FocusVisualStyle="{x:Null}">
-            <StackPanel Margin="32,0,32,32" MaxWidth="780"
-                        HorizontalAlignment="Left">
+            <StackPanel Margin="32,0,32,32">
 
                 <!-- ── VOICE ASSISTANT ────────────────────────────── -->
                 <Border Style="{StaticResource SectionCardStyle}">

@@ -54,6 +54,13 @@ namespace ProGlassAutomation.ViewModels.Settings
             get => _settingsPage;
             private set
             {
+                // Guard: an unknown key would collapse every section and
+                // leave the content pane empty — refuse it outright.
+                if (value != "Appearance" && value != "AI" &&
+                    value != "Voice" && value != "Updates" &&
+                    value != "Data" && value != "About")
+                    return;
+
                 if (_settingsPage == value) return;
                 _settingsPage = value;
                 OnPropertyChanged();
