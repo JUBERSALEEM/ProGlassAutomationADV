@@ -273,6 +273,24 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
         public ICommand SwitchDetailTabCommand { get; }
 
         public ICommand SaveCommand { get; }
+        /// <summary>
+        /// Deep-sweep fix: exports must NEVER crash the app. Any failure
+        /// surfaces the standard error dialog instead of an unhandled
+        /// exception on the UI thread.
+        /// </summary>
+        private async Task GuardedExportAsync(Func<Task> export, string kind)
+        {
+            try { await export(); }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(
+                    $"Export failed:\n\n{ex.Message}",
+                    $"{kind} Export Failed",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error);
+            }
+        }
+
         public ICommand BackToListCommand { get; }
 
         // Phase 9.5a-r3 — export
@@ -295,9 +313,9 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
             SaveCommand = new RelayCommand(async _ => await SaveAsync());
             BackToListCommand = new RelayCommand(_ => OnRequestBackToList?.Invoke());
 
-            ExportPdfCommand = new RelayCommand(async _ => await ExportPdfAsync());
-            ExportExcelCommand = new RelayCommand(async _ => await ExportExcelAsync());
-            ExportCsvCommand = new RelayCommand(async _ => await ExportCsvAsync());
+            ExportPdfCommand = new RelayCommand(async _ => await GuardedExportAsync(ExportPdfAsync, "PDF"));
+            ExportExcelCommand = new RelayCommand(async _ => await GuardedExportAsync(ExportExcelAsync, "Excel"));
+            ExportCsvCommand = new RelayCommand(async _ => await GuardedExportAsync(ExportCsvAsync, "CSV"));
 
             CreateDeliveryNoteCommand = new RelayCommand(async _ => await CreateDeliveryNoteAsync());
         }

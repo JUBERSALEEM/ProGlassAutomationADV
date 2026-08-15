@@ -723,18 +723,36 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             });
 
             ExportPdfCommand = new RelayCommand(
-                async _ => await ExportPdfAsync(),
+                async _ => await GuardedExportAsync(ExportPdfAsync, "PDF"),
                 _ => _entity != null && !IsSaving && !IsLoading);
 
             ExportExcelCommand = new RelayCommand(
-                async _ => await ExportExcelAsync(),
+                async _ => await GuardedExportAsync(ExportExcelAsync, "Excel"),
                 _ => _entity != null && !IsSaving && !IsLoading);
 
             ExportCsvCommand = new RelayCommand(
-                async _ => await ExportCsvAsync(),
+                async _ => await GuardedExportAsync(ExportCsvAsync, "CSV"),
                 _ => _entity != null && !IsSaving && !IsLoading);
 
             ConvertToTaxInvoiceCommand = new RelayCommand(
+        /// <summary>
+        /// Deep-sweep fix: exports must NEVER crash the app. Any failure
+        /// surfaces the standard error dialog instead of an unhandled
+        /// exception on the UI thread.
+        /// </summary>
+        private async Task GuardedExportAsync(Func<Task> export, string kind)
+        {
+            try { await export(); }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(
+                    $"Export failed:\n\n{ex.Message}",
+                    $"{kind} Export Failed",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error);
+            }
+        }
+
                 execute: param => ConvertToTaxInvoiceAsync(
                     param as DnHistoryEntryViewModel),
                 canExecute: param => CanConvertToTaxInvoice(
