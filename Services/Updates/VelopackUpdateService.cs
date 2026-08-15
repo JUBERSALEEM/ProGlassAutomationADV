@@ -4,7 +4,7 @@
 // MODULE: Core — OTA install/apply via Velopack (v2 OTA integration)
 //
 // Active ONLY when the app was installed through a Velopack package
-// (VelopackApp.IsInstalled). In dev/portable mode the classic
+// (UpdateManager.IsInstalled). In dev/portable mode the classic
 // GitHub-Release check + manual installer flow remains in charge, so
 // nothing regresses for non-installed builds.
 //
@@ -24,7 +24,7 @@ namespace ProGlassAutomation.Services.Updates
     public static class VelopackUpdateService
     {
         /// <summary>True when running from a Velopack installation.</summary>
-        public static bool IsInstalled => VelopackApp.IsInstalled;
+        public static bool IsInstalled => Manager.IsInstalled;
 
         private static UpdateManager? _manager;
         private static UpdateInfo? _pending;
@@ -50,7 +50,7 @@ namespace ProGlassAutomation.Services.Updates
                 if (!IsInstalled) return null;
                 var info = await Manager.CheckForUpdatesAsync();
                 _pending = info;
-                return info?.TargetFullVersion;
+                return info?.TargetFullRelease?.Version.ToString();
             }
             catch (Exception ex)
             {
