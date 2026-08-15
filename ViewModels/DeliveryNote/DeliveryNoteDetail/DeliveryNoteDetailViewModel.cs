@@ -735,24 +735,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 _ => _entity != null && !IsSaving && !IsLoading);
 
             ConvertToTaxInvoiceCommand = new RelayCommand(
-        /// <summary>
-        /// Deep-sweep fix: exports must NEVER crash the app. Any failure
-        /// surfaces the standard error dialog instead of an unhandled
-        /// exception on the UI thread.
-        /// </summary>
-        private async Task GuardedExportAsync(Func<Task> export, string kind)
-        {
-            try { await export(); }
-            catch (Exception ex)
-            {
-                System.Windows.MessageBox.Show(
-                    $"Export failed:\n\n{ex.Message}",
-                    $"{kind} Export Failed",
-                    System.Windows.MessageBoxButton.OK,
-                    System.Windows.MessageBoxImage.Error);
-            }
-        }
-
                 execute: param => ConvertToTaxInvoiceAsync(
                     param as DnHistoryEntryViewModel),
                 canExecute: param => CanConvertToTaxInvoice(
@@ -1591,6 +1573,24 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         // ═════════════════════════════════════════════════════════════════
         //  EXPORT
         // ═════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Deep-sweep fix: exports must NEVER crash the app. Any failure
+        /// surfaces the standard error dialog instead of an unhandled
+        /// exception on the UI thread.
+        /// </summary>
+        private async Task GuardedExportAsync(Func<Task> export, string kind)
+        {
+            try { await export(); }
+            catch (Exception ex)
+            {
+                System.Windows.MessageBox.Show(
+                    $"Export failed:\n\n{ex.Message}",
+                    $"{kind} Export Failed",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Error);
+            }
+        }
 
         private async Task ExportPdfAsync()
         {
