@@ -1,0 +1,175 @@
+<UserControl x:Class="ProGlassAutomation.Views.DeliveryNote.DeliveryNoteDetail.Sections.DnAttachmentsSection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="DnSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+<!-- ATTACHMENTS CARD -->
+            <Border Grid.Column="2"
+                    Background="{DynamicResource ModuleBackgroundBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1" CornerRadius="12"
+                    SnapsToDevicePixels="True" MaxHeight="260">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Style="{StaticResource SectionHeaderStyle}">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#4338CA" Offset="0"/>
+                                <GradientStop Color="#6366F1" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="{Binding SelectedDnHeaderText}"
+                                           FontSize="11" FontWeight="Bold"
+                                           Foreground="White"
+                                           TextTrimming="CharacterEllipsis"/>
+                                <TextBlock Text="Photos + signed copies"
+                                           FontSize="10" Foreground="#CCFFFFFF"
+                                           Margin="0,2,0,0"/>
+                            </StackPanel>
+                            <Button Grid.Column="1"
+                                    Style="{StaticResource RowOutlinedButton}"
+                                    Tag="&#xE728;" Content="IMAGE"
+                                    Command="{Binding UploadImageCommand}"
+                                    ToolTip="Attach a photo"
+                                    Margin="0,0,6,0"/>
+                            <Button Grid.Column="2"
+                                    Style="{StaticResource RowOutlinedButton}"
+                                    Tag="&#xE8A5;" Content="PDF"
+                                    Command="{Binding UploadPdfCommand}"
+                                    ToolTip="Attach a signed PDF"/>
+                        </Grid>
+                    </Border>
+
+                    <Border Grid.Row="1"
+                            Style="{StaticResource DifferentDnWarningStyle}">
+                        <TextBlock FontSize="11" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   TextWrapping="Wrap">
+                            <Run Text="Viewing attachments for a different DN."/>
+                        </TextBlock>
+                    </Border>
+
+                    <ScrollViewer Grid.Row="2"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  CanContentScroll="False"
+                                  Focusable="True"
+                                  FocusVisualStyle="{x:Null}"
+                                  behaviors:SmoothScrollBehavior.IsEnabled="True">
+                        <StackPanel>
+                            <Border Padding="16,20"
+                                    Visibility="{Binding HasNoAttachments,
+                                                 Converter={StaticResource BoolToVisibilityConverter}}">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="📎" FontSize="32"
+                                               HorizontalAlignment="Center" Opacity="0.4"/>
+                                    <TextBlock Text="No attachments yet"
+                                               FontSize="13" FontWeight="SemiBold"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,8,0,4"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock Text="Upload photos or signed delivery copies."
+                                               FontSize="11" HorizontalAlignment="Center"
+                                               TextAlignment="Center" TextWrapping="Wrap"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                </StackPanel>
+                            </Border>
+
+                            <ItemsControl ItemsSource="{Binding Attachments}"
+                                          Margin="10,6,10,10">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border Margin="0,4" Padding="12,10"
+                                                CornerRadius="10"
+                                                Background="{DynamicResource MenuHoverBrush}"
+                                                SnapsToDevicePixels="True">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="48"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                </Grid.ColumnDefinitions>
+                                                <Border Grid.Column="0"
+                                                        Width="40" Height="40"
+                                                        CornerRadius="6"
+                                                        Background="{DynamicResource ModuleBackgroundBrush}"
+                                                        ClipToBounds="True"
+                                                        VerticalAlignment="Center">
+                                                    <Grid>
+                                                        <Image Source="{Binding Preview}"
+                                                               Stretch="UniformToFill"
+                                                               Visibility="{Binding IsImage,
+                                                                   Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                        <TextBlock Text="{Binding TypeIcon}"
+                                                                   FontSize="22"
+                                                                   HorizontalAlignment="Center"
+                                                                   VerticalAlignment="Center"
+                                                                   Visibility="{Binding IsPdf,
+                                                                       Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                    </Grid>
+                                                </Border>
+                                                <StackPanel Grid.Column="1"
+                                                            VerticalAlignment="Center"
+                                                            Margin="10,0,10,0">
+                                                    <TextBlock Text="{Binding FileName}"
+                                                               FontSize="12" FontWeight="SemiBold"
+                                                               TextTrimming="CharacterEllipsis"
+                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                    <TextBlock FontSize="11" Margin="0,2,0,0"
+                                                               Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                                        <Run Text="{Binding FileSizeDisplay, Mode=OneWay}"/>
+                                                        <Run Text="  ·  "/>
+                                                        <Run Text="{Binding UploadedAtDisplay, Mode=OneWay}"/>
+                                                    </TextBlock>
+                                                </StackPanel>
+                                                <Button Grid.Column="2"
+                                                        Style="{StaticResource RowPrimaryButton}"
+                                                        Tag="&#xE8B7;" Content="OPEN"
+                                                        ToolTip="Open the attachment"
+                                                        Command="{Binding DataContext.OpenAttachmentCommand,
+                                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding}"
+                                                        Margin="0,0,6,0"/>
+                                                <Button Grid.Column="3"
+                                                        Style="{StaticResource RowDangerButton}"
+                                                        Tag="&#xE74D;" MinWidth="40"
+                                                        ToolTip="Delete the attachment"
+                                                        Command="{Binding DataContext.DeleteAttachmentCommand,
+                                                                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                        CommandParameter="{Binding}"/>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+                    </ScrollViewer>
+                </Grid>
+            </Border>
+    </Grid>
+</UserControl>

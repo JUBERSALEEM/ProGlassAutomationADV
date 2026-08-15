@@ -1,0 +1,338 @@
+<UserControl x:Class="ProGlassAutomation.Views.DeliveryNote.DeliveryNoteDetail.Sections.DnHistorySection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="DnSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+    <Grid>
+<!-- HISTORY CARD -->
+            <Border Grid.Column="2"
+                    Background="{DynamicResource ModuleBackgroundBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1" CornerRadius="12"
+                    SnapsToDevicePixels="True">
+                <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+
+                    <Border Grid.Row="0" Style="{StaticResource SectionHeaderStyle}">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#4338CA" Offset="0"/>
+                                <GradientStop Color="#6366F1" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="📋  DELIVERY HISTORY"
+                                           FontSize="11" FontWeight="Bold"
+                                           Foreground="White"/>
+                                <TextBlock Text="Click to open · Right-click for options"
+                                           FontSize="10" Foreground="#CCFFFFFF"
+                                           Margin="0,2,0,0"
+                                           TextTrimming="CharacterEllipsis"/>
+                            </StackPanel>
+                            <Border Grid.Column="1"
+                                    CornerRadius="8" Padding="8,3"
+                                    Background="#22FFFFFF"
+                                    VerticalAlignment="Center">
+                                <TextBlock FontSize="10" FontWeight="Bold"
+                                           Foreground="White">
+                                    <Run Text="{Binding HistoryTotalDelivered, Mode=OneWay}"/>
+                                    <Run Text=" / "/>
+                                    <Run Text="{Binding HistoryTotalOrdered, Mode=OneWay}"/>
+                                </TextBlock>
+                            </Border>
+                        </Grid>
+                    </Border>
+
+                    <ScrollViewer Grid.Row="1"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled"
+                                  CanContentScroll="False"
+                                  Focusable="True"
+                                  FocusVisualStyle="{x:Null}"
+                                  behaviors:SmoothScrollBehavior.IsEnabled="True">
+                        <ItemsControl ItemsSource="{Binding HistoryEntries}"
+                                      Margin="0,8,0,8">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Button Style="{StaticResource HistoryRowOuterButtonStyle}"
+                                            Command="{Binding DataContext.SelectHistoryEntryCommand,
+                                                      RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                            CommandParameter="{Binding}">
+                                        <Border Style="{StaticResource HistoryRowContentBorderStyle}"
+                                                Tag="{Binding DataContext,
+                                                      RelativeSource={RelativeSource AncestorType=UserControl}}">
+                                            <Border.ContextMenu>
+                                                <ContextMenu>
+                                                    <MenuItem Header="Open this DN"
+                                                              Style="{StaticResource HistoryContextMenuItemStyle}"
+                                                              Command="{Binding PlacementTarget.Tag.SelectHistoryEntryCommand,
+                                                                        RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                              CommandParameter="{Binding}"/>
+                                                    <Separator/>
+                                                    <MenuItem Header="🧾  Convert to Tax Invoice"
+                                                              Style="{StaticResource HistoryContextMenuItemStyle}"
+                                                              Command="{Binding PlacementTarget.Tag.ConvertToTaxInvoiceCommand,
+                                                                        RelativeSource={RelativeSource AncestorType=ContextMenu}}"
+                                                              CommandParameter="{Binding}"/>
+                                                </ContextMenu>
+                                            </Border.ContextMenu>
+
+                                            <StackPanel>
+                                                <Grid>
+                                                    <Grid.ColumnDefinitions>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                        <ColumnDefinition Width="*"/>
+                                                        <ColumnDefinition Width="Auto"/>
+                                                    </Grid.ColumnDefinitions>
+
+                                                    <TextBlock Grid.Column="0"
+                                                               Text="{Binding TypeIcon}"
+                                                               FontSize="18"
+                                                               VerticalAlignment="Top"
+                                                               Margin="0,1,10,0"/>
+
+                                                    <StackPanel Grid.Column="1"
+                                                                VerticalAlignment="Center">
+                                                        <StackPanel Orientation="Horizontal">
+                                                            <TextBlock Text="{Binding DeliveryNoteId}"
+                                                                       Style="{StaticResource HistoryRowDnIdStyle}"/>
+                                                            <Border CornerRadius="4" Padding="5,1"
+                                                                    Margin="5,0,0,0"
+                                                                    Background="{DynamicResource MenuHoverBrush}"
+                                                                    VerticalAlignment="Center">
+                                                                <TextBlock FontSize="9" FontWeight="Bold"
+                                                                           Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                                                    <Run Text="#"/>
+                                                                    <Run Text="{Binding SequenceNumber, Mode=OneWay}"/>
+                                                                </TextBlock>
+                                                            </Border>
+                                                            <Border CornerRadius="4" Padding="7,2"
+                                                                    Margin="6,0,0,0"
+                                                                    Background="{DynamicResource SuccessBrush}"
+                                                                    VerticalAlignment="Center"
+                                                                    Visibility="{Binding IsCurrentDn,
+                                                                        Converter={StaticResource BoolToVisibilityConverter}}">
+                                                                <TextBlock Text="✏️  EDITING"
+                                                                           FontSize="10" FontWeight="Bold"
+                                                                           Foreground="White"/>
+                                                            </Border>
+                                                            <Border CornerRadius="4" Padding="5,1"
+        Margin="5,0,0,0"
+        Background="{DynamicResource TintIndigoBrush}"
+        VerticalAlignment="Center"
+        Visibility="{Binding HasAttachments,
+            Converter={StaticResource BoolToVisibilityConverter}}">
+                                                                <TextBlock FontSize="9" FontWeight="Bold"
+               Foreground="{DynamicResource PrimaryForegroundBrush}">
+        <Run Text="📎 "/>
+        <Run Text="{Binding AttachmentCount, Mode=OneWay}"/>
+                                                                </TextBlock>
+                                                            </Border>
+
+                                                            <!-- CHAT 19 INVOICED: invoiced badge in history row
+     Shows "✅ TI-2026-001" when this DN has been invoiced.
+     Hidden when InvoicedBadgeText is empty (not yet invoiced). -->
+                                                            <Border CornerRadius="4" Padding="7,2"
+        Margin="5,0,0,0"
+        Background="{DynamicResource TintGreenBrush}"
+        VerticalAlignment="Center"
+        Visibility="{Binding IsInvoiced,
+            Converter={StaticResource BoolToVisibilityConverter}}">
+                                                                <TextBlock Text="{Binding InvoicedBadgeText, Mode=OneWay}"
+               FontSize="9" FontWeight="Bold"
+               Foreground="{DynamicResource SuccessBrush}"/>
+                                                            </Border>
+                                                        </StackPanel>
+
+                                                        <TextBlock FontSize="11" Margin="0,3,0,0"
+                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                                            <Run Text="{Binding DeliveryDate, Mode=OneWay}"/>
+                                                            <Run Text="  ·  🚚 "/>
+                                                            <Run Text="{Binding DriverName, Mode=OneWay}"/>
+                                                        </TextBlock>
+
+                                                        <TextBlock Text="You are editing this delivery note"
+                                                                   FontSize="10" FontStyle="Italic"
+                                                                   FontWeight="SemiBold"
+                                                                   Foreground="{DynamicResource SuccessBrush}"
+                                                                   Margin="0,4,0,0"
+                                                                   Visibility="{Binding IsCurrentDn,
+                                                                       Converter={StaticResource BoolToVisibilityConverter}}"/>
+                                                    </StackPanel>
+
+                                                    <StackPanel Grid.Column="2"
+                                                                VerticalAlignment="Top"
+                                                                HorizontalAlignment="Right">
+                                                        <TextBlock HorizontalAlignment="Right"
+                                                                   FontSize="13" FontWeight="Bold"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                                            <Run Text="{Binding DeliveredQty, Mode=OneWay}"/>
+                                                            <Run Text=" pcs"/>
+                                                        </TextBlock>
+                                                        <Border CornerRadius="6" Padding="7,3"
+                                                                Margin="0,4,0,0"
+                                                                HorizontalAlignment="Right"
+                                                                Background="{Binding StatusBrushKey,
+                                                                             Converter={StaticResource BrushKeyConverter}}">
+                                                            <TextBlock Text="{Binding Status}"
+                                                                       FontSize="9" FontWeight="Bold"
+                                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                        </Border>
+                                                        <!-- CHAT 19 INVOICED:
+     When CanInvoice = true  → shows "🧾 Tax Invoice" (blue, active)
+     When CanInvoice = false → shows "✅ Invoiced" (green, disabled)
+     CanInvoice is false when already invoiced OR status not eligible -->
+                                                        <Button Command="{Binding DataContext.ConvertToTaxInvoiceCommand,
+                  RelativeSource={RelativeSource AncestorType=UserControl}}"
+        CommandParameter="{Binding}"
+        IsEnabled="{Binding CanInvoice}"
+        Margin="0,6,0,0"
+        HorizontalAlignment="Right">
+                                                            <Button.Style>
+                                                                <Style TargetType="Button"
+               BasedOn="{StaticResource TaxInvoiceRowButtonStyle}">
+                                                                    <Setter Property="Content" Value="TAX INVOICE"/>
+                                                                    <Setter Property="Background" Value="#1E40AF"/>
+                                                                    <Style.Triggers>
+                                                                        <!-- Already invoiced: show green Invoiced state -->
+                                                                        <DataTrigger Binding="{Binding IsInvoiced}" Value="True">
+                                                                            <Setter Property="Content" Value="INVOICED"/>
+                                                                            <Setter Property="Background" Value="#047857"/>
+                                                                            <Setter Property="Cursor" Value="Arrow"/>
+                                                                        </DataTrigger>
+                                                                    </Style.Triggers>
+                                                                </Style>
+                                                            </Button.Style>
+                                                        </Button>
+                                                    </StackPanel>
+                                                </Grid>
+
+                                                <!-- Cumulative timeline -->
+                                                <Border Margin="0,8,0,0" CornerRadius="8"
+                                                        Background="{DynamicResource ModuleBackgroundBrush}"
+                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderThickness="1"
+                                                        SnapsToDevicePixels="True">
+                                                    <Grid>
+                                                        <Grid.ColumnDefinitions>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                            <ColumnDefinition Width="Auto"/>
+                                                            <ColumnDefinition Width="*"/>
+                                                        </Grid.ColumnDefinitions>
+                                                        <StackPanel Grid.Column="0"
+                                                                    HorizontalAlignment="Center">
+                                                            <TextBlock Text="ORDERED"
+                                                                       Style="{StaticResource CumulativeLabelStyle}"/>
+                                                            <TextBlock Text="{Binding OrderedQty, Mode=OneWay}"
+                                                                       Style="{StaticResource CumulativeValueStyle}"/>
+                                                        </StackPanel>
+                                                        <Border Grid.Column="1"
+                                                                Style="{StaticResource CumulativeSeparatorStyle}"/>
+                                                        <StackPanel Grid.Column="2"
+                                                                    HorizontalAlignment="Center">
+                                                            <TextBlock Text="PREV"
+                                                                       Style="{StaticResource CumulativeLabelStyle}"/>
+                                                            <TextBlock Text="{Binding CumulativePrevQty, Mode=OneWay}"
+                                                                       Style="{StaticResource CumulativeValueStyle}"
+                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                        </StackPanel>
+                                                        <Border Grid.Column="3"
+                                                                Style="{StaticResource CumulativeSeparatorStyle}"/>
+                                                        <StackPanel Grid.Column="4"
+                                                                    HorizontalAlignment="Center">
+                                                            <TextBlock Text="THIS DN"
+                                                                       Style="{StaticResource CumulativeLabelStyle}"
+                                                                       Foreground="{DynamicResource SuccessBrush}"/>
+                                                            <TextBlock Text="{Binding DeliveredQty, Mode=OneWay}"
+                                                                       Style="{StaticResource CumulativeValueStyle}"
+                                                                       Foreground="{DynamicResource SuccessBrush}"/>
+                                                        </StackPanel>
+                                                        <Border Grid.Column="5"
+                                                                Style="{StaticResource CumulativeSeparatorStyle}"/>
+                                                        <StackPanel Grid.Column="6"
+                                                                    HorizontalAlignment="Center">
+                                                            <TextBlock Text="BALANCE"
+                                                                       Style="{StaticResource CumulativeLabelStyle}"
+                                                                       Foreground="{DynamicResource WarningBrush}"/>
+                                                            <TextBlock Text="{Binding CumulativeBalanceQty, Mode=OneWay}"
+                                                                       Style="{StaticResource CumulativeValueStyle}"
+                                                                       Foreground="{DynamicResource WarningBrush}"/>
+                                                        </StackPanel>
+                                                    </Grid>
+                                                </Border>
+                                            </StackPanel>
+                                        </Border>
+                                    </Button>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+
+                    <!-- History totals -->
+                    <Border Grid.Row="2"
+                            Margin="12,0,12,12" Padding="12,10"
+                            CornerRadius="10"
+                            Background="{DynamicResource TintIndigoBrush}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <StackPanel Grid.Column="0" HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding HistoryTotalOrdered}"
+                                           FontSize="18" FontWeight="Bold"
+                                           HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                <TextBlock Text="Ordered" FontSize="10"
+                                           HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="1" HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding HistoryTotalDelivered}"
+                                           FontSize="18" FontWeight="Bold"
+                                           HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource SuccessBrush}"/>
+                                <TextBlock Text="Delivered" FontSize="10"
+                                           HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                            </StackPanel>
+                            <StackPanel Grid.Column="2" HorizontalAlignment="Center">
+                                <TextBlock Text="{Binding HistoryTotalBalance}"
+                                           FontSize="18" FontWeight="Bold"
+                                           HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource WarningBrush}"/>
+                                <TextBlock Text="Balance" FontSize="10"
+                                           HorizontalAlignment="Center"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                            </StackPanel>
+                        </Grid>
+                    </Border>
+                </Grid>
+            </Border>
+    </Grid>
+</UserControl>

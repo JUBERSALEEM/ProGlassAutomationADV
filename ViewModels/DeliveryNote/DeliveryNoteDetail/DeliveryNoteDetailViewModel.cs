@@ -605,6 +605,26 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
 
         // ── Commands ──────────────────────────────────────────────────────
 
+        // ═══ Detail tab state ═══
+        private string _detailTab = "Overview";
+        public string DetailTab
+        {
+            get => _detailTab;
+            set
+            {
+                if (_detailTab == value) return;
+                _detailTab = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsOverviewTab));
+                OnPropertyChanged(nameof(IsAttachmentsTab));
+                OnPropertyChanged(nameof(IsHistoryTab));
+            }
+        }
+        public bool IsOverviewTab => DetailTab == "Overview";
+        public bool IsAttachmentsTab => DetailTab == "Attachments";
+        public bool IsHistoryTab => DetailTab == "History";
+        public ICommand SwitchDetailTabCommand { get; }
+
         public ICommand SaveCommand { get; }
 
         /// <summary>v2 §24: shows this delivery note's version history.</summary>
@@ -653,6 +673,10 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             // needs relational-item support and ships in a later phase).
             ShowVersionsCommand = new RelayCommand(
                 async _ => await ShowVersionsAsync());
+
+            // ═══ DETAIL TAB SWITCHER (Overview / Attachments / History) ═══
+            SwitchDetailTabCommand = new RelayCommand(p2 =>
+                DetailTab = p2 as string ?? "Overview");
 
             SaveCommand = new RelayCommand(
                 async _ => await SaveAsync(),
