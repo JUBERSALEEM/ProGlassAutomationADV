@@ -32,66 +32,8 @@
         </Style>
 
         <!-- Primary action pill -->
-        <Style x:Key="S8AddButton" TargetType="Button">
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Padding" Value="18,10"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd"
-                                Background="{DynamicResource AccentBrush}"
-                                CornerRadius="{DynamicResource PillCornerRadius}"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background"
-                                        Value="{DynamicResource AccentHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="bd" Property="Opacity" Value="0.5"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
         <!-- Secondary action pill (rename/delete/open on rows) -->
-        <Style x:Key="S8RowAction" TargetType="Button">
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Padding" Value="10,5"/>
-            <Setter Property="Margin" Value="4,0,0,0"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd"
-                                Background="{DynamicResource MenuHoverBrush}"
-                                BorderBrush="{DynamicResource BorderBrush}"
-                                BorderThickness="1"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background"
-                                        Value="{DynamicResource BorderBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
 
     </UserControl.Resources>
 
@@ -161,32 +103,24 @@
                     Orientation="Horizontal"
                     Margin="2,16,0,4">
 
-            <Button Style="{StaticResource S8AddButton}"
+            <Button Style="{StaticResource PrimaryPillButton}"
+                    Tag="&#xE728;" Content="ADD IMAGE"
+                    ToolTip="Attach an image file"
                     Command="{Binding AddImageCommand}"
-                    IsEnabled="{Binding HasProformaId}">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE728;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0"/>
-                    <TextBlock Text="Add Image"/>
-                </StackPanel>
-            </Button>
+                    IsEnabled="{Binding HasProformaId}"/>
 
-            <Button Style="{StaticResource S8AddButton}"
+            <Button Style="{StaticResource PrimaryPillButton}"
+                    Tag="&#xE8A5;" Content="ADD PDF"
                     Margin="10,0,0,0"
+                    ToolTip="Attach a PDF file"
                     Command="{Binding AddPdfCommand}"
-                    IsEnabled="{Binding HasProformaId}">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource AccentBrush}" Margin="0,0,8,0"/>
-                    <TextBlock Text="Add PDF"/>
-                </StackPanel>
-            </Button>
+                    IsEnabled="{Binding HasProformaId}"/>
 
-            <Button Style="{StaticResource S8RowAction}"
+            <Button Style="{StaticResource OutlinedPillButton}"
+                    Tag="&#xE72C;" Content="REFRESH"
                     Margin="10,0,0,0"
-                    Padding="14,10"
                     Command="{Binding RefreshCommand}"
-                    ToolTip="Reload attachments from disk">
-                <TextBlock Text="↻  Refresh"/>
-            </Button>
+                    ToolTip="Reload attachments from disk"/>
         </StackPanel>
 
         <!-- ══ LIST ═══════════════════════════════════════════════════ -->
@@ -313,28 +247,27 @@
                                     <StackPanel Grid.Column="2"
                                                 Orientation="Horizontal"
                                                 VerticalAlignment="Center">
-                                        <Button Style="{StaticResource S8RowAction}"
+                                        <Button Style="{StaticResource RowPrimaryButton}"
+                                                Tag="&#xE8B7;" Content="OPEN"
+                                                ToolTip="Open the attachment"
                                                 Command="{Binding DataContext.OpenAttachmentCommand,
                                                             RelativeSource={RelativeSource
                                                                 AncestorType=ItemsControl}}"
-                                                CommandParameter="{Binding}">
-                                            <TextBlock Text="Open"/>
-                                        </Button>
-                                        <Button Style="{StaticResource S8RowAction}"
+                                                CommandParameter="{Binding}"/>
+                                        <Button Style="{StaticResource RowOutlinedButton}"
+                                                Tag="&#xE8E5;" Content="RENAME"
+                                                ToolTip="Rename the attachment"
                                                 Command="{Binding DataContext.RenameAttachmentCommand,
                                                             RelativeSource={RelativeSource
                                                                 AncestorType=ItemsControl}}"
-                                                CommandParameter="{Binding}">
-                                            <TextBlock Text="Rename"/>
-                                        </Button>
-                                        <Button Style="{StaticResource S8RowAction}"
+                                                CommandParameter="{Binding}"/>
+                                        <Button Style="{StaticResource RowDangerButton}"
+                                                Tag="&#xE74D;" Content="DELETE"
+                                                ToolTip="Delete the attachment"
                                                 Command="{Binding DataContext.DeleteAttachmentCommand,
                                                             RelativeSource={RelativeSource
                                                                 AncestorType=ItemsControl}}"
-                                                CommandParameter="{Binding}">
-                                            <TextBlock Text="Delete"
-                                                       Foreground="{DynamicResource DangerBrush}"/>
-                                        </Button>
+                                                CommandParameter="{Binding}"/>
                                     </StackPanel>
                                 </Grid>
                             </Border>
