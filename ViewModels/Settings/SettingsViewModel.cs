@@ -1216,6 +1216,29 @@ namespace ProGlassAutomation.ViewModels.Settings
                 IsCheckingUpdate = true;
                 UpdateStatus = "Checking for updates…";
 
+                // Installed builds use the Velopack OTA path.
+                if (Services.Updates.VelopackUpdateService.IsInstalled)
+                {
+                    var latest = await Services.Updates.VelopackUpdateService
+                        .CheckAsync();
+                    IsCheckingUpdate = false;
+                    LastCheckedDisplay = "Last checked: " +
+                        DateTime.Now.ToString("dd MMM yyyy • h:mm tt");
+                    if (latest != null)
+                    {
+                        IsUpdateAvailable = true;
+                        IsUpdateReady = false;
+                        UpdateStatus = $"🚀 Update available: v{latest}";
+                    }
+                    else
+                    {
+                        IsUpdateAvailable = false;
+                        UpdateStatus = $"✓ You're up to date " +
+                            $"(v{Services.Updates.AppInfo.Version}).";
+                    }
+                    return;
+                }
+
                 var result = await Services.Updates.UpdateService
                     .CheckNowAsync();
 
@@ -1254,6 +1277,32 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             DownloadUpdateCommand = new RelayCommand(async _ =>
             {
+                // Installed builds download via Velopack (delta packages).
+                if (Services.Updates.VelopackUpdateService.IsInstalled)
+                {
+                    if (!Services.Updates.VelopackUpdateService.HasPendingUpdate)
+                    {
+                        UpdateStatus = "Check for updates first.";
+                        return;
+                    }
+                    IsDownloadingUpdate = true;
+                    UpdateDownloadProgress = 0;
+                    UpdateStatus = "Downloading update…";
+                    var okV = await Services.Updates.VelopackUpdateService
+                        .DownloadAsync(p2 => System.Windows.Application.Current
+                            ?.Dispatcher.InvokeAsync(
+                                () => UpdateDownloadProgress = p2));
+                    IsDownloadingUpdate = false;
+                    if (okV)
+                    {
+                        IsUpdateReady = true;
+                        UpdateStatus = "Update ready. Click Install & restart.";
+                    }
+                    else
+                        UpdateStatus = "Download failed. Try again.";
+                    return;
+                }
+
                 var update = _lastUpdateCheck;
                 if (update == null || IsDownloadingUpdate) return;
 
@@ -1282,6 +1331,16 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             InstallUpdateCommand = new RelayCommand(_ =>
             {
+                // Installed builds: apply delta update + restart in place.
+                if (Services.Updates.VelopackUpdateService.IsInstalled)
+                {
+                    UpdateStatus =
+                        "Applying update — ProGlass will restart. " +
+                        "Your data stays safe.";
+                    Services.Updates.VelopackUpdateService.ApplyAndRestart();
+                    return;
+                }
+
                 if (!Services.Updates.UpdateService.CanInstall) return;
 
                 UpdateStatus =

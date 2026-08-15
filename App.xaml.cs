@@ -48,6 +48,7 @@ using ProGlassAutomation.Services.Statement.Repository;
 using ProGlassAutomation.Services.TaxInvoice.Repository;
 using ProGlassAutomation.Views.Splash;
 using System;
+using Velopack;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
@@ -106,6 +107,10 @@ namespace ProGlassAutomation
         private async void Application_Startup(
             object sender, StartupEventArgs e)
         {
+            // OTA bootstrap FIRST (Velopack): handles pending updates and
+            // restart plumbing before any UI is created. No-op in dev mode.
+            Velopack.VelopackApp.Build().Run();
+
             // 0) Technical logging first — everything after can report here.
             AppLogService.Initialize();
 
