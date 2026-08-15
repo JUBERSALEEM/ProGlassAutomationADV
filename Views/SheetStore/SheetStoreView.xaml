@@ -512,25 +512,25 @@
                                         <Button Style="{StaticResource SuccessPillButton}"
                                                 Tag="&#xE7B8;" Content="BUY"
                                                 ToolTip="Buy more of this sheet"
-                                                MinWidth="60"
+                                                Height="26" Padding="10,0" MinWidth="46"
                                                 Command="{Binding DataContext.BuyCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"/>
                                         <Button Style="{StaticResource PrimaryPillButton}"
                                                 Tag="&#xE896;" Content="USE"
                                                 ToolTip="Use stock of this sheet"
-                                                MinWidth="60"
+                                                Height="26" Padding="10,0" MinWidth="46"
                                                 Command="{Binding DataContext.UseCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"/>
                                         <Button Style="{StaticResource OutlinedPillButton}"
                                                 Tag="&#xE8E5;" Content="EDIT"
                                                 ToolTip="Edit this sheet"
-                                                MinWidth="60"
+                                                Height="26" Padding="10,0" MinWidth="46"
                                                 Command="{Binding DataContext.EditCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"/>
                                         <Button Style="{StaticResource DangerButton}"
                                                 Tag="&#xE74D;" Content="DEL"
                                                 ToolTip="Delete this sheet"
-                                                MinWidth="60"
+                                                Height="26" Padding="8,0" MinWidth="44"
                                                 Command="{Binding DataContext.DeleteCommand, RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                 CommandParameter="{Binding}"/>
                                     </StackPanel>

@@ -42,6 +42,8 @@
     <!-- VARIANT 1 — PrimaryPillButton -->
     <Style x:Key="PrimaryPillButton" TargetType="Button"
            BasedOn="{StaticResource PillButtonBase}">
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Padding" Value="22,0"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -50,8 +52,8 @@
                             BorderBrush="#4DFFFFFF"
                             BorderThickness="1"
                             CornerRadius="20"
-                            Padding="22,0"
-                            Height="40"
+                            Padding="{TemplateBinding Padding}"
+                            Height="{TemplateBinding Height}"
                             SnapsToDevicePixels="True">
                         <StackPanel Orientation="Horizontal"
                                     HorizontalAlignment="Center"
@@ -106,6 +108,8 @@
     <!-- VARIANT 2 — SuccessPillButton -->
     <Style x:Key="SuccessPillButton" TargetType="Button"
            BasedOn="{StaticResource PillButtonBase}">
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Padding" Value="22,0"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -114,8 +118,8 @@
                             BorderBrush="#4DFFFFFF"
                             BorderThickness="1"
                             CornerRadius="20"
-                            Padding="22,0"
-                            Height="40"
+                            Padding="{TemplateBinding Padding}"
+                            Height="{TemplateBinding Height}"
                             SnapsToDevicePixels="True">
                         <StackPanel Orientation="Horizontal"
                                     HorizontalAlignment="Center"
@@ -170,6 +174,8 @@
     <!-- VARIANT 3 — OutlinedPillButton -->
     <Style x:Key="OutlinedPillButton" TargetType="Button"
            BasedOn="{StaticResource PillButtonBase}">
+        <Setter Property="Height" Value="40"/>
+        <Setter Property="Padding" Value="20,0"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
@@ -178,8 +184,8 @@
                             BorderBrush="{DynamicResource AccentBrush}"
                             BorderThickness="1.5"
                             CornerRadius="20"
-                            Padding="20,0"
-                            Height="40"
+                            Padding="{TemplateBinding Padding}"
+                            Height="{TemplateBinding Height}"
                             SnapsToDevicePixels="True">
                         <StackPanel Orientation="Horizontal"
                                     HorizontalAlignment="Center"
@@ -232,6 +238,8 @@
     <!-- VARIANT 4 — DangerButton -->
     <Style x:Key="DangerButton" TargetType="Button"
            BasedOn="{StaticResource PillButtonBase}">
+        <Setter Property="Height" Value="32"/>
+        <Setter Property="Padding" Value="14,0"/>
         <Setter Property="MinWidth" Value="92"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -241,8 +249,8 @@
                             BorderBrush="#B91C1C"
                             BorderThickness="1.5"
                             CornerRadius="8"
-                            Padding="14,0"
-                            Height="32"
+                            Padding="{TemplateBinding Padding}"
+                            Height="{TemplateBinding Height}"
                             SnapsToDevicePixels="True">
                         <StackPanel Orientation="Horizontal"
                                     HorizontalAlignment="Center"
