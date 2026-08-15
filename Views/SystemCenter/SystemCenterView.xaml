@@ -382,7 +382,7 @@
                                 <ColumnDefinition Width="50"/>
                                 <ColumnDefinition Width="*"/>
                                 <ColumnDefinition Width="90"/>
-                                <ColumnDefinition Width="100"/>
+                                <ColumnDefinition Width="150"/>
                             </Grid.ColumnDefinitions>
                             <TextBlock Grid.Column="0" Text="USER" Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                             <TextBlock Grid.Column="1" Text="ROLE &amp; PERMISSIONS"
@@ -394,8 +394,16 @@
                         </Grid>
                     </Border>
                     <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"
+                              CanContentScroll="True"
                               behaviors:SmoothScrollBehavior.IsEnabled="True">
-                    <ItemsControl ItemsSource="{Binding Users}" Margin="6">
+                    <ItemsControl ItemsSource="{Binding Users}" Margin="6"
+                                  VirtualizingPanel.IsVirtualizing="True"
+                                  VirtualizingPanel.VirtualizationMode="Recycling">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <VirtualizingStackPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border Padding="14,10" Margin="0,4"
@@ -408,7 +416,7 @@
                                             <ColumnDefinition Width="50"/>
                                             <ColumnDefinition Width="*"/>
                                             <ColumnDefinition Width="90"/>
-                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="150"/>
                                         </Grid.ColumnDefinitions>
 
                                         <Border Grid.Column="0"

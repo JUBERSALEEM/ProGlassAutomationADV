@@ -267,9 +267,15 @@
 
         <!-- ══ HEADER ═════════════════════════════════════════════════ -->
         <StackPanel Grid.Row="0" Margin="0,0,0,12">
-            <TextBlock Text="🩺  Logs &amp; Activity"
-                       FontSize="20" FontWeight="Bold"
-                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets"
+                           FontSize="18"
+                           Foreground="{DynamicResource AccentBrush}"
+                           VerticalAlignment="Center" Margin="0,0,10,0"/>
+                <TextBlock Text="Logs &amp; Activity"
+                           FontSize="20" FontWeight="Bold"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+            </StackPanel>
             <TextBlock Text="Technical diagnostics and per-module user activity — live"
                        FontSize="12" Margin="0,3,0,0"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -277,20 +283,20 @@
 
         <!-- ══ LIVE STATISTICS (shared StatCardControl, §11) ══════════ -->
         <WrapPanel Grid.Row="1" Margin="0,0,0,14">
-            <statCard:StatCardControl Icon="🛠" Title="LOG ENTRIES"
+            <statCard:StatCardControl Icon="&#xE713;" Title="LOG ENTRIES"
                                       Value="{Binding TotalEntries}"
                                       TrendText="last 500 kept in memory"
                                       Margin="0,0,12,0"/>
-            <statCard:StatCardControl Icon="⛔" Title="ERRORS"
+            <statCard:StatCardControl Icon="&#xE7BA;" Title="ERRORS"
                                       Value="{Binding ErrorCount}"
                                       State="Error"
                                       TrendText="incl. critical"
                                       Margin="0,0,12,0"/>
-            <statCard:StatCardControl Icon="⚠️" Title="WARNINGS"
+            <statCard:StatCardControl Icon="&#xE7BA;" Title="WARNINGS"
                                       Value="{Binding WarningCount}"
                                       State="Warning"
                                       Margin="0,0,12,0"/>
-            <statCard:StatCardControl Icon="👤" Title="SIGNED IN AS"
+            <statCard:StatCardControl Icon="&#xE77B;" Title="SIGNED IN AS"
                                       Value="{Binding ActiveUser}"
                                       State="Success"/>
         </WrapPanel>
