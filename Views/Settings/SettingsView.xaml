@@ -788,13 +788,12 @@
                                     Tag="&#xE72C;" Content="CHECK FOR UPDATES"
                             Command="{Binding CheckForUpdatesCommand}"
                             HorizontalAlignment="Center"/>
-                                                            <Button Style="{StaticResource PrimaryPillButton}"
-                                    Tag="&#xE896;" Content="DOWNLOAD UPDATE"
+                            <Button Tag="&#xE896;" Content="DOWNLOAD UPDATE"
                             Command="{Binding DownloadUpdateCommand}"
                             Margin="10,0,0,0"
                             HorizontalAlignment="Center">
                                     <Button.Style>
-                                        <Style TargetType="Button">
+                                        <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
                                             <Setter Property="Visibility" Value="Collapsed"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding IsUpdateAvailable}" Value="True">
