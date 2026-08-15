@@ -373,21 +373,21 @@
                          empty — users must always see the columns. -->
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="40"/>
-                        <ColumnDefinition Width="1.6*"/>
-                        <ColumnDefinition Width="65"/>
-                        <ColumnDefinition Width="80"/>
-                        <ColumnDefinition Width="100"/>
-                        <ColumnDefinition Width="1.2*"/>
-                        <ColumnDefinition Width="65"/>
-                        <ColumnDefinition Width="80"/>
-                        <ColumnDefinition Width="80"/>
-                        <ColumnDefinition Width="100"/>
-                        <ColumnDefinition Width="100"/>
+                        <ColumnDefinition Width="36"/>
+                        <ColumnDefinition Width="160"/>
                         <ColumnDefinition Width="60"/>
-                        <ColumnDefinition Width="60"/>
-                        <ColumnDefinition Width="60"/>
-                        <ColumnDefinition Width="200"/>
+                        <ColumnDefinition Width="80"/>
+                        <ColumnDefinition Width="110"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="70"/>
+                        <ColumnDefinition Width="75"/>
+                        <ColumnDefinition Width="75"/>
+                        <ColumnDefinition Width="95"/>
+                        <ColumnDefinition Width="95"/>
+                        <ColumnDefinition Width="55"/>
+                        <ColumnDefinition Width="55"/>
+                        <ColumnDefinition Width="55"/>
+                        <ColumnDefinition Width="*" MinWidth="195"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Grid.Column="0" Text="#" FontSize="10" FontWeight="Bold" Foreground="White"/>
                     <TextBlock Grid.Column="1" Text="CATEGORY" FontSize="10" FontWeight="Bold" Foreground="White"/>
@@ -452,26 +452,27 @@
                                     Tag="{Binding}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="40"/>
-                                        <ColumnDefinition Width="1.6*"/>
-                                        <ColumnDefinition Width="65"/>
-                                        <ColumnDefinition Width="80"/>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="1.2*"/>
-                                        <ColumnDefinition Width="65"/>
-                                        <ColumnDefinition Width="80"/>
-                                        <ColumnDefinition Width="80"/>
-                                        <ColumnDefinition Width="100"/>
-                                        <ColumnDefinition Width="100"/>
+                                        <ColumnDefinition Width="36"/>
+                                        <ColumnDefinition Width="160"/>
                                         <ColumnDefinition Width="60"/>
-                                        <ColumnDefinition Width="60"/>
-                                        <ColumnDefinition Width="60"/>
-                                        <ColumnDefinition Width="200"/>
+                                        <ColumnDefinition Width="80"/>
+                                        <ColumnDefinition Width="110"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="70"/>
+                                        <ColumnDefinition Width="75"/>
+                                        <ColumnDefinition Width="75"/>
+                                        <ColumnDefinition Width="95"/>
+                                        <ColumnDefinition Width="95"/>
+                                        <ColumnDefinition Width="55"/>
+                                        <ColumnDefinition Width="55"/>
+                                        <ColumnDefinition Width="55"/>
+                                        <ColumnDefinition Width="*" MinWidth="195"/>
                                     </Grid.ColumnDefinitions>
                                     <TextBlock Grid.Column="0" Text="{Binding Id}" FontSize="12"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>
                                     <TextBlock Grid.Column="1" Text="{Binding Category}" FontSize="13" FontWeight="SemiBold"
-                                               Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
+                                               Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" ToolTip="{Binding Category}"/>
                                     <TextBlock Grid.Column="2" Text="{Binding ThicknessDisplay}" FontSize="12" FontWeight="Bold"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
                                     <TextBlock Grid.Column="3" Text="{Binding Color}" FontSize="12"
@@ -479,7 +480,8 @@
                                     <TextBlock Grid.Column="4" Text="{Binding SizeDisplay}" FontSize="12"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}" VerticalAlignment="Center"/>
                                     <TextBlock Grid.Column="5" Text="{Binding Supplier}" FontSize="12"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"/>
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}" VerticalAlignment="Center"
+                                               TextTrimming="CharacterEllipsis" ToolTip="{Binding Supplier}"/>
                                     <TextBlock Grid.Column="6" Text="{Binding SqmPerSheet, StringFormat={}{0:N4}}"
                                                FontSize="12" FontWeight="SemiBold"
                                                Foreground="{DynamicResource PrimaryForegroundBrush}"
