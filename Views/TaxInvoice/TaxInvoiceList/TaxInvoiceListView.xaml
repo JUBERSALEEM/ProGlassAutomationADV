@@ -383,7 +383,7 @@
                         <Button Style="{StaticResource RowPrimaryButton}"
                                 Tag="&#xE8B7;" Content="OPEN"
                                 ToolTip="Open this invoice family"
-                                Command="{Binding DataContext.DataContext.OpenFamilyCommand,
+                                Command="{Binding DataContext.OpenFamilyCommand,
                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"/>
                     </StackPanel>
