@@ -961,30 +961,6 @@ namespace ProGlassAutomation.ViewModels.Settings
                 {
                     case Services.Updates.UpdateState.Checking:
                         UpdateStatus = "Checking for updates…";
-
-                // Installed builds use the Velopack OTA path.
-                if (Services.Updates.VelopackUpdateService.IsInstalled)
-                {
-                    var latest = await Services.Updates.VelopackUpdateService
-                        .CheckAsync();
-                    IsCheckingUpdate = false;
-                    LastCheckedDisplay = "Last checked: " +
-                        DateTime.Now.ToString("dd MMM yyyy • h:mm tt");
-                    if (latest != null)
-                    {
-                        IsUpdateAvailable = true;
-                        IsUpdateReady = false;
-                        UpdateStatus = "Update available: v" + latest;
-                    }
-                    else
-                    {
-                        IsUpdateAvailable = false;
-                        UpdateStatus = "You are up to date (v" +
-                            Services.Updates.AppInfo.Version + ").";
-                    }
-                    return;
-                }
-
                         break;
                     case Services.Updates.UpdateState.UpToDate:
                         UpdateStatus =
@@ -1239,6 +1215,30 @@ namespace ProGlassAutomation.ViewModels.Settings
                 if (IsCheckingUpdate) return;
                 IsCheckingUpdate = true;
                 UpdateStatus = "Checking for updates…";
+
+                // Installed builds use the Velopack OTA path.
+                if (Services.Updates.VelopackUpdateService.IsInstalled)
+                {
+                    var latest = await Services.Updates.VelopackUpdateService
+                        .CheckAsync();
+                    IsCheckingUpdate = false;
+                    LastCheckedDisplay = "Last checked: " +
+                        DateTime.Now.ToString("dd MMM yyyy • h:mm tt");
+                    if (!string.IsNullOrEmpty(latest))
+                    {
+                        IsUpdateAvailable = true;
+                        IsUpdateReady = false;
+                        UpdateStatus = "Update available: v" + latest;
+                    }
+                    else
+                    {
+                        IsUpdateAvailable = false;
+                        UpdateStatus = "You are up to date (v" +
+                            Services.Updates.AppInfo.Version + ").";
+                    }
+                    LoadUpdateHistory();
+                    return;
+                }
 
                 var result = await Services.Updates.UpdateService
                     .CheckNowAsync();
