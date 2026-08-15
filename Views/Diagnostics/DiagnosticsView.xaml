@@ -308,44 +308,48 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <!-- STEP D two-button visibility pattern -->
-                        <Button Command="{Binding DataContext.SwitchTabCommand,
-                                            RelativeSource={RelativeSource
-                                                AncestorType=UserControl}}"
-                                CommandParameter="{Binding}"
-                                Tag="{Binding Icon, Converter={StaticResource EmojiToGlyph}}"
-                                Content="{Binding Label}"
-                                ToolTip="{Binding Label}"
-                                Margin="0,0,8,0">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
-                        <Button Command="{Binding DataContext.SwitchTabCommand,
-                                            RelativeSource={RelativeSource
-                                                AncestorType=UserControl}}"
-                                CommandParameter="{Binding}"
-                                Tag="{Binding Icon, Converter={StaticResource EmojiToGlyph}}"
-                                Content="{Binding Label}"
-                                ToolTip="{Binding Label}"
-                                Margin="0,0,8,0">
-                            <Button.Style>
-                                <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
-                                    <Style.Triggers>
-                                        <DataTrigger Binding="{Binding IsActive}" Value="False">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                        </DataTrigger>
-                                    </Style.Triggers>
-                                </Style>
-                            </Button.Style>
-                        </Button>
-                    </DataTemplate>
+                        <!-- STEP D two-button visibility pattern
+                             (wrapped: DataTemplate allows one child) -->
+                        <StackPanel Orientation="Horizontal">
+                            <Button Command="{Binding DataContext.SwitchTabCommand,
+                                                RelativeSource={RelativeSource
+                                                    AncestorType=UserControl}}"
+                                    CommandParameter="{Binding}"
+                                    Tag="{Binding Icon, Converter={StaticResource EmojiToGlyph}}"
+                                    Content="{Binding Label}"
+                                    ToolTip="{Binding Label}"
+                                    Margin="0,0,8,0">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                            <Button Command="{Binding DataContext.SwitchTabCommand,
+                                                RelativeSource={RelativeSource
+                                                    AncestorType=UserControl}}"
+                                    CommandParameter="{Binding}"
+                                    Tag="{Binding Icon, Converter={StaticResource EmojiToGlyph}}"
+                                    Content="{Binding Label}"
+                                    ToolTip="{Binding Label}"
+                                    Margin="0,0,8,0">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                    
+                        </StackPanel>
+</DataTemplate>
                 </ItemsControl.ItemTemplate>
             </ItemsControl>
         </ScrollViewer>
