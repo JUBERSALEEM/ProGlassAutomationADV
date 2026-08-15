@@ -40,6 +40,42 @@ namespace ProGlassAutomation.ViewModels.Settings
         private string _voiceStatus = string.Empty;
         private CancellationTokenSource _downloadCts;
 
+        // ══════════════════════════════════════════════════════════════
+        //  v2 — SETTINGS PAGE NAVIGATION (shell nav rail)
+        //  Same proven pattern as the TI/DN/JO detail tab strips:
+        //  one string key + Is{Page}Page flags + switch command.
+        // ══════════════════════════════════════════════════════════════
+
+        private string _settingsPage = "Appearance";
+
+        /// <summary>Active settings page key (nav rail selection).</summary>
+        public string SettingsPage
+        {
+            get => _settingsPage;
+            private set
+            {
+                if (_settingsPage == value) return;
+                _settingsPage = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(IsAppearancePage));
+                OnPropertyChanged(nameof(IsAiPage));
+                OnPropertyChanged(nameof(IsVoicePage));
+                OnPropertyChanged(nameof(IsUpdatesPage));
+                OnPropertyChanged(nameof(IsDataPage));
+                OnPropertyChanged(nameof(IsAboutPage));
+            }
+        }
+
+        public bool IsAppearancePage => SettingsPage == "Appearance";
+        public bool IsAiPage         => SettingsPage == "AI";
+        public bool IsVoicePage      => SettingsPage == "Voice";
+        public bool IsUpdatesPage    => SettingsPage == "Updates";
+        public bool IsDataPage       => SettingsPage == "Data";
+        public bool IsAboutPage      => SettingsPage == "About";
+
+        /// <summary>Switches the active settings page (nav rail).</summary>
+        public ICommand SwitchSettingsPageCommand { get; private set; }
+
         public string ConfigFilePath { get; }
 
         // ══════════════════════════════════════════════════════════════
@@ -48,6 +84,10 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public SettingsViewModel()
         {
+            // v2 shell: navigation between the settings pages.
+            SwitchSettingsPageCommand = new RelayCommand(
+                p => SettingsPage = p as string ?? "Appearance");
+
             ConfigFilePath = Path.Combine(
                 Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
                 "ProGlassAutomation",

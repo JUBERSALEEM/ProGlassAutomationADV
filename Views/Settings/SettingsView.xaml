@@ -1,35 +1,30 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Settings/SettingsView.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Settings (Chat 25 v1.2 — XLS0501 double-set fix)
+     MODULE: Settings v2 — SHELL (navigation rail + section hosts)
 
-     CHANGES vs Chat 25 v1.0/v1.1:
-       ✓ FIX XLS0501 lines 839/842: ModelOptionCard Border had Style
-         set TWICE — once as XML attribute Style="{StaticResource ...}"
-         and once as <Border.Style> child element with BasedOn.
-         WPF parser treats these as two separate Style assignments.
-         FIX: XML attribute Style= REMOVED entirely from the Border.
-         All styling now exclusively in <Border.Style> child element
-         using BasedOn="{StaticResource ModelOptionCardStyle}".
-         No visual change — behavior and appearance identical.
-       ✓ ALL other sections preserved exactly from Chat 25 v1.0.
-       ✓ Zero new errors introduced.
+     v2 REDESIGN (was a single 2000-line scrolling page):
+       • Left navigation rail — Appearance / AI Assistant / Voice /
+         Updates / Data & Backup / About & Help.
+       • Each page is an independent UserControl under Sections/.
+       • Shared styles live in SettingsSectionStyles.xaml.
+       • Buttons come from global Styles/ButtonStyles.xaml.
+       • Page switching: SettingsViewModel.SettingsPage +
+         SwitchSettingsPageCommand (same proven pattern as the
+         TI/DN/JO detail tab strips).
 
-     VERIFIED CLEAN:
-       • Zero Style double-set on any element
-       • Zero inline SolidColorBrush elements
-       • All frozen brushes declared in Resources
-       • All converters confirmed in App.xaml
-       • All VM bindings traced to SettingsViewModel properties
-
-     REGRESSION RISK: ZERO
+     Sections:
+       SettingsAppearanceSection — theme, wallpaper, accent, motion
+       SettingsAiSection         — providers, keys, tuning, security
+       SettingsVoiceSection      — Whisper speech-to-text models
+       SettingsUpdatesSection    — OTA check / download / install
+       SettingsDataSection       — backup & restore, sample data
+       SettingsAboutSection      — product knowledge cards
 ═══════════════════════════════════════════════════════════════════════ -->
-
 <UserControl x:Class="ProGlassAutomation.Views.Settings.SettingsView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
-             xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
+             xmlns:sections="clr-namespace:ProGlassAutomation.Views.Settings.Sections"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -39,1982 +34,206 @@
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
-
-        <!-- ═══════════════════════════════════════════════════════════
-             FROZEN BRUSHES
-        ═══════════════════════════════════════════════════════════════ -->
-        <SolidColorBrush x:Key="PillBorderLightBrush" Color="#93C5FD" po:Freeze="True"/>
-        <SolidColorBrush x:Key="ComingSoonBg"         Color="#F1F5F9" po:Freeze="True"/>
-        <SolidColorBrush x:Key="ComingSoonBorder"     Color="#CBD5E1" po:Freeze="True"/>
-        <SolidColorBrush x:Key="ComingSoonText"       Color="#94A3B8" po:Freeze="True"/>
-
-        <!-- ═══════════════════════════════════════════════════════════
-             SECTION CARD
-        ═══════════════════════════════════════════════════════════════ -->
-        <Style x:Key="SectionCardStyle" TargetType="Border">
-            <Setter Property="Background"          Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush"         Value="{DynamicResource AccentBrush}"/>
-            <Setter Property="BorderThickness"     Value="1.5"/>
-            <Setter Property="CornerRadius"        Value="14"/>
-            <Setter Property="Padding"             Value="24,20"/>
-            <Setter Property="Margin"              Value="0,0,0,20"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding"   Value="True"/>
-        </Style>
-
-        <!-- ═══════════════════════════════════════════════════════════
-             INFO CARD
-        ═══════════════════════════════════════════════════════════════ -->
-        <Style x:Key="InfoCardStyle" TargetType="Border">
-            <Setter Property="Background"          Value="{DynamicResource TintIndigoBrush}"/>
-            <Setter Property="BorderBrush"         Value="{StaticResource PillBorderLightBrush}"/>
-            <Setter Property="BorderThickness"     Value="1.5"/>
-            <Setter Property="CornerRadius"        Value="16"/>
-            <Setter Property="Padding"             Value="22,18"/>
-            <Setter Property="Margin"              Value="0,0,0,18"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding"   Value="True"/>
-        </Style>
-
-        <!-- ═══════════════════════════════════════════════════════════
-             PROVIDER SELECT BUTTON
-        ═══════════════════════════════════════════════════════════════ -->
-        <Style x:Key="ProviderSelectButtonStyle" TargetType="Button">
-            <Setter Property="Content"             Value="SELECT"/>
-            <Setter Property="Foreground"          Value="{DynamicResource AccentBrush}"/>
-            <Setter Property="Height"              Value="28"/>
-            <Setter Property="Padding"             Value="12,0"/>
-            <Setter Property="FontSize"            Value="10"/>
-            <Setter Property="FontWeight"          Value="Bold"/>
-            <Setter Property="BorderThickness"     Value="0"/>
-            <Setter Property="Cursor"              Value="Hand"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding"   Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd"
-                                CornerRadius="14"
-                                Padding="{TemplateBinding Padding}"
-                                Background="Transparent"
-                                BorderBrush="{DynamicResource AccentBrush}"
-                                BorderThickness="1.5"
-                                SnapsToDevicePixels="True"
-                                UseLayoutRounding="True">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Opacity" Value="0.85"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Opacity" Value="0.7"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="Bd" Property="Opacity" Value="0.4"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- ═══════════════════════════════════════════════════════════
-             DANGER PILL BUTTON (Cancel)
-        ═══════════════════════════════════════════════════════════════ -->
-        <Style x:Key="DangerPillButtonStyle" TargetType="Button">
-            <Setter Property="Height"              Value="34"/>
-            <Setter Property="Padding"             Value="14,0"/>
-            <Setter Property="FontSize"            Value="11"/>
-            <Setter Property="FontWeight"          Value="Bold"/>
-            <Setter Property="Foreground"          Value="{DynamicResource DangerBrush}"/>
-            <Setter Property="BorderThickness"     Value="0"/>
-            <Setter Property="Cursor"              Value="Hand"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding"   Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd"
-                                CornerRadius="17"
-                                Padding="{TemplateBinding Padding}"
-                                Background="{DynamicResource TintRedBrush}"
-                                SnapsToDevicePixels="True"
-                                UseLayoutRounding="True">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Opacity" Value="0.85"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Opacity" Value="0.7"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="Bd" Property="Opacity" Value="0.4"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- ═══════════════════════════════════════════════════════════
-             DELETE PILL BUTTON
-        ═══════════════════════════════════════════════════════════════ -->
-        <Style x:Key="DeletePillButtonStyle" TargetType="Button">
-            <Setter Property="Height"              Value="34"/>
-            <Setter Property="Padding"             Value="14,0"/>
-            <Setter Property="FontSize"            Value="11"/>
-            <Setter Property="FontWeight"          Value="Bold"/>
-            <Setter Property="Foreground"          Value="{DynamicResource DangerBrush}"/>
-            <Setter Property="BorderThickness"     Value="0"/>
-            <Setter Property="Cursor"              Value="Hand"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding"   Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bd"
-                                CornerRadius="17"
-                                Padding="{TemplateBinding Padding}"
-                                Background="{DynamicResource MenuHoverBrush}"
-                                BorderBrush="{StaticResource PillBorderLightBrush}"
-                                BorderThickness="1"
-                                SnapsToDevicePixels="True"
-                                UseLayoutRounding="True">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bd" Property="Background"
-                                        Value="{DynamicResource TintRedBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bd" Property="Opacity" Value="0.75"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="Bd" Property="Opacity" Value="0.4"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- ═══════════════════════════════════════════════════════════
-             DOWNLOAD PROGRESS BAR
-        ═══════════════════════════════════════════════════════════════ -->
-        <Style x:Key="DownloadProgressBarStyle" TargetType="ProgressBar">
-            <Setter Property="Height"              Value="8"/>
-            <Setter Property="Maximum"             Value="100"/>
-            <Setter Property="Foreground"          Value="{DynamicResource AccentBrush}"/>
-            <Setter Property="Background"          Value="{DynamicResource MenuHoverBrush}"/>
-            <Setter Property="BorderThickness"     Value="0"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding"   Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ProgressBar">
-                        <Border CornerRadius="4"
-                                Background="{TemplateBinding Background}"
-                                SnapsToDevicePixels="True"
-                                UseLayoutRounding="True">
-                            <Border x:Name="PART_Indicator"
-                                    CornerRadius="4"
-                                    HorizontalAlignment="Left"
-                                    Background="{TemplateBinding Foreground}"
-                                    SnapsToDevicePixels="True"
-                                    UseLayoutRounding="True"/>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- ═══════════════════════════════════════════════════════════
-             MODEL OPTION CARD BASE STYLE
-             Used exclusively via BasedOn in Border.Style child element.
-             Never set as a Style= attribute directly on any Border.
-             This is the base — per-card triggers extend it via BasedOn.
-        ═══════════════════════════════════════════════════════════════ -->
-        <Style x:Key="ModelOptionCardStyle" TargetType="Border">
-            <Setter Property="CornerRadius"        Value="10"/>
-            <Setter Property="Padding"             Value="12,10"/>
-            <Setter Property="Margin"              Value="0,0,0,8"/>
-            <Setter Property="BorderThickness"     Value="1.5"/>
-            <Setter Property="Cursor"              Value="Hand"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding"   Value="True"/>
-            <Setter Property="BorderBrush"         Value="{StaticResource PillBorderLightBrush}"/>
-            <Setter Property="Background"          Value="{DynamicResource ModuleBackgroundBrush}"/>
-        </Style>
-
-        <!-- ═══════════════════════════════════════════════════════════
-             TYPOGRAPHY
-        ═══════════════════════════════════════════════════════════════ -->
-        <Style x:Key="InfoCardTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"          Value="14"/>
-            <Setter Property="FontWeight"        Value="Bold"/>
-            <Setter Property="Foreground"        Value="{DynamicResource AccentBrush}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="IsHitTestVisible"  Value="False"/>
-        </Style>
-
-        <Style x:Key="InfoCardBodyStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"         Value="12"/>
-            <Setter Property="LineHeight"       Value="20"/>
-            <Setter Property="Foreground"       Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="TextWrapping"     Value="Wrap"/>
-            <Setter Property="Margin"           Value="0,10,0,0"/>
-            <Setter Property="IsHitTestVisible" Value="False"/>
-        </Style>
-
-        <Style x:Key="InfoCardBulletStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"         Value="12"/>
-            <Setter Property="LineHeight"       Value="19"/>
-            <Setter Property="Foreground"       Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="TextWrapping"     Value="Wrap"/>
-            <Setter Property="Margin"           Value="0,6,0,0"/>
-            <Setter Property="IsHitTestVisible" Value="False"/>
-        </Style>
-
-        <Style x:Key="SectionLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"         Value="11"/>
-            <Setter Property="FontWeight"       Value="Bold"/>
-            <Setter Property="Foreground"       Value="{DynamicResource MutedForegroundBrush}"/>
-            <Setter Property="Margin"           Value="0,0,0,10"/>
-            <Setter Property="IsHitTestVisible" Value="False"/>
-        </Style>
-
-        <Style x:Key="RowTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"          Value="14"/>
-            <Setter Property="FontWeight"        Value="Bold"/>
-            <Setter Property="Foreground"        Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-        </Style>
-
-        <Style x:Key="HintTextStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"         Value="11"/>
-            <Setter Property="Foreground"       Value="{DynamicResource SecondaryForegroundBrush}"/>
-            <Setter Property="TextWrapping"     Value="Wrap"/>
-            <Setter Property="IsHitTestVisible" Value="False"/>
-        </Style>
-
-        <Style x:Key="LabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"         Value="10"/>
-            <Setter Property="FontWeight"       Value="Bold"/>
-            <Setter Property="Foreground"       Value="{DynamicResource MutedForegroundBrush}"/>
-            <Setter Property="IsHitTestVisible" Value="False"/>
-        </Style>
-
-        <Style x:Key="ValueStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="13"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
-        </Style>
-
-        <!-- ═══════════════════════════════════════════════════════════
-             iOS TOGGLE SWITCH
-        ═══════════════════════════════════════════════════════════════ -->
-        <Style x:Key="ModernToggleSwitch" TargetType="ToggleButton">
-            <Setter Property="Width"               Value="56"/>
-            <Setter Property="Height"              Value="28"/>
-            <Setter Property="Cursor"              Value="Hand"/>
-            <Setter Property="BorderThickness"     Value="0"/>
-            <Setter Property="Background"          Value="#CBD5E1"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding"   Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ToggleButton">
-                        <Grid SnapsToDevicePixels="True">
-                            <Border x:Name="Track"
-                                    CornerRadius="14"
-                                    Background="{TemplateBinding Background}"
-                                    SnapsToDevicePixels="True"
-                                    UseLayoutRounding="True"/>
-                            <TextBlock x:Name="OffLabel" Text="OFF"
-                                       FontSize="9" FontWeight="Bold"
-                                       Foreground="White"
-                                       HorizontalAlignment="Right"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,9,0"
-                                       IsHitTestVisible="False"/>
-                            <TextBlock x:Name="OnLabel" Text="ON"
-                                       FontSize="9" FontWeight="Bold"
-                                       Foreground="White"
-                                       HorizontalAlignment="Left"
-                                       VerticalAlignment="Center"
-                                       Margin="9,0,0,0"
-                                       Opacity="0"
-                                       IsHitTestVisible="False"/>
-                            <Ellipse x:Name="Thumb"
-                                     Width="22" Height="22" Fill="White"
-                                     HorizontalAlignment="Left"
-                                     Margin="3,0,0,0"
-                                     SnapsToDevicePixels="True">
-                                <Ellipse.RenderTransform>
-                                    <TranslateTransform x:Name="ThumbTransform" X="0"/>
-                                </Ellipse.RenderTransform>
-                            </Ellipse>
-                        </Grid>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsChecked" Value="True">
-                                <Trigger.EnterActions>
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation
-                                                Storyboard.TargetName="ThumbTransform"
-                                                Storyboard.TargetProperty="X"
-                                                To="28" Duration="0:0:0.2">
-                                                <DoubleAnimation.EasingFunction>
-                                                    <CubicEase EasingMode="EaseOut"/>
-                                                </DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
-                                            <DoubleAnimation
-                                                Storyboard.TargetName="OffLabel"
-                                                Storyboard.TargetProperty="Opacity"
-                                                To="0" Duration="0:0:0.15"/>
-                                            <DoubleAnimation
-                                                Storyboard.TargetName="OnLabel"
-                                                Storyboard.TargetProperty="Opacity"
-                                                To="1" Duration="0:0:0.15"/>
-                                            <ColorAnimation
-                                                Storyboard.TargetName="Track"
-                                                Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                                To="#1D4ED8" Duration="0:0:0.2"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </Trigger.EnterActions>
-                                <Trigger.ExitActions>
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation
-                                                Storyboard.TargetName="ThumbTransform"
-                                                Storyboard.TargetProperty="X"
-                                                To="0" Duration="0:0:0.2">
-                                                <DoubleAnimation.EasingFunction>
-                                                    <CubicEase EasingMode="EaseOut"/>
-                                                </DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
-                                            <DoubleAnimation
-                                                Storyboard.TargetName="OffLabel"
-                                                Storyboard.TargetProperty="Opacity"
-                                                To="1" Duration="0:0:0.15"/>
-                                            <DoubleAnimation
-                                                Storyboard.TargetName="OnLabel"
-                                                Storyboard.TargetProperty="Opacity"
-                                                To="0" Duration="0:0:0.15"/>
-                                            <ColorAnimation
-                                                Storyboard.TargetName="Track"
-                                                Storyboard.TargetProperty="(Border.Background).(SolidColorBrush.Color)"
-                                                To="#CBD5E1" Duration="0:0:0.2"/>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </Trigger.ExitActions>
-                            </Trigger>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Track" Property="Opacity" Value="0.9"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- ═══════════════════════════════════════════════════════════
-             PILL ACTION BUTTON (primary blue)
-        ═══════════════════════════════════════════════════════════════ -->
-        <Style x:Key="PillActionButtonStyle" TargetType="Button">
-            <Setter Property="Height"              Value="42"/>
-            <Setter Property="MinWidth"            Value="220"/>
-            <Setter Property="Padding"             Value="24,0"/>
-            <Setter Property="FontSize"            Value="12"/>
-            <Setter Property="FontWeight"          Value="Bold"/>
-            <Setter Property="Foreground"          Value="White"/>
-            <Setter Property="Background"          Value="{DynamicResource AccentBrush}"/>
-            <Setter Property="BorderThickness"     Value="0"/>
-            <Setter Property="Cursor"              Value="Hand"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="UseLayoutRounding"   Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Root"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="21"
-                                Padding="{TemplateBinding Padding}"
-                                SnapsToDevicePixels="True"
-                                UseLayoutRounding="True">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Opacity" Value="0.9"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Root" Property="Opacity" Value="0.8"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="Root" Property="Opacity" Value="0.4"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- ═══════════════════════════════════════════════════════════
-             ROUNDED PASSWORD BOX
-        ═══════════════════════════════════════════════════════════════ -->
-        <Style x:Key="RoundedPasswordBoxStyle" TargetType="PasswordBox">
-            <Setter Property="Height"                   Value="42"/>
-            <Setter Property="FontSize"                 Value="13"/>
-            <Setter Property="Padding"                  Value="14,0"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness"          Value="1.5"/>
-            <Setter Property="BorderBrush"              Value="{StaticResource PillBorderLightBrush}"/>
-            <Setter Property="SnapsToDevicePixels"      Value="True"/>
-            <Setter Property="UseLayoutRounding"        Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="PasswordBox">
-                        <Border x:Name="Root"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="12"
-                                SnapsToDevicePixels="True"
-                                UseLayoutRounding="True">
-                            <ScrollViewer x:Name="PART_ContentHost"
-                                          Focusable="False"
-                                          Margin="{TemplateBinding Padding}"
-                                          VerticalAlignment="Center"
-                                          HorizontalScrollBarVisibility="Hidden"
-                                          VerticalScrollBarVisibility="Hidden"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="BorderBrush"
-                                        Value="{DynamicResource AccentBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                                <Setter TargetName="Root" Property="BorderBrush"
-                                        Value="{DynamicResource AccentBrush}"/>
-                                <Setter TargetName="Root" Property="BorderThickness"
-                                        Value="2"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- Small pill used by the accent colour presets row. -->
-        <Style x:Key="AccentChipStyle" TargetType="Button">
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="Padding" Value="12,7"/>
-            <Setter Property="Margin" Value="0,0,0,8"/>
-            <Setter Property="Foreground"
-                    Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="bd"
-                                Background="{DynamicResource MenuHoverBrush}"
-                                BorderBrush="{DynamicResource BorderBrush}"
-                                BorderThickness="1"
-                                CornerRadius="999"
-                                Padding="{TemplateBinding Padding}"
-                                SnapsToDevicePixels="True">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background"
-                                        Value="{DynamicResource BorderBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </UserControl.Resources>
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         ROOT SCROLL VIEWER
-    ═══════════════════════════════════════════════════════════════════ -->
-    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Disabled"
-                  CanContentScroll="False"
-                  IsDeferredScrollingEnabled="False"
-                  PanningMode="VerticalOnly"
-                  Focusable="False"
-                  FocusVisualStyle="{x:Null}"
-                  Background="Transparent"
-                  behaviors:SmoothScrollBehavior.IsEnabled="True">
-        <StackPanel Margin="32,28,32,32">
+    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="232"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
 
-            <!-- PAGE HEADER -->
-            <StackPanel Margin="0,0,0,20">
-                <TextBlock Text="Settings"
-                           FontSize="30" FontWeight="Bold"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                           IsHitTestVisible="False"/>
-                <TextBlock Text="Configure appearance, AI assistant, and application preferences."
-                           FontSize="13" Margin="0,4,0,0"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                           IsHitTestVisible="False"/>
-            </StackPanel>
+        <!-- ══════════════════════════════════════════════════════════
+             LEFT — NAVIGATION RAIL
+        ══════════════════════════════════════════════════════════════ -->
+        <Border Grid.Column="0"
+                BorderBrush="{DynamicResource DividerBrush}"
+                BorderThickness="0,0,1,0">
+            <DockPanel Margin="0,26,0,20">
 
-            <!-- TWO-COLUMN LAYOUT -->
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="3*" MinWidth="480"/>
-                    <ColumnDefinition Width="24"/>
-                    <ColumnDefinition Width="2*" MinWidth="340"/>
-                </Grid.ColumnDefinitions>
-
-                <!-- ══════════════════════════════════════════════════
-                     LEFT COLUMN — SETTINGS
-                ══════════════════════════════════════════════════════ -->
-                <StackPanel Grid.Column="0">
-
-                    <!-- APPEARANCE — v2: split into focused cards -->
-
-                    <!-- THEME MODE -->
-                    <Border Style="{StaticResource SectionCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="THEME MODE"
-                                       Style="{StaticResource SectionLabelStyle}"/>
-                            <DockPanel Margin="0,6,0,0">
-                                <StackPanel Orientation="Horizontal"
-                                            VerticalAlignment="Center">
-                                    <TextBlock Text="☀" FontSize="18"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               VerticalAlignment="Center"
-                                               Margin="0,0,10,0"
-                                               IsHitTestVisible="False"/>
-                                    <TextBlock Text="Dark Mode"
-                                               Style="{StaticResource RowTitleStyle}"/>
-                                </StackPanel>
-                                <ToggleButton HorizontalAlignment="Right"
-                                              IsChecked="{Binding IsDarkTheme, Mode=TwoWay}"
-                                              Style="{StaticResource ModernToggleSwitch}"/>
-                            </DockPanel>
-
-                            <TextBlock Text="Visual Theme"
-                                       Style="{StaticResource RowTitleStyle}"
-                                       Margin="0,16,0,6"/>
-                            <ComboBox ItemsSource="{Binding VisualThemeOptions}"
-                                      SelectedItem="{Binding SelectedVisualTheme}"
-                                      MinWidth="200"
-                                      Padding="10,7"
-                                      FontSize="13"/>
-                            <TextBlock Style="{StaticResource HintTextStyle}"
-                                       Margin="0,10,0,0"
-                                       TextWrapping="Wrap"
-                                       Text="Normal = clean default. Monet = wallpaper with glass surfaces. Professional = premium corporate finish."/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- WALLPAPER -->
-                    <Border Style="{StaticResource SectionCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="WALLPAPER"
-                                       Style="{StaticResource SectionLabelStyle}"/>
-                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                                                            <Button Style="{StaticResource OutlinedPillButton}"
-                                    Tag="&#xE728;" Content="SET WALLPAPER…"
-                            Command="{Binding SetWallpaperCommand}"
-                            HorizontalAlignment="Center"/>
-                                                            <Button Style="{StaticResource RowOutlinedButton}"
-                                    Tag="&#xE711;" Content="CLEAR"
-                            Command="{Binding ClearWallpaperCommand}"
-                            Margin="8,0,0,0"
-                            HorizontalAlignment="Center"/>
-                            </StackPanel>
-                            <TextBlock Text="{Binding WallpaperStatus}"
-                                       FontSize="11" Margin="0,8,0,0"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
-                                <TextBlock Text="Wallpaper visibility"
-                                           FontSize="12"
-                                           VerticalAlignment="Center"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                <Slider Value="{Binding WallpaperOpacity}"
-                                        Minimum="0.3" Maximum="1"
-                                        Width="180"
-                                        Margin="12,0,0,0"
-                                        VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- ACCENT COLOUR -->
-                    <Border Style="{StaticResource SectionCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="ACCENT COLOUR"
-                                       Style="{StaticResource SectionLabelStyle}"/>
-                            <WrapPanel Margin="0,8,0,0">
-                                <Button Content="Glass Blue" Command="{Binding ApplyAccentCommand}" CommandParameter="GlassBlue" Style="{StaticResource AccentChipStyle}"/>
-                                <Button Content="Emerald"    Command="{Binding ApplyAccentCommand}" CommandParameter="Emerald"   Style="{StaticResource AccentChipStyle}" Margin="8,0,0,0"/>
-                                <Button Content="Amber"      Command="{Binding ApplyAccentCommand}" CommandParameter="Amber"     Style="{StaticResource AccentChipStyle}" Margin="8,0,0,0"/>
-                                <Button Content="Rose"       Command="{Binding ApplyAccentCommand}" CommandParameter="Rose"      Style="{StaticResource AccentChipStyle}" Margin="8,0,0,0"/>
-                                <Button Content="🟣 Violet"     Command="{Binding ApplyAccentCommand}" CommandParameter="Violet"    Style="{StaticResource AccentChipStyle}" Margin="8,0,0,0"/>
-                                <Button Content="Teal"       Command="{Binding ApplyAccentCommand}" CommandParameter="Teal"      Style="{StaticResource AccentChipStyle}" Margin="8,0,0,0"/>
-                            </WrapPanel>
-                            <TextBlock Style="{StaticResource HintTextStyle}"
-                                       Margin="0,10,0,0"
-                                       Text="The engine derives hover, tint and contrast colours automatically from the chosen accent."/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- MOTION & PERFORMANCE -->
-                    <Border Style="{StaticResource SectionCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="MOTION &amp; PERFORMANCE"
-                                       Style="{StaticResource SectionLabelStyle}"/>
-                            <TextBlock Style="{StaticResource HintTextStyle}"
-                                       Margin="0,6,0,0"
-                                       Text="{Binding PerformanceTierDisplay}"/>
-                            <TextBlock Style="{StaticResource HintTextStyle}"
-                                       Margin="0,4,0,0"
-                                       Text="Animations adapt to your display refresh rate (60/90/120/144/165 Hz)."/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- SECURITY — API key storage (v2) -->
-                    <Border Style="{StaticResource SectionCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="SECURITY"
-                                       Style="{StaticResource SectionLabelStyle}"/>
-                            <DockPanel Margin="0,4,0,0">
-                                <StackPanel Orientation="Horizontal"
-                                            VerticalAlignment="Center">
-                                    <TextBlock Text="🔐" FontSize="18"
-                                               VerticalAlignment="Center"
-                                               Margin="0,0,10,0"
-                                               IsHitTestVisible="False"/>
-                                    <TextBlock Text="Keep API keys saved on this device"
-                                               Style="{StaticResource RowTitleStyle}"/>
-                                </StackPanel>
-                                <ToggleButton HorizontalAlignment="Right"
-                                              IsChecked="{Binding KeepApiKeysSaved, Mode=TwoWay}"
-                                              Style="{StaticResource ModernToggleSwitch}"/>
-                            </DockPanel>
-                            <TextBlock Style="{StaticResource HintTextStyle}"
-                                       Margin="0,10,0,0"
-                                       TextWrapping="Wrap"
-                                       Text="Keys are encrypted with Windows user-level protection (DPAPI) — never stored in plain text. Turn OFF to keep keys in memory for this session only."/>
-                                                        <Button Style="{StaticResource DangerButton}"
-                                    Tag="&#xE74D;" Content="REMOVE SAVED KEYS"
-                            Command="{Binding RemoveSavedKeysCommand}"
-                            Margin="0,10,0,0"
-                            HorizontalAlignment="Left"/>
-                                                        <Button Style="{StaticResource DangerButton}"
-                                    Tag="&#xE74D;" Content="CLEAR AI MEMORY"
-                            Command="{Binding ClearAiMemoryCommand}"
-                            Margin="0,8,0,0"
-                            HorizontalAlignment="Left"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- SAMPLE DATA — first-run learning aid -->
-                    <Border Style="{StaticResource SectionCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="SAMPLE DATA"
-                                       Style="{StaticResource SectionLabelStyle}"/>
-                            <TextBlock FontSize="11" TextWrapping="Wrap"
-                                       Margin="0,8,0,0"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       Text="New here? Load a small demo dataset (6 sheets, 3 proformas, 2 job orders, 2 delivery notes, 3 tax invoices — all linked) to explore every module. Only available on an empty database; your real data is never touched."/>
-                            <Button Style="{StaticResource PrimaryPillButton}"
-                                    Tag="&#xE8A5;" Content="LOAD SAMPLE DATA"
-                                    Command="{Binding LoadSampleDataCommand}"
-                                    Margin="0,10,0,0"
-                                    HorizontalAlignment="Left"
-                                    ToolTip="Seed the demo dataset on an empty database"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- UPDATES — OTA (v2 §34) -->
-                    <Border Style="{StaticResource SectionCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="UPDATES"
-                                       Style="{StaticResource SectionLabelStyle}"/>
-
-                            <!-- Version row: current vs latest -->
-                            <Grid Margin="0,10,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <Border Grid.Column="0"
-                                        Background="{DynamicResource MenuHoverBrush}"
-                                        CornerRadius="{DynamicResource ControlCornerRadius}"
-                                        Padding="14,10" Margin="0,0,6,0">
-                                    <StackPanel>
-                                        <TextBlock Text="CURRENT VERSION"
-                                                   FontSize="9" FontWeight="Bold"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                        <TextBlock FontSize="16" FontWeight="Bold"
-                                                   Margin="0,3,0,0"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                            <Run Text="v"/>
-                                            <Run Text="{Binding CurrentVersionDisplay, Mode=OneWay}"/>
-                                        </TextBlock>
-                                    </StackPanel>
-                                </Border>
-                                <Border Grid.Column="1"
-                                        Background="{DynamicResource TintBlueBrush}"
-                                        CornerRadius="{DynamicResource ControlCornerRadius}"
-                                        Padding="14,10" Margin="6,0,0,0">
-                                    <StackPanel>
-                                        <TextBlock Text="LATEST RELEASE"
-                                                   FontSize="9" FontWeight="Bold"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                        <TextBlock FontSize="16" FontWeight="Bold"
-                                                   Margin="0,3,0,0"
-                                                   Foreground="{DynamicResource AccentBrush}"
-                                                   Text="{Binding LatestVersionDisplay}"/>
-                                    </StackPanel>
-                                </Border>
-                            </Grid>
-
-                            <TextBlock Text="{Binding UpdateStatus}"
-                                       Style="{StaticResource RowTitleStyle}"
-                                       Margin="0,12,0,0"
-                                       TextWrapping="Wrap"/>
-                            <!-- v3 OTA §8: last-checked stamp -->
-                            <TextBlock Text="{Binding LastCheckedDisplay}"
+                <!-- Brand header -->
+                <StackPanel DockPanel.Dock="Top" Margin="22,0,22,20">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="34" Height="34" CornerRadius="10"
+                                Background="{DynamicResource AccentBrush}"
+                                VerticalAlignment="Center">
+                            <TextBlock Text="&#xE713;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="16"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Settings"
+                                       FontSize="18" FontWeight="Bold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            <TextBlock Text="ProGlass Automation"
                                        FontSize="10"
-                                       Margin="0,4,0,0"
                                        Foreground="{DynamicResource MutedForegroundBrush}"/>
-                            <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                                                            <Button Style="{StaticResource PrimaryPillButton}"
-                                    Tag="&#xE72C;" Content="CHECK FOR UPDATES"
-                            Command="{Binding CheckForUpdatesCommand}"
-                            HorizontalAlignment="Center"/>
-                            <Button Tag="&#xE896;" Content="DOWNLOAD UPDATE"
-                            Command="{Binding DownloadUpdateCommand}"
-                            Margin="10,0,0,0"
-                            HorizontalAlignment="Center">
-                                    <Button.Style>
-                                        <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
-                                            <Setter Property="Visibility" Value="Collapsed"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding IsUpdateAvailable}" Value="True">
-                                                    <Setter Property="Visibility" Value="Visible"/>
-                                                </DataTrigger>
-                                                <!-- hidden again once the
-                                                     download is ready -->
-                                                <DataTrigger Binding="{Binding IsUpdateReady}" Value="True">
-                                                    <Setter Property="Visibility" Value="Collapsed"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </Button.Style>
-                            </Button>
-                            </StackPanel>
-
-                            <!-- ═══════════════════════════════════════
-                                 v3 OTA §8: READY STATE
-                                 Install & restart / later — appears only
-                                 once the download has completed.
-                            ════════════════════════════════════════ -->
-                            <StackPanel Orientation="Horizontal"
-                                        Margin="0,10,0,0">
-                                <StackPanel.Style>
-                                    <Style TargetType="StackPanel">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsUpdateReady}" Value="True">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </StackPanel.Style>
-                                                            <Button Style="{StaticResource SuccessPillButton}"
-                                    Tag="&#xE74E;" Content="INSTALL &amp; RESTART"
-                            Command="{Binding InstallUpdateCommand}"
-                            HorizontalAlignment="Center"/>
-                                <TextBlock Text="…or install later — the file stays in your Downloads folder."
-                                           FontSize="10"
-                                           Margin="12,0,0,0"
-                                           VerticalAlignment="Center"
-                                           TextWrapping="Wrap"
-                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
-                            </StackPanel>
-
-                            <!-- Mode=OneWay: UpdateDownloadProgress is
-                                 read-only from XAML's perspective
-                                 (private setter) — TwoWay would throw
-                                 InvalidOperationException (ERR-441A02). -->
-                            <ProgressBar Value="{Binding UpdateDownloadProgress, Mode=OneWay}"
-                                         Maximum="100"
-                                         Height="6"
-                                         Margin="0,10,0,0">
-                                <ProgressBar.Style>
-                                    <Style TargetType="ProgressBar">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsDownloadingUpdate}" Value="True">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </ProgressBar.Style>
-                            </ProgressBar>
-                            <!-- Release details (v2 §34) -->
-                            <Border Margin="0,14,0,0"
-                                    Background="{DynamicResource MenuHoverBrush}"
-                                    CornerRadius="{DynamicResource ControlCornerRadius}"
-                                    Padding="14,12">
-                                <Border.Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding HasReleaseInfo}" Value="True">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                                <StackPanel>
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="📦"
-                                                   FontSize="14"
-                                                   VerticalAlignment="Center"
-                                                   Margin="0,0,8,0"/>
-                                        <TextBlock Text="{Binding ReleaseNameDisplay}"
-                                                   FontSize="13" FontWeight="Bold"
-                                                   VerticalAlignment="Center"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                        <TextBlock FontSize="11"
-                                                   Margin="10,0,0,0"
-                                                   VerticalAlignment="Center"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}">
-                                            <Run Text="published"/>
-                                            <Run Text="{Binding ReleasePublishedDisplay, Mode=OneWay}"/>
-                                        </TextBlock>
-                                    </StackPanel>
-                                    <TextBlock Text="{Binding ReleaseNotesPreview}"
-                                               FontSize="11"
-                                               Margin="0,8,0,0"
-                                               TextWrapping="Wrap"
-                                               MaxHeight="90"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                </StackPanel>
-                            </Border>
-
-                            <!-- Update history ledger (v2 §34) -->
-                            <StackPanel Margin="0,14,0,0">
-                                <StackPanel.Style>
-                                    <Style TargetType="StackPanel">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding HasUpdateHistory}" Value="True">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </StackPanel.Style>
-
-                                <TextBlock Text="UPDATE HISTORY"
-                                           FontSize="10" FontWeight="Bold"
-                                           Margin="0,0,0,6"
-                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
-
-                                <ItemsControl ItemsSource="{Binding UpdateHistory}">
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Border BorderBrush="{DynamicResource DividerBrush}"
-                                                    BorderThickness="0,0,0,1"
-                                                    Padding="2,7">
-                                                <Grid>
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="150"/>
-                                                        <ColumnDefinition Width="110"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                    </Grid.ColumnDefinitions>
-                                                    <TextBlock Grid.Column="0"
-                                                               FontSize="11"
-                                                               VerticalAlignment="Center"
-                                                               Foreground="{DynamicResource MutedForegroundBrush}">
-                                                        <Run Text="{Binding TimestampUtc, Mode=OneWay,
-                                                                    StringFormat='dd MMM yyyy HH:mm'}"/>
-                                                    </TextBlock>
-                                                    <Border Grid.Column="1"
-                                                            CornerRadius="8"
-                                                            Padding="8,2"
-                                                            HorizontalAlignment="Left"
-                                                            VerticalAlignment="Center">
-                                                        <Border.Style>
-                                                            <Style TargetType="Border">
-                                                                <Setter Property="Background"
-                                                                        Value="{DynamicResource TintBlueBrush}"/>
-                                                                <Style.Triggers>
-                                                                    <DataTrigger Binding="{Binding EventType}" Value="Downloaded">
-                                                                        <Setter Property="Background"
-                                                                                Value="{DynamicResource TintGreenBrush}"/>
-                                                                    </DataTrigger>
-                                                                    <DataTrigger Binding="{Binding EventType}" Value="CheckFailed">
-                                                                        <Setter Property="Background"
-                                                                                Value="{DynamicResource TintRedBrush}"/>
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </Border.Style>
-                                                        <TextBlock Text="{Binding EventType}"
-                                                                   FontSize="9" FontWeight="Bold"
-                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                    </Border>
-                                                    <TextBlock Grid.Column="2"
-                                                               FontSize="11"
-                                                               Margin="10,0,0,0"
-                                                               VerticalAlignment="Center"
-                                                               TextTrimming="CharacterEllipsis"
-                                                               ToolTip="{Binding Detail}"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}">
-                                                        <Run Text="v"/>
-                                                        <Run Text="{Binding Version, Mode=OneWay}"/>
-                                                        <Run Text=" "/>
-                                                        <Run Text="{Binding ReleaseName, Mode=OneWay}"/>
-                                                    </TextBlock>
-                                                </Grid>
-                                            </Border>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-                            </StackPanel>
-
-                            <TextBlock Style="{StaticResource HintTextStyle}"
-                                       Margin="0,10,0,0"
-                                       TextWrapping="Wrap"
-                                       Text="The app never replaces its own files. Downloads are saved to your Downloads folder — you decide when to install."/>
                         </StackPanel>
-                    </Border>
+                    </StackPanel>
+                </StackPanel>
+
+                <!-- Nav items -->
+                <StackPanel>
+
+                    <!-- APPEARANCE -->
+                    <Button Command="{Binding SwitchSettingsPageCommand}"
+                            CommandParameter="Appearance">
+                        <Button.Style>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource SettingsNavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsAppearancePage}" Value="True">
+                                        <Setter TargetName="Bd" Property="Background"
+                                                Value="{DynamicResource TintIndigoBrush}"/>
+                                        <Setter TargetName="ActiveBar" Property="Opacity" Value="1"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE790;"/>
+                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="Appearance"/>
+                        </StackPanel>
+                    </Button>
 
                     <!-- AI ASSISTANT -->
-                    <Border Style="{StaticResource SectionCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="AI ASSISTANT"
-                                       Style="{StaticResource SectionLabelStyle}"/>
-                            <DockPanel Margin="0,4,0,0">
-                                <StackPanel Orientation="Horizontal"
-                                            VerticalAlignment="Center">
-                                    <TextBlock Text="🤖" FontSize="18"
-                                               VerticalAlignment="Center"
-                                               Margin="0,0,10,0"
-                                               IsHitTestVisible="False"/>
-                                    <TextBlock Text="Enable AI Assistant"
-                                               Style="{StaticResource RowTitleStyle}"/>
-                                </StackPanel>
-                                <ToggleButton HorizontalAlignment="Right"
-                                              IsChecked="{Binding IsAiEnabled, Mode=TwoWay}"
-                                              Style="{StaticResource ModernToggleSwitch}"/>
-                            </DockPanel>
-                            <TextBlock Style="{StaticResource HintTextStyle}"
-                                       Margin="0,10,0,0"
-                                       Text="Master toggle. When disabled, the chat button is hidden and no API calls are made."/>
+                    <Button Command="{Binding SwitchSettingsPageCommand}"
+                            CommandParameter="AI">
+                        <Button.Style>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource SettingsNavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsAiPage}" Value="True">
+                                        <Setter TargetName="Bd" Property="Background"
+                                                Value="{DynamicResource TintIndigoBrush}"/>
+                                        <Setter TargetName="ActiveBar" Property="Opacity" Value="1"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE8F2;"/>
+                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="AI Assistant"/>
                         </StackPanel>
-                    </Border>
+                    </Button>
 
-                    <!-- DATA ACCESS -->
-                    <Border Style="{StaticResource SectionCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="DATA ACCESS"
-                                       Style="{StaticResource SectionLabelStyle}"/>
-                            <DockPanel Margin="0,4,0,0">
-                                <StackPanel Orientation="Horizontal"
-                                            VerticalAlignment="Center">
-                                    <TextBlock Text="📊" FontSize="18"
-                                               VerticalAlignment="Center"
-                                               Margin="0,0,10,0"
-                                               IsHitTestVisible="False"/>
-                                    <TextBlock Text="Use Real Business Data"
-                                               Style="{StaticResource RowTitleStyle}"/>
-                                </StackPanel>
-                                <ToggleButton HorizontalAlignment="Right"
-                                              IsChecked="{Binding UseRealData, Mode=TwoWay}"
-                                              Style="{StaticResource ModernToggleSwitch}"/>
-                            </DockPanel>
-                            <TextBlock Style="{StaticResource HintTextStyle}"
-                                       Margin="0,10,0,0">
-                                <Run Text="When enabled, the AI receives a real-time summary of your invoices, jobs, deliveries, and balances."/>
-                            </TextBlock>
+                    <!-- VOICE -->
+                    <Button Command="{Binding SwitchSettingsPageCommand}"
+                            CommandParameter="Voice">
+                        <Button.Style>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource SettingsNavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsVoicePage}" Value="True">
+                                        <Setter TargetName="Bd" Property="Background"
+                                                Value="{DynamicResource TintIndigoBrush}"/>
+                                        <Setter TargetName="ActiveBar" Property="Opacity" Value="1"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE720;"/>
+                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="Voice"/>
                         </StackPanel>
-                    </Border>
+                    </Button>
 
-                    <!-- AI PROVIDERS -->
-                    <Border Style="{StaticResource SectionCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="AI PROVIDERS"
-                                       Style="{StaticResource SectionLabelStyle}"/>
-                            <TextBlock Style="{StaticResource HintTextStyle}"
-                                       Margin="0,0,0,14">
-                                <Run Text="Select your preferred AI provider. Only the"/>
-                                <Run Text=" active" FontWeight="Bold"/>
-                                <Run Text=" provider processes your requests."/>
-                            </TextBlock>
-
-                            <!-- ── GEMINI ──────────────────────────── -->
-                            <Border CornerRadius="14" Padding="16,14"
-                                    Margin="0,0,0,12" BorderThickness="1.5"
-                                    SnapsToDevicePixels="True"
-                                    UseLayoutRounding="True">
-                                <Border.Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="BorderBrush"
-                                                Value="{StaticResource PillBorderLightBrush}"/>
-                                        <Setter Property="Background"
-                                                Value="{DynamicResource ModuleBackgroundBrush}"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsGeminiActive}"
-                                                         Value="True">
-                                                <Setter Property="BorderBrush"
-                                                        Value="{DynamicResource AccentBrush}"/>
-                                                <Setter Property="Background"
-                                                        Value="{DynamicResource TintIndigoBrush}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                                <StackPanel>
-                                    <DockPanel>
-                                        <StackPanel Orientation="Horizontal"
-                                                    VerticalAlignment="Center">
-                                            <TextBlock Text="🔵" FontSize="18"
-                                                       VerticalAlignment="Center"
-                                                       Margin="0,0,8,0"
-                                                       IsHitTestVisible="False"/>
-                                            <StackPanel>
-                                                <TextBlock Text="Google Gemini"
-                                                           FontSize="14" FontWeight="Bold"
-                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                <TextBlock Text="15 req/min · 1,500/day · Best quality"
-                                                           FontSize="10"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                           IsHitTestVisible="False"/>
-                                            </StackPanel>
-                                        </StackPanel>
-                                        <Button DockPanel.Dock="Right"
-                                                HorizontalAlignment="Right"
-                                                Command="{Binding SelectGeminiCommand}">
-                                            <Button.Style>
-                                                <Style TargetType="Button"
-                                                       BasedOn="{StaticResource ProviderSelectButtonStyle}">
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsGeminiActive}"
-                                                                     Value="True">
-                                                            <Setter Property="Content"
-                                                                    Value="✓ ACTIVE"/>
-                                                            <Setter Property="Foreground"
-                                                                    Value="White"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                        </Button>
-                                    </DockPanel>
-                                    <StackPanel Margin="0,10,0,0">
-                                        <TextBlock Text="API KEY"
-                                                   Style="{StaticResource LabelStyle}"/>
-                                        <PasswordBox x:Name="GeminiKeyBox"
-                                                     Style="{StaticResource RoundedPasswordBoxStyle}"
-                                                     PasswordChanged="GeminiKeyBox_PasswordChanged"
-                                                     Margin="0,4,0,0"/>
-                                        <TextBlock Text="Get key at aistudio.google.com"
-                                                   Style="{StaticResource HintTextStyle}"
-                                                   Margin="0,4,0,6"/>
-                                                                    <Button Style="{StaticResource PrimaryPillButton}"
-                                    Tag="&#xE74E;" Content="SAVE &amp; TEST"
-                            Command="{Binding TestGeminiCommand}"
-                            HorizontalAlignment="Left"
-                            MinWidth="160"
-                            Height="34"
-                            FontSize="11"/>
-                                        <TextBlock Text="{Binding GeminiTestStatus}"
-                                                   FontSize="11" FontWeight="Bold"
-                                                   Foreground="{DynamicResource AccentBrush}"
-                                                   Margin="0,6,0,0"
-                                                   IsHitTestVisible="False"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </Border>
-
-                            <!-- ── GROQ ──────────────────────────────── -->
-                            <Border CornerRadius="14" Padding="16,14"
-                                    Margin="0,0,0,12" BorderThickness="1.5"
-                                    SnapsToDevicePixels="True"
-                                    UseLayoutRounding="True">
-                                <Border.Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="BorderBrush"
-                                                Value="{StaticResource PillBorderLightBrush}"/>
-                                        <Setter Property="Background"
-                                                Value="{DynamicResource ModuleBackgroundBrush}"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsGroqActive}"
-                                                         Value="True">
-                                                <Setter Property="BorderBrush"
-                                                        Value="{DynamicResource AccentBrush}"/>
-                                                <Setter Property="Background"
-                                                        Value="{DynamicResource TintIndigoBrush}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                                <StackPanel>
-                                    <DockPanel>
-                                        <StackPanel Orientation="Horizontal"
-                                                    VerticalAlignment="Center">
-                                            <TextBlock Text="⚡" FontSize="18"
-                                                       VerticalAlignment="Center"
-                                                       Margin="0,0,8,0"
-                                                       IsHitTestVisible="False"/>
-                                            <StackPanel>
-                                                <TextBlock Text="Groq"
-                                                           FontSize="14" FontWeight="Bold"
-                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                <TextBlock Text="30 req/min · 14,400/day · Fastest speed"
-                                                           FontSize="10"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                           IsHitTestVisible="False"/>
-                                            </StackPanel>
-                                        </StackPanel>
-                                        <Button DockPanel.Dock="Right"
-                                                HorizontalAlignment="Right"
-                                                Command="{Binding SelectGroqCommand}">
-                                            <Button.Style>
-                                                <Style TargetType="Button"
-                                                       BasedOn="{StaticResource ProviderSelectButtonStyle}">
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsGroqActive}"
-                                                                     Value="True">
-                                                            <Setter Property="Content"
-                                                                    Value="✓ ACTIVE"/>
-                                                            <Setter Property="Foreground"
-                                                                    Value="White"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                        </Button>
-                                    </DockPanel>
-                                    <StackPanel Margin="0,10,0,0">
-                                        <TextBlock Text="API KEY"
-                                                   Style="{StaticResource LabelStyle}"/>
-                                        <PasswordBox x:Name="GroqKeyBox"
-                                                     Style="{StaticResource RoundedPasswordBoxStyle}"
-                                                     PasswordChanged="GroqKeyBox_PasswordChanged"
-                                                     Margin="0,4,0,0"/>
-                                        <TextBlock Text="Get key at console.groq.com"
-                                                   Style="{StaticResource HintTextStyle}"
-                                                   Margin="0,4,0,6"/>
-                                                                    <Button Style="{StaticResource PrimaryPillButton}"
-                                    Tag="&#xE74E;" Content="SAVE &amp; TEST"
-                            Command="{Binding TestGroqCommand}"
-                            HorizontalAlignment="Left"
-                            MinWidth="160"
-                            Height="34"
-                            FontSize="11"/>
-                                        <TextBlock Text="{Binding GroqTestStatus}"
-                                                   FontSize="11" FontWeight="Bold"
-                                                   Foreground="{DynamicResource AccentBrush}"
-                                                   Margin="0,6,0,0"
-                                                   IsHitTestVisible="False"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </Border>
-
-                            <!-- ── COHERE ────────────────────────────── -->
-                            <Border CornerRadius="14" Padding="16,14"
-                                    Margin="0,0,0,4" BorderThickness="1.5"
-                                    SnapsToDevicePixels="True"
-                                    UseLayoutRounding="True">
-                                <Border.Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="BorderBrush"
-                                                Value="{StaticResource PillBorderLightBrush}"/>
-                                        <Setter Property="Background"
-                                                Value="{DynamicResource ModuleBackgroundBrush}"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsCohereActive}"
-                                                         Value="True">
-                                                <Setter Property="BorderBrush"
-                                                        Value="{DynamicResource AccentBrush}"/>
-                                                <Setter Property="Background"
-                                                        Value="{DynamicResource TintIndigoBrush}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                                <StackPanel>
-                                    <DockPanel>
-                                        <StackPanel Orientation="Horizontal"
-                                                    VerticalAlignment="Center">
-                                            <TextBlock Text="🟣" FontSize="18"
-                                                       VerticalAlignment="Center"
-                                                       Margin="0,0,8,0"
-                                                       IsHitTestVisible="False"/>
-                                            <StackPanel>
-                                                <TextBlock Text="Cohere"
-                                                           FontSize="14" FontWeight="Bold"
-                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                <TextBlock Text="100 req/min · Trial key · RAG optimized"
-                                                           FontSize="10"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                           IsHitTestVisible="False"/>
-                                            </StackPanel>
-                                        </StackPanel>
-                                        <Button DockPanel.Dock="Right"
-                                                HorizontalAlignment="Right"
-                                                Command="{Binding SelectCohereCommand}">
-                                            <Button.Style>
-                                                <Style TargetType="Button"
-                                                       BasedOn="{StaticResource ProviderSelectButtonStyle}">
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsCohereActive}"
-                                                                     Value="True">
-                                                            <Setter Property="Content"
-                                                                    Value="✓ ACTIVE"/>
-                                                            <Setter Property="Foreground"
-                                                                    Value="White"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Button.Style>
-                                        </Button>
-                                    </DockPanel>
-                                    <StackPanel Margin="0,10,0,0">
-                                        <TextBlock Text="API KEY"
-                                                   Style="{StaticResource LabelStyle}"/>
-                                        <PasswordBox x:Name="CohereKeyBox"
-                                                     Style="{StaticResource RoundedPasswordBoxStyle}"
-                                                     PasswordChanged="CohereKeyBox_PasswordChanged"
-                                                     Margin="0,4,0,0"/>
-                                        <TextBlock Text="Get key at dashboard.cohere.com"
-                                                   Style="{StaticResource HintTextStyle}"
-                                                   Margin="0,4,0,6"/>
-                                                                    <Button Style="{StaticResource PrimaryPillButton}"
-                                    Tag="&#xE74E;" Content="SAVE &amp; TEST"
-                            Command="{Binding TestCohereCommand}"
-                            HorizontalAlignment="Left"
-                            MinWidth="160"
-                            Height="34"
-                            FontSize="11"/>
-                                        <TextBlock Text="{Binding CohereTestStatus}"
-                                                   FontSize="11" FontWeight="Bold"
-                                                   Foreground="{DynamicResource AccentBrush}"
-                                                   Margin="0,6,0,0"
-                                                   IsHitTestVisible="False"/>
-                                    </StackPanel>
-                                </StackPanel>
-                            </Border>
-
-                            <!-- Config path -->
-                            <Border Background="{DynamicResource MenuHoverBrush}"
-                                    BorderBrush="{StaticResource PillBorderLightBrush}"
-                                    BorderThickness="1" CornerRadius="10"
-                                    Padding="12,10" Margin="0,12,0,0"
-                                    SnapsToDevicePixels="True"
-                                    UseLayoutRounding="True">
-                                <StackPanel>
-                                    <TextBlock Text="ALL KEYS SAVED AT"
-                                               Style="{StaticResource LabelStyle}"/>
-                                    <TextBlock Text="{Binding ConfigFilePath}"
-                                               FontSize="11"
-                                               FontFamily="Consolas, Courier New, monospace"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                               Margin="0,4,0,0"
-                                               TextTrimming="CharacterEllipsis"
-                                               IsHitTestVisible="False"/>
-                                </StackPanel>
-                            </Border>
+                    <!-- UPDATES -->
+                    <Button Command="{Binding SwitchSettingsPageCommand}"
+                            CommandParameter="Updates">
+                        <Button.Style>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource SettingsNavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsUpdatesPage}" Value="True">
+                                        <Setter TargetName="Bd" Property="Background"
+                                                Value="{DynamicResource TintIndigoBrush}"/>
+                                        <Setter TargetName="ActiveBar" Property="Opacity" Value="1"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE72C;"/>
+                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="Updates"/>
                         </StackPanel>
-                    </Border>
+                    </Button>
 
-                    <!-- MODEL & TUNING -->
-                    <Border Style="{StaticResource SectionCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="MODEL &amp; TUNING"
-                                       Style="{StaticResource SectionLabelStyle}"/>
-                            <Grid Margin="0,4,0,0">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="*"/>
-                                </Grid.ColumnDefinitions>
-                                <StackPanel Grid.Column="0" Margin="0,0,20,0">
-                                    <TextBlock Text="MODEL"
-                                               Style="{StaticResource LabelStyle}"/>
-                                    <TextBlock Text="{Binding AiModel}"
-                                               Style="{StaticResource ValueStyle}"
-                                               Margin="0,4,0,0"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="1" Margin="0,0,20,0">
-                                    <TextBlock Text="MAX TOKENS"
-                                               Style="{StaticResource LabelStyle}"/>
-                                    <TextBlock Text="{Binding AiMaxTokens}"
-                                               Style="{StaticResource ValueStyle}"
-                                               Margin="0,4,0,0"/>
-                                </StackPanel>
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="TEMPERATURE"
-                                               Style="{StaticResource LabelStyle}"/>
-                                    <TextBlock Text="{Binding AiTemperature}"
-                                               Style="{StaticResource ValueStyle}"
-                                               Margin="0,4,0,0"/>
-                                </StackPanel>
-                            </Grid>
-                            <TextBlock Style="{StaticResource HintTextStyle}"
-                                       Margin="0,14,0,0">
-                                <Run Text="These values are read from"/>
-                                <Run Text=" config.json" FontWeight="Bold"/>
-                                <Run Text=". Editable tuning UI is planned for a future release."/>
-                            </TextBlock>
+                    <!-- DATA & BACKUP -->
+                    <Button Command="{Binding SwitchSettingsPageCommand}"
+                            CommandParameter="Data">
+                        <Button.Style>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource SettingsNavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsDataPage}" Value="True">
+                                        <Setter TargetName="Bd" Property="Background"
+                                                Value="{DynamicResource TintIndigoBrush}"/>
+                                        <Setter TargetName="ActiveBar" Property="Opacity" Value="1"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE74E;"/>
+                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="Data &amp; Backup"/>
                         </StackPanel>
-                    </Border>
+                    </Button>
 
-                    <!-- ══════════════════════════════════════════════
-                         VOICE ASSISTANT
-                    ══════════════════════════════════════════════ -->
-                    <Border Style="{StaticResource SectionCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="VOICE ASSISTANT"
-                                       Style="{StaticResource SectionLabelStyle}"/>
-
-                            <TextBlock Style="{StaticResource HintTextStyle}"
-                                       Margin="0,0,0,14">
-                                <Run Text="ProGlass AI supports"/>
-                                <Run Text=" voice input" FontWeight="Bold"/>
-                                <Run Text=" via OpenAI Whisper running locally. 95%+ accuracy, works offline, handles accents."/>
-                            </TextBlock>
-
-                            <!-- MODEL SELECTOR LABEL -->
-                            <TextBlock Text="SELECT WHISPER MODEL"
-                                       Style="{StaticResource LabelStyle}"
-                                       Margin="0,0,0,8"/>
-
-                            <!--
-                                 ═══════════════════════════════════════
-                                 MODEL OPTION CARDS
-                                 ─────────────────────────────────────
-                                 FIX XLS0501: The Border element has NO
-                                 Style= attribute. All styling is via
-                                 <Border.Style> child element only,
-                                 using BasedOn="ModelOptionCardStyle".
-                                 The base style provides all shared
-                                 setters (CornerRadius, Padding, etc.)
-                                 The child Style adds hover DataTrigger.
-                                 ═══════════════════════════════════════
-                            -->
-                            <ItemsControl ItemsSource="{Binding WhisperModelOptions}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <!--
-                                             NO Style= attribute here.
-                                             Styling exclusively via
-                                             <Border.Style> below.
-                                             Tag holds model key string
-                                             for code-behind handler.
-                                        -->
-                                        <Border MouseLeftButtonDown="ModelOption_MouseLeftButtonDown"
-                                                Tag="{Binding Key}">
-                                            <Border.Style>
-                                                <!--
-                                                     BasedOn pulls all shared setters
-                                                     (CornerRadius=10, Padding=12,10,
-                                                      Margin=0,0,0,8, BorderThickness=1.5,
-                                                      Cursor=Hand, SnapsToDevicePixels,
-                                                      UseLayoutRounding, BorderBrush,
-                                                      Background) from ModelOptionCardStyle.
-                                                     No duplication. No double-set.
-                                                -->
-                                                <Style TargetType="Border"
-                                                       BasedOn="{StaticResource ModelOptionCardStyle}">
-                                                    <Style.Triggers>
-                                                        <!--
-                                                             Hover: darken border slightly.
-                                                             Background stays on ModuleBackgroundBrush
-                                                             unless this card is the selected one
-                                                             (selection highlight handled by VM
-                                                              in Phase 2 if needed).
-                                                        -->
-                                                        <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter Property="BorderBrush"
-                                                                    Value="{DynamicResource AccentBrush}"/>
-                                                        </Trigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Border.Style>
-
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-
-                                                <!-- Model info -->
-                                                <StackPanel Grid.Column="0">
-                                                    <TextBlock Text="{Binding DisplayName}"
-                                                               FontSize="13" FontWeight="Bold"
-                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                               IsHitTestVisible="False"/>
-                                                    <TextBlock FontSize="10"
-                                                               Margin="0,2,0,0"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                               IsHitTestVisible="False">
-                                                        <Run Text="{Binding SizeMB, Mode=OneWay}"/>
-                                                        <Run Text=" MB · "/>
-                                                        <Run Text="{Binding Accuracy, Mode=OneWay}"/>
-                                                        <Run Text=" accuracy · "/>
-                                                        <Run Text="{Binding Speed, Mode=OneWay}"/>
-                                                    </TextBlock>
-                                                    <TextBlock Text="{Binding Description}"
-                                                               FontSize="10"
-                                                               Margin="0,3,0,0"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                               TextWrapping="Wrap"
-                                                               IsHitTestVisible="False"/>
-                                                </StackPanel>
-
-                                                <!--
-                                                     Checkmark — visible only when
-                                                     this model is the selected one.
-                                                     Collapsed by default.
-                                                     Selection state driven by VM
-                                                     SelectedWhisperModel in Phase 2.
-                                                -->
-                                                <TextBlock Grid.Column="1"
-                                                           Text="✓"
-                                                           FontSize="14"
-                                                           FontWeight="Bold"
-                                                           Foreground="{DynamicResource AccentBrush}"
-                                                           VerticalAlignment="Center"
-                                                           Margin="12,0,0,0"
-                                                           Visibility="Collapsed"
-                                                           IsHitTestVisible="False"/>
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                            <!-- MODEL STATUS CARD -->
-                            <Border CornerRadius="12" Padding="16,12"
-                                    Margin="0,12,0,12"
-                                    BorderThickness="1.5"
-                                    SnapsToDevicePixels="True"
-                                    UseLayoutRounding="True">
-                                <Border.Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="BorderBrush"
-                                                Value="{StaticResource PillBorderLightBrush}"/>
-                                        <Setter Property="Background"
-                                                Value="{DynamicResource ModuleBackgroundBrush}"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsWhisperModelReady}"
-                                                         Value="True">
-                                                <Setter Property="BorderBrush"
-                                                        Value="{DynamicResource AccentBrush}"/>
-                                                <Setter Property="Background"
-                                                        Value="{DynamicResource TintIndigoBrush}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-
-                                <StackPanel>
-                                    <DockPanel LastChildFill="True">
-
-                                        <!-- Status badge — RIGHT docked first -->
-                                        <Border DockPanel.Dock="Right"
-                                                VerticalAlignment="Center"
-                                                CornerRadius="10" Padding="10,4"
-                                                SnapsToDevicePixels="True"
-                                                UseLayoutRounding="True">
-                                            <Border.Style>
-                                                <Style TargetType="Border">
-                                                    <Setter Property="Background"
-                                                            Value="{DynamicResource TintRedBrush}"/>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsWhisperModelReady}"
-                                                                     Value="True">
-                                                            <Setter Property="Background"
-                                                                    Value="{DynamicResource TintIndigoBrush}"/>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </Border.Style>
-                                            <TextBlock FontSize="10" FontWeight="Bold"
-                                                       IsHitTestVisible="False">
-                                                <TextBlock.Style>
-                                                    <Style TargetType="TextBlock">
-                                                        <Setter Property="Text"
-                                                                Value="NOT INSTALLED"/>
-                                                        <Setter Property="Foreground"
-                                                                Value="{DynamicResource DangerBrush}"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding IsWhisperModelReady}"
-                                                                         Value="True">
-                                                                <Setter Property="Text"
-                                                                        Value="INSTALLED"/>
-                                                                <Setter Property="Foreground"
-                                                                        Value="{DynamicResource AccentBrush}"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </TextBlock.Style>
-                                            </TextBlock>
-                                        </Border>
-
-                                        <!-- Icon + title — LastChildFill -->
-                                        <StackPanel Orientation="Horizontal"
-                                                    VerticalAlignment="Center">
-                                            <TextBlock Text="🎤" FontSize="20"
-                                                       VerticalAlignment="Center"
-                                                       Margin="0,0,10,0"
-                                                       IsHitTestVisible="False"/>
-                                            <StackPanel>
-                                                <TextBlock FontSize="14" FontWeight="Bold"
-                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                           IsHitTestVisible="False">
-                                                    <TextBlock.Style>
-                                                        <Style TargetType="TextBlock">
-                                                            <Setter Property="Text"
-                                                                    Value="Whisper Model — Not Installed"/>
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding IsWhisperModelReady}"
-                                                                             Value="True">
-                                                                    <Setter Property="Text"
-                                                                            Value="Whisper Model — Ready ✓"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </TextBlock.Style>
-                                                </TextBlock>
-                                                <TextBlock FontSize="10"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                           IsHitTestVisible="False">
-                                                    <TextBlock.Style>
-                                                        <Style TargetType="TextBlock">
-                                                            <Setter Property="Text"
-                                                                    Value="{Binding SelectedModelInfo.FileName,
-                                                                        StringFormat='{}{0} · Download required'}"/>
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding IsWhisperModelReady}"
-                                                                             Value="True">
-                                                                    <Setter Property="Text"
-                                                                            Value="{Binding SelectedModelInfo.FileName,
-                                                                                StringFormat='{}{0} · Installed · Offline neural STT'}"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </TextBlock.Style>
-                                                </TextBlock>
-                                            </StackPanel>
-                                        </StackPanel>
-                                    </DockPanel>
-
-                                    <!-- Download progress -->
-                                    <StackPanel Margin="0,10,0,0"
-                                                Visibility="{Binding IsDownloadingModel,
-                                                    Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <ProgressBar Value="{Binding DownloadProgress}"
-                                                     Style="{StaticResource DownloadProgressBarStyle}"
-                                                     Width="300"
-                                                     HorizontalAlignment="Left"/>
-                                        <TextBlock Text="{Binding VoiceStatus}"
-                                                   FontSize="10" FontWeight="Bold"
-                                                   Foreground="{DynamicResource AccentBrush}"
-                                                   Margin="0,4,0,0"
-                                                   IsHitTestVisible="False"/>
-                                    </StackPanel>
-
-                                    <!-- Action buttons -->
-                                    <StackPanel Orientation="Horizontal"
-                                                Margin="0,10,0,0">
-
-                                                                    <Button Style="{StaticResource PrimaryPillButton}"
-                                    Tag="&#xE896;" Content="DOWNLOAD MODEL"
-                            Command="{Binding DownloadWhisperModelCommand}"
-                            Margin="0,0,8,0"
-                            Visibility="{Binding IsWhisperModelReady,
-                                                    Converter={StaticResource InverseBoolToVisibilityConverter}}"
-                            MinWidth="180"
-                            Height="34"
-                            FontSize="11"/>
-
-                                                                    <Button Style="{StaticResource OutlinedPillButton}"
-                                    Tag="&#xE711;" Content="CANCEL"
-                            Command="{Binding CancelDownloadCommand}"
-                            Margin="0,0,8,0"
-                            Visibility="{Binding IsDownloadingModel,
-                                                    Converter={StaticResource BoolToVisibilityConverter}}"/>
-
-                                                                    <Button Style="{StaticResource DangerButton}"
-                                    Tag="&#xE74D;" Content="DELETE MODEL"
-                            Command="{Binding DeleteWhisperModelCommand}"
-                            Visibility="{Binding IsWhisperModelReady,
-                                                    Converter={StaticResource BoolToVisibilityConverter}}"/>
-                                    </StackPanel>
-
-                                    <!-- Unified status text -->
-                                    <TextBlock Text="{Binding VoiceStatus}"
-                                               FontSize="11" FontWeight="Bold"
-                                               Foreground="{DynamicResource AccentBrush}"
-                                               TextWrapping="Wrap"
-                                               Margin="0,8,0,0"
-                                               IsHitTestVisible="False">
-                                        <TextBlock.Style>
-                                            <Style TargetType="TextBlock">
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                                <Style.Triggers>
-                                                    <DataTrigger Binding="{Binding IsDownloadingModel}"
-                                                                 Value="True">
-                                                        <Setter Property="Visibility"
-                                                                Value="Collapsed"/>
-                                                    </DataTrigger>
-                                                </Style.Triggers>
-                                            </Style>
-                                        </TextBlock.Style>
-                                    </TextBlock>
-
-                                    <!-- Model file location -->
-                                    <Border Background="{DynamicResource MenuHoverBrush}"
-                                            BorderBrush="{StaticResource PillBorderLightBrush}"
-                                            BorderThickness="1" CornerRadius="8"
-                                            Padding="10,8" Margin="0,10,0,0"
-                                            SnapsToDevicePixels="True"
-                                            UseLayoutRounding="True"
-                                            Visibility="{Binding IsWhisperModelReady,
-                                                Converter={StaticResource BoolToVisibilityConverter}}">
-                                        <StackPanel>
-                                            <TextBlock Text="MODEL STORED AT"
-                                                       Style="{StaticResource LabelStyle}"/>
-                                            <TextBlock Text="{Binding ModelFilePath}"
-                                                       FontSize="10"
-                                                       FontFamily="Consolas, Courier New, monospace"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       Margin="0,3,0,0"
-                                                       TextTrimming="CharacterEllipsis"
-                                                       IsHitTestVisible="False"/>
-                                        </StackPanel>
-                                    </Border>
-
-                                </StackPanel>
-                            </Border>
+                    <!-- ABOUT & HELP -->
+                    <Button Command="{Binding SwitchSettingsPageCommand}"
+                            CommandParameter="About">
+                        <Button.Style>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource SettingsNavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsAboutPage}" Value="True">
+                                        <Setter TargetName="Bd" Property="Background"
+                                                Value="{DynamicResource TintIndigoBrush}"/>
+                                        <Setter TargetName="ActiveBar" Property="Opacity" Value="1"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE946;"/>
+                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="About &amp; Help"/>
                         </StackPanel>
-                    </Border>
+                    </Button>
 
                 </StackPanel>
+            </DockPanel>
+        </Border>
 
-                <!-- ══════════════════════════════════════════════════
-                     RIGHT COLUMN — INFO CARDS
-                ══════════════════════════════════════════════════════ -->
-                <StackPanel Grid.Column="2">
-
-                    <!-- About Theme System -->
-                    <Border Style="{StaticResource InfoCardStyle}">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="🎨" FontSize="20"
-                                           VerticalAlignment="Center"
-                                           Margin="0,0,10,0"
-                                           IsHitTestVisible="False"/>
-                                <TextBlock Text="About the Theme System"
-                                           Style="{StaticResource InfoCardTitleStyle}"/>
-                            </StackPanel>
-                            <TextBlock Style="{StaticResource InfoCardBodyStyle}">
-                                <Run Text="ProGlass Automation ships with"/>
-                                <Run Text=" two hand-crafted themes" FontWeight="Bold"/>
-                                <Run Text=" — Light (default) and Dark."/>
-                            </TextBlock>
-                            <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                                <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" Light theme — optimized for daylight factory floor use."/>
-                            </TextBlock>
-                            <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                                <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" Dark theme — easier on the eyes during late-night shifts."/>
-                            </TextBlock>
-                            <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                                <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" Instant swap — no restart required."/>
-                            </TextBlock>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- About AI Assistant -->
-                    <Border Style="{StaticResource InfoCardStyle}">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="🤖" FontSize="20"
-                                           VerticalAlignment="Center"
-                                           Margin="0,0,10,0"
-                                           IsHitTestVisible="False"/>
-                                <TextBlock Text="About the AI Assistant"
-                                           Style="{StaticResource InfoCardTitleStyle}"/>
-                            </StackPanel>
-                            <TextBlock Style="{StaticResource InfoCardBodyStyle}">
-                                <Run Text="The optional AI Assistant supports"/>
-                                <Run Text=" Google Gemini, Groq, and Cohere" FontWeight="Bold"/>
-                                <Run Text=" — all free tiers. Tailored for UAE glass manufacturing."/>
-                            </TextBlock>
-                            <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                                <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" 100% opt-in — uses your own API key."/>
-                            </TextBlock>
-                            <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                                <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" Context-aware — knows glass types, VAT rules, app modules."/>
-                            </TextBlock>
-                            <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                                <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" Voice input via Whisper — offline, 95%+ accuracy."/>
-                            </TextBlock>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- About API Key & Privacy -->
-                    <Border Style="{StaticResource InfoCardStyle}">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="🔐" FontSize="20"
-                                           VerticalAlignment="Center"
-                                           Margin="0,0,10,0"
-                                           IsHitTestVisible="False"/>
-                                <TextBlock Text="About Your API Key &amp; Privacy"
-                                           Style="{StaticResource InfoCardTitleStyle}"/>
-                            </StackPanel>
-                            <TextBlock Style="{StaticResource InfoCardBodyStyle}">
-                                <Run Text="Your API key is stored"/>
-                                <Run Text=" only on your local machine" FontWeight="Bold"/>
-                                <Run Text=" in AppData. It never leaves your PC except for direct HTTPS requests to the AI provider."/>
-                            </TextBlock>
-                            <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                                <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" Stored at %AppData%\ProGlassAutomation\config.json."/>
-                            </TextBlock>
-                            <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                                <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" No telemetry — zero analytics sent anywhere."/>
-                            </TextBlock>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- About Voice Models -->
-                    <Border Style="{StaticResource InfoCardStyle}">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="🎙" FontSize="20"
-                                           VerticalAlignment="Center"
-                                           Margin="0,0,10,0"
-                                           IsHitTestVisible="False"/>
-                                <TextBlock Text="About Voice Models"
-                                           Style="{StaticResource InfoCardTitleStyle}"/>
-                            </StackPanel>
-                            <TextBlock Style="{StaticResource InfoCardBodyStyle}">
-                                <Run Text="Three Whisper model sizes are available."/>
-                                <Run Text=" Base is recommended" FontWeight="Bold"/>
-                                <Run Text=" for most users — fast, accurate, only 142 MB."/>
-                            </TextBlock>
-                            <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                                <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" Base (142 MB) — 95%+ accuracy. Best for daily use."/>
-                            </TextBlock>
-                            <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                                <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" Medium (1.5 GB) — 97%+ accuracy. Noisy environments."/>
-                            </TextBlock>
-                            <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                                <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" Large v3 (3.1 GB) — 99%+ accuracy. Maximum quality."/>
-                            </TextBlock>
-                            <TextBlock Style="{StaticResource InfoCardBulletStyle}">
-                                <Run Text="•" FontWeight="Bold"/>
-                                <Run Text=" All models run fully OFFLINE — no internet after download."/>
-                            </TextBlock>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- BACKUP & RESTORE (v2 — full dataset sets) -->
-                    <Border Style="{StaticResource SectionCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="BACKUP &amp; RESTORE"
-                                       Style="{StaticResource SectionLabelStyle}"/>
-                            <TextBlock Style="{StaticResource HintTextStyle}"
-                                       Margin="0,6,0,0"
-                                       TextWrapping="Wrap"
-                                       Text="A backup set copies every database + settings into one timestamped folder. Automatic sets are created when the app closes; restore always takes a safety snapshot first."/>
-
-                            <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
-                                                            <Button Style="{StaticResource PrimaryPillButton}"
-                                    Tag="&#xE74E;" Content="CREATE BACKUP NOW"
-                            Command="{Binding CreateBackupNowCommand}"
-                            HorizontalAlignment="Center"/>
-                                                            <Button Style="{StaticResource OutlinedPillButton}"
-                                    Tag="&#xE72C;" Content="REFRESH"
-                            Command="{Binding RefreshBackupsCommand}"
-                            Margin="10,0,0,0"
-                            HorizontalAlignment="Center"/>
-                                                            <Button Style="{StaticResource OutlinedPillButton}"
-                                    Tag="&#xE8B7;" Content="OPEN FOLDER"
-                            Command="{Binding OpenBackupsFolderCommand}"
-                            Margin="10,0,0,0"
-                            HorizontalAlignment="Center"/>
-                            </StackPanel>
-
-                            <ListBox ItemsSource="{Binding BackupSets}"
-                                     SelectedItem="{Binding SelectedBackup}"
-                                     Margin="0,12,0,0"
-                                     MaxHeight="190"
-                                     BorderThickness="1"
-                                     BorderBrush="{DynamicResource BorderBrush}"
-                                     Background="{DynamicResource MenuHoverBrush}">
-                                <ListBox.ItemTemplate>
-                                    <DataTemplate>
-                                        <StackPanel Orientation="Horizontal" Margin="2">
-                                            <TextBlock Text="🗄" Margin="0,0,8,0"
-                                                       VerticalAlignment="Center"/>
-                                            <TextBlock VerticalAlignment="Center" FontSize="12">
-                                                <Run Text="{Binding CreatedAt, Mode=OneWay,
-                                                             StringFormat='dd MMM yyyy  HH:mm'}"/>
-                                                <Run Text="  •  "/>
-                                                <Run Text="{Binding FileCount, Mode=OneWay}"/>
-                                                <Run Text=" files  •  "/>
-                                                <Run Text="{Binding SizeDisplay, Mode=OneWay}"/>
-                                            </TextBlock>
-                                        </StackPanel>
-                                    </DataTemplate>
-                                </ListBox.ItemTemplate>
-                            </ListBox>
-
-                                                        <Button Style="{StaticResource SuccessPillButton}"
-                                    Tag="&#xE895;" Content="RESTORE SELECTED BACKUP"
-                            Command="{Binding RestoreSelectedBackupCommand}"
-                            Margin="0,10,0,0"
-                            HorizontalAlignment="Left"/>
-
-                            <TextBlock Text="{Binding BackupStatus}"
-                                       FontSize="11" FontWeight="SemiBold"
-                                       Margin="0,10,0,0"
-                                       TextWrapping="Wrap"
-                                       Foreground="{DynamicResource AccentBrush}"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- MODULE WALLPAPERS (§9 — one wallpaper per module) -->
-                    <Border Style="{StaticResource SectionCardStyle}">
-                        <StackPanel>
-                            <TextBlock Text="MODULE WALLPAPERS"
-                                       Style="{StaticResource SectionLabelStyle}"/>
-                            <TextBlock Style="{StaticResource HintTextStyle}"
-                                       Margin="0,6,0,10"
-                                       TextWrapping="Wrap"
-                                       Text="Give any module its own background image. The image stays behind readable UI — surfaces become slightly transparent where the active theme supports it."/>
-
-                            <ItemsControl ItemsSource="{Binding ModuleWallpaperRows}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border BorderBrush="{DynamicResource DividerBrush}"
-                                                BorderThickness="0,0,0,1"
-                                                Padding="2,9">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="170"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-
-                                                <CheckBox Grid.Column="0"
-                                                          IsChecked="{Binding Enabled, Mode=TwoWay}"
-                                                          VerticalAlignment="Center"
-                                                          Margin="0,0,10,0"/>
-
-                                                <TextBlock Grid.Column="1"
-                                                           Text="{Binding Label}"
-                                                           FontSize="12" FontWeight="SemiBold"
-                                                           VerticalAlignment="Center"
-                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-
-                                                <TextBlock Grid.Column="2"
-                                                           Text="{Binding FileName}"
-                                                           FontSize="11"
-                                                           VerticalAlignment="Center"
-                                                           TextTrimming="CharacterEllipsis"
-                                                           Margin="8,0"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-
-                                                <StackPanel Grid.Column="3"
-                                                            Orientation="Horizontal"
-                                                            VerticalAlignment="Center">
-                                                    <Slider Value="{Binding OpacityValue}"
-                                                            Minimum="0.3" Maximum="1"
-                                                            Width="110"
-                                                            ToolTip="Visibility"
-                                                            VerticalAlignment="Center"/>
-                                                                                <Button Style="{StaticResource RowOutlinedButton}"
-                                    Tag="&#xE728;" Content="SET"
-                            Command="{Binding DataContext.SetModuleWallpaperCommand,
-                                                                        RelativeSource={RelativeSource
-                                                                            AncestorType=UserControl}}"
-                            CommandParameter="{Binding}"
-                            Margin="10,0,0,0"
-                            HorizontalAlignment="Center"
-                            FontSize="11"/>
-                                                </StackPanel>
-
-                                                <Button Grid.Column="4"
-                                                        Content="✕"
-                                                        Command="{Binding DataContext.ClearModuleWallpaperCommand,
-                                                                    RelativeSource={RelativeSource
-                                                                        AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding}"
-                                                        Cursor="Hand"
-                                                        FontSize="11"
-                                                        Padding="9,5"
-                                                        Margin="8,0,0,0"
-                                                        BorderThickness="0"
-                                                        ToolTip="Remove this module's wallpaper">
-                                                    <Button.Template>
-                                                        <ControlTemplate TargetType="Button">
-                                                            <Border Background="{DynamicResource MenuHoverBrush}"
-                                                                    BorderBrush="{DynamicResource BorderBrush}"
-                                                                    BorderThickness="1"
-                                                                    CornerRadius="999"
-                                                                    Padding="{TemplateBinding Padding}">
-                                                                <ContentPresenter HorizontalAlignment="Center"
-                                                                                  VerticalAlignment="Center"/>
-                                                            </Border>
-                                                        </ControlTemplate>
-                                                    </Button.Template>
-                                                </Button>
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-                        </StackPanel>
-                    </Border>
-
-                </StackPanel>
-            </Grid>
-        </StackPanel>
-    </ScrollViewer>
+        <!-- ══════════════════════════════════════════════════════════
+             RIGHT — SECTION HOSTS (visibility-switched pages)
+        ══════════════════════════════════════════════════════════════ -->
+        <Grid Grid.Column="1">
+            <sections:SettingsAppearanceSection
+                Visibility="{Binding IsAppearancePage,
+                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <sections:SettingsAiSection
+                Visibility="{Binding IsAiPage,
+                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <sections:SettingsVoiceSection
+                Visibility="{Binding IsVoicePage,
+                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <sections:SettingsUpdatesSection
+                Visibility="{Binding IsUpdatesPage,
+                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <sections:SettingsDataSection
+                Visibility="{Binding IsDataPage,
+                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <sections:SettingsAboutSection
+                Visibility="{Binding IsAboutPage,
+                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+        </Grid>
+    </Grid>
 </UserControl>

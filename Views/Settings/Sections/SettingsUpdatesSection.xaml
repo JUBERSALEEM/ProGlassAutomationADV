@@ -1,0 +1,305 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/SettingsUpdatesSection.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Settings v2 — UPDATES page (OTA)
+
+     Check → download → install & restart. Installed builds use the
+     Velopack path (SettingsViewModel routes); dev builds keep the
+     classic GitHub-release + installer flow.
+═══════════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsUpdatesSection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="32,26,32,14">
+            <TextBlock Text="Updates" Style="{StaticResource PageTitleStyle}"/>
+            <TextBlock Text="Keep ProGlass on the latest release — safely."
+                       Style="{StaticResource PageSubtitleStyle}"/>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      CanContentScroll="False"
+                      PanningMode="VerticalOnly"
+                      behaviors:SmoothScrollBehavior.IsEnabled="True"
+                      Focusable="False"
+                      FocusVisualStyle="{x:Null}">
+            <StackPanel Margin="32,0,32,32" MaxWidth="780"
+                        HorizontalAlignment="Left">
+
+                <!-- ── UPDATES — OTA ──────────────────────────────── -->
+                <Border Style="{StaticResource SectionCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="UPDATES"
+                                   Style="{StaticResource SectionLabelStyle}"/>
+
+                        <!-- Version row: current vs latest -->
+                        <Grid Margin="0,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0"
+                                    Background="{DynamicResource MenuHoverBrush}"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Padding="14,10" Margin="0,0,6,0">
+                                <StackPanel>
+                                    <TextBlock Text="CURRENT VERSION"
+                                               FontSize="9" FontWeight="Bold"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                    <TextBlock FontSize="16" FontWeight="Bold"
+                                               Margin="0,3,0,0"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                        <Run Text="v"/>
+                                        <Run Text="{Binding CurrentVersionDisplay, Mode=OneWay}"/>
+                                    </TextBlock>
+                                </StackPanel>
+                            </Border>
+                            <Border Grid.Column="1"
+                                    Background="{DynamicResource TintBlueBrush}"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Padding="14,10" Margin="6,0,0,0">
+                                <StackPanel>
+                                    <TextBlock Text="LATEST RELEASE"
+                                               FontSize="9" FontWeight="Bold"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                    <TextBlock FontSize="16" FontWeight="Bold"
+                                               Margin="0,3,0,0"
+                                               Foreground="{DynamicResource AccentBrush}"
+                                               Text="{Binding LatestVersionDisplay}"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+
+                        <TextBlock Text="{Binding UpdateStatus}"
+                                   Style="{StaticResource RowTitleStyle}"
+                                   Margin="0,12,0,0"
+                                   TextWrapping="Wrap"/>
+                        <TextBlock Text="{Binding LastCheckedDisplay}"
+                                   FontSize="10"
+                                   Margin="0,4,0,0"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
+                            <Button Style="{StaticResource PrimaryPillButton}"
+                                    Tag="&#xE72C;" Content="CHECK FOR UPDATES"
+                                    Command="{Binding CheckForUpdatesCommand}"/>
+                            <Button Tag="&#xE896;" Content="DOWNLOAD UPDATE"
+                                    Command="{Binding DownloadUpdateCommand}"
+                                    Margin="10,0,0,0">
+                                <Button.Style>
+                                    <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsUpdateAvailable}" Value="True">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                            <!-- hidden again once the
+                                                 download is ready -->
+                                            <DataTrigger Binding="{Binding IsUpdateReady}" Value="True">
+                                                <Setter Property="Visibility" Value="Collapsed"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Button.Style>
+                            </Button>
+                        </StackPanel>
+
+                        <!-- READY STATE — install & restart -->
+                        <StackPanel Orientation="Horizontal"
+                                    Margin="0,10,0,0">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsUpdateReady}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <Button Style="{StaticResource SuccessPillButton}"
+                                    Tag="&#xE74E;" Content="INSTALL &amp; RESTART"
+                                    Command="{Binding InstallUpdateCommand}"/>
+                            <TextBlock Text="…or install later — the file stays in your Downloads folder."
+                                       FontSize="10"
+                                       Margin="12,0,0,0"
+                                       VerticalAlignment="Center"
+                                       TextWrapping="Wrap"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                        </StackPanel>
+
+                        <!-- Mode=OneWay: UpdateDownloadProgress is
+                             read-only from XAML's perspective
+                             (private setter) — TwoWay would throw
+                             InvalidOperationException (ERR-441A02). -->
+                        <ProgressBar Value="{Binding UpdateDownloadProgress, Mode=OneWay}"
+                                     Maximum="100"
+                                     Height="6"
+                                     Margin="0,10,0,0">
+                            <ProgressBar.Style>
+                                <Style TargetType="ProgressBar">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsDownloadingUpdate}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </ProgressBar.Style>
+                        </ProgressBar>
+
+                        <!-- Release details -->
+                        <Border Margin="0,14,0,0"
+                                Background="{DynamicResource MenuHoverBrush}"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Padding="14,12">
+                            <Border.Style>
+                                <Style TargetType="Border">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasReleaseInfo}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Border.Style>
+                            <StackPanel>
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE7B8;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="14"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,8,0"/>
+                                    <TextBlock Text="{Binding ReleaseNameDisplay}"
+                                               FontSize="13" FontWeight="Bold"
+                                               VerticalAlignment="Center"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                    <TextBlock FontSize="11"
+                                               Margin="10,0,0,0"
+                                               VerticalAlignment="Center"
+                                               Foreground="{DynamicResource MutedForegroundBrush}">
+                                        <Run Text="published"/>
+                                        <Run Text="{Binding ReleasePublishedDisplay, Mode=OneWay}"/>
+                                    </TextBlock>
+                                </StackPanel>
+                                <TextBlock Text="{Binding ReleaseNotesPreview}"
+                                           FontSize="11"
+                                           Margin="0,8,0,0"
+                                           TextWrapping="Wrap"
+                                           MaxHeight="90"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Update history ledger -->
+                        <StackPanel Margin="0,14,0,0">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding HasUpdateHistory}" Value="True">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+
+                            <TextBlock Text="UPDATE HISTORY"
+                                       FontSize="10" FontWeight="Bold"
+                                       Margin="0,0,0,6"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+
+                            <ItemsControl ItemsSource="{Binding UpdateHistory}">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <Border BorderBrush="{DynamicResource DividerBrush}"
+                                                BorderThickness="0,0,0,1"
+                                                Padding="2,7">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="150"/>
+                                                    <ColumnDefinition Width="110"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+                                                <TextBlock Grid.Column="0"
+                                                           FontSize="11"
+                                                           VerticalAlignment="Center"
+                                                           Foreground="{DynamicResource MutedForegroundBrush}">
+                                                    <Run Text="{Binding TimestampUtc, Mode=OneWay,
+                                                                StringFormat='dd MMM yyyy HH:mm'}"/>
+                                                </TextBlock>
+                                                <Border Grid.Column="1"
+                                                        CornerRadius="8"
+                                                        Padding="8,2"
+                                                        HorizontalAlignment="Left"
+                                                        VerticalAlignment="Center">
+                                                    <Border.Style>
+                                                        <Style TargetType="Border">
+                                                            <Setter Property="Background"
+                                                                    Value="{DynamicResource TintBlueBrush}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding EventType}" Value="Downloaded">
+                                                                    <Setter Property="Background"
+                                                                            Value="{DynamicResource TintGreenBrush}"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding EventType}" Value="CheckFailed">
+                                                                    <Setter Property="Background"
+                                                                            Value="{DynamicResource TintRedBrush}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </Border.Style>
+                                                    <TextBlock Text="{Binding EventType}"
+                                                               FontSize="9" FontWeight="Bold"
+                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                </Border>
+                                                <TextBlock Grid.Column="2"
+                                                           FontSize="11"
+                                                           Margin="10,0,0,0"
+                                                           VerticalAlignment="Center"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           ToolTip="{Binding Detail}"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                                    <Run Text="v"/>
+                                                    <Run Text="{Binding Version, Mode=OneWay}"/>
+                                                    <Run Text=" "/>
+                                                    <Run Text="{Binding ReleaseName, Mode=OneWay}"/>
+                                                </TextBlock>
+                                            </Grid>
+                                        </Border>
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ItemsControl>
+                        </StackPanel>
+
+                        <TextBlock Style="{StaticResource HintTextStyle}"
+                                   Margin="0,10,0,0"
+                                   TextWrapping="Wrap"
+                                   Text="Installed builds update in place via Velopack and restart automatically. Portable builds download the installer to your Downloads folder — you decide when to install."/>
+                    </StackPanel>
+                </Border>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
