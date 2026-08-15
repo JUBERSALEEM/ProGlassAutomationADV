@@ -278,11 +278,9 @@
                 </Grid.ColumnDefinitions>
 
                 <Button Grid.Column="0"
-                        Content="← Back"
+                        Style="{StaticResource OutlinedPillButton}"
+                        Tag="&#xE72B;" Content="BACK"
                         Command="{Binding BackCommand}"
-                        Style="{StaticResource ActionButtonStyle}"
-                        Background="{DynamicResource MenuHoverBrush}"
-                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                         Margin="0,0,12,0"
                         ToolTip="Back to list (Esc)"/>
 
@@ -315,7 +313,7 @@
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
-                        <TextBlock Text="⚠️ TRN INVALID"
+                        <TextBlock Text="TRN INVALID"
                                    FontSize="10" FontWeight="Bold"
                                    Foreground="{DynamicResource DangerBrush}"/>
                     </Border>
@@ -325,7 +323,7 @@
                             Background="{DynamicResource TintAmberBrush}"
                             Visibility="{Binding IsSaving,
                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                        <TextBlock Text="💾 Saving…"
+                        <TextBlock Text="Saving…"
                                    FontSize="10" FontWeight="Bold"
                                    Foreground="{DynamicResource WarningBrush}"/>
                     </Border>
@@ -336,54 +334,46 @@
                             VerticalAlignment="Center">
 
                     <!-- v2 §24: version history -->
-                    <Button Content="🕘"
+                    <Button Style="{StaticResource RowOutlinedButton}"
+                            Tag="&#xE81C;" Content="HISTORY"
                             Command="{Binding ShowVersionsCommand}"
-                            Style="{StaticResource ActionButtonStyle}"
-                            Background="{DynamicResource TintIndigoBrush}"
-                            Foreground="{DynamicResource AccentBrush}"
                             Margin="0,0,6,0"
                             ToolTip="Version history — view or restore an earlier save"/>
 
-                    <Button Content="💾  Save"
+                    <Button Style="{StaticResource PrimaryPillButton}"
+                            Tag="&#xE74E;" Content="SAVE"
                             Command="{Binding SaveCommand}"
-                            Style="{StaticResource ActionButtonStyle}"
                             Margin="0,0,6,0"
                             ToolTip="Save invoice (Ctrl+S)"/>
 
-                    <Button Content="📤  Issue"
+                    <Button Style="{StaticResource PrimaryPillButton}"
+                            Tag="&#xE72D;" Content="ISSUE"
                             Command="{Binding IssueCommand}"
-                            Style="{StaticResource ActionButtonStyle}"
-                            Background="#B45309"
                             Margin="0,0,6,0"
                             ToolTip="Mark invoice as Issued"/>
 
-                    <Button Content="✅  Mark Paid"
+                    <Button Style="{StaticResource SuccessPillButton}"
+                            Tag="&#xE73E;" Content="MARK PAID"
                             Command="{Binding MarkPaidCommand}"
-                            Style="{StaticResource ActionButtonStyle}"
-                            Background="{DynamicResource SuccessBrush}"
                             Margin="0,0,12,0"
                             ToolTip="Mark invoice as Paid"/>
 
                     <Border Width="1" Margin="0,4,12,4"
                             Background="{DynamicResource BorderBrush}"/>
 
-                    <Button Content="📄  PDF"
+                    <Button Style="{StaticResource SuccessPillButton}"
+                            Tag="&#xE8A5;" Content="PDF"
                             Command="{Binding ExportPdfCommand}"
-                            Style="{StaticResource ExportButtonStyle}"
-                            Background="#FEF2F2"
-                            BorderBrush="#B91C1C"
-                            Foreground="{DynamicResource DangerBrush}"
                             Margin="0,0,6,0"
                             ToolTip="Export as PDF"/>
 
                     <Border Width="1" Margin="0,4,12,4"
                             Background="{DynamicResource BorderBrush}"/>
 
-                    <Button Content="🗑️  Delete"
+                    <Button Style="{StaticResource DangerButton}"
+                            Tag="&#xE74D;" Content="DELETE"
                             Command="{Binding DeleteCommand}"
-                            Style="{StaticResource ActionButtonStyle}"
-                            Background="#B91C1C"
-                            Foreground="White"/>
+                            ToolTip="Delete this invoice"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -553,9 +543,9 @@
                                            TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                             <Button Grid.Column="1"
-                                    Content="+ Add File"
+                                    Style="{StaticResource RowOutlinedButton}"
+                                    Tag="&#xE710;" Content="ADD FILE"
                                     Command="{Binding AddAttachmentCommand}"
-                                    Style="{StaticResource HeaderUploadButtonStyle}"
                                     ToolTip="Attach PDF or image (max 10 MB)"/>
                         </Grid>
                     </Border>
@@ -669,15 +659,12 @@
                                                 </ComboBox>
 
                                                 <Button Grid.Column="3"
-                                                        Content="✕"
+                                                        Style="{StaticResource RowDangerButton}"
+                                                        Tag="&#xE74D;" MinWidth="40"
+                                                        ToolTip="Remove attachment"
                                                         Command="{Binding DataContext.RemoveAttachmentCommand,
                                                                   RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                        CommandParameter="{Binding}"
-                                                        FontSize="12" FontWeight="Bold"
-                                                        Padding="8,4" Cursor="Hand"
-                                                        Background="#B91C1C"
-                                                        Foreground="White"
-                                                        BorderThickness="0"/>
+                                                        CommandParameter="{Binding}"/>
                                             </Grid>
                                         </Border>
                                     </DataTemplate>
@@ -1123,10 +1110,10 @@
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 </StackPanel>
                                 <Button Grid.Column="1"
-                                        Content="+ Add Spec Group"
+                                        Style="{StaticResource RowOutlinedButton}"
+                                        Tag="&#xE710;" Content="ADD SPEC GROUP"
                                         Command="{Binding AddSpecGroupCommand}"
-                                        Style="{StaticResource ActionButtonStyle}"
-                                        Padding="14,7" FontSize="11"
+                                        ToolTip="Add a specification group"
                                         VerticalAlignment="Center"/>
                             </Grid>
 
@@ -1250,17 +1237,16 @@
                                                         </StackPanel>
 
                                                         <Button Grid.Column="4"
-                                                                Content="+ Row"
+                                                                Style="{StaticResource RowOutlinedButton}"
+                                                                Tag="&#xE710;" Content="ROW"
                                                                 Command="{Binding AddRowCommand}"
-                                                                Margin="12,0,6,0"
-                                                                FontSize="10" FontWeight="Bold"
-                                                                Padding="10,4" Cursor="Hand"
-                                                                Background="#22FFFFFF"
-                                                                Foreground="White"
-                                                                BorderThickness="0"/>
+                                                                ToolTip="Add a row"
+                                                                Margin="12,0,6,0"/>
 
                                                         <Button Grid.Column="5"
-                                                                Content="✕ Group"
+                                                                Style="{StaticResource RowDangerButton}"
+                                                                Tag="&#xE74D;" Content="GROUP"
+                                                                ToolTip="Remove this group"
                                                                 Command="{Binding DataContext.RemoveSpecGroupCommand,
                                                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
                                                                 CommandParameter="{Binding}"
@@ -1473,7 +1459,9 @@
                                                                     </StackPanel>
 
                                                                     <Button Grid.Column="13"
-                                                                            Content="✕"
+                                                                            Style="{StaticResource RowDangerButton}"
+                                                                            Tag="&#xE74D;" MinWidth="40"
+                                                                            ToolTip="Remove row"
                                                                             Command="{Binding DataContext.RemoveRowCommand,
                                                                                       RelativeSource={RelativeSource AncestorType=ItemsControl}}"
                                                                             CommandParameter="{Binding}"
