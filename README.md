@@ -50,6 +50,7 @@ This branch delivers an **incremental V1 → V2 upgrade**. Every change was laye
 | [`Docs/DESIGN_SYSTEM.md`](Docs/DESIGN_SYSTEM.md) | Visual tokens, brushes & migration rules |
 | [`Docs/ROADMAP.md`](Docs/ROADMAP.md) | Phased plan from upgraded V1 to shippable professional product |
 | [`Docs/AUDIT_FINDINGS.md`](Docs/AUDIT_FINDINGS.md) | Deep audit: leaks, references, bindings, style status |
+| [`Docs/BUTTON_MIGRATION_REPORT.md`](Docs/BUTTON_MIGRATION_REPORT.md) | Button design-system migration report |
 
 ---
 
