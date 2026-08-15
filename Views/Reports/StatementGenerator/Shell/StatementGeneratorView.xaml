@@ -591,13 +591,13 @@
 
                     <Button Command="{Binding NextStepCommand}"
                             Style="{StaticResource NavButtonPrimaryStyle}"
-                            Content="⚡  Generate Statement"
+                            Tag="&#xE7E8;" Content="GENERATE STATEMENT"
                             Visibility="{Binding ShowGenerateButton,
                                 Converter={StaticResource BoolToVisibilityConverter}}"/>
 
                     <Button Command="{Binding NextStepCommand}"
                             Style="{StaticResource NavButtonSuccessStyle}"
-                            Content="✓  Finish"
+                            Tag="&#xE73E;" Content="FINISH"
                             Visibility="{Binding ShowFinishButton,
                                 Converter={StaticResource BoolToVisibilityConverter}}"/>
                 </StackPanel>

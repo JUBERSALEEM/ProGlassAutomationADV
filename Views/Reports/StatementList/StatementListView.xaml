@@ -303,13 +303,13 @@
                         </Grid>
 
                         <Button Grid.Column="2"
-                                Content="✕"
+                                Style="{StaticResource RowDangerButton}"
+                                Tag="&#xE711;"
+                                ToolTip="Clear search"
                                 Command="{Binding ClearSearchCommand}"
-                                Width="28" Height="28"
+                                Width="28" Height="28" MinWidth="28" Padding="0"
                                 FontSize="11"
                                 Cursor="Hand"
-                                Background="Transparent"
-                                BorderThickness="0"
                                 Foreground="{DynamicResource MutedForegroundBrush}"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
