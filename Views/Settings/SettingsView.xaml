@@ -43,7 +43,6 @@
         <!-- ═══════════════════════════════════════════════════════════
              FROZEN BRUSHES
         ═══════════════════════════════════════════════════════════════ -->
-        <SolidColorBrush x:Key="PillBorderBrush"      Color="#3B82F6" po:Freeze="True"/>
         <SolidColorBrush x:Key="PillBorderLightBrush" Color="#93C5FD" po:Freeze="True"/>
         <SolidColorBrush x:Key="ComingSoonBg"         Color="#F1F5F9" po:Freeze="True"/>
         <SolidColorBrush x:Key="ComingSoonBorder"     Color="#CBD5E1" po:Freeze="True"/>
@@ -54,7 +53,7 @@
         ═══════════════════════════════════════════════════════════════ -->
         <Style x:Key="SectionCardStyle" TargetType="Border">
             <Setter Property="Background"          Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush"         Value="{StaticResource PillBorderBrush}"/>
+            <Setter Property="BorderBrush"         Value="{DynamicResource AccentBrush}"/>
             <Setter Property="BorderThickness"     Value="1.5"/>
             <Setter Property="CornerRadius"        Value="14"/>
             <Setter Property="Padding"             Value="24,20"/>
@@ -82,7 +81,7 @@
         ═══════════════════════════════════════════════════════════════ -->
         <Style x:Key="ProviderSelectButtonStyle" TargetType="Button">
             <Setter Property="Content"             Value="SELECT"/>
-            <Setter Property="Foreground"          Value="{StaticResource PillBorderBrush}"/>
+            <Setter Property="Foreground"          Value="{DynamicResource AccentBrush}"/>
             <Setter Property="Height"              Value="28"/>
             <Setter Property="Padding"             Value="12,0"/>
             <Setter Property="FontSize"            Value="10"/>
@@ -98,7 +97,7 @@
                                 CornerRadius="14"
                                 Padding="{TemplateBinding Padding}"
                                 Background="Transparent"
-                                BorderBrush="{StaticResource PillBorderBrush}"
+                                BorderBrush="{DynamicResource AccentBrush}"
                                 BorderThickness="1.5"
                                 SnapsToDevicePixels="True"
                                 UseLayoutRounding="True">
@@ -212,7 +211,7 @@
         <Style x:Key="DownloadProgressBarStyle" TargetType="ProgressBar">
             <Setter Property="Height"              Value="8"/>
             <Setter Property="Maximum"             Value="100"/>
-            <Setter Property="Foreground"          Value="{StaticResource PillBorderBrush}"/>
+            <Setter Property="Foreground"          Value="{DynamicResource AccentBrush}"/>
             <Setter Property="Background"          Value="{DynamicResource MenuHoverBrush}"/>
             <Setter Property="BorderThickness"     Value="0"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -504,11 +503,11 @@
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Root" Property="BorderBrush"
-                                        Value="{StaticResource PillBorderBrush}"/>
+                                        Value="{DynamicResource AccentBrush}"/>
                             </Trigger>
                             <Trigger Property="IsKeyboardFocusWithin" Value="True">
                                 <Setter TargetName="Root" Property="BorderBrush"
-                                        Value="{StaticResource PillBorderBrush}"/>
+                                        Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="Root" Property="BorderThickness"
                                         Value="2"/>
                             </Trigger>
@@ -1163,7 +1162,7 @@
                                             <DataTrigger Binding="{Binding IsGeminiActive}"
                                                          Value="True">
                                                 <Setter Property="BorderBrush"
-                                                        Value="{StaticResource PillBorderBrush}"/>
+                                                        Value="{DynamicResource AccentBrush}"/>
                                                 <Setter Property="Background"
                                                         Value="{DynamicResource TintIndigoBrush}"/>
                                             </DataTrigger>
@@ -1246,7 +1245,7 @@
                                             <DataTrigger Binding="{Binding IsGroqActive}"
                                                          Value="True">
                                                 <Setter Property="BorderBrush"
-                                                        Value="{StaticResource PillBorderBrush}"/>
+                                                        Value="{DynamicResource AccentBrush}"/>
                                                 <Setter Property="Background"
                                                         Value="{DynamicResource TintIndigoBrush}"/>
                                             </DataTrigger>
@@ -1329,7 +1328,7 @@
                                             <DataTrigger Binding="{Binding IsCohereActive}"
                                                          Value="True">
                                                 <Setter Property="BorderBrush"
-                                                        Value="{StaticResource PillBorderBrush}"/>
+                                                        Value="{DynamicResource AccentBrush}"/>
                                                 <Setter Property="Background"
                                                         Value="{DynamicResource TintIndigoBrush}"/>
                                             </DataTrigger>
@@ -1528,7 +1527,7 @@
                                                         -->
                                                         <Trigger Property="IsMouseOver" Value="True">
                                                             <Setter Property="BorderBrush"
-                                                                    Value="{StaticResource PillBorderBrush}"/>
+                                                                    Value="{DynamicResource AccentBrush}"/>
                                                         </Trigger>
                                                     </Style.Triggers>
                                                 </Style>
@@ -1575,7 +1574,7 @@
                                                            Text="✓"
                                                            FontSize="14"
                                                            FontWeight="Bold"
-                                                           Foreground="{StaticResource PillBorderBrush}"
+                                                           Foreground="{DynamicResource AccentBrush}"
                                                            VerticalAlignment="Center"
                                                            Margin="12,0,0,0"
                                                            Visibility="Collapsed"
@@ -1602,7 +1601,7 @@
                                             <DataTrigger Binding="{Binding IsWhisperModelReady}"
                                                          Value="True">
                                                 <Setter Property="BorderBrush"
-                                                        Value="{StaticResource PillBorderBrush}"/>
+                                                        Value="{DynamicResource AccentBrush}"/>
                                                 <Setter Property="Background"
                                                         Value="{DynamicResource TintIndigoBrush}"/>
                                             </DataTrigger>

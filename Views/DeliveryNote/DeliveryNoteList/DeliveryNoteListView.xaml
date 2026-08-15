@@ -894,8 +894,8 @@
 
                 <!-- v2: column headings (match the card columns below) -->
                 <Border Grid.Row="0"
-                        Background="{DynamicResource MenuHoverBrush}"
-                        BorderBrush="{DynamicResource BorderBrush}"
+                        Background="{DynamicResource AccentBrush}"
+                        BorderBrush="{DynamicResource AccentBrush}"
                         BorderThickness="1"
                         CornerRadius="14,14,0,0"
                         Padding="16,9"

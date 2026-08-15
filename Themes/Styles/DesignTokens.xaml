@@ -89,6 +89,8 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Bg"
                             Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}"
                             CornerRadius="{DynamicResource PillCornerRadius}"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">
@@ -114,13 +116,18 @@
         </Setter>
     </Style>
 
+    <!-- Secondary = the "TODAY" pill from the reference screenshot:
+         light surface + accent border + accent text. -->
     <Style x:Key="ModuleToolbarSecondaryButtonStyle"
            TargetType="Button"
            BasedOn="{StaticResource ModuleToolbarPrimaryButtonStyle}">
         <Setter Property="Foreground"
-                Value="{DynamicResource PrimaryForegroundBrush}"/>
+                Value="{DynamicResource AccentBrush}"/>
         <Setter Property="Background"
-                Value="{DynamicResource MenuHoverBrush}"/>
+                Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
     </Style>
 
     <!-- Success (green) pill — "SHARE EXCEL"-style confirmations. -->

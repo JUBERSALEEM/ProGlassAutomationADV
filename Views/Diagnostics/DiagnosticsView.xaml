@@ -73,8 +73,8 @@
 
                         <!-- v2: column headers with tooltips -->
                         <Border Grid.Row="0"
-                                Background="{DynamicResource MenuHoverBrush}"
-                                BorderBrush="{DynamicResource DividerBrush}"
+                                Background="{DynamicResource AccentBrush}"
+                                BorderBrush="{DynamicResource AccentBrush}"
                                 BorderThickness="0,0,0,1"
                                 Padding="14,8">
                             <Grid>

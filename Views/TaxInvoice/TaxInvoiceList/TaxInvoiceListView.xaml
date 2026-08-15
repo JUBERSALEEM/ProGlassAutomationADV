@@ -606,9 +606,42 @@
 
         <!-- ═══ TAB CONTENT — all use FamilyRowTemplate ═══ -->
         <Grid Grid.Row="1" Margin="30,0,30,16">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <!-- v2: accent column heading strip (PI-list reference) -->
+            <Border Grid.Row="0"
+                    Background="{DynamicResource AccentBrush}"
+                    CornerRadius="14,14,0,0"
+                    Padding="16,9"
+                    Margin="0,0,0,8">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="280"/>
+                        <ColumnDefinition Width="150"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Grid.Column="0" Text="INVOICE FAMILY (PI)"
+                               Style="{StaticResource ModuleColumnHeaderStyle}"
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"
+                               ToolTip="Proforma reference + its tax invoices"/>
+                    <TextBlock Grid.Column="1" Text="INVOICES &amp; STATUS"
+                               Style="{StaticResource ModuleColumnHeaderStyle}"
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"
+                               HorizontalAlignment="Center"
+                               ToolTip="Status chips for every invoice in the family"/>
+                    <TextBlock Grid.Column="2" Text="TOTALS · BALANCE"
+                               Style="{StaticResource ModuleColumnHeaderStyle}"
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"
+                               HorizontalAlignment="Right"
+                               ToolTip="Family grand total and open balance"/>
+                </Grid>
+            </Border>
 
             <!-- TAB 0: ALL FAMILIES -->
-            <Grid>
+            <Grid Grid.Row="1">
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -668,7 +701,7 @@
             </Grid>
 
             <!-- TAB 1: HAS DRAFT -->
-            <Grid>
+            <Grid Grid.Row="1">
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -721,7 +754,7 @@
             </Grid>
 
             <!-- TAB 2: HAS ISSUED -->
-            <Grid>
+            <Grid Grid.Row="1">
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Visibility" Value="Collapsed"/>
@@ -774,7 +807,7 @@
             </Grid>
 
             <!-- TAB 3: FULLY PAID -->
-            <Grid>
+            <Grid Grid.Row="1">
                 <Grid.Style>
                     <Style TargetType="Grid">
                         <Setter Property="Visibility" Value="Collapsed"/>
