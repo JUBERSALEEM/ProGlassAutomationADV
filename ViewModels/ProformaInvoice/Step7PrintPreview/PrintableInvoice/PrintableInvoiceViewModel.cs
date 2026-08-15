@@ -279,6 +279,46 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
         //  SAVE INVOICE (BUG-60)
         // ══════════════════════════════════════════════════════════════════
 
+        /// <summary>
+        /// AUTO-DRAFT: silent save used when the user leaves the wizard
+        /// without pressing SAVE. Never shows dialogs, never blocks
+        /// navigation, never throws. Only persists when the wizard
+        /// holds meaningful data (client name or at least one row).
+        /// </summary>
+        public async Task<bool> SilentDraftSaveAsync()
+        {
+            try
+            {
+                if (App.Invoices == null) return false;
+                if (string.IsNullOrWhiteSpace(Company?.ProformaId))
+                    return false;
+
+                bool meaningful =
+                    !string.IsNullOrWhiteSpace(Client?.CustomerName) ||
+                    DataGrid?.SpecGroups?.Any(g =>
+                        g.ItemRows?.Any(r => r.Qty > 0) == true) == true;
+                if (!meaningful) return false;
+
+                var entity = ProformaInvoiceMapper.BuildEntityFromWizard(
+                    Company, Client, Project, DataGrid, OtherCharges,
+                    MainSummary, Terms, this);
+
+                if (string.IsNullOrWhiteSpace(entity.ProformaId))
+                    return false;
+
+                if (await App.Invoices.ExistsByProformaIdAsync(entity.ProformaId))
+                    await App.Invoices.UpdateAsync(entity);
+                else
+                    await App.Invoices.InsertAsync(entity);
+
+                return true;
+            }
+            catch
+            {
+                return false; // never block navigation on a draft save
+            }
+        }
+
         private async Task ExecuteSaveInvoiceAsync()
         {
             if (App.Invoices == null)

@@ -626,6 +626,9 @@ namespace ProGlassAutomation.ViewModels.Settings
         public ICommand RemoveSavedKeysCommand { get; private set; }
         public ICommand ClearAiMemoryCommand { get; private set; }
 
+        /// <summary>Seeds the first-run demo dataset (all modules).</summary>
+        public ICommand LoadSampleDataCommand { get; private set; }
+
         // ══════════════════════════════════════════════════════════════
         //  v2 — VISUAL THEME & WALLPAPER (Normal / Monet / Professional)
         // ══════════════════════════════════════════════════════════════
@@ -1092,7 +1095,27 @@ namespace ProGlassAutomation.ViewModels.Settings
                     "All stored AI keys deleted from device");
             });
 
-            ClearAiMemoryCommand = new RelayCommand(async _ =>
+            LoadSampleDataCommand = new RelayCommand(async _ =>
+            {
+                try
+                {
+                    var summary = await ProGlassAutomation.Services
+                        .SampleData.SampleDataService.SeedAsync();
+                    System.Windows.MessageBox.Show(
+                        summary, "Sample Data",
+                        System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Information);
+                }
+                catch (Exception ex)
+                {
+                    System.Windows.MessageBox.Show(
+                        "Could not load sample data: " + ex.Message,
+                        "Sample Data", System.Windows.MessageBoxButton.OK,
+                        System.Windows.MessageBoxImage.Warning);
+                }
+            });
+
+                        ClearAiMemoryCommand = new RelayCommand(async _ =>
             {
                 await Services.AI.AIMemory.AiMemoryService.ClearAsync();
                 Services.Audit.AuditService.Log(

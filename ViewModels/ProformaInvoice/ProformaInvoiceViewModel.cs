@@ -452,6 +452,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         /// </summary>
         private async Task ReturnToListAsync()
         {
+            // AUTO-DRAFT: never lose wizard work — silently persist a
+            // Draft before showing the list (no-op when empty).
+            await Step7VM.PrintableInvoice.SilentDraftSaveAsync();
+
             IsListView = true;
             await SavedInvoicesListVM.LoadInvoicesAsync();
         }
