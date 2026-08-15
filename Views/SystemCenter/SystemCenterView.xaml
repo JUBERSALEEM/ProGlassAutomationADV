@@ -39,35 +39,26 @@
             <Setter Property="BorderThickness" Value="0"/>
         </Style>
 
-        <Style x:Key="ScPrimaryButton" TargetType="Button">
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="Foreground" Value="White"/>
-            <Setter Property="FontSize" Value="13"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Padding" Value="18,9"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border Background="{DynamicResource AccentBrush}"
-                                CornerRadius="{DynamicResource PillCornerRadius}"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Opacity" Value="0.9"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+</UserControl.Resources>
 
-    </UserControl.Resources>
+    <!-- ═══════════════════════════════════════════════════════════════
+         MIGRATION LOG — Button Standardization (master prompt v1.0)
+         Date: 2026-08-15
 
+         Changes:
+           • Deleted legacy ScPrimaryButton style (rule 5)
+           • 3 CTA/refresh buttons -> PrimaryPillButton (glyph + UPPERCASE
+             content + ToolTip)
+           • Users/Activity tabs -> STEP D two-button visibility pattern
+           • Row toggle -> DangerButton DEACTIVATE / OutlinedPillButton
+             ACTIVATE pair with Visibility triggers
+           • Card headers: emoji badge boxes -> inline MDL2 icon + title
+           • Emojis removed: 🛠 👥 📜 ➕ 🔁  ↻ 👤 🕓
+           • ToolTips added to every migrated button
+
+         All commands, bindings, and code-behind wiring preserved.
+         No ViewModel changes required.
+    ═══════════════════════════════════════════════════════════════ -->
     <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -94,44 +85,66 @@
                 Margin="0,0,0,16">
             <StackPanel Orientation="Horizontal">
 
+                <!-- TAB Users — STEP D two-button visibility pattern -->
                 <Button Command="{Binding SwitchTabCommand}"
-                        CommandParameter="Users">
+                        CommandParameter="Users"
+                        Tag="&#xE716;" Content="USERS"
+                        ToolTip="Manage users" Margin="0,0,10,0">
                     <Button.Style>
-                        <Style TargetType="Button"
-                               BasedOn="{StaticResource ModuleTabButtonStyle}">
+                        <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsUsersTab}" Value="True">
-                                    <Setter Property="Background"
-                                            Value="{DynamicResource AccentBrush}"/>
-                                    <Setter Property="BorderBrush"
-                                            Value="{DynamicResource AccentBrush}"/>
-                                    <Setter Property="Foreground"
-                                            Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                    <Setter Property="Visibility" Value="Collapsed"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Button.Style>
-                    <TextBlock Text="👥  Users"/>
+                </Button>
+                <Button Command="{Binding SwitchTabCommand}"
+                        CommandParameter="Users"
+                        Tag="&#xE716;" Content="USERS"
+                        ToolTip="Manage users" Margin="0,0,10,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsUsersTab}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
                 </Button>
 
+                <!-- TAB Activity — STEP D two-button visibility pattern -->
                 <Button Command="{Binding SwitchTabCommand}"
-                        CommandParameter="Activity">
+                        CommandParameter="Activity"
+                        Tag="&#xE81C;" Content="ACTIVITY LOG"
+                        ToolTip="Audit trail of every recorded action"
+                        Margin="0,0,10,0">
                     <Button.Style>
-                        <Style TargetType="Button"
-                               BasedOn="{StaticResource ModuleTabButtonStyle}">
+                        <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
                             <Style.Triggers>
                                 <DataTrigger Binding="{Binding IsActivityTab}" Value="True">
-                                    <Setter Property="Background"
-                                            Value="{DynamicResource AccentBrush}"/>
-                                    <Setter Property="BorderBrush"
-                                            Value="{DynamicResource AccentBrush}"/>
-                                    <Setter Property="Foreground"
-                                            Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                    <Setter Property="Visibility" Value="Collapsed"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
                     </Button.Style>
-                    <TextBlock Text="📜  Activity Log"/>
+                </Button>
+                <Button Command="{Binding SwitchTabCommand}"
+                        CommandParameter="Activity"
+                        Tag="&#xE81C;" Content="ACTIVITY LOG"
+                        ToolTip="Audit trail of every recorded action"
+                        Margin="0,0,10,0">
+                    <Button.Style>
+                        <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsActivityTab}" Value="False">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Button.Style>
                 </Button>
             </StackPanel>
         </Border>
@@ -163,18 +176,16 @@
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="18">
                     <StackPanel>
-<StackPanel Orientation="Horizontal" Margin="0,0,0,12">
-                            <Border Width="28" Height="28" CornerRadius="8"
-                                    Background="{DynamicResource TintIndigoBrush}"
-                                    VerticalAlignment="Center">
-                                <TextBlock Text="➕" FontSize="13"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"/>
-                            </Border>
-                            <TextBlock Text="Create user"
-                                       FontSize="14" FontWeight="Bold"
+<StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                            <TextBlock Text="&#xE710;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="16"
                                        Foreground="{DynamicResource AccentBrush}"
-                                       Margin="10,0,0,0"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"/>
+                            <TextBlock Text="Create User"
+                                       FontSize="15" FontWeight="Bold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
 
@@ -204,12 +215,12 @@
                                      BorderThickness="0"
                                      PasswordChanged="NewPasswordBox_PasswordChanged"/>
 
-                        <Button Style="{StaticResource ScPrimaryButton}"
+                        <Button Style="{StaticResource PrimaryPillButton}"
                                 Margin="0,16,0,0"
                                 HorizontalAlignment="Stretch"
-                                Command="{Binding CreateUserCommand}">
-                            <TextBlock Text="Create User"/>
-                        </Button>
+                                Tag="&#xE710;" Content="CREATE USER"
+                                ToolTip="Create the new user account"
+                                Command="{Binding CreateUserCommand}"/>
 
                         <TextBlock Text="{Binding UserFormMessage}"
                                    FontSize="11" FontWeight="SemiBold"
@@ -227,17 +238,15 @@
                         Margin="0,14,0,0">
                     <StackPanel>
 <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
-                            <Border Width="28" Height="28" CornerRadius="8"
-                                    Background="{DynamicResource TintIndigoBrush}"
-                                    VerticalAlignment="Center">
-                                <TextBlock Text="🔁" FontSize="13"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"/>
-                            </Border>
-                            <TextBlock Text="Switch active user"
-                                       FontSize="14" FontWeight="Bold"
+                            <TextBlock Text="&#xE895;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="16"
                                        Foreground="{DynamicResource AccentBrush}"
-                                       Margin="10,0,0,0"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"/>
+                            <TextBlock Text="Switch Active User"
+                                       FontSize="15" FontWeight="Bold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
                         <TextBlock Text="All future actions are recorded under the active user."
@@ -259,12 +268,12 @@
                                      BorderThickness="0"
                                      PasswordChanged="SwitchPasswordBox_PasswordChanged"/>
 
-                        <Button Style="{StaticResource ScPrimaryButton}"
+                        <Button Style="{StaticResource PrimaryPillButton}"
                                 Margin="0,16,0,0"
                                 HorizontalAlignment="Stretch"
-                                Command="{Binding SwitchUserCommand}">
-                            <TextBlock Text="Switch User"/>
-                        </Button>
+                                Tag="&#xE895;" Content="SWITCH USER"
+                                ToolTip="Sign in as this user"
+                                Command="{Binding SwitchUserCommand}"/>
 
                         <TextBlock Text="{Binding SwitchMessage}"
                                    FontSize="11" FontWeight="SemiBold"
@@ -282,10 +291,18 @@
                         Padding="18"
                         Margin="0,14,0,0">
                     <StackPanel>
-                        <TextBlock Text="📡  Online on your network"
-                                   FontSize="14" FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   Margin="0,0,0,4"/>
+                        <StackPanel Orientation="Horizontal" Margin="0,0,0,4">
+                            <TextBlock Text="&#xE839;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="15"
+                                       Foreground="{DynamicResource AccentBrush}"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"/>
+                            <TextBlock Text="Online On Your Network"
+                                       FontSize="14" FontWeight="Bold"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
                         <TextBlock Text="Colleagues running ProGlass on the same LAN appear here automatically."
                                    FontSize="11" TextWrapping="Wrap"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -399,8 +416,10 @@
                                                 CornerRadius="19"
                                                 Background="{DynamicResource TintIndigoBrush}"
                                                 VerticalAlignment="Center">
-                                            <TextBlock Text="👤"
+                                            <TextBlock Text="&#xE77B;"
+                                                       FontFamily="Segoe MDL2 Assets"
                                                        FontSize="16"
+                                                       Foreground="{DynamicResource AccentBrush}"
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"/>
                                         </Border>
@@ -465,27 +484,44 @@
                                         </TextBlock>
 
                                         <Button Grid.Column="3"
-                                                Style="{StaticResource ModuleToolbarSecondaryButtonStyle}"
-                                                FontSize="11"
-                                                Padding="12,5"
+                                                Tag="&#xE74D;" Content="DEACTIVATE"
+                                                ToolTip="Disable this user account"
+                                                MinWidth="92"
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
                                                 Command="{Binding DataContext.ToggleActiveCommand,
                                                             RelativeSource={RelativeSource
                                                                 AncestorType=ItemsControl}}"
                                                 CommandParameter="{Binding}">
-                                            <TextBlock>
-                                                <TextBlock.Style>
-                                                    <Style TargetType="TextBlock">
-                                                        <Setter Property="Text" Value="Deactivate"/>
-                                                        <Style.Triggers>
-                                                            <DataTrigger Binding="{Binding IsActive}" Value="False">
-                                                                <Setter Property="Text" Value="Activate"/>
-                                                            </DataTrigger>
-                                                        </Style.Triggers>
-                                                    </Style>
-                                                </TextBlock.Style>
-                                            </TextBlock>
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource DangerButton}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
+                                        </Button>
+                                        <Button Grid.Column="3"
+                                                Tag="&#xE73E;" Content="ACTIVATE"
+                                                ToolTip="Re-enable this user account"
+                                                MinWidth="92"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Command="{Binding DataContext.ToggleActiveCommand,
+                                                            RelativeSource={RelativeSource
+                                                                AncestorType=ItemsControl}}"
+                                                CommandParameter="{Binding}">
+                                            <Button.Style>
+                                                <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsActive}" Value="True">
+                                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </Button.Style>
                                         </Button>
                                     </Grid>
                                 </Border>
@@ -531,11 +567,11 @@
                           FontSize="12"
                           VerticalAlignment="Center"/>
 
-                <Button Style="{StaticResource ScPrimaryButton}"
+                <Button Style="{StaticResource PrimaryPillButton}"
                         Margin="12,0,0,0"
-                        Command="{Binding RefreshActivityCommand}">
-                    <TextBlock Text="↻  Refresh"/>
-                </Button>
+                        Tag="&#xE72C;" Content="REFRESH"
+                        ToolTip="Reload the activity log"
+                        Command="{Binding RefreshActivityCommand}"/>
             </StackPanel>
 
             <Border Grid.Row="1"
@@ -581,7 +617,9 @@
                                 </Style.Triggers>
                             </Style>
                         </StackPanel.Style>
-                        <TextBlock Text="🕓" FontSize="36"
+                        <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets"
+                                   FontSize="36"
+                                   Foreground="{DynamicResource AccentBrush}"
                                    HorizontalAlignment="Center"
                                    Opacity="0.6"/>
                         <TextBlock Text="No activity recorded yet"

@@ -19,6 +19,9 @@
 
                 <!-- v2 design system: shared module-screen primitives -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/DesignTokens.xaml"/>
+                <!-- v3 centralized button design system — single source
+                     of truth for all button visuals project-wide. -->
+                <ResourceDictionary Source="Styles/ButtonStyles.xaml"/>
 
                 <!-- Module tab strip + God View styles (DN/JO/TI tabs) -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ModuleTabStyles.xaml"/>

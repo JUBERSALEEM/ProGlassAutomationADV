@@ -17,12 +17,14 @@
              xmlns:sharedVm="clr-namespace:ProGlassAutomation.ViewModels.Shared"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:statCard="clr-namespace:ProGlassAutomation.Controls.StatCard"
+    xmlns:conv="clr-namespace:ProGlassAutomation.Converters"
              FontFamily="Segoe UI"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True"
              Background="{DynamicResource ModuleBackgroundBrush}">
 
     <UserControl.Resources>
+        <conv:EmojiToGlyphConverter x:Key="EmojiToGlyph"/>
 
         <!-- Content routing: which panel renders each tab's VM -->
         <DataTemplate DataType="{x:Type sharedVm:SectionActivityViewModel}">
@@ -53,10 +55,10 @@
                               VerticalAlignment="Center"/>
 
                     <Button Command="{Binding OpenLogsFolderCommand}"
-                            Style="{StaticResource ModuleToolbarPrimaryButtonStyle}"
-                            Margin="12,0,0,0">
-                        <TextBlock Text="📂  Open log folder"/>
-                    </Button>
+                            Style="{StaticResource PrimaryPillButton}"
+                            Margin="12,0,0,0"
+                            Tag="&#xE8B7;" Content="OPEN LOG FOLDER"
+                            ToolTip="Open the application log folder"/>
                 </StackPanel>
 
                 <Border Grid.Row="1"
@@ -114,7 +116,9 @@
                                     </Style.Triggers>
                                 </Style>
                             </StackPanel.Style>
-                            <TextBlock Text="🩺" FontSize="36"
+                            <TextBlock Text="&#xE946;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="36"
+                                       Foreground="{DynamicResource AccentBrush}"
                                        HorizontalAlignment="Center" Opacity="0.6"/>
                             <TextBlock Text="No log entries yet"
                                        FontSize="14" FontWeight="SemiBold"
@@ -242,6 +246,17 @@
 
     </UserControl.Resources>
 
+    <!-- ═══════════════════════════════════════════════════════════════
+         MIGRATION LOG — Button Standardization (master prompt v1.0)
+         Date: 2026-08-15
+         • Open log folder -> PrimaryPillButton (folder glyph E8B7,
+           map extension) + ToolTip; legacy ModuleToolbarPrimary removed
+         • Tab strip -> STEP D two-button pattern; VM emoji icons routed
+           through EmojiToGlyphConverter to Segoe MDL2 Assets
+         • Empty-state stethoscope emoji -> MDL2 E946
+         Commands/bindings preserved; no ViewModel changes.
+    ═══════════════════════════════════════════════════════════════ -->
+
     <Grid Margin="24">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -293,51 +308,42 @@
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
+                        <!-- STEP D two-button visibility pattern -->
                         <Button Command="{Binding DataContext.SwitchTabCommand,
                                             RelativeSource={RelativeSource
                                                 AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"
-                                Cursor="Hand"
-                                Margin="0,0,8,0"
-                                Padding="16,8"
-                                BorderThickness="0">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border x:Name="bd"
-                                            Background="{DynamicResource ModuleBackgroundBrush}"
-                                            BorderBrush="{DynamicResource BorderBrush}"
-                                            BorderThickness="1"
-                                            CornerRadius="{DynamicResource PillCornerRadius}"
-                                            Padding="{TemplateBinding Padding}"
-                                            SnapsToDevicePixels="True">
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="{Binding Icon}"
-                                                       FontSize="13"
-                                                       Margin="0,0,7,0"
-                                                       VerticalAlignment="Center"/>
-                                            <TextBlock x:Name="lbl"
-                                                       Text="{Binding Label}"
-                                                       FontSize="13" FontWeight="SemiBold"
-                                                       VerticalAlignment="Center"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                        </StackPanel>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="bd" Property="Background"
-                                                    Value="{DynamicResource BorderBrush}"/>
-                                        </Trigger>
+                                Tag="{Binding Icon, Converter={StaticResource EmojiToGlyph}}"
+                                Content="{Binding Label}"
+                                ToolTip="{Binding Label}"
+                                Margin="0,0,8,0">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource OutlinedPillButton}">
+                                    <Style.Triggers>
                                         <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                            <Setter TargetName="bd" Property="Background"
-                                                    Value="{DynamicResource AccentBrush}"/>
-                                            <Setter TargetName="bd" Property="BorderBrush"
-                                                    Value="{DynamicResource AccentBrush}"/>
-                                            <Setter TargetName="lbl" Property="Foreground"
-                                                    Value="{DynamicResource OnAccentForegroundBrush}"/>
+                                            <Setter Property="Visibility" Value="Collapsed"/>
                                         </DataTrigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Button.Template>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
+                        </Button>
+                        <Button Command="{Binding DataContext.SwitchTabCommand,
+                                            RelativeSource={RelativeSource
+                                                AncestorType=UserControl}}"
+                                CommandParameter="{Binding}"
+                                Tag="{Binding Icon, Converter={StaticResource EmojiToGlyph}}"
+                                Content="{Binding Label}"
+                                ToolTip="{Binding Label}"
+                                Margin="0,0,8,0">
+                            <Button.Style>
+                                <Style TargetType="Button" BasedOn="{StaticResource PrimaryPillButton}">
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IsActive}" Value="False">
+                                            <Setter Property="Visibility" Value="Collapsed"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </Button.Style>
                         </Button>
                     </DataTemplate>
                 </ItemsControl.ItemTemplate>
