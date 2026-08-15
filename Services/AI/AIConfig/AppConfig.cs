@@ -32,6 +32,13 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// </summary>
         public Dictionary<string, ModuleWallpaperSettings> ModuleWallpapers
         { get; set; } = new();
+
+        /// <summary>
+        /// Accent preset key ("GlassBlue" | "Emerald" | "Amber" |
+        /// "Rose" | "Violet" | "Teal"). Re-applied on startup so the
+        /// whole UI keeps the chosen colour between sessions.
+        /// </summary>
+        public string AccentPreset { get; set; } = "GlassBlue";
     }
 
     /// <summary>

@@ -80,7 +80,7 @@
                         <TextBlock Style="{StaticResource HintTextStyle}"
                                    Margin="0,10,0,0"
                                    TextWrapping="Wrap"
-                                   Text="Normal = clean default. Monet = wallpaper with glass surfaces. Professional = premium corporate finish."/>
+                                   Text="Normal = clean default. Monet = colour-adaptive glass surfaces derived from your accent colour. Professional = premium corporate finish with cool crisp surfaces."/>
                     </StackPanel>
                 </Border>
 
@@ -101,6 +101,10 @@
                         <TextBlock Text="{Binding WallpaperStatus}"
                                    FontSize="11" Margin="0,8,0,0"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                        <TextBlock Style="{StaticResource HintTextStyle}"
+                                   Margin="0,6,0,0"
+                                   TextWrapping="Wrap"
+                                   Text="One wallpaper, every view: the image is applied system-wide behind all modules. Per-module wallpapers below override it for individual screens."/>
                         <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                             <TextBlock Text="Wallpaper visibility"
                                        FontSize="12"
@@ -121,16 +125,46 @@
                         <TextBlock Text="ACCENT COLOUR"
                                    Style="{StaticResource SectionLabelStyle}"/>
                         <WrapPanel Margin="0,8,0,0">
-                            <Button Content="Glass Blue" Command="{Binding ApplyAccentCommand}" CommandParameter="GlassBlue" Style="{StaticResource AccentChipStyle}"/>
-                            <Button Content="Emerald"    Command="{Binding ApplyAccentCommand}" CommandParameter="Emerald"   Style="{StaticResource AccentChipStyle}"/>
-                            <Button Content="Amber"      Command="{Binding ApplyAccentCommand}" CommandParameter="Amber"     Style="{StaticResource AccentChipStyle}"/>
-                            <Button Content="Rose"       Command="{Binding ApplyAccentCommand}" CommandParameter="Rose"      Style="{StaticResource AccentChipStyle}"/>
-                            <Button Content="Violet"     Command="{Binding ApplyAccentCommand}" CommandParameter="Violet"    Style="{StaticResource AccentChipStyle}"/>
-                            <Button Content="Teal"       Command="{Binding ApplyAccentCommand}" CommandParameter="Teal"      Style="{StaticResource AccentChipStyle}"/>
+                            <Button Command="{Binding ApplyAccentCommand}" CommandParameter="GlassBlue" Style="{StaticResource AccentChipStyle}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="11" Height="11" Fill="#1D4ED8" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Glass Blue" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding ApplyAccentCommand}" CommandParameter="Emerald" Style="{StaticResource AccentChipStyle}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="11" Height="11" Fill="#059669" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Emerald" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding ApplyAccentCommand}" CommandParameter="Amber" Style="{StaticResource AccentChipStyle}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="11" Height="11" Fill="#D97706" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Amber" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding ApplyAccentCommand}" CommandParameter="Rose" Style="{StaticResource AccentChipStyle}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="11" Height="11" Fill="#E11D48" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Rose" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding ApplyAccentCommand}" CommandParameter="Violet" Style="{StaticResource AccentChipStyle}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="11" Height="11" Fill="#7C3AED" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Violet" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
+                            <Button Command="{Binding ApplyAccentCommand}" CommandParameter="Teal" Style="{StaticResource AccentChipStyle}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="11" Height="11" Fill="#0D9488" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Teal" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
                         </WrapPanel>
                         <TextBlock Style="{StaticResource HintTextStyle}"
                                    Margin="0,2,0,0"
-                                   Text="The engine derives hover, tint and contrast colours automatically from the chosen accent."/>
+                                   Text="The whole UI adapts to the chosen accent — buttons, tints, hover states and Monet glass surfaces are all derived from it. Your choice is saved and restored on every start."/>
                     </StackPanel>
                 </Border>
 

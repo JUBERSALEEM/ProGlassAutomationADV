@@ -271,6 +271,11 @@ namespace ProGlassAutomation.ViewModels.Settings
             {
                 ThemeManager.ApplyTheme(value ? AppTheme.Dark : AppTheme.Light);
 
+                // Rebuild the visual family (Monet glass, Professional
+                // surfaces, wallpaper layers) against the fresh theme
+                // colours — otherwise derived surfaces stay stale.
+                ApplyVisualTheme();
+
                 ProGlassAutomation.Services.Audit.AuditService.Log(
                     ProGlassAutomation.Services.Audit.AuditSections.Settings,
                     "Theme changed",
@@ -293,22 +298,18 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// <summary>Applies a named accent preset. Parameter = preset key.</summary>
         public void ApplyAccentPreset(string presetKey)
         {
-            var color = presetKey switch
-            {
-                "Emerald" => (System.Windows.Media.Color?)
-                    System.Windows.Media.Color.FromRgb(0x05, 0x96, 0x69),
-                "Amber" =>
-                    System.Windows.Media.Color.FromRgb(0xD9, 0x77, 0x06),
-                "Rose" =>
-                    System.Windows.Media.Color.FromRgb(0xE1, 0x1D, 0x48),
-                "Violet" =>
-                    System.Windows.Media.Color.FromRgb(0x7C, 0x3A, 0xED),
-                "Teal" =>
-                    System.Windows.Media.Color.FromRgb(0x0D, 0x94, 0x88),
-                _ => (System.Windows.Media.Color?)null   // Glass Blue default
-            };
+            var color = ProGlassAutomation.Services.Theme.AccentPresets
+                .ColorFor(presetKey);
 
             ThemeManager.ApplyAccent(color);
+
+            // Persist so the chosen colour survives app restarts.
+            if (App.Config?.Appearance != null)
+            {
+                App.Config.Appearance.AccentPreset =
+                    string.IsNullOrEmpty(presetKey) ? "GlassBlue" : presetKey;
+                SaveConfig();
+            }
 
             ProGlassAutomation.Services.Audit.AuditService.Log(
                 ProGlassAutomation.Services.Audit.AuditSections.Settings,
@@ -847,6 +848,13 @@ namespace ProGlassAutomation.ViewModels.Settings
                 appearance?.VisualTheme ?? "Normal",
                 appearance?.WallpaperPath ?? "",
                 appearance?.WallpaperOpacity ?? 0.85);
+
+            // Re-layer the module on screen (system-wide wallpaper or
+            // its module override) so changes apply instantly.
+            ProGlassAutomation.Services.Theme.VisualThemeEngine.ApplyModule(
+                ProGlassAutomation.Services.Theme.VisualThemeEngine
+                    .CurrentModule,
+                appearance);
         }
 
         // ══════════════════════════════════════════════════════════════
@@ -1227,6 +1235,14 @@ namespace ProGlassAutomation.ViewModels.Settings
                 SaveConfig();
                 ApplyVisualTheme();
 
+                // Re-layer the module on screen so the new system-wide
+                // wallpaper is visible immediately.
+                ProGlassAutomation.Services.Theme.VisualThemeEngine
+                    .ApplyModule(
+                        ProGlassAutomation.Services.Theme.VisualThemeEngine
+                            .CurrentModule,
+                        App.Config.Appearance);
+
                 OnPropertyChanged(nameof(WallpaperStatus));
                 OnPropertyChanged(nameof(WallpaperOpacity));
 
@@ -1242,6 +1258,15 @@ namespace ProGlassAutomation.ViewModels.Settings
                 App.Config.Appearance.WallpaperPath = "";
                 SaveConfig();
                 ApplyVisualTheme();
+
+                // Re-layer the module on screen so the removal of the
+                // system-wide wallpaper is visible immediately.
+                ProGlassAutomation.Services.Theme.VisualThemeEngine
+                    .ApplyModule(
+                        ProGlassAutomation.Services.Theme.VisualThemeEngine
+                            .CurrentModule,
+                        App.Config.Appearance);
+
                 OnPropertyChanged(nameof(WallpaperStatus));
             });
 

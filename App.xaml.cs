@@ -213,6 +213,14 @@ namespace ProGlassAutomation
                 Config.Appearance?.WallpaperPath ?? "",
                 Config.Appearance?.WallpaperOpacity ?? 0.85);
 
+            // 9e) Restore the persisted accent preset — re-derives the
+            //     full accent family (hover/tint/contrast) from the
+            //     saved colour so the UI keeps it between sessions.
+            ProGlassAutomation.Services.ThemeManager.ApplyAccent(
+                ProGlassAutomation.Services.Theme.AccentPresets.ColorFor(
+                    Config.Appearance?.AccentPreset ?? "GlassBlue"),
+                raiseEvent: false);
+
             AuditService.Log(
                 AuditSections.App, "App started",
                 $"Motion tier {PerformanceProfileService.TargetFps} fps");

@@ -1,20 +1,36 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Theme/VisualThemeEngine.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Dynamic Theme Engine — visual theme families (v2)
+// MODULE: Dynamic Theme Engine — visual theme families (v3)
 //
 // Three complete visual languages layered ON TOP of the Light/Dark
 // base themes — the base brushes are derived, never hard-coded twice:
 //
-//   Normal        — clean, practical default (no overrides).
-//   Monet         — soft artistic look: wallpaper visible behind
-//                   transparent/glass surfaces, gentle tints.
-//   Professional  — premium corporate: tighter card radii, calmer
-//                   shadows, crisp surfaces.
+//   Normal        — clean, practical default (no surface overrides).
+//   Monet         — colour-adaptive artistic look (Material-You style):
+//                   the palette is DERIVED from the user's accent
+//                   colour — hue-tinted glass surfaces, tinted fallback
+//                   gradient — and re-derives live when the accent
+//                   changes. Wallpaper reads through the glass.
+//   Professional  — premium corporate finish: cool slate gradient
+//                   window, crisp cooler surfaces, tighter radii,
+//                   restrained hover — visibly distinct from Normal.
+//
+// SYSTEM-WIDE WALLPAPER (v3):
+//   A single global wallpaper can be set in Settings and now applies
+//   to EVERY view in EVERY family: it is layered into the module area
+//   (ModuleWallpaperBrush) behind the content, with surfaces made
+//   translucent so it reads through. Per-module wallpapers still win
+//   where configured. Typography contrast is strengthened whenever a
+//   wallpaper shows through so text stays readable.
 //
 // Overrides are applied at APPLICATION level (they win over the merged
 // theme dictionaries) and are removed when switching back to Normal —
 // so nothing is ever destroyed, only layered.
+//
+// PUBLIC API (preserved): Normal/Monet/Professional constants,
+//   Current, CurrentModule, Apply(family, wallpaperPath, opacity),
+//   ApplyModule(moduleKey, appearance).
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.Logging;
@@ -39,6 +55,7 @@ namespace ProGlassAutomation.Services.Theme
             "WindowBackgroundBrush", "ModuleBackgroundBrush",
             "ElevatedSurfaceBrush", "SideMenuBackgroundBrush",
             "MenuHoverBrush",
+            "SecondaryForegroundBrush", "MutedForegroundBrush",
             "CardCornerRadius", "CardCornerRadiusLarge",
             "ControlCornerRadius",
             "WallpaperOpacityValue",
@@ -51,9 +68,29 @@ namespace ProGlassAutomation.Services.Theme
         /// <summary>Module whose wallpaper is currently layered (or "").</summary>
         public static string CurrentModule { get; private set; } = "";
 
+        // Last wallpaper the engine was asked to use — lets the accent
+        // re-apply (Monet) rebuild the exact same scene.
+        private static string _lastWallpaperPath = "";
+        private static double _lastWallpaperOpacity = 0.85;
+
         /// <summary>
-        /// Applies one family. wallpaperPath/opacity are only used by
-        /// Monet. Never throws.
+        /// Re-derive Monet's accent-tinted palette whenever the user
+        /// changes the accent colour. Subscribed exactly once (static
+        /// engine lives for the whole process).
+        /// </summary>
+        static VisualThemeEngine()
+        {
+            ThemeManager.AccentChanged += (_, __) =>
+            {
+                if (Current != Monet) return;
+                Apply(Monet, _lastWallpaperPath, _lastWallpaperOpacity);
+            };
+        }
+
+        /// <summary>
+        /// Applies one family. wallpaperPath/opacity feed the Monet
+        /// window background and the system-wide wallpaper layer.
+        /// Never throws.
         /// </summary>
         public static void Apply(
             string family, string wallpaperPath = "",
@@ -64,19 +101,37 @@ namespace ProGlassAutomation.Services.Theme
                 var resources = Application.Current?.Resources;
                 if (resources == null) return;
 
+                _lastWallpaperPath = wallpaperPath ?? "";
+                _lastWallpaperOpacity = ClampOpacity(wallpaperOpacity);
+
                 ClearOverrides(resources);
                 Current = Normalize(family);
 
                 switch (Current)
                 {
                     case Monet:
-                        ApplyMonet(resources, wallpaperPath,
-                            ClampOpacity(wallpaperOpacity));
+                        ApplyMonet(resources, _lastWallpaperPath,
+                            _lastWallpaperOpacity);
                         break;
 
                     case Professional:
                         ApplyProfessional(resources);
                         break;
+                }
+
+                // System-wide wallpaper chrome: paint the window
+                // background for non-Monet families (Monet handles it
+                // above). The module-area layer is owned by
+                // ApplyModule, which callers invoke right after this —
+                // that keeps module-specific wallpapers authoritative.
+                if (Current != Monet &&
+                    !string.IsNullOrWhiteSpace(_lastWallpaperPath) &&
+                    File.Exists(_lastWallpaperPath))
+                {
+                    var windowBrush = BuildWallpaperBrush(
+                        _lastWallpaperPath, _lastWallpaperOpacity);
+                    if (windowBrush != null)
+                        resources["WindowBackgroundBrush"] = windowBrush;
                 }
 
                 AppLogService.Info(
@@ -105,7 +160,8 @@ namespace ProGlassAutomation.Services.Theme
         /// <summary>
         /// Called on every module navigation. Rebuilds the base family
         /// first, then layers that module's wallpaper (when configured)
-        /// so each screen can carry its own background image.
+        /// — otherwise the system-wide wallpaper — so every screen can
+        /// carry a background image.
         /// </summary>
         public static void ApplyModule(
             string moduleKey,
@@ -116,6 +172,10 @@ namespace ProGlassAutomation.Services.Theme
                 var resources = Application.Current?.Resources;
                 if (resources == null) return;
 
+                _lastWallpaperPath = appearance?.WallpaperPath ?? "";
+                _lastWallpaperOpacity =
+                    ClampOpacity(appearance?.WallpaperOpacity ?? 0.85);
+
                 // Rebuild the family baseline (removes the previous
                 // module's wallpaper layer).
                 ClearOverrides(resources);
@@ -124,41 +184,61 @@ namespace ProGlassAutomation.Services.Theme
                 switch (Current)
                 {
                     case Monet:
-                        ApplyMonet(resources,
-                            appearance?.WallpaperPath ?? "",
-                            ClampOpacity(appearance?.WallpaperOpacity ?? 0.85));
+                        ApplyMonet(resources, _lastWallpaperPath,
+                            _lastWallpaperOpacity);
                         break;
                     case Professional:
                         ApplyProfessional(resources);
                         break;
                 }
 
+                if (Current != Monet &&
+                    !string.IsNullOrWhiteSpace(_lastWallpaperPath) &&
+                    File.Exists(_lastWallpaperPath))
+                {
+                    var windowBrush = BuildWallpaperBrush(
+                        _lastWallpaperPath, _lastWallpaperOpacity);
+                    if (windowBrush != null)
+                        resources["WindowBackgroundBrush"] = windowBrush;
+                }
+
                 CurrentModule = "";
-                if (string.IsNullOrEmpty(moduleKey) || appearance == null)
-                    return;
 
-                if (!appearance.ModuleWallpapers.TryGetValue(
-                    moduleKey, out var moduleWallpaper) ||
-                    moduleWallpaper == null ||
-                    !moduleWallpaper.Enabled)
-                    return;
+                // 1) Module-specific wallpaper wins when enabled.
+                if (!string.IsNullOrEmpty(moduleKey) && appearance != null &&
+                    appearance.ModuleWallpapers.TryGetValue(
+                        moduleKey, out var moduleWallpaper) &&
+                    moduleWallpaper != null &&
+                    moduleWallpaper.Enabled &&
+                    File.Exists(moduleWallpaper.Path))
+                {
+                    var brush = BuildWallpaperBrush(
+                        moduleWallpaper.Path,
+                        ClampOpacity(moduleWallpaper.Opacity));
 
-                if (!System.IO.File.Exists(moduleWallpaper.Path))
-                    return;
+                    if (brush != null)
+                    {
+                        resources["ModuleWallpaperBrush"] = brush;
+                        CurrentModule = moduleKey;
 
-                var brush = BuildWallpaperBrush(
-                    moduleWallpaper.Path,
-                    ClampOpacity(moduleWallpaper.Opacity));
+                        // Let the image read through the module surface.
+                        SetTranslucent(resources, "ModuleBackgroundBrush",
+                            ThemeManager.GetThemeColor(
+                                "ModuleBackgroundBrush", Colors.White), 0.78);
+                        AdaptTypographyForWallpaper(resources);
+                        return;
+                    }
+                }
 
-                if (brush == null) return;
-
-                resources["ModuleWallpaperBrush"] = brush;
-                CurrentModule = moduleKey;
-
-                // Let the image read through the module surface.
-                SetTranslucent(resources, "ModuleBackgroundBrush",
-                    ThemeManager.GetThemeColor(
-                        "ModuleBackgroundBrush", Colors.White), 0.78);
+                // 2) Otherwise the system-wide wallpaper shows in
+                //    every view.
+                if (!string.IsNullOrWhiteSpace(_lastWallpaperPath) &&
+                    File.Exists(_lastWallpaperPath))
+                {
+                    LayerWallpaperBehindContent(
+                        resources, _lastWallpaperPath,
+                        _lastWallpaperOpacity, translucentSurface: 0.82);
+                }
             }
             catch (Exception ex)
             {
@@ -170,6 +250,55 @@ namespace ProGlassAutomation.Services.Theme
                         Class = nameof(VisualThemeEngine)
                     });
             }
+        }
+
+        // ── SYSTEM-WIDE WALLPAPER LAYER ─────────────────────────────────
+
+        /// <summary>
+        /// Puts one image behind the content of the framed module area
+        /// and lets it read through: the module surface becomes
+        /// translucent and typography contrast is strengthened so text
+        /// stays professional and readable over the picture.
+        /// </summary>
+        private static void LayerWallpaperBehindContent(
+            ResourceDictionary resources, string path, double opacity,
+            double translucentSurface)
+        {
+            var brush = BuildWallpaperBrush(path, opacity);
+            if (brush == null) return;
+
+            resources["ModuleWallpaperBrush"] = brush;
+
+            SetTranslucent(resources, "ModuleBackgroundBrush",
+                ThemeManager.GetThemeColor(
+                    "ModuleBackgroundBrush", Colors.White),
+                translucentSurface);
+
+            AdaptTypographyForWallpaper(resources);
+        }
+
+        /// <summary>
+        /// Text over a wallpaper loses contrast once surfaces turn
+        /// translucent. Strengthen the secondary/muted foregrounds
+        /// (theme-aware) so captions and hints stay crisp. Removed
+        /// again by ClearOverrides when no wallpaper shows.
+        /// </summary>
+        private static void AdaptTypographyForWallpaper(
+            ResourceDictionary resources)
+        {
+            bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
+
+            var secondary = new SolidColorBrush(dark
+                ? Color.FromRgb(0xB8, 0xC4, 0xD6)   // stronger on dark
+                : Color.FromRgb(0x4B, 0x55, 0x63)); // stronger on light
+            secondary.Freeze();
+            resources["SecondaryForegroundBrush"] = secondary;
+
+            var muted = new SolidColorBrush(dark
+                ? Color.FromRgb(0x93, 0xA2, 0xB8)
+                : Color.FromRgb(0x6B, 0x72, 0x80));
+            muted.Freeze();
+            resources["MutedForegroundBrush"] = muted;
         }
 
         private static ImageBrush? BuildWallpaperBrush(
@@ -198,55 +327,56 @@ namespace ProGlassAutomation.Services.Theme
             }
         }
 
-        // ── MONET — wallpaper + glass surfaces ─────────────────────────
+        // ── MONET — colour-adaptive glass (Material-You style) ──────────
 
         private static void ApplyMonet(
             ResourceDictionary resources, string wallpaperPath,
             double opacity)
         {
-            // Window background = wallpaper (or a soft gradient fallback).
+            // The whole palette derives from the active accent colour.
+            var accent = ThemeManager.AccentColor;
+            var (h, s, _) = ColorMath.ToHsl(accent);
+            bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
+
+            // Window background = wallpaper, else an accent-hue
+            // gradient (no more hard-coded blue).
             if (!string.IsNullOrWhiteSpace(wallpaperPath) &&
                 File.Exists(wallpaperPath))
             {
-                var image = new BitmapImage();
-                image.BeginInit();
-                image.CacheOption = BitmapCacheOption.OnLoad;
-                image.UriSource = new Uri(wallpaperPath, UriKind.Absolute);
-                image.EndInit();
-                image.Freeze();
-
-                var wallpaper = new ImageBrush(image)
-                {
-                    Stretch = Stretch.UniformToFill,
-                    Opacity = opacity
-                };
-                wallpaper.Freeze();
-                resources["WindowBackgroundBrush"] = wallpaper;
+                var wallpaper = BuildWallpaperBrush(wallpaperPath, opacity);
+                if (wallpaper != null)
+                    resources["WindowBackgroundBrush"] = wallpaper;
             }
             else
             {
+                Color from = dark
+                    ? ColorMath.FromHsl(h, Math.Min(s, 0.35), 0.14)
+                    : ColorMath.FromHsl(h, Math.Min(s, 0.60), 0.94);
+                Color to = dark
+                    ? ColorMath.FromHsl(h + 26, Math.Min(s, 0.32), 0.10)
+                    : ColorMath.FromHsl(h + 26, Math.Min(s, 0.55), 0.88);
+
                 var soft = new LinearGradientBrush(
-                    Color.FromRgb(0xDB, 0xEA, 0xFE),
-                    Color.FromRgb(0xBF, 0xDB, 0xFE),
-                    new Point(0, 0), new Point(1, 1));
+                    from, to, new Point(0, 0), new Point(1, 1));
                 soft.Freeze();
                 resources["WindowBackgroundBrush"] = soft;
             }
 
-            // Glass surfaces — the active base theme's colours with
-            // transparency so the wallpaper reads through.
-            SetTranslucent(resources, "ModuleBackgroundBrush",
-                ThemeManager.GetThemeColor(
-                    "ModuleBackgroundBrush", Colors.White), 0.72);
-            SetTranslucent(resources, "ElevatedSurfaceBrush",
-                ThemeManager.GetThemeColor(
-                    "ElevatedSurfaceBrush", Colors.White), 0.80);
-            SetTranslucent(resources, "SideMenuBackgroundBrush",
-                ThemeManager.GetThemeColor(
-                    "SideMenuBackgroundBrush", Colors.White), 0.86);
-            SetTranslucent(resources, "MenuHoverBrush",
-                ThemeManager.GetThemeColor(
-                    "MenuHoverBrush", Color.FromRgb(0xF3, 0xF4, 0xF6)), 0.60);
+            // Glass surfaces — the active base theme's colours tinted
+            // toward the accent hue, then made translucent so the
+            // wallpaper reads through.
+            resources["ModuleBackgroundBrush"] = GlassSurface(
+                resources, "ModuleBackgroundBrush", accent,
+                Colors.White, 0.72, dark);
+            resources["ElevatedSurfaceBrush"] = GlassSurface(
+                resources, "ElevatedSurfaceBrush", accent,
+                Colors.White, 0.80, dark);
+            resources["SideMenuBackgroundBrush"] = GlassSurface(
+                resources, "SideMenuBackgroundBrush", accent,
+                Colors.White, 0.86, dark);
+            resources["MenuHoverBrush"] = GlassSurface(
+                resources, "MenuHoverBrush", accent,
+                Color.FromRgb(0xF3, 0xF4, 0xF6), 0.60, dark);
 
             // Softer, rounder cards fit the artistic look.
             resources["CardCornerRadius"] = new CornerRadius(18);
@@ -254,20 +384,67 @@ namespace ProGlassAutomation.Services.Theme
             resources["ControlCornerRadius"] = new CornerRadius(12);
         }
 
+        /// <summary>
+        /// Builds one Monet glass surface: theme colour → gently tinted
+        /// with the accent hue → translucent.
+        /// </summary>
+        private static SolidColorBrush GlassSurface(
+            ResourceDictionary resources, string key, Color accent,
+            Color fallback, double opacity, bool dark)
+        {
+            Color baseColor = ThemeManager.GetThemeColor(key, fallback);
+            Color tinted = ColorMath.Tint(accent, baseColor,
+                dark ? 0.10 : 0.06);
+
+            var brush = new SolidColorBrush(tinted) { Opacity = opacity };
+            brush.Freeze();
+            return brush;
+        }
+
         // ── PROFESSIONAL — premium corporate ───────────────────────────
 
         private static void ApplyProfessional(ResourceDictionary resources)
         {
-            // Tighter radii + crisp hierarchy; surfaces stay solid.
+            bool dark = ThemeManager.CurrentTheme == AppTheme.Dark;
+
+            // Cool slate window gradient — immediately distinguishes
+            // Professional from Normal.
+            var window = new LinearGradientBrush(
+                dark ? Color.FromRgb(0x0B, 0x12, 0x20)
+                     : Color.FromRgb(0xF8, 0xFA, 0xFC),
+                dark ? Color.FromRgb(0x10, 0x18, 0x27)
+                     : Color.FromRgb(0xEC, 0xF1, 0xF7),
+                new Point(0, 0), new Point(1, 1));
+            window.Freeze();
+            resources["WindowBackgroundBrush"] = window;
+
+            // Crisp, slightly cooler surfaces (all views consume these
+            // via DynamicResource, so the change is global).
+            Color moduleBg = ThemeManager.GetThemeColor(
+                "ModuleBackgroundBrush", Colors.White);
+            Color cool = dark
+                ? Color.FromRgb(0x14, 0x1C, 0x2B)
+                : Color.FromRgb(0xEE, 0xF2, 0xF7);
+            var moduleBrush = new SolidColorBrush(
+                ColorMath.Mix(moduleBg, cool, 0.30));
+            moduleBrush.Freeze();
+            resources["ModuleBackgroundBrush"] = moduleBrush;
+
+            Color elevated = ThemeManager.GetThemeColor(
+                "ElevatedSurfaceBrush", Colors.White);
+            var elevatedBrush = new SolidColorBrush(
+                ColorMath.Mix(elevated, cool, 0.22));
+            elevatedBrush.Freeze();
+            resources["ElevatedSurfaceBrush"] = elevatedBrush;
+
+            // Tighter radii + restrained hover tint.
             resources["CardCornerRadius"] = new CornerRadius(10);
             resources["CardCornerRadiusLarge"] = new CornerRadius(14);
             resources["ControlCornerRadius"] = new CornerRadius(8);
 
-            // Slightly cooler, restrained hover tint.
-            var hover = new SolidColorBrush(
-                ThemeManager.CurrentTheme == AppTheme.Dark
-                    ? Color.FromRgb(0x2B, 0x3A, 0x52)
-                    : Color.FromRgb(0xF1, 0xF5, 0xF9));
+            var hover = new SolidColorBrush(dark
+                ? Color.FromRgb(0x2B, 0x3A, 0x52)
+                : Color.FromRgb(0xF1, 0xF5, 0xF9));
             hover.Freeze();
             resources["MenuHoverBrush"] = hover;
         }
