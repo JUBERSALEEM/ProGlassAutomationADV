@@ -256,7 +256,7 @@
                     MinWidth="120"
                     BorderThickness="1"
                     Background="{DynamicResource TintIndigoBrush}"
-                    BorderBrush="{StaticResource Frost}"
+                    BorderBrush="{DynamicResource BorderBrush}"
                     SnapsToDevicePixels="True">
                 <StackPanel HorizontalAlignment="Center">
                     <TextBlock Text="{Binding Icon}"
@@ -287,8 +287,8 @@
                     Padding="16,14"
                     Margin="6"
                     BorderThickness="1"
-                    Background="{DynamicResource TintIndigoBrush}"
-                    BorderBrush="{StaticResource Frost}"
+                    Background="{DynamicResource ModuleBackgroundBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
                     SnapsToDevicePixels="True">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -320,7 +320,7 @@
                     </StackPanel>
 
                     <Border Grid.Column="2"
-                            Background="{StaticResource ActiveBadgeBg}"
+                            Background="{DynamicResource TintIndigoBrush}"
                             CornerRadius="8"
                             Padding="8,3"
                             VerticalAlignment="Center"
@@ -328,7 +328,7 @@
                         <TextBlock Text="ACTIVE"
                                    FontSize="9"
                                    FontWeight="Bold"
-                                   Foreground="{StaticResource ActiveBadgeText}"
+                                   Foreground="{DynamicResource AccentBrush}"
                                    IsHitTestVisible="False"/>
                     </Border>
                 </Grid>
@@ -342,7 +342,7 @@
                     Margin="6"
                     BorderThickness="1"
                     Background="{DynamicResource TintIndigoBrush}"
-                    BorderBrush="{StaticResource Frost}"
+                    BorderBrush="{DynamicResource BorderBrush}"
                     SnapsToDevicePixels="True">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="{Binding Icon}"
@@ -558,7 +558,7 @@
                                         Padding="16,8"
                                         Margin="0,0,8,0"
                                         SnapsToDevicePixels="True"
-                                        Background="{StaticResource Royal}">
+                                        Background="{DynamicResource AccentBrush}">
                                     <TextBlock Text="{Binding Version}"
                                                FontSize="12"
                                                FontWeight="Bold"
@@ -566,7 +566,7 @@
                                                IsHitTestVisible="False"/>
                                 </Border>
                                 <Border Background="{DynamicResource TintIndigoBrush}"
-                                        BorderBrush="{StaticResource Royal}"
+                                        BorderBrush="{DynamicResource AccentBrush}"
                                         BorderThickness="1"
                                         CornerRadius="14"
                                         Padding="16,8"
@@ -578,7 +578,7 @@
                                                IsHitTestVisible="False"/>
                                 </Border>
                                 <Border Background="{DynamicResource TintIndigoBrush}"
-                                        BorderBrush="{StaticResource Royal}"
+                                        BorderBrush="{DynamicResource AccentBrush}"
                                         BorderThickness="1"
                                         CornerRadius="14"
                                         Padding="16,8"
@@ -643,7 +643,7 @@
                                     Cursor="Hand"
                                     SnapsToDevicePixels="True"
                                     Background="{DynamicResource TintIndigoBrush}"
-                                    BorderBrush="{StaticResource Royal}"
+                                    BorderBrush="{DynamicResource AccentBrush}"
                                     BorderThickness="1"
                                     MouseLeftButtonDown="Email_MouseLeftButtonDown">
                                 <StackPanel Orientation="Horizontal">
@@ -811,7 +811,7 @@
                                       ItemTemplate="{StaticResource ModuleChipTemplate}">
                             <ItemsControl.ItemsPanel>
                                 <ItemsPanelTemplate>
-                                    <UniformGrid Rows="4" Columns="2"/>
+                                    <UniformGrid Columns="2"/>
                                 </ItemsPanelTemplate>
                             </ItemsControl.ItemsPanel>
                         </ItemsControl>
