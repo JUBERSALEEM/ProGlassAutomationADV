@@ -71,7 +71,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard
     {
         // ── Tab identity ──────────────────────────────────────────────────
         public override string TabTitle => "Tax Invoices";
-        public override string TabIcon => "🧾";
+        public override string TabIcon => "\uE8EF";
 
         // ── Navigation callback (set by DashboardViewModel after ctor) ────
         public Action<string>? NavigateTo { get; set; }
@@ -425,7 +425,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard
                 // CARD 1: Total Invoiced MTD
                 new KpiTileModel
                 {
-                    Icon         = "💰",
+                    Icon         = "\uE8EF",
                     Label        = "Invoiced this Month",
                     DisplayValue = $"AED {kpi.TotalInvoicedThisMonth:N2}",
                     Accent       = "Green"
@@ -434,7 +434,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard
                 // CARD 2: VAT Collected MTD
                 new KpiTileModel
                 {
-                    Icon         = "🏛",
+                    Icon         = "\uE80F",
                     Label        = "UAE VAT Collected (5%)",
                     DisplayValue = $"AED {kpi.VatCollectedThisMonth:N2}",
                     Accent       = "Blue"
@@ -443,7 +443,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard
                 // CARD 3: Overdue Amount
                 new KpiTileModel
                 {
-                    Icon         = kpi.OverdueCount > 0 ? "⚠️" : "✅",
+                    Icon         = kpi.OverdueCount > 0 ? "\uE7BA" : "\uE73E",
                     Label        = "Overdue Invoices",
                     DisplayValue = kpi.OverdueCount > 0
                                    ? $"AED {kpi.OverdueAmount:N2}"
@@ -455,7 +455,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard
                 // CARD 4: Pending (Draft + Issued)
                 new KpiTileModel
                 {
-                    Icon         = "📤",
+                    Icon         = "\uE72D",
                     Label        = "Pending Invoices",
                     DisplayValue = kpi.PendingCount.ToString("N0"),
                     Accent       = "Amber"
@@ -464,7 +464,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard
                 // CARD 5: Paid MTD
                 new KpiTileModel
                 {
-                    Icon         = "✅",
+                    Icon         = "\uE73E",
                     Label        = "Paid this Month",
                     DisplayValue = kpi.PaidThisMonthCount.ToString("N0"),
                     Accent       = "Green"

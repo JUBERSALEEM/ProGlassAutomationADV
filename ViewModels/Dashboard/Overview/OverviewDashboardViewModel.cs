@@ -67,7 +67,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     public class OverviewDashboardViewModel : DashboardPageBase
     {
         public override string TabTitle => "Overview";
-        public override string TabIcon => "🏠";
+        public override string TabIcon => "\uE80F";
 
         private const string JobStatusInProduction = "InProduction";
         private const string JobStatusCompleted = "Completed";
@@ -266,28 +266,28 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             {
                 new KpiTileModel
                 {
-                    Icon         = "💰",
+                    Icon         = "\uE8EF",
                     Label        = "Total Sales",
                     DisplayValue = $"AED {totalSales:N2}",
                     Accent       = "Green"
                 },
                 new KpiTileModel
                 {
-                    Icon         = "📄",
+                    Icon         = "\uE8A5",
                     Label        = "Invoices",
                     DisplayValue = totalInvoices.ToString("N0"),
                     Accent       = "Green"
                 },
                 new KpiTileModel
                 {
-                    Icon         = "📅",
+                    Icon         = "\uE787",
                     Label        = "This Month",
                     DisplayValue = $"AED {salesMtd:N2}",
                     Accent       = "Green"
                 },
                 new KpiTileModel
                 {
-                    Icon         = "✅",
+                    Icon         = "\uE73E",
                     Label        = "Approved",
                     DisplayValue = approvedCount.ToString("N0"),
                     Accent       = "Green"
@@ -301,14 +301,14 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             {
                 new KpiTileModel
                 {
-                    Icon         = "⚙️",
+                    Icon         = "\uE713",
                     Label        = "In Production",
                     DisplayValue = jobInProduction.ToString("N0"),
                     Accent       = "Blue"
                 },
                 new KpiTileModel
                 {
-                    Icon         = jobOverdue > 0 ? "⚠️" : "✅",
+                    Icon         = jobOverdue > 0 ? "\uE7BA" : "\uE73E",
                     Label        = "Overdue",
                     DisplayValue = jobOverdue.ToString("N0"),
                     Accent       = jobOverdue > 0 ? "Red" : "Blue",
@@ -316,14 +316,14 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 },
                 new KpiTileModel
                 {
-                    Icon         = "🎯",
+                    Icon         = "\uE730",
                     Label        = "Completed MTD",
                     DisplayValue = jobCompletedMtd.ToString("N0"),
                     Accent       = "Blue"
                 },
                 new KpiTileModel
                 {
-                    Icon         = "📋",
+                    Icon         = "\uE8FD",
                     Label        = "Total Jobs",
                     DisplayValue = totalJobs.ToString("N0"),
                     Accent       = "Blue"
@@ -338,35 +338,35 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             {
                 new KpiTileModel
                 {
-                    Icon         = "📝",
+                    Icon         = "\uE70F",
                     Label        = "Preparing",
                     DisplayValue = dnDraft.ToString("N0"),
                     Accent       = "Amber"
                 },
                 new KpiTileModel
                 {
-                    Icon         = "🚚",
+                    Icon         = "\uE806",
                     Label        = "Dispatched",
                     DisplayValue = dnDispatched.ToString("N0"),
                     Accent       = "Amber"
                 },
                 new KpiTileModel
                 {
-                    Icon         = "📅",
+                    Icon         = "\uE787",
                     Label        = "Delivered Today (pcs)",
                     DisplayValue = dnDeliveredTodayPcs.ToString("N0"),
                     Accent       = "Green"
                 },
                 new KpiTileModel
                 {
-                    Icon         = "✅",
+                    Icon         = "\uE73E",
                     Label        = "Total Delivered (pcs)",   // FIX-5: NEW comprehensive tile
                     DisplayValue = dnTotalDeliveredPcs.ToString("N0"),
                     Accent       = "Green"
                 },
                 new KpiTileModel
                 {
-                    Icon         = dnPendingPcs > 0 ? "⚖️" : "✅",
+                    Icon         = dnPendingPcs > 0 ? "\uE9D5" : "\uE73E",
                     Label        = "Pending Balance (pcs)",
                     DisplayValue = dnPendingPcs.ToString("N0"),
                     Accent       = dnPendingPcs > 0 ? "Red" : "Amber",
@@ -381,14 +381,14 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             {
                 new KpiTileModel
                 {
-                    Icon         = "💵",
+                    Icon         = "\uE8EF",
                     Label        = "Stock Value",
                     DisplayValue = $"AED {inventoryValue:N2}",
                     Accent       = "Red"
                 },
                 new KpiTileModel
                 {
-                    Icon         = lowStock > 0 ? "⚠️" : "✅",
+                    Icon         = lowStock > 0 ? "\uE7BA" : "\uE73E",
                     Label        = "Low Stock",
                     DisplayValue = lowStock.ToString("N0"),
                     Accent       = lowStock > 0 ? "Red" : "Red",
@@ -396,14 +396,14 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 },
                 new KpiTileModel
                 {
-                    Icon         = "🏪",
+                    Icon         = "\uE719",
                     Label        = "Sheet Types",
                     DisplayValue = totalSheets.ToString("N0"),
                     Accent       = "Red"
                 },
                 new KpiTileModel
                 {
-                    Icon         = "📦",
+                    Icon         = "\uE7B8",
                     Label        = "Total Sheets",
                     DisplayValue = totalStockQty.ToString("N0"),
                     Accent       = "Red"
@@ -469,7 +469,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 var isUpdated = i.UpdatedAt != default && i.UpdatedAt != i.CreatedAt;
                 return new ActivityFeedItem
                 {
-                    Icon = "📄",
+                    Icon = "\uE8A5",
                     Title = $"{(string.IsNullOrWhiteSpace(i.ProformaId) ? "Invoice" : i.ProformaId)}" +
                                    $"{(string.IsNullOrWhiteSpace(i.CustomerName) ? "" : $"  ·  {i.CustomerName}")}",
                     SubTitle = $"Proforma  ·  {(isUpdated ? "Updated" : "Created")} {date:dd MMM}",
@@ -494,7 +494,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
 
                 var sheetActivity = historyRows.Select(h => new ActivityFeedItem
                 {
-                    Icon = "📦",
+                    Icon = "\uE7B8",
                     Title = string.IsNullOrWhiteSpace(h.SheetDescription)
                                        ? "Sheet Store" : h.SheetDescription,
                     SubTitle = $"Sheet Store  ·  {h.Action}  ·  {h.Timestamp:dd MMM HH:mm}",

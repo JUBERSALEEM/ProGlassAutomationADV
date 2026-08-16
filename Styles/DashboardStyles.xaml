@@ -1,0 +1,418 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Styles/DashboardStyles.xaml
+     PROJECT: ProGlassAutomation
+
+     SINGLE SOURCE OF TRUTH for dashboard chrome across all 7 modules
+     (Overview, Sheet Store, Proforma, Job Order, Delivery Note,
+     Tax Invoice, Statement).
+
+     WHY THIS FILE EXISTS
+     ────────────────────
+     Every dashboard used to declare its OWN local <SolidColorBrush>
+     resources with hardcoded hex — 44 of them in total, including
+     white card surfaces (#FFFFFF) and pale KPI fills (#EEF4FF). Those
+     are light-theme colours baked into markup, so in Dark theme the
+     cards stayed white while the rest of the app went dark. That is
+     the "few boxes dynamic, few not" problem: the cards that happened
+     to use DynamicResource adapted, the 44 hardcoded ones did not.
+
+     Everything here resolves through DynamicResource against keys that
+     exist in BOTH Themes/DarkTheme.xaml and Themes/LightTheme.xaml, so
+     every surface follows the theme with no code-behind and no
+     converter. Verified present in both themes before use.
+
+     DESIGN LANGUAGE (2026 command-centre, per reference screenshots)
+     ───────────────────────────────────────────────────────────────
+     • Dense, compact cards — more data per screen, less padding.
+     • Thin 1px hairline borders instead of heavy shadows.
+     • Small ALL-CAPS section labels with wide letter spacing.
+     • Large tabular numerals as the focal point of each KPI.
+     • A coloured accent rail on each card carries meaning; the card
+       surface itself stays neutral so it works in both themes.
+
+     ICONS: Segoe MDL2 Assets only — never emoji (house rule).
+═══════════════════════════════════════════════════════════════════════ -->
+
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:sys="clr-namespace:System;assembly=mscorlib">
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         GEOMETRY — compact 2026 metrics.
+         Radii are deliberately smaller than the old 16/20 so more
+         cards fit per row without looking bubbly.
+    ═══════════════════════════════════════════════════════════════ -->
+    <CornerRadius x:Key="DashCardRadius">10</CornerRadius>
+    <CornerRadius x:Key="DashTileRadius">8</CornerRadius>
+    <CornerRadius x:Key="DashPillRadius">6</CornerRadius>
+
+    <sys:Double x:Key="DashKpiValueSize">26</sys:Double>
+    <sys:Double x:Key="DashKpiLabelSize">10</sys:Double>
+    <sys:Double x:Key="DashSectionLabelSize">11</sys:Double>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         SURFACE CARD — the base panel every dashboard section sits on.
+
+         Replaces the old CardBgGradient (#FFFFFF → #F4F8FE) and
+         CardBorderBrush (#C4D6ED), which were light-only. DashGlass*
+         keys are defined in both themes: #FFFFFF in Light, #273449 in
+         Dark, so the same style renders correctly in either.
+    ═══════════════════════════════════════════════════════════════ -->
+    <Style x:Key="DashCardStyle" TargetType="Border">
+        <Setter Property="Background"
+                Value="{DynamicResource DashGlassSurfaceBrush}"/>
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource DashGlassBorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius"
+                Value="{StaticResource DashCardRadius}"/>
+        <Setter Property="Padding" Value="14,12"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- Inner tile: sits INSIDE a card, so it uses the elevated surface
+         to separate itself from the card without a second border. -->
+    <Style x:Key="DashTileStyle" TargetType="Border">
+        <Setter Property="Background"
+                Value="{DynamicResource ElevatedSurfaceBrush}"/>
+        <Setter Property="BorderBrush"
+                Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius"
+                Value="{StaticResource DashTileRadius}"/>
+        <Setter Property="Padding" Value="12,10"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         TYPOGRAPHY
+    ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- Small ALL-CAPS section heading with wide tracking. Replaces the
+         six hardcoded *HeaderBrush colours (#1E40AF, #B45309, …) that
+         were invisible-on-dark. -->
+    <Style x:Key="DashSectionLabelStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"
+                Value="{StaticResource DashSectionLabelSize}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground"
+                Value="{DynamicResource DashAccentTextBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+
+    <!-- The big number. Tabular figures stop digits jittering as live
+         values change, which matters on an auto-refreshing dashboard. -->
+    <Style x:Key="DashKpiValueStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"
+                Value="{StaticResource DashKpiValueSize}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground"
+                Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="TextOptions.TextFormattingMode" Value="Ideal"/>
+        <Setter Property="Typography.NumeralAlignment" Value="Tabular"/>
+    </Style>
+
+    <Style x:Key="DashKpiLabelStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"
+                Value="{StaticResource DashKpiLabelSize}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground"
+                Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <Style x:Key="DashCaptionStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="Foreground"
+                Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <!-- Table column header inside a dashboard list. -->
+    <Style x:Key="DashColumnHeaderStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground"
+                Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <Style x:Key="DashCellStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="Foreground"
+                Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <!-- MDL2 glyph. FontFamily is fixed here so no view can smuggle an
+         emoji in through a Tag binding. -->
+    <Style x:Key="DashGlyphStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="Foreground"
+                Value="{DynamicResource OnAccentForegroundBrush}"/>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         ACCENT RAIL — a 3px vertical bar on the left edge of a KPI tile.
+
+         This is how colour-coding survives a theme swap: the SURFACE
+         stays neutral (theme-driven) and only this thin rail carries
+         the semantic colour. The old approach tinted the whole card
+         background with a pale hex, which is unreadable on dark.
+
+         Accent values come from KpiTileModel.Accent:
+         Green | Blue | Amber | Red | Indigo (default).
+    ═══════════════════════════════════════════════════════════════ -->
+    <Style x:Key="DashAccentRailStyle" TargetType="Border">
+        <Setter Property="Width" Value="3"/>
+        <Setter Property="CornerRadius" Value="2"/>
+        <Setter Property="Margin" Value="0,0,10,0"/>
+        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Stretch"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Accent}" Value="Green">
+                <Setter Property="Background"
+                        Value="{DynamicResource SuccessBrush}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Accent}" Value="Blue">
+                <Setter Property="Background"
+                        Value="{DynamicResource InfoBrush}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Accent}" Value="Amber">
+                <Setter Property="Background"
+                        Value="{DynamicResource WarningBrush}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Accent}" Value="Red">
+                <Setter Property="Background"
+                        Value="{DynamicResource DangerBrush}"/>
+            </DataTrigger>
+            <!-- Alert overrides the accent: an alerting tile is always
+                 red regardless of its configured colour. -->
+            <DataTrigger Binding="{Binding IsAlert}" Value="True">
+                <Setter Property="Background"
+                        Value="{DynamicResource DangerBrush}"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Icon chip behind the tile glyph — same accent logic as the rail. -->
+    <Style x:Key="DashIconChipStyle" TargetType="Border">
+        <Setter Property="Width" Value="26"/>
+        <Setter Property="Height" Value="26"/>
+        <Setter Property="CornerRadius" Value="7"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding Accent}" Value="Green">
+                <Setter Property="Background"
+                        Value="{DynamicResource SuccessBrush}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Accent}" Value="Blue">
+                <Setter Property="Background"
+                        Value="{DynamicResource InfoBrush}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Accent}" Value="Amber">
+                <Setter Property="Background"
+                        Value="{DynamicResource WarningBrush}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding Accent}" Value="Red">
+                <Setter Property="Background"
+                        Value="{DynamicResource DangerBrush}"/>
+            </DataTrigger>
+            <DataTrigger Binding="{Binding IsAlert}" Value="True">
+                <Setter Property="Background"
+                        Value="{DynamicResource DangerBrush}"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- Value text that turns red when the tile is alerting. Keeps the
+         alert readable even though the surface is neutral. -->
+    <Style x:Key="DashKpiValueAccentStyle" TargetType="TextBlock"
+           BasedOn="{StaticResource DashKpiValueStyle}">
+        <Style.Triggers>
+            <DataTrigger Binding="{Binding IsAlert}" Value="True">
+                <Setter Property="Foreground"
+                        Value="{DynamicResource DangerBrush}"/>
+            </DataTrigger>
+        </Style.Triggers>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         STATUS PILL — small rounded chip for statuses / counts.
+    ═══════════════════════════════════════════════════════════════ -->
+    <Style x:Key="DashPillStyle" TargetType="Border">
+        <Setter Property="CornerRadius"
+                Value="{StaticResource DashPillRadius}"/>
+        <Setter Property="Padding" Value="7,2"/>
+        <Setter Property="Background"
+                Value="{DynamicResource TintGrayBrush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <Style x:Key="DashPillTextStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground"
+                Value="{DynamicResource PrimaryForegroundBrush}"/>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         COMPACT TOOLBAR BUTTON — dashboard-local action.
+         Follows the house pill rules (MDL2 glyph, uppercase, hand
+         cursor, all states) but at dashboard scale (H30, not H40).
+    ═══════════════════════════════════════════════════════════════ -->
+    <Style x:Key="DashActionButtonStyle" TargetType="Button">
+        <Setter Property="Cursor" Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Background" Value="Transparent"/>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Chrome"
+                            Background="{DynamicResource ElevatedSurfaceBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Height="30"
+                            Padding="12,0"
+                            SnapsToDevicePixels="True">
+                        <StackPanel Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                            <TextBlock x:Name="Glyph"
+                                       Text="{TemplateBinding Tag}"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="12"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,8,0"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            <TextBlock x:Name="Label"
+                                       Text="{TemplateBinding Content}"
+                                       FontSize="11"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome" Property="Background"
+                                    Value="{DynamicResource MenuHoverBrush}"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush"
+                                    Value="{DynamicResource AccentBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Chrome" Property="Opacity"
+                                    Value="0.75"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Chrome" Property="Opacity"
+                                    Value="0.45"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Primary variant — accent filled. -->
+    <Style x:Key="DashActionButtonPrimaryStyle" TargetType="Button"
+           BasedOn="{StaticResource DashActionButtonStyle}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Chrome"
+                            Background="{DynamicResource AccentBrush}"
+                            BorderBrush="#4DFFFFFF"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            Height="30"
+                            Padding="12,0"
+                            SnapsToDevicePixels="True">
+                        <StackPanel Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                            <TextBlock Text="{TemplateBinding Tag}"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="12"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,8,0"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            <TextBlock Text="{TemplateBinding Content}"
+                                       FontSize="11"
+                                       FontWeight="Bold"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome" Property="Background"
+                                    Value="{DynamicResource AccentHoverBrush}"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Chrome" Property="Opacity"
+                                    Value="0.8"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Chrome" Property="Opacity"
+                                    Value="0.45"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         KPI TILE TEMPLATE — shared by every module dashboard.
+
+         Bound to KpiTileModel (Icon, Label, DisplayValue, Accent,
+         IsAlert). Existing property names are used verbatim so no
+         ViewModel changes are required.
+    ═══════════════════════════════════════════════════════════════ -->
+    <DataTemplate x:Key="DashKpiTileTemplate">
+        <Border Style="{StaticResource DashTileStyle}"
+                Margin="0,0,8,8"
+                MinWidth="150">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0"
+                        Style="{StaticResource DashAccentRailStyle}"/>
+
+                <Border Grid.Column="1"
+                        Style="{StaticResource DashIconChipStyle}"
+                        Margin="0,0,10,0">
+                    <TextBlock Text="{Binding Icon}"
+                               Style="{StaticResource DashGlyphStyle}"/>
+                </Border>
+
+                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Label}"
+                               Style="{StaticResource DashKpiLabelStyle}"/>
+                    <TextBlock Text="{Binding DisplayValue}"
+                               Style="{StaticResource DashKpiValueAccentStyle}"
+                               Margin="0,1,0,0"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+    <!-- Horizontal wrap host for KPI tiles — reflows on resize so the
+         dashboard stays usable at any window width. -->
+    <ItemsPanelTemplate x:Key="DashTileWrapPanel">
+        <WrapPanel Orientation="Horizontal"/>
+    </ItemsPanelTemplate>
+
+</ResourceDictionary>

@@ -73,7 +73,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 string part = hour < 12 ? "Good morning"
                     : hour < 17 ? "Good afternoon"
                     : "Good evening";
-                return $"{part}, {CurrentUserDisplay} 👋";
+                return $"{part}, {CurrentUserDisplay}";
             }
         }
 

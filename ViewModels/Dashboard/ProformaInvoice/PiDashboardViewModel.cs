@@ -54,7 +54,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     public class PiDashboardViewModel : DashboardPageBase
     {
         public override string TabTitle => "Proforma Invoice";
-        public override string TabIcon => "📄";
+        public override string TabIcon => "\uE8A5";
 
         // ── KPI cards ─────────────────────────────────────────────────────
         private ObservableCollection<KpiCardModel> _kpiCards = new();
@@ -121,7 +121,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             {
                 new KpiCardModel
                 {
-                    Icon         = "📋",
+                    Icon         = "\uE8FD",
                     Title        = "Total Invoices",
                     DisplayValue = total.ToString("N0"),
                     BadgeColor   = "AccentBrush",
@@ -131,7 +131,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 new KpiCardModel
                 {
                     // Approved = SUCCESS semantic → green kept intentionally
-                    Icon         = "✅",
+                    Icon         = "\uE73E",
                     Title        = "Approved",
                     DisplayValue = approvedCount.ToString("N0"),
                     BadgeColor   = "SuccessBrush",
@@ -140,7 +140,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 },
                 new KpiCardModel
                 {
-                    Icon         = "📨",
+                    Icon         = "\uE715",
                     Title        = "Sent / Pending",
                     DisplayValue = sentCount.ToString("N0"),
                     BadgeColor   = "InfoBrush",

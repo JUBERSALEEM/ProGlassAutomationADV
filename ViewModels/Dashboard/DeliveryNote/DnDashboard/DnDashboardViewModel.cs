@@ -55,7 +55,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
     {
         // ── Tab identity ─────────────────────────────────────────────
         public override string TabTitle => "Deliveries";
-        public override string TabIcon => "🚚";
+        public override string TabIcon => "\uE806";
 
         // ── Backing stores for OnThemeChanged rebuild ────────────────
         private List<KpiCardModel> _kpiCards = new();
@@ -222,7 +222,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
             {
                 new KpiCardModel
                 {
-                    Icon         = "📦",
+                    Icon         = "\uE7B8",
                     Title        = "Total Delivery Notes",
                     DisplayValue = total.ToString("N0"),
                     BadgeColor   = "AccentBrush",
@@ -230,7 +230,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
                 },
                 new KpiCardModel
                 {
-                    Icon         = "✅",
+                    Icon         = "\uE73E",
                     Title        = "Delivered Today",
                     DisplayValue = deliveredToday.ToString("N0"),
                     BadgeColor   = "SuccessBrush",     // v2.5: was "GreenBrush" (missing key)
@@ -238,7 +238,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
                 },
                 new KpiCardModel
                 {
-                    Icon         = "⏳",
+                    Icon         = "\uE823",
                     Title        = "Pending Balance (pcs)",
                     DisplayValue = pendingBalance.ToString("N0"),
                     BadgeColor   = "WarningBrush",     // v2.5: was "AmberBrush" (missing key)
@@ -246,7 +246,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
                 },
                 new KpiCardModel
                 {
-                    Icon         = "🔧",
+                    Icon         = "\uE90F",
                     Title        = "Rework + Returned",
                     DisplayValue = reworkReturned.ToString("N0"),
                     BadgeColor   = "DangerBrush",      // v2.5: was "RedBrush" (missing key)

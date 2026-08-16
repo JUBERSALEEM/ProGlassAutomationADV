@@ -49,7 +49,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
     {
         // ── Tab identity ─────────────────────────────────────────────
         public override string TabTitle => "Job Orders";
-        public override string TabIcon => "🏭";
+        public override string TabIcon => "\uE9F9";
 
         // ── Backing stores for OnThemeChanged rebuild ────────────────
         private List<KpiCardModel> _kpiCards = new();
@@ -183,7 +183,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
             {
                 new KpiCardModel
                 {
-                    Icon         = "🏭",
+                    Icon         = "\uE9F9",
                     Title        = "Total Job Orders",
                     DisplayValue = total.ToString("N0"),
                     BadgeColor   = "AccentBrush",
@@ -191,7 +191,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
                 },
                 new KpiCardModel
                 {
-                    Icon         = "⚙️",
+                    Icon         = "\uE713",
                     Title        = "In Production",
                     DisplayValue = inProd.ToString("N0"),
                     BadgeColor   = "WarningBrush",     // v2.5: was "AmberBrush" (missing key)
@@ -199,7 +199,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
                 },
                 new KpiCardModel
                 {
-                    Icon         = "✅",
+                    Icon         = "\uE73E",
                     Title        = "Completed",
                     DisplayValue = completed.ToString("N0"),
                     BadgeColor   = "SuccessBrush",     // v2.5: was "GreenBrush" (missing key)
@@ -207,7 +207,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
                 },
                 new KpiCardModel
                 {
-                    Icon         = "⚠️",
+                    Icon         = "\uE7BA",
                     Title        = "Overdue",
                     DisplayValue = overdue.ToString("N0"),
                     BadgeColor   = "DangerBrush",      // v2.5: was "RedBrush" (missing key)

@@ -46,7 +46,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     public class SheetStoreDashboardViewModel : DashboardPageBase
     {
         public override string TabTitle => "Sheet Store";
-        public override string TabIcon => "📦";
+        public override string TabIcon => "\uE7B8";
 
         // ── KPI cards ─────────────────────────────────────────────────────
         private ObservableCollection<KpiCardModel> _kpiCards = new();
@@ -106,7 +106,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             {
                 new KpiCardModel
                 {
-                    Icon         = "🗂️",
+                    Icon         = "\uE8B7",
                     Title        = "Sheet Types",
                     DisplayValue = sheetTypes.ToString("N0"),
                     BadgeColor   = "AccentBrush",
@@ -119,7 +119,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     // Was SuccessBrush/TintGreenBrush (green). Now AccentBrush/
                     // TintIndigoBrush (industrial blue). Green reserved for
                     // health/success semantic states (see Low/Out card below).
-                    Icon         = "💎",
+                    Icon         = "\uE734",
                     Title        = "Inventory Value",
                     DisplayValue = $"AED {totalValue:N0}",
                     BadgeColor   = "AccentBrush",
@@ -129,7 +129,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 new KpiCardModel
                 {
                     // Amber preserved — physical volume metric, warehouse semantic.
-                    Icon         = "📐",
+                    Icon         = "\uE799",
                     Title        = "Available SQM",
                     DisplayValue = $"{totalSqm:N1} m²",
                     BadgeColor   = "WarningBrush",
@@ -140,7 +140,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 {
                     // Low/Out KEEPS semantic green (healthy) / red (alert).
                     // This is a health-status metric, not a brand-color slot.
-                    Icon         = lowStockCount > 0 ? "⚠️" : "✅",
+                    Icon         = lowStockCount > 0 ? "\uE7BA" : "\uE73E",
                     Title        = "Low / Out of Stock",
                     DisplayValue = $"{lowStockCount} / {outOfStock}",
                     BadgeColor   = lowStockCount > 0 ? "DangerBrush" : "SuccessBrush",

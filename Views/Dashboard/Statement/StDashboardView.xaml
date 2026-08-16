@@ -77,96 +77,14 @@
         <!-- ── AMBIENT BLOBS (radial glow overlays) ─────────────────── -->
 
         <!-- ── GLASS SURFACES ───────────────────────────────────────── -->
-        <SolidColorBrush x:Key="GlassSurface"
-                         Color="#FFFFFF"
-                         Opacity="0.92"
-                         po:Freeze="True"/>
-
-        <SolidColorBrush x:Key="GlassSurfaceSubtle"
-                         Color="#FFFFFF"
-                         Opacity="0.85"
-                         po:Freeze="True"/>
-
         <!-- ── ACCENT TEXT (rich navy blue) ─────────────────────────── -->
-        <SolidColorBrush x:Key="AccentText"
-                         Color="#1E40AF"
-                         po:Freeze="True"/>
-
-        <SolidColorBrush x:Key="AccentTextDeep"
-                         Color="#1E3A8A"
-                         po:Freeze="True"/>
-
         <!-- ── DANGER TEXT (semantic red — universal) ───────────────── -->
-        <SolidColorBrush x:Key="DangerText"
-                         Color="#DC2626"
-                         po:Freeze="True"/>
-
         <!-- ── KPI CARD 1 — SAPPHIRE (Statements) ───────────────────── -->
-        <SolidColorBrush x:Key="Kpi1Surface"
-                         Color="#EEF4FF"
-                         po:Freeze="True"/>
-        <SolidColorBrush x:Key="Kpi1Border"
-                         Color="#93B4E8"
-                         po:Freeze="True"/>
-        <SolidColorBrush x:Key="Kpi1IconBg"
-                         Color="#1E40AF"
-                         po:Freeze="True"/>
-
         <!-- ── KPI CARD 2 — ROYAL (Total Invoiced) ──────────────────── -->
-        <SolidColorBrush x:Key="Kpi2Surface"
-                         Color="#EFF6FF"
-                         po:Freeze="True"/>
-        <SolidColorBrush x:Key="Kpi2Border"
-                         Color="#7FA6D9"
-                         po:Freeze="True"/>
-        <SolidColorBrush x:Key="Kpi2IconBg"
-                         Color="#1D4ED8"
-                         po:Freeze="True"/>
-
         <!-- ── KPI CARD 3 — AMBER INDUSTRIAL (Outstanding) ──────────── -->
-        <SolidColorBrush x:Key="Kpi3Surface"
-                         Color="#FFF8E6"
-                         po:Freeze="True"/>
-        <SolidColorBrush x:Key="Kpi3Border"
-                         Color="#E8C77B"
-                         po:Freeze="True"/>
-        <SolidColorBrush x:Key="Kpi3IconBg"
-                         Color="#B45309"
-                         po:Freeze="True"/>
-        <SolidColorBrush x:Key="Kpi3Text"
-                         Color="#B45309"
-                         po:Freeze="True"/>
-
         <!-- ── KPI CARD 4 — SLATE STEEL (Overdue - no alert state) ─── -->
-        <SolidColorBrush x:Key="Kpi4SurfaceOk"
-                         Color="#F3F6FB"
-                         po:Freeze="True"/>
-        <SolidColorBrush x:Key="Kpi4BorderOk"
-                         Color="#B8C5D8"
-                         po:Freeze="True"/>
-        <SolidColorBrush x:Key="Kpi4IconBgOk"
-                         Color="#475569"
-                         po:Freeze="True"/>
-        <SolidColorBrush x:Key="Kpi4TextOk"
-                         Color="#64748B"
-                         po:Freeze="True"/>
-
         <!-- ── KPI CARD 4 — ALERT (Overdue - alert state) ───────────── -->
-        <SolidColorBrush x:Key="Kpi4SurfaceAlert"
-                         Color="#FFF0F0"
-                         po:Freeze="True"/>
-        <SolidColorBrush x:Key="Kpi4BorderAlert"
-                         Color="#F5B0B0"
-                         po:Freeze="True"/>
-        <SolidColorBrush x:Key="Kpi4IconBgAlert"
-                         Color="#DC2626"
-                         po:Freeze="True"/>
-
         <!-- ── GLASS CARD BORDER (list rows, actions bar) ───────────── -->
-        <SolidColorBrush x:Key="GlassBorder"
-                         Color="#B8CDE8"
-                         po:Freeze="True"/>
-
         <!-- ── SHADOWS ──────────────────────────────────────────────── -->
         <DropShadowEffect x:Key="CardShadow"
                           BlurRadius="20"
@@ -211,27 +129,17 @@
                         <Border x:Name="bd"
                                 CornerRadius="10"
                                 Padding="{TemplateBinding Padding}">
-                            <Border.Background>
-                                <SolidColorBrush Color="#1D4ED8"/>
-                            </Border.Background>
+                            Background="{DynamicResource AccentBrush}"
                             <ContentPresenter
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background">
-                                    <Setter.Value>
-                                        <SolidColorBrush Color="#2563EB"/>
-                                    </Setter.Value>
-                                </Setter>
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="bd" Property="Background">
-                                    <Setter.Value>
-                                        <SolidColorBrush Color="#1E3A8A"/>
-                                    </Setter.Value>
-                                </Setter>
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource AccentDarkBrush}"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="bd" Property="Opacity" Value="0.45"/>
@@ -257,30 +165,18 @@
                                 CornerRadius="10"
                                 BorderThickness="1.5"
                                 Padding="{TemplateBinding Padding}">
-                            <Border.Background>
-                                <SolidColorBrush Color="#FFFFFF" Opacity="0.6"/>
-                            </Border.Background>
-                            <Border.BorderBrush>
-                                <SolidColorBrush Color="#1D4ED8"/>
-                            </Border.BorderBrush>
+                            Background="{DynamicResource ElevatedSurfaceBrush}"
+                            BorderBrush="{DynamicResource AccentBrush}"
                             <ContentPresenter
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background">
-                                    <Setter.Value>
-                                        <SolidColorBrush Color="#DBEAFE"/>
-                                    </Setter.Value>
-                                </Setter>
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="bd" Property="Background">
-                                    <Setter.Value>
-                                        <SolidColorBrush Color="#BFDBFE"/>
-                                    </Setter.Value>
-                                </Setter>
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource AccentLightBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -303,27 +199,17 @@
                         <Border x:Name="bd"
                                 CornerRadius="9"
                                 Padding="{TemplateBinding Padding}">
-                            <Border.Background>
-                                <SolidColorBrush Color="#1D4ED8"/>
-                            </Border.Background>
+                            Background="{DynamicResource AccentBrush}"
                             <ContentPresenter
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background">
-                                    <Setter.Value>
-                                        <SolidColorBrush Color="#2563EB"/>
-                                    </Setter.Value>
-                                </Setter>
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="bd" Property="Background">
-                                    <Setter.Value>
-                                        <SolidColorBrush Color="#1E3A8A"/>
-                                    </Setter.Value>
-                                </Setter>
+                                <Setter TargetName="bd" Property="Background" Value="{DynamicResource AccentDarkBrush}"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="bd" Property="Opacity" Value="0.35"/>
@@ -390,11 +276,11 @@
                      KPI 1 — SAPPHIRE (Total Statements)
                 ══════════════════════════════════════════════════ -->
                 <Border Grid.Column="0"
-                        Background="{StaticResource Kpi1Surface}"
-                        BorderBrush="{StaticResource Kpi1Border}"
+                        Background="{DynamicResource ElevatedSurfaceBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}"
                         BorderThickness="1"
-                        CornerRadius="16"
-                        Padding="20,18"
+                        CornerRadius="10"
+                        Padding="13,11"
                         Effect="{StaticResource CardShadow}">
 
                     <Grid>
@@ -408,7 +294,7 @@
 
                         <!-- Filled icon badge (industrial) -->
                         <Border Grid.Row="0"
-                                Background="{StaticResource Kpi1IconBg}"
+                                Background="{DynamicResource AccentBrush}"
                                 CornerRadius="10"
                                 Width="38" Height="38"
                                 HorizontalAlignment="Left">
@@ -423,13 +309,13 @@
                                    Text="{Binding TotalStatements}"
                                    FontSize="36"
                                    FontWeight="Bold"
-                                   Foreground="{StaticResource AccentTextDeep}"/>
+                                   Foreground="{DynamicResource DashAccentTextBrush}"/>
 
                         <TextBlock Grid.Row="4"
                                    Text="TOTAL STATEMENTS"
                                    FontSize="10"
                                    FontWeight="Bold"
-                                   Foreground="{StaticResource AccentText}"/>
+                                   Foreground="{DynamicResource DashAccentTextBrush}"/>
                     </Grid>
                 </Border>
 
@@ -437,11 +323,11 @@
                      KPI 2 — ROYAL (Total Invoiced)
                 ══════════════════════════════════════════════════ -->
                 <Border Grid.Column="2"
-                        Background="{StaticResource Kpi2Surface}"
-                        BorderBrush="{StaticResource Kpi2Border}"
+                        Background="{DynamicResource ElevatedSurfaceBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}"
                         BorderThickness="1"
-                        CornerRadius="16"
-                        Padding="20,18"
+                        CornerRadius="10"
+                        Padding="13,11"
                         Effect="{StaticResource CardShadow}">
 
                     <Grid>
@@ -454,7 +340,7 @@
                         </Grid.RowDefinitions>
 
                         <Border Grid.Row="0"
-                                Background="{StaticResource Kpi2IconBg}"
+                                Background="{DynamicResource InfoBrush}"
                                 CornerRadius="10"
                                 Width="38" Height="38"
                                 HorizontalAlignment="Left">
@@ -466,16 +352,16 @@
 
                         <TextBlock Grid.Row="2"
                                    Text="{Binding TotalInvoicedDisplay}"
-                                   FontSize="22"
+                                   FontSize="16"
                                    FontWeight="Bold"
-                                   Foreground="{StaticResource AccentText}"
+                                   Foreground="{DynamicResource DashAccentTextBrush}"
                                    TextTrimming="CharacterEllipsis"/>
 
                         <TextBlock Grid.Row="4"
                                    Text="TOTAL INVOICED"
                                    FontSize="10"
                                    FontWeight="Bold"
-                                   Foreground="{StaticResource AccentText}"/>
+                                   Foreground="{DynamicResource DashAccentTextBrush}"/>
                     </Grid>
                 </Border>
 
@@ -483,11 +369,11 @@
                      KPI 3 — AMBER INDUSTRIAL (Outstanding)
                 ══════════════════════════════════════════════════ -->
                 <Border Grid.Column="4"
-                        Background="{StaticResource Kpi3Surface}"
-                        BorderBrush="{StaticResource Kpi3Border}"
+                        Background="{DynamicResource ElevatedSurfaceBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}"
                         BorderThickness="1"
-                        CornerRadius="16"
-                        Padding="20,18"
+                        CornerRadius="10"
+                        Padding="13,11"
                         Effect="{StaticResource CardShadow}">
 
                     <Grid>
@@ -500,7 +386,7 @@
                         </Grid.RowDefinitions>
 
                         <Border Grid.Row="0"
-                                Background="{StaticResource Kpi3IconBg}"
+                                Background="{DynamicResource WarningBrush}"
                                 CornerRadius="10"
                                 Width="38" Height="38"
                                 HorizontalAlignment="Left">
@@ -512,16 +398,16 @@
 
                         <TextBlock Grid.Row="2"
                                    Text="{Binding TotalOutstandingDisplay}"
-                                   FontSize="22"
+                                   FontSize="16"
                                    FontWeight="Bold"
-                                   Foreground="{StaticResource Kpi3Text}"
+                                   Foreground="{DynamicResource WarningBrush}"
                                    TextTrimming="CharacterEllipsis"/>
 
                         <TextBlock Grid.Row="4"
                                    Text="OUTSTANDING"
                                    FontSize="10"
                                    FontWeight="Bold"
-                                   Foreground="{StaticResource Kpi3Text}"/>
+                                   Foreground="{DynamicResource WarningBrush}"/>
                     </Grid>
                 </Border>
 
@@ -529,8 +415,8 @@
                      KPI 4 — SLATE STEEL / ALERT RED (Overdue)
                 ══════════════════════════════════════════════════ -->
                 <Border Grid.Column="6"
-                        CornerRadius="16"
-                        Padding="20,18"
+                        CornerRadius="10"
+                        Padding="13,11"
                         BorderThickness="1"
                         Effect="{StaticResource CardShadow}">
                     <Border.Style>
@@ -539,16 +425,16 @@
                                 <DataTrigger Binding="{Binding HasOverdue}"
                                              Value="False">
                                     <Setter Property="Background"
-                                            Value="{StaticResource Kpi4SurfaceOk}"/>
+                                            Value="{DynamicResource ElevatedSurfaceBrush}"/>
                                     <Setter Property="BorderBrush"
-                                            Value="{StaticResource Kpi4BorderOk}"/>
+                                            Value="{DynamicResource BorderBrush}"/>
                                 </DataTrigger>
                                 <DataTrigger Binding="{Binding HasOverdue}"
                                              Value="True">
                                     <Setter Property="Background"
-                                            Value="{StaticResource Kpi4SurfaceAlert}"/>
+                                            Value="{DynamicResource TintRedBrush}"/>
                                     <Setter Property="BorderBrush"
-                                            Value="{StaticResource Kpi4BorderAlert}"/>
+                                            Value="{DynamicResource DangerBrush}"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
@@ -574,12 +460,12 @@
                                         <DataTrigger Binding="{Binding HasOverdue}"
                                                      Value="False">
                                             <Setter Property="Background"
-                                                    Value="{StaticResource Kpi4IconBgOk}"/>
+                                                    Value="{DynamicResource NeutralBrush}"/>
                                         </DataTrigger>
                                         <DataTrigger Binding="{Binding HasOverdue}"
                                                      Value="True">
                                             <Setter Property="Background"
-                                                    Value="{StaticResource Kpi4IconBgAlert}"/>
+                                                    Value="{DynamicResource DangerBrush}"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -604,18 +490,18 @@
 
                         <TextBlock Grid.Row="2"
                                    Text="{Binding OverdueAmountDisplay}"
-                                   FontSize="22"
+                                   FontSize="16"
                                    FontWeight="Bold"
                                    TextTrimming="CharacterEllipsis">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Foreground"
-                                            Value="{StaticResource Kpi4TextOk}"/>
+                                            Value="{DynamicResource SecondaryForegroundBrush}"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding HasOverdue}"
                                                      Value="True">
                                             <Setter Property="Foreground"
-                                                    Value="{StaticResource DangerText}"/>
+                                                    Value="{DynamicResource DangerBrush}"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -629,12 +515,12 @@
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Foreground"
-                                            Value="{StaticResource Kpi4TextOk}"/>
+                                            Value="{DynamicResource SecondaryForegroundBrush}"/>
                                     <Style.Triggers>
                                         <DataTrigger Binding="{Binding HasOverdue}"
                                                      Value="True">
                                             <Setter Property="Foreground"
-                                                    Value="{StaticResource DangerText}"/>
+                                                    Value="{DynamicResource DangerBrush}"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
@@ -650,10 +536,10 @@
             ═══════════════════════════════════════════════════════════ -->
             <Border Grid.Row="1"
                     Margin="28,16,28,0"
-                    Background="{StaticResource GlassSurface}"
-                    BorderBrush="{StaticResource GlassBorder}"
+                    Background="{DynamicResource DashGlassSurfaceBrush}"
+                    BorderBrush="{DynamicResource DashGlassBorderBrush}"
                     BorderThickness="1"
-                    CornerRadius="14"
+                    CornerRadius="9"
                     Padding="18,13"
                     Effect="{StaticResource SubtleShadow}">
 
@@ -679,13 +565,13 @@
                 <Border Width="4"
                         Height="16"
                         CornerRadius="2"
-                        Background="{StaticResource AccentText}"
+                        Background="{DynamicResource DashAccentTextBrush}"
                         Margin="0,0,10,0"
                         VerticalAlignment="Center"/>
                 <TextBlock Text="RECENT STATEMENTS"
                            FontSize="11"
                            FontWeight="Bold"
-                           Foreground="{StaticResource AccentTextDeep}"
+                           Foreground="{DynamicResource DashAccentTextBrush}"
                            VerticalAlignment="Center"/>
             </StackPanel>
 
@@ -697,10 +583,10 @@
                 <!-- LOADING STATE -->
                 <Border HorizontalAlignment="Center"
                         VerticalAlignment="Center"
-                        Background="{StaticResource GlassSurface}"
-                        BorderBrush="{StaticResource GlassBorder}"
+                        Background="{DynamicResource DashGlassSurfaceBrush}"
+                        BorderBrush="{DynamicResource DashGlassBorderBrush}"
                         BorderThickness="1"
-                        CornerRadius="16"
+                        CornerRadius="10"
                         Padding="44,36"
                         Effect="{StaticResource CardShadow}"
                         Visibility="{Binding IsLoading,
@@ -713,7 +599,7 @@
                         <TextBlock Text="Loading…"
                                    FontSize="14"
                                    FontWeight="Bold"
-                                   Foreground="{StaticResource AccentTextDeep}"
+                                   Foreground="{DynamicResource DashAccentTextBrush}"
                                    HorizontalAlignment="Center"
                                    Margin="0,10,0,0"/>
                     </StackPanel>
@@ -722,10 +608,10 @@
                 <!-- EMPTY STATE -->
                 <Border HorizontalAlignment="Center"
                         VerticalAlignment="Center"
-                        Background="{StaticResource GlassSurface}"
-                        BorderBrush="{StaticResource GlassBorder}"
+                        Background="{DynamicResource DashGlassSurfaceBrush}"
+                        BorderBrush="{DynamicResource DashGlassBorderBrush}"
                         BorderThickness="1"
-                        CornerRadius="20"
+                        CornerRadius="10"
                         Padding="48,40"
                         MaxWidth="420"
                         Effect="{StaticResource CardShadow}"
@@ -733,8 +619,8 @@
                             Converter={StaticResource BoolToVisibilityConverter}}">
 
                     <StackPanel HorizontalAlignment="Center">
-                        <Border Background="{StaticResource Kpi1IconBg}"
-                                CornerRadius="18"
+                        <Border Background="{DynamicResource AccentBrush}"
+                                CornerRadius="10"
                                 Width="70" Height="70"
                                 HorizontalAlignment="Center"
                                 Margin="0,0,0,16">
@@ -747,7 +633,7 @@
                         <TextBlock Text="No Statements Yet"
                                    FontSize="18"
                                    FontWeight="Bold"
-                                   Foreground="{StaticResource AccentTextDeep}"
+                                   Foreground="{DynamicResource DashAccentTextBrush}"
                                    HorizontalAlignment="Center"
                                    Margin="0,0,0,8"/>
 
@@ -783,10 +669,10 @@
                             <DataTemplate>
 
                                 <!-- ITEM CARD (glass white on blue) -->
-                                <Border Background="{StaticResource GlassSurface}"
-                                        BorderBrush="{StaticResource GlassBorder}"
+                                <Border Background="{DynamicResource DashGlassSurfaceBrush}"
+                                        BorderBrush="{DynamicResource DashGlassBorderBrush}"
                                         BorderThickness="1"
-                                        CornerRadius="14"
+                                        CornerRadius="9"
                                         Padding="18,15"
                                         Margin="0,0,0,10"
                                         Effect="{StaticResource SubtleShadow}">
@@ -805,7 +691,7 @@
                                                 MinWidth="44"
                                                 Height="44"
                                                 CornerRadius="10"
-                                                Background="{StaticResource AccentText}"
+                                                Background="{DynamicResource DashAccentTextBrush}"
                                                 VerticalAlignment="Center"
                                                 Padding="10,0">
                                             <StackPanel Orientation="Horizontal"
@@ -837,7 +723,7 @@
                                                         Mode=OneWay}"
                                                     FontSize="13"
                                                     FontWeight="Bold"
-                                                    Foreground="{StaticResource AccentText}"
+                                                    Foreground="{DynamicResource DashAccentTextBrush}"
                                                     MaxWidth="140"
                                                     TextTrimming="CharacterEllipsis"/>
                                                 <TextBlock
@@ -855,7 +741,7 @@
                                                     VerticalAlignment="Center"/>
 
                                                 <Border Margin="10,0,0,0"
-                                                        Background="{StaticResource Kpi2IconBg}"
+                                                        Background="{DynamicResource InfoBrush}"
                                                         CornerRadius="6"
                                                         Padding="6,2"
                                                         VerticalAlignment="Center"
@@ -906,7 +792,7 @@
                                                     <Run Text="{Binding OverdueDisplay,
                                                              Mode=OneWay}"
                                                          FontWeight="Bold"
-                                                         Foreground="{StaticResource DangerText}"/>
+                                                         Foreground="{DynamicResource DangerBrush}"/>
                                                 </TextBlock>
                                             </StackPanel>
 

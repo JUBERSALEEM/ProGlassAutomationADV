@@ -31,6 +31,15 @@
                 <!-- Module tab strip + God View styles (DN/JO/TI tabs) -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ModuleTabStyles.xaml"/>
 
+                <!-- Shared dashboard chrome for all 7 module dashboards.
+                     Previously each dashboard declared its own local
+                     SolidColorBrush resources with hardcoded hex (44 in
+                     total, including #FFFFFF card surfaces), so those
+                     cards stayed light-coloured when the app switched to
+                     the dark theme. Everything here resolves through
+                     DynamicResource against keys present in BOTH themes. -->
+                <ResourceDictionary Source="Styles/DashboardStyles.xaml"/>
+
                 <!-- ═══════════════════════════════════════════════════════════════
                          CHAT 21 v3 — Statement Generator WIZARD shared styles
                          Registered globally so all 4 wizard step UserControls

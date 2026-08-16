@@ -45,30 +45,11 @@
 
         <!-- ═══ Glass blue palette (frozen inline) ═══ -->
 
-        <LinearGradientBrush x:Key="CardBgGradient"
-                             StartPoint="0,0" EndPoint="0,1"
-                             po:Freeze="True">
-            <GradientStop Color="#FFFFFF" Offset="0.0"/>
-            <GradientStop Color="#F4F8FE" Offset="1.0"/>
-        </LinearGradientBrush>
-
-        <SolidColorBrush x:Key="CardBorderBrush"
-                         Color="#C4D6ED"
-                         po:Freeze="True"/>
-
-        <SolidColorBrush x:Key="AccentTextDeep"
-                         Color="#1E3A8A"
-                         po:Freeze="True"/>
-
-        <SolidColorBrush x:Key="AccentText"
-                         Color="#1E40AF"
-                         po:Freeze="True"/>
-
         <!-- ═══ Card styles (no shadow) ═══ -->
 
         <Style x:Key="CardStyle" TargetType="Border">
-            <Setter Property="Background"      Value="{StaticResource CardBgGradient}"/>
-            <Setter Property="BorderBrush"     Value="{StaticResource CardBorderBrush}"/>
+            <Setter Property="Background"      Value="{DynamicResource DashGlassSurfaceBrush}"/>
+            <Setter Property="BorderBrush"     Value="{DynamicResource DashGlassBorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius"    Value="16"/>
             <Setter Property="Padding"         Value="24"/>
@@ -80,7 +61,7 @@
             <Setter Property="Background"
                     Value="{Binding TintColor,
                             Converter={StaticResource BrushKeyConverter}}"/>
-            <Setter Property="BorderBrush"     Value="{StaticResource CardBorderBrush}"/>
+            <Setter Property="BorderBrush"     Value="{DynamicResource DashGlassBorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius"    Value="14"/>
             <Setter Property="Padding"         Value="20"/>
@@ -93,7 +74,7 @@
         <Style x:Key="SectionTitle" TargetType="TextBlock">
             <Setter Property="FontSize"   Value="18"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{StaticResource AccentTextDeep}"/>
+            <Setter Property="Foreground" Value="{DynamicResource DashAccentTextBrush}"/>
             <Setter Property="Margin"     Value="8,0,8,6"/>
         </Style>
 
@@ -126,7 +107,7 @@
                                    Margin="12,0,0,0"/>
                     </StackPanel>
                     <TextBlock Text="{Binding DisplayValue}"
-                               FontSize="28" FontWeight="Bold"
+                               FontSize="19" FontWeight="Bold"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"
                                Margin="0,14,0,0"
                                TextTrimming="CharacterEllipsis"/>
@@ -153,7 +134,7 @@
                                HorizontalAlignment="Center"
                                VerticalAlignment="Top"
                                Margin="0,0,0,4"
-                               Foreground="{StaticResource AccentTextDeep}"/>
+                               Foreground="{DynamicResource DashAccentTextBrush}"/>
                     <Border Width="70"
                             CornerRadius="6,6,0,0"
                             VerticalAlignment="Bottom"
@@ -185,7 +166,7 @@
                     SnapsToDevicePixels="True"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderThickness="1"
-                    BorderBrush="{StaticResource CardBorderBrush}">
+                    BorderBrush="{DynamicResource DashGlassBorderBrush}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="6"/>
@@ -202,7 +183,7 @@
 
                     <Border Grid.Column="1"
                             Width="40" Height="40"
-                            CornerRadius="20"
+                            CornerRadius="10"
                             VerticalAlignment="Center"
                             HorizontalAlignment="Center"
                             Margin="12,12,4,12"
@@ -304,13 +285,13 @@
                       FocusVisualStyle="{x:Null}"
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
-            <StackPanel Margin="24,16,24,24">
+            <StackPanel Margin="14,12,14,14">
 
                 <!-- Page header -->
                 <StackPanel Margin="8,0,8,20">
                     <TextBlock Text="Delivery Note Analytics"
-                               FontSize="30" FontWeight="Bold"
-                               Foreground="{StaticResource AccentTextDeep}"/>
+                               FontSize="20" FontWeight="Bold"
+                               Foreground="{DynamicResource DashAccentTextBrush}"/>
                     <TextBlock Text="Monitor deliveries, dispatches, rework, and pending balance."
                                FontSize="13" Margin="0,4,0,0"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -323,7 +304,7 @@
                     <TextBlock Text="⏳  Loading delivery note data…"
                                FontSize="12" FontWeight="Bold"
                                HorizontalAlignment="Center"
-                               Foreground="{StaticResource AccentText}"/>
+                               Foreground="{DynamicResource DashAccentTextBrush}"/>
                 </Border>
 
                 <!-- Error (hardcoded text — VM doesn't expose ErrorMessage) -->
@@ -392,7 +373,7 @@
                                        FontSize="16" FontWeight="Bold"
                                        HorizontalAlignment="Center"
                                        Margin="0,12,0,4"
-                                       Foreground="{StaticResource AccentTextDeep}"/>
+                                       Foreground="{DynamicResource DashAccentTextBrush}"/>
                             <TextBlock Text="Create a delivery note from a Job Order to get started."
                                        FontSize="12" HorizontalAlignment="Center"
                                        TextAlignment="Center"
@@ -439,7 +420,7 @@
                                        FontSize="16" FontWeight="Bold"
                                        HorizontalAlignment="Center"
                                        Margin="0,12,0,4"
-                                       Foreground="{StaticResource AccentTextDeep}"/>
+                                       Foreground="{DynamicResource DashAccentTextBrush}"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -476,7 +457,7 @@
                                        FontSize="16" FontWeight="Bold"
                                        HorizontalAlignment="Center"
                                        Margin="0,12,0,4"
-                                       Foreground="{StaticResource AccentTextDeep}"/>
+                                       Foreground="{DynamicResource DashAccentTextBrush}"/>
                             <TextBlock Text="Create a delivery note from a Job Order to get started."
                                        FontSize="12" HorizontalAlignment="Center"
                                        TextAlignment="Center"

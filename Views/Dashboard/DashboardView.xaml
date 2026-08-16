@@ -70,7 +70,7 @@
         <Style x:Key="TabButtonStyle" TargetType="Button">
             <Setter Property="Background"      Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding"         Value="24,16"/>
+            <Setter Property="Padding"         Value="16,11"/>
             <Setter Property="Cursor"          Value="Hand"/>
             <Setter Property="FontSize"        Value="14"/>
             <Setter Property="FontFamily"      Value="Segoe UI"/>
@@ -84,9 +84,11 @@
                                 Padding="{TemplateBinding Padding}">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{TemplateBinding Tag}"
-                                           FontSize="16"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="13"
                                            VerticalAlignment="Center"
-                                           Margin="0,0,8,0"/>
+                                           Margin="0,0,8,0"
+                                           Foreground="{TemplateBinding Foreground}"/>
                                 <TextBlock x:Name="Label"
                                            Text="{TemplateBinding Content}"
                                            FontSize="14"
@@ -129,19 +131,20 @@
              WELCOME BANNER — greets the signed-in user (audit session)
         ═══════════════════════════════════════════════════════════════ -->
         <Border Grid.Row="0"
-                Margin="16,14,16,0"
+                Margin="14,10,14,0"
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                Padding="22,16"
+                Padding="16,11"
+                Background="{DynamicResource AccentBrush}"
                 SnapsToDevicePixels="True">
-            <!-- Same gradient recipe as HeroCardAccentStyle (CardStyles) -->
-            <Border.Background>
-                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                    <GradientStop Color="{Binding Source={StaticResource AccentDarkBrush},
-                                          Path=Color}" Offset="0"/>
-                    <GradientStop Color="{Binding Source={StaticResource AccentBrush},
-                                          Path=Color}" Offset="1"/>
-                </LinearGradientBrush>
-            </Border.Background>
+            <!-- Accent fill via DynamicResource.
+
+                 This was a LinearGradientBrush whose stops bound to
+                 {StaticResource AccentBrush/AccentDarkBrush} with
+                 Path=Color. StaticResource resolves once at load, and
+                 ThemeManager.ApplyTheme swaps the theme dictionary at
+                 runtime, so the banner kept the startup theme's accent
+                 after a Light/Dark toggle while everything around it
+                 changed. A DynamicResource brush re-resolves on swap.  -->
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
@@ -150,7 +153,7 @@
 
                 <StackPanel Grid.Column="0" VerticalAlignment="Center">
                     <TextBlock Text="{Binding WelcomeLine}"
-                               FontSize="19" FontWeight="Bold"
+                               FontSize="16" FontWeight="Bold"
                                Foreground="White"/>
                     <TextBlock Text="{Binding WelcomeDateLine}"
                                FontSize="12" Margin="0,3,0,0"
@@ -163,7 +166,10 @@
                         Padding="16,8"
                         VerticalAlignment="Center">
                     <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="👤" FontSize="14"
+                        <TextBlock Text="&#xE77B;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="12"
+                                   Foreground="White"
                                    VerticalAlignment="Center"
                                    Margin="0,0,7,0"/>
                         <TextBlock Text="{Binding CurrentUserDisplay}"

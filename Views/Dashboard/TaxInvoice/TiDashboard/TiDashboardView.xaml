@@ -70,36 +70,11 @@ FLAG FOR LATER:
 
         <!-- ═══ Glass blue palette (frozen inline) ═══ -->
 
-        <LinearGradientBrush x:Key="CardBgGradient"
-                             StartPoint="0,0" EndPoint="0,1"
-                             po:Freeze="True">
-            <GradientStop Color="#FFFFFF" Offset="0.0"/>
-            <GradientStop Color="#F4F8FE" Offset="1.0"/>
-        </LinearGradientBrush>
-
-        <SolidColorBrush x:Key="CardBorderBrush"
-                         Color="#C4D6ED"
-                         po:Freeze="True"/>
-
-        <SolidColorBrush x:Key="AccentTextDeep"
-                         Color="#1E3A8A"
-                         po:Freeze="True"/>
-
-        <SolidColorBrush x:Key="AccentText"
-                         Color="#1E40AF"
-                         po:Freeze="True"/>
-
         <!-- Header brand tones -->
-        <SolidColorBrush x:Key="KpiHeaderBrush"       Color="#1E40AF" po:Freeze="True"/>
-        <SolidColorBrush x:Key="RecentHeaderBrush"    Color="#1E3A8A" po:Freeze="True"/>
-        <SolidColorBrush x:Key="AgingHeaderBrush"     Color="#B91C1C" po:Freeze="True"/>
-        <SolidColorBrush x:Key="CustomersHeaderBrush" Color="#0369A1" po:Freeze="True"/>
-        <SolidColorBrush x:Key="RevenueHeaderBrush"   Color="#1D4ED8" po:Freeze="True"/>
-
         <!-- ═══ Parent card (no shadow, glass gradient) ═══ -->
         <Style x:Key="TiParentCardStyle" TargetType="Border">
-            <Setter Property="Background"          Value="{StaticResource CardBgGradient}"/>
-            <Setter Property="BorderBrush"         Value="{StaticResource CardBorderBrush}"/>
+            <Setter Property="Background"          Value="{DynamicResource DashGlassSurfaceBrush}"/>
+            <Setter Property="BorderBrush"         Value="{DynamicResource DashGlassBorderBrush}"/>
             <Setter Property="BorderThickness"     Value="1"/>
             <Setter Property="CornerRadius"        Value="16"/>
             <Setter Property="Padding"             Value="22,18"/>
@@ -219,12 +194,10 @@ FLAG FOR LATER:
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Root"
-                                CornerRadius="20"
+                                CornerRadius="10"
                                 SnapsToDevicePixels="True"
                                 Padding="{TemplateBinding Padding}">
-                            <Border.Background>
-                                <SolidColorBrush Color="#1D4ED8"/>
-                            </Border.Background>
+                            Background="{DynamicResource AccentBrush}"
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{TemplateBinding Tag}"
                                            FontSize="14"
@@ -239,18 +212,10 @@ FLAG FOR LATER:
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Background">
-                                    <Setter.Value>
-                                        <SolidColorBrush Color="#2563EB"/>
-                                    </Setter.Value>
-                                </Setter>
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Root" Property="Background">
-                                    <Setter.Value>
-                                        <SolidColorBrush Color="#1E3A8A"/>
-                                    </Setter.Value>
-                                </Setter>
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource AccentDarkBrush}"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="Root" Property="Opacity" Value="0.35"/>
@@ -276,12 +241,10 @@ FLAG FOR LATER:
                         <Border x:Name="Root"
                                 BorderBrush="{DynamicResource AccentBrush}"
                                 BorderThickness="1.5"
-                                CornerRadius="16"
+                                CornerRadius="10"
                                 SnapsToDevicePixels="True"
                                 Padding="{TemplateBinding Padding}">
-                            <Border.Background>
-                                <SolidColorBrush Color="#FFFFFF" Opacity="0.6"/>
-                            </Border.Background>
+                            Background="{DynamicResource ElevatedSurfaceBrush}"
                             <TextBlock Text="{TemplateBinding Content}"
                                        FontSize="{TemplateBinding FontSize}"
                                        FontWeight="{TemplateBinding FontWeight}"
@@ -290,11 +253,7 @@ FLAG FOR LATER:
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Background">
-                                    <Setter.Value>
-                                        <SolidColorBrush Color="#DBEAFE"/>
-                                    </Setter.Value>
-                                </Setter>
+                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="Root" Property="Opacity" Value="0.8"/>
@@ -349,7 +308,7 @@ FLAG FOR LATER:
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
 
-            <StackPanel Margin="24,16,24,24">
+            <StackPanel Margin="14,12,14,14">
 
                 <!-- Page header -->
                 <Grid Margin="8,0,8,20">
@@ -360,12 +319,12 @@ FLAG FOR LATER:
 
                     <StackPanel Grid.Column="0">
                         <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="🧾" FontSize="28"
+                            <TextBlock Text="🧾" FontSize="19"
                                        VerticalAlignment="Center"
                                        Margin="0,0,10,0"/>
                             <TextBlock Text="Tax Invoices"
-                                       FontSize="30" FontWeight="Bold"
-                                       Foreground="{StaticResource AccentTextDeep}"
+                                       FontSize="20" FontWeight="Bold"
+                                       Foreground="{DynamicResource DashAccentTextBrush}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
                         <TextBlock Text="Revenue, VAT, aging and customer analysis — UAE 5% VAT."
@@ -388,7 +347,7 @@ FLAG FOR LATER:
                     <TextBlock Text="⏳  Loading tax invoice data…"
                                FontSize="12" FontWeight="Bold"
                                HorizontalAlignment="Center"
-                               Foreground="{StaticResource AccentText}"/>
+                               Foreground="{DynamicResource DashAccentTextBrush}"/>
                 </Border>
 
                 <!-- Error (semantic red) -->
@@ -458,7 +417,7 @@ FLAG FOR LATER:
                                             Background="Transparent"
                                             BorderBrush="{DynamicResource DangerBrush}"
                                             BorderThickness="1.5"
-                                            CornerRadius="16"
+                                            CornerRadius="10"
                                             SnapsToDevicePixels="True"
                                             Padding="14,7">
                                         <TextBlock Text="{TemplateBinding Content}"
@@ -485,7 +444,7 @@ FLAG FOR LATER:
                     <StackPanel>
                         <StackPanel Style="{StaticResource TiCardHeader}">
                             <Border Style="{StaticResource TiCardIcon}"
-                                    Background="{StaticResource KpiHeaderBrush}">
+                                    Background="{DynamicResource DashAccentTextBrush}">
                                 <TextBlock Text="💰" FontSize="18"
                                            Foreground="White"
                                            HorizontalAlignment="Center"
@@ -493,7 +452,7 @@ FLAG FOR LATER:
                             </Border>
                             <TextBlock Text="TAX INVOICE KPIs"
                                        FontSize="16" FontWeight="Bold"
-                                       Foreground="{StaticResource KpiHeaderBrush}"
+                                       Foreground="{DynamicResource DashAccentTextBrush}"
                                        VerticalAlignment="Center"
                                        Margin="12,0,0,0"/>
                             <TextBlock Text="— Month to Date"
@@ -535,7 +494,7 @@ FLAG FOR LATER:
                                             Orientation="Horizontal"
                                             VerticalAlignment="Center">
                                     <Border Style="{StaticResource TiCardIcon}"
-                                            Background="{StaticResource RecentHeaderBrush}">
+                                            Background="{DynamicResource DashAccentTextBrush}">
                                         <TextBlock Text="📋" FontSize="18"
                                                    Foreground="White"
                                                    HorizontalAlignment="Center"
@@ -545,7 +504,7 @@ FLAG FOR LATER:
                                                 Margin="12,0,0,0">
                                         <TextBlock Text="RECENT TAX INVOICES"
                                                    FontSize="14" FontWeight="Bold"
-                                                   Foreground="{StaticResource RecentHeaderBrush}"/>
+                                                   Foreground="{DynamicResource DashAccentTextBrush}"/>
                                         <TextBlock Text="Last 5 invoices"
                                                    FontSize="10"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -647,13 +606,13 @@ FLAG FOR LATER:
                                         Margin="0,30"
                                         Visibility="{Binding HasRecentInvoices,
                                                      Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                <TextBlock Text="🧾" FontSize="32"
+                                <TextBlock Text="🧾" FontSize="20"
                                            HorizontalAlignment="Center" Opacity="0.35"/>
                                 <TextBlock Text="No invoices yet"
                                            FontSize="13" FontWeight="Bold"
                                            HorizontalAlignment="Center"
                                            Margin="0,8,0,4"
-                                           Foreground="{StaticResource AccentTextDeep}"/>
+                                           Foreground="{DynamicResource DashAccentTextBrush}"/>
                                 <TextBlock Text="Create your first Tax Invoice to see data."
                                            FontSize="11"
                                            HorizontalAlignment="Center"
@@ -668,7 +627,7 @@ FLAG FOR LATER:
                         <StackPanel>
                             <StackPanel Style="{StaticResource TiCardHeader}">
                                 <Border Style="{StaticResource TiCardIcon}"
-                                        Background="{StaticResource AgingHeaderBrush}">
+                                        Background="{DynamicResource DangerBrush}">
                                     <TextBlock Text="⏰" FontSize="18"
                                                Foreground="White"
                                                HorizontalAlignment="Center"
@@ -678,7 +637,7 @@ FLAG FOR LATER:
                                             Margin="12,0,0,0">
                                     <TextBlock Text="INVOICE AGING"
                                                FontSize="14" FontWeight="Bold"
-                                               Foreground="{StaticResource AgingHeaderBrush}"/>
+                                               Foreground="{DynamicResource DangerBrush}"/>
                                     <TextBlock Text="Overdue by bracket"
                                                FontSize="10"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -755,13 +714,13 @@ FLAG FOR LATER:
                                         Margin="0,30"
                                         Visibility="{Binding HasAgingData,
                                                      Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                <TextBlock Text="✅" FontSize="32"
+                                <TextBlock Text="✅" FontSize="20"
                                            HorizontalAlignment="Center" Opacity="0.6"/>
                                 <TextBlock Text="No overdue invoices"
                                            FontSize="13" FontWeight="Bold"
                                            HorizontalAlignment="Center"
                                            Margin="0,8,0,4"
-                                           Foreground="{StaticResource AccentTextDeep}"/>
+                                           Foreground="{DynamicResource DashAccentTextBrush}"/>
                                 <TextBlock Text="All invoices are within payment terms."
                                            FontSize="11"
                                            HorizontalAlignment="Center"
@@ -784,7 +743,7 @@ FLAG FOR LATER:
                         <StackPanel>
                             <StackPanel Style="{StaticResource TiCardHeader}">
                                 <Border Style="{StaticResource TiCardIcon}"
-                                        Background="{StaticResource CustomersHeaderBrush}">
+                                        Background="{DynamicResource DashAccentTextBrush}">
                                     <TextBlock Text="🏆" FontSize="18"
                                                Foreground="White"
                                                HorizontalAlignment="Center"
@@ -794,7 +753,7 @@ FLAG FOR LATER:
                                             Margin="12,0,0,0">
                                     <TextBlock Text="TOP 5 CUSTOMERS"
                                                FontSize="14" FontWeight="Bold"
-                                               Foreground="{StaticResource CustomersHeaderBrush}"/>
+                                               Foreground="{DynamicResource DashAccentTextBrush}"/>
                                     <TextBlock Text="By invoiced amount (last 12 months)"
                                                FontSize="10"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -895,13 +854,13 @@ FLAG FOR LATER:
                                         Margin="0,30"
                                         Visibility="{Binding HasTopCustomers,
                                                      Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                <TextBlock Text="🏆" FontSize="32"
+                                <TextBlock Text="🏆" FontSize="20"
                                            HorizontalAlignment="Center" Opacity="0.3"/>
                                 <TextBlock Text="No customer data"
                                            FontSize="13" FontWeight="Bold"
                                            HorizontalAlignment="Center"
                                            Margin="0,8,0,4"
-                                           Foreground="{StaticResource AccentTextDeep}"/>
+                                           Foreground="{DynamicResource DashAccentTextBrush}"/>
                                 <TextBlock Text="Issue invoices to see top customers."
                                            FontSize="11"
                                            HorizontalAlignment="Center"
@@ -916,7 +875,7 @@ FLAG FOR LATER:
                         <StackPanel>
                             <StackPanel Style="{StaticResource TiCardHeader}">
                                 <Border Style="{StaticResource TiCardIcon}"
-                                        Background="{StaticResource RevenueHeaderBrush}">
+                                        Background="{DynamicResource DashAccentTextBrush}">
                                     <TextBlock Text="📈" FontSize="18"
                                                Foreground="White"
                                                HorizontalAlignment="Center"
@@ -926,7 +885,7 @@ FLAG FOR LATER:
                                             Margin="12,0,0,0">
                                     <TextBlock Text="REVENUE TREND"
                                                FontSize="14" FontWeight="Bold"
-                                               Foreground="{StaticResource RevenueHeaderBrush}"/>
+                                               Foreground="{DynamicResource DashAccentTextBrush}"/>
                                     <TextBlock Text="{Binding RevenueChartTitle}"
                                                FontSize="10"
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
@@ -960,7 +919,7 @@ FLAG FOR LATER:
                                                                VerticalAlignment="Top"
                                                                Margin="0,0,0,4"
                                                                TextWrapping="NoWrap"
-                                                               Foreground="{StaticResource AccentTextDeep}"/>
+                                                               Foreground="{DynamicResource DashAccentTextBrush}"/>
                                                     <Border Width="46"
                                                             CornerRadius="6,6,0,0"
                                                             VerticalAlignment="Bottom"
@@ -1002,7 +961,7 @@ FLAG FOR LATER:
                                            FontSize="13" FontWeight="Bold"
                                            HorizontalAlignment="Center"
                                            Margin="0,10,0,4"
-                                           Foreground="{StaticResource AccentTextDeep}"/>
+                                           Foreground="{DynamicResource DashAccentTextBrush}"/>
                                 <TextBlock Text="Issue Tax Invoices to see the revenue trend."
                                            FontSize="11"
                                            HorizontalAlignment="Center"
