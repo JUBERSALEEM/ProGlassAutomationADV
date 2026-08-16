@@ -699,11 +699,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         //      rate; costing the job at 110 would erase the
                         //      spread the business actually earns and report
                         //      a profit lower than reality.
-                        //   3. Cutting and tempering on the two laminated
-                        //      panes only — the business charges these "in
-                        //      the lamination panel", and the outer pane's
-                        //      processing is already inside the ASP rate.
+                        //   3. Cutting and tempering on ALL THREE panes,
+                        //      each at its own rate. The rates are not
+                        //      equal — tinted glass tempers dearer than
+                        //      clear — so they are summed individually
+                        //      rather than doubled from one figure.
                         // ══════════════════════════════════════════════════
+                        // Zero unless this job was given a spacer charge in
+                        // Step 4, in which case no spacer row is produced.
                         decimal spacerPrice = _dguLamVm?.SpacerPrice ?? 0m;
 
                         if (spacerPrice > 0m)
@@ -730,11 +733,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
                         decimal interlayerBuy = _dguLamVm?.InterlayerBuyPrice ?? 0m;
 
+                        // All three panes, each at its own rate.
                         decimal lamProcessing =
-                            (_dguLamVm?.LamOuterCuttingCost ?? 0m) +
-                            (_dguLamVm?.LamInnerCuttingCost ?? 0m) +
-                            (_dguLamVm?.LamOuterTemperingCost ?? 0m) +
-                            (_dguLamVm?.LamInnerTemperingCost ?? 0m);
+                            (_dguLamVm?.TotalCuttingCost ?? 0m) +
+                            (_dguLamVm?.TotalTemperingCost ?? 0m);
 
                         decimal lamRate = interlayerBuy + lamProcessing;
 
@@ -746,8 +748,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             string interlayerMm = pvbMatch.Groups["mm"].Value;
 
                             string lamLabel = interlayerMm.Length > 0
-                                ? $"{interlayerMm}mm {interlayerType} interlayer (outsourced) + cutting/tempering (laminated panes)"
-                                : $"{interlayerType} interlayer (outsourced) + cutting/tempering (laminated panes)";
+                                ? $"{interlayerMm}mm {interlayerType} interlayer (outsourced) + cutting/tempering (all three panes)"
+                                : $"{interlayerType} interlayer (outsourced) + cutting/tempering (all three panes)";
 
                             rows.Add(new ProfitLossRow
                             {

@@ -16,38 +16,47 @@
 // every DGU before it was fixed.
 //
 // ═══════════════════════════════════════════════════════════════════════
-//  PRICING RULES, AND WHERE EACH ONE COMES FROM
+//  PRICING RULES — TAKEN FROM THE BUSINESS'S OWN WORKED CHAIN
 // ═══════════════════════════════════════════════════════════════════════
 //
-// Worked example given by the business:
-//     HD Grey outer 48 · laminated outer 25 · laminated inner 25
-//     air spacer 45 · PVB bought 100, sold 110 · EVA bought 75, sold 95
+// The business supplied this calculation line by line, and the code
+// reproduces it exactly:
 //
-// 1. THE INTERLAYER IS A PASS-THROUGH, NOT A MARKED-UP COST.
-//    "we get in 100 ... given to customer 110" — 110 IS the customer
-//    price. The margin on it is the 10 spread, already decided by the
-//    person quoting. Feeding 110 into the subtotal before ×(1+margin)
-//    would mark it up a SECOND time: +16.50/sqm on a 15% margin, 660 AED
-//    on a 40 sqm job. So the sell price is added AFTER the margin step.
+//     48 + 25 + 25                        = 98      three panes of glass
+//     98 / 0.85 (yield)                   = 115.29
+//     + cutting     10 + 10 + 10   (30)   = 145.29
+//     + tempering   12 + 10 + 10   (32)   = 177.29
+//     + 110 outsourced PVB                = 287.29
+//     x 1.20 (20% profit)                 = 344.75  per SQM
 //
-// 2. THE YIELD FACTOR DIVIDES GLASS ONLY.
-//    Yield models cutting wastage on sheets we cut. The interlayer is
-//    bought finished per SQM from the laminator, so there is no offcut to
-//    recover and dividing it by 0.85 would invent ~18% of cost.
+// 1. CUTTING AND TEMPERING ARE CHARGED ON ALL THREE PANES.
+//    Not just the two laminated ones. Each pane carries its own rate and
+//    they are not equal: HD Grey tempers at 12 while the two Clear panes
+//    temper at 10. Per-pane fields are therefore required — a single
+//    shared rate could not express this and would misprice every unit
+//    whose panes differ.
 //
-// 3. CUTTING AND TEMPERING APPLY TO THE TWO LAMINATED PANES.
-//    "we charge cutting and tempering in lamination panel". The outer
-//    pane behind the air spacer is covered by the ASP rate, which the
-//    business has already stated includes cutting, tempering and
-//    production for DGU — charging it again would double-bill.
+// 2. THE AIR SPACER IS NOT A LINE IN THIS PRICE.
+//    The chain goes straight from tempering to the interlayer with no 45
+//    anywhere. Including it would produce 398.75 instead of 344.75, so
+//    SpacerPrice defaults to 0 and is excluded from the rate. The spacer
+//    width still appears in the spec name because it describes the
+//    product, and the field is left editable in case a job needs it
+//    priced. It is opt-in, never silently added.
 //
-// 4. BUY AND SELL PRICES ARE BOTH STORED.
-//    Sell drives the customer quote; buy is what Step 9 costs against.
-//    Holding only one would make either the quote or the profit wrong.
+// 3. THE INTERLAYER IS ADDED BEFORE THE MARGIN, AND IS MARKED UP.
+//    The 110 enters the subtotal and is then multiplied by 1.20. The
+//    business is explicit about this, so the earlier reading — that 110
+//    was a fixed pass-through added after the margin — was wrong. Both
+//    buy and sell prices are still stored: sell drives this quote, buy is
+//    what the Profit and Loss step costs the job against.
 //
-// If any of these is not how the business actually prices, the formula in
-// CalculateRate() is the single place to change — it is written as
-// numbered steps for exactly that reason.
+// 4. THE YIELD FACTOR DIVIDES GLASS ONLY.
+//    98 / 0.85 happens before anything else is added. Processing and the
+//    interlayer sit outside it.
+//
+// If any of this changes, CalculateRate() below is the single place to
+// edit — it is written as numbered steps for exactly that reason.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -143,12 +152,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             set { if (_spacerThickness == value) return; _spacerThickness = value; Changed(); }
         }
 
-        private decimal _spacerPrice = 45m;
+        private decimal _spacerPrice = 0m;
         /// <summary>
-        /// AED per SQM — NOT per linear metre. The business quotes the
-        /// spacer per square metre and the rate already includes cutting,
-        /// tempering and production for the DGU side of the unit.
-        /// Costing it per perimetre overstated it threefold once already.
+        /// AED per SQM — NOT per linear metre. Costing a spacer per
+        /// perimetre overstated it threefold once already.
+        ///
+        /// DEFAULTS TO ZERO for this hybrid. The business's worked chain
+        /// runs tempering straight into the interlayer with no spacer
+        /// charge; adding 45 would give 398.75 instead of 344.75. Set it
+        /// only if a particular job is meant to carry it — it is opt-in,
+        /// never silently applied.
         /// </summary>
         public decimal SpacerPrice
         {
@@ -338,21 +351,35 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
         }
 
         // ══════════════════════════════════════════════════════════════
-        //  PROCESSING — LAMINATED PANES ONLY (rule 3)
+        //  PROCESSING — ONE CUTTING AND ONE TEMPERING RATE PER PANE
+        //
+        //  All three panes are charged (rule 1), and the rates are NOT
+        //  interchangeable: in the business's own example HD Grey tempers
+        //  at 12 while both Clear panes temper at 10. A single shared rate
+        //  would misprice every unit whose panes differ, so each pane owns
+        //  its own pair of fields.
         // ══════════════════════════════════════════════════════════════
 
-        private decimal _lamOuterCuttingCost = 5m;
+        private decimal _outerCuttingCost = 10m;
+        public decimal OuterCuttingCost
+        {
+            get => _outerCuttingCost;
+            set { if (_outerCuttingCost == value) return; _outerCuttingCost = value; Changed(); }
+        }
+
+        private decimal _outerTemperingCost = 12m;
+        /// <summary>HD Grey tempers dearer than Clear — 12 in the worked example.</summary>
+        public decimal OuterTemperingCost
+        {
+            get => _outerTemperingCost;
+            set { if (_outerTemperingCost == value) return; _outerTemperingCost = value; Changed(); }
+        }
+
+        private decimal _lamOuterCuttingCost = 10m;
         public decimal LamOuterCuttingCost
         {
             get => _lamOuterCuttingCost;
             set { if (_lamOuterCuttingCost == value) return; _lamOuterCuttingCost = value; Changed(); }
-        }
-
-        private decimal _lamInnerCuttingCost = 5m;
-        public decimal LamInnerCuttingCost
-        {
-            get => _lamInnerCuttingCost;
-            set { if (_lamInnerCuttingCost == value) return; _lamInnerCuttingCost = value; Changed(); }
         }
 
         private decimal _lamOuterTemperingCost = 10m;
@@ -362,12 +389,27 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             set { if (_lamOuterTemperingCost == value) return; _lamOuterTemperingCost = value; Changed(); }
         }
 
+        private decimal _lamInnerCuttingCost = 10m;
+        public decimal LamInnerCuttingCost
+        {
+            get => _lamInnerCuttingCost;
+            set { if (_lamInnerCuttingCost == value) return; _lamInnerCuttingCost = value; Changed(); }
+        }
+
         private decimal _lamInnerTemperingCost = 10m;
         public decimal LamInnerTemperingCost
         {
             get => _lamInnerTemperingCost;
             set { if (_lamInnerTemperingCost == value) return; _lamInnerTemperingCost = value; Changed(); }
         }
+
+        /// <summary>Cutting across all three panes.</summary>
+        public decimal TotalCuttingCost =>
+            OuterCuttingCost + LamOuterCuttingCost + LamInnerCuttingCost;
+
+        /// <summary>Tempering across all three panes.</summary>
+        public decimal TotalTemperingCost =>
+            OuterTemperingCost + LamOuterTemperingCost + LamInnerTemperingCost;
 
         // ══════════════════════════════════════════════════════════════
         //  YIELD + MARGIN
@@ -381,7 +423,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             set { if (_yieldFactor == value) return; _yieldFactor = value; Changed(); }
         }
 
-        private decimal _marginProfitPercent = 15m;
+        private decimal _marginProfitPercent = 20m;   // 20% in the worked chain
         public decimal MarginProfitPercent
         {
             get => _marginProfitPercent;
@@ -419,25 +461,28 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
         // ══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// AED per SQM, built in numbered steps so a business rule change
-        /// has one obvious place to land.
+        /// AED per SQM, following the business's own chain exactly:
         ///
         ///   1. glass    = outer + laminated outer + laminated inner
-        ///   2. /yield   — glass only (rule 2)
-        ///   3. + spacer — per SQM, includes DGU-side processing
-        ///   4. + cutting and tempering on the two laminated panes (rule 3)
-        ///   5. × (1 + margin)
-        ///   6. + interlayer SELL price — after margin, no double mark-up (rule 1)
+        ///   2. / yield  — glass only
+        ///   3. + cutting on all three panes
+        ///   4. + tempering on all three panes
+        ///   5. + interlayer SELL price (outsourced)
+        ///   6. × (1 + margin)
         ///
-        /// Worked example — 48 / 25 / 25 glass, 45 spacer, 0.85 yield,
-        /// 15% margin, 5+5 cutting, 10+10 tempering, PVB sold at 110:
-        ///     (98 / 0.85 = 115.29) + 45 + 30 = 190.29
-        ///     × 1.15 = 218.84
-        ///     + 110 = 328.84 per SQM
+        ///   + spacer, only if one has been priced. Zero by default, so it
+        ///     changes nothing unless deliberately entered.
         ///
-        /// (Verified against C# decimal semantics, not floating point —
-        ///  the two differ by a cent here and a cent on a quote is a
-        ///  question from the customer.)
+        /// Worked example — 48/25/25 glass, yield 0.85, cutting 10+10+10,
+        /// tempering 12+10+10, PVB 110, margin 20%:
+        ///     98 / 0.85              = 115.29
+        ///     + 30 cutting           = 145.29
+        ///     + 32 tempering         = 177.29
+        ///     + 110 PVB              = 287.29
+        ///     × 1.20                 = 344.75 per SQM
+        ///
+        /// Computed in decimal, not floating point: the two disagree by a
+        /// cent here, and a cent on a quote is a question from a customer.
         /// </summary>
         public decimal CalculateRate(out string warning)
         {
@@ -454,15 +499,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
 
             decimal glass = OuterBasePrice + LamOuterBasePrice + LamInnerBasePrice;
 
-            decimal step2 = glass / yieldFactor;
-            decimal step3 = step2 + SpacerPrice;
+            decimal running = glass / yieldFactor;
 
-            decimal processing = LamOuterCuttingCost + LamInnerCuttingCost
-                               + LamOuterTemperingCost + LamInnerTemperingCost;
+            running += TotalCuttingCost;
+            running += TotalTemperingCost;
+            running += InterlayerSellPrice;
 
-            decimal step4 = step3 + processing;
-            decimal step5 = step4 * (1m + (MarginProfitPercent / 100m));
-            decimal step6 = step5 + InterlayerSellPrice;
+            // Zero unless this job has been given a spacer charge.
+            running += SpacerPrice;
+
+            decimal rate = running * (1m + (MarginProfitPercent / 100m));
 
             // An unpriced interlayer is the one mistake that silently
             // undercharges a whole job, so it is called out rather than
@@ -475,7 +521,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
                 warning = warning.Length > 0 ? warning + "  " + note : note;
             }
 
-            return Math.Round(step6, 2);
+            return Math.Round(rate, 2);
         }
 
         /// <summary>Parameterless overload for callers that ignore warnings.</summary>
@@ -497,6 +543,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             OnPropertyChanged(propertyName);
             OnPropertyChanged(nameof(GeneratedSpecName));
             OnPropertyChanged(nameof(EstimatedRateDisplay));
+
+            // Computed read-onlys bound in the UI. Without these the
+            // processing totals would freeze at their startup values while
+            // the per-pane boxes changed underneath them.
+            OnPropertyChanged(nameof(TotalCuttingCost));
+            OnPropertyChanged(nameof(TotalTemperingCost));
         }
 
         public string EstimatedRateDisplay => $"AED {CalculateRate():N2} / SQM";

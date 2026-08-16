@@ -264,7 +264,7 @@
                     <TextBlock Text="SPACER PRICE / SQM" Style="{StaticResource DguLamLabelStyle}"/>
                     <TextBox Text="{Binding SpacerPrice, StringFormat={}{0:0.##}}"
                              Style="{StaticResource DguLamInputStyle}"
-                             ToolTip="AED per SQM. Includes cutting, tempering and production on the DGU side."/>
+                             ToolTip="AED per SQM. Zero by default — the standard hybrid price carries no spacer charge."/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="4"
@@ -274,7 +274,7 @@
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                TextWrapping="Wrap">
                         <Run Text="&#xE946;" FontFamily="Segoe MDL2 Assets" Foreground="#4338CA"/>
-                        <Run Text="  The spacer rate already covers cutting, tempering and production for the DGU side, so those are not charged again below."/>
+                        <Run Text="  Leave at 0 unless this job is meant to carry a spacer charge. The standard hybrid price does not include one, and cutting and tempering are billed per pane below."/>
                     </TextBlock>
                 </StackPanel>
             </Grid>
@@ -383,7 +383,7 @@
                     <TextBlock Text="SOLD PRICE / SQM" Style="{StaticResource DguLamLabelStyle}"/>
                     <TextBox Text="{Binding InterlayerSellPrice, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource DguLamInputStyle}"
-                             ToolTip="What the customer is charged. Added to the rate after the profit margin, so it is not marked up twice."/>
+                             ToolTip="What the customer is charged. Enters the subtotal before the profit margin."/>
                 </StackPanel>
             </Grid>
 
@@ -442,50 +442,119 @@
             </Grid>
 
             <!-- ══════════════════════════════════════════════════════════
-                 PROCESSING — LAMINATED PANES ONLY
+                 PROCESSING — ALL THREE PANES
 
-                 Cutting and tempering are charged in the lamination panel.
-                 The outer pane's processing sits inside the spacer rate
-                 above, so charging it here as well would double-bill it.
+                 Every pane is cut and tempered, and the rates differ by
+                 glass: HD Grey tempers at 12 where Clear tempers at 10.
+                 One row per pane so each can be priced on its own.
             ══════════════════════════════════════════════════════════ -->
-            <TextBlock Text="PROCESSING — LAMINATED PANES ONLY"
+            <TextBlock Text="PROCESSING — ALL THREE PANES"
                        Style="{StaticResource DguLamLayerHeadingStyle}"/>
 
-            <Grid Margin="0,0,0,16">
+            <Grid Margin="0,0,0,6">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="1.4*"/>
                     <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="LAM OUTER CUTTING" Style="{StaticResource DguLamLabelStyle}"/>
-                    <TextBox Text="{Binding LamOuterCuttingCost, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource DguLamInputStyle}"/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="2">
-                    <TextBlock Text="LAM INNER CUTTING" Style="{StaticResource DguLamLabelStyle}"/>
-                    <TextBox Text="{Binding LamInnerCuttingCost, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource DguLamInputStyle}"/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="4">
-                    <TextBlock Text="LAM OUTER TEMPERING" Style="{StaticResource DguLamLabelStyle}"/>
-                    <TextBox Text="{Binding LamOuterTemperingCost, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource DguLamInputStyle}"/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="6">
-                    <TextBlock Text="LAM INNER TEMPERING" Style="{StaticResource DguLamLabelStyle}"/>
-                    <TextBox Text="{Binding LamInnerTemperingCost, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource DguLamInputStyle}"/>
-                </StackPanel>
+                <TextBlock Grid.Column="0" Text="PANE"
+                           Style="{StaticResource DguLamLabelStyle}"/>
+                <TextBlock Grid.Column="2" Text="CUTTING / SQM"
+                           Style="{StaticResource DguLamLabelStyle}"/>
+                <TextBlock Grid.Column="4" Text="TEMPERING / SQM"
+                           Style="{StaticResource DguLamLabelStyle}"/>
             </Grid>
+
+            <!-- Pane 1 — outer -->
+            <Grid Margin="0,0,0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.4*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0"
+                           Text="Outer glass"
+                           FontSize="12"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           VerticalAlignment="Center"/>
+
+                <TextBox Grid.Column="2"
+                         Text="{Binding OuterCuttingCost, StringFormat={}{0:0.##}}"
+                         Style="{StaticResource DguLamInputStyle}"/>
+
+                <TextBox Grid.Column="4"
+                         Text="{Binding OuterTemperingCost, StringFormat={}{0:0.##}}"
+                         Style="{StaticResource DguLamInputStyle}"
+                         ToolTip="Tinted glass such as HD Grey tempers dearer than Clear."/>
+            </Grid>
+
+            <!-- Pane 2 — laminated outer -->
+            <Grid Margin="0,0,0,8">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.4*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0"
+                           Text="Laminated outer"
+                           FontSize="12"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           VerticalAlignment="Center"/>
+
+                <TextBox Grid.Column="2"
+                         Text="{Binding LamOuterCuttingCost, StringFormat={}{0:0.##}}"
+                         Style="{StaticResource DguLamInputStyle}"/>
+
+                <TextBox Grid.Column="4"
+                         Text="{Binding LamOuterTemperingCost, StringFormat={}{0:0.##}}"
+                         Style="{StaticResource DguLamInputStyle}"/>
+            </Grid>
+
+            <!-- Pane 3 — laminated inner -->
+            <Grid Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="1.4*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <TextBlock Grid.Column="0"
+                           Text="Laminated inner"
+                           FontSize="12"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           VerticalAlignment="Center"/>
+
+                <TextBox Grid.Column="2"
+                         Text="{Binding LamInnerCuttingCost, StringFormat={}{0:0.##}}"
+                         Style="{StaticResource DguLamInputStyle}"/>
+
+                <TextBox Grid.Column="4"
+                         Text="{Binding LamInnerTemperingCost, StringFormat={}{0:0.##}}"
+                         Style="{StaticResource DguLamInputStyle}"/>
+            </Grid>
+
+            <TextBlock FontSize="11"
+                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                       Margin="0,0,0,16"
+                       TextWrapping="Wrap">
+                <Run Text="&#xE946;" FontFamily="Segoe MDL2 Assets" Foreground="#4338CA"/>
+                <Run Text="  Totals — cutting "/>
+                <Run Text="{Binding TotalCuttingCost, StringFormat={}{0:0.##}, Mode=OneWay}" FontWeight="Bold"/>
+                <Run Text="  ·  tempering "/>
+                <Run Text="{Binding TotalTemperingCost, StringFormat={}{0:0.##}, Mode=OneWay}" FontWeight="Bold"/>
+                <Run Text="  AED per SQM."/>
+            </TextBlock>
 
             <!-- ══════════════════════════════════════════════════════════
                  YIELD + MARGIN
@@ -522,7 +591,7 @@
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
                                TextWrapping="Wrap">
                         <Run Text="&#xE946;" FontFamily="Segoe MDL2 Assets" Foreground="#4338CA"/>
-                        <Run Text="  Rate = (three panes ÷ yield + spacer + lamination cutting and tempering) × (1 + margin), then the interlayer selling price is added on top."/>
+                        <Run Text="  Rate = (three panes ÷ yield + cutting + tempering + interlayer) × (1 + margin). Yield applies to the glass only."/>
                     </TextBlock>
                 </StackPanel>
             </Grid>
