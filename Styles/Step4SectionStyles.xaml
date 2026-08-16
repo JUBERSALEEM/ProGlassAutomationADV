@@ -152,92 +152,80 @@
                                 <RowDefinition Height="Auto"/>
                             </Grid.RowDefinitions>
 
-                            <!-- Header -->
-                            <!--
-                                Header and Tag are copied onto the ToggleButton
-                                here, while we are still in the EXPANDER's
-                                template scope where TemplatedParent means the
-                                Expander.
-
-                                Inside the ToggleButton's own template below,
-                                TemplatedParent means the ToggleButton, which
-                                has no Header property at all — reading it
-                                there is what produced
-
-                                    Cannot find the static member
-                                    'HeaderProperty' on the type 'ToggleButton'.
-
-                                So the values are handed down one level and
-                                read back off the ToggleButton itself.
-                            -->
-                            <ToggleButton x:Name="HeaderToggle"
-                                          Grid.Row="0"
+                            <!-- HEADER -->
+                            <ToggleButton Grid.Row="0"
                                           Focusable="False"
                                           Cursor="Hand"
-                                          Content="{Binding Header,
-                                                    RelativeSource={RelativeSource TemplatedParent}}"
-                                          Tag="{Binding Tag,
-                                                RelativeSource={RelativeSource TemplatedParent}}"
+                                          Background="Transparent"
+                                          BorderThickness="0"
+                                          Padding="0"
+                                          HorizontalContentAlignment="Stretch"
+                                          VerticalContentAlignment="Stretch"
                                           IsChecked="{Binding IsExpanded,
                                                       RelativeSource={RelativeSource TemplatedParent},
                                                       Mode=TwoWay}">
-                                <ToggleButton.Template>
-                                    <ControlTemplate TargetType="ToggleButton">
-                                        <Border x:Name="HeadBorder"
-                                                Background="Transparent"
-                                                Padding="10,0"
-                                                Height="28">
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                </Grid.ColumnDefinitions>
+                                <!--
+                                    This ToggleButton deliberately has NO
+                                    ControlTemplate of its own. A nested
+                                    template would create a second
+                                    TemplatedParent scope, and the Header
+                                    binding below would then be resolved
+                                    against ToggleButton — which has no Header
+                                    property, and is what produced:
 
-                                                <TextBlock x:Name="Chevron"
-                                                           Grid.Column="0"
-                                                           Text="&#xE76C;"
-                                                           FontFamily="Segoe MDL2 Assets"
-                                                           FontSize="9"
-                                                           Foreground="#4338CA"
-                                                           VerticalAlignment="Center"
-                                                           Margin="0,0,8,0"/>
+                                        Cannot find the static member
+                                        'HeaderProperty' on the type
+                                        'ToggleButton'.
 
-                                                <TextBlock Grid.Column="1"
-                                                           Text="{Binding Content,
-                                                                  RelativeSource={RelativeSource TemplatedParent}}"
-                                                           FontSize="10"
-                                                           FontWeight="Bold"
-                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                           VerticalAlignment="Center"/>
+                                    Its chrome is neutralised with plain
+                                    property values instead. OverridesDefaultStyle
+                                    was rejected for the same job because it
+                                    discards the default template too, which can
+                                    leave the control with no visual tree and an
+                                    invisible header.
 
-                                                <!-- Live summary of the collapsed contents.
-                                                     Read off the ToggleButton, which received
-                                                     the Expander's Tag above. TemplateBinding
-                                                     here would silently resolve to the
-                                                     ToggleButton's own unset Tag and always
-                                                     render blank — no error, just no summary. -->
-                                                <TextBlock Grid.Column="2"
-                                                           Text="{Binding Tag,
-                                                                  RelativeSource={RelativeSource TemplatedParent}}"
-                                                           FontSize="10"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                           VerticalAlignment="Center"
-                                                           Margin="12,0,0,0"
-                                                           TextTrimming="CharacterEllipsis"/>
-                                            </Grid>
-                                        </Border>
-                                        <ControlTemplate.Triggers>
-                                            <Trigger Property="IsChecked" Value="True">
-                                                <Setter TargetName="Chevron" Property="Text" Value="&#xE70D;"/>
-                                            </Trigger>
-                                            <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter TargetName="HeadBorder" Property="Background"
-                                                        Value="{DynamicResource MenuHoverBrush}"/>
-                                            </Trigger>
-                                        </ControlTemplate.Triggers>
-                                    </ControlTemplate>
-                                </ToggleButton.Template>
+                                    The header markup below is therefore still
+                                    inside the EXPANDER's template, so
+                                    TemplateBinding Header and TemplateBinding
+                                    Tag mean what they say.
+                                -->
+                                <Border x:Name="HeadBorder"
+                                        Background="Transparent"
+                                        Padding="10,0"
+                                        Height="28">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                    </Grid.ColumnDefinitions>
+
+                                    <TextBlock x:Name="Chevron"
+                                               Grid.Column="0"
+                                               Text="&#xE76C;"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="9"
+                                               Foreground="#4338CA"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,8,0"/>
+
+                                    <TextBlock Grid.Column="1"
+                                               Text="{TemplateBinding Header}"
+                                               FontSize="10"
+                                               FontWeight="Bold"
+                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                               VerticalAlignment="Center"/>
+
+                                    <!-- Live summary of the collapsed contents -->
+                                    <TextBlock Grid.Column="2"
+                                               Text="{TemplateBinding Tag}"
+                                               FontSize="10"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                               VerticalAlignment="Center"
+                                               Margin="12,0,0,0"
+                                               TextTrimming="CharacterEllipsis"/>
+                                </Grid>
+                                </Border>
                             </ToggleButton>
 
                             <!-- Body -->
@@ -250,8 +238,17 @@
                         </Grid>
                     </Border>
                     <ControlTemplate.Triggers>
+                        <!-- Open: show the body and point the chevron down. -->
                         <Trigger Property="IsExpanded" Value="True">
-                            <Setter TargetName="Body" Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="Body"    Property="Visibility" Value="Visible"/>
+                            <Setter TargetName="Chevron" Property="Text"       Value="&#xE70D;"/>
+                        </Trigger>
+
+                        <!-- Hover feedback on the header strip. -->
+                        <Trigger SourceName="HeadBorder" Property="IsMouseOver" Value="True">
+                            <Setter TargetName="HeadBorder"
+                                    Property="Background"
+                                    Value="{DynamicResource MenuHoverBrush}"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
                 </ControlTemplate>
