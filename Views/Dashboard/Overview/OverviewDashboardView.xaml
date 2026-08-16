@@ -51,6 +51,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:trend="clr-namespace:ProGlassAutomation.Controls.TrendChart"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -421,73 +422,27 @@
                                            VerticalAlignment="Center"/>
                             </Grid>
 
-                            <!-- Chart: compact 116px plot (was 160). -->
-                            <ItemsControl ItemsSource="{Binding MonthlySalesBars}"
-                                          Visibility="{Binding HasChartData,
-                                              Converter={StaticResource BoolToVisibilityConverter}}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <UniformGrid Rows="1" HorizontalAlignment="Stretch"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Grid Margin="5,0">
-                                            <Grid.RowDefinitions>
-                                                <RowDefinition Height="*"/>
-                                                <RowDefinition Height="Auto"/>
-                                            </Grid.RowDefinitions>
+                            <!-- Revenue trend.
 
-                                            <Grid Grid.Row="0"
-                                                  VerticalAlignment="Bottom"
-                                                  Height="116">
-                                                <TextBlock Text="{Binding ValueDisplay}"
-                                                           FontSize="9"
-                                                           FontWeight="Bold"
-                                                           HorizontalAlignment="Center"
-                                                           VerticalAlignment="Top"
-                                                           Foreground="{DynamicResource DashAccentTextBrush}"/>
-                                                <Border CornerRadius="4,4,0,0"
-                                                        VerticalAlignment="Bottom"
-                                                        HorizontalAlignment="Stretch"
-                                                        MaxWidth="42"
-                                                        SnapsToDevicePixels="True"
-                                                        Background="{Binding BarColor,
-                                                                     Converter={StaticResource ColorStringConverter}}"
-                                                        Height="{Binding NormalizedHeight,
-                                                                 Converter={StaticResource ScaleConverter},
-                                                                 ConverterParameter=96}"/>
-                                            </Grid>
+                                 This was an ItemsControl of bare Borders
+                                 whose Height came from a ScaleConverter:
+                                 no value axis, no gridlines, no hover, no
+                                 tooltip, and the tallest bar was always
+                                 full height regardless of its value, so
+                                 the chart could not be read quantitatively.
 
-                                            <TextBlock Grid.Row="1"
-                                                       Text="{Binding Label}"
-                                                       FontSize="10"
-                                                       FontWeight="SemiBold"
-                                                       HorizontalAlignment="Center"
-                                                       Margin="0,6,0,0"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                        </Grid>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                            <!-- Empty state -->
-                            <Border Padding="0,26"
-                                    Visibility="{Binding HasChartData,
-                                        Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                <StackPanel HorizontalAlignment="Center">
-                                    <TextBlock Text="&#xE9D9;"
-                                               FontFamily="Segoe MDL2 Assets"
-                                               FontSize="22"
-                                               HorizontalAlignment="Center"
-                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                    <TextBlock Text="No revenue recorded yet"
-                                               FontSize="11"
-                                               Margin="0,7,0,0"
-                                               HorizontalAlignment="Center"
-                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                </StackPanel>
-                            </Border>
+                                 TrendChartControl draws a real plot and
+                                 owns its own empty state, so the separate
+                                 empty-state Border below is gone. -->
+                            <trend:TrendChartControl
+                                Height="150"
+                                Points="{Binding MonthlySalesBars}"
+                                SeriesKind="Bar"
+                                ValuePrefix="AED "
+                                EmptyMessage="No revenue recorded yet."
+                                SeriesBrush="{DynamicResource AccentBrush}"
+                                GridBrush="{DynamicResource DividerBrush}"
+                                LabelBrush="{DynamicResource MutedForegroundBrush}"/>
                         </StackPanel>
                     </Border>
 

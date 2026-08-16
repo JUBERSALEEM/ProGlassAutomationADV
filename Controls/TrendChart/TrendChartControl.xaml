@@ -1,0 +1,127 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Controls/TrendChart/TrendChartControl.xaml
+     PROJECT: ProGlassAutomation
+
+     A real chart control, replacing the bare <Border Height="..."/>
+     rectangles the dashboards used as "charts".
+
+     WHAT THOSE RECTANGLES COULD NOT DO
+       no value axis · no gridlines · no hover · no tooltip
+       no crosshair · no animation · no empty state
+
+     WHY CUSTOM DRAWING RATHER THAN A CHART LIBRARY
+       Adding LiveCharts2 / ScottPlot / OxyPlot means a NuGet restore.
+       This environment has no network, so I cannot restore, compile or
+       verify such a package — I would be adding an unverifiable
+       dependency to a build I cannot run. Custom drawing uses only
+       WPF primitives that are already referenced, so the risk is
+       contained to code that can be read and reviewed.
+
+       The project already draws this way: Controls/Sparkline and
+       Controls/MiniBarChart build PathGeometry in code-behind. This
+       control follows that established idiom rather than inventing a
+       second approach.
+
+     THEME
+       Every brush is a DynamicResource, so the chart follows a runtime
+       Light/Dark swap. Nothing here hardcodes a colour.
+
+     STRUCTURE
+       Canvas layers, back to front:
+         GridLayer      horizontal gridlines + value labels
+         SeriesLayer    the bars or line/area
+         HoverLayer     crosshair + highlight for the hovered point
+         (tooltip is a Popup so it can overflow the control bounds)
+═══════════════════════════════════════════════════════════════════════ -->
+
+<UserControl x:Class="ProGlassAutomation.Controls.TrendChart.TrendChartControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             mc:Ignorable="d"
+             d:DesignHeight="180" d:DesignWidth="520"
+             Background="Transparent"
+             SizeChanged="OnSizeChanged"
+             MouseMove="OnMouseMove"
+             MouseLeave="OnMouseLeave">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <!-- plot -->
+            <RowDefinition Height="Auto"/>
+            <!-- category axis -->
+        </Grid.RowDefinitions>
+
+        <!-- ── PLOT AREA ──────────────────────────────────────────── -->
+        <Grid Grid.Row="0" x:Name="PlotHost" ClipToBounds="True">
+
+            <!-- Gridlines and value labels sit behind the data. -->
+            <Canvas x:Name="GridLayer" IsHitTestVisible="False"/>
+
+            <!-- Bars, or line + area fill. -->
+            <Canvas x:Name="SeriesLayer" IsHitTestVisible="False"/>
+
+            <!-- Crosshair and hovered-point marker. -->
+            <Canvas x:Name="HoverLayer" IsHitTestVisible="False"/>
+
+            <!-- ── EMPTY STATE ─────────────────────────────────────
+                 Shown when there is no data at all, so the widget says
+                 so instead of drawing a flat line that looks like a
+                 real zero result. -->
+            <StackPanel x:Name="EmptyState"
+                        VerticalAlignment="Center"
+                        HorizontalAlignment="Center"
+                        Visibility="Collapsed">
+                <TextBlock Text="&#xE9D9;"
+                           FontFamily="Segoe MDL2 Assets"
+                           FontSize="22"
+                           HorizontalAlignment="Center"
+                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                <TextBlock x:Name="EmptyText"
+                           Text="No data available for this period."
+                           FontSize="11"
+                           Margin="0,7,0,0"
+                           HorizontalAlignment="Center"
+                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+            </StackPanel>
+        </Grid>
+
+        <!-- ── CATEGORY AXIS ──────────────────────────────────────── -->
+        <Canvas Grid.Row="1"
+                x:Name="AxisLayer"
+                Height="18"
+                IsHitTestVisible="False"/>
+
+        <!-- ── TOOLTIP ────────────────────────────────────────────────
+             A Popup rather than a child element so it is never clipped
+             by the plot bounds near an edge. Placement is set in code
+             from the hovered point. -->
+        <Popup x:Name="HoverPopup"
+               AllowsTransparency="True"
+               Placement="Relative"
+               PlacementTarget="{Binding RelativeSource={RelativeSource AncestorType=UserControl}}"
+               IsHitTestVisible="False"
+               PopupAnimation="Fade">
+            <Border Background="{DynamicResource ElevatedSurfaceBrush}"
+                    BorderBrush="{DynamicResource AccentBrush}"
+                    BorderThickness="1"
+                    CornerRadius="6"
+                    Padding="9,6"
+                    SnapsToDevicePixels="True">
+                <StackPanel>
+                    <TextBlock x:Name="TipLabel"
+                               FontSize="10"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                    <TextBlock x:Name="TipValue"
+                               FontSize="13"
+                               FontWeight="Bold"
+                               Margin="0,1,0,0"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                </StackPanel>
+            </Border>
+        </Popup>
+    </Grid>
+</UserControl>

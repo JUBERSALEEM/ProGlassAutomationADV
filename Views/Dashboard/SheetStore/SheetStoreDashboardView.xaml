@@ -52,6 +52,7 @@
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:trend="clr-namespace:ProGlassAutomation.Controls.TrendChart"
              xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
@@ -106,55 +107,6 @@
         <!-- ═══════════════════════════════════════════════════════════════
              CATEGORY BAR TEMPLATE
         ═══════════════════════════════════════════════════════════════ -->
-        <DataTemplate x:Key="CategoryBarTemplate">
-            <Grid Margin="8,0" HorizontalAlignment="Center">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
-                    <RowDefinition Height="Auto"/>
-                </Grid.RowDefinitions>
-
-                <Grid Grid.Row="0" VerticalAlignment="Bottom" Height="200">
-                    <TextBlock Text="{Binding ValueDisplay}"
-                               FontSize="10" FontWeight="Bold"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Top"
-                               Margin="0,0,0,4"
-                               Foreground="{DynamicResource DashAccentTextBrush}"/>
-                    <Border Width="70"
-                            CornerRadius="6,6,0,0"
-                            VerticalAlignment="Bottom"
-                            HorizontalAlignment="Center"
-                            Background="{Binding BarColor,
-                                         Converter={StaticResource ColorStringConverter}}"
-                            Height="{Binding NormalizedHeight,
-                                     Converter={StaticResource ScaleConverter},
-                                     ConverterParameter=180}">
-                        <Border.Style>
-                            <Style TargetType="Border">
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding IsHighlight}" Value="True">
-                                        <!-- Frozen shared glow (was inline #6366F1) -->
-                                        <Setter Property="Effect"
-                                                Value="{StaticResource BarHighlightGlow}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </Border.Style>
-                    </Border>
-                </Grid>
-
-                <TextBlock Grid.Row="1"
-                           Text="{Binding Label}"
-                           FontSize="11" FontWeight="Bold"
-                           HorizontalAlignment="Center"
-                           TextAlignment="Center"
-                           TextWrapping="Wrap"
-                           MaxWidth="90"
-                           Margin="0,10,0,0"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-            </Grid>
-        </DataTemplate>
-
     </UserControl.Resources>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -253,14 +205,14 @@
                         <StackPanel Visibility="{Binding HasChartData,
                                                  Converter={StaticResource BoolToVisibilityConverter}}">
 
-                            <ItemsControl ItemsSource="{Binding CategoryBars}"
-                                          ItemTemplate="{StaticResource CategoryBarTemplate}">
-                                <ItemsControl.ItemsPanel>
-                                    <ItemsPanelTemplate>
-                                        <UniformGrid Rows="1"/>
-                                    </ItemsPanelTemplate>
-                                </ItemsControl.ItemsPanel>
-                            </ItemsControl>
+                            <trend:TrendChartControl
+                                Height="150"
+                                Points="{Binding CategoryBars}"
+                                SeriesKind="Bar"
+                                EmptyMessage="Stock by category — no data yet."
+                                SeriesBrush="{DynamicResource AccentBrush}"
+                                GridBrush="{DynamicResource DividerBrush}"
+                                LabelBrush="{DynamicResource MutedForegroundBrush}"/>
 
                             <Border Height="1" Margin="0,4,0,0"
                                     Background="{DynamicResource TintIndigoBrush}"/>
