@@ -177,8 +177,6 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
@@ -219,8 +217,6 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
@@ -236,14 +232,6 @@
                              Style="{StaticResource LamInputStyle}"
                              ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
                 </StackPanel>
-
-                <StackPanel Grid.Column="4">
-                    <TextBlock Text="OUTER STOCK SIZE" Style="{StaticResource LamLabelStyle}"/>
-                    <ComboBox ItemsSource="{Binding OuterSheetSizeOptions}"
-                              Text="{Binding SelectedOuterSheetSize, UpdateSourceTrigger=PropertyChanged}"
-                              Style="{StaticResource LamEditableComboBoxStyle}"
-                              ToolTip="Other sizes stocked for this colour and thickness. Picking one fills width and height."/>
-                </StackPanel>
             </Grid>
 
 
@@ -252,8 +240,6 @@
             ══════════════════════════════════════════════════════════ -->
             <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
@@ -297,8 +283,6 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
@@ -313,14 +297,6 @@
                     <TextBox Text="{Binding InnerSheetHeightMm, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource LamInputStyle}"
                              ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="4">
-                    <TextBlock Text="INNER STOCK SIZE" Style="{StaticResource LamLabelStyle}"/>
-                    <ComboBox ItemsSource="{Binding InnerSheetSizeOptions}"
-                              Text="{Binding SelectedInnerSheetSize, UpdateSourceTrigger=PropertyChanged}"
-                              Style="{StaticResource LamEditableComboBoxStyle}"
-                              ToolTip="Other sizes stocked for this colour and thickness. Picking one fills width and height."/>
                 </StackPanel>
             </Grid>
 
@@ -337,8 +313,6 @@
             ══════════════════════════════════════════════════════════ -->
             <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
@@ -384,8 +358,6 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
@@ -418,8 +390,6 @@
             ══════════════════════════════════════════════════════════ -->
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>

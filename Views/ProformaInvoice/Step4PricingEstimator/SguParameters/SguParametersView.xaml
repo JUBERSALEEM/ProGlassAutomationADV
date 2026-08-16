@@ -138,8 +138,6 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
@@ -179,8 +177,6 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
@@ -193,14 +189,6 @@
                     <TextBlock Text="SHEET HEIGHT (MM)" Style="{StaticResource SguLabelStyle}"/>
                     <TextBox Text="{Binding SheetHeightMm, UpdateSourceTrigger=PropertyChanged}"
                              ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="4">
-                    <TextBlock Text="STOCK SIZE" Style="{StaticResource SguLabelStyle}"/>
-                    <ComboBox ItemsSource="{Binding SheetSizeOptions}"
-                              Text="{Binding SelectedSheetSize, UpdateSourceTrigger=PropertyChanged}"
-                              Style="{StaticResource StepEditableComboBoxStyle}"
-                              ToolTip="Other sizes stocked for this colour and thickness. Picking one fills width and height."/>
                 </StackPanel>
             </Grid>
 
@@ -217,8 +205,6 @@
             ══════════════════════════════════════════════════════════ -->
             <Grid Margin="0,0,0,16">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
@@ -252,8 +238,6 @@
             ══════════════════════════════════════════════════════════ -->
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>

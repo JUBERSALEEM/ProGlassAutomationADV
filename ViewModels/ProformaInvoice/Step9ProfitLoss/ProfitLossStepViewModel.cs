@@ -98,11 +98,27 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// </summary>
         public string SheetSource { get; set; } = "";
 
+        /// <summary>
+        /// The FULL specification this row belongs to, taken from the Step 5
+        /// DataGrid (SpecGroup.SelectedSpecName) — e.g.
+        /// "6mm Clear FT Glass + 12mm ASP + 6mm Clear FT Glass".
+        ///
+        /// The SPEC column used to print only "SPEC 2", which said nothing
+        /// about what was actually being costed.
+        /// </summary>
+        public string SpecName { get; set; } = "";
+
         // ── Display helpers (bound directly by the view) ──────────────────
 
-        /// <summary>e.g. "SPEC 2" — blank for rows with no spec origin.</summary>
+        /// <summary>
+        /// The specification itself, so the P&amp;L reads as the product
+        /// being quoted. Falls back to "SPEC n" only when no spec name was
+        /// captured, and to blank for rows with no spec origin.
+        /// </summary>
         public string SpecDisplay =>
-            SpecNumber > 0 ? $"SPEC {SpecNumber}" : "";
+            !string.IsNullOrWhiteSpace(SpecName)
+                ? SpecName
+                : (SpecNumber > 0 ? $"SPEC {SpecNumber}" : "");
 
         /// <summary>e.g. "3210 × 2250 · 7.2225 SQM", or "—" for charge rows.</summary>
         public string SizeDisplay =>
@@ -135,7 +151,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             Quantity = Quantity,
             PricePerSqm = PricePerSqm,
             Amount = Amount,
-            SheetSource = SheetSource ?? ""
+            SheetSource = SheetSource ?? "",
+            SpecName = SpecName ?? ""
         };
     }
 
@@ -526,6 +543,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             {
                                 Kind = "Spacer",
                                 SpecNumber = group.GroupNumber,
+                                SpecName = group.SelectedSpecName ?? "",
                                 Description = BuildRowDescription(
                                     group,
                                     $"{spacerMm}mm air spacer (incl. cutting/tempering)",
@@ -570,6 +588,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             {
                                 Kind = "Production",
                                 SpecNumber = group.GroupNumber,
+                                SpecName = group.SelectedSpecName ?? "",
                                 Description = BuildRowDescription(
                                     group, label, $"{cutSqm:0.##} SQM"),
                                 Quantity = Math.Round(cutSqm, 2),
@@ -595,6 +614,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             {
                                 Kind = "Production",
                                 SpecNumber = group.GroupNumber,
+                                SpecName = group.SelectedSpecName ?? "",
                                 Description = BuildRowDescription(
                                     group, "Cutting + tempering", $"{cutSqm:0.##} SQM"),
                                 Quantity = Math.Round(cutSqm, 2),
@@ -708,27 +728,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// store has no usable purchase price (caller counts it as skipped).
         /// </summary>
         /// <summary>
-        /// Builds a P&amp;L row description that leads with the FULL
-        /// specification chosen in the Step 5 DataGrid.
+        /// Builds the detail half of a P&amp;L row.
         ///
-        /// Previously each row described only its own fragment ("12mm air
-        /// spacer", "Outer · 6mm Clear"), so a printed P&amp;L could not be
-        /// tied back to the product being quoted. The spec name is the
-        /// authoritative description of the glass build-up, so it leads.
-        ///
-        /// Result: "6mm Clear FT + 12mm ASP + 6mm Clear FT — outer pane ·
-        /// 6mm Clear · 7 sheet(s) · chosen in Step 4".
-        /// Falls back to just the part when a group has no spec selected.
+        /// The full specification is carried separately on
+        /// <see cref="ProfitLossRow.SpecName"/> and rendered in the SPEC
+        /// column, so it deliberately is NOT repeated here — printing it in
+        /// both places made every row unreadably long.
         /// </summary>
         private static string BuildRowDescription(
             SpecGroup group, string part, string detail)
         {
-            string spec = (group?.SelectedSpecName ?? "").Trim();
-            string tail = string.IsNullOrWhiteSpace(detail)
-                ? part
-                : $"{part} · {detail}";
-
-            return spec.Length == 0 ? tail : $"{spec} — {tail}";
+            return string.IsNullOrWhiteSpace(detail) ? part : $"{part} · {detail}";
         }
 
         private async Task<ProfitLossRow?> BuildGlassRowAsync(
@@ -816,6 +826,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             {
                 Kind = "Glass",
                 SpecNumber = specNumber,
+                SpecName = group?.SelectedSpecName ?? "",
                 // Full specification from the Step 5 DataGrid, so the row
                 // reads as the product actually being quoted rather than a
                 // fragment. Falls back to the parsed pane when a group has

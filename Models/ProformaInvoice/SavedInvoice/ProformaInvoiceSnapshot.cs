@@ -361,5 +361,12 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         /// ("chosen in Step 4" / "from Sheet Store" / default fallback).
         /// </summary>
         public string SheetSource { get; set; } = "";
+
+        /// <summary>
+        /// Full specification the row was costed against, so a reopened
+        /// invoice still shows what was quoted rather than "SPEC 2".
+        /// Additive — invoices saved before this field load with "".
+        /// </summary>
+        public string SpecName { get; set; } = "";
     }
 }

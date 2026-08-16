@@ -267,9 +267,11 @@
                             Padding="16,12">
                         <Grid>
                             <Grid.ColumnDefinitions>
+                                <!-- Must stay in step with the row template
+                                     below, or headers drift off their data. -->
                                 <ColumnDefinition Width="90"/>
-                                <ColumnDefinition Width="80"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="2*" MinWidth="200"/>
+                                <ColumnDefinition Width="*" MinWidth="150"/>
                                 <ColumnDefinition Width="200"/>
                                 <ColumnDefinition Width="70"/>
                                 <ColumnDefinition Width="120"/>
@@ -299,8 +301,12 @@
                                     <Grid>
                                         <Grid.ColumnDefinitions>
                                             <ColumnDefinition Width="90"/>
-                                            <ColumnDefinition Width="80"/>
-                                            <ColumnDefinition Width="*"/>
+                                            <!-- SPEC: now prints the full
+                                                 specification from the Step 5
+                                                 DataGrid, not "SPEC 2", so it
+                                                 needs a real share of width. -->
+                                            <ColumnDefinition Width="2*" MinWidth="200"/>
+                                            <ColumnDefinition Width="*" MinWidth="150"/>
                                             <ColumnDefinition Width="200"/>
                                             <ColumnDefinition Width="70"/>
                                             <ColumnDefinition Width="120"/>
@@ -316,7 +322,10 @@
                                         <TextBlock Grid.Column="1"
                                                    Text="{Binding SpecDisplay}"
                                                    Style="{StaticResource PlCellStyle}"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                                   TextWrapping="Wrap"
+                                                   Margin="0,0,12,0"
+                                                   ToolTip="{Binding SpecDisplay}"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
 
                                         <TextBlock Grid.Column="2"
                                                    Text="{Binding Description}"

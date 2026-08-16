@@ -178,8 +178,6 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
@@ -220,8 +218,6 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
@@ -236,14 +232,6 @@
                     <TextBox Text="{Binding OuterSheetHeightMm, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource DguInputStyle}"
                              ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="4">
-                    <TextBlock Text="OUTER STOCK SIZE" Style="{StaticResource DguLabelStyle}"/>
-                    <ComboBox ItemsSource="{Binding OuterSheetSizeOptions}"
-                              Text="{Binding SelectedOuterSheetSize, UpdateSourceTrigger=PropertyChanged}"
-                              Style="{StaticResource DguEditableComboBoxStyle}"
-                              ToolTip="Other sizes stocked for this colour and thickness. Picking one fills width and height."/>
                 </StackPanel>
             </Grid>
 
@@ -288,8 +276,6 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
@@ -328,8 +314,6 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
@@ -344,14 +328,6 @@
                     <TextBox Text="{Binding InnerSheetHeightMm, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource DguInputStyle}"
                              ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="4">
-                    <TextBlock Text="INNER STOCK SIZE" Style="{StaticResource DguLabelStyle}"/>
-                    <ComboBox ItemsSource="{Binding InnerSheetSizeOptions}"
-                              Text="{Binding SelectedInnerSheetSize, UpdateSourceTrigger=PropertyChanged}"
-                              Style="{StaticResource DguEditableComboBoxStyle}"
-                              ToolTip="Other sizes stocked for this colour and thickness. Picking one fills width and height."/>
                 </StackPanel>
             </Grid>
 
@@ -368,8 +344,6 @@
             ══════════════════════════════════════════════════════════ -->
             <Grid>
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
