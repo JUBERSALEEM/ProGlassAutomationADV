@@ -23,6 +23,11 @@
                      of truth for all button visuals project-wide. -->
                 <ResourceDictionary Source="Styles/ButtonStyles.xaml"/>
 
+                <!-- Shared chrome for the four Step 4 parameter panels.
+                     Merged app-wide so all four reference one definition
+                     instead of each keeping its own drifting copy. -->
+                <ResourceDictionary Source="Styles/Step4SectionStyles.xaml"/>
+
                 <!-- Module tab strip + God View styles (DN/JO/TI tabs) -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ModuleTabStyles.xaml"/>
 

@@ -109,6 +109,88 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
         };
 
         // ══════════════════════════════════════════════════════════════
+        //  FABRICATION EXTRAS
+        //
+        //  The hybrid is a DGU and a laminate at once, so it can carry the
+        //  add-ons of BOTH. These three lists are the same ones the DGU and
+        //  LAM panels already offer, kept identical on purpose: a spec that
+        //  reads one way on the DGU screen must read the same way here, or
+        //  the same physical product ends up with two different names in
+        //  the database.
+        //
+        //  SPACER EXTRA  — from DGU (U-Insert on the sealed unit)
+        //  PANEL EXTRA   — from DGU (overlap, cutouts, holes, argon…)
+        //  EDGE POLISH   — from LAM (which edges get polished)
+        //
+        //  "As Per DWG" variants exist throughout because the shop needs to
+        //  know whether the detail follows a drawing rather than a default.
+        // ══════════════════════════════════════════════════════════════
+
+        public List<string> SpacerExtraOptions { get; } = new()
+        {
+            "None",
+            "With U-Insert",
+            "With U-Insert As Per DWG"
+        };
+
+        public List<string> PanelExtraOptions { get; } = new()
+        {
+            "None",
+            "With Overlap",
+            "With Overlap As Per DWG",
+            "With Fanhole",
+            "With Fanhole As Per DWG",
+            "With Cutout",
+            "With Cutout As Per DWG",
+            "With Holes",
+            "With Holes As Per DWG",
+            "With Cutout And Holes",
+            "With Cutout And Holes As Per DWG",
+            "With Shutter Bonding",
+            "With Shutter Bonding As Per DWG",
+            "With Argon Gas",
+            "With Argon Gas As Per DWG"
+        };
+
+        public List<string> EdgePolishOptions { get; } = new()
+        {
+            "None",
+            "All Side Polish",
+            "All Side Polish As Per DWG",
+            "Both Height Side Polish",
+            "Both Height Side Polish As Per DWG",
+            "Both Width Side Polish",
+            "Both Width Side Polish As Per DWG",
+            "Both Height + One Width Side Polish",
+            "Both Height + One Width Side Polish As Per DWG",
+            "One Height + One Width Side Polish",
+            "One Height + One Width Side Polish As Per DWG",
+            "One Height Side Polish",
+            "One Width Side Polish"
+        };
+
+        private string _spacerExtra = "None";
+        public string SpacerExtra
+        {
+            get => _spacerExtra;
+            set { if (_spacerExtra == value) return; _spacerExtra = value; Changed(); }
+        }
+
+        private string _panelExtra = "None";
+        public string PanelExtra
+        {
+            get => _panelExtra;
+            set { if (_panelExtra == value) return; _panelExtra = value; Changed(); }
+        }
+
+        private string _edgePolish = "None";
+        public string EdgePolish
+        {
+            get => _edgePolish;
+            set { if (_edgePolish == value) return; _edgePolish = value; Changed(); }
+        }
+
+        // ══════════════════════════════════════════════════════════════
         //  PANE 1 — OUTER (in front of the air spacer)
         // ══════════════════════════════════════════════════════════════
 
@@ -435,24 +517,54 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
         // ══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// "6mm HD Grey FT Glass + 12mm ASP + 6mm Clear FT Glass
-        ///  + 1.52mm Clear PVB + 6mm Clear FT Glass"
+        /// Builds the full specification string, e.g.
         ///
-        /// The layer order matters beyond display: Step 9 parses this string
-        /// to work out how many panes to cost, so the three "… Glass"
-        /// segments and the two separators must appear exactly like this.
+        ///   "6mm HD Grey FT Glass + 12mm ASP + 6mm Clear FT Glass
+        ///    + 1.52mm Clear PVB + 6mm Clear FT Glass"
+        ///
+        /// with fabrication extras woven in exactly where the DGU and LAM
+        /// panels put them, so the same physical product reads the same way
+        /// whichever screen produced it:
+        ///
+        ///   spacer extra -> attached to the ASP segment
+        ///       "… + 12mm ASP With U-Insert + …"
+        ///   panel extra  -> attached to the LAST glass pane
+        ///       "… + 6mm Clear FT Glass With Overlap As Per DWG"
+        ///   edge polish  -> a " With …" suffix on the whole string
+        ///       "… With Both Height Side Polish"
+        ///
+        /// Both an extra and a polish can apply at once, which is why the
+        /// polish is appended last rather than merged into a pane:
+        ///   "… With Overlap As Per DWG With All Side Polish"
+        ///
+        /// The layer order is load-bearing: Step 9 parses this string to
+        /// decide how many panes to cost, so the three "… Glass" segments
+        /// and the two separators must survive any edit here.
         /// </summary>
         public string GeneratedSpecName
         {
             get
             {
+                static bool Has(string v) =>
+                    !string.IsNullOrWhiteSpace(v) &&
+                    !v.Equals("None", StringComparison.OrdinalIgnoreCase);
+
                 string outer = $"{OuterThickness} {OuterGlassColor} {OuterTreatment} Glass";
+
                 string spacer = $"{SpacerThickness} ASP";
+                if (Has(SpacerExtra)) spacer += $" {SpacerExtra}";
+
                 string lamOuter = $"{LamOuterThickness} {LamOuterColor} {LamOuterTreatment} Glass";
                 string interlayer = $"{InterlayerThickness} {InterlayerColor} {InterlayerType}";
-                string lamInner = $"{LamInnerThickness} {LamInnerColor} {LamInnerTreatment} Glass";
 
-                return $"{outer} + {spacer} + {lamOuter} + {interlayer} + {lamInner}";
+                string lamInner = $"{LamInnerThickness} {LamInnerColor} {LamInnerTreatment} Glass";
+                if (Has(PanelExtra)) lamInner += $" {PanelExtra}";
+
+                string spec = $"{outer} + {spacer} + {lamOuter} + {interlayer} + {lamInner}";
+
+                if (Has(EdgePolish)) spec += $" With {EdgePolish}";
+
+                return spec;
             }
         }
 

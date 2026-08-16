@@ -291,6 +291,121 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Equal(344.75m - (62m * 1.20m), vm.CalculateRate());
         }
 
+        // ══════════════════════════════════════════════════════════════
+        //  FABRICATION EXTRAS
+        //
+        //  The hybrid is a DGU and a laminate at once, so it must offer the
+        //  add-ons of both. These tests pin WHERE each one lands in the
+        //  spec string, because Step 9 parses that string to cost the job:
+        //  an extra dropped into the wrong segment can hide a pane.
+        // ══════════════════════════════════════════════════════════════
+
+        [Fact]
+        public void No_extras_selected_leaves_the_spec_name_clean()
+        {
+            // "None" must contribute nothing at all — not " With None".
+            string spec = Vm().GeneratedSpecName;
+
+            Assert.DoesNotContain("None", spec);
+            Assert.DoesNotContain("With", spec);
+        }
+
+        [Fact]
+        public void Edge_polish_is_appended_as_a_with_suffix()
+        {
+            var vm = Vm();
+            vm.EdgePolish = "Both Height Side Polish";
+
+            Assert.EndsWith(" With Both Height Side Polish", vm.GeneratedSpecName);
+        }
+
+        [Fact]
+        public void Spacer_extra_attaches_to_the_spacer_segment()
+        {
+            var vm = Vm();
+            vm.SpacerExtra = "With U-Insert";
+
+            Assert.Contains("12mm ASP With U-Insert +", vm.GeneratedSpecName);
+        }
+
+        [Fact]
+        public void Panel_extra_attaches_to_the_last_pane()
+        {
+            var vm = Vm();
+            vm.PanelExtra = "With Overlap As Per DWG";
+
+            Assert.EndsWith(
+                "6mm Clear FT Glass With Overlap As Per DWG",
+                vm.GeneratedSpecName);
+        }
+
+        [Fact]
+        public void An_extra_and_a_polish_can_both_apply()
+        {
+            // The business asked for exactly this combination, e.g.
+            // "with u insert and both height side polish".
+            var vm = Vm();
+            vm.SpacerExtra = "With U-Insert";
+            vm.EdgePolish = "Both Height Side Polish";
+
+            string spec = vm.GeneratedSpecName;
+
+            Assert.Contains("ASP With U-Insert", spec);
+            Assert.EndsWith(" With Both Height Side Polish", spec);
+        }
+
+        [Fact]
+        public void Extras_never_hide_a_pane_from_the_costing_parser()
+        {
+            // Whatever extras are chosen, Step 9 must still find three
+            // panes. This is the failure that would silently undercost a
+            // job, so it is checked against every extra at once.
+            var vm = Vm();
+            vm.SpacerExtra = "With U-Insert As Per DWG";
+            vm.PanelExtra = "With Cutout And Holes As Per DWG";
+            vm.EdgePolish = "All Side Polish As Per DWG";
+
+            string spec = vm.GeneratedSpecName;
+
+            Assert.Equal(3, spec.Split("Glass").Length - 1);
+            Assert.Contains("ASP", spec);
+            Assert.Contains("PVB", spec);
+        }
+
+        [Fact]
+        public void Hybrid_offers_the_same_extras_as_the_dgu_and_lam_panels()
+        {
+            // Identical lists on purpose: the same physical product must
+            // not get two different names depending on which screen built
+            // it.
+            var vm = Vm();
+
+            Assert.Contains("With U-Insert", vm.SpacerExtraOptions);
+            Assert.Contains("With Overlap As Per DWG", vm.PanelExtraOptions);
+            Assert.Contains("Both Height Side Polish", vm.EdgePolishOptions);
+            Assert.Contains("All Side Polish", vm.EdgePolishOptions);
+
+            // "None" must be first so the default selection is no extra.
+            Assert.Equal("None", vm.SpacerExtraOptions[0]);
+            Assert.Equal("None", vm.PanelExtraOptions[0]);
+            Assert.Equal("None", vm.EdgePolishOptions[0]);
+        }
+
+        [Fact]
+        public void Extras_do_not_change_the_price()
+        {
+            // They describe fabrication, not cost. If one ever should carry
+            // a charge it must be added deliberately, not inherited.
+            decimal before = Vm().CalculateRate();
+
+            var vm = Vm();
+            vm.SpacerExtra = "With U-Insert";
+            vm.PanelExtra = "With Overlap";
+            vm.EdgePolish = "All Side Polish";
+
+            Assert.Equal(before, vm.CalculateRate());
+        }
+
         [Fact]
         public void Spec_name_follows_the_selected_interlayer()
         {

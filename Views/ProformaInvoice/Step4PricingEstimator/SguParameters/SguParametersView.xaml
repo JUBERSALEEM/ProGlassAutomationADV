@@ -3,262 +3,187 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
-             d:DesignHeight="500" d:DesignWidth="900"
+             d:DesignHeight="320" d:DesignWidth="900"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
-             TextOptions.TextHintingMode="Fixed"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <UserControl.Resources>
+    <!--
+        ══════════════════════════════════════════════════════════════════
+        SINGLE GLAZED UNIT (SGU)
 
-        <!-- ══════════════════════════════════════════════════════════════
-             FIELD LABEL — 11px SemiBold indigo (this section's accent color)
-        ══════════════════════════════════════════════════════════════ -->
-        <Style x:Key="SguLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="10"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="#4338CA"/>
-            <Setter Property="Margin"     Value="0,0,0,3"/>
-        </Style>
+        One pane. Two collapsible sections: what the glass IS, and what it
+        COSTS. Glass opens by default because it is what changes per job;
+        costing is usually set once and left alone.
 
-        <!-- ══════════════════════════════════════════════════════════════
-             TEXTBOX — local compact override.
+        All chrome comes from Styles/Step4SectionStyles.xaml so this panel
+        cannot drift away from the other three.
+        ══════════════════════════════════════════════════════════════════
+    -->
 
-             These used to inherit the global App.xaml TextBox style, which
-             hard-sets Height=38. That is taller than the 30px combo boxes
-             beside them, so the two controls in a row sat at different
-             heights and the panel ran past the bottom of the view.
-
-             Only the density properties are restated. Everything else
-             (brushes, corner radius, focus behaviour, SelectAllOnFocus)
-             still comes from the global style via BasedOn, so this cannot
-             drift away from the app's look.
-        ══════════════════════════════════════════════════════════════ -->
-        <Style x:Key="SguInputStyle"
-               TargetType="TextBox"
-               BasedOn="{StaticResource {x:Type TextBox}}">
-            <Setter Property="Height"   Value="30"/>
-            <Setter Property="Padding"  Value="8,0"/>
-            <Setter Property="FontSize" Value="12"/>
-        </Style>
-
-        <!-- ══════════════════════════════════════════════════════════════
-             COMBOBOX — matches global input rendering (Height=38, indigo focus)
-        ══════════════════════════════════════════════════════════════ -->
-        <Style x:Key="StepComboBoxStyle" TargetType="ComboBox">
-            <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness"          Value="1"/>
-            <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="FontSize"                 Value="13"/>
-            <Setter Property="Padding"                  Value="8,0"/>
-            <Setter Property="Height"                   Value="30"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="#6366F1"/>
-                </Trigger>
-                <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                    <Setter Property="BorderBrush"     Value="#4338CA"/>
-                    <Setter Property="BorderThickness" Value="2"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- Editable ComboBox — inherits above, adds text search -->
-        <Style x:Key="StepEditableComboBoxStyle"
-               TargetType="ComboBox"
-               BasedOn="{StaticResource StepComboBoxStyle}">
-            <Setter Property="IsEditable"         Value="True"/>
-            <Setter Property="IsTextSearchEnabled" Value="True"/>
-        </Style>
-
-    </UserControl.Resources>
-
-    <!-- ══════════════════════════════════════════════════════════════════
-         SGU PARAMETERS CARD
-    ══════════════════════════════════════════════════════════════════ -->
     <Border Background="{DynamicResource ModuleBackgroundBrush}"
-            CornerRadius="14"
-            Padding="14"
+            CornerRadius="12"
+            Padding="10"
             Margin="0,6,0,0"
             BorderThickness="1"
             BorderBrush="{DynamicResource BorderBrush}">
         <StackPanel>
 
-            <!-- ── Section header — icon badge + title ── -->
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                <Border Background="{DynamicResource TintIndigoBrush}"
-                        Width="26" Height="26"
-                        CornerRadius="8"
-                        VerticalAlignment="Center"
-                        Margin="0,0,10,0">
-                    <!-- Segoe MDL2 layers icon -->
-                    <TextBlock Text="&#xE81E;"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="12"
-                               Foreground="{DynamicResource AccentBrush}"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"/>
-                </Border>
-                <TextBlock Text="Single Glass (SGU) Parameters"
-                           FontSize="13"
-                           FontWeight="Bold"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                           VerticalAlignment="Center"/>
-            </StackPanel>
-
-            <!-- ── Live spec name preview — indigo tint chip ── -->
-            <Border Background="{DynamicResource TintIndigoBrush}"
-                    BorderBrush="#C7D2FE"
+            <!-- ── Live spec preview ── -->
+            <Border Background="{DynamicResource TintPurpleBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="1"
-                    CornerRadius="10"
-                    Padding="14,10"
-                    Margin="0,0,0,8"
-                    HorizontalAlignment="Left">
+                    CornerRadius="6"
+                    Padding="8,5"
+                    Margin="0,0,0,6">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE7C1;"
                                FontFamily="Segoe MDL2 Assets"
-                               FontSize="12"
-                               Foreground="{DynamicResource AccentBrush}"
+                               FontSize="10"
+                               Foreground="#4338CA"
                                VerticalAlignment="Center"
-                               Margin="0,0,8,0"/>
-                    <TextBlock Text="Generated Spec:"
-                               FontSize="11"
-                               FontWeight="SemiBold"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               VerticalAlignment="Center"
-                               Margin="0,0,8,0"/>
+                               Margin="0,0,6,0"/>
                     <TextBlock Text="{Binding GeneratedSpecName}"
-                               FontSize="12"
+                               FontSize="11"
                                FontWeight="Bold"
-                               Foreground="{DynamicResource AccentBrush}"
+                               Foreground="#4338CA"
                                TextWrapping="Wrap"
                                VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>
 
-            <!-- ══════════════════════════════════════════════════════════
-                 ROW 1: Thickness · Color · Treatment · Base Price
-            ══════════════════════════════════════════════════════════ -->
-            <Grid Margin="0,0,0,8">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+            <!-- ══════════════════════════════════════════════════════
+                 GLASS
+            ══════════════════════════════════════════════════════ -->
+            <Expander Style="{StaticResource Step4SectionStyle}"
+                      Content="GLASS"
+                      IsExpanded="True"
+                      Tag="{Binding GeneratedSpecName}">
+                <StackPanel>
+                    <Grid Margin="0,0,0,5">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="6"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="6"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="6"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="THICKNESS" Style="{StaticResource SguLabelStyle}"/>
-                    <ComboBox ItemsSource="{Binding ThicknessOptions}"
-                              SelectedItem="{Binding SelectedThickness}"
-                              Style="{StaticResource StepComboBoxStyle}"/>
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="THICKNESS" Style="{StaticResource Step4LabelStyle}"/>
+                            <ComboBox ItemsSource="{Binding ThicknessOptions}"
+                                      SelectedItem="{Binding SelectedThickness}"
+                                      Style="{StaticResource Step4ComboStyle}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="COLOUR" Style="{StaticResource Step4LabelStyle}"/>
+                            <ComboBox ItemsSource="{Binding ColorOptions}"
+                                      Text="{Binding GlassColor, UpdateSourceTrigger=PropertyChanged}"
+                                      Style="{StaticResource Step4EditableComboStyle}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="4">
+                            <TextBlock Text="TREATMENT" Style="{StaticResource Step4LabelStyle}"/>
+                            <ComboBox ItemsSource="{Binding TreatmentOptions}"
+                                      SelectedItem="{Binding SelectedTreatment}"
+                                      Style="{StaticResource Step4ComboStyle}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="6">
+                            <TextBlock Text="BASE PRICE / SQM" Style="{StaticResource Step4LabelStyle}"/>
+                            <TextBox Text="{Binding BasePricePerSqm, StringFormat={}{0:0.##}}"
+                                     Style="{StaticResource Step4InputStyle}"/>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="6"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="6"/>
+                            <ColumnDefinition Width="2*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0">
+                            <TextBlock Text="SHEET W (MM)" Style="{StaticResource Step4LabelStyle}"/>
+                            <TextBox Text="{Binding SheetWidthMm, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource Step4InputStyle}"
+                                     ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="2">
+                            <TextBlock Text="SHEET H (MM)" Style="{StaticResource Step4LabelStyle}"/>
+                            <TextBox Text="{Binding SheetHeightMm, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource Step4InputStyle}"
+                                     ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="4">
+                            <TextBlock Text="EDGE POLISH" Style="{StaticResource Step4LabelStyle}"/>
+                            <ComboBox ItemsSource="{Binding PolishOptions}"
+                                      SelectedItem="{Binding SelectedPolishOption}"
+                                      Style="{StaticResource Step4ComboStyle}"
+                                      ToolTip="Polishing adds surface finish cost. Flat edge is most common for interior use."/>
+                        </StackPanel>
+                    </Grid>
                 </StackPanel>
+            </Expander>
 
-                <StackPanel Grid.Column="2">
-                    <TextBlock Text="GLASS COLOR" Style="{StaticResource SguLabelStyle}"/>
-                    <ComboBox ItemsSource="{Binding ColorOptions}"
-                              Text="{Binding GlassColor, UpdateSourceTrigger=PropertyChanged}"
-                              Style="{StaticResource StepEditableComboBoxStyle}"/>
-                </StackPanel>
+            <!-- ══════════════════════════════════════════════════════
+                 COSTING
+            ══════════════════════════════════════════════════════ -->
+            <Expander Style="{StaticResource Step4SectionStyle}"
+                      Content="COSTING">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="6"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="6"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="6"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-                <StackPanel Grid.Column="4">
-                    <TextBlock Text="TREATMENT TYPE" Style="{StaticResource SguLabelStyle}"/>
-                    <ComboBox ItemsSource="{Binding TreatmentOptions}"
-                              SelectedItem="{Binding SelectedTreatment}"
-                              Style="{StaticResource StepComboBoxStyle}"/>
-                </StackPanel>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="CUTTING / SQM" Style="{StaticResource Step4LabelStyle}"/>
+                        <TextBox Text="{Binding CuttingCostPerSqm, StringFormat={}{0:0.##}}"
+                                 Style="{StaticResource Step4InputStyle}"/>
+                    </StackPanel>
 
-                <StackPanel Grid.Column="6">
-                    <TextBlock Text="BASE PRICE / SQM (AED)" Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding BasePricePerSqm, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource SguInputStyle}"/>
-                </StackPanel>
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="TEMPERING / SQM" Style="{StaticResource Step4LabelStyle}"/>
+                        <TextBox Text="{Binding TemperingCostPerSqm, StringFormat={}{0:0.##}}"
+                                 Style="{StaticResource Step4InputStyle}"/>
+                    </StackPanel>
 
-                <StackPanel Grid.Column="8">
-                    <TextBlock Text="SHEET W (MM)" Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding SheetWidthMm, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource SguInputStyle}"
-                             ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
-                </StackPanel>
+                    <StackPanel Grid.Column="4">
+                        <TextBlock Text="YIELD FACTOR" Style="{StaticResource Step4LabelStyle}"/>
+                        <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}"
+                                 Style="{StaticResource Step4InputStyle}"/>
+                    </StackPanel>
 
-                <StackPanel Grid.Column="10">
-                    <TextBlock Text="SHEET H (MM)" Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding SheetHeightMm, UpdateSourceTrigger=PropertyChanged}"
-                             Style="{StaticResource SguInputStyle}"
-                             ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
-                </StackPanel>
-            </Grid>
+                    <StackPanel Grid.Column="6">
+                        <TextBlock Text="MARGIN %" Style="{StaticResource Step4LabelStyle}"/>
+                        <TextBox Text="{Binding TargetMarginPercent, StringFormat={}{0:0.##}}"
+                                 Style="{StaticResource Step4InputStyle}"/>
+                    </StackPanel>
+                </Grid>
+            </Expander>
 
-                        <!-- Skippable Sheet Store guidance — theme WarningBrush -->
+            <!-- Sheet Store guidance — only visible when there is something to say -->
             <TextBlock Text="{Binding SheetStoreHint}"
-                       FontSize="11"
-                       FontWeight="SemiBold"
+                       FontSize="10"
+                       Foreground="{DynamicResource WarningBrush}"
                        TextWrapping="Wrap"
-                       Margin="0,0,0,8"
-                       Foreground="{DynamicResource WarningBrush}"/>
-
-            <!-- ══════════════════════════════════════════════════════════
-                 ROW 2: Cutting · Tempering · Yield · Margin
-            ══════════════════════════════════════════════════════════ -->
-            <Grid Margin="0,0,0,8">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="CUTTING COST / SQM" Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding CuttingCostPerSqm, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource SguInputStyle}"/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="2">
-                    <TextBlock Text="TEMPERING COST / SQM" Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding TemperingCostPerSqm, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource SguInputStyle}"/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="4">
-                    <TextBlock Text="YIELD FACTOR (CLEARING)" Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource SguInputStyle}"/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="6">
-                    <TextBlock Text="TARGET MARGIN %" Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding TargetMarginPercent, StringFormat={}{0:0.##}}"
-                             Style="{StaticResource SguInputStyle}"/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="8">
-                    <TextBlock Text="POLISH / DETAIL" Style="{StaticResource SguLabelStyle}"/>
-                    <ComboBox ItemsSource="{Binding PolishOptions}"
-                              SelectedItem="{Binding SelectedPolishOption}"
-                              Style="{StaticResource StepComboBoxStyle}"
-                              ToolTip="Polishing adds surface finish cost — flat edge is most common for interior use."/>
-                </StackPanel>
-            </Grid>
-
+                       Margin="2,4,0,0"/>
 
         </StackPanel>
     </Border>

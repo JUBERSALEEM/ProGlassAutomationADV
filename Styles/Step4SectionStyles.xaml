@@ -1,0 +1,225 @@
+<!--
+    ══════════════════════════════════════════════════════════════════════
+    FILE: Styles/Step4SectionStyles.xaml
+
+    Shared chrome for the four Step 4 parameter panels (SGU, DGU, LAM,
+    DGU+LAM).
+
+    WHY THIS FILE EXISTS
+    Each panel had grown its own copy of the same label / input / combo
+    styles, four near-identical sets that drifted apart. Worse, the panels
+    were tall enough to need scrolling, and the fix for that is not smaller
+    text — it is showing only the section being worked on.
+
+    Sections are Expanders. The one a user is editing is open; the rest
+    collapse to a single header line. A panel that ran to 700+ px now opens
+    at roughly 300 px and never needs a scrollbar.
+
+    DENSITY
+    26 px controls, 10 px labels, 6 px gutters. These are deliberately
+    tighter than the app default because this screen is a dense numeric
+    form, not a data-entry page — every field here is a number or a short
+    dropdown, and the user is comparing them against each other.
+
+    A NOTE ON TEXTBOX HEIGHT
+    App.xaml sets an implicit TextBox style with Height=38. Any TextBox
+    that does not carry Step4InputStyle will silently render 12 px taller
+    than the combo box beside it, which is exactly how the panels drifted
+    out of alignment before. Always set the style explicitly.
+    ══════════════════════════════════════════════════════════════════════
+-->
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors">
+
+    <!-- ══════════════════════════════════════════════════════════════
+         FIELD LABEL
+    ══════════════════════════════════════════════════════════════ -->
+    <Style x:Key="Step4LabelStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"     Value="10"/>
+        <Setter Property="FontWeight"   Value="SemiBold"/>
+        <Setter Property="Foreground"   Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Margin"       Value="0,0,0,2"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         TEXT INPUT — 26 px, borderless template inside its own Border
+    ══════════════════════════════════════════════════════════════ -->
+    <Style x:Key="Step4InputStyle" TargetType="TextBox">
+        <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
+        <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="BorderThickness"          Value="1"/>
+        <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="FontSize"                 Value="12"/>
+        <Setter Property="Padding"                  Value="7,0"/>
+        <Setter Property="Height"                   Value="26"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="CaretBrush"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="TextBox">
+                    <Border x:Name="Chrome"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="6"
+                            BorderThickness="{TemplateBinding BorderThickness}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            SnapsToDevicePixels="True">
+                        <ScrollViewer x:Name="PART_ContentHost"
+                                      Focusable="False"
+                                      HorizontalScrollBarVisibility="Hidden"
+                                      VerticalScrollBarVisibility="Hidden"
+                                      Margin="{TemplateBinding Padding}"
+                                      VerticalAlignment="Center"
+                                      Background="Transparent"/>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="#6366F1"/>
+                        </Trigger>
+                        <Trigger Property="IsFocused" Value="True">
+                            <Setter TargetName="Chrome" Property="BorderBrush"     Value="#4338CA"/>
+                            <Setter TargetName="Chrome" Property="BorderThickness" Value="2"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         COMBO — same 26 px so rows line up
+    ══════════════════════════════════════════════════════════════ -->
+    <Style x:Key="Step4ComboStyle" TargetType="ComboBox">
+        <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="BorderThickness"          Value="1"/>
+        <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="FontSize"                 Value="12"/>
+        <Setter Property="Padding"                  Value="6,0"/>
+        <Setter Property="Height"                   Value="26"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Style.Triggers>
+            <Trigger Property="IsMouseOver" Value="True">
+                <Setter Property="BorderBrush" Value="#6366F1"/>
+            </Trigger>
+            <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                <Setter Property="BorderBrush"     Value="#4338CA"/>
+                <Setter Property="BorderThickness" Value="2"/>
+            </Trigger>
+        </Style.Triggers>
+    </Style>
+
+    <Style x:Key="Step4EditableComboStyle"
+           TargetType="ComboBox"
+           BasedOn="{StaticResource Step4ComboStyle}">
+        <Setter Property="IsEditable"          Value="True"/>
+        <Setter Property="IsTextSearchEnabled" Value="True"/>
+    </Style>
+
+    <!-- ══════════════════════════════════════════════════════════════
+         SECTION — a collapsible group of fields.
+
+         The header is a single 28 px line carrying a chevron, the section
+         title, and (via the Tag) a one-line summary of what is inside, so
+         a collapsed section still tells you its current values without
+         being opened.
+    ══════════════════════════════════════════════════════════════ -->
+    <Style x:Key="Step4SectionStyle" TargetType="Expander">
+        <Setter Property="Margin"     Value="0,0,0,4"/>
+        <Setter Property="IsExpanded" Value="False"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Expander">
+                    <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="8"
+                            SnapsToDevicePixels="True">
+                        <Grid>
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
+
+                            <!-- Header -->
+                            <ToggleButton x:Name="HeaderToggle"
+                                          Grid.Row="0"
+                                          Focusable="False"
+                                          Cursor="Hand"
+                                          IsChecked="{Binding IsExpanded,
+                                                      RelativeSource={RelativeSource TemplatedParent},
+                                                      Mode=TwoWay}">
+                                <ToggleButton.Template>
+                                    <ControlTemplate TargetType="ToggleButton">
+                                        <Border x:Name="HeadBorder"
+                                                Background="Transparent"
+                                                Padding="10,0"
+                                                Height="28">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock x:Name="Chevron"
+                                                           Grid.Column="0"
+                                                           Text="&#xE76C;"
+                                                           FontFamily="Segoe MDL2 Assets"
+                                                           FontSize="9"
+                                                           Foreground="#4338CA"
+                                                           VerticalAlignment="Center"
+                                                           Margin="0,0,8,0"/>
+
+                                                <TextBlock Grid.Column="1"
+                                                           Text="{TemplateBinding Content}"
+                                                           FontSize="10"
+                                                           FontWeight="Bold"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                           VerticalAlignment="Center"/>
+
+                                                <!-- Live summary of the collapsed contents -->
+                                                <TextBlock Grid.Column="2"
+                                                           Text="{TemplateBinding Tag}"
+                                                           FontSize="10"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           VerticalAlignment="Center"
+                                                           Margin="12,0,0,0"
+                                                           TextTrimming="CharacterEllipsis"/>
+                                            </Grid>
+                                        </Border>
+                                        <ControlTemplate.Triggers>
+                                            <Trigger Property="IsChecked" Value="True">
+                                                <Setter TargetName="Chevron" Property="Text" Value="&#xE70D;"/>
+                                            </Trigger>
+                                            <Trigger Property="IsMouseOver" Value="True">
+                                                <Setter TargetName="HeadBorder" Property="Background"
+                                                        Value="{DynamicResource MenuHoverBrush}"/>
+                                            </Trigger>
+                                        </ControlTemplate.Triggers>
+                                    </ControlTemplate>
+                                </ToggleButton.Template>
+                            </ToggleButton>
+
+                            <!-- Body -->
+                            <Border x:Name="Body"
+                                    Grid.Row="1"
+                                    Padding="10,2,10,8"
+                                    Visibility="Collapsed">
+                                <ContentPresenter/>
+                            </Border>
+                        </Grid>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="IsExpanded" Value="True">
+                            <Setter TargetName="Body" Property="Visibility" Value="Visible"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+</ResourceDictionary>
