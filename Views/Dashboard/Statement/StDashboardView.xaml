@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Dashboard/Statement/StDashboardView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Account Statement Dashboard (Chat 23 v1.7)
@@ -128,8 +128,8 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="bd"
                                 CornerRadius="10"
+                                Background="{DynamicResource AccentBrush}"
                                 Padding="{TemplateBinding Padding}">
-                            Background="{DynamicResource AccentBrush}"
                             <ContentPresenter
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"/>
@@ -164,9 +164,9 @@
                         <Border x:Name="bd"
                                 CornerRadius="10"
                                 BorderThickness="1.5"
+                                Background="{DynamicResource ElevatedSurfaceBrush}"
+                                BorderBrush="{DynamicResource AccentBrush}"
                                 Padding="{TemplateBinding Padding}">
-                            Background="{DynamicResource ElevatedSurfaceBrush}"
-                            BorderBrush="{DynamicResource AccentBrush}"
                             <ContentPresenter
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"/>
@@ -198,8 +198,8 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="bd"
                                 CornerRadius="9"
+                                Background="{DynamicResource AccentBrush}"
                                 Padding="{TemplateBinding Padding}">
-                            Background="{DynamicResource AccentBrush}"
                             <ContentPresenter
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"/>

@@ -1,4 +1,4 @@
-﻿<!--
+<!--
 ═══════════════════════════════════════════════════════════════════════
 FILE: Views/Dashboard/TaxInvoice/TiDashboard/TiDashboardView.xaml
 CLASS: ProGlassAutomation.Views.Dashboard.TaxInvoice.TiDashboard.TiDashboardView
@@ -196,8 +196,8 @@ FLAG FOR LATER:
                         <Border x:Name="Root"
                                 CornerRadius="10"
                                 SnapsToDevicePixels="True"
+                                Background="{DynamicResource AccentBrush}"
                                 Padding="{TemplateBinding Padding}">
-                            Background="{DynamicResource AccentBrush}"
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="{TemplateBinding Tag}"
                                            FontSize="14"
@@ -243,8 +243,8 @@ FLAG FOR LATER:
                                 BorderThickness="1.5"
                                 CornerRadius="10"
                                 SnapsToDevicePixels="True"
+                                Background="{DynamicResource ElevatedSurfaceBrush}"
                                 Padding="{TemplateBinding Padding}">
-                            Background="{DynamicResource ElevatedSurfaceBrush}"
                             <TextBlock Text="{TemplateBinding Content}"
                                        FontSize="{TemplateBinding FontSize}"
                                        FontWeight="{TemplateBinding FontWeight}"
