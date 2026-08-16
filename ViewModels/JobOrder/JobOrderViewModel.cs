@@ -21,9 +21,37 @@ namespace ProGlassAutomation.ViewModels.JobOrder
     ///   • God View  — all-records overview (JobOrderGodViewViewModel)
     ///   • Activity  — live audit feed for this section
     /// </summary>
-    public class JobOrderViewModel : ViewModelBase
+    public class JobOrderViewModel : ViewModelBase,
+        ProGlassAutomation.Agent.Context.IAgentContextAware
     {
         public string Title { get; } = "Job Orders";
+
+        // ══════════════════════════════════════════════════════════════
+        //  AGENT CONTEXT (opt-in, read-only)
+        //
+        //  Publishes the job order number ONLY while the detail view is
+        //  actually open. On the list screen there is no single record in
+        //  focus, so it returns empty rather than naming whichever row
+        //  happens to be highlighted - the agent would otherwise answer
+        //  about a document the user is not looking at.
+        //
+        //  No customer, project or value: those are ERP data and need an
+        //  audited read tool with a permission check.
+        // ══════════════════════════════════════════════════════════════
+        public string AgentContextDetail
+        {
+            get
+            {
+                try
+                {
+                    if (!IsDetailView) return "";
+
+                    var id = DetailVM?.JobOrderId;
+                    return string.IsNullOrWhiteSpace(id) ? "" : $"editing {id}";
+                }
+                catch { return ""; }
+            }
+        }
         public string Subtitle { get; } = "Track production status of approved invoices";
 
         // ── tab keys ──────────────────────────────────────────────────────

@@ -294,8 +294,17 @@ namespace ProGlassAutomation.Agent.Core
                 // correctable, never silent (§29/§31).
                 inferenceNote = $"I assumed {resolved.Assumption}.";
 
-                _context.Audit?.Tool(user, name, true,
-                    $"context-resolved argument to '{argument}'");
+                // NOTE: this is recorded as its own line rather than folded
+                // into the execution entry, because an inferred subject is a
+                // decision the agent made on the user's behalf and must be
+                // auditable EVEN IF the permission check then denies the
+                // tool. Logged via Teaching (a neutral "what the agent did"
+                // channel) rather than Tool, because Tool(allowed: true)
+                // would read as a successful tool RUN in the activity log
+                // before the gate has even been consulted.
+                _context.Audit?.Teaching(user, "Agent inferred subject",
+                    $"{name}: assumed '{argument}' from the document on screen " +
+                    "(INFERRED, not stated by the user)");
             }
 
             // 2 ── Permission (identity + role)
@@ -338,8 +347,16 @@ namespace ProGlassAutomation.Agent.Core
                 var result = await tool.ExecuteAsync(argument)
                     .ConfigureAwait(false);
 
+                // Provenance in the audit line: an answer built on an
+                // inferred subject must be identifiable months later, when
+                // nobody remembers what was on screen at the time.
+                string provenance = inferenceNote.Length > 0
+                    ? "INFERRED subject"
+                    : "explicit subject";
+
                 _context.Audit?.Tool(user, name, result.Success,
-                    $"arg='{argument}' → {(result.Success ? "ok" : "failed")}");
+                    $"arg='{argument}' ({provenance}) → " +
+                    $"{(result.Success ? "ok" : "failed")}");
 
                 if (!result.Success) return AgentResponse.Fail(result.Message);
 

@@ -37,9 +37,30 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
     ///   creating an invoice from the PI picker dialog directly — before
     ///   any deliveries exist. All DN-driven flows use delivered qty only.
     /// </summary>
-    public class TaxInvoiceViewModel : ViewModelBase
+    public class TaxInvoiceViewModel : ViewModelBase,
+        ProGlassAutomation.Agent.Context.IAgentContextAware
     {
         public string Title { get; } = "Tax Invoices";
+
+        // ══════════════════════════════════════════════════════════════
+        //  AGENT CONTEXT (opt-in, read-only) — see JobOrderViewModel for
+        //  the reasoning. Detail view only; identifier only, never the
+        //  invoice value or the customer.
+        // ══════════════════════════════════════════════════════════════
+        public string AgentContextDetail
+        {
+            get
+            {
+                try
+                {
+                    if (!IsDetailView) return "";
+
+                    var id = DetailVM?.EditingInvoiceNumber;
+                    return string.IsNullOrWhiteSpace(id) ? "" : $"editing {id}";
+                }
+                catch { return ""; }
+            }
+        }
         public string Subtitle { get; } =
             "Create and manage UAE VAT-compliant tax invoices";
 

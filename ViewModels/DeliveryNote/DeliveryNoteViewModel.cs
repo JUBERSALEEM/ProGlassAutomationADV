@@ -34,9 +34,29 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
     ///       c) Partial balance → show Master DN balance, offer to
     ///          create next DN pre-filled with balance quantities
     /// </summary>
-    public class DeliveryNoteViewModel : ViewModelBase
+    public class DeliveryNoteViewModel : ViewModelBase,
+        ProGlassAutomation.Agent.Context.IAgentContextAware
     {
         public string Title { get; } = "Delivery Notes";
+
+        // ══════════════════════════════════════════════════════════════
+        //  AGENT CONTEXT (opt-in, read-only) — see JobOrderViewModel for
+        //  the reasoning. Detail view only; identifier only.
+        // ══════════════════════════════════════════════════════════════
+        public string AgentContextDetail
+        {
+            get
+            {
+                try
+                {
+                    if (!IsDetailView) return "";
+
+                    var id = DetailVM?.DeliveryNoteId;
+                    return string.IsNullOrWhiteSpace(id) ? "" : $"editing {id}";
+                }
+                catch { return ""; }
+            }
+        }
         public string Subtitle { get; } =
             "Track glass deliveries, partial shipments and balance quantities";
 

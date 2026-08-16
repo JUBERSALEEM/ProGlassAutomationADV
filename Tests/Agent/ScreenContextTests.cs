@@ -223,6 +223,68 @@ namespace ProGlassAutomation.Tests.Agent
             }
         }
 
+        // ══════════════════════════════════════════════════════════════
+        //  LIST vs DETAIL — a module must not name a record it is not on
+        // ══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Mirrors the shape every document module uses: publish the id
+        /// ONLY while the detail view is open.
+        /// </summary>
+        private sealed class FakeDocumentModule : IAgentContextAware
+        {
+            public bool IsDetailView;
+            public string Id = "";
+
+            public string AgentContextDetail =>
+                !IsDetailView || string.IsNullOrWhiteSpace(Id)
+                    ? ""
+                    : $"editing {Id}";
+        }
+
+        [Fact]
+        public void List_view_publishes_nothing()
+        {
+            // On a list there is no single record in focus. Naming the
+            // highlighted row would make the agent answer about a document
+            // the user is not actually looking at.
+            var vm = new FakeDocumentModule { IsDetailView = false, Id = "JO-2201" };
+            AgentScreenContext.CurrentViewModelProvider = () => vm;
+
+            try
+            {
+                Assert.Equal("", AgentScreenContext.CurrentDetail);
+            }
+            finally { AgentScreenContext.CurrentViewModelProvider = null; }
+        }
+
+        [Fact]
+        public void Detail_view_publishes_the_identifier()
+        {
+            var vm = new FakeDocumentModule { IsDetailView = true, Id = "JO-2201" };
+            AgentScreenContext.CurrentViewModelProvider = () => vm;
+
+            try
+            {
+                Assert.Equal("editing JO-2201", AgentScreenContext.CurrentDetail);
+            }
+            finally { AgentScreenContext.CurrentViewModelProvider = null; }
+        }
+
+        [Fact]
+        public void A_new_unsaved_document_publishes_nothing()
+        {
+            // A new record has no number yet. An empty string is honest.
+            var vm = new FakeDocumentModule { IsDetailView = true, Id = "" };
+            AgentScreenContext.CurrentViewModelProvider = () => vm;
+
+            try
+            {
+                Assert.Equal("", AgentScreenContext.CurrentDetail);
+            }
+            finally { AgentScreenContext.CurrentViewModelProvider = null; }
+        }
+
         [Fact]
         public void Registry_still_has_no_destructive_tool()
         {

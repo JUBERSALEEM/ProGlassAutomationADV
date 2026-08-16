@@ -64,6 +64,14 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             ? "New Tax Invoice"
             : $"Edit Invoice — {_editingInvoiceNumber}";
 
+        /// <summary>
+        /// Invoice number currently being edited, or empty for a new one.
+        /// Read-only accessor added so the agent context layer can name the
+        /// open document without reaching into private state. Exposes only
+        /// the identifier that PageTitle already shows on screen.
+        /// </summary>
+        public string EditingInvoiceNumber => _editingInvoiceNumber ?? "";
+
         // ══════════════════════════════════════════════════════════════════
         //  HEADER FIELDS
         // ══════════════════════════════════════════════════════════════════
