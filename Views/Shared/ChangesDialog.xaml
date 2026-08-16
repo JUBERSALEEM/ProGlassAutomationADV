@@ -41,7 +41,10 @@
                 BorderThickness="1"
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                 ClipToBounds="True">
-            <ScrollViewer VerticalScrollBarVisibility="Auto">
+            <!-- Disabled horizontally so the change/reason text wraps to the
+                 dialog width instead of being measured at infinite width. -->
+            <ScrollViewer VerticalScrollBarVisibility="Auto"
+                          HorizontalScrollBarVisibility="Disabled">
                 <ItemsControl x:Name="ChangesList">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>

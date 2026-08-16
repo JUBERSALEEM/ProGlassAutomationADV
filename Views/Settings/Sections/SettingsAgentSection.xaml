@@ -40,8 +40,19 @@
                        Style="{StaticResource PageSubtitleStyle}"/>
         </StackPanel>
 
+        <!-- ROOT-CAUSE FIX: HorizontalScrollBarVisibility must be Disabled.
+             Left at its default (Auto), a ScrollViewer measures its child
+             with INFINITE available width. The child then reports its full
+             desired width, so nothing wraps to the viewport: TextWrapping
+             is never triggered, WrapPanels never wrap, and cards stretch
+             past the window edge and read as overlapping content.
+             The other six settings pages all set these four properties;
+             this page was the only one that did not. -->
         <ScrollViewer Grid.Row="1"
                       VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      CanContentScroll="False"
+                      PanningMode="VerticalOnly"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
             <StackPanel Margin="32,0,32,32">
 

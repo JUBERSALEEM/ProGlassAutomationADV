@@ -172,8 +172,14 @@
                                 </Style>
                             </Border.Style>
                             <StackPanel>
-                                <DockPanel>
-                                    <StackPanel Orientation="Horizontal"
+                                <!-- LastChildFill="False" so the trailing
+                                     Button's Dock="Right" is honoured. With
+                                     the default (True) that Dock is ignored
+                                     and the button silently stretches across
+                                     the remaining width. -->
+                                <DockPanel LastChildFill="False">
+                                    <StackPanel DockPanel.Dock="Left"
+                                                Orientation="Horizontal"
                                                 VerticalAlignment="Center">
                                         <Ellipse Width="12" Height="12"
                                                  Fill="{StaticResource ProviderDotBlue}"
@@ -251,8 +257,14 @@
                                 </Style>
                             </Border.Style>
                             <StackPanel>
-                                <DockPanel>
-                                    <StackPanel Orientation="Horizontal"
+                                <!-- LastChildFill="False" so the trailing
+                                     Button's Dock="Right" is honoured. With
+                                     the default (True) that Dock is ignored
+                                     and the button silently stretches across
+                                     the remaining width. -->
+                                <DockPanel LastChildFill="False">
+                                    <StackPanel DockPanel.Dock="Left"
+                                                Orientation="Horizontal"
                                                 VerticalAlignment="Center">
                                         <Ellipse Width="12" Height="12"
                                                  Fill="{StaticResource ProviderDotAmber}"
@@ -331,8 +343,14 @@
                                 </Style>
                             </Border.Style>
                             <StackPanel>
-                                <DockPanel>
-                                    <StackPanel Orientation="Horizontal"
+                                <!-- LastChildFill="False" so the trailing
+                                     Button's Dock="Right" is honoured. With
+                                     the default (True) that Dock is ignored
+                                     and the button silently stretches across
+                                     the remaining width. -->
+                                <DockPanel LastChildFill="False">
+                                    <StackPanel DockPanel.Dock="Left"
+                                                Orientation="Horizontal"
                                                 VerticalAlignment="Center">
                                         <Ellipse Width="12" Height="12"
                                                  Fill="{StaticResource ProviderDotViolet}"

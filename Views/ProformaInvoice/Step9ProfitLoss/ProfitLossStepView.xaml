@@ -75,7 +75,13 @@
 
     </UserControl.Resources>
 
+    <!-- HorizontalScrollBarVisibility must be Disabled: at the default
+         (Auto) the content is measured at infinite width, so the wrapping
+         TextBlocks on this page never wrap and the cards run off-screen. -->
     <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  CanContentScroll="False"
+                  PanningMode="VerticalOnly"
                   behaviors:SmoothScrollBehavior.IsEnabled="True">
         <StackPanel Margin="0,10,0,0">
 
