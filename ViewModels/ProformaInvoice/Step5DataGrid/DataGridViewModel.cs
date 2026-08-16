@@ -606,6 +606,98 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             ? SelectedSpecName
             : (GroupName ?? $"Spec Group {GroupNumber}");
 
+        // ══════════════════════════════════════════════════════════════
+        //  PHASE G — SHEET PROVENANCE (Step 4 → Step 5 → Step 9)
+        //
+        //  These carry the stock sheet the user actually CHOSE in Step 4
+        //  so the profit calculation in Step 9 costs that sheet, not one
+        //  it re-guesses from the store. Zero means "not chosen" and
+        //  Step 9 then falls back (store lookup, then shop default) while
+        //  telling the user which source it used.
+        //
+        //  Display-only in Step 5: the grid never edits these.
+        // ══════════════════════════════════════════════════════════════
+
+        private int _outerSheetWidthMm;
+        /// <summary>Chosen OUTER stock sheet width in mm (0 = not chosen).</summary>
+        public int OuterSheetWidthMm
+        {
+            get => _outerSheetWidthMm;
+            set
+            {
+                if (_outerSheetWidthMm == value) return;
+                _outerSheetWidthMm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(OuterSheetDisplay));
+                OnPropertyChanged(nameof(HasOuterSheet));
+            }
+        }
+
+        private int _outerSheetHeightMm;
+        /// <summary>Chosen OUTER stock sheet height in mm (0 = not chosen).</summary>
+        public int OuterSheetHeightMm
+        {
+            get => _outerSheetHeightMm;
+            set
+            {
+                if (_outerSheetHeightMm == value) return;
+                _outerSheetHeightMm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(OuterSheetDisplay));
+                OnPropertyChanged(nameof(HasOuterSheet));
+            }
+        }
+
+        private int _innerSheetWidthMm;
+        /// <summary>Chosen INNER stock sheet width in mm (DGU only).</summary>
+        public int InnerSheetWidthMm
+        {
+            get => _innerSheetWidthMm;
+            set
+            {
+                if (_innerSheetWidthMm == value) return;
+                _innerSheetWidthMm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(InnerSheetDisplay));
+                OnPropertyChanged(nameof(HasInnerSheet));
+            }
+        }
+
+        private int _innerSheetHeightMm;
+        /// <summary>Chosen INNER stock sheet height in mm (DGU only).</summary>
+        public int InnerSheetHeightMm
+        {
+            get => _innerSheetHeightMm;
+            set
+            {
+                if (_innerSheetHeightMm == value) return;
+                _innerSheetHeightMm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(InnerSheetDisplay));
+                OnPropertyChanged(nameof(HasInnerSheet));
+            }
+        }
+
+        /// <summary>True when an outer stock sheet was chosen in Step 4.</summary>
+        public bool HasOuterSheet =>
+            OuterSheetWidthMm > 0 && OuterSheetHeightMm > 0;
+
+        /// <summary>True when an inner stock sheet was chosen in Step 4.</summary>
+        public bool HasInnerSheet =>
+            InnerSheetWidthMm > 0 && InnerSheetHeightMm > 0;
+
+        /// <summary>e.g. "3210 × 2250 · 7.2225 SQM", or "—".</summary>
+        public string OuterSheetDisplay => HasOuterSheet
+            ? $"{OuterSheetWidthMm} × {OuterSheetHeightMm} · " +
+              $"{(OuterSheetWidthMm * (decimal)OuterSheetHeightMm) / 1_000_000m:0.####} SQM"
+            : "—";
+
+        /// <summary>e.g. "3210 × 2250 · 7.2225 SQM", or "—".</summary>
+        public string InnerSheetDisplay => HasInnerSheet
+            ? $"{InnerSheetWidthMm} × {InnerSheetHeightMm} · " +
+              $"{(InnerSheetWidthMm * (decimal)InnerSheetHeightMm) / 1_000_000m:0.####} SQM"
+            : "—";
+
         // ── Glass type ────────────────────────────────────────────────────
 
         private string _selectedGlassType = "";
@@ -638,6 +730,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                 _selectedSpecName = newValue;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(SpecDisplayName));
+
+                // PHASE G: adopt the stock sheet chosen for this spec in
+                // Step 4. A miss (spec from an earlier session) leaves the
+                // fields at zero and Step 9 falls back, stating the source.
+                AdoptSheetSelection(newValue);
 
                 if (!_isProgrammaticSpecChange)
                 {
@@ -971,6 +1068,39 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
         // ══════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
         // ══════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// PHASE G — pulls the Step 4 sheet choice for this spec name out
+        /// of SpecSheetRegistry. Only overwrites when a selection exists,
+        /// so a restored invoice keeps its persisted sheet. Never throws.
+        /// </summary>
+        private void AdoptSheetSelection(string specName)
+        {
+            try
+            {
+                var selection = ProGlassAutomation.Services.ProformaInvoice
+                    .SpecSheetRegistry.TryGet(specName);
+
+                if (selection == null) return;
+
+                if (selection.HasOuter)
+                {
+                    OuterSheetWidthMm = selection.OuterWidthMm;
+                    OuterSheetHeightMm = selection.OuterHeightMm;
+                }
+
+                if (selection.HasInner)
+                {
+                    InnerSheetWidthMm = selection.InnerWidthMm;
+                    InnerSheetHeightMm = selection.InnerHeightMm;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[SpecGroup] sheet selection not adopted: {ex.Message}");
+            }
+        }
 
         public SpecGroup()
         {

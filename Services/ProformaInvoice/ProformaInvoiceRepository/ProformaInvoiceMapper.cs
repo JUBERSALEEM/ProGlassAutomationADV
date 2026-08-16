@@ -258,7 +258,14 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     OuterGlassColor = "",
                     InnerGlassColor = "",
                     BaseRate = group.BaseRate,
-                    SurchargePercent = group.SurchargePercent
+                    SurchargePercent = group.SurchargePercent,
+
+                    // PHASE G: persist the Step 4 sheet choice with the
+                    // invoice so re-costing later uses the quoted sheet.
+                    OuterSheetWidthMm = group.OuterSheetWidthMm,
+                    OuterSheetHeightMm = group.OuterSheetHeightMm,
+                    InnerSheetWidthMm = group.InnerSheetWidthMm,
+                    InnerSheetHeightMm = group.InnerSheetHeightMm
                 };
 
                 foreach (var row in group.ItemRows)
@@ -497,7 +504,14 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                     SelectedGlassType = gSnap.SelectedGlassType ?? "",
                     SelectedSpecName = gSnap.SelectedSpecName ?? "",
                     BaseRate = gSnap.BaseRate,
-                    SurchargePercent = gSnap.SurchargePercent
+                    SurchargePercent = gSnap.SurchargePercent,
+
+                    // PHASE G: restore the quoted sheet. Old invoices have
+                    // zeros here, so Step 9 falls back and reports it.
+                    OuterSheetWidthMm = gSnap.OuterSheetWidthMm,
+                    OuterSheetHeightMm = gSnap.OuterSheetHeightMm,
+                    InnerSheetWidthMm = gSnap.InnerSheetWidthMm,
+                    InnerSheetHeightMm = gSnap.InnerSheetHeightMm
                 };
 
                 if (gSnap.ItemRows != null && gSnap.ItemRows.Count > 0)

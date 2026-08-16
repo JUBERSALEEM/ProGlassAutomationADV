@@ -150,6 +150,18 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string InnerGlassColor { get; set; } = "";
         public decimal BaseRate { get; set; }
         public decimal SurchargePercent { get; set; }
+
+        // ── PHASE G: stock sheet chosen in Step 4 ───────────────────────
+        // ADDITIVE. Persisting the sheet means a saved invoice always
+        // re-costs against the sheet it was QUOTED on, even months later
+        // after Sheet Store sizes or prices have changed. Zero on invoices
+        // saved before this field existed — Step 9 then falls back and
+        // says so, rather than silently using a different sheet.
+        public int OuterSheetWidthMm { get; set; }
+        public int OuterSheetHeightMm { get; set; }
+        public int InnerSheetWidthMm { get; set; }
+        public int InnerSheetHeightMm { get; set; }
+
         public List<GlassItemRowSnapshot> ItemRows { get; set; } = new();
     }
 
@@ -343,5 +355,11 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
 
         /// <summary>Extended line cost in AED.</summary>
         public decimal Amount { get; set; }
+
+        /// <summary>
+        /// PHASE G — provenance of the sheet size used for this line
+        /// ("chosen in Step 4" / "from Sheet Store" / default fallback).
+        /// </summary>
+        public string SheetSource { get; set; } = "";
     }
 }

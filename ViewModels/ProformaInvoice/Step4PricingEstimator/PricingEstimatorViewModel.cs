@@ -330,6 +330,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 var savedSpec = await App.Specs.SaveOrUpdateAsync(
                     glassType, specName, rate);
 
+                // PHASE G: remember WHICH stock sheet this spec was priced
+                // against, so Step 5 can carry it and Step 9 can cost the
+                // sheet the user actually chose instead of re-guessing.
+                // specifications.db deliberately stays name+price only —
+                // sheet choice is a per-invoice decision, not a spec property.
+                RecordSheetSelection(glassType, specName);
+
                 bool isNew = savedSpec.UsageCount == 1;
 
                 // BUG-44: non-blocking one-line status
@@ -347,6 +354,38 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                     MessageBoxImage.Error);
 
                 ApplyStatusMessage = $"✗  Save failed: {ex.Message}";
+            }
+        }
+
+        /// <summary>
+        /// PHASE G — publishes the chosen stock sheet(s) for this spec into
+        /// SpecSheetRegistry. Only DGU and SGU expose a sheet picker today;
+        /// other panels record nothing and Step 9 falls back as before.
+        /// Never throws — a failure here must not block saving the spec.
+        /// </summary>
+        private void RecordSheetSelection(string glassType, string specName)
+        {
+            try
+            {
+                switch (glassType)
+                {
+                    case "DGU":
+                        ProGlassAutomation.Services.ProformaInvoice.SpecSheetRegistry
+                            .Record(specName,
+                                DguVM.SelectedOuterSheetSize,
+                                DguVM.SelectedInnerSheetSize);
+                        break;
+
+                    case "SGU":
+                        ProGlassAutomation.Services.ProformaInvoice.SpecSheetRegistry
+                            .Record(specName, SguVM.SelectedSheetSize, null);
+                        break;
+                }
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[PricingEstimator] sheet selection not recorded: {ex.Message}");
             }
         }
 

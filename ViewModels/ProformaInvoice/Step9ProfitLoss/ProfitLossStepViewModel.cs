@@ -90,6 +90,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// <summary>Extended amount in AED.</summary>
         public decimal Amount { get; set; }
 
+        /// <summary>
+        /// PHASE G — where the sheet size came from: "chosen in Step 4",
+        /// "from Sheet Store", or the default fallback. Shown in the UI so
+        /// an unexpected cost is always traceable to its sheet.
+        /// </summary>
+        public string SheetSource { get; set; } = "";
+
         // ── Display helpers (bound directly by the view) ──────────────────
 
         /// <summary>e.g. "SPEC 2" — blank for rows with no spec origin.</summary>
@@ -126,7 +133,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             SheetSqm = SheetSqm,
             Quantity = Quantity,
             PricePerSqm = PricePerSqm,
-            Amount = Amount
+            Amount = Amount,
+            SheetSource = SheetSource ?? ""
         };
     }
 
@@ -443,7 +451,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     if (outerMatch != null)
                     {
                         var row = await BuildGlassRowAsync(
-                            group.GroupNumber, "Outer", outerMatch, cutSqm)
+                            group, "Outer", outerMatch, cutSqm)
                             .ConfigureAwait(true);
 
                         if (row != null)
@@ -457,7 +465,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     if (isDgu && innerMatch != null)
                     {
                         var row = await BuildGlassRowAsync(
-                            group.GroupNumber, "Inner", innerMatch, cutSqm)
+                            group, "Inner", innerMatch, cutSqm)
                             .ConfigureAwait(true);
 
                         if (row != null)
@@ -625,27 +633,67 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// store has no usable purchase price (caller counts it as skipped).
         /// </summary>
         private async Task<ProfitLossRow?> BuildGlassRowAsync(
-            int specNumber,
+            SpecGroup group,
             string side,
             Match glassMatch,
             decimal cutSqm)
         {
+            int specNumber = group.GroupNumber;
+
             int thicknessMm = ParseInt(glassMatch.Groups["thk"].Value);
             string color = (glassMatch.Groups["color"].Value ?? "").Trim();
 
             if (thicknessMm <= 0 || color.Length == 0) return null;
 
-            // ── Stock sheet: first store size, else the shop default ──────
-            int sheetW = DefaultSheetWidthMm;
-            int sheetH = DefaultSheetHeightMm;
+            // ══════════════════════════════════════════════════════════
+            //  PHASE G — SHEET RESOLUTION, IN PRIORITY ORDER
+            //
+            //  1. The sheet the user CHOSE in Step 4 (carried on the spec
+            //     group). This wins: costing must reflect the decision
+            //     the user actually made.
+            //  2. The first sheet the Sheet Store stocks for this
+            //     colour + thickness.
+            //  3. The shop default (2440 × 1830).
+            //
+            //  The source is recorded on the row so a surprising number
+            //  is always explainable, instead of silently costing a
+            //  sheet nobody picked.
+            // ══════════════════════════════════════════════════════════
+            bool isInner = side.Equals("Inner", StringComparison.OrdinalIgnoreCase);
 
-            var sizes = await SheetStorePricingService
-                .GetSizesAsync(color, thicknessMm).ConfigureAwait(true);
+            int sheetW = 0;
+            int sheetH = 0;
+            string source;
 
-            if (sizes.Count > 0)
+            if (isInner && group.HasInnerSheet)
             {
-                sheetW = sizes[0].W;
-                sheetH = sizes[0].H;
+                sheetW = group.InnerSheetWidthMm;
+                sheetH = group.InnerSheetHeightMm;
+                source = "chosen in Step 4";
+            }
+            else if (!isInner && group.HasOuterSheet)
+            {
+                sheetW = group.OuterSheetWidthMm;
+                sheetH = group.OuterSheetHeightMm;
+                source = "chosen in Step 4";
+            }
+            else
+            {
+                var sizes = await SheetStorePricingService
+                    .GetSizesAsync(color, thicknessMm).ConfigureAwait(true);
+
+                if (sizes.Count > 0)
+                {
+                    sheetW = sizes[0].W;
+                    sheetH = sizes[0].H;
+                    source = "from Sheet Store";
+                }
+                else
+                {
+                    sheetW = DefaultSheetWidthMm;
+                    sheetH = DefaultSheetHeightMm;
+                    source = "default sheet — not in Sheet Store";
+                }
             }
 
             decimal sheetSqm = Math.Round((sheetW * (decimal)sheetH) / 1_000_000m, 4);
@@ -669,7 +717,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             {
                 Kind = "Glass",
                 SpecNumber = specNumber,
-                Description = $"{side} · {thicknessMm}mm {color} · {sheets} sheet(s)",
+                Description =
+                    $"{side} · {thicknessMm}mm {color} · {sheets} sheet(s) · {source}",
+                SheetSource = source,
                 SheetWidthMm = sheetW,
                 SheetHeightMm = sheetH,
                 SheetSqm = sheetSqm,
