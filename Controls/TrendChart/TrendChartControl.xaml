@@ -42,11 +42,29 @@
              mc:Ignorable="d"
              d:DesignHeight="180" d:DesignWidth="520"
              Background="Transparent"
+             Focusable="True"
+             KeyboardNavigation.TabNavigation="Once"
+             AutomationProperties.Name="Trend chart"
              SizeChanged="OnSizeChanged"
              MouseMove="OnMouseMove"
-             MouseLeave="OnMouseLeave">
+             MouseLeave="OnMouseLeave"
+             GotKeyboardFocus="OnGotKeyboardFocus"
+             LostKeyboardFocus="OnLostKeyboardFocus"
+             PreviewKeyDown="OnPreviewKeyDown">
 
     <Grid>
+        <!-- Visible keyboard focus ring. The skill flags removing focus
+             rings as a critical anti-pattern, and a chart that can be
+             tabbed to must show that it has focus. -->
+        <Border x:Name="FocusRing"
+                BorderBrush="{DynamicResource AccentBrush}"
+                BorderThickness="1"
+                CornerRadius="6"
+                Margin="-2"
+                Visibility="Collapsed"
+                IsHitTestVisible="False"
+                Panel.ZIndex="10"/>
+
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <!-- plot -->

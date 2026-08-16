@@ -250,6 +250,18 @@ namespace ProGlassAutomation.Controls.TrendChart
 
         private void OnSizeChanged(object sender, SizeChangedEventArgs e) => Redraw();
 
+        /// <summary>
+        /// True when animation should run.
+        ///
+        /// ui-ux-pro-max lists "no reduced-motion" as an animation
+        /// anti-pattern. Windows exposes the user's preference through
+        /// SystemParameters.ClientAreaAnimation, so an explicit
+        /// Animate="True" still yields to someone who has turned
+        /// animations off system-wide.
+        /// </summary>
+        private bool ShouldAnimate =>
+            Animate && SystemParameters.ClientAreaAnimation;
+
         private Brush Res(string key, Brush fallback) =>
             TryFindResource(key) as Brush ?? fallback;
 
@@ -399,7 +411,7 @@ namespace ProGlassAutomation.Controls.TrendChart
                 SeriesLayer.Children.Add(r);
                 p.Visual = r;
 
-                if (Animate)
+                if (ShouldAnimate)
                 {
                     // Grow from the baseline. Animating Height alone would
                     // grow downward, so Top is animated in step.
@@ -480,7 +492,7 @@ namespace ProGlassAutomation.Controls.TrendChart
                 p.Visual = dot;
             }
 
-            if (Animate)
+            if (ShouldAnimate)
             {
                 SeriesLayer.BeginAnimation(OpacityProperty, new DoubleAnimation
                 {
@@ -520,8 +532,16 @@ namespace ProGlassAutomation.Controls.TrendChart
 
             if (best == _hoverIndex && HoverPopup.IsOpen) return;
             _hoverIndex = best;
+            ShowIndicator(_points[best]);
+        }
 
-            var p = _points[best];
+        /// <summary>
+        /// Draw the crosshair, marker and tooltip for one point.
+        /// Called by BOTH the mouse and keyboard paths so the two can
+        /// never present different state for the same selection.
+        /// </summary>
+        private void ShowIndicator(Pt p)
+        {
             var accent = SeriesBrush ?? Res("AccentBrush", Brushes.SteelBlue);
 
             if (_crosshair == null)
@@ -557,6 +577,11 @@ namespace ProGlassAutomation.Controls.TrendChart
             TipLabel.Text = p.Label;
             TipValue.Text = ValuePrefix + p.Value.ToString("N2", CultureInfo.CurrentCulture);
 
+            // Announce the focused value to screen readers. Without this
+            // a keyboard user gets a visual tooltip and silence.
+            AutomationProperties.SetName(
+                this, $"Trend chart. {p.Label}: {ValuePrefix}{p.Value:N2}");
+
             // Offset so the cursor never covers the tooltip.
             HoverPopup.HorizontalOffset = p.X + 14;
             HoverPopup.VerticalOffset = Math.Max(0, p.Y - 12);
@@ -564,6 +589,62 @@ namespace ProGlassAutomation.Controls.TrendChart
         }
 
         private void OnMouseLeave(object sender, MouseEventArgs e) => HidePopup();
+
+        // ═════════════════════════════════════════════════════════════
+        //  KEYBOARD ACCESS
+        //
+        //  ui-ux-pro-max, priority 1 (Accessibility) and the "Compact
+        //  Control Semantics" guideline: an interactive element must be
+        //  keyboard operable with visible focus, and the only route to
+        //  its data must not be hover. Left/Right walk the series and
+        //  surface the same tooltip the mouse shows; Home/End jump to
+        //  the ends; Escape dismisses.
+        // ═════════════════════════════════════════════════════════════
+
+        private void OnGotKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (FocusRing != null) FocusRing.Visibility = Visibility.Visible;
+
+            // Land on the first point so a keyboard user immediately sees
+            // a value rather than an empty focused rectangle.
+            if (_points.Count > 0 && _hoverIndex < 0) SelectIndex(0);
+        }
+
+        private void OnLostKeyboardFocus(object sender, KeyboardFocusChangedEventArgs e)
+        {
+            if (FocusRing != null) FocusRing.Visibility = Visibility.Collapsed;
+            HidePopup();
+        }
+
+        private void OnPreviewKeyDown(object sender, KeyEventArgs e)
+        {
+            if (_points.Count == 0) return;
+
+            int next = _hoverIndex;
+            switch (e.Key)
+            {
+                case Key.Left:  next = Math.Max(0, (_hoverIndex < 0 ? 0 : _hoverIndex) - 1); break;
+                case Key.Right: next = Math.Min(_points.Count - 1, _hoverIndex + 1); break;
+                case Key.Home:  next = 0; break;
+                case Key.End:   next = _points.Count - 1; break;
+                case Key.Escape: HidePopup(); e.Handled = true; return;
+                default: return;
+            }
+
+            SelectIndex(next);
+            e.Handled = true;   // stop Left/Right also moving focus away
+        }
+
+        /// <summary>
+        /// Shared by mouse and keyboard so both paths show identical
+        /// state. Duplicating the logic is how the two drift apart.
+        /// </summary>
+        private void SelectIndex(int index)
+        {
+            if (index < 0 || index >= _points.Count) return;
+            _hoverIndex = index;
+            ShowIndicator(_points[index]);
+        }
 
         private void HidePopup()
         {
