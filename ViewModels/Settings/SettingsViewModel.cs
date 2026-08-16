@@ -57,8 +57,9 @@ namespace ProGlassAutomation.ViewModels.Settings
                 // Guard: an unknown key would collapse every section and
                 // leave the content pane empty — refuse it outright.
                 if (value != "Appearance" && value != "AI" &&
-                    value != "Voice" && value != "Updates" &&
-                    value != "Data" && value != "About")
+                    value != "Agent" && value != "Voice" &&
+                    value != "Updates" && value != "Data" &&
+                    value != "About")
                     return;
 
                 if (_settingsPage == value) return;
@@ -66,6 +67,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(IsAppearancePage));
                 OnPropertyChanged(nameof(IsAiPage));
+                OnPropertyChanged(nameof(IsAgentPage));   // PHASE F
                 OnPropertyChanged(nameof(IsVoicePage));
                 OnPropertyChanged(nameof(IsUpdatesPage));
                 OnPropertyChanged(nameof(IsDataPage));
@@ -75,6 +77,10 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public bool IsAppearancePage => SettingsPage == "Appearance";
         public bool IsAiPage         => SettingsPage == "AI";
+
+        /// <summary>PHASE F — ProGlass Agent privacy / teaching page.</summary>
+        public bool IsAgentPage      => SettingsPage == "Agent";
+
         public bool IsVoicePage      => SettingsPage == "Voice";
         public bool IsUpdatesPage    => SettingsPage == "Updates";
         public bool IsDataPage       => SettingsPage == "Data";

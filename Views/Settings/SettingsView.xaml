@@ -120,6 +120,25 @@
                         </StackPanel>
                     </Button>
 
+                    <!-- AI & AGENT (PHASE F) -->
+                    <Button Command="{Binding SwitchSettingsPageCommand}"
+                            CommandParameter="Agent">
+                        <Button.Style>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource SettingsNavButtonStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsAgentPage}" Value="True">
+                                        <Setter Property="Tag" Value="Active"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                        <StackPanel Orientation="Horizontal">
+                            <TextBlock Style="{StaticResource NavGlyphStyle}" Text="&#xE8F2;"/>
+                            <TextBlock Style="{StaticResource NavLabelStyle}" Text="AI &amp; Agent"/>
+                        </StackPanel>
+                    </Button>
+
                     <!-- VOICE -->
                     <Button Command="{Binding SwitchSettingsPageCommand}"
                             CommandParameter="Voice">
@@ -209,6 +228,9 @@
                     Converter={StaticResource BoolToVisibilityConverter}}"/>
             <sections:SettingsAiSection
                 Visibility="{Binding IsAiPage,
+                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+            <sections:SettingsAgentSection
+                Visibility="{Binding IsAgentPage,
                     Converter={StaticResource BoolToVisibilityConverter}}"/>
             <sections:SettingsVoiceSection
                 Visibility="{Binding IsVoicePage,

@@ -1,0 +1,340 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Settings/Sections/SettingsAgentSection.xaml
+     PROJECT: ProGlassAutomation — ProGlass Agent (PHASE F)
+     MODULE: Settings — AI & AGENT page
+
+     Cards: privacy (Local-Only + cloud consent) · credentials ·
+            taught rules · memory & knowledge · status.
+
+     DataContext is an AgentSettingsViewModel, created by the
+     code-behind so the agent subsystem owns its own state and the
+     existing SettingsViewModel is not modified.
+═══════════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsAgentSection"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="../SettingsSectionStyles.xaml"/>
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </UserControl.Resources>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Grid.Row="0" Margin="32,26,32,14">
+            <TextBlock Text="AI &amp; Agent" Style="{StaticResource PageTitleStyle}"/>
+            <TextBlock Text="Privacy posture, provider credentials, taught phrases and agent memory."
+                       Style="{StaticResource PageSubtitleStyle}"/>
+        </StackPanel>
+
+        <ScrollViewer Grid.Row="1"
+                      VerticalScrollBarVisibility="Auto"
+                      behaviors:SmoothScrollBehavior.IsEnabled="True">
+            <StackPanel Margin="32,0,32,32">
+
+                <!-- ══════════════════════════════════════════════════════
+                     PRIVACY
+                ══════════════════════════════════════════════════════ -->
+                <Border Style="{StaticResource SectionCardStyle}">
+                    <StackPanel>
+                        <TextBlock Text="PRIVACY" Style="{StaticResource SectionLabelStyle}"/>
+
+                        <!-- Local only -->
+                        <Grid Margin="0,10,0,0">
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="{Binding LocalOnlyLabel}"
+                                           Style="{StaticResource RowTitleStyle}"/>
+                                <TextBlock Text="When on, the agent never contacts the internet. This is the default."
+                                           Style="{StaticResource HintTextStyle}"/>
+                            </StackPanel>
+
+                            <Button Grid.Column="1"
+                                    Command="{Binding ToggleLocalOnlyCommand}"
+                                    Style="{StaticResource OutlinedPillButton}"
+                                    Tag="&#xE72E;"
+                                    Content="TOGGLE"
+                                    VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <Border Height="1" Margin="0,14"
+                                Background="{DynamicResource DividerBrush}"/>
+
+                        <!-- Cloud consent -->
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="{Binding CloudConsentLabel}"
+                                           Style="{StaticResource RowTitleStyle}"/>
+                                <TextBlock Text="A separate, explicit agreement to send questions to an online provider. Turning Local-Only back on clears it."
+                                           Style="{StaticResource HintTextStyle}"/>
+                            </StackPanel>
+
+                            <Button Grid.Column="1"
+                                    Command="{Binding ToggleCloudConsentCommand}"
+                                    Style="{StaticResource OutlinedPillButton}"
+                                    Tag="&#xE72E;"
+                                    Content="TOGGLE"
+                                    VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <!-- Plain-English summary -->
+                        <Border Style="{StaticResource InfoCardStyle}" Margin="0,16,0,0">
+                            <StackPanel>
+                                <TextBlock Text="What this means"
+                                           Style="{StaticResource InfoCardTitleStyle}"/>
+                                <TextBlock Text="{Binding PrivacySummary}"
+                                           Style="{StaticResource InfoCardBodyStyle}"/>
+                                <TextBlock Style="{StaticResource InfoCardBulletStyle}"
+                                           Margin="0,8,0,0">
+                                    <Run Text="Allowed hosts: "/>
+                                    <Run Text="{Binding AllowedHostsDisplay, Mode=OneWay}"/>
+                                </TextBlock>
+                            </StackPanel>
+                        </Border>
+
+                        <!-- Hardware advice (never downloads) -->
+                        <Border Style="{StaticResource InfoCardStyle}" Margin="0,10,0,0">
+                            <StackPanel>
+                                <TextBlock Text="Local model advice"
+                                           Style="{StaticResource InfoCardTitleStyle}"/>
+                                <TextBlock Text="{Binding HardwareAdvice}"
+                                           Style="{StaticResource InfoCardBodyStyle}"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
+                </Border>
+
+                <!-- ══════════════════════════════════════════════════════
+                     CREDENTIALS
+                ══════════════════════════════════════════════════════ -->
+                <Border Style="{StaticResource SectionCardStyle}" Margin="0,16,0,0">
+                    <StackPanel>
+                        <TextBlock Text="PROVIDER CREDENTIALS"
+                                   Style="{StaticResource SectionLabelStyle}"/>
+
+                        <TextBlock Text="Keys are encrypted with Windows DPAPI for your user account and are never written to a settings file."
+                                   Style="{StaticResource HintTextStyle}"
+                                   Margin="0,6,0,12"/>
+
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="180"/>
+                                <ColumnDefinition Width="14"/>
+                                <ColumnDefinition Width="*"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="PROVIDER" Style="{StaticResource LabelStyle}"/>
+                                <ComboBox ItemsSource="{Binding ProviderOptions}"
+                                          SelectedItem="{Binding SelectedProvider}"
+                                          Height="38"
+                                          FontSize="12.5"
+                                          VerticalContentAlignment="Center"/>
+                            </StackPanel>
+
+                            <StackPanel Grid.Column="2">
+                                <TextBlock Text="API KEY" Style="{StaticResource LabelStyle}"/>
+                                <PasswordBox x:Name="AgentKeyBox"
+                                             Style="{StaticResource RoundedPasswordBoxStyle}"/>
+                            </StackPanel>
+                        </Grid>
+
+                        <TextBlock Text="{Binding KeyStatus}"
+                                   Style="{StaticResource HintTextStyle}"
+                                   Margin="0,10,0,0"/>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                            <Button Style="{StaticResource SuccessPillButton}"
+                                    Tag="&#xE74E;"
+                                    Content="STORE KEY"
+                                    Click="StoreKey_Click"/>
+                            <Button Style="{StaticResource DangerButton}"
+                                    Tag="&#xE74D;"
+                                    Content="REMOVE KEY"
+                                    Margin="10,0,0,0"
+                                    Command="{Binding RemoveKeyCommand}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <!-- ══════════════════════════════════════════════════════
+                     TAUGHT RULES
+                ══════════════════════════════════════════════════════ -->
+                <Border Style="{StaticResource SectionCardStyle}" Margin="0,16,0,0">
+                    <StackPanel>
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto"/>
+                            </Grid.ColumnDefinitions>
+
+                            <StackPanel Grid.Column="0">
+                                <TextBlock Text="TAUGHT PHRASES"
+                                           Style="{StaticResource SectionLabelStyle}"/>
+                                <TextBlock Text="A taught phrase does nothing until you approve it here."
+                                           Style="{StaticResource HintTextStyle}"/>
+                            </StackPanel>
+
+                            <Button Grid.Column="1"
+                                    Command="{Binding RefreshRulesCommand}"
+                                    Style="{StaticResource OutlinedPillButton}"
+                                    Tag="&#xE72C;"
+                                    Content="REFRESH"
+                                    VerticalAlignment="Center"/>
+                        </Grid>
+
+                        <ItemsControl ItemsSource="{Binding Rules}" Margin="0,12,0,0">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <Border BorderBrush="{DynamicResource DividerBrush}"
+                                            BorderThickness="0,0,0,1"
+                                            Padding="0,10">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="Auto"/>
+                                            </Grid.ColumnDefinitions>
+
+                                            <StackPanel Grid.Column="0">
+                                                <TextBlock Text="{Binding Display}"
+                                                           FontSize="12"
+                                                           FontWeight="SemiBold"
+                                                           TextTrimming="CharacterEllipsis"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                <TextBlock Text="{Binding StatusDisplay}"
+                                                           FontSize="10.5"
+                                                           Margin="0,3,0,0">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground"
+                                                                    Value="{DynamicResource WarningBrush}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsApproved}" Value="True">
+                                                                    <Setter Property="Foreground"
+                                                                            Value="{DynamicResource SuccessBrush}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </StackPanel>
+
+                                            <StackPanel Grid.Column="1"
+                                                        Orientation="Horizontal"
+                                                        VerticalAlignment="Center">
+                                                <Button Style="{StaticResource RowSuccessButton}"
+                                                        Tag="&#xE73E;"
+                                                        Content="APPROVE"
+                                                        Command="{Binding DataContext.ApproveRuleCommand,
+                                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}"/>
+                                                <Button Style="{StaticResource RowDangerButton}"
+                                                        Tag="&#xE74D;"
+                                                        Content="REVOKE"
+                                                        Margin="8,0,0,0"
+                                                        Command="{Binding DataContext.RevokeRuleCommand,
+                                                            RelativeSource={RelativeSource AncestorType=ItemsControl}}"
+                                                        CommandParameter="{Binding}"/>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
+
+                        <TextBlock Text="Nothing has been taught yet."
+                                   Style="{StaticResource HintTextStyle}"
+                                   Margin="0,12,0,0"
+                                   Visibility="{Binding HasRules,
+                                       Converter={StaticResource InverseBoolToVisibilityConverter}}"/>
+
+                        <Button Style="{StaticResource DangerButton}"
+                                Tag="&#xE74D;"
+                                Content="CLEAR ALL TAUGHT PHRASES"
+                                HorizontalAlignment="Left"
+                                Margin="0,14,0,0"
+                                Command="{Binding ClearTeachingCommand}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ══════════════════════════════════════════════════════
+                     MEMORY & KNOWLEDGE
+                ══════════════════════════════════════════════════════ -->
+                <Border Style="{StaticResource SectionCardStyle}" Margin="0,16,0,0">
+                    <StackPanel>
+                        <TextBlock Text="MEMORY &amp; KNOWLEDGE"
+                                   Style="{StaticResource SectionLabelStyle}"/>
+
+                        <TextBlock Text="Conversation is session-only. Saved memory and the knowledge base live in the agent's own database, separate from your business data."
+                                   Style="{StaticResource HintTextStyle}"
+                                   Margin="0,6,0,12"/>
+
+                        <StackPanel Orientation="Horizontal">
+                            <Button Style="{StaticResource OutlinedPillButton}"
+                                    Tag="&#xE78C;"
+                                    Content="EXPORT KNOWLEDGE"
+                                    Command="{Binding ExportKnowledgeCommand}"/>
+                            <Button Style="{StaticResource OutlinedPillButton}"
+                                    Tag="&#xE896;"
+                                    Content="IMPORT KNOWLEDGE"
+                                    Margin="10,0,0,0"
+                                    Command="{Binding ImportKnowledgeCommand}"/>
+                        </StackPanel>
+
+                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                            <Button Style="{StaticResource DangerButton}"
+                                    Tag="&#xE74D;"
+                                    Content="CLEAR MEMORY"
+                                    Command="{Binding ClearMemoryCommand}"/>
+                            <Button Style="{StaticResource DangerButton}"
+                                    Tag="&#xE74D;"
+                                    Content="CLEAR KNOWLEDGE"
+                                    Margin="10,0,0,0"
+                                    Command="{Binding ClearKnowledgeCommand}"/>
+                        </StackPanel>
+
+                        <TextBlock Style="{StaticResource HintTextStyle}" Margin="0,14,0,0">
+                            <Run Text="Agent database: "/>
+                            <Run Text="{Binding AgentDatabasePath, Mode=OneWay}"/>
+                        </TextBlock>
+                        <TextBlock Style="{StaticResource HintTextStyle}" Margin="0,3,0,0">
+                            <Run Text="Agent settings: "/>
+                            <Run Text="{Binding SettingsFilePath, Mode=OneWay}"/>
+                        </TextBlock>
+                    </StackPanel>
+                </Border>
+
+                <!-- Status line -->
+                <TextBlock Text="{Binding Status}"
+                           FontSize="11"
+                           FontWeight="SemiBold"
+                           Margin="4,16,0,0"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource AccentBrush}"/>
+
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
+</UserControl>
