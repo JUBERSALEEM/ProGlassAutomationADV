@@ -287,7 +287,40 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
 
             // Initial calc
             RecalculateEstimatedRate();
+
+            // PHASE A/J: populate the Sheet Store dropdowns and prices.
+            // Fire-and-forget with its own guard — a constructor cannot
+            // await, and an empty/locked Sheet Store must never stop the
+            // pricing panels from opening.
+            LoadSheetStoreDataAsync();
         }
+
+        /// <summary>
+        /// PHASE A/J — pulls Sheet Store colours, sizes and prices into the
+        /// SGU, DGU and LAM panels. Without this the sheet-size dropdowns
+        /// stay empty and every price box reads 0.00.
+        /// Never throws; each panel guards itself internally.
+        /// </summary>
+        private async void LoadSheetStoreDataAsync()
+        {
+            try
+            {
+                await SguVM.LoadSheetStoreAsync().ConfigureAwait(true);
+                await DguVM.LoadSheetStoreAsync().ConfigureAwait(true);
+                await LamVM.LoadSheetStoreAsync().ConfigureAwait(true);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[PricingEstimator] Sheet Store load failed: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Re-reads Sheet Store data. Call after the user edits stock so
+        /// Step 4 reflects the new prices without reopening the wizard.
+        /// </summary>
+        public void RefreshSheetStoreData() => LoadSheetStoreDataAsync();
 
         // ==================== APPLY RATE (SAVE TO DATABASE) ====================
 
@@ -379,6 +412,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                     case "SGU":
                         ProGlassAutomation.Services.ProformaInvoice.SpecSheetRegistry
                             .Record(specName, SguVM.SelectedSheetSize, null);
+                        break;
+
+                    case "LAM":
+                        ProGlassAutomation.Services.ProformaInvoice.SpecSheetRegistry
+                            .Record(specName,
+                                LamVM.SelectedOuterSheetSize,
+                                LamVM.SelectedInnerSheetSize);
                         break;
                 }
             }

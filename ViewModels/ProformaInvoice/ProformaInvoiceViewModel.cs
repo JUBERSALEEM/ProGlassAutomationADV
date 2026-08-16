@@ -252,7 +252,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 Step5VM,
                 Step4VM.DguVM,
                 Step4VM.SguVM,
-                () => Step7VM.InvoiceMainSummary.GrandTotalVatInclusive);
+                () => Step7VM.InvoiceMainSummary.GrandTotalVatInclusive,
+                Step4VM.LamVM);   // PHASE J: laminated costing
 
             // Let the printable invoice reach the P&L so the mapper can
             // persist it inside the snapshot (additive, nullable link).
@@ -399,6 +400,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             if (step == null) return;
 
             CurrentStep = step;
+
+            // PHASE A/J: Step 4 prices come from live Sheet Store stock,
+            // which the user may have edited since the wizard opened.
+            if (stepNumber == 4)
+                Step4VM.RefreshSheetStoreData();
 
             // Step 8 shows disk state — refresh every time it is
             // entered so external changes are never shown stale.

@@ -30,6 +30,7 @@
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.LamParameters
 {
@@ -38,7 +39,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
     /// Handles outer/inner glass, PVB interlayer, per-pane cutting & tempering costs,
     /// yield factor, and margin.
     /// </summary>
-    public class LamParametersViewModel : ViewModelBase
+    public partial class LamParametersViewModel : ViewModelBase
     {
         // ===================== Row 1: Outer Glass =====================
 
@@ -51,6 +52,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
                 _outerThickness = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(GeneratedSpecName));
+                OnOuterGlassChanged();   // PHASE J: Sheet Store refresh
             }
         }
 
@@ -63,6 +65,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
                 _outerGlassColor = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(GeneratedSpecName));
+                OnOuterGlassChanged();   // PHASE J: Sheet Store refresh
             }
         }
 
@@ -96,6 +99,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
                 _innerThickness = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(GeneratedSpecName));
+                OnInnerGlassChanged();   // PHASE J: Sheet Store refresh
             }
         }
 
@@ -108,6 +112,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
                 _innerGlassColor = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(GeneratedSpecName));
+                OnInnerGlassChanged();   // PHASE J: Sheet Store refresh
             }
         }
 
@@ -160,7 +165,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
         public decimal PvbMaterialRate
         {
             get => _pvbMaterialRate;
-            set { _pvbMaterialRate = value; OnPropertyChanged(); }
+            set
+            {
+                _pvbMaterialRate = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(SuggestedRate));   // PHASE J
+            }
         }
 
         private string _laminationPolish;
@@ -259,12 +269,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
 
         // ===================== Shared Dropdown Options =====================
 
-        public List<string> ThicknessOptions { get; } = new()
+        public ObservableCollection<string> ThicknessOptions { get; } = new()
         {
             "3mm", "4mm", "5mm", "6mm", "8mm", "10mm", "12mm", "15mm", "19mm"
         };
 
-        public List<string> ColorOptions { get; } = new()
+        public ObservableCollection<string> ColorOptions { get; } = new()
         {
             "Clear",
             "HD Grey",

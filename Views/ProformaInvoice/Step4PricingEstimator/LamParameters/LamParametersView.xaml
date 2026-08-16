@@ -210,6 +210,55 @@
             </Grid>
 
             <!-- ══════════════════════════════════════════════════════════
+                 OUTER SHEET STORE (PHASE J)
+                 Editable sheet size + read-only store prices. Advisory
+                 only — OUTER BASE PRICE is never overwritten.
+            ══════════════════════════════════════════════════════════ -->
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="OUTER SHEET SIZE" Style="{StaticResource LamLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding OuterSheetSizeOptions}"
+                              Text="{Binding SelectedOuterSheetSize, UpdateSourceTrigger=PropertyChanged}"
+                              Style="{StaticResource LamEditableComboBoxStyle}"
+                              ToolTip="Stock sheet used to cut the outer pane (from Sheet Store)"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="OUTER PURCHASE AED/SQM" Style="{StaticResource LamLabelStyle}"/>
+                    <TextBox Text="{Binding OuterPurchasePerSqm, Mode=OneWay, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource LamInputStyle}"
+                             IsReadOnly="True" Focusable="False"
+                             ToolTip="Read-only — Sheet Store purchase price"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="4">
+                    <TextBlock Text="OUTER SELLING AED/SQM" Style="{StaticResource LamLabelStyle}"/>
+                    <TextBox Text="{Binding OuterSellPerSqm, Mode=OneWay, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource LamInputStyle}"
+                             IsReadOnly="True" Focusable="False"
+                             ToolTip="Read-only — Sheet Store selling price"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="6">
+                    <TextBlock Text="SUGGESTED RATE AED/SQM" Style="{StaticResource LamLabelStyle}"/>
+                    <TextBox Text="{Binding SuggestedRate, Mode=OneWay, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource LamInputStyle}"
+                             IsReadOnly="True" Focusable="False"
+                             ToolTip="Outer + inner glass + PVB material rate — a hint, never applied automatically"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ══════════════════════════════════════════════════════════
                  ROW 2 — INNER GLASS
             ══════════════════════════════════════════════════════════ -->
             <Grid Margin="0,0,0,16">
@@ -248,6 +297,53 @@
                     <TextBlock Text="INNER BASE PRICE" Style="{StaticResource LamLabelStyle}"/>
                     <TextBox Text="{Binding InnerBasePrice, StringFormat={}{0:0.##}}"
                              Style="{StaticResource LamInputStyle}"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ══════════════════════════════════════════════════════════
+                 INNER SHEET STORE (PHASE J)
+            ══════════════════════════════════════════════════════════ -->
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="INNER SHEET SIZE" Style="{StaticResource LamLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding InnerSheetSizeOptions}"
+                              Text="{Binding SelectedInnerSheetSize, UpdateSourceTrigger=PropertyChanged}"
+                              Style="{StaticResource LamEditableComboBoxStyle}"
+                              ToolTip="Stock sheet used to cut the inner pane (from Sheet Store)"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="INNER PURCHASE AED/SQM" Style="{StaticResource LamLabelStyle}"/>
+                    <TextBox Text="{Binding InnerPurchasePerSqm, Mode=OneWay, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource LamInputStyle}"
+                             IsReadOnly="True" Focusable="False"
+                             ToolTip="Read-only — Sheet Store purchase price"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="4">
+                    <TextBlock Text="INNER SELLING AED/SQM" Style="{StaticResource LamLabelStyle}"/>
+                    <TextBox Text="{Binding InnerSellPerSqm, Mode=OneWay, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource LamInputStyle}"
+                             IsReadOnly="True" Focusable="False"
+                             ToolTip="Read-only — Sheet Store selling price"/>
+                </StackPanel>
+
+                <!-- Skippable Sheet Store guidance — theme WarningBrush -->
+                <StackPanel Grid.Column="6" VerticalAlignment="Bottom" Margin="0,0,0,6">
+                    <TextBlock Text="{Binding SheetStoreHint}"
+                               FontSize="11" FontWeight="SemiBold"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource WarningBrush}"/>
                 </StackPanel>
             </Grid>
 
