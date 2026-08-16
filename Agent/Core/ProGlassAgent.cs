@@ -265,6 +265,39 @@ namespace ProGlassAutomation.Agent.Core
 
             var definition = tool.Definition;
 
+            // ══════════════════════════════════════════════════════════
+            //  1b ── CONTEXT RESOLUTION (§14)
+            //
+            //  "How much is still pending?" carries no document, so
+            //  ExtractQuery returns "" and the tool would refuse. If a
+            //  document is open on screen, use it as the implied subject.
+            //
+            //  Done BEFORE the confirmation prompt on purpose: a prompt
+            //  must state the REAL target, never a blank that the tool
+            //  fills in afterwards.
+            //
+            //  The resolver refuses to guess for Write/Destructive tools,
+            //  refuses when the user named a subject, and refuses unless a
+            //  real document id can be recovered. See its header.
+            // ══════════════════════════════════════════════════════════
+            string argument = step.Argument ?? "";
+            string inferenceNote = "";
+
+            var resolved = ProGlassAutomation.Agent.Context.AgentReferenceResolver.TryResolve(
+                name, definition.Risk, argument);
+
+            if (resolved.Resolved)
+            {
+                argument = resolved.Value;
+
+                // Stated back to the user so a wrong guess is visible and
+                // correctable, never silent (§29/§31).
+                inferenceNote = $"I assumed {resolved.Assumption}.";
+
+                _context.Audit?.Tool(user, name, true,
+                    $"context-resolved argument to '{argument}'");
+            }
+
             // 2 ── Permission (identity + role)
             if (_context.Permissions == null)
             {
@@ -287,7 +320,7 @@ namespace ProGlassAutomation.Agent.Core
                 SetState(AgentState.AwaitingConfirmation);
 
                 var confirmed = await _context.Permissions
-                    .ConfirmAsync(definition, step.Argument ?? "")
+                    .ConfirmAsync(definition, argument)
                     .ConfigureAwait(false);
 
                 if (!confirmed.Allowed)
@@ -302,15 +335,22 @@ namespace ProGlassAutomation.Agent.Core
 
             try
             {
-                var result = await tool.ExecuteAsync(step.Argument ?? "")
+                var result = await tool.ExecuteAsync(argument)
                     .ConfigureAwait(false);
 
                 _context.Audit?.Tool(user, name, result.Success,
-                    $"arg='{step.Argument}' → {(result.Success ? "ok" : "failed")}");
+                    $"arg='{argument}' → {(result.Success ? "ok" : "failed")}");
 
-                return result.Success
-                    ? AgentResponse.Ok(result.Message, "", result.NavigateTarget)
-                    : AgentResponse.Fail(result.Message);
+                if (!result.Success) return AgentResponse.Fail(result.Message);
+
+                // Prepend the assumption so the user can correct a wrong
+                // inference immediately, rather than acting on the answer
+                // and discovering later it was about another document.
+                string message = inferenceNote.Length > 0
+                    ? $"{inferenceNote}\n\n{result.Message}"
+                    : result.Message;
+
+                return AgentResponse.Ok(message, "", result.NavigateTarget);
             }
             catch (Exception ex)
             {
