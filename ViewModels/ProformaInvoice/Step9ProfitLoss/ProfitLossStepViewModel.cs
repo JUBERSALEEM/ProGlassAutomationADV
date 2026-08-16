@@ -110,12 +110,39 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public decimal TotalCost { get; set; }
 
         /// <summary>
-        /// Cost of one square metre of this specification. This is the number
-        /// a quoted rate has to beat, and the basis every percentage below is
-        /// measured against.
+        /// The Step 4 pre-margin cost basis for this specification: the exact
+        /// number the quoted rate was built from, before the profit margin.
+        /// Set during recalculation; 0 when Step 4 has no matching selection.
+        /// </summary>
+        public decimal QuoteBasisPerSqm { get; set; }
+
+        /// <summary>
+        /// Materials cost per SQM of cut area, from the Profit &amp; Loss
+        /// rows. Shown for reference only.
+        ///
+        /// This is NOT what a quoted rate should be measured against, and
+        /// using it here was the bug. It differs from the quote basis in
+        /// three ways at once:
+        ///   · priced at PURCHASE, while the quote is built from SELLING
+        ///   · counts whole SHEETS BOUGHT, not the area actually cut
+        ///   · excludes the spacer, cutting, tempering and yield division
+        /// On a Clear/Clear DGU the two came out around 60 and 103.82 — the
+        /// rate box was reporting a margin against a number that had nothing
+        /// to do with the price.
+        /// </summary>
+        public decimal MaterialsCostPerSqm =>
+            CutSqm > 0m ? Math.Round(TotalCost / CutSqm, 2) : 0m;
+
+        /// <summary>
+        /// The figure every percentage below is measured against: the Step 4
+        /// basis when it is known, falling back to materials cost so a spec
+        /// Step 4 cannot identify still reports something rather than zero.
         /// </summary>
         public decimal CostPerSqm =>
-            CutSqm > 0m ? Math.Round(TotalCost / CutSqm, 2) : 0m;
+            QuoteBasisPerSqm > 0m ? QuoteBasisPerSqm : MaterialsCostPerSqm;
+
+        /// <summary>True when the rate check is using the real quote basis.</summary>
+        public bool HasQuoteBasis => QuoteBasisPerSqm > 0m;
 
         // ══════════════════════════════════════════════════════════════
         //  RATE CHECK
@@ -183,22 +210,32 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 if (CostPerSqm <= 0m)
                     return "Cost not known for this specification yet.";
 
+                // Say plainly which number the percentage is measured against.
+                // A margin quoted against the wrong basis is worse than none.
+                string basisNote = HasQuoteBasis
+                    ? $"basis {CostPerSqm:N2}/SQM"
+                    : $"materials {CostPerSqm:N2}/SQM (Step 4 basis unavailable)";
+
                 if (QuotedRatePerSqm <= 0m)
-                    return $"Cost {CostPerSqm:N2}/SQM. Enter a rate to check its margin.";
+                    return $"{char.ToUpperInvariant(basisNote[0])}{basisNote[1..]}. " +
+                           "Enter a rate to check its margin.";
 
                 decimal total = Math.Round(QuotedProfitPerSqm * CutSqm, 2);
 
                 return IsQuotedRateBelowCost
                     ? $"BELOW COST by {Math.Abs(QuotedProfitPerSqm):N2}/SQM " +
-                      $"({QuotedMarkupPercent:0.##}%) — {Math.Abs(total):N2} lost over {CutSqm:0.##} SQM."
-                    : $"{QuotedMarkupPercent:0.##}% mark-up · {QuotedProfitPerSqm:N2}/SQM " +
-                      $"· {total:N2} over {CutSqm:0.##} SQM.";
+                      $"({QuotedMarkupPercent:0.##}%) — {Math.Abs(total):N2} lost over " +
+                      $"{CutSqm:0.##} SQM · {basisNote}."
+                    : $"{QuotedMarkupPercent:0.##}% margin · {QuotedProfitPerSqm:N2}/SQM " +
+                      $"· {total:N2} over {CutSqm:0.##} SQM · {basisNote}.";
             }
         }
 
         /// <summary>Header caption: "SPEC 1 · 12.40 SQM · cost 130.88/SQM".</summary>
         public string HeaderDisplay =>
-            $"SPEC {SpecNumber} · {CutSqm:0.##} SQM · cost {CostPerSqm:N2}/SQM";
+            HasQuoteBasis
+                ? $"SPEC {SpecNumber} · {CutSqm:0.##} SQM · quote basis {CostPerSqm:N2}/SQM"
+                : $"SPEC {SpecNumber} · {CutSqm:0.##} SQM · materials {CostPerSqm:N2}/SQM";
 
         public string TotalCostDisplay => $"AED {TotalCost:N2}";
 
@@ -206,6 +243,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public void NotifyTotalsChanged()
         {
             OnPropertyChanged(nameof(CostPerSqm));
+            OnPropertyChanged(nameof(QuoteBasisPerSqm));
+            OnPropertyChanged(nameof(MaterialsCostPerSqm));
+            OnPropertyChanged(nameof(HasQuoteBasis));
             OnPropertyChanged(nameof(TotalCost));
             OnPropertyChanged(nameof(TotalCostDisplay));
             OnPropertyChanged(nameof(HeaderDisplay));
@@ -438,16 +478,27 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         //     purchase -> "what did we really make?"
         //     sell     -> "does the quote hold together against list price?"
         //
-        //  Rather than silently picking one, the basis is now explicit,
-        //  defaults to Purchase (the true-profit answer, and the previous
-        //  behaviour, so nothing changes unless it is deliberately switched)
-        //  and is named in the status line so a figure is never ambiguous.
+        //  DEFAULT IS NOW SELLING, on the business's instruction.
+        //
+        //  The reason it matters here: Step 4 builds its rate from the
+        //  SELLING column, so a report costed at purchase measures the
+        //  quote against a different column of the same Sheet Store row.
+        //  On a 40 SQM Clear/Clear DGU quoted at 119.39 the two answers are
+        //  20.4% and 4.8% — not a rounding difference, a different
+        //  conclusion about whether the job is worth taking.
+        //
+        //  The toggle remains. Costing at purchase is still the honest
+        //  answer to "what did we actually make against supplier invoices",
+        //  and switching to it is one click. Whichever is active is named in
+        //  the status line, so no figure on this screen is ambiguous.
         // ══════════════════════════════════════════════════════════════
 
-        private bool _costAtSellingPrice;
+        private bool _costAtSellingPrice = true;
         /// <summary>
-        /// False (default) = cost glass at Sheet Store PURCHASE price.
-        /// True = cost at SELLING price, matching the Step 4 base rates.
+        /// True (default) = cost at SELLING price, matching the Step 4 base
+        /// rates so the report reconciles with the quote.
+        /// False = cost at Sheet Store PURCHASE price, which answers the
+        /// separate question of profit against supplier invoices.
         /// </summary>
         public bool CostAtSellingPrice
         {
@@ -945,6 +996,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             {
                 var rows = new List<ProfitLossRow>();
                 var specAreas = new Dictionary<int, decimal>();
+                var specBases = new Dictionary<int, decimal>();
                 decimal glassCost = 0m;
                 decimal productionCost = 0m;
                 int skipped = 0;
@@ -968,6 +1020,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     // row list alone cannot supply it (sheet counts are
                     // rounded up, so summing rows would overstate the area).
                     specAreas[group.GroupNumber] = cutSqm;
+
+                    // Pre-margin cost basis for THIS specification's own glass
+                    // type, which is what a quoted rate must be measured
+                    // against. Taken from the Step 4 panel that owns the type
+                    // rather than from whichever type happens to be selected
+                    // on screen: a proforma can mix an SGU and a DGU, and
+                    // reading the live selection would score both against
+                    // whichever tab the user last opened.
+                    specBases[group.GroupNumber] =
+                        QuoteBasisFor(group.SelectedGlassType, isDgu, isLam, isDguLam);
 
                     string specName = group.SelectedSpecName ?? "";
 
@@ -1417,6 +1479,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         TotalCost = Math.Round(bySpec.Sum(r => r.Amount), 2),
                         CutSqm = specAreas.TryGetValue(bySpec.Key, out decimal a)
                             ? Math.Round(a, 2)
+                            : 0m,
+                        QuoteBasisPerSqm = specBases.TryGetValue(bySpec.Key, out decimal b)
+                            ? b
                             : 0m
                     };
 
@@ -1518,6 +1583,98 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// A second pane (W2/H2) counts toward area but not perimeter —
         /// the spacer follows the outer pane only.
         /// </summary>
+        // ══════════════════════════════════════════════════════════════════
+        //  QUOTE BASIS PER SPECIFICATION
+        //
+        //  Mirrors Step 4's rate formulas, stopping one step short: every
+        //  Calculate*Rate is  basis x (1 + margin%),  and this returns the
+        //  basis. That is the number a quoted rate has to be measured
+        //  against.
+        //
+        //  Worked example, 6mm Clear FT + 12mm ASP + 6mm Clear FT:
+        //      (25 + 25) / 0.85 + 45 = 103.82
+        //      x 1.15 = 119.39     x 1.10 = 114.20
+        //  So entering 114.20 reads as 10%, which is what the shop expects.
+        //
+        //  The build is identified from the SPEC NAME first (isDgu / isLam /
+        //  isDguLam were already parsed out of it) and only falls back to the
+        //  group's glass-type text. A proforma can hold several different
+        //  builds at once, so using the live Step 4 selection would score
+        //  every specification against whichever tab was last open.
+        //
+        //  Returns 0 when the owning panel is not bound, which makes the
+        //  caller fall back to materials cost and say so on screen rather
+        //  than silently quoting a wrong percentage.
+        // ══════════════════════════════════════════════════════════════════
+
+        private static decimal SafeYield(decimal yieldFactor) =>
+            yieldFactor <= 0m ? 1m : yieldFactor;
+
+        private decimal QuoteBasisFor(
+            string? glassType, bool isDgu, bool isLam, bool isDguLam)
+        {
+            string type = (glassType ?? "").Trim().ToUpperInvariant();
+
+            // Spec-name evidence wins: it describes the product actually
+            // costed, whereas the type text can be blank or stale.
+            if (isDguLam || type == "DGU+LAM")
+            {
+                var vm = _dguLamVm;
+                if (vm == null) return 0m;
+
+                decimal basis =
+                    (vm.OuterBasePrice + vm.LamOuterBasePrice + vm.LamInnerBasePrice)
+                        / SafeYield(vm.YieldFactor)
+                    + vm.TotalCuttingCost
+                    + vm.TotalTemperingCost
+                    + vm.InterlayerSellPrice
+                    + vm.SpacerPrice;
+
+                return Math.Round(basis, 2);
+            }
+
+            if (isLam || type == "LAM")
+            {
+                var vm = _lamVm;
+                if (vm == null) return 0m;
+
+                decimal basis =
+                    (vm.OuterBasePrice + vm.InnerBasePrice) / SafeYield(vm.YieldFactor)
+                    + vm.PvbMaterialRate
+                    + vm.OuterCuttingCost + vm.InnerCuttingCost
+                    + vm.OuterTemperingCost + vm.InnerTemperingCost;
+
+                return Math.Round(basis, 2);
+            }
+
+            if (isDgu || type == "DGU")
+            {
+                var vm = _dguVm;
+                if (vm == null) return 0m;
+
+                decimal basis =
+                    (vm.OuterBasePrice + vm.InnerBasePrice) / SafeYield(vm.YieldFactor)
+                    + vm.SpacerPrice;
+
+                return Math.Round(basis, 2);
+            }
+
+            if (type == "SGU")
+            {
+                var vm = _sguVm;
+                if (vm == null) return 0m;
+
+                decimal basis =
+                    vm.BasePricePerSqm / SafeYield(vm.YieldFactor)
+                    + vm.CuttingCostPerSqm
+                    + vm.TemperingCostPerSqm;
+
+                return Math.Round(basis, 2);
+            }
+
+            return 0m;
+        }
+
         private static (decimal CutSqm, decimal PerimeterLm) MeasureGroup(SpecGroup group)
         {
             decimal cutSqm = 0m;
@@ -1733,7 +1890,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 TotalProductionCost = TotalProductionCost,
                 Profit = Profit,
                 MarginPercent = MarginPercent,
-                WastagePercent = WastagePercent
+                WastagePercent = WastagePercent,
+                CostAtSellingPrice = CostAtSellingPrice
             };
 
             foreach (var row in Rows)

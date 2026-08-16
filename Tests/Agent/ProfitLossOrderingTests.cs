@@ -266,7 +266,14 @@ namespace ProGlassAutomation.Tests.Agent
                 SpecNumber = 1,
                 SpecName = "6mm HD Grey FT Glass + 12mm ASP + 6mm Clear FT Glass",
                 CutSqm = cutSqm,
-                TotalCost = decimal.Round(CostBasis * cutSqm, 2)
+                TotalCost = decimal.Round(CostBasis * cutSqm, 2),
+
+                // The rate check measures against the Step 4 quote basis, not
+                // the materials cost. Setting it explicitly is the whole point
+                // of the fix: without it the percentages were computed against
+                // sheets-purchased-at-purchase-price and bore no relation to
+                // the quoted rate.
+                QuoteBasisPerSqm = CostBasis
             };
         }
 
@@ -338,12 +345,60 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Fact]
-        public void A_spec_with_no_area_cannot_be_rate_checked()
+        public void A_spec_with_no_basis_and_no_area_cannot_be_rate_checked()
         {
             var spec = Spec(cutSqm: 0m);
+            spec.QuoteBasisPerSqm = 0m;   // Step 4 could not identify the build
 
             Assert.Equal(0m, spec.CostPerSqm);
             Assert.Contains("Cost not known", spec.RateCheckDisplay);
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  THE BASIS THE PERCENTAGE IS MEASURED AGAINST
+        //
+        //  The rate box was scoring rates against the Profit & Loss
+        //  materials cost — sheets purchased at purchase price — which is
+        //  neither the quoted rate's basis nor close to it.
+        // ══════════════════════════════════════════════════════════════
+
+        [Fact]
+        public void Quote_basis_wins_over_materials_cost()
+        {
+            var spec = Spec();
+            spec.TotalCost = 2000m;          // materials, deliberately different
+            spec.QuoteBasisPerSqm = 103.82m; // Step 4 basis
+
+            Assert.Equal(103.82m, spec.CostPerSqm);
+            Assert.True(spec.HasQuoteBasis);
+        }
+
+        [Fact]
+        public void Materials_cost_is_used_only_when_no_basis_is_known()
+        {
+            var spec = Spec(cutSqm: 40m);
+            spec.TotalCost = 4000m;        // -> 100.00 per SQM
+            spec.QuoteBasisPerSqm = 0m;
+
+            Assert.Equal(100.00m, spec.CostPerSqm);
+            Assert.False(spec.HasQuoteBasis);
+            Assert.Contains("Step 4 basis unavailable", spec.RateCheckDisplay);
+        }
+
+        [Fact]
+        public void Clear_clear_dgu_reads_ten_percent_at_the_business_rate()
+        {
+            // 6mm Clear FT + 12mm ASP + 6mm Clear FT
+            //   (25 + 25) / 0.85 + 45 = 103.82
+            //   x1.15 = 119.39   x1.10 = 114.20
+            var spec = Spec(cutSqm: 40m);
+            spec.QuoteBasisPerSqm = 103.82m;
+
+            spec.QuotedRatePerSqm = 114.20m;
+            Assert.Equal(10.00m, spec.QuotedMarkupPercent);
+
+            spec.QuotedRatePerSqm = 119.39m;
+            Assert.Equal(15.00m, spec.QuotedMarkupPercent);
         }
 
         [Fact]

@@ -327,6 +327,21 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
 
         /// <summary>Wastage allowance used when sheet counts were computed.</summary>
         public decimal WastagePercent { get; set; }
+
+        /// <summary>
+        /// Which Sheet Store column priced the glass when this snapshot was
+        /// taken: true = SELLING, false = PURCHASE.
+        ///
+        /// Recorded because the two produce materially different profit for
+        /// the same job — around 20% versus 5% on a typical DGU — and the
+        /// default changed from purchase to selling. Without this flag,
+        /// invoices saved either side of that change would be indistinguishable
+        /// and no one could tell which question a stored figure answered.
+        ///
+        /// Defaults to false so snapshots written before this field existed
+        /// deserialise as purchase-costed, which is what they were.
+        /// </summary>
+        public bool CostAtSellingPrice { get; set; }
     }
 
     /// <summary>One line of the Profit &amp; Loss breakdown.</summary>

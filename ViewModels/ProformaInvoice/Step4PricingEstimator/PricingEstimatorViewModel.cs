@@ -548,6 +548,92 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         //  Step 5: * (1 + Margin/100)
         // ══════════════════════════════════════════════════════════════════
 
+        // ══════════════════════════════════════════════════════════════════
+        //  PRE-MARGIN COST BASIS
+        //
+        //  Every rate above is  basis x (1 + margin%).  The basis is the
+        //  number a quoted rate has to be measured against, and until now it
+        //  was a local variable inside each Calculate*Rate method — invisible
+        //  to anything else.
+        //
+        //  Step 9's rate check needs it. It was using the Profit & Loss
+        //  materials cost instead, which is a different quantity entirely:
+        //  that figure is built from SHEETS PURCHASED at PURCHASE prices,
+        //  while the quoted rate is built from CUT AREA at SELLING prices
+        //  plus spacer, cutting, tempering and yield. Comparing a rate
+        //  against it reported a margin that was never the margin.
+        //
+        //  Worked example, 6mm Clear FT + 12mm ASP + 6mm Clear FT:
+        //      basis (25 + 25)/0.85 + 45 = 103.82 per SQM
+        //      x 1.15 = 119.39   x 1.10 = 114.20
+        //  So 114.20 reads as 10%, which is what the business expects.
+        // ══════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Cost per SQM before the profit margin is applied, for the glass
+        /// type currently selected. Returns 0 when no type is selected or the
+        /// selection is not recognised.
+        /// </summary>
+        public decimal CostBasisPerSqm
+        {
+            get
+            {
+                switch (SelectedGlassType?.Code)
+                {
+                    case "SGU": return SguBasis();
+                    case "DGU": return DguBasis();
+                    case "LAM": return LamBasis();
+                    case "DGU+LAM": return DguLamBasis();
+                    default: return 0m;
+                }
+            }
+        }
+
+        /// <summary>Yield never divides by zero; mirrors the rate methods.</summary>
+        private static decimal SafeYield(decimal yieldFactor) =>
+            yieldFactor <= 0m ? 1m : yieldFactor;
+
+        private decimal SguBasis()
+        {
+            var vm = SguVM;
+            decimal basis = vm.BasePricePerSqm / SafeYield(vm.YieldFactor)
+                          + vm.CuttingCostPerSqm
+                          + vm.TemperingCostPerSqm;
+            return Math.Round(basis, 2);
+        }
+
+        private decimal DguBasis()
+        {
+            var vm = DguVM;
+            decimal basis = (vm.OuterBasePrice + vm.InnerBasePrice)
+                                / SafeYield(vm.YieldFactor)
+                          + vm.SpacerPrice;
+            return Math.Round(basis, 2);
+        }
+
+        private decimal LamBasis()
+        {
+            var vm = LamVM;
+            decimal basis = (vm.OuterBasePrice + vm.InnerBasePrice)
+                                / SafeYield(vm.YieldFactor)
+                          + vm.PvbMaterialRate
+                          + vm.OuterCuttingCost + vm.InnerCuttingCost
+                          + vm.OuterTemperingCost + vm.InnerTemperingCost;
+            return Math.Round(basis, 2);
+        }
+
+        private decimal DguLamBasis()
+        {
+            var vm = DguLamVM;
+            decimal basis = (vm.OuterBasePrice + vm.LamOuterBasePrice + vm.LamInnerBasePrice)
+                                / SafeYield(vm.YieldFactor)
+                          + vm.TotalCuttingCost
+                          + vm.TotalTemperingCost
+                          + vm.InterlayerSellPrice
+                          + vm.SpacerPrice;
+            return Math.Round(basis, 2);
+        }
+
         private decimal CalculateSguRate()
         {
             var vm = SguVM;
