@@ -194,11 +194,15 @@
             <!-- ══════════════════════════════════════════════════════════
                  LAYER 1 — OUTER GLASS (in front of the air spacer)
             ══════════════════════════════════════════════════════════ -->
-            <TextBlock Text="LAYER 1 — OUTER GLASS"
+            <TextBlock Text="LAYER 1 — OUTER GLASS + AIR SPACER"
                        Style="{StaticResource DguLamLayerHeadingStyle}"/>
 
             <Grid Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
@@ -235,24 +239,8 @@
                              Style="{StaticResource DguLamInputStyle}"
                              ToolTip="AED per SQM. Auto-filled from Sheet Store selling price."/>
                 </StackPanel>
-            </Grid>
-
-            <!-- ══════════════════════════════════════════════════════════
-                 LAYER 2 — AIR SPACER
-            ══════════════════════════════════════════════════════════ -->
-            <TextBlock Text="LAYER 2 — AIR SPACER (ASP)"
-                       Style="{StaticResource DguLamLayerHeadingStyle}"/>
-
-            <Grid Margin="0,0,0,8">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="2*"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0">
+            
+                <StackPanel Grid.Column="8">
                     <TextBlock Text="SPACER WIDTH" Style="{StaticResource DguLamLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding SpacerOptions}"
                               Text="{Binding SpacerThickness, UpdateSourceTrigger=PropertyChanged}"
@@ -260,29 +248,22 @@
                               ToolTip="12mm and 16mm are standard. Type any other width if the job needs it."/>
                 </StackPanel>
 
-                <StackPanel Grid.Column="2">
+                <StackPanel Grid.Column="10">
                     <TextBlock Text="SPACER PRICE / SQM" Style="{StaticResource DguLamLabelStyle}"/>
                     <TextBox Text="{Binding SpacerPrice, StringFormat={}{0:0.##}}"
                              Style="{StaticResource DguLamInputStyle}"
                              ToolTip="AED per SQM. Zero by default — the standard hybrid price carries no spacer charge."/>
                 </StackPanel>
-
-                <StackPanel Grid.Column="4"
-                            VerticalAlignment="Bottom"
-                            Margin="0,0,0,10">
-                    <TextBlock FontSize="11"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               TextWrapping="Wrap">
-                        <Run Text="&#xE946;" FontFamily="Segoe MDL2 Assets" Foreground="#4338CA"/>
-                        <Run Text="  Leave at 0 unless this job is meant to carry a spacer charge. The standard hybrid price does not include one, and cutting and tempering are billed per pane below."/>
-                    </TextBlock>
-                </StackPanel>
-            </Grid>
+</Grid>
 
             <!-- ══════════════════════════════════════════════════════════
+                 LAYER 2 — AIR SPACER
+            ══════════════════════════════════════════════════════════ -->
+
+                        <!-- ══════════════════════════════════════════════════════════
                  LAYER 3 — LAMINATED OUTER PANE
             ══════════════════════════════════════════════════════════ -->
-            <TextBlock Text="LAYER 3 — LAMINATED OUTER PANE"
+            <TextBlock Text="LAYER 3 — LAMINATED OUTER"
                        Style="{StaticResource DguLamLayerHeadingStyle}"/>
 
             <Grid Margin="0,0,0,8">
@@ -398,7 +379,7 @@
             <!-- ══════════════════════════════════════════════════════════
                  LAYER 5 — LAMINATED INNER PANE
             ══════════════════════════════════════════════════════════ -->
-            <TextBlock Text="LAYER 5 — LAMINATED INNER PANE"
+            <TextBlock Text="LAYER 5 — LAMINATED INNER"
                        Style="{StaticResource DguLamLayerHeadingStyle}"/>
 
             <Grid Margin="0,0,0,8">
@@ -448,103 +429,63 @@
                  glass: HD Grey tempers at 12 where Clear tempers at 10.
                  One row per pane so each can be priced on its own.
             ══════════════════════════════════════════════════════════ -->
-            <TextBlock Text="PROCESSING — ALL THREE PANES"
+            <TextBlock Text="PROCESSING — CUTTING AND TEMPERING, ALL THREE PANES"
                        Style="{StaticResource DguLamLayerHeadingStyle}"/>
 
-            <Grid Margin="0,0,0,6">
+            <Grid Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1.4*"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <TextBlock Grid.Column="0" Text="PANE"
-                           Style="{StaticResource DguLamLabelStyle}"/>
-                <TextBlock Grid.Column="2" Text="CUTTING / SQM"
-                           Style="{StaticResource DguLamLabelStyle}"/>
-                <TextBlock Grid.Column="4" Text="TEMPERING / SQM"
-                           Style="{StaticResource DguLamLabelStyle}"/>
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="OUTER CUT" Style="{StaticResource DguLamLabelStyle}"/>
+                    <TextBox Text="{Binding OuterCuttingCost, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DguLamInputStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="OUTER TEMPER" Style="{StaticResource DguLamLabelStyle}"/>
+                    <TextBox Text="{Binding OuterTemperingCost, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DguLamInputStyle}"
+                             ToolTip="Tinted glass such as HD Grey tempers dearer than Clear."/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="4">
+                    <TextBlock Text="LAM OUT CUT" Style="{StaticResource DguLamLabelStyle}"/>
+                    <TextBox Text="{Binding LamOuterCuttingCost, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DguLamInputStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="6">
+                    <TextBlock Text="LAM OUT TEMPER" Style="{StaticResource DguLamLabelStyle}"/>
+                    <TextBox Text="{Binding LamOuterTemperingCost, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DguLamInputStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="8">
+                    <TextBlock Text="LAM IN CUT" Style="{StaticResource DguLamLabelStyle}"/>
+                    <TextBox Text="{Binding LamInnerCuttingCost, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DguLamInputStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="10">
+                    <TextBlock Text="LAM IN TEMPER" Style="{StaticResource DguLamLabelStyle}"/>
+                    <TextBox Text="{Binding LamInnerTemperingCost, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DguLamInputStyle}"/>
+                </StackPanel>
             </Grid>
 
-            <!-- Pane 1 — outer -->
-            <Grid Margin="0,0,0,5">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1.4*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <TextBlock Grid.Column="0"
-                           Text="Outer glass"
-                           FontSize="12"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                           VerticalAlignment="Center"/>
-
-                <TextBox Grid.Column="2"
-                         Text="{Binding OuterCuttingCost, StringFormat={}{0:0.##}}"
-                         Style="{StaticResource DguLamInputStyle}"/>
-
-                <TextBox Grid.Column="4"
-                         Text="{Binding OuterTemperingCost, StringFormat={}{0:0.##}}"
-                         Style="{StaticResource DguLamInputStyle}"
-                         ToolTip="Tinted glass such as HD Grey tempers dearer than Clear."/>
-            </Grid>
-
-            <!-- Pane 2 — laminated outer -->
-            <Grid Margin="0,0,0,5">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1.4*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <TextBlock Grid.Column="0"
-                           Text="Laminated outer"
-                           FontSize="12"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                           VerticalAlignment="Center"/>
-
-                <TextBox Grid.Column="2"
-                         Text="{Binding LamOuterCuttingCost, StringFormat={}{0:0.##}}"
-                         Style="{StaticResource DguLamInputStyle}"/>
-
-                <TextBox Grid.Column="4"
-                         Text="{Binding LamOuterTemperingCost, StringFormat={}{0:0.##}}"
-                         Style="{StaticResource DguLamInputStyle}"/>
-            </Grid>
-
-            <!-- Pane 3 — laminated inner -->
-            <Grid Margin="0,0,0,10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="1.4*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <TextBlock Grid.Column="0"
-                           Text="Laminated inner"
-                           FontSize="12"
-                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                           VerticalAlignment="Center"/>
-
-                <TextBox Grid.Column="2"
-                         Text="{Binding LamInnerCuttingCost, StringFormat={}{0:0.##}}"
-                         Style="{StaticResource DguLamInputStyle}"/>
-
-                <TextBox Grid.Column="4"
-                         Text="{Binding LamInnerTemperingCost, StringFormat={}{0:0.##}}"
-                         Style="{StaticResource DguLamInputStyle}"/>
-            </Grid>
-
-            <TextBlock FontSize="11"
+            <TextBlock FontSize="10"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                        Margin="0,0,0,8"
                        TextWrapping="Wrap">
@@ -556,9 +497,6 @@
                 <Run Text="  AED per SQM."/>
             </TextBlock>
 
-            <!-- ══════════════════════════════════════════════════════════
-                 YIELD + MARGIN
-            ══════════════════════════════════════════════════════════ -->
             <TextBlock Text="YIELD AND MARGIN"
                        Style="{StaticResource DguLamLayerHeadingStyle}"/>
 

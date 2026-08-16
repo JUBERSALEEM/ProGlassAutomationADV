@@ -179,6 +179,10 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
@@ -207,41 +211,32 @@
                     <TextBox Text="{Binding OuterBasePrice, StringFormat={}{0:0.##}}"
                              Style="{StaticResource LamInputStyle}"/>
                 </StackPanel>
-            </Grid>
-
-            <!-- ══════════════════════════════════════════════════════════
-                 OUTER SHEET STORE (PHASE J)
-                 Editable sheet size + read-only store prices. Advisory
-                 only — OUTER BASE PRICE is never overwritten.
-            ══════════════════════════════════════════════════════════ -->
-            <Grid Margin="0,0,0,8">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="OUTER SHEET WIDTH (MM)" Style="{StaticResource LamLabelStyle}"/>
+            
+                <StackPanel Grid.Column="8">
+                    <TextBlock Text="OUTER SHEET W (MM)" Style="{StaticResource LamLabelStyle}"/>
                     <TextBox Text="{Binding OuterSheetWidthMm, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource LamInputStyle}"
                              ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
                 </StackPanel>
 
-                <StackPanel Grid.Column="2">
-                    <TextBlock Text="OUTER SHEET HEIGHT (MM)" Style="{StaticResource LamLabelStyle}"/>
+                <StackPanel Grid.Column="10">
+                    <TextBlock Text="OUTER SHEET H (MM)" Style="{StaticResource LamLabelStyle}"/>
                     <TextBox Text="{Binding OuterSheetHeightMm, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource LamInputStyle}"
                              ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
                 </StackPanel>
-            </Grid>
 
+</Grid>
 
             <!-- ══════════════════════════════════════════════════════════
                  ROW 2 — INNER GLASS
             ══════════════════════════════════════════════════════════ -->
             <Grid Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
@@ -277,32 +272,22 @@
                     <TextBox Text="{Binding InnerBasePrice, StringFormat={}{0:0.##}}"
                              Style="{StaticResource LamInputStyle}"/>
                 </StackPanel>
-            </Grid>
-
-            <!-- ══════════════════════════════════════════════════════════
-                 INNER SHEET STORE (PHASE J)
-            ══════════════════════════════════════════════════════════ -->
-            <Grid Margin="0,0,0,8">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="INNER SHEET WIDTH (MM)" Style="{StaticResource LamLabelStyle}"/>
+            
+                <StackPanel Grid.Column="8">
+                    <TextBlock Text="INNER SHEET W (MM)" Style="{StaticResource LamLabelStyle}"/>
                     <TextBox Text="{Binding InnerSheetWidthMm, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource LamInputStyle}"
                              ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
                 </StackPanel>
 
-                <StackPanel Grid.Column="2">
-                    <TextBlock Text="INNER SHEET HEIGHT (MM)" Style="{StaticResource LamLabelStyle}"/>
+                <StackPanel Grid.Column="10">
+                    <TextBlock Text="INNER SHEET H (MM)" Style="{StaticResource LamLabelStyle}"/>
                     <TextBox Text="{Binding InnerSheetHeightMm, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource LamInputStyle}"
                              ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
                 </StackPanel>
-            </Grid>
+
+</Grid>
 
             <!-- Skippable Sheet Store guidance — theme WarningBrush -->
             <TextBlock Text="{Binding SheetStoreHint}"

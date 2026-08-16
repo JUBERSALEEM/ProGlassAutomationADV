@@ -180,6 +180,10 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
@@ -208,71 +212,32 @@
                     <TextBox Text="{Binding OuterBasePrice, StringFormat={}{0:0.##}}"
                              Style="{StaticResource DguInputStyle}"/>
                 </StackPanel>
-            </Grid>
-
-            <!-- ══════════════════════════════════════════════════════════
-                 ROW 1b — OUTER SHEET STORE (PHASE A)
-                 Sheet size is editable (type a custom size); the two price
-                 boxes are read-only mirrors of the Sheet Store record.
-            ══════════════════════════════════════════════════════════ -->
-            <Grid Margin="0,0,0,8">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="OUTER SHEET WIDTH (MM)" Style="{StaticResource DguLabelStyle}"/>
+            
+                <StackPanel Grid.Column="8">
+                    <TextBlock Text="OUTER SHEET W (MM)" Style="{StaticResource DguLabelStyle}"/>
                     <TextBox Text="{Binding OuterSheetWidthMm, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource DguInputStyle}"
                              ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
                 </StackPanel>
 
-                <StackPanel Grid.Column="2">
-                    <TextBlock Text="OUTER SHEET HEIGHT (MM)" Style="{StaticResource DguLabelStyle}"/>
+                <StackPanel Grid.Column="10">
+                    <TextBlock Text="OUTER SHEET H (MM)" Style="{StaticResource DguLabelStyle}"/>
                     <TextBox Text="{Binding OuterSheetHeightMm, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource DguInputStyle}"
                              ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
                 </StackPanel>
-            </Grid>
 
-
-            <!-- ══════════════════════════════════════════════════════════
-                 ROW 3 — SPACER EXTRA + PANEL EXTRA   (HOTFIX-3)
-                 Replaces old U-Insert / Overlap / InnerAsPerDwg controls.
-                 SpacerExtra  → appended after spacer (middle of spec name)
-                 PanelExtra   → appended after inner glass (end of spec name)
-            ══════════════════════════════════════════════════════════ -->
-            <Grid Margin="0,0,0,8">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="2*"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="SPACER EXTRA" Style="{StaticResource DguLabelStyle}"/>
-                    <ComboBox ItemsSource="{Binding SpacerExtraOptions}"
-                              SelectedItem="{Binding SpacerExtra}"
-                              Style="{StaticResource DguComboBoxStyle}"
-                              ToolTip="Extras attached to the spacer (appears after spacer in spec name)"/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="2">
-                    <TextBlock Text="PANEL EXTRA" Style="{StaticResource DguLabelStyle}"/>
-                    <ComboBox ItemsSource="{Binding PanelExtraOptions}"
-                              SelectedItem="{Binding PanelExtra}"
-                              Style="{StaticResource DguComboBoxStyle}"
-                              ToolTip="Additional processing on the DGU panel (appears at end of spec name)"/>
-                </StackPanel>
-            </Grid>
+</Grid>
 
             <!-- ══════════════════════════════════════════════════════════
                  ROW 4 — INNER GLASS
             ══════════════════════════════════════════════════════════ -->
             <Grid Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
@@ -308,32 +273,22 @@
                     <TextBox Text="{Binding InnerBasePrice, StringFormat={}{0:0.##}}"
                              Style="{StaticResource DguInputStyle}"/>
                 </StackPanel>
-            </Grid>
-
-            <!-- ══════════════════════════════════════════════════════════
-                 ROW 4b — INNER SHEET STORE (PHASE A)
-            ══════════════════════════════════════════════════════════ -->
-            <Grid Margin="0,0,0,8">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="INNER SHEET WIDTH (MM)" Style="{StaticResource DguLabelStyle}"/>
+            
+                <StackPanel Grid.Column="8">
+                    <TextBlock Text="INNER SHEET W (MM)" Style="{StaticResource DguLabelStyle}"/>
                     <TextBox Text="{Binding InnerSheetWidthMm, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource DguInputStyle}"
                              ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
                 </StackPanel>
 
-                <StackPanel Grid.Column="2">
-                    <TextBlock Text="INNER SHEET HEIGHT (MM)" Style="{StaticResource DguLabelStyle}"/>
+                <StackPanel Grid.Column="10">
+                    <TextBlock Text="INNER SHEET H (MM)" Style="{StaticResource DguLabelStyle}"/>
                     <TextBox Text="{Binding InnerSheetHeightMm, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource DguInputStyle}"
                              ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
                 </StackPanel>
-            </Grid>
+
+</Grid>
 
             <!-- Skippable Sheet Store guidance — theme WarningBrush -->
             <TextBlock Text="{Binding SheetStoreHint}"
@@ -353,6 +308,10 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
@@ -367,19 +326,23 @@
                              Style="{StaticResource DguInputStyle}"/>
                 </StackPanel>
 
-                <!-- Helper text spans remaining columns -->
-                <StackPanel Grid.Column="4"
-                            Grid.ColumnSpan="3"
-                            VerticalAlignment="Bottom"
-                            Margin="0,0,0,10">
-                    <TextBlock FontSize="11"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               TextWrapping="Wrap">
-                        <Run Text="&#xE946;" FontFamily="Segoe MDL2 Assets" Foreground="#7C3AED"/>
-                        <Run Text="  DGU pricing sums outer + spacer + inner. Typical yield is 0.92 for double-glazed units."/>
-                    </TextBlock>
+            
+                <StackPanel Grid.Column="4">
+                    <TextBlock Text="SPACER EXTRA" Style="{StaticResource DguLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding SpacerExtraOptions}"
+                              SelectedItem="{Binding SpacerExtra}"
+                              Style="{StaticResource DguComboBoxStyle}"
+                              ToolTip="Extras attached to the spacer (appears after spacer in spec name)"/>
                 </StackPanel>
-            </Grid>
+
+                <StackPanel Grid.Column="6">
+                    <TextBlock Text="PANEL EXTRA" Style="{StaticResource DguLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding PanelExtraOptions}"
+                              SelectedItem="{Binding PanelExtra}"
+                              Style="{StaticResource DguComboBoxStyle}"
+                              ToolTip="Additional processing on the DGU panel (appears at end of spec name)"/>
+                </StackPanel>
+</Grid>
 
         </StackPanel>
     </Border>

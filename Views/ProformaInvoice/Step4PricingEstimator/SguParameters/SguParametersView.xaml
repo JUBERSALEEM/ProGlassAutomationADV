@@ -154,6 +154,10 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
+                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
@@ -182,29 +186,16 @@
                     <TextBox Text="{Binding BasePricePerSqm, StringFormat={}{0:0.##}}"
                              Style="{StaticResource SguInputStyle}"/>
                 </StackPanel>
-            </Grid>
 
-            <!-- ══════════════════════════════════════════════════════════
-                 ROW 1b — SHEET STORE (PHASE A)
-                 Editable sheet size + read-only store prices. All of it is
-                 advisory: the estimator never overwrites BASE PRICE.
-            ══════════════════════════════════════════════════════════ -->
-            <Grid Margin="0,0,0,8">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="SHEET WIDTH (MM)" Style="{StaticResource SguLabelStyle}"/>
+                <StackPanel Grid.Column="8">
+                    <TextBlock Text="SHEET W (MM)" Style="{StaticResource SguLabelStyle}"/>
                     <TextBox Text="{Binding SheetWidthMm, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource SguInputStyle}"
                              ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
                 </StackPanel>
 
-                <StackPanel Grid.Column="2">
-                    <TextBlock Text="SHEET HEIGHT (MM)" Style="{StaticResource SguLabelStyle}"/>
+                <StackPanel Grid.Column="10">
+                    <TextBlock Text="SHEET H (MM)" Style="{StaticResource SguLabelStyle}"/>
                     <TextBox Text="{Binding SheetHeightMm, UpdateSourceTrigger=PropertyChanged}"
                              Style="{StaticResource SguInputStyle}"
                              ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
@@ -224,6 +215,8 @@
             ══════════════════════════════════════════════════════════ -->
             <Grid Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
@@ -256,40 +249,16 @@
                     <TextBox Text="{Binding TargetMarginPercent, StringFormat={}{0:0.##}}"
                              Style="{StaticResource SguInputStyle}"/>
                 </StackPanel>
-            </Grid>
 
-            <!-- ══════════════════════════════════════════════════════════
-                 ROW 3: Polish option (single field — half width for balance)
-            ══════════════════════════════════════════════════════════ -->
-            <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="10"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.Column="0">
-                    <TextBlock Text="POLISH / DETAIL OPTION" Style="{StaticResource SguLabelStyle}"/>
+                <StackPanel Grid.Column="8">
+                    <TextBlock Text="POLISH / DETAIL" Style="{StaticResource SguLabelStyle}"/>
                     <ComboBox ItemsSource="{Binding PolishOptions}"
                               SelectedItem="{Binding SelectedPolishOption}"
-                              Style="{StaticResource StepComboBoxStyle}"/>
-                </StackPanel>
-
-                <!-- Helper text spans remaining columns -->
-                <StackPanel Grid.Column="2"
-                            Grid.ColumnSpan="5"
-                            VerticalAlignment="Bottom"
-                            Margin="0,0,0,10">
-                    <TextBlock FontSize="11"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               TextWrapping="Wrap">
-                        <Run Text="&#xE946;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource AccentBrush}"/>
-                        <Run Text="  Polishing adds surface finish cost — flat edge is most common for interior use."/>
-                    </TextBlock>
+                              Style="{StaticResource StepComboBoxStyle}"
+                              ToolTip="Polishing adds surface finish cost — flat edge is most common for interior use."/>
                 </StackPanel>
             </Grid>
+
 
         </StackPanel>
     </Border>
