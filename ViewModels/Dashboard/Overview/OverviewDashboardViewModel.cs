@@ -161,7 +161,6 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             private set { if (_hasChartData == value) return; _hasChartData = value; OnPropertyChanged(); }
         }
 
-        private readonly ISheetStoreRepository _sheetRepo = new SheetStoreRepository();
 
         // ═════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
@@ -192,72 +191,43 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             var today = DateTime.Today;
             var firstOfMonth = new DateTime(today.Year, today.Month, 1);
 
-            // ── Fetch all data ─────────────────────────────────────────
-            var invoices = await App.Invoices.GetAllAsync();
-            var sheets = await _sheetRepo.GetAllAsync();
-            var jobs = await App.Jobs.GetAllAsync();
-            var allDns = await App.DeliveryNotes.GetAllAsync();
-            var pendingJobs = await App.DeliveryNotes.GetPendingQtyJobsAsync();
+            // ── KPI figures: one projected service call ────────────────
+            //
+            // These four collections used to be loaded here in full --
+            // App.Invoices.GetAllAsync() and friends -- purely to compute
+            // counts and sums. That read every column of four tables,
+            // including the FullSnapshotJson blob on every proforma row.
+            //
+            // The metrics service runs AsNoTracking projections that read
+            // only the columns each figure needs, and it owns the
+            // double-count-safe pending-pieces rule that used to live in
+            // this method.
+            var exec = await App.DashboardMetrics.GetExecutiveMetricsAsync(
+                App.DashboardFilter.CurrentRange);
 
-            // ── Compute stats ──────────────────────────────────────────
-            decimal totalSales = invoices.Sum(i => i.GrandTotalVatInclusive);
-            decimal salesMtd = invoices
-                .Where(i => (i.UpdatedAt != default ? i.UpdatedAt : i.CreatedAt) >= firstOfMonth)
-                .Sum(i => i.GrandTotalVatInclusive);
+            // ── Map aggregates onto the existing local names ───────────
+            //    (kept verbatim so the tile-building code below is
+            //     unchanged and the displayed figures stay identical)
+            decimal totalSales   = exec.Sales.TotalSalesValue;
+            decimal salesMtd     = exec.Sales.SalesThisPeriod.Current;
+            int totalInvoices    = exec.Sales.TotalInvoices;
+            int approvedCount    = exec.Sales.ApprovedInvoices;
 
-            int totalInvoices = invoices.Count;
-            int approvedCount = invoices.Count(i => Eq(i.Status, "Approved"));
+            int jobInProduction  = exec.Production.InProduction;
+            int jobOverdue       = exec.Production.Overdue;
+            int jobCompletedMtd  = (int)exec.Production.CompletedThisPeriod.Current;
+            int totalJobs        = exec.Production.TotalJobs;
 
-            int jobInProduction = jobs.Count(j => j.Status == JobStatusInProduction);
-            int jobOverdue = jobs.Count(j =>
-                                        j.DeliveryDate.HasValue
-                                     && j.DeliveryDate.Value.Date < today
-                                     && j.Status != JobStatusCompleted
-                                     && j.Status != JobStatusDelivered);
-            int jobCompletedMtd = jobs.Count(j =>
-                                       (j.Status == JobStatusCompleted || j.Status == JobStatusDelivered)
-                                     && j.UpdatedAt >= firstOfMonth);
-            int totalJobs = jobs.Count;
+            int dnDraft              = exec.Delivery.Preparing;
+            int dnDispatched         = exec.Delivery.Dispatched;
+            int dnDeliveredTodayPcs  = exec.Delivery.PiecesDeliveredToday;
+            int dnTotalDeliveredPcs  = exec.Delivery.PiecesDeliveredTotal;
+            int dnPendingPcs         = exec.Delivery.PendingPieces;
 
-            // ─────────────────────────────────────────────────────────────
-            //  DELIVERY calculations — ALL FIXES + NEW METRICS
-            // ─────────────────────────────────────────────────────────────
-
-            // Preparing = Draft DNs (not yet dispatched)
-            int dnDraft = allDns.Count(d => Eq(d.Status, "Draft"));
-
-            // FIX-3: Dispatched includes ALL sent-out states
-            int dnDispatched = allDns.Count(d =>
-                Eq(d.Status, "Dispatched") ||
-                Eq(d.Status, "Delivered") ||
-                Eq(d.Status, "Signed") ||
-                Eq(d.Status, "Received"));
-
-            // FIX-4: Delivered Today = pieces delivered today (SUM, not COUNT)
-            //        Better metric than DN count — shows actual pieces moving today
-            int dnDeliveredTodayPcs = allDns
-                .Where(d => d.DeliveryDate.Date == today &&
-                            (Eq(d.Status, "Dispatched") ||
-                             Eq(d.Status, "Delivered") ||
-                             Eq(d.Status, "Signed") ||
-                             Eq(d.Status, "Received")))
-                .Sum(d => d.TotalDeliveredQty);
-
-            // FIX-5 (NEW): Total Delivered = all pieces ever delivered
-            //              Cumulative metric showing lifetime volume
-            int dnTotalDeliveredPcs = allDns
-                .Where(d => !Eq(d.Status, "Draft"))
-                .Sum(d => d.TotalDeliveredQty);
-
-            // FIX-2 (CRITICAL — Gotcha #40): Pending pieces from correct aggregation
-            int dnPendingPcs = pendingJobs.Sum(p => p.TotalBalance);
-
-            // ─────────────────────────────────────────────────────────────
-
-            decimal inventoryValue = sheets.Sum(s => s.BalanceValue);
-            int lowStock = sheets.Count(s => s.Balance <= 5);
-            int totalSheets = sheets.Count;
-            int totalStockQty = sheets.Sum(s => s.Balance);
+            decimal inventoryValue = exec.Inventory.StockValueAtSellPrice;
+            int lowStock           = exec.Inventory.LowStockCount;
+            int totalSheets        = exec.Inventory.SheetTypes;
+            int totalStockQty      = exec.Inventory.TotalSheetsAvailable;
 
             // ═════════════════════════════════════════════════════════════
             //  💰 SALES CARD — 4 tiles
@@ -421,23 +391,16 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 .Select(i => now.AddMonths(-5 + i))
                 .ToList();
 
-            var rawBars = months.Select(m =>
+            // The six-month totals come from the metrics service, which
+            // already built them with the same "prefer UpdatedAt, fall
+            // back to CreatedAt" rule this loop used. Recomputing them
+            // here would mean a second full scan of the invoice table.
+            var rawBars = exec.Sales.MonthlyTrend.Select(t => new ChartBarModel
             {
-                decimal total = invoices
-                    .Where(inv =>
-                    {
-                        var d = inv.UpdatedAt != default ? inv.UpdatedAt : inv.CreatedAt;
-                        return d.Year == m.Year && d.Month == m.Month;
-                    })
-                    .Sum(inv => inv.GrandTotalVatInclusive);
-
-                return new ChartBarModel
-                {
-                    Label = m.ToString("MMM"),
-                    RawValue = total,
-                    ValueDisplay = total > 0 ? $"AED {total:N2}" : "—",
-                    BarColor = "#3B82F6"    // v2.0.1: blue-500 (was #6366F1 indigo)
-                };
+                Label = t.Label,
+                RawValue = t.Value,
+                ValueDisplay = t.Value > 0 ? $"AED {t.Value:N2}" : "—",
+                BarColor = "#3B82F6"
             }).ToList();
 
             decimal maxVal = rawBars.Any() ? rawBars.Max(b => b.RawValue) : 0m;
@@ -461,6 +424,16 @@ namespace ProGlassAutomation.ViewModels.Dashboard
             //  💬 RECENT ACTIVITY — merge all module events
             // ═════════════════════════════════════════════════════════════
             var feedItems = new List<ActivityFeedItem>();
+
+            // The feed keeps only the newest 20 entries overall, so each
+            // source needs at most its own newest 20. These used to be
+            // full-table loads whose rows were then discarded.
+            const int FeedFetch = 20;
+
+            var recent   = await App.DashboardMetrics.GetRecentRowsAsync(FeedFetch);
+            var invoices = recent.Invoices;
+            var jobs     = recent.Jobs;
+            var allDns   = recent.DeliveryNotes;
 
             // Invoice activity
             var invoiceActivity = invoices.Select(i =>

@@ -45,6 +45,7 @@ using ProGlassAutomation.Services.MasterData.Repository;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository;
 using ProGlassAutomation.Services.Statement.Repository;
+using ProGlassAutomation.Services.Dashboard.Core;
 using ProGlassAutomation.Services.TaxInvoice.Repository;
 using ProGlassAutomation.Views.Splash;
 using System;
@@ -97,6 +98,23 @@ namespace ProGlassAutomation
         public static IMasterDataRepository MasterData { get; private set; }
         public static ITaxInvoiceRepository TaxInvoices { get; private set; }
         public static IStatementRepository Statements { get; private set; }
+
+        // ── Dashboard service layer ──────────────────────────────────────
+        //
+        // The dashboards used to call repository GetAllAsync() and
+        // aggregate in memory: opening Overview loaded four entire tables,
+        // including the FullSnapshotJson blob on every proforma row, just
+        // to produce a few counts and sums.
+        //
+        // DashboardMetrics runs projected AsNoTracking queries that read
+        // only the columns each figure needs. DashboardFilter holds the
+        // one selected date range so widgets stop inventing their own.
+
+        /// <summary>Aggregated, projected dashboard queries.</summary>
+        public static IDashboardMetricsService DashboardMetrics { get; private set; }
+
+        /// <summary>Shared dashboard date-range state.</summary>
+        public static IDashboardFilterService DashboardFilter { get; private set; }
 
         /// <summary>
         /// Same-network user presence (Users page shows colleagues on
@@ -162,6 +180,10 @@ namespace ProGlassAutomation
             MasterData = new MasterDataRepository();
             TaxInvoices = new TaxInvoiceRepository();
             Statements = new StatementRepository();
+
+            // Dashboard service layer — stateless, safe as singletons.
+            DashboardMetrics = new DashboardMetricsService();
+            DashboardFilter  = new DashboardFilterService();
 
             await Task.WhenAll(
                 Specs.InitializeAsync(),
