@@ -271,39 +271,94 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- TYPED TEXT WAS INVISIBLE.
-                         This TextBox set no Background/Foreground and there
-                         is no global TextBox style in the app, so it
-                         inherited the panel's colours and rendered light
-                         text on a light field. Both are now explicit, and
-                         CaretBrush is set too - otherwise the cursor stays
-                         invisible even once the text shows. -->
-                    <TextBox Grid.Column="0"
-                             x:Name="InputBox"
-                             Text="{Binding Input, UpdateSourceTrigger=PropertyChanged}"
-                             FontSize="13"
-                             MinHeight="40"
-                             MaxHeight="120"
-                             Padding="12,10"
-                             Background="White"
-                             Foreground="#1F2937"
-                             CaretBrush="#1F2937"
-                             SelectionBrush="{DynamicResource AccentBrush}"
-                             BorderBrush="{DynamicResource BorderBrush}"
-                             BorderThickness="1"
-                             VerticalContentAlignment="Center"
-                             AcceptsReturn="False"
-                             TextWrapping="Wrap"
-                             KeyDown="InputBox_KeyDown"
-                             ToolTip="Ask a question, or teach: whenever I say X, open Y"/>
+                    <!-- ══════════════════════════════════════════════
+                         WHY THE TEXT WAS INVISIBLE — THE REAL CAUSE.
 
+                         App.xaml line 82 defines an IMPLICIT style for
+                         {x:Type TextBox} with a full ControlTemplate, and
+                         it hard-sets Height="38". My previous attempt only
+                         set colours, which was treating a symptom: the
+                         actual problem is that a fixed 38px Height fought
+                         MinHeight="40" + TextWrapping, so PART_ContentHost
+                         was clipped and the caret and glyphs rendered
+                         outside the visible box.
+
+                         AiChatView never hits this because it does what is
+                         copied below: a Border owns the surface and the
+                         TextBox inside is Transparent, borderless and
+                         template-free of its own chrome. Same layout,
+                         applied exactly.
+                    ══════════════════════════════════════════════ -->
+                    <Border Grid.Column="0"
+                            Background="White"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="20"
+                            Padding="14,0"
+                            Height="40"
+                            VerticalAlignment="Center"
+                            SnapsToDevicePixels="True"
+                            UseLayoutRounding="True">
+                        <TextBox x:Name="InputBox"
+                                 Text="{Binding Input, UpdateSourceTrigger=PropertyChanged}"
+                                 Height="Auto"
+                                 MinHeight="0"
+                                 Padding="0"
+                                 Background="Transparent"
+                                 BorderThickness="0"
+                                 Foreground="#1F2937"
+                                 CaretBrush="#1F2937"
+                                 SelectionBrush="{DynamicResource AccentBrush}"
+                                 FontSize="13"
+                                 VerticalAlignment="Center"
+                                 VerticalContentAlignment="Center"
+                                 AcceptsReturn="False"
+                                 KeyDown="InputBox_KeyDown"
+                                 ToolTip="Ask a question, or teach: whenever I say X, open Y"/>
+                    </Border>
+
+                    <!-- Circular send, matching AiChatView's SendBtn (42px,
+                         CornerRadius 21). A 120px-wide word button in a
+                         520px panel crowded the input; the glyph does not.
+                         PrimaryPillButton could not be used here because it
+                         inherits MinWidth=120 from PillButtonBase. -->
                     <Button Grid.Column="2"
-                            Content="SEND"
-                            MinWidth="88"
-                            Width="88"
-                            Style="{StaticResource PrimaryPillButton}"
+                            Width="40" Height="40"
+                            Content="&#xE725;"
+                            FontFamily="Segoe MDL2 Assets"
+                            FontSize="15"
+                            Foreground="White"
+                            Cursor="Hand"
+                            FocusVisualStyle="{x:Null}"
+                            BorderThickness="0"
                             Command="{Binding SendCommand}"
-                            IsDefault="True"/>
+                            IsDefault="True"
+                            ToolTip="Send (Enter)">
+                        <Button.Template>
+                            <ControlTemplate TargetType="Button">
+                                <Border x:Name="bd"
+                                        Background="{DynamicResource AccentBrush}"
+                                        CornerRadius="20"
+                                        SnapsToDevicePixels="True">
+                                    <ContentPresenter HorizontalAlignment="Center"
+                                                      VerticalAlignment="Center"/>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="bd" Property="Background"
+                                                Value="#6366F1"/>
+                                    </Trigger>
+                                    <Trigger Property="IsPressed" Value="True">
+                                        <Setter TargetName="bd" Property="Background"
+                                                Value="#3730A3"/>
+                                    </Trigger>
+                                    <Trigger Property="IsEnabled" Value="False">
+                                        <Setter Property="Opacity" Value="0.4"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
+                            </ControlTemplate>
+                        </Button.Template>
+                    </Button>
                 </Grid>
 
                 <TextBlock Text="{Binding StatusText}"
