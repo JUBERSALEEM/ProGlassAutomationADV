@@ -153,10 +153,31 @@
                             </Grid.RowDefinitions>
 
                             <!-- Header -->
+                            <!--
+                                Header and Tag are copied onto the ToggleButton
+                                here, while we are still in the EXPANDER's
+                                template scope where TemplatedParent means the
+                                Expander.
+
+                                Inside the ToggleButton's own template below,
+                                TemplatedParent means the ToggleButton, which
+                                has no Header property at all — reading it
+                                there is what produced
+
+                                    Cannot find the static member
+                                    'HeaderProperty' on the type 'ToggleButton'.
+
+                                So the values are handed down one level and
+                                read back off the ToggleButton itself.
+                            -->
                             <ToggleButton x:Name="HeaderToggle"
                                           Grid.Row="0"
                                           Focusable="False"
                                           Cursor="Hand"
+                                          Content="{Binding Header,
+                                                    RelativeSource={RelativeSource TemplatedParent}}"
+                                          Tag="{Binding Tag,
+                                                RelativeSource={RelativeSource TemplatedParent}}"
                                           IsChecked="{Binding IsExpanded,
                                                       RelativeSource={RelativeSource TemplatedParent},
                                                       Mode=TwoWay}">
@@ -183,15 +204,22 @@
                                                            Margin="0,0,8,0"/>
 
                                                 <TextBlock Grid.Column="1"
-                                                           Text="{TemplateBinding Header}"
+                                                           Text="{Binding Content,
+                                                                  RelativeSource={RelativeSource TemplatedParent}}"
                                                            FontSize="10"
                                                            FontWeight="Bold"
                                                            Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                            VerticalAlignment="Center"/>
 
-                                                <!-- Live summary of the collapsed contents -->
+                                                <!-- Live summary of the collapsed contents.
+                                                     Read off the ToggleButton, which received
+                                                     the Expander's Tag above. TemplateBinding
+                                                     here would silently resolve to the
+                                                     ToggleButton's own unset Tag and always
+                                                     render blank — no error, just no summary. -->
                                                 <TextBlock Grid.Column="2"
-                                                           Text="{TemplateBinding Tag}"
+                                                           Text="{Binding Tag,
+                                                                  RelativeSource={RelativeSource TemplatedParent}}"
                                                            FontSize="10"
                                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                            VerticalAlignment="Center"
