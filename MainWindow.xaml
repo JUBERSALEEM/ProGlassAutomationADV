@@ -17,6 +17,23 @@
            • 4px left accent bar appears on hover
            • Background switches to tinted blue
            • CornerRadius 8 → 12 for softer pill feel
+             (now 14 — see CARD SHAPE PASS below)
+
+     CARD SHAPE PASS (professional rounded cards):
+       ✓ One radius scale across the whole shell, instead of the previous
+         mix of 9 / 12 / 16 that made the window look assembled rather
+         than designed:
+             20  pills (top bar)
+             16  cards  — module content card, agent overlay, drawer edge
+             14  sidebar item card
+             10  small badges (logo, sidebar icon)
+       ✓ Module content card was CornerRadius 12 with a hairline border
+         and NO elevation, so it read as a boxed-in panel. Now 16 to match
+         the CardStyle the dashboard views already use, plus a soft
+         CardShadow.
+       ✓ The shadow is carried by an EMPTY caster Border behind the card,
+         never by the Border holding live module content — see the
+         performance note on the CardShadow resource.
        ✓ Dim overlay still triggers on IsMenuOpen (settings no longer
          uses drawer, so IsSettingsOpen data trigger removed from overlay)
 
@@ -155,6 +172,21 @@
         <DropShadowEffect x:Key="DrawerLeftShadow"
                           BlurRadius="24" ShadowDepth="4"
                           Opacity="0.2" Color="Black" Direction="0"
+                          po:Freeze="True"/>
+
+        <!-- Card elevation. Soft and low-contrast: a card should read as
+             lifted off the background, not as a box with a dark outline.
+             Direction 270 = light from above, matching TopBarShadow so the
+             whole window agrees on where the light comes from.
+
+             PERFORMANCE NOTE — this is applied to an EMPTY caster Border,
+             never to the Border that holds live module content. A
+             DropShadowEffect forces its entire visual subtree through a
+             bitmap render pass on every change, which would hit the
+             DataGrid-heavy modules on every scroll and edit. -->
+        <DropShadowEffect x:Key="CardShadow"
+                          BlurRadius="18" ShadowDepth="3"
+                          Opacity="0.13" Color="#0F172A" Direction="270"
                           po:Freeze="True"/>
 
         <!-- ═══════════════════════════════════════════════════════════════
@@ -341,14 +373,17 @@
                         Background="Transparent"
                         BorderBrush="{DynamicResource BorderBrush}"
                         BorderThickness="1"
-                        CornerRadius="12"
+                        CornerRadius="14"
                         Padding="10,0"
                         SnapsToDevicePixels="True">
                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                         <!-- Icon badge (tinted rounded square) -->
+                        <!-- Badge radius tracks the card radius: an 8px
+                             badge inside a 14px card reads as mismatched.
+                             10px keeps the corners visually concentric. -->
                         <Border x:Name="iconBadge"
                                 Width="28" Height="28"
-                                CornerRadius="8"
+                                CornerRadius="10"
                                 Background="{DynamicResource TintIndigoBrush}"
                                 VerticalAlignment="Center"
                                 SnapsToDevicePixels="True">
@@ -528,7 +563,7 @@
                          rounded square so it matches the pill language of
                          the rest of the top bar. -->
                     <Border Width="36" Height="36"
-                            CornerRadius="9"
+                            CornerRadius="10"
                             VerticalAlignment="Center"
                             SnapsToDevicePixels="True"
                             Effect="{StaticResource LogoGlow}">
@@ -735,11 +770,31 @@
                  v2 §9: ModuleWallpaperBrush sits BEHIND the module —
                  set per module by VisualThemeEngine, Transparent when
                  the active module has no wallpaper. -->
+            <!-- ELEVATION CASTER.
+                 Sits directly behind the content card with identical
+                 geometry and carries the shadow ALONE. It has no children,
+                 so the effect rasterizes one empty rounded rectangle
+                 instead of the entire live module tree. Non-hit-testable so
+                 it can never intercept a click meant for the module. -->
+            <Border Margin="12"
+                    CornerRadius="16"
+                    Background="{DynamicResource ModuleBackgroundBrush}"
+                    Effect="{StaticResource CardShadow}"
+                    IsHitTestVisible="False"
+                    SnapsToDevicePixels="True"/>
+
+            <!-- CONTENT CARD.
+                 CornerRadius 16 matches the CardStyle used by the dashboard
+                 views and the agent overlay, so the shell and the modules
+                 now speak one radius language (was 12, which read as a
+                 slightly-softened box rather than a card).
+                 ClipToBounds keeps module content inside the rounded
+                 corners — without it, square content paints over them. -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{StaticResource ModuleFrameBorder}"
                     BorderThickness="1"
-                    CornerRadius="12"
-                    Margin="12,12,12,12"
+                    CornerRadius="16"
+                    Margin="12"
                     ClipToBounds="True"
                     SnapsToDevicePixels="True">
                 <Grid>
