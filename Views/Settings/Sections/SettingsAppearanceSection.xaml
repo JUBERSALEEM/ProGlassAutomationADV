@@ -212,10 +212,15 @@
                                                       VerticalAlignment="Center"
                                                       Margin="0,0,10,0"/>
 
+                                            <!-- LAYOUT FIX: fixed 170px column with
+                                                 no trimming clipped long module names
+                                                 mid-character. Column 2 already trims. -->
                                             <TextBlock Grid.Column="1"
                                                        Text="{Binding Label}"
                                                        FontSize="12" FontWeight="SemiBold"
                                                        VerticalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       ToolTip="{Binding Label}"
                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
 
                                             <TextBlock Grid.Column="2"

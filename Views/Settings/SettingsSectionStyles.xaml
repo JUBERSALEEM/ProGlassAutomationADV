@@ -150,6 +150,11 @@
         <Setter Property="Margin"           Value="0,4,0,0"/>
         <Setter Property="Foreground"       Value="{DynamicResource SecondaryForegroundBrush}"/>
         <Setter Property="IsHitTestVisible" Value="False"/>
+        <!-- LAYOUT FIX: was missing, unlike HintTextStyle. Without it a
+             long subtitle (the AI & Agent page has the longest in the app
+             at 71 chars) renders as one unbroken line, widening the header
+             row and pushing content past the right edge on narrow windows. -->
+        <Setter Property="TextWrapping"     Value="Wrap"/>
     </Style>
 
     <!-- ═══════════════════════════════════════════════════════════════

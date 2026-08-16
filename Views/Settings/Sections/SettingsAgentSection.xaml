@@ -59,7 +59,7 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <StackPanel Grid.Column="0">
+                            <StackPanel Grid.Column="0" Margin="0,0,20,0">
                                 <TextBlock Text="{Binding LocalOnlyLabel}"
                                            Style="{StaticResource RowTitleStyle}"/>
                                 <TextBlock Text="When on, the agent never contacts the internet. This is the default."
@@ -84,7 +84,7 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <StackPanel Grid.Column="0">
+                            <StackPanel Grid.Column="0" Margin="0,0,20,0">
                                 <TextBlock Text="{Binding CloudConsentLabel}"
                                            Style="{StaticResource RowTitleStyle}"/>
                                 <TextBlock Text="A separate, explicit agreement to send questions to an online provider. Turning Local-Only back on clears it."
@@ -140,9 +140,13 @@
 
                         <Grid>
                             <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="180"/>
+                                <!-- LAYOUT FIX: was a hard 180px, which could
+                                     not shrink and pushed the API KEY box off
+                                     the card on narrow windows. Proportional
+                                     with a MinWidth floor instead. -->
+                                <ColumnDefinition Width="Auto" MinWidth="150"/>
                                 <ColumnDefinition Width="14"/>
-                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="*" MinWidth="160"/>
                             </Grid.ColumnDefinitions>
 
                             <StackPanel Grid.Column="0">
@@ -165,17 +169,20 @@
                                    Style="{StaticResource HintTextStyle}"
                                    Margin="0,10,0,0"/>
 
-                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                        <!-- WrapPanel so the pair reflows instead of clipping
+                             when the settings pane is narrow. -->
+                        <WrapPanel Margin="0,12,0,0">
                             <Button Style="{StaticResource SuccessPillButton}"
                                     Tag="&#xE74E;"
                                     Content="STORE KEY"
+                                    Margin="0,0,10,8"
                                     Click="StoreKey_Click"/>
                             <Button Style="{StaticResource DangerButton}"
                                     Tag="&#xE74D;"
                                     Content="REMOVE KEY"
-                                    Margin="10,0,0,0"
+                                    Margin="0,0,0,8"
                                     Command="{Binding RemoveKeyCommand}"/>
-                        </StackPanel>
+                        </WrapPanel>
                     </StackPanel>
                 </Border>
 
@@ -190,7 +197,7 @@
                                 <ColumnDefinition Width="Auto"/>
                             </Grid.ColumnDefinitions>
 
-                            <StackPanel Grid.Column="0">
+                            <StackPanel Grid.Column="0" Margin="0,0,20,0">
                                 <TextBlock Text="TAUGHT PHRASES"
                                            Style="{StaticResource SectionLabelStyle}"/>
                                 <TextBlock Text="A taught phrase does nothing until you approve it here."
@@ -217,7 +224,7 @@
                                                 <ColumnDefinition Width="Auto"/>
                                             </Grid.ColumnDefinitions>
 
-                                            <StackPanel Grid.Column="0">
+                                            <StackPanel Grid.Column="0" Margin="0,0,20,0">
                                                 <TextBlock Text="{Binding Display}"
                                                            FontSize="12"
                                                            FontWeight="SemiBold"
@@ -291,35 +298,46 @@
                                    Style="{StaticResource HintTextStyle}"
                                    Margin="0,6,0,12"/>
 
-                        <StackPanel Orientation="Horizontal">
+                        <!-- WrapPanels: these labels are long, so the pairs
+                             reflow to a second line instead of clipping when
+                             the settings pane is narrow. -->
+                        <WrapPanel>
                             <Button Style="{StaticResource OutlinedPillButton}"
                                     Tag="&#xE78C;"
                                     Content="EXPORT KNOWLEDGE"
+                                    Margin="0,0,10,8"
                                     Command="{Binding ExportKnowledgeCommand}"/>
                             <Button Style="{StaticResource OutlinedPillButton}"
                                     Tag="&#xE896;"
                                     Content="IMPORT KNOWLEDGE"
-                                    Margin="10,0,0,0"
+                                    Margin="0,0,0,8"
                                     Command="{Binding ImportKnowledgeCommand}"/>
-                        </StackPanel>
+                        </WrapPanel>
 
-                        <StackPanel Orientation="Horizontal" Margin="0,12,0,0">
+                        <WrapPanel Margin="0,4,0,0">
                             <Button Style="{StaticResource DangerButton}"
                                     Tag="&#xE74D;"
                                     Content="CLEAR MEMORY"
+                                    Margin="0,0,10,8"
                                     Command="{Binding ClearMemoryCommand}"/>
                             <Button Style="{StaticResource DangerButton}"
                                     Tag="&#xE74D;"
                                     Content="CLEAR KNOWLEDGE"
-                                    Margin="10,0,0,0"
+                                    Margin="0,0,0,8"
                                     Command="{Binding ClearKnowledgeCommand}"/>
-                        </StackPanel>
+                        </WrapPanel>
 
-                        <TextBlock Style="{StaticResource HintTextStyle}" Margin="0,14,0,0">
+                        <!-- Absolute %AppData% paths are long; trim rather
+                             than let them stretch the card. Full value on hover. -->
+                        <TextBlock Style="{StaticResource HintTextStyle}" Margin="0,14,0,0"
+                                   TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding AgentDatabasePath, Mode=OneWay}">
                             <Run Text="Agent database: "/>
                             <Run Text="{Binding AgentDatabasePath, Mode=OneWay}"/>
                         </TextBlock>
-                        <TextBlock Style="{StaticResource HintTextStyle}" Margin="0,3,0,0">
+                        <TextBlock Style="{StaticResource HintTextStyle}" Margin="0,3,0,0"
+                                   TextTrimming="CharacterEllipsis"
+                                   ToolTip="{Binding SettingsFilePath, Mode=OneWay}">
                             <Run Text="Agent settings: "/>
                             <Run Text="{Binding SettingsFilePath, Mode=OneWay}"/>
                         </TextBlock>
