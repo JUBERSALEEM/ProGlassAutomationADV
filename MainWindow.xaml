@@ -552,37 +552,40 @@
                 </StackPanel>
 
                 <!-- MODULE badge -->
-                <!-- Active-module pill. Restyled to match the date/time and
-                     connectivity pills on the right: full 999 radius, tinted
-                     translucent background rather than a flat solid block, a
-                     hairline border and a leading accent dot. It also shows
-                     the CURRENT module instead of the static word "MODULE",
-                     which carried no information. -->
+                <!-- Active-module pill — Primary solid variant.
+                     Spec geometry: CornerRadius 20, Height 40, Padding 22,0,
+                     BorderBrush #4DFFFFFF at 1, MDL2 glyph 13px + 10px gap,
+                     UPPERCASE bold 12px label. Shows the CURRENT module
+                     rather than the static word "MODULE". -->
                 <Border Grid.Column="2"
-                        CornerRadius="999"
-                        Padding="12,4"
+                        CornerRadius="20"
+                        Padding="22,0"
+                        Height="40"
                         VerticalAlignment="Center"
                         Margin="20,0,0,0"
-                        Background="{DynamicResource TintIndigoBrush}"
-                        BorderBrush="{DynamicResource AccentBrush}"
+                        Background="{DynamicResource AccentBrush}"
+                        BorderBrush="#4DFFFFFF"
                         BorderThickness="1"
                         SnapsToDevicePixels="True"
                         ToolTip="Active module">
                     <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center"
                                 VerticalAlignment="Center">
-                        <Ellipse Width="7" Height="7"
-                                 Fill="{DynamicResource AccentBrush}"
-                                 VerticalAlignment="Center"
-                                 Margin="0,0,7,0"
-                                 IsHitTestVisible="False"/>
+                        <TextBlock Text="&#xE700;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="13"
+                                   Foreground="White"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,10,0"
+                                   IsHitTestVisible="False"/>
                         <TextBlock Text="{Binding CurrentModuleTitle,
                                        FallbackValue=MODULE,
                                        TargetNullValue=MODULE}"
-                                   FontSize="10.5" FontWeight="Bold"
-                                   Foreground="{DynamicResource AccentBrush}"
+                                   FontSize="12" FontWeight="Bold"
+                                   Foreground="White"
                                    VerticalAlignment="Center"
                                    TextTrimming="CharacterEllipsis"
-                                   MaxWidth="180"
+                                   MaxWidth="200"
                                    IsHitTestVisible="False"/>
                     </StackPanel>
                 </Border>
@@ -600,85 +603,104 @@
                                                   VerticalAlignment="Center"
                                                   Margin="0,0,12,0"/>
 
-                    <!-- Live date/time (auto-updating every second) -->
-                    <Border CornerRadius="999"
-                            Padding="12,4"
+                    <!-- Live date/time — Outlined pill variant.
+                         Was a flat Border with Padding 12,4 (roughly 24px
+                         tall) and no border, which read as a grey blob next
+                         to the 40px buttons. Now matches the spec geometry:
+                         CornerRadius 20, Height 40, Padding 22,0,
+                         BorderThickness 1.5, MDL2 icon at 13px with a 10px
+                         gap, UPPERCASE bold label. -->
+                    <Border CornerRadius="20"
+                            Padding="22,0"
+                            Height="40"
                             Margin="0,0,10,0"
                             VerticalAlignment="Center"
-                            Background="{DynamicResource MenuHoverBrush}"
+                            Background="White"
+                            BorderBrush="{DynamicResource AccentBrush}"
+                            BorderThickness="1.5"
+                            SnapsToDevicePixels="True"
                             ToolTip="Current date and time">
                         <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
                                     VerticalAlignment="Center">
-                            <!-- Rule 3: Segoe MDL2 only, never emoji. -->
                             <TextBlock Text="&#xE787;"
                                        FontFamily="Segoe MDL2 Assets"
-                                       FontSize="11"
+                                       FontSize="13"
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
-                                       Margin="0,0,7,0"
+                                       Margin="0,0,10,0"
                                        IsHitTestVisible="False"/>
                             <TextBlock Text="{Binding CurrentDateText}"
-                                       FontSize="11" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       FontSize="12" FontWeight="Bold"
+                                       Foreground="#1F2937"
                                        VerticalAlignment="Center"
                                        IsHitTestVisible="False"/>
-                            <TextBlock Text="  ·  " FontSize="11"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                            <TextBlock Text="  ·  "
+                                       FontSize="12" FontWeight="Bold"
+                                       Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
                                        IsHitTestVisible="False"/>
                             <TextBlock Text="{Binding CurrentTimeText}"
-                                       FontSize="11" FontWeight="Bold"
+                                       FontSize="12" FontWeight="Bold"
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
                                        IsHitTestVisible="False"/>
                         </StackPanel>
                     </Border>
 
-                    <!-- Internet connectivity pill (live — AI, updates) -->
-                    <Border CornerRadius="999"
-                            Padding="10,4"
+                    <!-- Internet connectivity — solid pill.
+                         Success green when online, danger red when offline.
+                         Spec geometry: CornerRadius 20, Height 40,
+                         Padding 22,0, BorderBrush #4DFFFFFF at 1,
+                         MDL2 glyph 13px + 10px gap, UPPERCASE bold label.
+                         The old version was a 4px-padded Border with a
+                         7px dot and a 10px label. -->
+                    <Border CornerRadius="20"
+                            Padding="22,0"
+                            Height="40"
                             Margin="0,0,10,0"
                             VerticalAlignment="Center"
+                            BorderBrush="#4DFFFFFF"
+                            BorderThickness="1"
+                            SnapsToDevicePixels="True"
                             ToolTip="Internet connection state — AI and updates need internet">
                         <Border.Style>
                             <Style TargetType="Border">
-                                <Setter Property="Background" Value="#2210B981"/>
+                                <Setter Property="Background"
+                                        Value="{DynamicResource SuccessBrush}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsOnline}" Value="False">
-                                        <Setter Property="Background" Value="#22EF4444"/>
+                                        <Setter Property="Background" Value="#B91C1C"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
-                        <StackPanel Orientation="Horizontal">
-                            <Ellipse Width="7" Height="7"
-                                     VerticalAlignment="Center"
-                                     Margin="0,0,6,0">
-                                <Ellipse.Style>
-                                    <Style TargetType="Ellipse">
-                                        <Setter Property="Fill" Value="#10B981"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsOnline}" Value="False">
-                                                <Setter Property="Fill" Value="#EF4444"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Ellipse.Style>
-                            </Ellipse>
-                            <TextBlock Text="{Binding ConnectivityLabel}"
-                                       FontSize="10" FontWeight="Bold"
-                                       VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center">
+                            <TextBlock FontFamily="Segoe MDL2 Assets"
+                                       FontSize="13"
+                                       Foreground="White"
+                                       VerticalAlignment="Center"
+                                       Margin="0,0,10,0"
+                                       IsHitTestVisible="False">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
-                                        <Setter Property="Foreground" Value="#10B981"/>
+                                        <!-- E701 connected / E8CD disconnected -->
+                                        <Setter Property="Text" Value="&#xE701;"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsOnline}" Value="False">
-                                                <Setter Property="Foreground" Value="#EF4444"/>
+                                                <Setter Property="Text" Value="&#xE8CD;"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
                                 </TextBlock.Style>
                             </TextBlock>
+                            <TextBlock Text="{Binding ConnectivityLabel}"
+                                       FontSize="12" FontWeight="Bold"
+                                       Foreground="White"
+                                       VerticalAlignment="Center"
+                                       IsHitTestVisible="False"/>
                         </StackPanel>
                     </Border>
 

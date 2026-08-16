@@ -24,7 +24,10 @@
 //   perimeterLm  = Σ (2·(W1+H1)/1000) · Qty
 //   sheets       = ceil( cutSqm · (1 + Wastage%/100) / sheetSqm ), min 1
 //   glass amount = round(sheetSqm · sheets · purchasePricePerSqm, 2)
-//   DGU spacer   = round(perimeterLm · DguVM.SpacerPrice, 2)
+//   DGU spacer   = round(cutSqm · DguVM.SpacerPrice, 2)
+//                  ASP is quoted PER SQM in Step 4 (37.5+((w-6)/2)*2.5,
+//                  so 45.00 at 12mm) and that price already includes
+//                  cutting, tempering and production for DGU.
 //   SGU prod.    = round(cutSqm · (CuttingCostPerSqm + TemperingCostPerSqm), 2)
 //
 //   Rows whose purchase price is unknown (≤ 0) are SKIPPED rather than
@@ -130,11 +133,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public string QuantityDisplay =>
             $"× {Quantity:0.##}";
 
-        /// <summary>e.g. "46.00 / SQM" (or "/ LM" for spacer rows).</summary>
-        public string PriceDisplay =>
-            string.Equals(Kind, "Spacer", StringComparison.OrdinalIgnoreCase)
-                ? $"{PricePerSqm:N2} / LM"
-                : $"{PricePerSqm:N2} / SQM";
+        /// <summary>
+        /// e.g. "46.00 / SQM". Every row is now per SQM, including the ASP
+        /// spacer: Step 4 defines the spacer rate per SQM, so costing it per
+        /// linear metre was a unit mismatch that tripled the figure.
+        /// </summary>
+        public string PriceDisplay => $"{PricePerSqm:N2} / SQM";
 
         /// <summary>e.g. "1,328.94".</summary>
         public string AmountDisplay => $"{Amount:N2}";
@@ -444,7 +448,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 {
                     if (group == null) continue;
 
-                    var (cutSqm, perimeterLm) = MeasureGroup(group);
+                    // Perimeter is still measured by MeasureGroup (a future
+                    // edge-work charge will need it) but is deliberately
+                    // discarded here: nothing in the P&L is priced per linear
+                    // metre any more.
+                    var (cutSqm, _) = MeasureGroup(group);
                     if (cutSqm <= 0m) continue;
 
                     string specName = group.SelectedSpecName ?? "";
@@ -528,16 +536,40 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     // ── Production rows ───────────────────────────────────
                     if (isDgu)
                     {
-                        // Air spacer is priced per linear metre of perimeter.
+                        // ══════════════════════════════════════════════════
+                        //  ASP IS PRICED PER SQM, NOT PER LINEAR METRE.
+                        //
+                        //  Step 4's CalculateDguRate builds the sell rate as
+                        //      (outer + inner) / yield + spacerPrice
+                        //  where every term is AED per SQM. The ASP table
+                        //  37.5 + ((w-6)/2)*2.5 therefore yields 45.00 PER SQM
+                        //  at 12mm - the figure the business quotes.
+                        //
+                        //  This code multiplied that same 45.00 by the
+                        //  PERIMETER in linear metres. On 20 panes of
+                        //  1.5 x 1.2 m that is 108 LM against 36 SQM, so the
+                        //  spacer cost came out 4,860 instead of 1,620 -
+                        //  overstated by 3,240 AED, three times too high, and
+                        //  the error grows with every small pane because
+                        //  perimeter-to-area rises as panes shrink.
+                        //
+                        //  Costing must use the same unit the price was
+                        //  defined in, so this is now cut area x rate.
+                        //
+                        //  The stated business rule is also that the ASP
+                        //  price INCLUDES cutting, tempering and production
+                        //  for DGU, which is why there is no separate
+                        //  production line in this branch.
+                        // ══════════════════════════════════════════════════
                         decimal spacerPrice = _dguVm?.SpacerPrice ?? 0m;
 
-                        if (spacerPrice > 0m && perimeterLm > 0m)
+                        if (spacerPrice > 0m && cutSqm > 0m)
                         {
                             int spacerMm = spacerDetected
                                 ? ParseInt(spacerMatch.Groups["mm"].Value)
                                 : 0;
 
-                            decimal amount = Math.Round(perimeterLm * spacerPrice, 2);
+                            decimal amount = Math.Round(cutSqm * spacerPrice, 2);
 
                             rows.Add(new ProfitLossRow
                             {
@@ -546,9 +578,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                 SpecName = group.SelectedSpecName ?? "",
                                 Description = BuildRowDescription(
                                     group,
-                                    $"{spacerMm}mm air spacer (incl. cutting/tempering)",
-                                    $"{perimeterLm:0.##} LM"),
-                                Quantity = Math.Round(perimeterLm, 2),
+                                    $"{spacerMm}mm ASP (includes cutting, tempering and production)",
+                                    $"{cutSqm:0.##} SQM"),
+                                Quantity = Math.Round(cutSqm, 2),
                                 PricePerSqm = spacerPrice,
                                 Amount = amount
                             });
