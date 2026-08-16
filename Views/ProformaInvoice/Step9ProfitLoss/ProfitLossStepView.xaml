@@ -296,103 +296,191 @@
 
                     <!-- Accent table header -->
                     <Border Background="{DynamicResource AccentBrush}"
-                            CornerRadius="16,16,0,0"
-                            Padding="16,12">
+                            CornerRadius="8"
+                            Padding="16,8"
+                            Margin="0,0,0,6">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <!-- Must stay in step with the row template
-                                     below, or headers drift off their data. -->
-                                <ColumnDefinition Width="90"/>
-                                <ColumnDefinition Width="2*" MinWidth="200"/>
-                                <ColumnDefinition Width="*" MinWidth="150"/>
-                                <ColumnDefinition Width="200"/>
-                                <ColumnDefinition Width="70"/>
-                                <ColumnDefinition Width="120"/>
-                                <ColumnDefinition Width="120"/>
+                                     below, or headers drift off their data.
+
+                                     The SPEC column was dropped: every row is
+                                     now inside its own specification section,
+                                     so repeating the specification on each
+                                     line was noise. Six columns here, six in
+                                     the row template. -->
+                                <ColumnDefinition Width="80"/>
+                                <ColumnDefinition Width="*" MinWidth="180"/>
+                                <ColumnDefinition Width="190"/>
+                                <ColumnDefinition Width="60"/>
+                                <ColumnDefinition Width="110"/>
+                                <ColumnDefinition Width="110"/>
                             </Grid.ColumnDefinitions>
 
                             <TextBlock Grid.Column="0" Text="KIND"        Style="{StaticResource PlHeaderCellStyle}"/>
-                            <TextBlock Grid.Column="1" Text="SPEC"        Style="{StaticResource PlHeaderCellStyle}"/>
-                            <TextBlock Grid.Column="2" Text="DESCRIPTION" Style="{StaticResource PlHeaderCellStyle}"/>
-                            <TextBlock Grid.Column="3" Text="SHEET SIZE"  Style="{StaticResource PlHeaderCellStyle}"/>
-                            <TextBlock Grid.Column="4" Text="QTY"         Style="{StaticResource PlHeaderCellStyle}"/>
-                            <TextBlock Grid.Column="5" Text="PRICE"       Style="{StaticResource PlHeaderCellStyle}"
+                            <TextBlock Grid.Column="1" Text="DESCRIPTION" Style="{StaticResource PlHeaderCellStyle}"/>
+                            <TextBlock Grid.Column="2" Text="SHEET SIZE"  Style="{StaticResource PlHeaderCellStyle}"/>
+                            <TextBlock Grid.Column="3" Text="QTY"         Style="{StaticResource PlHeaderCellStyle}"/>
+                            <TextBlock Grid.Column="4" Text="PRICE"       Style="{StaticResource PlHeaderCellStyle}"
                                        HorizontalAlignment="Right"/>
-                            <TextBlock Grid.Column="6" Text="AMOUNT AED"  Style="{StaticResource PlHeaderCellStyle}"
+                            <TextBlock Grid.Column="5" Text="AMOUNT AED"  Style="{StaticResource PlHeaderCellStyle}"
                                        HorizontalAlignment="Right"/>
                         </Grid>
                     </Border>
 
-                    <!-- Rows -->
-                    <ItemsControl ItemsSource="{Binding Rows}"
-                                  Visibility="{Binding HasRows, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <!-- ══════════════════════════════════════════════
+                         ROWS, GROUPED BY SPECIFICATION
+
+                         Each specification is its own expandable section.
+                         A flat list of every cost line read
+                             glass · spacer · glass · glass · spacer · glass
+                         once there was more than one specification, with
+                         nothing marking where a product started or ended.
+
+                         Each section header carries that specification's
+                         cost per SQM, and inside it a rate box answers
+                         "if I quote X, what margin is that" for this
+                         product alone. The invoice total cannot answer
+                         that: it mixes every specification together.
+                    ══════════════════════════════════════════════ -->
+                    <ItemsControl ItemsSource="{Binding SpecGroupsView}"
+                                  Visibility="{Binding HasSpecGroups, Converter={StaticResource BoolToVisibilityConverter}}">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border BorderBrush="{DynamicResource DividerBrush}"
-                                        BorderThickness="0,0,0,1"
-                                        Padding="16,10">
-                                    <Grid>
-                                        <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="90"/>
-                                            <!-- SPEC: now prints the full
-                                                 specification from the Step 5
-                                                 DataGrid, not "SPEC 2", so it
-                                                 needs a real share of width. -->
-                                            <ColumnDefinition Width="2*" MinWidth="200"/>
-                                            <ColumnDefinition Width="*" MinWidth="150"/>
-                                            <ColumnDefinition Width="200"/>
-                                            <ColumnDefinition Width="70"/>
-                                            <ColumnDefinition Width="120"/>
-                                            <ColumnDefinition Width="120"/>
-                                        </Grid.ColumnDefinitions>
+                                <Expander Style="{StaticResource Step4SectionStyle}"
+                                          Header="{Binding HeaderDisplay}"
+                                          Tag="{Binding TotalCostDisplay}"
+                                          IsExpanded="True"
+                                          Margin="0,0,0,6">
+                                    <StackPanel>
 
-                                        <TextBlock Grid.Column="0"
-                                                   Text="{Binding Kind}"
-                                                   Style="{StaticResource PlCellStyle}"
+                                        <!-- Full specification text -->
+                                        <TextBlock Text="{Binding SpecName}"
+                                                   FontSize="11"
                                                    FontWeight="SemiBold"
-                                                   Foreground="{DynamicResource AccentBrush}"/>
-
-                                        <TextBlock Grid.Column="1"
-                                                   Text="{Binding SpecDisplay}"
-                                                   Style="{StaticResource PlCellStyle}"
+                                                   Foreground="{DynamicResource AccentBrush}"
                                                    TextWrapping="Wrap"
-                                                   Margin="0,0,12,0"
-                                                   ToolTip="{Binding SpecDisplay}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                   Margin="0,0,0,6"/>
 
-                                        <TextBlock Grid.Column="2"
-                                                   Text="{Binding Description}"
-                                                   Style="{StaticResource PlCellStyle}"
-                                                   Margin="0,0,12,0"/>
+                                        <!-- Cost lines, in physical build order -->
+                                        <ItemsControl ItemsSource="{Binding Rows}">
+                                            <ItemsControl.ItemTemplate>
+                                                <DataTemplate>
+                                                    <Border BorderBrush="{DynamicResource DividerBrush}"
+                                                            BorderThickness="0,0,0,1"
+                                                            Padding="0,6">
+                                                        <Grid>
+                                                            <Grid.ColumnDefinitions>
+                                                                <ColumnDefinition Width="80"/>
+                                                                <ColumnDefinition Width="*" MinWidth="180"/>
+                                                                <ColumnDefinition Width="190"/>
+                                                                <ColumnDefinition Width="60"/>
+                                                                <ColumnDefinition Width="110"/>
+                                                                <ColumnDefinition Width="110"/>
+                                                            </Grid.ColumnDefinitions>
 
-                                        <TextBlock Grid.Column="3"
-                                                   Text="{Binding SizeDisplay}"
-                                                   Style="{StaticResource PlCellStyle}"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                                            <TextBlock Grid.Column="0"
+                                                                       Text="{Binding Kind}"
+                                                                       Style="{StaticResource PlCellStyle}"
+                                                                       FontWeight="SemiBold"
+                                                                       Foreground="{DynamicResource AccentBrush}"/>
 
-                                        <TextBlock Grid.Column="4"
-                                                   Text="{Binding QuantityDisplay}"
-                                                   Style="{StaticResource PlCellStyle}"/>
+                                                            <TextBlock Grid.Column="1"
+                                                                       Text="{Binding Description}"
+                                                                       Style="{StaticResource PlCellStyle}"
+                                                                       TextWrapping="Wrap"
+                                                                       Margin="0,0,12,0"/>
 
-                                        <TextBlock Grid.Column="5"
-                                                   Text="{Binding PriceDisplay}"
-                                                   Style="{StaticResource PlCellStyle}"
-                                                   HorizontalAlignment="Right"/>
+                                                            <TextBlock Grid.Column="2"
+                                                                       Text="{Binding SizeDisplay}"
+                                                                       Style="{StaticResource PlCellStyle}"
+                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
 
-                                        <TextBlock Grid.Column="6"
-                                                   Text="{Binding AmountDisplay}"
-                                                   Style="{StaticResource PlCellStyle}"
-                                                   FontWeight="Bold"
-                                                   HorizontalAlignment="Right"/>
-                                    </Grid>
-                                </Border>
+                                                            <TextBlock Grid.Column="3"
+                                                                       Text="{Binding QuantityDisplay}"
+                                                                       Style="{StaticResource PlCellStyle}"/>
+
+                                                            <TextBlock Grid.Column="4"
+                                                                       Text="{Binding PriceDisplay}"
+                                                                       Style="{StaticResource PlCellStyle}"
+                                                                       HorizontalAlignment="Right"/>
+
+                                                            <TextBlock Grid.Column="5"
+                                                                       Text="{Binding AmountDisplay}"
+                                                                       Style="{StaticResource PlCellStyle}"
+                                                                       FontWeight="Bold"
+                                                                       HorizontalAlignment="Right"/>
+                                                        </Grid>
+                                                    </Border>
+                                                </DataTemplate>
+                                            </ItemsControl.ItemTemplate>
+                                        </ItemsControl>
+
+                                        <!-- ── RATE CHECK ────────────────── -->
+                                        <Border Background="{DynamicResource TintPurpleBrush}"
+                                                BorderBrush="{DynamicResource BorderBrush}"
+                                                BorderThickness="1"
+                                                CornerRadius="6"
+                                                Padding="10,7"
+                                                Margin="0,8,0,0">
+                                            <Grid>
+                                                <Grid.ColumnDefinitions>
+                                                    <ColumnDefinition Width="Auto"/>
+                                                    <ColumnDefinition Width="110"/>
+                                                    <ColumnDefinition Width="*"/>
+                                                </Grid.ColumnDefinitions>
+
+                                                <TextBlock Grid.Column="0"
+                                                           Text="CHECK RATE / SQM"
+                                                           FontSize="10"
+                                                           FontWeight="Bold"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                           VerticalAlignment="Center"
+                                                           Margin="0,0,10,0"/>
+
+                                                <TextBox Grid.Column="1"
+                                                         Text="{Binding QuotedRatePerSqm, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
+                                                         Style="{StaticResource PlInputStyle}"
+                                                         ToolTip="Type the rate you intend to quote for this specification. The mark-up it actually earns is shown beside it."/>
+
+                                                <TextBlock Grid.Column="2"
+                                                           Text="{Binding RateCheckDisplay}"
+                                                           FontSize="11"
+                                                           FontWeight="SemiBold"
+                                                           VerticalAlignment="Center"
+                                                           TextWrapping="Wrap"
+                                                           Margin="12,0,0,0">
+                                                    <TextBlock.Style>
+                                                        <Style TargetType="TextBlock">
+                                                            <Setter Property="Foreground"
+                                                                    Value="{DynamicResource SuccessBrush}"/>
+                                                            <Style.Triggers>
+                                                                <DataTrigger Binding="{Binding IsQuotedRateBelowCost}"
+                                                                             Value="True">
+                                                                    <Setter Property="Foreground"
+                                                                            Value="{DynamicResource DangerBrush}"/>
+                                                                </DataTrigger>
+                                                                <DataTrigger Binding="{Binding HasQuotedRate}"
+                                                                             Value="False">
+                                                                    <Setter Property="Foreground"
+                                                                            Value="{DynamicResource SecondaryForegroundBrush}"/>
+                                                                </DataTrigger>
+                                                            </Style.Triggers>
+                                                        </Style>
+                                                    </TextBlock.Style>
+                                                </TextBlock>
+                                            </Grid>
+                                        </Border>
+
+                                    </StackPanel>
+                                </Expander>
                             </DataTemplate>
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
                     <!-- Empty state -->
                     <Border Padding="24,32"
-                            Visibility="{Binding HasRows, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                            Visibility="{Binding HasSpecGroups, Converter={StaticResource InverseBoolToVisibilityConverter}}">
                         <StackPanel HorizontalAlignment="Center">
                             <TextBlock Text="&#xE9D9;"
                                        FontFamily="Segoe MDL2 Assets"

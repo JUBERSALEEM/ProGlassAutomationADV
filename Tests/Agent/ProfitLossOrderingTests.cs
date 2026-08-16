@@ -247,5 +247,112 @@ namespace ProGlassAutomation.Tests.Agent
             // positive or being clamped at zero.
             Assert.True(Markup(120m) < 0m);
         }
+
+        // ══════════════════════════════════════════════════════════════
+        //  PER-SPECIFICATION RATE CHECK
+        //
+        //  Drives SpecCostGroup: type a rate, see the mark-up it earns on
+        //  THAT specification. The invoice total cannot answer this because
+        //  it mixes every specification together.
+        // ══════════════════════════════════════════════════════════════
+
+        private static ProGlassAutomation.ViewModels.ProformaInvoice
+            .Step9ProfitLoss.SpecCostGroup Spec(decimal cutSqm = 40m)
+        {
+            // 130.88 per SQM, the worked DGU example.
+            return new ProGlassAutomation.ViewModels.ProformaInvoice
+                .Step9ProfitLoss.SpecCostGroup
+            {
+                SpecNumber = 1,
+                SpecName = "6mm HD Grey FT Glass + 12mm ASP + 6mm Clear FT Glass",
+                CutSqm = cutSqm,
+                TotalCost = decimal.Round(CostBasis * cutSqm, 2)
+            };
+        }
+
+        [Fact]
+        public void Spec_cost_per_sqm_is_derived_from_area_not_sheet_count()
+        {
+            Assert.Equal(130.88m, Spec().CostPerSqm);
+        }
+
+        [Fact]
+        public void Rate_check_reproduces_the_fifteen_percent_rate()
+        {
+            var spec = Spec();
+            spec.QuotedRatePerSqm = 150.51m;
+
+            Assert.Equal(15.00m, spec.QuotedMarkupPercent);
+        }
+
+        [Fact]
+        public void Rate_check_reproduces_the_ten_percent_rate()
+        {
+            // The business's own second figure: 143.97 is exactly 10%.
+            var spec = Spec();
+            spec.QuotedRatePerSqm = 143.97m;
+
+            Assert.Equal(10.00m, spec.QuotedMarkupPercent);
+        }
+
+        [Fact]
+        public void Rate_check_reports_profit_per_sqm_and_scales_to_the_job()
+        {
+            var spec = Spec(cutSqm: 40m);
+            spec.QuotedRatePerSqm = 143.97m;
+
+            Assert.Equal(13.09m, spec.QuotedProfitPerSqm);
+            Assert.Contains("523.60", spec.RateCheckDisplay);
+        }
+
+        [Fact]
+        public void Rate_below_cost_is_flagged_not_shown_as_a_small_profit()
+        {
+            var spec = Spec();
+            spec.QuotedRatePerSqm = 120m;
+
+            Assert.True(spec.IsQuotedRateBelowCost);
+            Assert.True(spec.QuotedProfitPerSqm < 0m);
+            Assert.Contains("BELOW COST", spec.RateCheckDisplay);
+        }
+
+        [Fact]
+        public void Rate_equal_to_cost_is_zero_markup_and_not_flagged()
+        {
+            var spec = Spec();
+            spec.QuotedRatePerSqm = 130.88m;
+
+            Assert.Equal(0m, spec.QuotedMarkupPercent);
+            Assert.False(spec.IsQuotedRateBelowCost);
+        }
+
+        [Fact]
+        public void No_rate_entered_prompts_rather_than_reporting_zero_percent()
+        {
+            // Showing "0% mark-up" for an empty box would read as a real
+            // finding rather than an unanswered question.
+            var spec = Spec();
+
+            Assert.False(spec.HasQuotedRate);
+            Assert.Contains("Enter a rate", spec.RateCheckDisplay);
+        }
+
+        [Fact]
+        public void A_spec_with_no_area_cannot_be_rate_checked()
+        {
+            var spec = Spec(cutSqm: 0m);
+
+            Assert.Equal(0m, spec.CostPerSqm);
+            Assert.Contains("Cost not known", spec.RateCheckDisplay);
+        }
+
+        [Fact]
+        public void Negative_rate_entry_is_clamped_to_zero()
+        {
+            var spec = Spec();
+            spec.QuotedRatePerSqm = -50m;
+
+            Assert.Equal(0m, spec.QuotedRatePerSqm);
+        }
     }
 }

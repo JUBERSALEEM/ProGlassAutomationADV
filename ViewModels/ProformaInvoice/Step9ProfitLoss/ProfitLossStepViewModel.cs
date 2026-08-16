@@ -76,6 +76,146 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
     /// One costed line in the Profit &amp; Loss breakdown. Display-only —
     /// created fresh by every recalculation, never edited by the user.
     /// </summary>
+    /// <summary>
+    /// One specification's worth of the report: its own rows, its own cost,
+    /// and its own rate check.
+    ///
+    /// WHY THIS EXISTS
+    /// The report was a single flat list. With two specifications it read
+    ///     glass · spacer · glass · glass · spacer · glass
+    /// and nothing said where one product ended and the next began. Grouping
+    /// by specification means each unit expands on its own and the layers
+    /// underneath it are unambiguously its own.
+    ///
+    /// It also carries the rate check. Costs are known per specification, so
+    /// this is the only level where "what margin am I actually getting on
+    /// THIS product" can be answered. The invoice total cannot answer it: it
+    /// mixes every specification together.
+    /// </summary>
+    public class SpecCostGroup : ViewModelBase
+    {
+        /// <summary>Sequence number from the Step 5 DataGrid.</summary>
+        public int SpecNumber { get; set; }
+
+        /// <summary>Full specification text, e.g. "6mm HD Grey FT Glass + 12mm ASP + …".</summary>
+        public string SpecName { get; set; } = "";
+
+        /// <summary>Cost lines for this specification, in physical build order.</summary>
+        public ObservableCollection<ProfitLossRow> Rows { get; } = new();
+
+        /// <summary>Cut area this specification covers, in SQM.</summary>
+        public decimal CutSqm { get; set; }
+
+        /// <summary>Glass + production cost for this specification only.</summary>
+        public decimal TotalCost { get; set; }
+
+        /// <summary>
+        /// Cost of one square metre of this specification. This is the number
+        /// a quoted rate has to beat, and the basis every percentage below is
+        /// measured against.
+        /// </summary>
+        public decimal CostPerSqm =>
+            CutSqm > 0m ? Math.Round(TotalCost / CutSqm, 2) : 0m;
+
+        // ══════════════════════════════════════════════════════════════
+        //  RATE CHECK
+        //
+        //  Type any rate and see the mark-up it actually earns. The wizard
+        //  computes a rate at the target margin, but the price finally given
+        //  to a customer is often negotiated, and until now nothing showed
+        //  what that negotiation cost.
+        //
+        //  Worked example, 6mm HD Grey FT + 12mm ASP + 6mm Clear FT:
+        //      cost basis 130.88 per SQM
+        //      150.51 -> 15%      143.97 -> 10%      140.00 -> 6.97%
+        //  A 4% cut from 150.51 to 143.97 gives away a third of the profit.
+        // ══════════════════════════════════════════════════════════════
+
+        private decimal _quotedRatePerSqm;
+        /// <summary>Rate to test against this specification's cost. 0 = not set.</summary>
+        public decimal QuotedRatePerSqm
+        {
+            get => _quotedRatePerSqm;
+            set
+            {
+                if (_quotedRatePerSqm == value) return;
+                _quotedRatePerSqm = value < 0m ? 0m : value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(QuotedMarkupPercent));
+                OnPropertyChanged(nameof(QuotedProfitPerSqm));
+                OnPropertyChanged(nameof(RateCheckDisplay));
+                OnPropertyChanged(nameof(IsQuotedRateBelowCost));
+                OnPropertyChanged(nameof(HasQuotedRate));
+            }
+        }
+
+        public bool HasQuotedRate => QuotedRatePerSqm > 0m;
+
+        /// <summary>Mark-up the quoted rate earns over cost, as a percentage.</summary>
+        public decimal QuotedMarkupPercent
+        {
+            get
+            {
+                decimal cost = CostPerSqm;
+                if (cost <= 0m || QuotedRatePerSqm <= 0m) return 0m;
+                return Math.Round((QuotedRatePerSqm - cost) / cost * 100m, 2);
+            }
+        }
+
+        /// <summary>Profit per SQM at the quoted rate. Negative below cost.</summary>
+        public decimal QuotedProfitPerSqm =>
+            QuotedRatePerSqm <= 0m ? 0m
+                                   : Math.Round(QuotedRatePerSqm - CostPerSqm, 2);
+
+        /// <summary>True when the rate entered would sell at a loss.</summary>
+        public bool IsQuotedRateBelowCost =>
+            QuotedRatePerSqm > 0m && QuotedRatePerSqm < CostPerSqm;
+
+        /// <summary>
+        /// Plain reading of the rate check, including the total effect across
+        /// this specification's whole area — a small per-SQM gap is easy to
+        /// wave away until it is multiplied by the job.
+        /// </summary>
+        public string RateCheckDisplay
+        {
+            get
+            {
+                if (CostPerSqm <= 0m)
+                    return "Cost not known for this specification yet.";
+
+                if (QuotedRatePerSqm <= 0m)
+                    return $"Cost {CostPerSqm:N2}/SQM. Enter a rate to check its margin.";
+
+                decimal total = Math.Round(QuotedProfitPerSqm * CutSqm, 2);
+
+                return IsQuotedRateBelowCost
+                    ? $"BELOW COST by {Math.Abs(QuotedProfitPerSqm):N2}/SQM " +
+                      $"({QuotedMarkupPercent:0.##}%) — {Math.Abs(total):N2} lost over {CutSqm:0.##} SQM."
+                    : $"{QuotedMarkupPercent:0.##}% mark-up · {QuotedProfitPerSqm:N2}/SQM " +
+                      $"· {total:N2} over {CutSqm:0.##} SQM.";
+            }
+        }
+
+        /// <summary>Header caption: "SPEC 1 · 12.40 SQM · cost 130.88/SQM".</summary>
+        public string HeaderDisplay =>
+            $"SPEC {SpecNumber} · {CutSqm:0.##} SQM · cost {CostPerSqm:N2}/SQM";
+
+        public string TotalCostDisplay => $"AED {TotalCost:N2}";
+
+        /// <summary>Raised after the rows are filled so computed values refresh.</summary>
+        public void NotifyTotalsChanged()
+        {
+            OnPropertyChanged(nameof(CostPerSqm));
+            OnPropertyChanged(nameof(TotalCost));
+            OnPropertyChanged(nameof(TotalCostDisplay));
+            OnPropertyChanged(nameof(HeaderDisplay));
+            OnPropertyChanged(nameof(QuotedMarkupPercent));
+            OnPropertyChanged(nameof(QuotedProfitPerSqm));
+            OnPropertyChanged(nameof(RateCheckDisplay));
+            OnPropertyChanged(nameof(IsQuotedRateBelowCost));
+        }
+    }
+
     public class ProfitLossRow : ViewModelBase
     {
         /// <summary>"Glass", "Spacer" or "Production".</summary>
@@ -265,6 +405,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
         /// <summary>True when <see cref="Rows"/> is empty (drives the empty state).</summary>
         public bool HasRows => Rows.Count > 0;
+
+        /// <summary>
+        /// The same cost rows, grouped by specification, each with its own
+        /// cost per SQM and rate check.
+        ///
+        /// This is what the report shows. The flat <see cref="Rows"/> list is
+        /// kept because the snapshot, the printable invoice and the saved
+        /// history all read from it, and changing that shape would rewrite
+        /// stored financial records.
+        /// </summary>
+        public ObservableCollection<SpecCostGroup> SpecGroupsView { get; } = new();
+
+        /// <summary>True once at least one specification has been costed.</summary>
+        public bool HasSpecGroups => SpecGroupsView.Count > 0;
 
         // ══════════════════════════════════════════════════════════════
         //  COST BASIS — PURCHASE vs SELLING
@@ -790,6 +944,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             try
             {
                 var rows = new List<ProfitLossRow>();
+                var specAreas = new Dictionary<int, decimal>();
                 decimal glassCost = 0m;
                 decimal productionCost = 0m;
                 int skipped = 0;
@@ -807,6 +962,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     // metre any more.
                     var (cutSqm, _) = MeasureGroup(group);
                     if (cutSqm <= 0m) continue;
+
+                    // Kept for the per-specification view: cost per SQM needs
+                    // the area this specification actually covers, and the
+                    // row list alone cannot supply it (sheet counts are
+                    // rounded up, so summing rows would overstate the area).
+                    specAreas[group.GroupNumber] = cutSqm;
 
                     string specName = group.SelectedSpecName ?? "";
 
@@ -1223,6 +1384,52 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 Rows.Clear();
                 foreach (var r in rows) Rows.Add(r);
                 OnPropertyChanged(nameof(HasRows));
+
+                // ── Publish the same rows grouped by specification ────────
+                //
+                // Built from the finished flat list rather than inside the
+                // costing loop: the loop already splices layer rows into
+                // build order, and rebuilding that ordering a second time
+                // would be two places to keep in step. Grouping afterwards
+                // inherits the order for free.
+                //
+                // Rate checks the user has typed are carried across a rebuild
+                // by specification name. A recalculation fires on every edit
+                // now, so discarding them would make the field unusable —
+                // the value would vanish while being typed next to it.
+                var previousQuotes = SpecGroupsView
+                    .Where(g => g.QuotedRatePerSqm > 0m)
+                    .ToDictionary(g => g.SpecName, g => g.QuotedRatePerSqm,
+                                  StringComparer.OrdinalIgnoreCase);
+
+                SpecGroupsView.Clear();
+
+                foreach (var bySpec in rows
+                             .GroupBy(r => r.SpecNumber)
+                             .OrderBy(g => g.Key))
+                {
+                    var first = bySpec.First();
+
+                    var specGroup = new SpecCostGroup
+                    {
+                        SpecNumber = bySpec.Key,
+                        SpecName = first.SpecName ?? "",
+                        TotalCost = Math.Round(bySpec.Sum(r => r.Amount), 2),
+                        CutSqm = specAreas.TryGetValue(bySpec.Key, out decimal a)
+                            ? Math.Round(a, 2)
+                            : 0m
+                    };
+
+                    foreach (var r in bySpec) specGroup.Rows.Add(r);
+
+                    if (previousQuotes.TryGetValue(specGroup.SpecName, out decimal q))
+                        specGroup.QuotedRatePerSqm = q;
+
+                    specGroup.NotifyTotalsChanged();
+                    SpecGroupsView.Add(specGroup);
+                }
+
+                OnPropertyChanged(nameof(HasSpecGroups));
 
                 // ── Totals ────────────────────────────────────────────────
                 decimal gross = 0m;
