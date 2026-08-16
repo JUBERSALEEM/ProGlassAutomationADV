@@ -19,8 +19,11 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-<!-- ── FINANCIAL STATS CARD (left) ── -->
-            <Border Grid.Column="0" Style="{StaticResource CardStyle}">
+        <!-- ── FINANCIAL STATS CARD ──
+             LAYOUT FIX: Grid.Row="0" was missing. Both this card and the
+             invoice-content card below defaulted to row 0 and rendered
+             stacked on top of each other. -->
+        <Border Grid.Row="0" Style="{StaticResource CardStyle}">
                 <StackPanel>
                     <Border Style="{StaticResource SectionHeaderStyle}"
                         Background="{DynamicResource AccentBrush}">
@@ -45,7 +48,7 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <Border Grid.Row="0"
+                        <Border Grid.Row="0" Grid.Column="0"
                                 Style="{StaticResource CompactStatTileStyle}">
                             <StackPanel HorizontalAlignment="Center">
                                 <TextBlock Text="{Binding SubtotalDisplay}"
@@ -61,7 +64,9 @@
                             </StackPanel>
                         </Border>
 
-                        <Border Grid.Row="0"
+                        <!-- LAYOUT FIX: Grid.Column="2" was missing, so the
+                             VAT tile rendered on top of the SUBTOTAL tile. -->
+                        <Border Grid.Row="0" Grid.Column="2"
                                 Style="{StaticResource CompactStatTileStyle}">
                             <StackPanel HorizontalAlignment="Center">
                                 <TextBlock Text="{Binding VatDisplay}"
@@ -113,11 +118,13 @@
                     </Grid>
                 </StackPanel>
             </Border>
-<!-- ══════════════════════════════════════════════════════════
-                 LEFT: INVOICE CONTENT
-                 Order: Hero → Details form → Spec groups
-            ══════════════════════════════════════════════════════════ -->
-            <Border Grid.Column="0" Style="{StaticResource CardStyle}">
+        <!-- ══════════════════════════════════════════════════════════
+             INVOICE CONTENT
+             Order: Hero → Details form → Spec groups
+             LAYOUT FIX: now explicitly row 1 (the star-sized row), so it
+             fills the remaining height beneath the stats card.
+        ══════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="1" Margin="0,12,0,0" Style="{StaticResource CardStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>

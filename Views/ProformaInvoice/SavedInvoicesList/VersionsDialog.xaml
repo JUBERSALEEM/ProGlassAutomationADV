@@ -48,7 +48,11 @@
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                 ClipToBounds="True">
             <Grid>
+                <!-- Collapsed by default: code-behind decides. Without this
+                     the "no versions" message painted for one frame before
+                     the list was bound. -->
                 <TextBlock x:Name="EmptyText"
+                           Visibility="Collapsed"
                            Text="No versions recorded yet."
                            FontSize="12" FontStyle="Italic"
                            HorizontalAlignment="Center"

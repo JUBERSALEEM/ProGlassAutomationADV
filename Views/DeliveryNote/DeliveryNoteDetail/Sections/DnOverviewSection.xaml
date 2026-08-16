@@ -19,8 +19,10 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-<!-- STATS CARD -->
-            <Border Grid.Column="0"
+        <!-- STATS CARD
+             LAYOUT FIX: Grid.Row="0" was missing. This card and the items
+             card below both defaulted to row 0 and rendered stacked. -->
+        <Border Grid.Row="0"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="1" CornerRadius="12"
@@ -54,7 +56,7 @@
                             <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <Border Grid.Row="0"
+                        <Border Grid.Row="0" Grid.Column="0"
                                 Style="{StaticResource CompactStatTileStyle}">
                             <StackPanel HorizontalAlignment="Center">
                                 <StackPanel Orientation="Horizontal"
@@ -69,7 +71,10 @@
                             </StackPanel>
                         </Border>
 
-                        <Border Grid.Row="0"
+                        <!-- LAYOUT FIX: Grid.Column="2" was missing, so the
+                             PREVIOUSLY DELIVERED tile rendered on top of the
+                             ORDERED tile. -->
+                        <Border Grid.Row="0" Grid.Column="2"
                                 Style="{StaticResource CompactStatTileStyle}"
                                 Background="{DynamicResource TintIndigoBrush}">
                             <StackPanel HorizontalAlignment="Center">
@@ -167,8 +172,10 @@
                     </Border>
                 </StackPanel>
             </Border>
-<!-- ITEMS CARD -->
-            <Border Grid.Column="0"
+        <!-- ITEMS CARD
+             LAYOUT FIX: now explicitly row 1 (the star-sized row) so it
+             fills the height remaining under the stats card. -->
+        <Border Grid.Row="1" Margin="0,12,0,0"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="1" CornerRadius="12"

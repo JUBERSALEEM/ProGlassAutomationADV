@@ -80,10 +80,14 @@
                          ToolTip="Search invoice # / customer / project / status"/>
             </Border>
 
-                <Button Style="{StaticResource PrimaryPillButton}"
-                        Tag="&#xE72C;" Content="REFRESH"
-                        ToolTip="Refresh overview"
-                        Command="{Binding RefreshCommand}"/>
+            <!-- LAYOUT FIX: Grid.Column="2" was missing, so this button
+                 rendered in column 0 stacked on top of the title text. -->
+            <Button Grid.Column="2"
+                    Style="{StaticResource PrimaryPillButton}"
+                    Tag="&#xE72C;" Content="REFRESH"
+                    ToolTip="Refresh overview"
+                    VerticalAlignment="Center"
+                    Command="{Binding RefreshCommand}"/>
         </Grid>
 
         <!-- ══ KPI TILES ══════════════════════════════════════════════ -->
