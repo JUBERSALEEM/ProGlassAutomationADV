@@ -58,6 +58,7 @@
         xmlns:vmSystem="clr-namespace:ProGlassAutomation.ViewModels.SystemCenter"
              xmlns:vmCompany="clr-namespace:ProGlassAutomation.ViewModels.CompanyCenter"
              xmlns:vmUsers="clr-namespace:ProGlassAutomation.ViewModels.UserCenter"
+             xmlns:vmJobProfit="clr-namespace:ProGlassAutomation.ViewModels.JobProfitability"
         xmlns:vmDiagnostics="clr-namespace:ProGlassAutomation.ViewModels.Diagnostics"
         xmlns:viewsDashboard="clr-namespace:ProGlassAutomation.Views.Dashboard"
         xmlns:viewsProforma="clr-namespace:ProGlassAutomation.Views.ProformaInvoice"
@@ -74,6 +75,7 @@
         xmlns:viewsSystem="clr-namespace:ProGlassAutomation.Views.SystemCenter"
              xmlns:viewsCompany="clr-namespace:ProGlassAutomation.Views.CompanyCenter"
              xmlns:viewsUsers="clr-namespace:ProGlassAutomation.Views.UserCenter"
+             xmlns:viewsJobProfit="clr-namespace:ProGlassAutomation.Views.JobProfitability"
         xmlns:viewsDiagnostics="clr-namespace:ProGlassAutomation.Views.Diagnostics"
         Title="ProGlass Automation"
         Height="720" Width="1280"
@@ -224,6 +226,11 @@
         </DataTemplate>
         <DataTemplate DataType="{x:Type vmUsers:UserCenterViewModel}">
             <viewsUsers:UserCenterView/>
+        </DataTemplate>
+
+        <!-- PHASE C: Job Profitability — per-invoice profit portfolio -->
+        <DataTemplate DataType="{x:Type vmJobProfit:JobProfitabilityViewModel}">
+            <viewsJobProfit:JobProfitabilityView/>
         </DataTemplate>
 
         <!-- NEW: Logs & Activity — technical log + per-module activity -->
@@ -794,6 +801,10 @@
                                     Content="User Center" Tag="&#xE716;"
                                     Command="{Binding NavigateCommand}"
                                     CommandParameter="UserCenter"/>
+                            <Button Style="{StaticResource SidebarItemStyle}"
+                                    Content="Job Profitability" Tag="&#xE7BF;"
+                                    Command="{Binding NavigateCommand}"
+                                    CommandParameter="JobProfitability"/>
 
                             <TextBlock Text="SYSTEM"
                                        Style="{StaticResource SidebarGroupHeaderStyle}"/>

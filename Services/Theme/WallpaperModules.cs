@@ -23,6 +23,9 @@ namespace ProGlassAutomation.Services.Theme
         public const string CompanyCenter = "CompanyCenter";
         public const string UserCenter = "UserCenter";
 
+        /// <summary>PHASE C — Job profitability portfolio module.</summary>
+        public const string JobProfitability = "JobProfitability";
+
         /// <summary>Display order used by the Settings UI.</summary>
         public static readonly (string Key, string Label)[] All =
         {
@@ -41,7 +44,8 @@ namespace ProGlassAutomation.Services.Theme
             (Settings, "Settings"),
             (About, "About"),
             (CompanyCenter, "Company Center"),
-            (UserCenter, "User Center")
+            (UserCenter, "User Center"),
+            (JobProfitability, "Job Profitability")
         };
     }
 }

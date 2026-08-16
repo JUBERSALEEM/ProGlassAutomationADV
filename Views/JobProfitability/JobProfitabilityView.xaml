@@ -1,0 +1,444 @@
+<UserControl x:Class="ProGlassAutomation.Views.JobProfitability.JobProfitabilityView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             mc:Ignorable="d"
+             d:DesignHeight="800" d:DesignWidth="1200"
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+
+        <Style x:Key="JpLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize"   Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Margin"     Value="0,0,0,6"/>
+        </Style>
+
+        <Style x:Key="JpInputStyle" TargetType="TextBox">
+            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
+            <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness"          Value="1"/>
+            <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="FontSize"                 Value="13"/>
+            <Setter Property="Padding"                  Value="12,0"/>
+            <Setter Property="Height"                   Value="38"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="CaretBrush"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+        </Style>
+
+        <Style x:Key="JpComboStyle" TargetType="ComboBox">
+            <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness"          Value="1"/>
+            <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="FontSize"                 Value="13"/>
+            <Setter Property="Padding"                  Value="10,0"/>
+            <Setter Property="Height"                   Value="38"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="JpTileStyle" TargetType="Border">
+            <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius"    Value="12"/>
+            <Setter Property="Padding"         Value="18,14"/>
+        </Style>
+
+        <Style x:Key="JpTileCaptionStyle" TargetType="TextBlock">
+            <Setter Property="FontSize"   Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Margin"     Value="0,0,0,8"/>
+        </Style>
+
+        <Style x:Key="JpTileValueStyle" TargetType="TextBlock">
+            <Setter Property="FontSize"   Value="20"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        </Style>
+
+        <Style x:Key="JpHeaderCellStyle" TargetType="TextBlock">
+            <Setter Property="FontSize"   Value="10"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="JpCellStyle" TargetType="TextBlock">
+            <Setter Property="FontSize"   Value="12"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ══════════════════════════════════════════════════════════════
+             HEADER + FILTER ROW
+        ══════════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="0"
+                Background="{DynamicResource ModuleBackgroundBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="16"
+                Margin="20,20,20,0"
+                Padding="20">
+            <StackPanel>
+
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
+                    <Border Background="{DynamicResource TintIndigoBrush}"
+                            Width="28" Height="28"
+                            CornerRadius="8"
+                            VerticalAlignment="Center"
+                            Margin="0,0,10,0">
+                        <TextBlock Text="&#xE7BF;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="13"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"/>
+                    </Border>
+                    <TextBlock Text="{Binding Title}"
+                               FontSize="16"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                               VerticalAlignment="Center"/>
+                </StackPanel>
+
+                <TextBlock Text="{Binding Subtitle}"
+                           FontSize="12"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                           Margin="0,0,0,16"/>
+
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="220"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="220"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="SEARCH — PROFORMA · CUSTOMER · PROJECT"
+                                   Style="{StaticResource JpLabelStyle}"/>
+                        <TextBox Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=200}"
+                                 Style="{StaticResource JpInputStyle}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="2">
+                        <TextBlock Text="COMPANY" Style="{StaticResource JpLabelStyle}"/>
+                        <ComboBox ItemsSource="{Binding CompanyFilterOptions}"
+                                  SelectedItem="{Binding CompanyFilter}"
+                                  Style="{StaticResource JpComboStyle}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="4">
+                        <TextBlock Text="SALESMAN" Style="{StaticResource JpLabelStyle}"/>
+                        <ComboBox ItemsSource="{Binding SalesmanFilterOptions}"
+                                  SelectedItem="{Binding SalesmanFilter}"
+                                  Style="{StaticResource JpComboStyle}"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="6" VerticalAlignment="Bottom">
+                        <Button Content="REFRESH"
+                                Tag="&#xE72C;"
+                                Command="{Binding RefreshCommand}"
+                                Style="{StaticResource PrimaryPillButton}"/>
+                    </StackPanel>
+                </Grid>
+
+            </StackPanel>
+        </Border>
+
+        <!-- ══════════════════════════════════════════════════════════════
+             TOTALS TILES
+        ══════════════════════════════════════════════════════════════ -->
+        <Grid Grid.Row="1" Margin="20,16,20,0">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="12"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Border Grid.Column="0" Style="{StaticResource JpTileStyle}">
+                <StackPanel>
+                    <TextBlock Text="TOTAL NET EX-VAT" Style="{StaticResource JpTileCaptionStyle}"/>
+                    <TextBlock Text="{Binding TotalNetDisplay}" Style="{StaticResource JpTileValueStyle}"/>
+                </StackPanel>
+            </Border>
+
+            <Border Grid.Column="2" Style="{StaticResource JpTileStyle}">
+                <StackPanel>
+                    <TextBlock Text="TOTAL COST" Style="{StaticResource JpTileCaptionStyle}"/>
+                    <TextBlock Text="{Binding TotalCostDisplay}" Style="{StaticResource JpTileValueStyle}"/>
+                </StackPanel>
+            </Border>
+
+            <!-- Portfolio profit — red when negative -->
+            <Border Grid.Column="4">
+                <Border.Style>
+                    <Style TargetType="Border" BasedOn="{StaticResource JpTileStyle}">
+                        <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
+                        <Setter Property="BorderThickness" Value="2"/>
+                        <Style.Triggers>
+                            <DataTrigger Binding="{Binding IsPortfolioLoss}" Value="True">
+                                <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+                            </DataTrigger>
+                        </Style.Triggers>
+                    </Style>
+                </Border.Style>
+                <StackPanel>
+                    <TextBlock Text="{Binding TotalProfitLabel}" Style="{StaticResource JpTileCaptionStyle}"/>
+                    <TextBlock Text="{Binding TotalProfitDisplay}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource JpTileValueStyle}">
+                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsPortfolioLoss}" Value="True">
+                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+
+            <!-- Loss-making job count -->
+            <Border Grid.Column="6" Style="{StaticResource JpTileStyle}">
+                <StackPanel>
+                    <TextBlock Text="LOSS-MAKING JOBS" Style="{StaticResource JpTileCaptionStyle}"/>
+                    <TextBlock Text="{Binding LossCountDisplay}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock" BasedOn="{StaticResource JpTileValueStyle}">
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding HasLosses}" Value="True">
+                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <!-- ══════════════════════════════════════════════════════════════
+             ROW LIST
+        ══════════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="2"
+                Background="{DynamicResource ModuleBackgroundBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1"
+                CornerRadius="16"
+                Margin="20,16,20,0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <!-- Accent table header -->
+                <Border Grid.Row="0"
+                        Background="{DynamicResource AccentBrush}"
+                        CornerRadius="16,16,0,0"
+                        Padding="16,12">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="160"/>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="90"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0" Text="PROFORMA"        Style="{StaticResource JpHeaderCellStyle}"/>
+                        <TextBlock Grid.Column="1" Text="CUSTOMER · PROJECT" Style="{StaticResource JpHeaderCellStyle}"/>
+                        <TextBlock Grid.Column="2" Text="SALESMAN"        Style="{StaticResource JpHeaderCellStyle}"/>
+                        <TextBlock Grid.Column="3" Text="ISSUED"          Style="{StaticResource JpHeaderCellStyle}"/>
+                        <TextBlock Grid.Column="4" Text="NET EX-VAT"      Style="{StaticResource JpHeaderCellStyle}"
+                                   HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="5" Text="COST"            Style="{StaticResource JpHeaderCellStyle}"
+                                   HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="6" Text="PROFIT"          Style="{StaticResource JpHeaderCellStyle}"
+                                   HorizontalAlignment="Right"/>
+                        <TextBlock Grid.Column="7" Text="MARGIN"          Style="{StaticResource JpHeaderCellStyle}"
+                                   HorizontalAlignment="Right"/>
+                    </Grid>
+                </Border>
+
+                <!-- Virtualized row list -->
+                <ScrollViewer Grid.Row="1"
+                              VerticalScrollBarVisibility="Auto"
+                              behaviors:SmoothScrollBehavior.IsEnabled="True"
+                              Visibility="{Binding HasRows, Converter={StaticResource BoolToVisibilityConverter}}">
+                    <ItemsControl ItemsSource="{Binding Rows}"
+                                  VirtualizingPanel.IsVirtualizing="True"
+                                  VirtualizingPanel.VirtualizationMode="Recycling">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <VirtualizingStackPanel/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border BorderBrush="{DynamicResource DividerBrush}"
+                                        BorderThickness="0,0,0,1"
+                                        Padding="16,10">
+                                    <Grid>
+                                        <Grid.ColumnDefinitions>
+                                            <ColumnDefinition Width="130"/>
+                                            <ColumnDefinition Width="*"/>
+                                            <ColumnDefinition Width="160"/>
+                                            <ColumnDefinition Width="110"/>
+                                            <ColumnDefinition Width="130"/>
+                                            <ColumnDefinition Width="130"/>
+                                            <ColumnDefinition Width="130"/>
+                                            <ColumnDefinition Width="90"/>
+                                        </Grid.ColumnDefinitions>
+
+                                        <TextBlock Grid.Column="0"
+                                                   Text="{Binding ProformaId}"
+                                                   Style="{StaticResource JpCellStyle}"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource AccentBrush}"/>
+
+                                        <TextBlock Grid.Column="1"
+                                                   Text="{Binding CustomerProjectDisplay}"
+                                                   Style="{StaticResource JpCellStyle}"
+                                                   Margin="0,0,12,0"/>
+
+                                        <TextBlock Grid.Column="2"
+                                                   Text="{Binding SalesmanDisplay}"
+                                                   Style="{StaticResource JpCellStyle}"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+
+                                        <TextBlock Grid.Column="3"
+                                                   Text="{Binding IssueDateDisplay}"
+                                                   Style="{StaticResource JpCellStyle}"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+
+                                        <TextBlock Grid.Column="4"
+                                                   Text="{Binding NetDisplay}"
+                                                   Style="{StaticResource JpCellStyle}"
+                                                   HorizontalAlignment="Right"/>
+
+                                        <TextBlock Grid.Column="5"
+                                                   Text="{Binding CostDisplay}"
+                                                   Style="{StaticResource JpCellStyle}"
+                                                   HorizontalAlignment="Right"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+
+                                        <!-- Profit green, loss red -->
+                                        <TextBlock Grid.Column="6"
+                                                   Text="{Binding ProfitDisplay}"
+                                                   HorizontalAlignment="Right">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource JpCellStyle}">
+                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsLoss}" Value="True">
+                                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsCosted}" Value="False">
+                                                            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                                            <Setter Property="FontWeight" Value="Normal"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+
+                                        <TextBlock Grid.Column="7"
+                                                   Text="{Binding MarginDisplay}"
+                                                   HorizontalAlignment="Right">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock" BasedOn="{StaticResource JpCellStyle}">
+                                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsLoss}" Value="True">
+                                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                                        </DataTrigger>
+                                                        <DataTrigger Binding="{Binding IsCosted}" Value="False">
+                                                            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+
+                <!-- Empty state -->
+                <Border Grid.Row="1"
+                        Padding="24,48"
+                        Visibility="{Binding HasRows, Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Top">
+                        <TextBlock Text="&#xE9D9;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="30"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   Margin="0,0,0,12"/>
+                        <TextBlock Text="No jobs to show"
+                                   FontSize="14"
+                                   FontWeight="SemiBold"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                        <TextBlock Text="Save a proforma invoice, or clear the filters above."
+                                   FontSize="11"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,4,0,0"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+
+        <!-- ══════════════════════════════════════════════════════════════
+             STATUS LINE
+        ══════════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="3"
+                Margin="20,12,20,20"
+                Padding="4,0">
+            <TextBlock Text="{Binding StatusMessage}"
+                       FontSize="11"
+                       TextWrapping="Wrap"
+                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+        </Border>
+
+    </Grid>
+</UserControl>

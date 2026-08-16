@@ -43,6 +43,7 @@ using ProGlassAutomation.ViewModels.AI;
 using ProGlassAutomation.ViewModels.Dashboard;
 using ProGlassAutomation.ViewModels.DeliveryNote;
 using ProGlassAutomation.ViewModels.JobOrder;
+using ProGlassAutomation.ViewModels.JobProfitability;
 using ProGlassAutomation.ViewModels.Optimization;
 using ProGlassAutomation.ViewModels.ProformaInvoice;
 using ProGlassAutomation.ViewModels.Production;
@@ -110,6 +111,10 @@ namespace ProGlassAutomation.ViewModels
         public DeliveryNoteViewModel DeliveryNoteVM { get; } = new DeliveryNoteViewModel();
         public TaxInvoiceViewModel TaxInvoiceVM { get; } = new TaxInvoiceViewModel();
         public SalesReportViewModel SalesReportVM { get; } = new SalesReportViewModel();
+
+        // PHASE C — Job profitability across every saved proforma.
+        public JobProfitabilityViewModel JobProfitabilityVM { get; } =
+            new JobProfitabilityViewModel();
 
         // Phase 1 — master data modules.
         public CompanyCenterViewModel CompanyCenterVM { get; } =
@@ -395,6 +400,13 @@ namespace ProGlassAutomation.ViewModels
                     CurrentViewModel = UserCenterVM;
                     break;
 
+                // PHASE C: Job Profitability — reloads on entry so the
+                // figures always reflect the latest saved invoices.
+                case "JobProfitability":
+                    CurrentViewModel = JobProfitabilityVM;
+                    JobProfitabilityVM.RefreshCommand.Execute(null);
+                    break;
+
                 // NEW: Logs & Activity (technical log + per-module feeds)
                 case "Diagnostics":
                     CurrentViewModel = DiagnosticsVM;
@@ -449,6 +461,8 @@ namespace ProGlassAutomation.ViewModels
                     ProGlassAutomation.Services.Theme.WallpaperModules.CompanyCenter,
                 "UserCenter" =>
                     ProGlassAutomation.Services.Theme.WallpaperModules.UserCenter,
+                "JobProfitability" =>
+                    ProGlassAutomation.Services.Theme.WallpaperModules.JobProfitability,
                 _ => ""
             };
 
