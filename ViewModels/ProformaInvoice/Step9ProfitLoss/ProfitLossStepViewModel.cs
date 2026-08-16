@@ -223,6 +223,56 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// <summary>True when <see cref="Rows"/> is empty (drives the empty state).</summary>
         public bool HasRows => Rows.Count > 0;
 
+        // ══════════════════════════════════════════════════════════════
+        //  COST BASIS — PURCHASE vs SELLING
+        //
+        //  Step 4 auto-fills its base prices from the Sheet Store SELLING
+        //  price (DguParametersViewModel.SheetStore.cs: "sell" wins, and
+        //  only falls back to purchase when no sell price exists). So the
+        //  48 / 25 figures quoted in a spec are SELL rates.
+        //
+        //  The P&L, correctly for accounting, costs glass at the PURCHASE
+        //  price - profit measured against what the supplier charged. The
+        //  consequence is that the P&L will NOT reproduce hand arithmetic
+        //  done with the Step 4 numbers, because those are a different
+        //  column of the same Sheet Store row.
+        //
+        //  Both are legitimate questions:
+        //     purchase -> "what did we really make?"
+        //     sell     -> "does the quote hold together against list price?"
+        //
+        //  Rather than silently picking one, the basis is now explicit,
+        //  defaults to Purchase (the true-profit answer, and the previous
+        //  behaviour, so nothing changes unless it is deliberately switched)
+        //  and is named in the status line so a figure is never ambiguous.
+        // ══════════════════════════════════════════════════════════════
+
+        private bool _costAtSellingPrice;
+        /// <summary>
+        /// False (default) = cost glass at Sheet Store PURCHASE price.
+        /// True = cost at SELLING price, matching the Step 4 base rates.
+        /// </summary>
+        public bool CostAtSellingPrice
+        {
+            get => _costAtSellingPrice;
+            set
+            {
+                if (_costAtSellingPrice == value) return;
+                _costAtSellingPrice = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CostBasisLabel));
+
+                // Switching the basis with stale figures on screen would be
+                // worse than not offering the switch at all.
+                _ = RecalculateAsync();
+            }
+        }
+
+        /// <summary>Names the basis so no figure on screen is ambiguous.</summary>
+        public string CostBasisLabel => _costAtSellingPrice
+            ? "selling price"
+            : "purchase price";
+
         private decimal _wastagePercent = 10m;
         /// <summary>
         /// Cutting wastage allowance applied to the required area before the
@@ -741,12 +791,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 return "Nothing could be costed. The glass in this invoice is not in " +
                        "Sheet Store — add it there, or treat this figure as unavailable.";
 
+            // Naming the cost basis matters: the same job shows a different
+            // profit at purchase vs selling price, and a figure whose basis
+            // is unstated is a figure nobody can check.
             string basis =
                 $"{rowCount} line(s) from {groupCount} spec group(s) · " +
-                $"wastage {WastagePercent:0.#}% · VAT stripped at 5%.";
+                $"glass costed at {CostBasisLabel} · " +
+                $"sheets = ceil(cut area × (1 + {WastagePercent:0.#}% wastage) ÷ sheet sqm) · " +
+                $"VAT stripped at 5%.";
 
             return skipped > 0
-                ? basis + $" {skipped} pane(s) skipped — no Sheet Store purchase price."
+                ? basis + $" {skipped} pane(s) skipped — not priced in Sheet Store."
                 : basis;
         }
 
@@ -892,15 +947,24 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 .TryGetPriceForSizeAsync(color, thicknessMm, sheetW, sheetH)
                 .ConfigureAwait(true);
 
-            decimal purchase = price?.PurchasePerSqm ?? 0m;
-            if (purchase <= 0m) return null;
+            // Which column of the Sheet Store row to cost against. Selling
+            // falls back to purchase (and vice versa) rather than costing a
+            // pane at zero, because a missing price must never look free.
+            decimal purchaseRate = price?.PurchasePerSqm ?? 0m;
+            decimal sellRate = price?.SellPerSqm ?? 0m;
+
+            decimal unitRate = CostAtSellingPrice
+                ? (sellRate > 0m ? sellRate : purchaseRate)
+                : (purchaseRate > 0m ? purchaseRate : sellRate);
+
+            if (unitRate <= 0m) return null;
 
             // ── Sheets required, wastage applied, always at least one ─────
             decimal needed = cutSqm * (1m + (WastagePercent / 100m));
             int sheets = (int)Math.Ceiling(needed / sheetSqm);
             if (sheets < 1) sheets = 1;
 
-            decimal amount = Math.Round(sheetSqm * sheets * purchase, 2);
+            decimal amount = Math.Round(sheetSqm * sheets * unitRate, 2);
 
             return new ProfitLossRow
             {
@@ -920,7 +984,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 SheetHeightMm = sheetH,
                 SheetSqm = sheetSqm,
                 Quantity = sheets,
-                PricePerSqm = purchase,
+                PricePerSqm = unitRate,
                 Amount = amount
             };
         }

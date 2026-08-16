@@ -127,6 +127,7 @@
                             <ColumnDefinition Width="200"/>
                             <ColumnDefinition Width="16"/>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
 
@@ -137,14 +138,31 @@
                                      ToolTip="Cutting allowance added to the required area before sheets are rounded up"/>
                         </StackPanel>
 
-                        <StackPanel Grid.Column="2" VerticalAlignment="Bottom">
+                        <!-- COST BASIS.
+                             Step 4 fills its base prices from the Sheet Store
+                             SELLING price, but the P&amp;L costs at PURCHASE.
+                             Both are valid questions, and a profit figure whose
+                             basis is unstated cannot be checked, so the choice
+                             is explicit and named in the status line. -->
+                        <StackPanel Grid.Column="2"
+                                    VerticalAlignment="Bottom"
+                                    Margin="0,0,16,8">
+                            <CheckBox Content="Cost glass at SELLING price"
+                                      IsChecked="{Binding CostAtSellingPrice}"
+                                      Cursor="Hand"
+                                      FontSize="12"
+                                      Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                      ToolTip="Off (default) = cost at Sheet Store purchase price, giving true profit against supplier cost. On = cost at selling price, matching the Step 4 base rates."/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="3" VerticalAlignment="Bottom">
                             <Button Content="RECALCULATE"
                                     Tag="&#xE72C;"
                                     Command="{Binding RecalculateCommand}"
                                     Style="{StaticResource PrimaryPillButton}"/>
                         </StackPanel>
 
-                        <TextBlock Grid.Column="3"
+                        <TextBlock Grid.Column="4"
                                    Text="{Binding StatusMessage}"
                                    FontSize="11"
                                    TextWrapping="Wrap"
