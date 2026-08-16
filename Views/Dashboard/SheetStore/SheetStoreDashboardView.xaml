@@ -148,15 +148,6 @@
             <StackPanel Margin="14,12,14,14">
 
                 <!-- Page header -->
-                <StackPanel Margin="6,0,6,10">
-                    <TextBlock Text="Sheet Store"
-                               FontSize="15" FontWeight="Bold"
-                               Foreground="{DynamicResource DashAccentTextBrush}"/>
-                    <TextBlock Text="Track inventory, monitor stock levels, and manage glass sheet types."
-                               FontSize="12" Margin="0,4,0,0"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                </StackPanel>
-
                 <!-- Loading -->
                 <Border Visibility="{Binding IsLoading,
                                      Converter={StaticResource BoolToVisibilityConverter}}"

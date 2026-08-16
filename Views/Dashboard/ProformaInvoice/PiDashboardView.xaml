@@ -78,15 +78,6 @@
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
             <StackPanel Margin="14,12,14,14">
 
-                <StackPanel Margin="6,0,6,10">
-                    <TextBlock Text="Proforma Invoice Analytics"
-                               FontSize="15" FontWeight="Bold"
-                               Foreground="{DynamicResource DashAccentTextBrush}"/>
-                    <TextBlock Text="Monitor invoice status, top customers, and revenue distribution."
-                               FontSize="12" Margin="0,4,0,0"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                </StackPanel>
-
                 <Border Visibility="{Binding IsLoading,
                                      Converter={StaticResource BoolToVisibilityConverter}}"
                         Padding="12" Margin="6,0,6,8">

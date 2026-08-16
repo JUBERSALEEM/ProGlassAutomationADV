@@ -54,6 +54,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     public class PiDashboardViewModel : DashboardPageBase
     {
         public override string TabTitle => "Proforma Invoice";
+        public override string TabSubtitle => "Quotes and conversion";
         public override string TabIcon => "\uE8A5";
 
         // ── KPI cards ─────────────────────────────────────────────────────

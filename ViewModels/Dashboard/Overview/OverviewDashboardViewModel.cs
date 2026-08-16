@@ -67,6 +67,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     public class OverviewDashboardViewModel : DashboardPageBase
     {
         public override string TabTitle => "Overview";
+        public override string TabSubtitle => "Business at a glance";
         public override string TabIcon => "\uE80F";
 
         private const string JobStatusInProduction = "InProduction";

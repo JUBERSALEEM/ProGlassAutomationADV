@@ -46,6 +46,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
     {
         // ── Tab identity ──────────────────────────────────────────────────
         public override string TabTitle => "Statements";
+        public override string TabSubtitle => "Customer balances";
         public override string TabIcon => "\uE9D9";
 
         // ── Navigation callback (wired by DashboardViewModel) ─────────────

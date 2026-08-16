@@ -49,6 +49,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.JobOrder.JoDashboard
     {
         // ── Tab identity ─────────────────────────────────────────────
         public override string TabTitle => "Job Orders";
+        public override string TabSubtitle => "Production workload";
         public override string TabIcon => "\uE9F9";
 
         // ── Backing stores for OnThemeChanged rebuild ────────────────

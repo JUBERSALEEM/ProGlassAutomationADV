@@ -71,6 +71,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard
     {
         // ── Tab identity ──────────────────────────────────────────────────
         public override string TabTitle => "Tax Invoices";
+        public override string TabSubtitle => "Revenue and ageing";
         public override string TabIcon => "\uE8EF";
 
         // ── Navigation callback (set by DashboardViewModel after ctor) ────

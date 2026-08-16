@@ -46,6 +46,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
     public class SheetStoreDashboardViewModel : DashboardPageBase
     {
         public override string TabTitle => "Sheet Store";
+        public override string TabSubtitle => "Stock and inventory value";
         public override string TabIcon => "\uE7B8";
 
         // ── KPI cards ─────────────────────────────────────────────────────

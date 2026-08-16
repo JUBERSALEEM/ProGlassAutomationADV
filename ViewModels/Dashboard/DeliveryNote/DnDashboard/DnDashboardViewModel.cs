@@ -55,6 +55,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
     {
         // ── Tab identity ─────────────────────────────────────────────
         public override string TabTitle => "Deliveries";
+        public override string TabSubtitle => "Dispatch and balance";
         public override string TabIcon => "\uE806";
 
         // ── Backing stores for OnThemeChanged rebuild ────────────────

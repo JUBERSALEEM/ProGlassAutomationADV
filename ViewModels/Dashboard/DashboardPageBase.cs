@@ -64,6 +64,15 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         public abstract string TabTitle { get; }
         public abstract string TabIcon { get; }
 
+        /// <summary>
+        /// One-line description shown under the title in the module rail.
+        ///
+        /// Virtual with an empty default rather than abstract: making it
+        /// abstract would force an edit to all seven existing pages and
+        /// break any future one that does not need a subtitle.
+        /// </summary>
+        public virtual string TabSubtitle => string.Empty;
+
         // ═════════════════════════════════════════════════════════════════
         // CONSTRUCTOR — subscribe to theme changes
         // ═════════════════════════════════════════════════════════════════
