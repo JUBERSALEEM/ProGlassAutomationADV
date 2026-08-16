@@ -244,41 +244,80 @@
              TOP BAR ICON BUTTON
         ═══════════════════════════════════════════════════════════════ -->
 
-        <Style x:Key="TopBarIconButtonStyle" TargetType="Button">
-            <Setter Property="Width" Value="40"/>
-            <Setter Property="Height" Value="40"/>
+        <!-- ═══════════════════════════════════════════════════════════
+             TOP-BAR PILL BUTTONS  (spec supplied by the user)
+
+             CornerRadius 20 · Height 40 · MinWidth 130 · Padding 22,0
+             BorderBrush #4DFFFFFF @1 on solid pills
+             Segoe MDL2 icons only - never emoji
+             UPPERCASE text, FontSize 12, Bold, icon 13px, margin 0,0,10,0
+             All four state triggers: hover / pressed / focus / disabled
+
+             ICON-ONLY VARIANT: the top bar's settings, about and agent
+             buttons carry a glyph and no label. They use the same shape
+             and triggers with MinWidth 44 and symmetric padding, so they
+             read as the same family rather than as leftover round
+             buttons.
+        ═══════════════════════════════════════════════════════════════ -->
+
+        <!-- TopBarPillPrimary (labelled variant) intentionally NOT defined
+             here: the top bar currently has no labelled buttons, and an
+             unused style is dead code. The full labelled/Success/Outlined/
+             Danger variants live in Styles/ButtonStyles.xaml where the rest
+             of the app consumes them. -->
+
+        <!-- Icon-only member of the same family (no label). -->
+        <Style x:Key="TopBarPillIcon" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="Foreground"
-                    Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="FontSize" Value="18"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="border"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="8"
+                        <Border x:Name="Bg"
+                                Background="{DynamicResource MenuHoverBrush}"
+                                BorderBrush="#33000000"
+                                BorderThickness="1"
+                                CornerRadius="20"
+                                Padding="0"
+                                Height="40"
+                                MinWidth="44"
                                 SnapsToDevicePixels="True">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
+                            <TextBlock Text="{TemplateBinding Content}"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="15"
+                                       Foreground="{TemplateBinding Foreground}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="border" Property="Background"
-                                        Value="{DynamicResource MenuHoverBrush}"/>
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="#80FFFFFF"/>
+                                <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="border" Property="Opacity"
-                                        Value="0.75"/>
+                                <Setter TargetName="Bg" Property="Background" Value="#3730A3"/>
+                                <Setter Property="Foreground" Value="White"/>
+                            </Trigger>
+                            <Trigger Property="IsKeyboardFocused" Value="True">
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="White"/>
+                                <Setter TargetName="Bg" Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.5"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- Legacy TopBarIconButtonStyle removed: every top-bar button
+             now uses TopBarPillPrimary / TopBarPillIcon. Rule 7 of the
+             pill spec - do not keep legacy toolbar/tab button styles. -->
 
         <!-- ═══════════════════════════════════════════════════════════════
              SIDEBAR ITEM — v3.1 PILL HOVER (per user request)
@@ -468,9 +507,10 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Hamburger -->
+                <!-- Rule 3: MDL2 hamburger (E700), not the U+9776 text glyph. -->
                 <Button Grid.Column="0"
-                        Style="{StaticResource TopBarIconButtonStyle}"
-                        Content="&#9776;"
+                        Style="{StaticResource TopBarPillIcon}"
+                        Content="&#xE700;"
                         Command="{Binding ToggleMenuCommand}"
                         ToolTip="Menu"
                         Margin="12,0,4,0"/>
@@ -569,9 +609,13 @@
                             ToolTip="Current date and time">
                         <StackPanel Orientation="Horizontal"
                                     VerticalAlignment="Center">
-                            <TextBlock Text="🗓" FontSize="11"
+                            <!-- Rule 3: Segoe MDL2 only, never emoji. -->
+                            <TextBlock Text="&#xE787;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="11"
+                                       Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
-                                       Margin="0,0,6,0"
+                                       Margin="0,0,7,0"
                                        IsHitTestVisible="False"/>
                             <TextBlock Text="{Binding CurrentDateText}"
                                        FontSize="11" FontWeight="SemiBold"
@@ -639,25 +683,23 @@
                     </Border>
 
                     <!-- PHASE L: ProGlass Agent chat -->
-                    <Button Style="{StaticResource TopBarIconButtonStyle}"
-                            Content="&#xE99A;" FontFamily="Segoe MDL2 Assets"
-                            FontSize="16"
+                    <Button Style="{StaticResource TopBarPillIcon}"
+                            Content="&#xE99A;"
                             Command="{Binding ToggleAgentChatCommand}"
                             ToolTip="ProGlass Agent — local assistant you can teach"
-                            Margin="0,0,4,0"/>
+                            Margin="0,0,8,0"/>
 
-                    <Button Style="{StaticResource TopBarIconButtonStyle}"
-                            Content="&#xE713;" FontFamily="Segoe MDL2 Assets"
-                            FontSize="16"
+                    <Button Style="{StaticResource TopBarPillIcon}"
+                            Content="&#xE713;"
                             Command="{Binding ShowSettingsCommand}"
                             ToolTip="Settings"
-                            Margin="0,0,4,0"/>
-                    <Button Style="{StaticResource TopBarIconButtonStyle}"
-                            Content="&#xE946;" FontFamily="Segoe MDL2 Assets"
-                            FontSize="16"
+                            Margin="0,0,8,0"/>
+
+                    <Button Style="{StaticResource TopBarPillIcon}"
+                            Content="&#xE946;"
                             Command="{Binding ShowAboutCommand}"
                             ToolTip="About"
-                            Margin="0,0,4,0"/>
+                            Margin="0,0,0,0"/>
                 </StackPanel>
             </Grid>
         </Border>

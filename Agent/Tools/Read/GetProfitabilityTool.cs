@@ -86,16 +86,36 @@ namespace ProGlassAutomation.Agent.Tools.Read
                         continue;
                     }
 
+                    // Mirror JobProfitabilityViewModel exactly. When the
+                    // snapshot has no usable net, BOTH net and profit come
+                    // from the invoice header - never one from each, which
+                    // would divide figures with different bases and could
+                    // report a profitable job as a loss.
+                    decimal snapshotNet = pl!.NetExVat;
+                    decimal net;
+                    decimal profit;
+
+                    if (snapshotNet > 0m)
+                    {
+                        net = snapshotNet;
+                        profit = pl.Profit;
+                    }
+                    else
+                    {
+                        net = Math.Round(inv.GrandTotalVatInclusive / 1.05m, 2);
+                        profit = Math.Round(net - cost, 2);
+                    }
+
                     costed.Add(new JobProfit
                     {
                         ProformaId = inv.ProformaId ?? "",
                         Customer = inv.CustomerName ?? "",
                         Project = inv.ProjectName ?? "",
-                        Net = pl!.NetExVat,
+                        Net = net,
                         Cost = cost,
-                        Profit = pl.Profit,
-                        MarginPercent = pl.NetExVat > 0m
-                            ? Math.Round(pl.Profit / pl.NetExVat * 100m, 1)
+                        Profit = profit,
+                        MarginPercent = net > 0m
+                            ? Math.Round(profit / net * 100m, 1)
                             : 0m
                     });
                 }

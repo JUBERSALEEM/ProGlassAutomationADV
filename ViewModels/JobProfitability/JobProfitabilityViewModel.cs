@@ -339,15 +339,44 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                                       || cost > 0m
                                       || pl.NetExVat > 0m);
 
-                    decimal net = pl?.NetExVat ?? 0m;
-                    if (net <= 0m)
-                    {
-                        // Fall back to the stored invoice header so the row
-                        // still shows meaningful revenue.
-                        net = Math.Round(inv.GrandTotalVatInclusive / 1.05m, 2);
-                    }
+                    // ══════════════════════════════════════════════════
+                    //  PROFIT MUST BE DERIVED FROM THE SAME NET IT IS
+                    //  SHOWN AGAINST.
+                    //
+                    //  The previous code substituted `net` from the invoice
+                    //  header when the Step 9 snapshot had none, but kept
+                    //  `profit` from the snapshot - which Step 9 had computed
+                    //  against its own NetExVat of zero. Profit and net then
+                    //  came from different bases and margin divided one by
+                    //  the other.
+                    //
+                    //  Worked example: header gross 10,500 (net 10,000),
+                    //  cost 500, snapshot net 0 so snapshot profit -500.
+                    //  The row showed net 10,000 / profit -500 / -5% and
+                    //  flagged a LOSS, when the job actually made 9,500 at
+                    //  95%. A profitable job reported as loss-making.
+                    //
+                    //  Rule now: if the snapshot's own net is usable, trust
+                    //  the snapshot's profit with it. Otherwise recompute
+                    //  profit from the SAME header-derived net, so the two
+                    //  numbers always agree.
+                    // ══════════════════════════════════════════════════
+                    decimal snapshotNet = pl?.NetExVat ?? 0m;
+                    decimal net;
+                    decimal profit;
 
-                    decimal profit = costed ? (pl?.Profit ?? (net - cost)) : 0m;
+                    if (snapshotNet > 0m)
+                    {
+                        net = snapshotNet;
+                        profit = costed ? pl!.Profit : 0m;
+                    }
+                    else
+                    {
+                        // No usable net in the snapshot - fall back to the
+                        // invoice header for BOTH figures.
+                        net = Math.Round(inv.GrandTotalVatInclusive / 1.05m, 2);
+                        profit = costed ? Math.Round(net - cost, 2) : 0m;
+                    }
 
                     decimal margin = costed && net > 0m
                         ? Math.Round(profit / net * 100m, 1)

@@ -647,13 +647,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
                 decimal profit = NetExVat - TotalGlassCost - TotalProductionCost;
                 Profit = Math.Round(profit, 2);
-                IsLoss = Profit < 0m;
+
+                // Only call it a loss when there is revenue to lose against.
+                // With gross at zero the negative figure is simply
+                // "cost known, revenue not entered yet" - painting that red
+                // tells the user they are losing money when they are not.
+                IsLoss = gross > 0m && Profit < 0m;
 
                 MarginPercent = NetExVat > 0m
                     ? Math.Round(Profit / NetExVat * 100m, 1)
                     : 0m;
 
-                StatusMessage = BuildStatus(groups.Count, rows.Count, skipped);
+                StatusMessage = BuildStatus(
+                    groups.Count, rows.Count, skipped, gross);
             }
             catch (Exception ex)
             {
@@ -668,10 +674,23 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             }
         }
 
-        private string BuildStatus(int groupCount, int rowCount, int skipped)
+        private string BuildStatus(
+            int groupCount, int rowCount, int skipped, decimal gross)
         {
             if (groupCount == 0)
                 return "No spec groups in Step 5 yet — add glass items first.";
+
+            // REVENUE MISSING IS NOT A LOSS.
+            //
+            // When the gross provider returns zero - typically because the
+            // invoice totals in Step 7 have not been produced yet - net is
+            // zero and Profit becomes -(total cost). The figures used to be
+            // presented as a genuine loss, so the user could not tell an
+            // unprofitable job from an incomplete one. Say so plainly.
+            if (gross <= 0m && rowCount > 0)
+                return "Costs are calculated, but this invoice has no revenue " +
+                       "total yet — the profit figure below is NOT a real loss. " +
+                       "Complete Step 7 (invoice totals), then recalculate.";
 
             if (rowCount == 0)
                 return "Nothing could be costed. The glass in this invoice is not in " +
