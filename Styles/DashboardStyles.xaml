@@ -408,8 +408,8 @@
     ═══════════════════════════════════════════════════════════════ -->
     <DataTemplate x:Key="DashKpiTileTemplate">
         <Border Style="{StaticResource DashTileStyle}"
-                Margin="0,0,8,8"
-                MinWidth="150">
+                Margin="0,0,7,7"
+                Width="168">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>

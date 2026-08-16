@@ -53,10 +53,20 @@
              PreviewKeyDown="OnPreviewKeyDown">
 
     <Grid>
-        <!-- Visible keyboard focus ring. The skill flags removing focus
-             rings as a critical anti-pattern, and a chart that can be
-             tabbed to must show that it has focus. -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <!-- plot -->
+            <RowDefinition Height="Auto"/>
+            <!-- category axis -->
+        </Grid.RowDefinitions>
+
+        <!-- Visible keyboard focus ring. Declared AFTER
+             Grid.RowDefinitions: a property element cannot follow
+             content, so putting this Border first made the row
+             definitions "the middle of an element content".
+             Spans both rows so the ring frames the whole chart. -->
         <Border x:Name="FocusRing"
+                Grid.Row="0" Grid.RowSpan="2"
                 BorderBrush="{DynamicResource AccentBrush}"
                 BorderThickness="1"
                 CornerRadius="6"
@@ -64,13 +74,6 @@
                 Visibility="Collapsed"
                 IsHitTestVisible="False"
                 Panel.ZIndex="10"/>
-
-        <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-            <!-- plot -->
-            <RowDefinition Height="Auto"/>
-            <!-- category axis -->
-        </Grid.RowDefinitions>
 
         <!-- ── PLOT AREA ──────────────────────────────────────────── -->
         <Grid Grid.Row="0" x:Name="PlotHost" ClipToBounds="True">

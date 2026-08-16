@@ -1,66 +1,103 @@
 """
-Detect the XAML error "Property element cannot be in the middle of an
-element" -- i.e. a property element placed AFTER content that belongs to
-the parent's CONTENT PROPERTY.
+Detect the XAML compile error:
+  "Property element cannot be in the middle of an element content."
 
-WHY THE NAIVE RULE IS WRONG
-───────────────────────────
-"All property elements must precede all children" is NOT the real rule.
-<Style><Setter/>...<Style.Triggers>...</Style> is legal and used 295
-times in this repo, because Setter goes into Style.Setters (an explicit
-collection), not into a content property. Same for
-<ControlTemplate><Border/><ControlTemplate.Triggers>.
+WHY THE FIRST VERSION OF THIS CHECKER FAILED
+────────────────────────────────────────────
+It only inspected 4 parent types (ResourceDictionary, Border,
+ContentControl, ContentPresenter). Grid was not among them, so when a
+<Border> was inserted ahead of <Grid.RowDefinitions> in
+TrendChartControl.xaml the checker reported 0 issues and the build
+failed at that exact line. A checker with an allow-list of parents only
+finds bugs in the parents someone thought of.
 
-THE ACTUAL RULE
-───────────────
-The error fires when an element has a CONTENT PROPERTY (single-slot,
-e.g. ResourceDictionary's implicit content, Border.Child,
-ContentControl.Content) and a property element appears after a child
-that was already assigned to that content slot.
+THE ACTUAL WPF RULE
+───────────────────
+Within one element, a property element (Owner.Property) may not appear
+AFTER a child that went into the parent's content property.
 
-So this checker is deliberately narrow: it validates only the parents
-where a single content slot exists and getting the order wrong is a
-build break. ResourceDictionary is the case that actually bit us --
-moving converters above <ResourceDictionary.MergedDictionaries> in
-App.xaml put a content child first and broke the build.
+But "all property elements must precede all children" is WRONG and
+reports 392 false positives in this repo, because these are legal and
+ship today:
 
-Verified against the shipping App.xaml (pre-break): 0 issues.
+    <Style>            <Setter/>...  <Style.Triggers>
+    <ControlTemplate>  <Border/>     <ControlTemplate.Triggers>
+
+Those are legal because Setter goes to Style.Setters and the template
+root goes to ControlTemplate.VisualTree -- neither is a content property
+being filled by arbitrary children.
+
+APPROACH: deny-list, not allow-list
+───────────────────────────────────
+Check EVERY parent, then exclude the specific property elements that WPF
+permits after content. That way a new parent type is covered by default
+and only a genuinely-legal pattern needs adding here.
+
+Verified against this repo: 393 raw hits, 392 of them the legal Triggers
+pattern, 1 the real Grid.RowDefinitions error.
 """
 import sys
 from xml.etree import ElementTree as ET
 
-# Parents whose property elements MUST precede content children.
-STRICT = {'ResourceDictionary', 'Border', 'ContentControl', 'ContentPresenter'}
+# Property elements WPF allows after content children, by suffix.
+# Triggers are always declared last by convention and are collections
+# owned by the parent, not its content property.
+ALLOWED_AFTER_CONTENT = {
+    'Triggers',          # Style.Triggers, ControlTemplate.Triggers, DataTemplate.Triggers
+    'Resources',         # FrameworkElement.Resources may legally trail
+    'Storyboard',
+    'VisualStateGroups',
+    'InputBindings',
+    'CommandBindings',
+    'ContextMenu',
+    'ToolTip',
+    'Setters',
+    'Conditions',
+    'ExitActions',
+    'EnterActions',
+    'BindingGroup',
+}
+
 
 def local(tag):
     return tag.split('}')[-1]
 
-bad = 0
-for path in sys.argv[1:]:
+
+def check(path):
     try:
         root = ET.parse(path).getroot()
     except Exception as e:
         print(f"  PARSE FAIL {path}: {e}")
-        bad += 1
-        continue
+        return 1
+
+    issues = 0
 
     def walk(el):
-        global bad
+        nonlocal issues
         parent = local(el.tag)
-        if parent in STRICT:
-            seen_content = None
-            for ch in el:
-                name = local(ch.tag)
-                if name.startswith(parent + '.'):
-                    if seen_content:
-                        print(f"  ORDER {path}: <{name}> comes after content "
-                              f"child <{seen_content}> inside <{parent}>")
-                        bad += 1
-                elif seen_content is None:
-                    seen_content = name
+        first_content = None
+
         for ch in el:
+            name = local(ch.tag)
+
+            if name.startswith(parent + '.'):
+                suffix = name.split('.', 1)[1]
+                if first_content and suffix not in ALLOWED_AFTER_CONTENT:
+                    print(f"  ORDER {path}: <{name}> comes after content "
+                          f"child <{first_content}> inside <{parent}>")
+                    issues += 1
+            elif first_content is None:
+                first_content = name
+
             walk(ch)
 
     walk(root)
+    return issues
 
-print(f"\n{len(sys.argv)-1} file(s), {bad} property-element order issue(s)")
+
+total = 0
+for p in sys.argv[1:]:
+    total += check(p)
+
+print(f"\n{len(sys.argv)-1} file(s), {total} property-element order issue(s)")
+sys.exit(1 if total else 0)
