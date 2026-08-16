@@ -6,6 +6,24 @@
                  Startup="Application_Startup">
     <Application.Resources>
         <ResourceDictionary>
+            <!-- ══════════════════════════════════════════════════════════
+                     BUILT-IN CONVERTERS (preserved)
+                ══════════════════════════════════════════════════════════ -->
+            <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
+
+            <!-- ══════════════════════════════════════════════════════════
+                     CUSTOM CONVERTERS (preserved — all 7 unchanged + 1 NEW)
+                ══════════════════════════════════════════════════════════ -->
+            <conv:ColorStringConverter              x:Key="ColorStringConverter"/>
+            <conv:DecimalIsPositiveConverter        x:Key="DecimalIsPositiveConverter"/>
+            <conv:ReferenceEqualityConverter        x:Key="ReferenceEqualityConverter"/>
+            <conv:ScaleConverter                    x:Key="ScaleConverter"/>
+            <conv:InverseBoolToVisibilityConverter  x:Key="InverseBoolToVisibilityConverter"/>
+            <conv:BrushKeyConverter                 x:Key="BrushKeyConverter"/>
+            <conv:PercentToWidthConverter           x:Key="PercentToWidthConverter"/>
+            <conv:EqualityToVisibilityConverter     x:Key="EqualityToVisibilityConverter"/>
+            <conv:WindowInsetConverter              x:Key="WindowInsetConverter"/>
+
             <ResourceDictionary.MergedDictionaries>
 
                 <!-- ── Theme (must be first so styles can reference brushes) ── -->
@@ -55,23 +73,6 @@
 
             </ResourceDictionary.MergedDictionaries>
 
-            <!-- ══════════════════════════════════════════════════════════
-                     BUILT-IN CONVERTERS (preserved)
-                ══════════════════════════════════════════════════════════ -->
-            <BooleanToVisibilityConverter x:Key="BoolToVisibilityConverter"/>
-
-            <!-- ══════════════════════════════════════════════════════════
-                     CUSTOM CONVERTERS (preserved — all 7 unchanged + 1 NEW)
-                ══════════════════════════════════════════════════════════ -->
-            <conv:ColorStringConverter              x:Key="ColorStringConverter"/>
-            <conv:DecimalIsPositiveConverter        x:Key="DecimalIsPositiveConverter"/>
-            <conv:ReferenceEqualityConverter        x:Key="ReferenceEqualityConverter"/>
-            <conv:ScaleConverter                    x:Key="ScaleConverter"/>
-            <conv:InverseBoolToVisibilityConverter  x:Key="InverseBoolToVisibilityConverter"/>
-            <conv:BrushKeyConverter                 x:Key="BrushKeyConverter"/>
-            <conv:PercentToWidthConverter           x:Key="PercentToWidthConverter"/>
-            <conv:EqualityToVisibilityConverter     x:Key="EqualityToVisibilityConverter"/>
-            <conv:WindowInsetConverter              x:Key="WindowInsetConverter"/>
 
             <!-- ══════════════════════════════════════════════════════════
                      GLOBAL TEXTBOX STYLE — Bug 2 + Bug 5

@@ -190,7 +190,7 @@
                             Margin="0,0,11,0">
                         <TextBlock Text="&#xE80F;"
                                    FontFamily="Segoe MDL2 Assets"
-                                   FontSize="16"
+                                   FontSize="15"
                                    HorizontalAlignment="Center"
                                    VerticalAlignment="Center"
                                    Foreground="{DynamicResource OnAccentForegroundBrush}"/>

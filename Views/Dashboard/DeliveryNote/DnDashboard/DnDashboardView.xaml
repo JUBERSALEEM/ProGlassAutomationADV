@@ -47,77 +47,9 @@
 
         <!-- ═══ Card styles (no shadow) ═══ -->
 
-        <Style x:Key="CardStyle" TargetType="Border">
-            <Setter Property="Background"      Value="{DynamicResource DashGlassSurfaceBrush}"/>
-            <Setter Property="BorderBrush"     Value="{DynamicResource DashGlassBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius"    Value="16"/>
-            <Setter Property="Padding"         Value="24"/>
-            <Setter Property="Margin"          Value="8"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-        </Style>
-
-        <Style x:Key="TintedCardStyle" TargetType="Border">
-            <Setter Property="Background"
-                    Value="{Binding TintColor,
-                            Converter={StaticResource BrushKeyConverter}}"/>
-            <Setter Property="BorderBrush"     Value="{DynamicResource DashGlassBorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="CornerRadius"    Value="14"/>
-            <Setter Property="Padding"         Value="20"/>
-            <Setter Property="Margin"          Value="8"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-        </Style>
-
         <!-- ═══ Typography ═══ -->
 
-        <Style x:Key="SectionTitle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="18"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="{DynamicResource DashAccentTextBrush}"/>
-            <Setter Property="Margin"     Value="8,0,8,6"/>
-        </Style>
-
-        <Style x:Key="SectionSubtitle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="12"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
-            <Setter Property="Margin"     Value="8,0,8,10"/>
-        </Style>
-
         <!-- ═══ KPI card template ═══ -->
-
-        <DataTemplate x:Key="KpiTemplate">
-            <Border Style="{StaticResource TintedCardStyle}">
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <Border Width="42" Height="42" CornerRadius="10"
-                                SnapsToDevicePixels="True"
-                                Background="{Binding BadgeColor,
-                                             Converter={StaticResource BrushKeyConverter}}"
-                                HorizontalAlignment="Left">
-                            <TextBlock Text="{Binding Icon}" FontSize="20"
-                                       Foreground="White"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-                        <TextBlock Text="{Binding Title}"
-                                   FontSize="13" FontWeight="Bold"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   VerticalAlignment="Center"
-                                   Margin="12,0,0,0"/>
-                    </StackPanel>
-                    <TextBlock Text="{Binding DisplayValue}"
-                               FontSize="19" FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"
-                               Margin="0,14,0,0"
-                               TextTrimming="CharacterEllipsis"/>
-                    <TextBlock Text="{Binding SubLabel}"
-                               FontSize="11" Margin="0,6,0,0"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               TextWrapping="Wrap"/>
-                </StackPanel>
-            </Border>
-        </DataTemplate>
 
         <!-- ═══ Bar chart template ═══ -->
 
@@ -191,7 +123,7 @@
                             Background="{Binding TintColor,
                                          Converter={StaticResource BrushKeyConverter}}">
                         <TextBlock Text="{Binding Icon}"
-                                   FontSize="20"
+                                   FontSize="15"
                                    VerticalAlignment="Center"
                                    HorizontalAlignment="Center"/>
                     </Border>
@@ -200,7 +132,7 @@
                                 VerticalAlignment="Center"
                                 Margin="12,12,12,12">
                         <TextBlock Text="{Binding Title}"
-                                   FontSize="14"
+                                   FontSize="12"
                                    FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         <TextBlock Text="{Binding SubTitle}"
@@ -288,20 +220,20 @@
             <StackPanel Margin="14,12,14,14">
 
                 <!-- Page header -->
-                <StackPanel Margin="8,0,8,20">
+                <StackPanel Margin="6,0,6,10">
                     <TextBlock Text="Delivery Note Analytics"
-                               FontSize="20" FontWeight="Bold"
+                               FontSize="15" FontWeight="Bold"
                                Foreground="{DynamicResource DashAccentTextBrush}"/>
                     <TextBlock Text="Monitor deliveries, dispatches, rework, and pending balance."
-                               FontSize="13" Margin="0,4,0,0"
+                               FontSize="12" Margin="0,4,0,0"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                 </StackPanel>
 
                 <!-- Loading -->
                 <Border Visibility="{Binding IsLoading,
                                      Converter={StaticResource BoolToVisibilityConverter}}"
-                        Padding="12" Margin="8,0,8,12">
-                    <TextBlock Text="⏳  Loading delivery note data…"
+                        Padding="12" Margin="6,0,6,8">
+                    <TextBlock Text="Loading delivery note data…"
                                FontSize="12" FontWeight="Bold"
                                HorizontalAlignment="Center"
                                Foreground="{DynamicResource DashAccentTextBrush}"/>
@@ -313,8 +245,8 @@
                         Background="{DynamicResource TintRedBrush}"
                         BorderBrush="{DynamicResource DangerBrush}"
                         BorderThickness="1.5"
-                        CornerRadius="12"
-                        Padding="14" Margin="8,0,8,12">
+                        CornerRadius="10"
+                        Padding="14,12" Margin="6,0,6,8">
                     <TextBlock Text="Failed to load delivery note data."
                                Foreground="{DynamicResource DangerBrush}"
                                FontSize="12" TextWrapping="Wrap" FontWeight="Bold"/>
@@ -338,7 +270,7 @@
                 <!-- Status distribution -->
                 <TextBlock Text="Status Distribution"
                            Style="{StaticResource SectionTitle}"
-                           Margin="8,24,8,6"/>
+                           Margin="6,14,6,6"/>
                 <TextBlock Text="How your delivery notes are distributed across dispatch stages"
                            Style="{StaticResource SectionSubtitle}"/>
 
@@ -364,13 +296,13 @@
                                        Foreground="{DynamicResource MutedForegroundBrush}"/>
                         </StackPanel>
 
-                        <StackPanel HorizontalAlignment="Center" Margin="0,50"
+                        <StackPanel HorizontalAlignment="Center" Margin="0,26"
                                     Visibility="{Binding HasStatusData,
                                                  Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                            <TextBlock Text="🚚" FontSize="48"
+                            <TextBlock Text="&#xE806;" FontFamily="Segoe MDL2 Assets" FontSize="22"
                                        HorizontalAlignment="Center" Opacity="0.4"/>
                             <TextBlock Text="No delivery notes yet"
-                                       FontSize="16" FontWeight="Bold"
+                                       FontSize="15" FontWeight="Bold"
                                        HorizontalAlignment="Center"
                                        Margin="0,12,0,4"
                                        Foreground="{DynamicResource DashAccentTextBrush}"/>
@@ -385,7 +317,7 @@
                 <!-- Type distribution -->
                 <TextBlock Text="Type Distribution"
                            Style="{StaticResource SectionTitle}"
-                           Margin="8,24,8,6"/>
+                           Margin="6,14,6,6"/>
                 <TextBlock Text="Breakdown of delivery notes by type (Original, Dummy, Rework, Return)"
                            Style="{StaticResource SectionSubtitle}"/>
 
@@ -411,13 +343,13 @@
                                        Foreground="{DynamicResource MutedForegroundBrush}"/>
                         </StackPanel>
 
-                        <StackPanel HorizontalAlignment="Center" Margin="0,50"
+                        <StackPanel HorizontalAlignment="Center" Margin="0,26"
                                     Visibility="{Binding HasStatusData,
                                                  Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                            <TextBlock Text="📊" FontSize="48"
+                            <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="22"
                                        HorizontalAlignment="Center" Opacity="0.4"/>
                             <TextBlock Text="No type data yet"
-                                       FontSize="16" FontWeight="Bold"
+                                       FontSize="15" FontWeight="Bold"
                                        HorizontalAlignment="Center"
                                        Margin="0,12,0,4"
                                        Foreground="{DynamicResource DashAccentTextBrush}"/>
@@ -428,7 +360,7 @@
                 <!-- Recent feed -->
                 <TextBlock Text="Recent Delivery Notes"
                            Style="{StaticResource SectionTitle}"
-                           Margin="8,24,8,6"/>
+                           Margin="6,14,6,6"/>
                 <TextBlock Text="Last 10 delivery notes ordered by most recently updated"
                            Style="{StaticResource SectionSubtitle}"/>
 
@@ -448,13 +380,13 @@
                                        Foreground="{DynamicResource MutedForegroundBrush}"/>
                         </StackPanel>
 
-                        <StackPanel HorizontalAlignment="Center" Margin="0,50"
+                        <StackPanel HorizontalAlignment="Center" Margin="0,26"
                                     Visibility="{Binding HasRecentFeed,
                                                  Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                            <TextBlock Text="📦" FontSize="48"
+                            <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets" FontSize="22"
                                        HorizontalAlignment="Center" Opacity="0.4"/>
                             <TextBlock Text="No delivery notes yet"
-                                       FontSize="16" FontWeight="Bold"
+                                       FontSize="15" FontWeight="Bold"
                                        HorizontalAlignment="Center"
                                        Margin="0,12,0,4"
                                        Foreground="{DynamicResource DashAccentTextBrush}"/>

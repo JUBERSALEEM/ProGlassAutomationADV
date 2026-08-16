@@ -298,8 +298,8 @@
                                 CornerRadius="10"
                                 Width="38" Height="38"
                                 HorizontalAlignment="Left">
-                            <TextBlock Text="📋"
-                                       FontSize="18"
+                            <TextBlock Text="&#xE8FD;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="15"
                                        Foreground="White"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
@@ -307,7 +307,7 @@
 
                         <TextBlock Grid.Row="2"
                                    Text="{Binding TotalStatements}"
-                                   FontSize="36"
+                                   FontSize="24"
                                    FontWeight="Bold"
                                    Foreground="{DynamicResource DashAccentTextBrush}"/>
 
@@ -344,15 +344,15 @@
                                 CornerRadius="10"
                                 Width="38" Height="38"
                                 HorizontalAlignment="Left">
-                            <TextBlock Text="💰"
-                                       FontSize="18"
+                            <TextBlock Text="&#xE8EF;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="15"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
                         </Border>
 
                         <TextBlock Grid.Row="2"
                                    Text="{Binding TotalInvoicedDisplay}"
-                                   FontSize="16"
+                                   FontSize="15"
                                    FontWeight="Bold"
                                    Foreground="{DynamicResource DashAccentTextBrush}"
                                    TextTrimming="CharacterEllipsis"/>
@@ -390,15 +390,15 @@
                                 CornerRadius="10"
                                 Width="38" Height="38"
                                 HorizontalAlignment="Left">
-                            <TextBlock Text="⏳"
-                                       FontSize="18"
+                            <TextBlock Text="&#xE823;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="15"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
                         </Border>
 
                         <TextBlock Grid.Row="2"
                                    Text="{Binding TotalOutstandingDisplay}"
-                                   FontSize="16"
+                                   FontSize="15"
                                    FontWeight="Bold"
                                    Foreground="{DynamicResource WarningBrush}"
                                    TextTrimming="CharacterEllipsis"/>
@@ -470,7 +470,7 @@
                                     </Style.Triggers>
                                 </Style>
                             </Border.Style>
-                            <TextBlock FontSize="18"
+                            <TextBlock FontSize="15"
                                        Foreground="White"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center">
@@ -490,7 +490,7 @@
 
                         <TextBlock Grid.Row="2"
                                    Text="{Binding OverdueAmountDisplay}"
-                                   FontSize="16"
+                                   FontSize="15"
                                    FontWeight="Bold"
                                    TextTrimming="CharacterEllipsis">
                             <TextBlock.Style>
@@ -593,11 +593,11 @@
                             Converter={StaticResource BoolToVisibilityConverter}}">
 
                     <StackPanel HorizontalAlignment="Center">
-                        <TextBlock Text="⏳"
-                                   FontSize="36"
+                        <TextBlock Text="&#xE823;" FontFamily="Segoe MDL2 Assets"
+                                   FontSize="22"
                                    HorizontalAlignment="Center"/>
                         <TextBlock Text="Loading…"
-                                   FontSize="14"
+                                   FontSize="12"
                                    FontWeight="Bold"
                                    Foreground="{DynamicResource DashAccentTextBrush}"
                                    HorizontalAlignment="Center"
@@ -624,21 +624,21 @@
                                 Width="70" Height="70"
                                 HorizontalAlignment="Center"
                                 Margin="0,0,0,16">
-                            <TextBlock Text="📊"
-                                       FontSize="36"
+                            <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="22"
                                        HorizontalAlignment="Center"
                                        VerticalAlignment="Center"/>
                         </Border>
 
                         <TextBlock Text="No Statements Yet"
-                                   FontSize="18"
+                                   FontSize="15"
                                    FontWeight="Bold"
                                    Foreground="{DynamicResource DashAccentTextBrush}"
                                    HorizontalAlignment="Center"
                                    Margin="0,0,0,8"/>
 
                         <TextBlock Text="Generate your first account statement from the Sales Report module."
-                                   FontSize="13"
+                                   FontSize="12"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
                                    HorizontalAlignment="Center"
                                    TextWrapping="Wrap"
@@ -705,7 +705,7 @@
                                                            Opacity="0.8"/>
                                                 <TextBlock Text="{Binding Index,
                                                                Mode=OneWay}"
-                                                           FontSize="16"
+                                                           FontSize="15"
                                                            FontWeight="Bold"
                                                            Foreground="White"
                                                            VerticalAlignment="Center"/>
@@ -721,19 +721,19 @@
                                                 <TextBlock
                                                     Text="{Binding StatementNumber,
                                                         Mode=OneWay}"
-                                                    FontSize="13"
+                                                    FontSize="12"
                                                     FontWeight="Bold"
                                                     Foreground="{DynamicResource DashAccentTextBrush}"
                                                     MaxWidth="140"
                                                     TextTrimming="CharacterEllipsis"/>
                                                 <TextBlock
                                                     Text="  —  "
-                                                    FontSize="13"
+                                                    FontSize="12"
                                                     Foreground="{DynamicResource MutedForegroundBrush}"
                                                     VerticalAlignment="Center"/>
                                                 <TextBlock
                                                     Text="{Binding SubTitle, Mode=OneWay}"
-                                                    FontSize="13"
+                                                    FontSize="12"
                                                     FontWeight="Bold"
                                                     Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                     MaxWidth="240"
@@ -747,7 +747,7 @@
                                                         VerticalAlignment="Center"
                                                         Visibility="{Binding HasAttachments,
                                                             Converter={StaticResource BoolToVisibilityConverter}}">
-                                                    <TextBlock Text="📎"
+                                                    <TextBlock Text="&#xE723;" FontFamily="Segoe MDL2 Assets"
                                                                FontSize="10"/>
                                                 </Border>
                                             </StackPanel>
@@ -787,7 +787,7 @@
                                                     FontSize="11"
                                                     Visibility="{Binding HasOverdue,
                                                         Converter={StaticResource BoolToVisibilityConverter}}">
-                                                    <Run Text="⚠  Overdue: "
+                                                    <Run Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets"/><Run Text="  Overdue: "
                                                          Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                                     <Run Text="{Binding OverdueDisplay,
                                                              Mode=OneWay}"

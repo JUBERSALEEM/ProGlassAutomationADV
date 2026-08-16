@@ -149,7 +149,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 },
                 new KpiCardModel
                 {
-                    Icon         = "✏️",
+                    Icon         = "\uE70F",
                     Title        = "Draft",
                     DisplayValue = draftCount.ToString("N0"),
                     BadgeColor   = "NeutralBrush",
