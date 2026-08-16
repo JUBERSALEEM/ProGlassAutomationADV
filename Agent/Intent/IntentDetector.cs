@@ -100,6 +100,15 @@ namespace ProGlassAutomation.Agent.Intent
                      "losing money", "loss making", "profitable" },
                 "get_profitability"),
 
+            // Document chain. Placed BEFORE the write intent and after the
+            // plain searches: these phrases are unambiguous requests to
+            // follow a document through the workflow.
+            (new[] { "document chain", "chain for", "status of pi", "linked to",
+                     "delivered so far", "how much delivered", "still pending",
+                     "remaining quantity", "which job order", "which delivery",
+                     "which tax invoice", "trace" },
+                "get_document_chain"),
+
             // PHASE Q — the only write intent.
             //
             // Ordering note: "stock" also appears in get_inventory's keys,

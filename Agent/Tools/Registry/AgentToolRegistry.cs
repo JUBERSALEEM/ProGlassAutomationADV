@@ -56,6 +56,12 @@ namespace ProGlassAutomation.Agent.Tools.Registry
                 // Profitability module can never quote different numbers.
                 new GetProfitabilityTool(),
 
+                // Document chain: PI -> Job Order -> Delivery -> Tax Invoice.
+                // Relationships come from the entities' own linkage fields,
+                // and every hop reuses the App.* repository the rest of the
+                // ERP uses - no second query layer, no DbContext.
+                new GetDocumentChainTool(),
+
                 // ── Write (PHASE Q) ───────────────────────────────────
                 //
                 // The FIRST write capability the agent has ever had.
