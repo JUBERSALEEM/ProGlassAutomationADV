@@ -516,8 +516,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                     break;
 
                 case "DGU+LAM":
-                    // Blank for now — hybrid formula pending business definition
-                    EstimatedRatePerSqm = 0m;
+                    // Was 0m "pending business definition", which meant a real
+                    // hybrid quote priced at NOTHING and nothing on screen said
+                    // so. Now costed as a THREE-pane unit: outer + air spacer +
+                    // laminated outer + interlayer + laminated inner.
+                    EstimatedRatePerSqm = CalculateDguLamRate();
                     break;
 
                 default:
@@ -598,6 +601,25 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         // ══════════════════════════════════════════════════════════════════
         //  BUG-41 [HIGH]: LAM rate — invalid yield factor no longer silent
         // ══════════════════════════════════════════════════════════════════
+
+        // ══════════════════════════════════════════════════════════════════
+        //  DGU+LAM — three panes of glass, one air spacer, one interlayer
+        //
+        //  The rule set lives on DguLamParametersViewModel.CalculateRate so
+        //  there is ONE definition of the hybrid price. This wrapper only
+        //  surfaces its warning through the existing YieldFactorWarning
+        //  channel, the same way the SGU/DGU/LAM branches do.
+        // ══════════════════════════════════════════════════════════════════
+
+        private decimal CalculateDguLamRate()
+        {
+            decimal rate = DguLamVM.CalculateRate(out string warning);
+
+            if (!string.IsNullOrWhiteSpace(warning))
+                YieldFactorWarning = warning;
+
+            return rate;
+        }
 
         private decimal CalculateLamRate()
         {

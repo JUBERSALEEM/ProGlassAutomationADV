@@ -1,10 +1,11 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.DguLamParameters.DguLamParametersView"
+<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.DguLamParameters.DguLamParametersView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              mc:Ignorable="d"
-             d:DesignHeight="500" d:DesignWidth="900"
+             d:DesignHeight="900" d:DesignWidth="900"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -12,189 +13,545 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
+    <!-- ══════════════════════════════════════════════════════════════════
+         DGU + LAM (HYBRID) PARAMETERS
+
+         Replaces the "coming soon" placeholder that used to live here.
+         Three panes of glass, one air spacer, one outsourced interlayer:
+
+             outer + ASP + lam-outer + interlayer + lam-inner
+
+         Accent is indigo throughout, so the hybrid is never mistaken at a
+         glance for the blue DGU card or the green LAM card.
+
+         NOTE ON TEXTBOXES: App.xaml carries an implicit TextBox style that
+         hard-sets Height 38. Every input below therefore uses the explicit
+         DguLamInputStyle, which owns its own template and height rather
+         than fighting the global one.
+    ══════════════════════════════════════════════════════════════════ -->
+
     <UserControl.Resources>
 
-        <!-- Bullet-item row style -->
-        <Style x:Key="BulletRowStyle" TargetType="StackPanel">
-            <Setter Property="Orientation" Value="Horizontal"/>
-            <Setter Property="Margin"      Value="0,4"/>
+        <!-- ══════════════════════════════════════════════════════════════
+             LABEL — indigo accent (hybrid identity)
+        ══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="DguLamLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize"   Value="11"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="#4338CA"/>
+            <Setter Property="Margin"     Value="0,0,0,6"/>
+        </Style>
+
+        <!-- ══════════════════════════════════════════════════════════════
+             TEXTBOX — indigo focus
+        ══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="DguLamInputStyle" TargetType="TextBox">
+            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
+            <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness"          Value="1"/>
+            <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="FontSize"                 Value="13"/>
+            <Setter Property="Padding"                  Value="12,0"/>
+            <Setter Property="Height"                   Value="38"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="CaretBrush"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="SelectionBrush"           Value="#4338CA"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="TextBox">
+                        <Border x:Name="InputBorder"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="8"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                SnapsToDevicePixels="True">
+                            <ScrollViewer x:Name="PART_ContentHost"
+                                          Focusable="False"
+                                          HorizontalScrollBarVisibility="Hidden"
+                                          VerticalScrollBarVisibility="Hidden"
+                                          Margin="{TemplateBinding Padding}"
+                                          VerticalAlignment="Center"
+                                          Background="Transparent"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="InputBorder" Property="BorderBrush" Value="#6366F1"/>
+                            </Trigger>
+                            <Trigger Property="IsFocused" Value="True">
+                                <Setter TargetName="InputBorder" Property="BorderBrush"     Value="#4338CA"/>
+                                <Setter TargetName="InputBorder" Property="BorderThickness" Value="2"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ══════════════════════════════════════════════════════════════
+             COMBOBOX — indigo focus, matches input rendering
+        ══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="DguLamComboBoxStyle" TargetType="ComboBox">
+            <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
+            <Setter Property="BorderThickness"          Value="1"/>
+            <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="FontSize"                 Value="13"/>
+            <Setter Property="Padding"                  Value="10,0"/>
+            <Setter Property="Height"                   Value="38"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="BorderBrush" Value="#6366F1"/>
+                </Trigger>
+                <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                    <Setter Property="BorderBrush"     Value="#4338CA"/>
+                    <Setter Property="BorderThickness" Value="2"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- Editable variant — colours are free text, not a closed list -->
+        <Style x:Key="DguLamEditableComboBoxStyle"
+               TargetType="ComboBox"
+               BasedOn="{StaticResource DguLamComboBoxStyle}">
+            <Setter Property="IsEditable"          Value="True"/>
+            <Setter Property="IsTextSearchEnabled" Value="True"/>
+        </Style>
+
+        <!-- Layer heading inside the card -->
+        <Style x:Key="DguLamLayerHeadingStyle" TargetType="TextBlock">
+            <Setter Property="FontSize"   Value="11"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="Margin"     Value="0,0,0,8"/>
         </Style>
 
     </UserControl.Resources>
 
     <!-- ══════════════════════════════════════════════════════════════════
-         PLACEHOLDER CARD — DGU + LAM (Hybrid) coming soon
+         HYBRID CARD
     ══════════════════════════════════════════════════════════════════ -->
     <Border Background="{DynamicResource ModuleBackgroundBrush}"
             CornerRadius="16"
-            Padding="32"
+            Padding="20"
             Margin="0,10,0,0"
             BorderThickness="1"
             BorderBrush="{DynamicResource BorderBrush}">
+        <StackPanel>
 
-        <StackPanel HorizontalAlignment="Center"
-                    VerticalAlignment="Center"
-                    MaxWidth="620">
-
-            <!-- ── Hero icon — 64×64 amber tinted with glow ── -->
-            <Border Background="{DynamicResource TintAmberBrush}"
-                    Width="72" Height="72"
-                    CornerRadius="18"
-                    HorizontalAlignment="Center"
-                    Margin="0,0,0,20">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="16"
-                                      ShadowDepth="3"
-                                      Direction="270"
-                                      Color="#B45309"
-                                      Opacity="0.25"/>
-                </Border.Effect>
-                <!-- Segoe MDL2 construction / hardhat icon -->
-                <TextBlock Text="&#xE7C1;"
-                           FontFamily="Segoe MDL2 Assets"
-                           FontSize="30"
-                           Foreground="{DynamicResource WarningBrush}"
-                           HorizontalAlignment="Center"
-                           VerticalAlignment="Center"/>
-            </Border>
-
-            <!-- ── "COMING SOON" pill above title ── -->
-            <Border Background="{DynamicResource TintAmberBrush}"
-                    BorderBrush="#FDE68A"
-                    BorderThickness="1"
-                    CornerRadius="14"
-                    Padding="14,6"
-                    HorizontalAlignment="Center"
-                    Margin="0,0,0,14">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE787;"
+            <!-- ── Section header ── -->
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                <Border Background="{DynamicResource TintPurpleBrush}"
+                        Width="26" Height="26"
+                        CornerRadius="8"
+                        VerticalAlignment="Center"
+                        Margin="0,0,10,0">
+                    <!-- Segoe MDL2 layers icon -->
+                    <TextBlock Text="&#xE81E;"
                                FontFamily="Segoe MDL2 Assets"
-                               FontSize="10"
-                               Foreground="{DynamicResource WarningBrush}"
+                               FontSize="12"
+                               Foreground="#4338CA"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+                <TextBlock Text="DGU + Lamination (Hybrid) Parameters"
+                           FontSize="13"
+                           FontWeight="Bold"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <!-- ── Live spec name preview ── -->
+            <Border Background="{DynamicResource TintPurpleBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="10"
+                    Padding="14,10"
+                    Margin="0,0,0,16">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE7C1;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="12"
+                               Foreground="#4338CA"
                                VerticalAlignment="Center"
-                               Margin="0,0,6,0"/>
-                    <TextBlock Text="COMING SOON"
-                               FontSize="10"
+                               Margin="0,0,8,0"/>
+                    <TextBlock Text="Generated Spec:"
+                               FontSize="11"
+                               FontWeight="SemiBold"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0"/>
+                    <TextBlock Text="{Binding GeneratedSpecName}"
+                               FontSize="12"
                                FontWeight="Bold"
-                               Foreground="{DynamicResource WarningBrush}"
+                               Foreground="#4338CA"
+                               TextWrapping="Wrap"
                                VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>
 
-            <!-- ── Title ── -->
-            <TextBlock Text="DGU + Laminated (Hybrid)"
-                       FontSize="20"
-                       FontWeight="Bold"
-                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                       HorizontalAlignment="Center"
-                       Margin="0,0,0,8"/>
+            <!-- ══════════════════════════════════════════════════════════
+                 LAYER 1 — OUTER GLASS (in front of the air spacer)
+            ══════════════════════════════════════════════════════════ -->
+            <TextBlock Text="LAYER 1 — OUTER GLASS"
+                       Style="{StaticResource DguLamLayerHeadingStyle}"/>
 
-            <!-- ── Subtitle ── -->
-            <TextBlock Text="Planned for the Phase 2 release"
-                       FontSize="12"
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="OUTER GLASS THK" Style="{StaticResource DguLamLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding ThicknessOptions}"
+                              SelectedItem="{Binding OuterThickness}"
+                              Style="{StaticResource DguLamComboBoxStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="OUTER GLASS COLOR" Style="{StaticResource DguLamLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding ColorOptions}"
+                              Text="{Binding OuterGlassColor, UpdateSourceTrigger=PropertyChanged}"
+                              Style="{StaticResource DguLamEditableComboBoxStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="4">
+                    <TextBlock Text="OUTER TREATMENT" Style="{StaticResource DguLamLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding TreatmentOptions}"
+                              SelectedItem="{Binding OuterTreatment}"
+                              Style="{StaticResource DguLamComboBoxStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="6">
+                    <TextBlock Text="OUTER BASE PRICE" Style="{StaticResource DguLamLabelStyle}"/>
+                    <TextBox Text="{Binding OuterBasePrice, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DguLamInputStyle}"
+                             ToolTip="AED per SQM. Auto-filled from Sheet Store selling price."/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ══════════════════════════════════════════════════════════
+                 LAYER 2 — AIR SPACER
+            ══════════════════════════════════════════════════════════ -->
+            <TextBlock Text="LAYER 2 — AIR SPACER (ASP)"
+                       Style="{StaticResource DguLamLayerHeadingStyle}"/>
+
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="2*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="SPACER WIDTH" Style="{StaticResource DguLamLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding SpacerOptions}"
+                              Text="{Binding SpacerThickness, UpdateSourceTrigger=PropertyChanged}"
+                              Style="{StaticResource DguLamEditableComboBoxStyle}"
+                              ToolTip="12mm and 16mm are standard. Type any other width if the job needs it."/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="SPACER PRICE / SQM" Style="{StaticResource DguLamLabelStyle}"/>
+                    <TextBox Text="{Binding SpacerPrice, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DguLamInputStyle}"
+                             ToolTip="AED per SQM. Includes cutting, tempering and production on the DGU side."/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="4"
+                            VerticalAlignment="Bottom"
+                            Margin="0,0,0,10">
+                    <TextBlock FontSize="11"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               TextWrapping="Wrap">
+                        <Run Text="&#xE946;" FontFamily="Segoe MDL2 Assets" Foreground="#4338CA"/>
+                        <Run Text="  The spacer rate already covers cutting, tempering and production for the DGU side, so those are not charged again below."/>
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
+
+            <!-- ══════════════════════════════════════════════════════════
+                 LAYER 3 — LAMINATED OUTER PANE
+            ══════════════════════════════════════════════════════════ -->
+            <TextBlock Text="LAYER 3 — LAMINATED OUTER PANE"
+                       Style="{StaticResource DguLamLayerHeadingStyle}"/>
+
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="LAM OUTER THK" Style="{StaticResource DguLamLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding ThicknessOptions}"
+                              SelectedItem="{Binding LamOuterThickness}"
+                              Style="{StaticResource DguLamComboBoxStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="LAM OUTER COLOR" Style="{StaticResource DguLamLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding ColorOptions}"
+                              Text="{Binding LamOuterColor, UpdateSourceTrigger=PropertyChanged}"
+                              Style="{StaticResource DguLamEditableComboBoxStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="4">
+                    <TextBlock Text="LAM OUTER TREATMENT" Style="{StaticResource DguLamLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding TreatmentOptions}"
+                              SelectedItem="{Binding LamOuterTreatment}"
+                              Style="{StaticResource DguLamComboBoxStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="6">
+                    <TextBlock Text="LAM OUTER PRICE" Style="{StaticResource DguLamLabelStyle}"/>
+                    <TextBox Text="{Binding LamOuterBasePrice, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DguLamInputStyle}"
+                             ToolTip="AED per SQM."/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ══════════════════════════════════════════════════════════
+                 LAYER 4 — INTERLAYER (OUTSOURCED)
+
+                 Bought and sold prices are BOTH captured. The sell price
+                 drives the customer quote; the buy price is what the
+                 Profit and Loss step costs the job against. Holding only
+                 one of them would make either the quote or the profit
+                 wrong.
+            ══════════════════════════════════════════════════════════ -->
+            <TextBlock Text="LAYER 4 — INTERLAYER (OUTSOURCED)"
+                       Style="{StaticResource DguLamLayerHeadingStyle}"/>
+
+            <Grid Margin="0,0,0,10">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="INTERLAYER TYPE" Style="{StaticResource DguLamLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding InterlayerTypeOptions}"
+                              SelectedItem="{Binding InterlayerType}"
+                              Style="{StaticResource DguLamComboBoxStyle}"
+                              ToolTip="Changing the type loads that material's usual bought and sold prices."/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="INTERLAYER THK" Style="{StaticResource DguLamLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding InterlayerThicknessOptions}"
+                              Text="{Binding InterlayerThickness, UpdateSourceTrigger=PropertyChanged}"
+                              Style="{StaticResource DguLamEditableComboBoxStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="4">
+                    <TextBlock Text="INTERLAYER COLOR" Style="{StaticResource DguLamLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding ColorOptions}"
+                              Text="{Binding InterlayerColor, UpdateSourceTrigger=PropertyChanged}"
+                              Style="{StaticResource DguLamEditableComboBoxStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="6">
+                    <TextBlock Text="BOUGHT PRICE / SQM" Style="{StaticResource DguLamLabelStyle}"/>
+                    <TextBox Text="{Binding InterlayerBuyPrice, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource DguLamInputStyle}"
+                             ToolTip="What the laminator charges us. Used for costing in Profit and Loss — never shown to the customer."/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="8">
+                    <TextBlock Text="SOLD PRICE / SQM" Style="{StaticResource DguLamLabelStyle}"/>
+                    <TextBox Text="{Binding InterlayerSellPrice, StringFormat={}{0:0.##}, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource DguLamInputStyle}"
+                             ToolTip="What the customer is charged. Added to the rate after the profit margin, so it is not marked up twice."/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Spread readout — catches a mistyped buy or sell price -->
+            <TextBlock Text="{Binding InterlayerMarginDisplay}"
+                       FontSize="11"
                        FontWeight="SemiBold"
                        Foreground="{DynamicResource SecondaryForegroundBrush}"
-                       HorizontalAlignment="Center"
-                       Margin="0,0,0,20"/>
+                       Margin="0,0,0,16"
+                       TextWrapping="Wrap"/>
 
-            <!-- ── Description ── -->
-            <TextBlock TextAlignment="Center"
-                       TextWrapping="Wrap"
-                       FontSize="12"
-                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                       LineHeight="20"
-                       Margin="0,0,0,24">
-                <Run Text="DGU+LAM combines an insulated glass unit with one laminated pane, delivering both thermal insulation and safety/security performance."/>
-            </TextBlock>
+            <!-- ══════════════════════════════════════════════════════════
+                 LAYER 5 — LAMINATED INNER PANE
+            ══════════════════════════════════════════════════════════ -->
+            <TextBlock Text="LAYER 5 — LAMINATED INNER PANE"
+                       Style="{StaticResource DguLamLayerHeadingStyle}"/>
 
-            <!-- ── Use cases card ── -->
-            <Border Background="{DynamicResource WindowBackgroundBrush}"
-                    BorderBrush="{DynamicResource BorderBrush}"
-                    BorderThickness="1"
-                    CornerRadius="12"
-                    Padding="20,16"
-                    Margin="0,0,0,20">
-                <StackPanel>
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-                    <TextBlock Text="COMMON APPLICATIONS"
-                               FontSize="10"
-                               FontWeight="Bold"
-                               Foreground="{DynamicResource WarningBrush}"
-                               Margin="0,0,0,10"/>
-
-                    <StackPanel Style="{StaticResource BulletRowStyle}">
-                        <TextBlock Text="&#xE915;"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="10"
-                                   Foreground="{DynamicResource WarningBrush}"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,10,0"/>
-                        <TextBlock Text="High-end architectural facades"
-                                   FontSize="12"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
-
-                    <StackPanel Style="{StaticResource BulletRowStyle}">
-                        <TextBlock Text="&#xE915;"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="10"
-                                   Foreground="{DynamicResource WarningBrush}"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,10,0"/>
-                        <TextBlock Text="Hurricane / impact-resistant glazing"
-                                   FontSize="12"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
-
-                    <StackPanel Style="{StaticResource BulletRowStyle}">
-                        <TextBlock Text="&#xE915;"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="10"
-                                   Foreground="{DynamicResource WarningBrush}"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,10,0"/>
-                        <TextBlock Text="Sound insulation for premium interiors"
-                                   FontSize="12"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
-
-                    <StackPanel Style="{StaticResource BulletRowStyle}">
-                        <TextBlock Text="&#xE915;"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="10"
-                                   Foreground="{DynamicResource WarningBrush}"
-                                   VerticalAlignment="Center"
-                                   Margin="0,0,10,0"/>
-                        <TextBlock Text="Bullet-resistant glass assemblies"
-                                   FontSize="12"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   VerticalAlignment="Center"/>
-                    </StackPanel>
-
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="LAM INNER THK" Style="{StaticResource DguLamLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding ThicknessOptions}"
+                              SelectedItem="{Binding LamInnerThickness}"
+                              Style="{StaticResource DguLamComboBoxStyle}"/>
                 </StackPanel>
-            </Border>
 
-            <!-- ── Tip footer ── -->
-            <Border Background="{DynamicResource TintIndigoBrush}"
-                    BorderBrush="#C7D2FE"
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="LAM INNER COLOR" Style="{StaticResource DguLamLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding ColorOptions}"
+                              Text="{Binding LamInnerColor, UpdateSourceTrigger=PropertyChanged}"
+                              Style="{StaticResource DguLamEditableComboBoxStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="4">
+                    <TextBlock Text="LAM INNER TREATMENT" Style="{StaticResource DguLamLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding TreatmentOptions}"
+                              SelectedItem="{Binding LamInnerTreatment}"
+                              Style="{StaticResource DguLamComboBoxStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="6">
+                    <TextBlock Text="LAM INNER PRICE" Style="{StaticResource DguLamLabelStyle}"/>
+                    <TextBox Text="{Binding LamInnerBasePrice, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DguLamInputStyle}"
+                             ToolTip="AED per SQM."/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ══════════════════════════════════════════════════════════
+                 PROCESSING — LAMINATED PANES ONLY
+
+                 Cutting and tempering are charged in the lamination panel.
+                 The outer pane's processing sits inside the spacer rate
+                 above, so charging it here as well would double-bill it.
+            ══════════════════════════════════════════════════════════ -->
+            <TextBlock Text="PROCESSING — LAMINATED PANES ONLY"
+                       Style="{StaticResource DguLamLayerHeadingStyle}"/>
+
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="LAM OUTER CUTTING" Style="{StaticResource DguLamLabelStyle}"/>
+                    <TextBox Text="{Binding LamOuterCuttingCost, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DguLamInputStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="LAM INNER CUTTING" Style="{StaticResource DguLamLabelStyle}"/>
+                    <TextBox Text="{Binding LamInnerCuttingCost, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DguLamInputStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="4">
+                    <TextBlock Text="LAM OUTER TEMPERING" Style="{StaticResource DguLamLabelStyle}"/>
+                    <TextBox Text="{Binding LamOuterTemperingCost, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DguLamInputStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="6">
+                    <TextBlock Text="LAM INNER TEMPERING" Style="{StaticResource DguLamLabelStyle}"/>
+                    <TextBox Text="{Binding LamInnerTemperingCost, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DguLamInputStyle}"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ══════════════════════════════════════════════════════════
+                 YIELD + MARGIN
+            ══════════════════════════════════════════════════════════ -->
+            <TextBlock Text="YIELD AND MARGIN"
+                       Style="{StaticResource DguLamLayerHeadingStyle}"/>
+
+            <Grid Margin="0,0,0,14">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="2*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="YIELD FACTOR" Style="{StaticResource DguLamLabelStyle}"/>
+                    <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DguLamInputStyle}"
+                             ToolTip="Applies to glass only. The interlayer is bought finished per SQM, so there is no offcut to recover on it."/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="MARGIN PROFIT %" Style="{StaticResource DguLamLabelStyle}"/>
+                    <TextBox Text="{Binding MarginProfitPercent, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DguLamInputStyle}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="4"
+                            VerticalAlignment="Bottom"
+                            Margin="0,0,0,10">
+                    <TextBlock FontSize="11"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               TextWrapping="Wrap">
+                        <Run Text="&#xE946;" FontFamily="Segoe MDL2 Assets" Foreground="#4338CA"/>
+                        <Run Text="  Rate = (three panes ÷ yield + spacer + lamination cutting and tempering) × (1 + margin), then the interlayer selling price is added on top."/>
+                    </TextBlock>
+                </StackPanel>
+            </Grid>
+
+            <!-- ══════════════════════════════════════════════════════════
+                 ESTIMATED RATE
+            ══════════════════════════════════════════════════════════ -->
+            <Border Background="{DynamicResource TintPurpleBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="1"
                     CornerRadius="10"
                     Padding="14,10">
                 <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE946;"
+                    <TextBlock Text="&#xE8EF;"
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="12"
-                               Foreground="{DynamicResource AccentBrush}"
+                               Foreground="#4338CA"
                                VerticalAlignment="Center"
-                               Margin="0,0,10,0"/>
-                    <TextBlock Text="For now, use DGU or LAM separately based on which property matters more for your project."
+                               Margin="0,0,8,0"/>
+                    <TextBlock Text="Estimated Rate:"
                                FontSize="11"
                                FontWeight="SemiBold"
-                               Foreground="{DynamicResource AccentBrush}"
-                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               VerticalAlignment="Center"
+                               Margin="0,0,8,0"/>
+                    <TextBlock Text="{Binding EstimatedRateDisplay}"
+                               FontSize="13"
+                               FontWeight="Bold"
+                               Foreground="#4338CA"
                                VerticalAlignment="Center"/>
                 </StackPanel>
             </Border>

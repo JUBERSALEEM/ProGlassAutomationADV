@@ -47,6 +47,7 @@
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.ProformaInvoice;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.DguLamParameters;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.DguParameters;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.LamParameters;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.SguParameters;
@@ -187,6 +188,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         private DguParametersViewModel? _dguVm;
         private SguParametersViewModel? _sguVm;
         private LamParametersViewModel? _lamVm;   // PHASE J
+        private DguLamParametersViewModel? _dguLamVm;   // DGU+LAM hybrid
         private Func<decimal>? _grossProvider;
 
         // ══════════════════════════════════════════════════════════════
@@ -221,17 +223,33 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             @"(?<thk>\d+)\s*mm\s+(?<color>[^+\d]+?)\s+" + TreatmentAlternation + @"\s+Glass",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
+        // Allows an optional descriptor between the width and "ASP" so
+        // "+ 12mm Black Warm Edge ASP" is recognised, not just "+ 12mm ASP".
+        // Without it a warm-edge DGU matched nothing, the spacer cost was
+        // dropped, and the hybrid below was not detected at all.
+        // The class excludes '+' and digits so it cannot run past its own
+        // layer into the next one.
         private static readonly Regex SpacerPattern = new(
-            @"\+\s*(?<mm>\d+)\s*mm\s+ASP",
+            @"\+\s*(?<mm>\d+)\s*mm\s+(?:[^+\d]*?\s+)?ASP\b",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         /// <summary>
         /// PHASE J — laminated interlayer, e.g. "+ 1.52mm Clear PVB".
         /// A LAM unit has TWO glass panes like a DGU, but the middle layer
-        /// is PVB priced per SQM of laminated area, not per LM of perimeter.
+        /// is an interlayer priced per SQM of laminated area, not per LM of
+        /// perimeter.
+        ///
+        /// SGP and EVA are matched alongside PVB. All three are sold as
+        /// interlayers, and a spec naming SGP or EVA used to match nothing
+        /// here: its bonded pane and its interlayer cost both vanished from
+        /// the report while the job looked correctly costed.
+        ///
+        /// The colour group is bounded to [^+\d] — an unbounded ".+?" ran
+        /// straight through the '+' separators and, on the DGU+LAM hybrid,
+        /// captured "ASP + 6mm Clear FT Glass + 1.52mm Clear" as a colour.
         /// </summary>
         private static readonly Regex PvbPattern = new(
-            @"\+\s*(?<mm>[\d\.]+)\s*mm\s+(?<color>.+?)\s+PVB",
+            @"\+\s*(?<mm>[\d\.]+)\s*mm\s+(?<color>[^+\d]+?)\s+(?<type>PVB|SGP|EVA)\b",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         // ══════════════════════════════════════════════════════════════
@@ -489,12 +507,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             DguParametersViewModel? dguVm,
             SguParametersViewModel? sguVm,
             Func<decimal>? grossProvider,
-            LamParametersViewModel? lamVm = null)
+            LamParametersViewModel? lamVm = null,
+            DguLamParametersViewModel? dguLamVm = null)
         {
             _dataGrid = dataGrid;
             _dguVm = dguVm;
             _sguVm = sguVm;
             _lamVm = lamVm;
+            _dguLamVm = dguLamVm;
             _grossProvider = grossProvider;
         }
 
@@ -562,6 +582,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             .IndexOf("LAM", StringComparison.OrdinalIgnoreCase) >= 0
                         || pvbDetected;
 
+                    // ══════════════════════════════════════════════════════
+                    //  DGU+LAM — a THREE-pane hybrid:
+                    //     outer + ASP + lam-outer + interlayer + lam-inner
+                    //
+                    //  It shows BOTH a spacer and an interlayer, which is the
+                    //  only build that does. The outer/inner assumption below
+                    //  costed just two of its three sheets and silently threw
+                    //  a whole pane of glass away, so panes are now taken
+                    //  from the spec itself rather than assumed.
+                    // ══════════════════════════════════════════════════════
+                    bool isDguLam = spacerDetected && pvbDetected;
+
                     // Either construction has a second pane to cost.
                     bool hasInnerPane = isDgu || isLam;
 
@@ -575,7 +607,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     var outerMatch = glassMatches.FirstOrDefault();
 
                     Match? innerMatch = null;
-                    if (hasInnerPane && glassMatches.Count > 0)
+                    if (isDguLam)
+                    {
+                        // Three-pane hybrid: cost EVERY pane the spec names.
+                        // Handled in its own block below so the two-pane
+                        // outer/inner logic is left exactly as it was for
+                        // plain DGU and plain LAM units.
+                    }
+                    else if (hasInnerPane && glassMatches.Count > 0)
                     {
                         // Inner pane starts after the middle layer (ASP or
                         // PVB), so a two-pane unit never double-counts the
@@ -589,7 +628,32 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     }
 
                     // ── Glass rows ────────────────────────────────────────
-                    if (outerMatch != null)
+                    if (isDguLam)
+                    {
+                        // One row per pane actually present in the spec.
+                        // Labels follow the physical build so the P&L reads
+                        // the same way the glass is assembled.
+                        string[] paneLabels = { "Outer", "Lam Outer", "Lam Inner" };
+
+                        for (int paneIndex = 0; paneIndex < glassMatches.Count; paneIndex++)
+                        {
+                            string paneLabel = paneIndex < paneLabels.Length
+                                ? paneLabels[paneIndex]
+                                : $"Pane {paneIndex + 1}";
+
+                            var paneRow = await BuildGlassRowAsync(
+                                group, paneLabel, glassMatches[paneIndex], cutSqm)
+                                .ConfigureAwait(true);
+
+                            if (paneRow != null)
+                            {
+                                rows.Add(paneRow);
+                                glassCost += paneRow.Amount;
+                            }
+                            else skipped++;
+                        }
+                    }
+                    else if (outerMatch != null)
                     {
                         var row = await BuildGlassRowAsync(
                             group, "Outer", outerMatch, cutSqm)
@@ -603,7 +667,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         else skipped++;
                     }
 
-                    if (hasInnerPane && innerMatch != null)
+                    if (!isDguLam && hasInnerPane && innerMatch != null)
                     {
                         var row = await BuildGlassRowAsync(
                             group, "Inner", innerMatch, cutSqm)
@@ -618,7 +682,89 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     }
 
                     // ── Production rows ───────────────────────────────────
-                    if (isDgu)
+                    // DGU+LAM is tested FIRST: it satisfies both isDgu and
+                    // isLam, so either of those branches would claim it and
+                    // charge only half its production.
+                    if (isDguLam)
+                    {
+                        // ══════════════════════════════════════════════════
+                        //  DGU+LAM production has THREE parts:
+                        //
+                        //   1. Air spacer, per SQM, which the business says
+                        //      already covers cutting, tempering and
+                        //      production on the DGU side.
+                        //   2. The outsourced interlayer, costed at what we
+                        //      PAY the laminator (InterlayerBuyPrice). The
+                        //      customer-facing 110 belongs in Step 4's sell
+                        //      rate; costing the job at 110 would erase the
+                        //      spread the business actually earns and report
+                        //      a profit lower than reality.
+                        //   3. Cutting and tempering on the two laminated
+                        //      panes only — the business charges these "in
+                        //      the lamination panel", and the outer pane's
+                        //      processing is already inside the ASP rate.
+                        // ══════════════════════════════════════════════════
+                        decimal spacerPrice = _dguLamVm?.SpacerPrice ?? 0m;
+
+                        if (spacerPrice > 0m)
+                        {
+                            int spacerMm = ParseInt(spacerMatch.Groups["mm"].Value);
+                            decimal spacerAmount = Math.Round(cutSqm * spacerPrice, 2);
+
+                            rows.Add(new ProfitLossRow
+                            {
+                                Kind = "Spacer",
+                                SpecNumber = group.GroupNumber,
+                                SpecName = group.SelectedSpecName ?? "",
+                                Description = BuildRowDescription(
+                                    group,
+                                    $"{spacerMm}mm ASP (includes cutting, tempering and production)",
+                                    $"{cutSqm:0.##} SQM"),
+                                Quantity = Math.Round(cutSqm, 2),
+                                PricePerSqm = spacerPrice,
+                                Amount = spacerAmount
+                            });
+
+                            productionCost += spacerAmount;
+                        }
+
+                        decimal interlayerBuy = _dguLamVm?.InterlayerBuyPrice ?? 0m;
+
+                        decimal lamProcessing =
+                            (_dguLamVm?.LamOuterCuttingCost ?? 0m) +
+                            (_dguLamVm?.LamInnerCuttingCost ?? 0m) +
+                            (_dguLamVm?.LamOuterTemperingCost ?? 0m) +
+                            (_dguLamVm?.LamInnerTemperingCost ?? 0m);
+
+                        decimal lamRate = interlayerBuy + lamProcessing;
+
+                        if (lamRate > 0m)
+                        {
+                            decimal lamAmount = Math.Round(cutSqm * lamRate, 2);
+
+                            string interlayerType = _dguLamVm?.InterlayerType ?? "PVB";
+                            string interlayerMm = pvbMatch.Groups["mm"].Value;
+
+                            string lamLabel = interlayerMm.Length > 0
+                                ? $"{interlayerMm}mm {interlayerType} interlayer (outsourced) + cutting/tempering (laminated panes)"
+                                : $"{interlayerType} interlayer (outsourced) + cutting/tempering (laminated panes)";
+
+                            rows.Add(new ProfitLossRow
+                            {
+                                Kind = "Production",
+                                SpecNumber = group.GroupNumber,
+                                SpecName = group.SelectedSpecName ?? "",
+                                Description = BuildRowDescription(
+                                    group, lamLabel, $"{cutSqm:0.##} SQM"),
+                                Quantity = Math.Round(cutSqm, 2),
+                                PricePerSqm = lamRate,
+                                Amount = lamAmount
+                            });
+
+                            productionCost += lamAmount;
+                        }
+                    }
+                    else if (isDgu)
                     {
                         // ══════════════════════════════════════════════════
                         //  ASP IS PRICED PER SQM, NOT PER LINEAR METRE.
@@ -696,9 +842,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                 ? pvbMatch.Groups["mm"].Value
                                 : "";
 
+                            // Report the interlayer the spec actually names.
+                            // Now that SGP and EVA are matched, hardcoding
+                            // "PVB" would print the wrong material on a real
+                            // cost line.
+                            string pvbType = pvbDetected
+                                ? pvbMatch.Groups["type"].Value.ToUpperInvariant()
+                                : "PVB";
+
                             string label = pvbMm.Length > 0
-                                ? $"{pvbMm}mm PVB interlayer + cutting/tempering (both panes)"
-                                : "PVB interlayer + cutting/tempering (both panes)";
+                                ? $"{pvbMm}mm {pvbType} interlayer + cutting/tempering (both panes)"
+                                : $"{pvbType} interlayer + cutting/tempering (both panes)";
 
                             rows.Add(new ProfitLossRow
                             {

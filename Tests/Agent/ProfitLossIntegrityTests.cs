@@ -27,6 +27,14 @@ namespace ProGlassAutomation.Tests.Agent
 
         private const string SguSpec = "6mm Clear FT Glass";
 
+        /// <summary>
+        /// The DGU+LAM hybrid: outer + air spacer + laminated pair.
+        /// THREE panes, not two.
+        /// </summary>
+        private const string DguLamSpec =
+            "6mm HD Grey FT Glass + 12mm ASP + 6mm Clear FT Glass " +
+            "+ 1.52mm Clear PVB + 6mm Clear FT Glass";
+
         private static ProfitLossSnapshot Snapshot(params (string Spec, string Kind)[] rows)
         {
             var snap = new ProfitLossSnapshot();
@@ -159,6 +167,102 @@ namespace ProGlassAutomation.Tests.Agent
                      "Glass")));
 
             Assert.True(result.NeedsRecalculation);
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  DGU+LAM — THREE PANES
+        //
+        //  The hybrid carries both a spacer and an interlayer. A check that
+        //  counted "two panes" passed a hybrid missing its third sheet as
+        //  correctly costed, which is the original bug one pane deeper.
+        // ══════════════════════════════════════════════════════════════
+
+        [Fact]
+        public void DguLam_with_all_three_glass_rows_is_clean()
+        {
+            var result = ProfitLossIntegrityCheck.ScanSnapshot(
+                Snapshot(
+                    (DguLamSpec, "Glass"),
+                    (DguLamSpec, "Glass"),
+                    (DguLamSpec, "Glass"),
+                    (DguLamSpec, "Spacer"),
+                    (DguLamSpec, "Production")));
+
+            Assert.False(result.NeedsRecalculation);
+        }
+
+        [Fact]
+        public void DguLam_with_only_two_glass_rows_is_flagged()
+        {
+            // This is the case the two-pane rule let through: the hybrid
+            // looks like a satisfied DGU while a whole laminated pane is
+            // missing from the cost.
+            var result = ProfitLossIntegrityCheck.ScanSnapshot(
+                Snapshot(
+                    (DguLamSpec, "Glass"),
+                    (DguLamSpec, "Glass"),
+                    (DguLamSpec, "Spacer")));
+
+            Assert.True(result.NeedsRecalculation);
+            Assert.Contains(DguLamSpec, result.AffectedSpecs);
+        }
+
+        [Fact]
+        public void DguLam_with_one_glass_row_is_flagged()
+        {
+            var result = ProfitLossIntegrityCheck.ScanSnapshot(
+                Snapshot((DguLamSpec, "Glass")));
+
+            Assert.True(result.NeedsRecalculation);
+        }
+
+        [Fact]
+        public void DguLam_with_sgp_interlayer_expects_three_panes()
+        {
+            // SGP and EVA are sold as interlayers alongside PVB, so they
+            // must mark a pane boundary the same way.
+            const string sgpHybrid =
+                "6mm HD Grey FT Glass + 16mm Black Warm Edge ASP " +
+                "+ 6mm Clear FT Glass + 1.52mm Clear SGP + 6mm Clear FT Glass";
+
+            var twoRows = ProfitLossIntegrityCheck.ScanSnapshot(
+                Snapshot((sgpHybrid, "Glass"), (sgpHybrid, "Glass")));
+
+            Assert.True(twoRows.NeedsRecalculation);
+
+            var threeRows = ProfitLossIntegrityCheck.ScanSnapshot(
+                Snapshot(
+                    (sgpHybrid, "Glass"),
+                    (sgpHybrid, "Glass"),
+                    (sgpHybrid, "Glass")));
+
+            Assert.False(threeRows.NeedsRecalculation);
+        }
+
+        [Fact]
+        public void Eva_interlayer_is_recognised_as_a_pane_boundary()
+        {
+            const string evaLam =
+                "6mm Clear FT Glass + 0.76mm Clear EVA + 6mm Clear FT Glass";
+
+            var result = ProfitLossIntegrityCheck.ScanSnapshot(
+                Snapshot((evaLam, "Glass")));
+
+            Assert.True(result.NeedsRecalculation);
+        }
+
+        [Fact]
+        public void Extra_glass_rows_are_never_accused()
+        {
+            // More rows than panes is not the understating bug this check
+            // hunts. Staying quiet keeps the warning meaningful.
+            var result = ProfitLossIntegrityCheck.ScanSnapshot(
+                Snapshot(
+                    (DguSpec, "Glass"),
+                    (DguSpec, "Glass"),
+                    (DguSpec, "Glass")));
+
+            Assert.False(result.NeedsRecalculation);
         }
 
         [Fact]

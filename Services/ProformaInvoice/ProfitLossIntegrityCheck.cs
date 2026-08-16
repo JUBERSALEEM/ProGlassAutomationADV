@@ -73,18 +73,54 @@ namespace ProGlassAutomation.Services.ProformaInvoice
     /// <summary>Read-only inspector. Changes nothing, ever.</summary>
     public static class ProfitLossIntegrityCheck
     {
+        // A middle layer marks a pane boundary. These two patterns replaced
+        // a single combined ASP|PVB one once the DGU+LAM hybrid arrived:
+        // that build shows BOTH markers and needs them counted separately
+        // to arrive at three panes rather than two.
+        //
+        // Both keep the bounded lazy colour class [^+\d]*? — an unbounded
+        // wildcard walked straight across the '+' separators and matched
+        // layers it had no business matching.
+
         /// <summary>
-        /// A middle layer means the unit has TWO panes: an air spacer (DGU)
-        /// or a PVB interlayer (laminated).
-        ///
-        /// PVB is included because the same regex bug affected laminated
-        /// units — the lazy colour wildcard crossed any '+', not just the
-        /// one before ASP. Checking only ASP would have left every LAM job
-        /// silently mis-costed while reporting the DGUs as handled.
+        /// An air spacer on its own — the DGU half of a build.
         /// </summary>
-        private static readonly Regex TwoPaneMarker = new(
-            @"\+\s*[\d\.]+\s*mm\s+(?:[^+\d]*?\s+)?(?:ASP|PVB)\b",
+        private static readonly Regex SpacerMarker = new(
+            @"\+\s*[\d\.]+\s*mm\s+(?:[^+\d]*?\s+)?ASP\b",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        /// <summary>
+        /// A laminating interlayer — the LAM half of a build. SGP and EVA
+        /// are listed alongside PVB because all three are sold as
+        /// interlayers and a spec naming any of them has a bonded pane
+        /// behind it.
+        /// </summary>
+        private static readonly Regex InterlayerMarker = new(
+            @"\+\s*[\d\.]+\s*mm\s+(?:[^+\d]*?\s+)?(?:PVB|SGP|EVA)\b",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
+        /// <summary>
+        /// How many panes of glass a spec name says the unit contains.
+        ///
+        /// A spec carrying BOTH a spacer and an interlayer is the DGU+LAM
+        /// hybrid: outer + ASP + lam-outer + interlayer + lam-inner, which
+        /// is THREE panes. Counting it as two would let a hybrid that lost
+        /// its third pane pass as correctly costed — the very failure this
+        /// check exists to catch, one pane deeper.
+        ///
+        /// Returns 1 for anything unrecognised, so an unfamiliar spec is
+        /// never accused.
+        /// </summary>
+        private static int ExpectedPaneCount(string specName)
+        {
+            bool hasSpacer = SpacerMarker.IsMatch(specName);
+            bool hasInterlayer = InterlayerMarker.IsMatch(specName);
+
+            if (hasSpacer && hasInterlayer) return 3;
+            if (hasSpacer || hasInterlayer) return 2;
+
+            return 1;
+        }
 
         /// <summary>
         /// Inspects one saved snapshot. Never throws — a check that can
@@ -126,8 +162,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                     glassBySpec[spec] = n + 1;
                 }
 
+                // Flag a spec only when it holds FEWER glass rows than its
+                // own name says it has panes. Extra rows are never accused:
+                // an unexpected surplus is not the understating bug this
+                // check hunts, and guessing at it would produce noise.
                 var affected = glassBySpec
-                    .Where(kv => TwoPaneMarker.IsMatch(kv.Key) && kv.Value < 2)
+                    .Where(kv => kv.Value < ExpectedPaneCount(kv.Key))
                     .Select(kv => kv.Key)
                     .ToList();
 
@@ -135,9 +175,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice
                     return ProfitLossIntegrityResult.Clean();
 
                 return ProfitLossIntegrityResult.Suspect(
-                    $"{affected.Count} two-pane spec(s) — double-glazed or " +
-                    "laminated — were costed with only one glass pane. The " +
-                    "inner pane is missing, so the " +
+                    $"{affected.Count} multi-pane spec(s) — double-glazed, " +
+                    "laminated, or both — were costed with fewer glass panes " +
+                    "than the specification lists. Missing panes mean the " +
                     "cost is understated and the profit overstated. Open this " +
                     "invoice, recalculate Step 9, and save.",
                     affected);

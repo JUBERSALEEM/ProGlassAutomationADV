@@ -282,7 +282,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 Step4VM.DguVM,
                 Step4VM.SguVM,
                 () => Step7VM.InvoiceMainSummary.GrandTotalVatInclusive,
-                Step4VM.LamVM);   // PHASE J: laminated costing
+                Step4VM.LamVM,      // PHASE J: laminated costing
+                Step4VM.DguLamVM);  // DGU+LAM: three-pane hybrid costing
 
             // Let the printable invoice reach the P&L so the mapper can
             // persist it inside the snapshot (additive, nullable link).

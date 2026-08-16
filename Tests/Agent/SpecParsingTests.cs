@@ -43,12 +43,16 @@ namespace ProGlassAutomation.Tests.Agent
             @"(?<thk>\d+)\s*mm\s+(?<color>[^+\d]+?)\s+" + TreatmentAlternation + @"\s+Glass",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
+        // MIRRORS ProfitLossStepViewModel.SpacerPattern. Kept in step by
+        // hand — if the production pattern changes, change it here too, or
+        // these tests will keep passing against a regex that no longer ships.
         private static readonly Regex SpacerPattern = new(
-            @"\+\s*(?<mm>\d+)\s*mm\s+ASP",
+            @"\+\s*(?<mm>\d+)\s*mm\s+(?:[^+\d]*?\s+)?ASP\b",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
+        // MIRRORS ProfitLossStepViewModel.PvbPattern.
         private static readonly Regex PvbPattern = new(
-            @"\+\s*(?<mm>[\d\.]+)\s*mm\s+(?<color>.+?)\s+PVB",
+            @"\+\s*(?<mm>[\d\.]+)\s*mm\s+(?<color>[^+\d]+?)\s+(?<type>PVB|SGP|EVA)\b",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         /// <summary>Reproduces the view-model's outer/inner resolution.</summary>
@@ -192,6 +196,73 @@ namespace ProGlassAutomation.Tests.Agent
             // And the colour class must still exclude '+' and digits —
             // the two exclusions that fix the bug.
             Assert.Contains("[^+", GlassPattern.ToString());
+        }
+    
+        // ══════════════════════════════════════════════════════════════
+        //  DGU+LAM HYBRID — spacer AND interlayer in one spec
+        // ══════════════════════════════════════════════════════════════
+
+        private const string HybridSpec =
+            "6mm HD Grey FT Glass + 12mm ASP + 6mm Clear FT Glass " +
+            "+ 1.52mm Clear PVB + 6mm Clear FT Glass";
+
+        [Fact]
+        public void Hybrid_spec_yields_three_glass_panes()
+        {
+            var matches = GlassPattern.Matches(HybridSpec);
+
+            Assert.Equal(3, matches.Count);
+        }
+
+        [Fact]
+        public void Hybrid_spec_matches_both_spacer_and_interlayer()
+        {
+            // Both must match, or the hybrid is mistaken for a plain DGU
+            // or a plain LAM and half its cost disappears.
+            Assert.True(SpacerPattern.IsMatch(HybridSpec));
+            Assert.True(PvbPattern.IsMatch(HybridSpec));
+        }
+
+        [Fact]
+        public void Hybrid_interlayer_colour_does_not_swallow_other_layers()
+        {
+            // The unbounded ".+?" captured
+            // "ASP + 6mm Clear FT Glass + 1.52mm Clear" here.
+            var m = PvbPattern.Match(HybridSpec);
+
+            Assert.True(m.Success);
+            Assert.Equal("Clear", m.Groups["color"].Value);
+            Assert.DoesNotContain("ASP", m.Groups["color"].Value);
+            Assert.DoesNotContain("+", m.Groups["color"].Value);
+        }
+
+        [Theory]
+        [InlineData("SGP")]
+        [InlineData("EVA")]
+        public void Sgp_and_eva_interlayers_are_matched(string interlayerType)
+        {
+            // These matched nothing before, so their bonded pane and their
+            // material cost both vanished from the report.
+            string spec =
+                "6mm Clear FT Glass + 1.52mm Clear " + interlayerType +
+                " + 6mm Clear FT Glass";
+
+            var m = PvbPattern.Match(spec);
+
+            Assert.True(m.Success);
+            Assert.Equal(interlayerType, m.Groups["type"].Value);
+        }
+
+        [Fact]
+        public void Multi_word_spacer_descriptor_is_matched()
+        {
+            // "Black Warm Edge ASP" matched nothing, so the spacer cost was
+            // dropped from every warm-edge unit.
+            var m = SpacerPattern.Match(
+                "6mm Clear FT Glass + 16mm Black Warm Edge ASP + 6mm Clear FT Glass");
+
+            Assert.True(m.Success);
+            Assert.Equal("16", m.Groups["mm"].Value);
         }
     }
 }
