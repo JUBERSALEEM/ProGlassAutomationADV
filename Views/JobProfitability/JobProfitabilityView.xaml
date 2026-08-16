@@ -369,6 +369,10 @@
                                                         <DataTrigger Binding="{Binding IsLoss}" Value="True">
                                                             <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
                                                         </DataTrigger>
+                                                        <DataTrigger Binding="{Binding NeedsRecalculation}" Value="True">
+                                                            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
+                                                            <Setter Property="FontWeight" Value="Bold"/>
+                                                        </DataTrigger>
                                                         <DataTrigger Binding="{Binding IsCosted}" Value="False">
                                                             <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
                                                             <Setter Property="FontWeight" Value="Normal"/>
@@ -378,9 +382,16 @@
                                             </TextBlock.Style>
                                         </TextBlock>
 
+                                        <!-- Stale-costing marker. Sits in the
+                                             MARGIN cell because that is the
+                                             number most likely to be trusted
+                                             and acted on. Amber, not red:
+                                             the figure is wrong, but the job
+                                             is not necessarily a loss. -->
                                         <TextBlock Grid.Column="7"
                                                    Text="{Binding MarginDisplay}"
-                                                   HorizontalAlignment="Right">
+                                                   HorizontalAlignment="Right"
+                                                   ToolTip="{Binding RecalculationWarning}">
                                             <TextBlock.Style>
                                                 <Style TargetType="TextBlock" BasedOn="{StaticResource JpCellStyle}">
                                                     <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>

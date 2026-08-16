@@ -28,6 +28,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Services.ProformaInvoice;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using System;
 using System.Collections.Generic;
@@ -67,6 +68,16 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
         /// <summary>True when this job lost money.</summary>
         public bool IsLoss { get; set; }
+
+        /// <summary>
+        /// True when the stored P&amp;L was produced by the pre-fix DGU/LAM
+        /// costing, which dropped the inner pane. The profit shown is
+        /// OVERSTATED until Step 9 is recalculated and saved.
+        /// </summary>
+        public bool NeedsRecalculation { get; set; }
+
+        /// <summary>Why it is flagged. Empty when it is not.</summary>
+        public string RecalculationWarning { get; set; } = "";
 
         /// <summary>
         /// False for invoices saved before Step 9 existed (no stored P&amp;L).
@@ -382,6 +393,10 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                     //  reports how many jobs are affected so the emptiness
                     //  is explained instead of just observed.
                     // ══════════════════════════════════════════════════
+                    // Detect figures produced before the inner-pane fix.
+                    // Read-only: it reports, it never rewrites saved money.
+                    var integrity = ProfitLossIntegrityCheck.ScanSnapshot(pl);
+
                     bool costed = pl != null
                                   && (pl.Rows.Count > 0
                                       || cost > 0m
@@ -444,7 +459,9 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                         Profit = profit,
                         MarginPercent = margin,
                         IsLoss = costed && profit < 0m,
-                        IsCosted = costed
+                        IsCosted = costed,
+                        NeedsRecalculation = costed && integrity.NeedsRecalculation,
+                        RecalculationWarning = integrity.Reason
                     });
                 }
 
@@ -574,6 +591,17 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             int uncosted = rows.Count(r => !r.IsCosted);
 
             string basis = $"{rows.Count} of {_allRows.Count} job(s) shown.";
+
+            // Stale costings first: an overstated profit is more dangerous
+            // than a blank one, because it looks like a real number.
+            int stale = rows.Count(r => r.NeedsRecalculation);
+
+            if (stale > 0)
+            {
+                basis += $"  ⚠ {stale} job(s) show OVERSTATED profit — costed " +
+                         "before the inner-pane fix. Reopen each, recalculate " +
+                         "Step 9, then save.";
+            }
 
             if (uncosted > 0)
             {
