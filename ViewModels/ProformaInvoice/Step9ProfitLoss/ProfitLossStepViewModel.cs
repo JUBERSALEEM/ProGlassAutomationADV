@@ -196,8 +196,29 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         private const string TreatmentAlternation =
             @"(?:FT|Annealed|Heat\s+Strengthened|Heat\s+Soaked)";
 
+        /// <summary>
+        /// One glass pane, e.g. "6mm HD Grey FT Glass".
+        ///
+        /// THE COLOUR CLASS EXCLUDES '+' AND DIGITS, AND THAT IS
+        /// LOAD-BEARING — IT IS WHY THE INNER PANE WAS BEING SKIPPED.
+        ///
+        /// The colour was previously (?&lt;color&gt;.+?), a lazy wildcard that
+        /// happily crosses the '+' separator. On
+        ///
+        ///     "6mm HD Grey FT Glass + 12mm ASP + 6mm Clear FT Glass"
+        ///
+        /// the second match therefore began at the SPACER, taking thk=12
+        /// and colour="ASP + 6mm Clear". The inner-pane search then looked
+        /// for a match starting after the spacer and found none, because
+        /// the only remaining match had already been consumed by that
+        /// bogus one. Result: DGUs were costed with the outer pane only,
+        /// understating glass cost on every double-glazed job.
+        ///
+        /// [^+\d]+? cannot span a '+' or a thickness digit, so each pane
+        /// matches exactly its own segment.
+        /// </summary>
         private static readonly Regex GlassPattern = new(
-            @"(?<thk>\d+)\s*mm\s+(?<color>.+?)\s+" + TreatmentAlternation + @"\s+Glass",
+            @"(?<thk>\d+)\s*mm\s+(?<color>[^+\d]+?)\s+" + TreatmentAlternation + @"\s+Glass",
             RegexOptions.IgnoreCase | RegexOptions.Compiled);
 
         private static readonly Regex SpacerPattern = new(
