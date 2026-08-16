@@ -325,6 +325,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 if (_wastagePercent == value) return;
                 _wastagePercent = value < 0m ? 0m : value;
                 OnPropertyChanged();
+
+                // Wastage feeds the sheet count, which feeds every glass
+                // amount and therefore the profit. Editing the box used to
+                // change nothing on screen until the user happened to press
+                // Refresh, so the figures shown did not match the wastage
+                // shown -- the same screen reported two different jobs.
+                _ = RecalculateAsync();
             }
         }
 
@@ -367,6 +374,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 _totalGlassCost = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(GlassCostDisplay));
+                OnPropertyChanged(nameof(MarkupPercent));
+                OnPropertyChanged(nameof(MarkupDisplay));
             }
         }
 
@@ -381,6 +390,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 _totalProductionCost = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(ProductionCostDisplay));
+                OnPropertyChanged(nameof(MarkupPercent));
+                OnPropertyChanged(nameof(MarkupDisplay));
             }
         }
 
@@ -396,6 +407,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(ProfitDisplay));
                 OnPropertyChanged(nameof(ProfitLabel));
+                OnPropertyChanged(nameof(MarkupPercent));
+                OnPropertyChanged(nameof(MarkupDisplay));
             }
         }
 
@@ -477,6 +490,36 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 ? $"AED -{Math.Abs(Profit):N2}"
                 : $"AED {Math.Abs(Profit):N2}";
         public string MarginDisplay => $"{MarginPercent:0.#}% margin";
+
+        /// <summary>
+        /// Mark-up actually achieved over total cost, which is the number
+        /// Step 4's "margin profit %" box sets.
+        ///
+        /// The two are different measures and used to be easy to confuse:
+        ///   MarginPercent = profit / NET REVENUE   (accounting margin)
+        ///   MarkupPercent = profit / TOTAL COST    (Step 4's setting)
+        ///
+        /// A DGU quoted at Step 4's 15% comes out at 150.51/SQM. Discount it
+        /// to 140 and the mark-up actually earned drops to about 7%, while
+        /// the accounting margin only moves from 21.6% to 15.7%. Showing the
+        /// mark-up makes the cost of a discount visible in the same units the
+        /// price was set in.
+        /// </summary>
+        public decimal MarkupPercent
+        {
+            get
+            {
+                decimal cost = TotalGlassCost + TotalProductionCost;
+                if (cost <= 0m) return 0m;
+                return Math.Round(Profit / cost * 100m, 1);
+            }
+        }
+
+        /// <summary>Reads "7% mark-up over cost", or explains why it cannot.</summary>
+        public string MarkupDisplay =>
+            (TotalGlassCost + TotalProductionCost) <= 0m
+                ? "mark-up not calculable — no costed rows"
+                : $"{MarkupPercent:0.#}% mark-up over cost";
 
         /// <summary>Tile caption — flips wording instead of showing a minus sign.</summary>
         public string ProfitLabel => IsLoss ? "LOSS" : "PROFIT";
@@ -628,6 +671,27 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     }
 
                     // ── Glass rows ────────────────────────────────────────
+                    //
+                    //  ROW ORDER MIRRORS THE PHYSICAL BUILD.
+                    //
+                    //  Rows used to come out as: every pane of glass first,
+                    //  then the spacer and interlayer underneath. That reads
+                    //  nothing like the product and made a DGU indistinguishable
+                    //  from a laminate at a glance.
+                    //
+                    //  The layer rows are produced below as before, but they
+                    //  are captured into `middleRows` instead of being appended,
+                    //  then spliced in after the outer pane:
+                    //
+                    //      DGU      outer · ASP · inner
+                    //      LAM      outer · PVB/SGP/EVA · inner
+                    //      DGU+LAM  outer · ASP · lam outer · interlayer · lam inner
+                    //
+                    //  Only the ORDER changes. Every amount, every total and
+                    //  every Kind is exactly what it was.
+                    int spacerInsertAt = -1;
+                    int interlayerInsertAt = -1;
+
                     if (isDguLam)
                     {
                         // One row per pane actually present in the spec.
@@ -651,6 +715,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                 glassCost += paneRow.Amount;
                             }
                             else skipped++;
+
+                            // The spacer sits between pane 1 and pane 2, and
+                            // the interlayer between pane 2 and pane 3, so
+                            // remember where each boundary fell.
+                            if (paneIndex == 0) spacerInsertAt = rows.Count;
+                            if (paneIndex == 1) interlayerInsertAt = rows.Count;
                         }
                     }
                     else if (outerMatch != null)
@@ -667,6 +737,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         else skipped++;
                     }
 
+                    // Two-pane builds: the middle layer belongs immediately
+                    // after the outer pane, before the inner one is appended.
+                    if (!isDguLam) spacerInsertAt = rows.Count;
+
                     if (!isDguLam && hasInnerPane && innerMatch != null)
                     {
                         var row = await BuildGlassRowAsync(
@@ -679,6 +753,28 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             glassCost += row.Amount;
                         }
                         else skipped++;
+                    }
+
+                    // Splice a layer row into build order rather than
+                    // appending it, returning the next insert position.
+                    //
+                    // Takes and returns the index by value: a local function
+                    // cannot take `ref` to a captured outer variable, and the
+                    // two call sites need different counters anyway.
+                    //
+                    // Falls back to appending when the position was never set,
+                    // so an unrecognised shape still reports its costs instead
+                    // of silently dropping them.
+                    int AddLayerRow(ProfitLossRow layerRow, int at)
+                    {
+                        if (at >= 0 && at <= rows.Count)
+                        {
+                            rows.Insert(at, layerRow);
+                            return at + 1;
+                        }
+
+                        rows.Add(layerRow);
+                        return at;
                     }
 
                     // ── Production rows ───────────────────────────────────
@@ -714,7 +810,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             int spacerMm = ParseInt(spacerMatch.Groups["mm"].Value);
                             decimal spacerAmount = Math.Round(cutSqm * spacerPrice, 2);
 
-                            rows.Add(new ProfitLossRow
+                            spacerInsertAt = AddLayerRow(new ProfitLossRow
                             {
                                 Kind = "Spacer",
                                 SpecNumber = group.GroupNumber,
@@ -726,7 +822,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                 Quantity = Math.Round(cutSqm, 2),
                                 PricePerSqm = spacerPrice,
                                 Amount = spacerAmount
-                            });
+                            }, spacerInsertAt);
+
+                            // Inserting the spacer pushed every later row one
+                            // place right, including the boundary the
+                            // interlayer was going to use. Without this the
+                            // hybrid came out as outer, spacer, interlayer,
+                            // lam-outer, lam-inner -- the interlayer floating
+                            // above the pane it bonds.
+                            if (interlayerInsertAt >= spacerInsertAt - 1)
+                                interlayerInsertAt++;
 
                             productionCost += spacerAmount;
                         }
@@ -751,7 +856,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                 ? $"{interlayerMm}mm {interlayerType} interlayer (outsourced) + cutting/tempering (all three panes)"
                                 : $"{interlayerType} interlayer (outsourced) + cutting/tempering (all three panes)";
 
-                            rows.Add(new ProfitLossRow
+                            interlayerInsertAt = AddLayerRow(new ProfitLossRow
                             {
                                 Kind = "Production",
                                 SpecNumber = group.GroupNumber,
@@ -761,7 +866,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                 Quantity = Math.Round(cutSqm, 2),
                                 PricePerSqm = lamRate,
                                 Amount = lamAmount
-                            });
+                            }, interlayerInsertAt);
 
                             productionCost += lamAmount;
                         }
@@ -803,7 +908,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
                             decimal amount = Math.Round(cutSqm * spacerPrice, 2);
 
-                            rows.Add(new ProfitLossRow
+                            spacerInsertAt = AddLayerRow(new ProfitLossRow
                             {
                                 Kind = "Spacer",
                                 SpecNumber = group.GroupNumber,
@@ -815,7 +920,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                 Quantity = Math.Round(cutSqm, 2),
                                 PricePerSqm = spacerPrice,
                                 Amount = amount
-                            });
+                            }, spacerInsertAt);
 
                             productionCost += amount;
                         }
@@ -856,7 +961,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                 ? $"{pvbMm}mm {pvbType} interlayer + cutting/tempering (both panes)"
                                 : $"{pvbType} interlayer + cutting/tempering (both panes)";
 
-                            rows.Add(new ProfitLossRow
+                            spacerInsertAt = AddLayerRow(new ProfitLossRow
                             {
                                 Kind = "Production",
                                 SpecNumber = group.GroupNumber,
@@ -866,7 +971,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                 Quantity = Math.Round(cutSqm, 2),
                                 PricePerSqm = lamRate,
                                 Amount = amount
-                            });
+                            }, spacerInsertAt);
 
                             productionCost += amount;
                         }

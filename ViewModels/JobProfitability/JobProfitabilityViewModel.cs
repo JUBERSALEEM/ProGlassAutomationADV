@@ -298,9 +298,43 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             CompanyFilterOptions.Add(AllFilter);
             SalesmanFilterOptions.Add(AllFilter);
 
+            // ══════════════════════════════════════════════════════════
+            //  LIVE UPDATES
+            //
+            //  Entering the module reloaded it, but saving an invoice while
+            //  this screen was already open left the figures stale with
+            //  nothing on screen saying so. The repository now raises a
+            //  signal on every insert, update and delete, so the list
+            //  follows the data instead of the navigation.
+            //
+            //  The handler marshals to the UI thread: a save may complete on
+            //  a background thread, and rebuilding an ObservableCollection
+            //  bound to a DataGrid from off-thread throws.
+            //
+            //  The subscription is never removed. This view model lives for
+            //  the whole application session (it is a shell singleton), so
+            //  there is no leak to unwind — and unsubscribing on a screen
+            //  change is exactly what would reintroduce the stale list.
+            // ══════════════════════════════════════════════════════════
+            // The namespace and the class share the name
+            // "ProformaInvoiceRepository", so a partial qualification is
+            // ambiguous. The using at the top of this file already imports
+            // the namespace, so the bare class name is what resolves.
+            ProformaInvoiceRepository.SavedInvoicesChanged += OnSavedInvoicesChanged;
+
             // First load is fire-and-forget so construction stays cheap and
             // the shell can build every module VM without blocking.
             FireRefresh();
+        }
+
+        private void OnSavedInvoicesChanged()
+        {
+            var dispatcher = System.Windows.Application.Current?.Dispatcher;
+
+            if (dispatcher == null || dispatcher.CheckAccess())
+                FireRefresh();
+            else
+                dispatcher.BeginInvoke(new Action(FireRefresh));
         }
 
         private async void FireRefresh()

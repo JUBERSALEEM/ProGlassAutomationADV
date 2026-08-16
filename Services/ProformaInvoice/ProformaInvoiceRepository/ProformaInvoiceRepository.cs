@@ -21,6 +21,32 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
     /// </summary>
     public class ProformaInvoiceRepository : IProformaInvoiceRepository
     {
+        // ══════════════════════════════════════════════════════════════
+        //  SAVED-INVOICE CHANGE SIGNAL
+        //
+        //  Job Profitability reads saved invoices. It reloaded only when the
+        //  module was entered, so saving an invoice while that screen was
+        //  already open left it showing figures for a job that had since
+        //  changed, with no indication anything was stale.
+        //
+        //  The signal is raised HERE rather than at each call site because
+        //  invoices are written from several places (the wizard's print
+        //  preview, the saved-invoices list, draft auto-save). Hooking the
+        //  repository means a future write path is covered without anyone
+        //  remembering to add a notification.
+        //
+        //  Static and parameterless on purpose: listeners re-query rather
+        //  than trusting a payload, so a missed or duplicated event costs a
+        //  redundant read, never a wrong number on screen.
+        // ══════════════════════════════════════════════════════════════
+        public static event Action? SavedInvoicesChanged;
+
+        private static void RaiseChanged()
+        {
+            // A listener that throws must not roll back a completed save.
+            try { SavedInvoicesChanged?.Invoke(); } catch { }
+        }
+
         // BUG-11: named groups, non-greedy prefix, anchored at end
         private static readonly Regex _idPattern = new(
             @"^(?<prefix>.*?)(?<num>\d+)$",
@@ -127,6 +153,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 
             db.ProformaInvoices.Add(invoice);
             await db.SaveChangesAsync();
+            RaiseChanged();
 
             return invoice.Id;
         }
@@ -157,6 +184,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 
                 db.ProformaInvoices.Add(invoice);
                 await db.SaveChangesAsync();
+            RaiseChanged();
                 return;
             }
 
@@ -176,6 +204,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             existing.UpdatedAt = DateTime.Now;
 
             await db.SaveChangesAsync();
+            RaiseChanged();
         }
 
         public async Task<SavedProformaInvoice?> GetByIdAsync(int id)
@@ -211,6 +240,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 
             db.ProformaInvoices.Remove(entity);
             await db.SaveChangesAsync();
+            RaiseChanged();
         }
     }
 }

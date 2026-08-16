@@ -361,8 +361,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
 
             GoToStepCommand = new RelayCommand(param =>
             {
+                // Route through GoToStep so the per-step entry work runs.
+                // Setting CurrentStep directly skipped it, so jumping to
+                // Step 8 or 9 from the stepper strip showed figures from an
+                // earlier visit while Next/Back showed fresh ones -- the
+                // same screen disagreeing with itself depending on how it
+                // was reached.
                 if (param is WizardStep step)
-                    CurrentStep = step;
+                    GoToStep(step.StepNumber);
             });
 
             // BUG-77/78: SafeFireAsync wrappers

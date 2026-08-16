@@ -264,6 +264,21 @@
                                 </Style>
                             </TextBlock.Style>
                         </TextBlock>
+
+                        <!--
+                            Mark-up over cost, shown next to the accounting
+                            margin because they answer different questions and
+                            are easy to confuse. Step 4's "margin profit %" box
+                            sets the MARK-UP, so this is the figure to compare
+                            a discount against: a DGU priced at Step 4's 15%
+                            quotes 150.51/SQM, and dropping the quote to 140
+                            leaves roughly 7% mark-up.
+                        -->
+                        <TextBlock Text="{Binding MarkupDisplay}"
+                                   FontSize="10"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   Margin="0,2,0,0"
+                                   TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
             </Grid>
