@@ -2,34 +2,43 @@
      FILE: Views/Dashboard/DashboardView.xaml
      PROJECT: ProGlassAutomation
 
-     DASHBOARD WORKSPACE — left module rail + content pane.
+     DASHBOARD WORKSPACE — top module bar, full-width content.
 
-     WHAT CHANGED AND WHY
-     ────────────────────
-     This was a horizontal tab strip under a large welcome banner. Three
-     problems with that for a 7-module ERP workspace:
+     LAYOUT
+     ──────
+       row 0   command bar : module identity · segmented module picker ·
+                             user + refresh time
+       row 1   hairline divider
+       row 2   the active module's dashboard, full window width
 
-       1. Seven horizontal tabs plus a banner consumed roughly 140px of
-          vertical space before a single figure was drawn, on screens
-          where vertical space is the scarce axis.
-       2. Tabs read as "views of one thing". These are seven distinct
-          business modules, which is a navigation relationship, and
-          navigation in this app is already vertical (the main sidebar).
-       3. A tab strip has nowhere to put context. A rail row can carry a
-          title AND a description, so the user knows what each module
-          shows before clicking it.
+     WHY THIS SHAPE
+     ──────────────
+     The previous version put the modules in a 230px left rail. On a
+     1366px screen that is 17% of the window spent permanently on seven
+     labels, and the app ALREADY has a vertical sidebar one level up —
+     so the workspace showed two stacked vertical navigations, which is
+     what made it feel cramped and repetitive.
 
-     The mechanism is UNCHANGED: the same Pages collection, the same
-     SelectTabCommand, the same ActivePage. Clicking a module sets
-     ActivePage, the ContentPresenter picks the matching DataTemplate,
-     and DashboardViewModel.ActivePage's setter calls LoadAsync() on the
-     newly selected page — so each module's own KPIs and charts load on
-     selection. That behaviour already existed; this layout exposes it
-     properly.
+     Modules now sit in a single horizontal segmented control. Seven
+     short labels fit comfortably on one line, the content pane gets the
+     entire window width, and the workspace no longer competes with the
+     app's own sidebar.
 
-     ICONS: Segoe MDL2 Assets only, supplied by each page's TabIcon.
-     THEME:  every brush is a DynamicResource, so the workspace follows
-             a runtime Light/Dark swap.
+     A segmented control (one bordered track, selected pill inside)
+     rather than free-floating tabs: it reads as "pick one of these
+     seven", which is exactly the relationship, and it keeps the seven
+     items visually bound together instead of scattered across the top.
+
+     BEHAVIOUR IS UNCHANGED
+     Same Pages collection, same SelectTabCommand, same ActivePage, same
+     ReferenceEqualityConverter for selection. Clicking a module sets
+     ActivePage; its setter calls LoadAsync() on that page; the
+     ContentPresenter swaps to the matching DataTemplate. No ViewModel
+     change was needed for this layout.
+
+     ICONS  Segoe MDL2 Assets only, from each page's TabIcon.
+     THEME  every brush is a DynamicResource, so this follows a runtime
+            Light/Dark swap.
 ═══════════════════════════════════════════════════════════════════════ -->
 
 <UserControl x:Class="ProGlassAutomation.Views.Dashboard.DashboardView"
@@ -56,9 +65,8 @@
 
     <UserControl.Resources>
 
-        <!-- VM → View mapping for the 7 module dashboards. The
-             ContentPresenter uses these to swap content when ActivePage
-             changes; no code-behind navigation is involved. -->
+        <!-- VM → View mapping. The ContentPresenter uses these to swap
+             content when ActivePage changes; no code-behind navigation. -->
         <DataTemplate DataType="{x:Type vm:OverviewDashboardViewModel}">
             <ov:OverviewDashboardView/>
         </DataTemplate>
@@ -82,94 +90,46 @@
         </DataTemplate>
 
         <!-- ═══════════════════════════════════════════════════════════
-             MODULE RAIL ROW
+             MODULE SEGMENT
 
-             Selection state is driven by comparing this row's page with
-             DashboardViewModel.ActivePage through ReferenceEquality,
-             which is how the previous tab strip did it. Keeping that
-             avoids adding an IsSelected flag to the page classes and
-             keeps a single source of truth for "which module is open".
+             One item in the segmented picker. Selection is decided by
+             comparing this page with DashboardViewModel.ActivePage
+             through ReferenceEquality — the same mechanism the previous
+             layouts used, so there is still no IsSelected flag on the
+             page classes to keep in sync.
+
+             The selected segment is marked by a filled pill AND a
+             bolder label AND a filled icon, not colour alone.
         ═══════════════════════════════════════════════════════════ -->
-        <DataTemplate x:Key="ModuleRailItemTemplate">
+        <DataTemplate x:Key="ModuleSegmentTemplate">
             <Button Command="{Binding DataContext.SelectTabCommand,
                               RelativeSource={RelativeSource AncestorType=UserControl}}"
                     CommandParameter="{Binding}"
                     Background="Transparent"
                     BorderThickness="0"
                     Padding="0"
-                    Margin="0,0,0,3"
-                    HorizontalContentAlignment="Stretch"
+                    Margin="1,0"
                     Cursor="Hand"
                     FocusVisualStyle="{x:Null}"
-                    ToolTip="{Binding TabSubtitle}">
+                    ToolTip="{Binding TabSubtitle}"
+                    AutomationProperties.Name="{Binding TabTitle}">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
-                        <Grid>
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="3"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
-
-                            <!-- Selection rail. A 3px bar rather than a
-                                 filled row: it marks the active module
-                                 without turning the sidebar into a block
-                                 of colour. -->
-                            <Border x:Name="SelBar"
-                                    Grid.Column="0"
-                                    CornerRadius="2"
-                                    Background="Transparent"
-                                    Margin="0,4"/>
-
-                            <Border x:Name="RowBg"
-                                    Grid.Column="1"
-                                    Background="Transparent"
-                                    CornerRadius="8"
-                                    Padding="10,9"
-                                    Margin="5,0,0,0"
-                                    SnapsToDevicePixels="True">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-
-                                    <Border x:Name="IconChip"
-                                            Grid.Column="0"
-                                            Width="28" Height="28"
-                                            CornerRadius="7"
-                                            Background="{DynamicResource MenuHoverBrush}"
-                                            Margin="0,0,10,0"
-                                            VerticalAlignment="Center">
-                                        <TextBlock x:Name="Glyph"
-                                                   Text="{Binding TabIcon}"
-                                                   FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="13"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                    </Border>
-
-                                    <StackPanel Grid.Column="1"
-                                                VerticalAlignment="Center">
-                                        <TextBlock x:Name="Title"
-                                                   Text="{Binding TabTitle}"
-                                                   FontSize="12"
-                                                   FontWeight="SemiBold"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                        <TextBlock x:Name="Sub"
-                                                   Text="{Binding TabSubtitle}"
-                                                   FontSize="10"
-                                                   Margin="0,1,0,0"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                        </Grid>
+                        <Border x:Name="Pill"
+                                Background="Transparent"
+                                CornerRadius="7"
+                                Padding="10,7"
+                                SnapsToDevicePixels="True">
+                            <TextBlock x:Name="Label"
+                                       Text="{Binding TabTitle}"
+                                       FontSize="12"
+                                       FontWeight="SemiBold"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                        </Border>
 
                         <ControlTemplate.Triggers>
-                            <!-- Hover, only when not already active -->
+                            <!-- Hover, only when this is not the active module -->
                             <MultiDataTrigger>
                                 <MultiDataTrigger.Conditions>
                                     <Condition Binding="{Binding IsMouseOver,
@@ -185,8 +145,10 @@
                                         </Condition.Binding>
                                     </Condition>
                                 </MultiDataTrigger.Conditions>
-                                <Setter TargetName="RowBg" Property="Background"
+                                <Setter TargetName="Pill" Property="Background"
                                         Value="{DynamicResource MenuHoverBrush}"/>
+                                <Setter TargetName="Label" Property="Foreground"
+                                        Value="{DynamicResource PrimaryForegroundBrush}"/>
                             </MultiDataTrigger>
 
                             <!-- Active module -->
@@ -198,19 +160,17 @@
                                         <Binding Path="."/>
                                     </MultiBinding>
                                 </DataTrigger.Binding>
-                                <Setter TargetName="SelBar" Property="Background"
+                                <Setter TargetName="Pill" Property="Background"
                                         Value="{DynamicResource AccentBrush}"/>
-                                <Setter TargetName="RowBg" Property="Background"
-                                        Value="{DynamicResource ElevatedSurfaceBrush}"/>
-                                <Setter TargetName="IconChip" Property="Background"
-                                        Value="{DynamicResource AccentBrush}"/>
-                                <Setter TargetName="Glyph" Property="Foreground"
+                                <Setter TargetName="Label" Property="Foreground"
                                         Value="{DynamicResource OnAccentForegroundBrush}"/>
-                                <Setter TargetName="Title" Property="Foreground"
-                                        Value="{DynamicResource DashAccentTextBrush}"/>
-                                <Setter TargetName="Title" Property="FontWeight"
+                                <Setter TargetName="Label" Property="FontWeight"
                                         Value="Bold"/>
                             </DataTrigger>
+
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Pill" Property="Opacity" Value="0.8"/>
+                            </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Button.Template>
@@ -220,151 +180,85 @@
     </UserControl.Resources>
 
     <Grid Background="{DynamicResource ModuleBackgroundBrush}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="230"/>
-            <!-- module rail -->
-            <ColumnDefinition Width="*"/>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <!-- command bar -->
+            <RowDefinition Height="1"/>
+            <!-- divider -->
+            <RowDefinition Height="*"/>
             <!-- active module -->
-        </Grid.ColumnDefinitions>
+        </Grid.RowDefinitions>
 
         <!-- ═══════════════════════════════════════════════════════════
-             MODULE RAIL
+             COMMAND BAR
         ═══════════════════════════════════════════════════════════ -->
-        <Border Grid.Column="0"
-                Background="{DynamicResource SideMenuBackgroundBrush}"
-                BorderBrush="{DynamicResource BorderBrush}"
-                BorderThickness="0,0,1,0"
-                Padding="10,12">
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <!-- signed-in user -->
-                    <RowDefinition Height="Auto"/>
-                    <!-- section label -->
-                    <RowDefinition Height="*"/>
-                    <!-- modules -->
-                </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Margin="16,12,16,11">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <!-- active module identity -->
+                <ColumnDefinition Width="*"/>
+                <!-- module picker -->
+                <ColumnDefinition Width="Auto"/>
+                <!-- user + refreshed -->
+            </Grid.ColumnDefinitions>
 
-                <!-- Signed-in user. Compact, at the top of the rail,
-                     replacing the full-width welcome banner that used to
-                     take a whole row across the workspace. -->
-                <Border Grid.Row="0"
-                        Background="{DynamicResource ElevatedSurfaceBrush}"
-                        BorderBrush="{DynamicResource BorderBrush}"
-                        BorderThickness="1"
-                        CornerRadius="9"
-                        Padding="10,9"
-                        Margin="0,0,0,14">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
+            <!-- ── Active module subtitle ───────────────────────────
+                 Only the DESCRIPTION lives here. The module NAME is
+                 already shown, bold and filled, by the selected segment
+                 immediately to the right, so repeating it wasted ~205px
+                 and pushed the picker into a scrollbar at 1366px. -->
+            <TextBlock Grid.Column="0"
+                       Text="{Binding ActivePage.TabSubtitle}"
+                       FontSize="11"
+                       FontWeight="SemiBold"
+                       VerticalAlignment="Center"
+                       Margin="2,0,18,0"
+                       TextTrimming="CharacterEllipsis"
+                       MaxWidth="190"
+                       Foreground="{DynamicResource MutedForegroundBrush}"/>
 
-                        <Border Grid.Column="0"
-                                Width="30" Height="30"
-                                CornerRadius="15"
-                                Background="{DynamicResource AccentBrush}"
-                                Margin="0,0,9,0">
-                            <TextBlock Text="&#xE77B;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="13"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        </Border>
-
-                        <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                            <TextBlock Text="{Binding CurrentUserDisplay}"
-                                       FontSize="12"
-                                       FontWeight="SemiBold"
-                                       TextTrimming="CharacterEllipsis"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                            <TextBlock Text="{Binding WelcomeDateLine}"
-                                       FontSize="10"
-                                       Margin="0,1,0,0"
-                                       TextTrimming="CharacterEllipsis"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-
-                <TextBlock Grid.Row="1"
-                           Text="MODULES"
-                           FontSize="10"
-                           FontWeight="Bold"
-                           Margin="4,0,0,7"
-                           Foreground="{DynamicResource MutedForegroundBrush}"/>
-
-                <!-- One row per dashboard. Scrolls if the window is short
-                     so the last module is always reachable. -->
-                <ScrollViewer Grid.Row="2"
-                              VerticalScrollBarVisibility="Auto"
-                              HorizontalScrollBarVisibility="Disabled"
+            <!-- ── Segmented module picker ──────────────────────────────
+                 Horizontally scrollable so a narrow window or a future
+                 eighth module degrades into a scroll rather than
+                 clipping the last segment. -->
+            <Border Grid.Column="1"
+                    Background="{DynamicResource ElevatedSurfaceBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1"
+                    CornerRadius="9"
+                    Padding="3"
+                    HorizontalAlignment="Left"
+                    VerticalAlignment="Center">
+                <ScrollViewer HorizontalScrollBarVisibility="Auto"
+                              VerticalScrollBarVisibility="Disabled"
                               Focusable="False"
                               FocusVisualStyle="{x:Null}">
                     <ItemsControl ItemsSource="{Binding Pages}"
-                                  ItemTemplate="{StaticResource ModuleRailItemTemplate}"
-                                  KeyboardNavigation.TabNavigation="Continue"/>
+                                  ItemTemplate="{StaticResource ModuleSegmentTemplate}"
+                                  KeyboardNavigation.TabNavigation="Continue">
+                        <ItemsControl.ItemsPanel>
+                            <ItemsPanelTemplate>
+                                <StackPanel Orientation="Horizontal"/>
+                            </ItemsPanelTemplate>
+                        </ItemsControl.ItemsPanel>
+                    </ItemsControl>
                 </ScrollViewer>
-            </Grid>
-        </Border>
+            </Border>
 
-        <!-- ═══════════════════════════════════════════════════════════
-             ACTIVE MODULE
+            <!-- ── Signed-in user + last refresh ────────────────────── -->
+            <StackPanel Grid.Column="2"
+                        Orientation="Horizontal"
+                        VerticalAlignment="Center"
+                        Margin="16,0,0,0">
 
-             Header shows which module is open; the ContentPresenter
-             below renders that module's own dashboard, so its KPIs and
-             charts change with the selection.
-        ═══════════════════════════════════════════════════════════ -->
-        <Grid Grid.Column="1">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="1"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <Grid Grid.Row="0" Margin="16,13,16,11">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
-                </Grid.ColumnDefinitions>
-
-                <Border Grid.Column="0"
-                        Width="32" Height="32"
-                        CornerRadius="8"
-                        Background="{DynamicResource AccentBrush}"
-                        Margin="0,0,11,0"
-                        VerticalAlignment="Center">
-                    <TextBlock Text="{Binding ActivePage.TabIcon}"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="15"
-                               HorizontalAlignment="Center"
-                               VerticalAlignment="Center"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                </Border>
-
-                <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                    <TextBlock Text="{Binding ActivePage.TabTitle}"
-                               FontSize="15"
-                               FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock Text="{Binding ActivePage.TabSubtitle}"
-                               FontSize="10"
-                               Margin="0,1,0,0"
-                               Foreground="{DynamicResource MutedForegroundBrush}"/>
-                </StackPanel>
-
-                <!-- Last-refreshed for the ACTIVE page, so the timestamp
-                     always describes the figures currently on screen. -->
-                <Border Grid.Column="2"
-                        Background="{DynamicResource ElevatedSurfaceBrush}"
+                <Border Background="{DynamicResource ElevatedSurfaceBrush}"
                         BorderBrush="{DynamicResource BorderBrush}"
                         BorderThickness="1"
-                        CornerRadius="6"
-                        Padding="9,4"
-                        VerticalAlignment="Center">
+                        CornerRadius="7"
+                        Padding="9,5"
+                        Margin="0,0,8,0"
+                        VerticalAlignment="Center"
+                        ToolTip="Last refresh of the active module">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock Text="&#xE823;"
                                    FontFamily="Segoe MDL2 Assets"
@@ -378,12 +272,44 @@
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                     </StackPanel>
                 </Border>
-            </Grid>
 
-            <Border Grid.Row="1" Background="{DynamicResource BorderBrush}"/>
-
-            <ContentPresenter Grid.Row="2"
-                              Content="{Binding ActivePage}"/>
+                <Border Background="{DynamicResource ElevatedSurfaceBrush}"
+                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderThickness="1"
+                        CornerRadius="7"
+                        Padding="7,4"
+                        VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal">
+                        <Border Width="22" Height="22"
+                                CornerRadius="11"
+                                Background="{DynamicResource AccentBrush}"
+                                Margin="0,0,8,0">
+                            <TextBlock Text="&#xE77B;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="11"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                        </Border>
+                        <TextBlock Text="{Binding CurrentUserDisplay}"
+                                   FontSize="11"
+                                   FontWeight="SemiBold"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,4,0"
+                                   TextTrimming="CharacterEllipsis"
+                                   MaxWidth="150"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    </StackPanel>
+                </Border>
+            </StackPanel>
         </Grid>
+
+        <Border Grid.Row="1" Background="{DynamicResource BorderBrush}"/>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             ACTIVE MODULE — full window width
+        ═══════════════════════════════════════════════════════════ -->
+        <ContentPresenter Grid.Row="2"
+                          Content="{Binding ActivePage}"/>
     </Grid>
 </UserControl>
