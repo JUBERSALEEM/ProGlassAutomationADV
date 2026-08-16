@@ -12,7 +12,9 @@
          At the default (Auto) WPF measures content at INFINITE width,
          which makes TextWrapping inert and runs bubbles off-screen.
        • Bubbles cap at MaxWidth so a long answer wraps instead of
-         stretching the row.
+         stretching the row. The cap MUST be smaller than the hosting
+         overlay (520px) or it never engages - it was 620 and therefore
+         dead, which is why long replies looked wrong.
        • This control does NOT replace its own root DataContext.
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Agent.UI.AgentChatView"
@@ -33,7 +35,7 @@
             <Setter Property="Padding" Value="14,10"/>
             <Setter Property="Margin" Value="60,4,0,4"/>
             <Setter Property="HorizontalAlignment" Value="Right"/>
-            <Setter Property="MaxWidth" Value="620"/>
+            <Setter Property="MaxWidth" Value="380"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
@@ -45,8 +47,63 @@
             <Setter Property="Padding" Value="14,10"/>
             <Setter Property="Margin" Value="0,4,60,4"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
-            <Setter Property="MaxWidth" Value="620"/>
+            <Setter Property="MaxWidth" Value="380"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <!-- ══════════════════════════════════════════════════════════
+             COMPACT HEADER ICON BUTTON — modelled on AiChatView's
+             ChatIconBtn, which solves exactly this problem.
+
+             WHY THIS EXISTS: the header previously used OutlinedPillButton
+             for four controls. That style inherits MinWidth=120 from
+             PillButtonBase, so four of them demand 4x120 + 24px margins =
+             504px MINIMUM. The overlay is 520px wide and the header has
+             477px usable after border and padding, leaving nothing for the
+             38px icon badge or the title - a 99px overflow that pushed the
+             title out and broke the layout.
+
+             36x36 icon buttons need 4x36 + margins = ~168px, which fits
+             with room to spare for the title.
+        ══════════════════════════════════════════════════════════ -->
+        <Style x:Key="AgentHeaderIconButton" TargetType="Button">
+            <Setter Property="Width" Value="36"/>
+            <Setter Property="Height" Value="36"/>
+            <Setter Property="Margin" Value="0,0,6,0"/>
+            <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
+            <Setter Property="FontSize" Value="15"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bd"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="18"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="bd" Property="Background"
+                                        Value="{DynamicResource MenuHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background"
+                                        Value="{DynamicResource TintIndigoBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter Property="Opacity" Value="0.4"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
     </UserControl.Resources>
@@ -99,20 +156,18 @@
                 <StackPanel Grid.Column="2"
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
-                    <!-- LISTEN. Turns solid red while the microphone is
-                         open so there is no doubt it is hearing you. -->
+
+                    <!-- LISTEN. Glyph and tooltip come from the VM, and the
+                         button turns solid red while the microphone is open
+                         so there is never any doubt it is hearing you. -->
                     <Button Command="{Binding SpeakCommand}"
-                            Margin="0,0,8,0"
-                            Cursor="Hand"
-                            FocusVisualStyle="{x:Null}"
-                            ToolTip="Listen — capture one spoken request with Whisper">
+                            Content="{Binding MicButtonText}"
+                            ToolTip="Listen — capture one spoken request">
                         <Button.Style>
                             <Style TargetType="Button"
-                                   BasedOn="{StaticResource OutlinedPillButton}">
-                                <Setter Property="Content" Value="LISTEN"/>
+                                   BasedOn="{StaticResource AgentHeaderIconButton}">
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsListening}" Value="True">
-                                        <Setter Property="Content" Value="LISTENING…"/>
                                         <Setter Property="Background" Value="#B91C1C"/>
                                         <Setter Property="Foreground" Value="White"/>
                                     </DataTrigger>
@@ -121,34 +176,25 @@
                         </Button.Style>
                     </Button>
 
-                    <!-- STOP. Enabled only when there is something to stop;
-                         CanExecute drives that, so it greys out by itself. -->
-                    <Button Content="STOP"
-                            Style="{StaticResource OutlinedPillButton}"
+                    <!-- STOP. CanExecute greys it out when there is nothing
+                         to stop, so it never lies about being actionable. -->
+                    <Button Content="&#xE71A;"
+                            Style="{StaticResource AgentHeaderIconButton}"
                             Command="{Binding StopCommand}"
-                            Margin="0,0,8,0"
-                            Cursor="Hand"
-                            FocusVisualStyle="{x:Null}"
                             ToolTip="Stop speaking and cancel listening"/>
 
-                    <!-- MUTE. Glyph and tooltip both come from the VM so
-                         they can never disagree with the actual state. -->
+                    <!-- MUTE. Glyph and tooltip bound to VM state so they
+                         cannot disagree with what is actually happening. -->
                     <Button Content="{Binding MuteButtonText}"
-                            FontFamily="Segoe MDL2 Assets"
-                            FontSize="14"
-                            Style="{StaticResource OutlinedPillButton}"
+                            Style="{StaticResource AgentHeaderIconButton}"
                             Command="{Binding ToggleMuteCommand}"
-                            Margin="0,0,8,0"
-                            Cursor="Hand"
-                            FocusVisualStyle="{x:Null}"
                             ToolTip="{Binding MuteButtonTooltip}"/>
 
-                    <Button Content="CLEAR"
-                            Style="{StaticResource OutlinedPillButton}"
+                    <Button Content="&#xE74D;"
+                            Style="{StaticResource AgentHeaderIconButton}"
+                            Margin="0"
                             Command="{Binding ClearCommand}"
-                            Cursor="Hand"
-                            FocusVisualStyle="{x:Null}"
-                            ToolTip="Clears this transcript only — taught rules and knowledge are kept"/>
+                            ToolTip="Clear this transcript — taught rules and knowledge are kept"/>
                 </StackPanel>
             </Grid>
         </Border>
@@ -253,7 +299,8 @@
 
                     <Button Grid.Column="2"
                             Content="SEND"
-                            MinWidth="96"
+                            MinWidth="88"
+                            Width="88"
                             Style="{StaticResource PrimaryPillButton}"
                             Command="{Binding SendCommand}"
                             IsDefault="True"/>

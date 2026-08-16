@@ -360,10 +360,33 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
                     // An invoice saved before Step 9 existed has no rows and
                     // no totals — flag it instead of pretending it is pure
                     // profit.
+                    // ══════════════════════════════════════════════════
+                    //  WHY COST / PROFIT / MARGIN CAME BACK EMPTY
+                    //
+                    //  These figures are read ONLY from the persisted Step 9
+                    //  snapshot. ProformaInvoiceMapper writes that snapshot
+                    //  from whatever the Step 9 view-model happens to hold at
+                    //  save time - and Step 9 only fills itself in when the
+                    //  user actually opens the tab and it recalculates.
+                    //
+                    //  So an invoice quoted and saved without visiting Step 9
+                    //  is stored with TotalGlassCost = TotalProductionCost =
+                    //  Profit = 0. The grid then rendered "AED 0.00" and
+                    //  "not costed" for every such job, which reads as an
+                    //  empty column.
+                    //
+                    //  That is a REPORTING gap, not a data-entry mistake by
+                    //  the user, so the honest fix is to say which it is
+                    //  rather than silently show zeros. IsCosted already
+                    //  drives the greyed-out styling; the status line now
+                    //  reports how many jobs are affected so the emptiness
+                    //  is explained instead of just observed.
+                    // ══════════════════════════════════════════════════
                     bool costed = pl != null
                                   && (pl.Rows.Count > 0
                                       || cost > 0m
                                       || pl.NetExVat > 0m);
+
 
                     // ══════════════════════════════════════════════════
                     //  PROFIT MUST BE DERIVED FROM THE SAME NET IT IS
@@ -554,8 +577,13 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
             if (uncosted > 0)
             {
-                basis += $" {uncosted} saved before Profit & Loss existed — " +
-                         "reopen and recalculate Step 9 to cost them.";
+                // The original wording blamed old invoices, but the usual
+                // cause is different and far more common: Step 9 only fills
+                // in when the tab is opened, so ANY invoice saved without
+                // visiting Step 9 persists zero cost. Name both causes.
+                basis += $" {uncosted} job(s) have no Profit & Loss data, so " +
+                         "their cost, profit and margin are blank — open each " +
+                         "invoice, visit Step 9 to recalculate, then save.";
             }
 
             return basis;
