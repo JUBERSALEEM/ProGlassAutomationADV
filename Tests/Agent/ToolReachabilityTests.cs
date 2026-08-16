@@ -61,6 +61,7 @@ namespace ProGlassAutomation.Tests.Agent
             ["get_document_chain"] = "document chain for PI-1052",
             ["get_screen_context"] = "what am i looking at",
             ["get_statement"] = "what is outstanding",
+            ["get_sales_analytics"] = "how much did we sell this month",
             ["update_sheet_stock"] = "add 10 to sheet 42"
         };
 
@@ -135,6 +136,28 @@ namespace ProGlassAutomation.Tests.Agent
         {
             // Adding bare nouns like "invoices" and "customers" risks
             // swallowing more specific questions. It must not.
+            Assert.Contains(tool, Detect(phrase));
+        }
+
+        [Theory]
+        [InlineData("how much did we sell this month", "get_sales_analytics")]
+        [InlineData("what gross profit this year", "get_sales_analytics")]
+        [InlineData("total sales last month", "get_sales_analytics")]
+        public void Period_questions_route_to_analytics_not_single_job_profit(
+            string phrase, string tool)
+        {
+            // "profit" appears in BOTH get_profitability and the analytics
+            // phrases. A PERIOD question must reach analytics; a question
+            // about one job must not.
+            Assert.Contains(tool, Detect(phrase));
+        }
+
+        [Theory]
+        [InlineData("how much profit on PI-1052", "get_profitability")]
+        [InlineData("which jobs are losing money", "get_profitability")]
+        public void Single_job_questions_still_reach_profitability(
+            string phrase, string tool)
+        {
             Assert.Contains(tool, Detect(phrase));
         }
 

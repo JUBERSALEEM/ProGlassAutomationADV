@@ -108,6 +108,14 @@ namespace ProGlassAutomation.Agent.Intent
                      "losing money", "loss making", "profitable" },
                 "get_profitability"),
 
+            // Cross-module analytics (§33). Placed BEFORE get_profitability
+            // because "how much profit this month" is a PERIOD question,
+            // while get_profitability answers about individual jobs.
+            (new[] { "this month", "last month", "this year", "last year",
+                     "year to date", "how much did we sell", "total sales",
+                     "gross profit", "sales analytics", "revenue" },
+                "get_sales_analytics"),
+
             // Statements / receivables (§9, §33).
             (new[] { "statement", "outstanding", "receivable", "overdue",
                      "owes us", "unpaid", "aging", "ageing" },

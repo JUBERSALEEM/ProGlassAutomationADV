@@ -74,6 +74,11 @@ namespace ProGlassAutomation.Agent.Tools.Registry
                 // Statement.Generate: that one is a WRITE right.
                 new GetStatementTool(),
 
+                // Cross-module analytics (§33). Aggregates the SAME Step 9
+                // snapshots Job Profitability reads, so the agent and the
+                // module can never quote different numbers.
+                new GetSalesAnalyticsTool(),
+
                 // ── Write (PHASE Q) ───────────────────────────────────
                 //
                 // The FIRST write capability the agent has ever had.
