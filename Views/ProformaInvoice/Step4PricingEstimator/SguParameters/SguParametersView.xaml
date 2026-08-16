@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.SguParameters.SguParametersView"
+<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.SguParameters.SguParametersView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -168,6 +168,63 @@
                     <TextBox Text="{Binding BasePricePerSqm, StringFormat={}{0:0.##}}"/>
                 </StackPanel>
             </Grid>
+
+            <!-- ══════════════════════════════════════════════════════════
+                 ROW 1b — SHEET STORE (PHASE A)
+                 Editable sheet size + read-only store prices. All of it is
+                 advisory: the estimator never overwrites BASE PRICE.
+            ══════════════════════════════════════════════════════════ -->
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="SHEET SIZE" Style="{StaticResource SguLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding SheetSizeOptions}"
+                              Text="{Binding SelectedSheetSize, UpdateSourceTrigger=PropertyChanged}"
+                              Style="{StaticResource StepEditableComboBoxStyle}"
+                              ToolTip="Stock sheet used for cutting (from Sheet Store)"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="PURCHASE AED/SQM" Style="{StaticResource SguLabelStyle}"/>
+                    <TextBox Text="{Binding PurchasePerSqm, Mode=OneWay, StringFormat={}{0:0.##}}"
+                             IsReadOnly="True"
+                             Focusable="False"
+                             ToolTip="Read-only — Sheet Store purchase price"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="4">
+                    <TextBlock Text="SELLING AED/SQM" Style="{StaticResource SguLabelStyle}"/>
+                    <TextBox Text="{Binding SellPerSqm, Mode=OneWay, StringFormat={}{0:0.##}}"
+                             IsReadOnly="True"
+                             Focusable="False"
+                             ToolTip="Read-only — Sheet Store selling price"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="6">
+                    <TextBlock Text="SUGGESTED RATE AED/SQM" Style="{StaticResource SguLabelStyle}"/>
+                    <TextBox Text="{Binding SuggestedRate, Mode=OneWay, StringFormat={}{0:0.##}}"
+                             IsReadOnly="True"
+                             Focusable="False"
+                             ToolTip="Store selling price, or purchase + cutting + tempering — a hint only"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- Skippable Sheet Store guidance — theme WarningBrush -->
+            <TextBlock Text="{Binding SheetStoreHint}"
+                       FontSize="11"
+                       FontWeight="SemiBold"
+                       TextWrapping="Wrap"
+                       Margin="0,0,0,14"
+                       Foreground="{DynamicResource WarningBrush}"/>
 
             <!-- ══════════════════════════════════════════════════════════
                  ROW 2: Cutting · Tempering · Yield · Margin

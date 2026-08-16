@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Models/ProformaInvoice/SavedInvoice/ProformaInvoiceSnapshot.cs
 // ═══════════════════════════════════════════════════════════════════════
 // CHAT 20 — PER-SPEC TARGETING PERSISTENCE
@@ -64,6 +64,13 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
 
         // Phase 7.13: Prepared By fields
         public PreparedBySnapshot PreparedBy { get; set; } = new();
+
+        // ── PHASE A/B: Step 9 Profit & Loss ─────────────────────────────
+        // ADDITIVE — invoices saved before this field existed deserialize
+        // with the property initializer intact (System.Text.Json only
+        // overwrites members present in the JSON), so every historical
+        // snapshot still loads with an empty, harmless P&L block.
+        public ProfitLossSnapshot ProfitLoss { get; set; } = new();
     }
 
     // ── Step 1 ──────────────────────────────────────────────────────────
@@ -274,5 +281,67 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
         public string PreparedByStatus { get; set; } = "APPROVED";
         public string TermsText { get; set; } = "";
         public string FooterDisclaimer { get; set; } = "";
+    }
+
+    // ── PHASE A/B: Step 9 Profit & Loss ─────────────────────────────────
+
+    /// <summary>
+    /// Persisted result of the Step 9 Profit &amp; Loss calculation.
+    /// Pure POCO, JSON friendly. Every field is a plain value so old and
+    /// new snapshots round-trip without custom converters.
+    /// </summary>
+    public class ProfitLossSnapshot
+    {
+        /// <summary>Line items — one per glass pane / spacer / production charge.</summary>
+        public List<ProfitLossRowSnapshot> Rows { get; set; } = new();
+
+        /// <summary>Invoice grand total as quoted to the customer (VAT inclusive).</summary>
+        public decimal GrossVatInclusive { get; set; }
+
+        /// <summary>Revenue excluding VAT (gross ÷ 1.05).</summary>
+        public decimal NetExVat { get; set; }
+
+        /// <summary>Sum of the glass (sheet purchase) rows.</summary>
+        public decimal TotalGlassCost { get; set; }
+
+        /// <summary>Sum of the production rows (ASP spacer, cutting, tempering).</summary>
+        public decimal TotalProductionCost { get; set; }
+
+        /// <summary>NetExVat − TotalGlassCost − TotalProductionCost. Negative = loss.</summary>
+        public decimal Profit { get; set; }
+
+        /// <summary>Profit as a percentage of NetExVat, one decimal.</summary>
+        public decimal MarginPercent { get; set; }
+
+        /// <summary>Wastage allowance used when sheet counts were computed.</summary>
+        public decimal WastagePercent { get; set; }
+    }
+
+    /// <summary>One line of the Profit &amp; Loss breakdown.</summary>
+    public class ProfitLossRowSnapshot
+    {
+        /// <summary>"Glass", "Spacer" or "Production".</summary>
+        public string Kind { get; set; } = "";
+
+        /// <summary>Originating Step 5 spec group number.</summary>
+        public int SpecNumber { get; set; }
+
+        /// <summary>Human-readable line description.</summary>
+        public string Description { get; set; } = "";
+
+        public int SheetWidthMm { get; set; }
+        public int SheetHeightMm { get; set; }
+
+        /// <summary>Area of one stock sheet in SQM.</summary>
+        public decimal SheetSqm { get; set; }
+
+        /// <summary>Sheets consumed (glass) or units of the charge.</summary>
+        public decimal Quantity { get; set; }
+
+        /// <summary>Applied unit price (AED per SQM, or per LM for spacers).</summary>
+        public decimal PricePerSqm { get; set; }
+
+        /// <summary>Extended line cost in AED.</summary>
+        public decimal Amount { get; set; }
     }
 }

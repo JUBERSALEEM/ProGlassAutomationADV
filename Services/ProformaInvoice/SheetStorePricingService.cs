@@ -1,0 +1,241 @@
+// ═══════════════════════════════════════════════════════════════════════
+// FILE: Services/ProformaInvoice/SheetStorePricingService.cs
+// PROJECT: ProGlassAutomation
+// MODULE: Proforma Invoice ↔ Sheet Store pricing bridge (PHASE A)
+//
+// PURPOSE
+//   One read-only lookup surface that lets the Step 4 pricing panels and
+//   the Step 9 Profit & Loss engine ask the Sheet Store inventory:
+//
+//     "which colors do we stock?"                → GetColorsAsync()
+//     "which thicknesses for that color?"        → GetThicknessesAsync(color)
+//     "which sheet sizes for color + thickness?" → GetSizesAsync(color, thk)
+//     "what does that cost / sell for per SQM?"  → TryGetPriceAsync(color, thk)
+//
+// CONTRACT (deliberate, do not relax)
+//   • STATIC        — no DI wiring needed, callable from any VM.
+//   • READ-ONLY     — never writes, never mutates stock. Uses the existing
+//                     SheetStoreRepository.GetAllAsync() only, so it stays
+//                     correct if the Sheet Store schema evolves.
+//   • NEVER THROWS  — every public method is fully guarded. A missing DB,
+//                     a locked file, an empty table: all degrade to an
+//                     empty list / null. Pricing help is a convenience,
+//                     it must never break the invoice wizard.
+//   • MATCHING      — Norm() (trim + lowercase) on both sides so
+//                     " clear ", "Clear" and "CLEAR" are one color.
+//                     ParseMm("6mm") → 6 so UI strings map to DB integers.
+//
+// NOTE ON CACHING: intentionally none. Sheet Store rows change while the
+// wizard is open (buy / use stock) and a full GetAllAsync() on a local
+// SQLite table is cheap. Correctness beats micro-optimisation here.
+// ═══════════════════════════════════════════════════════════════════════
+
+using ProGlassAutomation.Models.SheetStore;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace ProGlassAutomation.Services.ProformaInvoice
+{
+    /// <summary>
+    /// Read-only pricing/size lookups over the Sheet Store inventory,
+    /// shaped for the Proforma Invoice wizard. Static, additive, and
+    /// guaranteed non-throwing (see file header contract).
+    /// </summary>
+    public static class SheetStorePricingService
+    {
+        // ═══════════════════════════════════════════════════════════════
+        //  HELPERS — normalisation
+        // ═══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Canonical form used for every comparison: trimmed + lowercase.
+        /// Null-safe (null → empty string).
+        /// </summary>
+        public static string Norm(string? value) =>
+            (value ?? string.Empty).Trim().ToLowerInvariant();
+
+        /// <summary>
+        /// Parses a UI thickness string into millimetres.
+        /// "6mm" → 6 · " 12 MM " → 12 · "10" → 10 · junk → 0.
+        /// Never throws.
+        /// </summary>
+        public static int ParseMm(string? text)
+        {
+            if (string.IsNullOrWhiteSpace(text)) return 0;
+
+            var digits = new System.Text.StringBuilder(4);
+            foreach (var ch in text)
+            {
+                if (char.IsDigit(ch)) digits.Append(ch);
+                else if (digits.Length > 0) break;   // stop at first break after digits
+            }
+
+            return digits.Length > 0 && int.TryParse(digits.ToString(), out int mm)
+                ? mm
+                : 0;
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        //  CORE LOAD — the single point that can fail, fully swallowed
+        // ═══════════════════════════════════════════════════════════════
+
+        private static async Task<List<GlassSheet>> LoadAllAsync()
+        {
+            try
+            {
+                var repo = new ProGlassAutomation.Services.SheetStore.SheetStoreRepository();
+                var all = await repo.GetAllAsync().ConfigureAwait(false);
+                return all ?? new List<GlassSheet>();
+            }
+            catch (Exception ex)
+            {
+                // Sheet Store unavailable → the wizard simply gets no hints.
+                Debug.WriteLine(
+                    $"[SheetStorePricingService] Sheet Store read failed: {ex.Message}");
+                return new List<GlassSheet>();
+            }
+        }
+
+        // ═══════════════════════════════════════════════════════════════
+        //  PUBLIC LOOKUPS
+        // ═══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Distinct glass colors present in the Sheet Store, in the
+        /// original casing of the first row that used them, alphabetical.
+        /// Empty list when the store is empty or unreadable.
+        /// </summary>
+        public static async Task<List<string>> GetColorsAsync()
+        {
+            var sheets = await LoadAllAsync().ConfigureAwait(false);
+
+            var seen = new HashSet<string>(StringComparer.Ordinal);
+            var result = new List<string>();
+
+            foreach (var s in sheets)
+            {
+                var color = (s?.Color ?? string.Empty).Trim();
+                if (color.Length == 0) continue;
+                if (!seen.Add(Norm(color))) continue;
+                result.Add(color);
+            }
+
+            result.Sort(StringComparer.OrdinalIgnoreCase);
+            return result;
+        }
+
+        /// <summary>
+        /// Distinct thicknesses (mm) stocked for a given color, ascending.
+        /// Blank/unknown color → empty list.
+        /// </summary>
+        public static async Task<List<int>> GetThicknessesAsync(string? color)
+        {
+            var key = Norm(color);
+            if (key.Length == 0) return new List<int>();
+
+            var sheets = await LoadAllAsync().ConfigureAwait(false);
+
+            return sheets
+                .Where(s => s != null && Norm(s.Color) == key && s.ThicknessMm > 0)
+                .Select(s => s.ThicknessMm)
+                .Distinct()
+                .OrderBy(t => t)
+                .ToList();
+        }
+
+        /// <summary>
+        /// Sheet sizes stocked for a color + thickness combination.
+        /// Display is the human label ("3210 × 2250"), Sqm the area of one
+        /// sheet. Duplicates (same W×H from several suppliers) collapse to
+        /// one entry. Largest sheet first — the usual cutting preference.
+        /// </summary>
+        public static async Task<List<(int W, int H, string Display, decimal Sqm)>>
+            GetSizesAsync(string? color, int thicknessMm)
+        {
+            var result = new List<(int W, int H, string Display, decimal Sqm)>();
+
+            var key = Norm(color);
+            if (key.Length == 0 || thicknessMm <= 0) return result;
+
+            var sheets = await LoadAllAsync().ConfigureAwait(false);
+
+            var seen = new HashSet<(int, int)>();
+
+            foreach (var s in sheets
+                         .Where(s => s != null
+                                     && Norm(s.Color) == key
+                                     && s.ThicknessMm == thicknessMm
+                                     && s.WidthMm > 0
+                                     && s.HeightMm > 0)
+                         .OrderByDescending(s => s.WidthMm * (long)s.HeightMm))
+            {
+                if (!seen.Add((s.WidthMm, s.HeightMm))) continue;
+
+                result.Add((
+                    s.WidthMm,
+                    s.HeightMm,
+                    $"{s.WidthMm} × {s.HeightMm}",
+                    Math.Round((s.WidthMm * (decimal)s.HeightMm) / 1_000_000m, 4)));
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Best available price for a color + thickness.
+        ///
+        /// Selection rule: the cheapest positive purchase price wins (that
+        /// is the sheet a buyer would actually use for costing). Rows with
+        /// no purchase price are only used as a last resort so a partially
+        /// filled inventory still returns a sell price.
+        ///
+        /// Returns null when nothing matches — callers treat null as
+        /// "not in Sheet Store, type it manually".
+        /// </summary>
+        public static async Task<(decimal PurchasePerSqm, decimal SellPerSqm, string Supplier)?>
+            TryGetPriceAsync(string? color, int thicknessMm)
+        {
+            var key = Norm(color);
+            if (key.Length == 0 || thicknessMm <= 0) return null;
+
+            var sheets = await LoadAllAsync().ConfigureAwait(false);
+
+            var candidates = sheets
+                .Where(s => s != null
+                            && Norm(s.Color) == key
+                            && s.ThicknessMm == thicknessMm)
+                .ToList();
+
+            if (candidates.Count == 0) return null;
+
+            var priced = candidates
+                .Where(s => s.PurchasePricePerSqm > 0m)
+                .OrderBy(s => s.PurchasePricePerSqm)
+                .FirstOrDefault();
+
+            var pick = priced ?? candidates[0];
+
+            return (pick.PurchasePricePerSqm,
+                    pick.SellPricePerSqm,
+                    pick.Supplier ?? string.Empty);
+        }
+
+        /// <summary>
+        /// Convenience overload accepting the UI thickness string
+        /// ("6mm"). Delegates to <see cref="TryGetPriceAsync(string, int)"/>.
+        /// </summary>
+        public static Task<(decimal PurchasePerSqm, decimal SellPerSqm, string Supplier)?>
+            TryGetPriceAsync(string? color, string? thicknessText) =>
+            TryGetPriceAsync(color, ParseMm(thicknessText));
+
+        /// <summary>
+        /// Convenience overload accepting the UI thickness string ("6mm").
+        /// </summary>
+        public static Task<List<(int W, int H, string Display, decimal Sqm)>>
+            GetSizesAsync(string? color, string? thicknessText) =>
+            GetSizesAsync(color, ParseMm(thicknessText));
+    }
+}

@@ -91,7 +91,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         /// percent and navigation all derive from this constant.
         /// (Raised 7 → 8 when the Attachments step was added.)
         /// </summary>
-        public const int TotalSteps = 8;
+        public const int TotalSteps = 9;   // PHASE B: Step 9 = Profit & Loss
 
         // ── Dashboard Contract (preserved — DashboardViewModel binding) ─
         public ObservableCollection<InvoiceItem> Invoices { get; }
@@ -132,6 +132,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         /// Mirrors the Delivery Note attachments system.
         /// </summary>
         public Step8Attachments.AttachmentsStepViewModel Step8VM { get; }
+
+        /// <summary>
+        /// PHASE B — Step 9: Profit &amp; Loss. Costs the invoice against
+        /// Sheet Store purchase prices and the Step 4 production rates.
+        /// Bound to its data sources in the constructor via Bind().
+        /// </summary>
+        public Step9ProfitLoss.ProfitLossStepViewModel Step9VM { get; }
 
         // ═══════════════════════════════════════════════════════════════
         //  WIZARD STEPS
@@ -236,6 +243,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             // Step 1 so files stay keyed to the invoice being edited.
             Step8VM = new Step8Attachments.AttachmentsStepViewModel(Step1VM);
 
+            // ── PHASE B: Step 9 — Profit & Loss ──────────────────────
+            // Bound after every dependency exists. The gross provider is
+            // a lambda (not a cached value) so the step always reads the
+            // CURRENT Step 7 grand total, even after Step 6 edits.
+            Step9VM = new Step9ProfitLoss.ProfitLossStepViewModel();
+            Step9VM.Bind(
+                Step5VM,
+                Step4VM.DguVM,
+                Step4VM.SguVM,
+                () => Step7VM.InvoiceMainSummary.GrandTotalVatInclusive);
+
+            // Let the printable invoice reach the P&L so the mapper can
+            // persist it inside the snapshot (additive, nullable link).
+            Step7VM.PrintableInvoice.ProfitLoss = Step9VM;
+
             // ── S-03: Wizard step titles — corrected after swap ───────
             WizardSteps = new ObservableCollection<WizardStep>
             {
@@ -286,6 +308,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                     StepNumber = 8,
                     Title      = "Attachments",
                     Subtitle   = "Photos, drawings & approvals"
+                },
+                new WizardStep
+                {
+                    StepNumber = 9,
+                    Title      = "Profit & Loss",
+                    Subtitle   = "Real cost, margin and profitability"
                 }
             };
 
@@ -376,6 +404,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             // entered so external changes are never shown stale.
             if (stepNumber == 8)
                 SafeFireAsync(() => Step8VM.LoadAsync());
+
+            // Step 9 costs live data (Sheet Store + Step 5 + Step 7 total)
+            // so it recalculates on every entry rather than showing stale
+            // figures from an earlier visit.
+            if (stepNumber == 9)
+                SafeFireAsync(() => Step9VM.RecalculateAsync());
         }
 
         // ═══════════════════════════════════════════════════════════════

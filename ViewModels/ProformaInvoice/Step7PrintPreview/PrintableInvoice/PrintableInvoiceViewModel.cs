@@ -29,6 +29,7 @@ using ProGlassAutomation.ViewModels.ProformaInvoice.Step3ProjectSpecs;    // FIX
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.InvoiceMainSummary;
+using ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss;   // PHASE B
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.TermsAndConditions;
 using ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList;
 using System;
@@ -151,6 +152,28 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
         public ICommand ExportCsvCommand { get; }
 
         public FrameworkElement PrintTarget { get; set; }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  PHASE B — Step 9 Profit & Loss link
+        // ══════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Step 9 Profit &amp; Loss view-model, assigned by the wizard shell
+        /// after both step VMs exist. Optional and nullable: the printable
+        /// invoice renders exactly as before when it is null — the mapper
+        /// simply persists an empty P&amp;L block in that case.
+        /// </summary>
+        public ProfitLossStepViewModel? ProfitLoss
+        {
+            get => _profitLoss;
+            set
+            {
+                if (ReferenceEquals(_profitLoss, value)) return;
+                _profitLoss = value;
+                OnPropertyChanged();
+            }
+        }
+        private ProfitLossStepViewModel? _profitLoss;
 
         /// <summary>
         /// CHAT 15: Parameter order corrected.

@@ -32,6 +32,7 @@ CHAT 17 — LAYOUT FIX
              xmlns:step6="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step6OtherCharges"
              xmlns:step7="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step7PrintPreview"
              xmlns:step8="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step8Attachments"
+             xmlns:step9="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.Step9ProfitLoss"
              xmlns:pilist="clr-namespace:ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList"
              mc:Ignorable="d"
              d:DesignHeight="900"
@@ -577,9 +578,11 @@ CHAT 17 — LAYOUT FIX
                                 <Border Background="{DynamicResource TintIndigoBrush}"
                                         Height="4"
                                         CornerRadius="2"/>
-                                <!-- 8 columns — one per wizard step -->
+                                <!-- 9 columns — one per wizard step
+                                     (PHASE B: was 8, Step 9 = Profit & Loss) -->
                                 <Grid>
                                     <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
                                         <ColumnDefinition Width="*"/>
@@ -793,6 +796,28 @@ CHAT 17 — LAYOUT FIX
                                 <ContentControl.ContentTemplate>
                                     <DataTemplate>
                                         <step8:AttachmentsStepView/>
+                                    </DataTemplate>
+                                </ContentControl.ContentTemplate>
+                            </ContentControl>
+
+                            <!-- STEP 9 — Profit & Loss (PHASE B)
+                                 Identical ContentControl + DataTrigger
+                                 pattern as steps 1-8. DataContext = Step9VM. -->
+                            <ContentControl Content="{Binding Step9VM}">
+                                <ContentControl.Style>
+                                    <Style TargetType="ContentControl">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding CurrentStepNumber}"
+                                                         Value="9">
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </ContentControl.Style>
+                                <ContentControl.ContentTemplate>
+                                    <DataTemplate>
+                                        <step9:ProfitLossStepView/>
                                     </DataTemplate>
                                 </ContentControl.ContentTemplate>
                             </ContentControl>

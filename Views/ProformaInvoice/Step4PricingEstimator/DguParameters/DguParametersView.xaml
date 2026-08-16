@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.DguParameters.DguParametersView"
+<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.DguParameters.DguParametersView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -211,6 +211,58 @@
             </Grid>
 
             <!-- ══════════════════════════════════════════════════════════
+                 ROW 1b — OUTER SHEET STORE (PHASE A)
+                 Sheet size is editable (type a custom size); the two price
+                 boxes are read-only mirrors of the Sheet Store record.
+            ══════════════════════════════════════════════════════════ -->
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="OUTER SHEET SIZE" Style="{StaticResource DguLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding OuterSheetSizeOptions}"
+                              Text="{Binding SelectedOuterSheetSize, UpdateSourceTrigger=PropertyChanged}"
+                              Style="{StaticResource DguEditableComboBoxStyle}"
+                              ToolTip="Stock sheet used to cut the outer pane (from Sheet Store)"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="OUTER PURCHASE AED/SQM" Style="{StaticResource DguLabelStyle}"/>
+                    <TextBox Text="{Binding OuterPurchasePerSqm, Mode=OneWay, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DguInputStyle}"
+                             IsReadOnly="True"
+                             Focusable="False"
+                             ToolTip="Read-only — Sheet Store purchase price"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="4">
+                    <TextBlock Text="OUTER SELLING AED/SQM" Style="{StaticResource DguLabelStyle}"/>
+                    <TextBox Text="{Binding OuterSellPerSqm, Mode=OneWay, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DguInputStyle}"
+                             IsReadOnly="True"
+                             Focusable="False"
+                             ToolTip="Read-only — Sheet Store selling price"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="6">
+                    <TextBlock Text="SUGGESTED RATE AED/SQM" Style="{StaticResource DguLabelStyle}"/>
+                    <TextBox Text="{Binding SuggestedRate, Mode=OneWay, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DguInputStyle}"
+                             IsReadOnly="True"
+                             Focusable="False"
+                             ToolTip="Outer + inner selling price — a hint, never applied automatically"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ══════════════════════════════════════════════════════════
                  ROW 2 — SPACER
             ══════════════════════════════════════════════════════════ -->
             <Grid Margin="0,0,0,16">
@@ -316,6 +368,56 @@
                     <TextBlock Text="INNER BASE PRICE" Style="{StaticResource DguLabelStyle}"/>
                     <TextBox Text="{Binding InnerBasePrice, StringFormat={}{0:0.##}}"
                              Style="{StaticResource DguInputStyle}"/>
+                </StackPanel>
+            </Grid>
+
+            <!-- ══════════════════════════════════════════════════════════
+                 ROW 4b — INNER SHEET STORE (PHASE A)
+            ══════════════════════════════════════════════════════════ -->
+            <Grid Margin="0,0,0,16">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+
+                <StackPanel Grid.Column="0">
+                    <TextBlock Text="INNER SHEET SIZE" Style="{StaticResource DguLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding InnerSheetSizeOptions}"
+                              Text="{Binding SelectedInnerSheetSize, UpdateSourceTrigger=PropertyChanged}"
+                              Style="{StaticResource DguEditableComboBoxStyle}"
+                              ToolTip="Stock sheet used to cut the inner pane (from Sheet Store)"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2">
+                    <TextBlock Text="INNER PURCHASE AED/SQM" Style="{StaticResource DguLabelStyle}"/>
+                    <TextBox Text="{Binding InnerPurchasePerSqm, Mode=OneWay, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DguInputStyle}"
+                             IsReadOnly="True"
+                             Focusable="False"
+                             ToolTip="Read-only — Sheet Store purchase price"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="4">
+                    <TextBlock Text="INNER SELLING AED/SQM" Style="{StaticResource DguLabelStyle}"/>
+                    <TextBox Text="{Binding InnerSellPerSqm, Mode=OneWay, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource DguInputStyle}"
+                             IsReadOnly="True"
+                             Focusable="False"
+                             ToolTip="Read-only — Sheet Store selling price"/>
+                </StackPanel>
+
+                <!-- Skippable Sheet Store guidance — theme WarningBrush -->
+                <StackPanel Grid.Column="6" VerticalAlignment="Bottom" Margin="0,0,0,6">
+                    <TextBlock Text="{Binding SheetStoreHint}"
+                               FontSize="11"
+                               FontWeight="SemiBold"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource WarningBrush}"/>
                 </StackPanel>
             </Grid>
 

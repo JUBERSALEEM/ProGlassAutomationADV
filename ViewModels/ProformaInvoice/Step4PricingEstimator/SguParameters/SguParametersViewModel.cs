@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.SguParameters
 {
@@ -15,7 +16,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
     /// FIX 2: PolishOptions expanded to cover real UAE glass industry
     ///        fabrication types — holes, cutouts, DWG refs, edge polish.
     /// </summary>
-    public class SguParametersViewModel : ViewModelBase
+    public partial class SguParametersViewModel : ViewModelBase
     {
         // === Parameter Row 1: Thickness, Color, Treatment, Base Price ===
 
@@ -28,6 +29,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
                 _selectedThickness = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(GeneratedSpecName));
+                OnGlassChanged();   // PHASE A: Sheet Store refresh
             }
         }
 
@@ -40,6 +42,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
                 _glassColor = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(GeneratedSpecName));
+                OnGlassChanged();   // PHASE A: Sheet Store refresh
             }
         }
 
@@ -144,12 +147,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
 
         // === Dropdown Options ===
 
-        public List<string> ThicknessOptions { get; } = new List<string>
+        public ObservableCollection<string> ThicknessOptions { get; } = new ObservableCollection<string>
         {
             "3mm", "4mm", "5mm", "6mm", "8mm", "10mm", "12mm", "15mm", "19mm"
         };
 
-        public List<string> ColorOptions { get; } = new List<string>
+        public ObservableCollection<string> ColorOptions { get; } = new ObservableCollection<string>
         {
             "Clear",
             "HD Grey",

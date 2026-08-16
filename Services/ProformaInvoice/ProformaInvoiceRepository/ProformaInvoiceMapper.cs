@@ -236,6 +236,16 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 }
             };
 
+            // ── PHASE A/B: Step 9 Profit & Loss ────────────────────────
+            // The printable VM carries a nullable link to the Step 9 VM.
+            // When it is present we persist the costed breakdown; when it
+            // is not (older wiring, or a VM built outside the wizard) the
+            // snapshot keeps its empty default and nothing breaks.
+            if (printable?.ProfitLoss != null)
+            {
+                snap.ProfitLoss = printable.ProfitLoss.BuildSnapshot();
+            }
+
             // Step 5 — spec groups + rows
             foreach (var group in dataGrid.SpecGroups)
             {

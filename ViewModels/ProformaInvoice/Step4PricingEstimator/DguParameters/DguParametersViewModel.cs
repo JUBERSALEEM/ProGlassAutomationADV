@@ -28,6 +28,7 @@
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.DguParameters
 {
@@ -38,7 +39,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
     /// spacer extras (U-Insert), panel extras (Overlap, Fanhole, Cutout,
     /// Holes, Shutter Bonding, Argon Gas), yield factor, and margin.
     /// </summary>
-    public class DguParametersViewModel : ViewModelBase
+    public partial class DguParametersViewModel : ViewModelBase
     {
         // Guard flag to prevent recursion when auto-updating spacer price
         private bool _isSuggestingSpacerPrice;
@@ -54,6 +55,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
                 _outerThickness = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(GeneratedSpecName));
+                OnOuterGlassChanged();   // PHASE A: Sheet Store refresh
             }
         }
 
@@ -66,6 +68,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
                 _outerGlassColor = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(GeneratedSpecName));
+                OnOuterGlassChanged();   // PHASE A: Sheet Store refresh
             }
         }
 
@@ -171,6 +174,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
                 _innerThickness = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(GeneratedSpecName));
+                OnInnerGlassChanged();   // PHASE A: Sheet Store refresh
             }
         }
 
@@ -183,6 +187,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
                 _innerGlassColor = value;
                 OnPropertyChanged();
                 OnPropertyChanged(nameof(GeneratedSpecName));
+                OnInnerGlassChanged();   // PHASE A: Sheet Store refresh
             }
         }
 
@@ -268,12 +273,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
 
         // ===================== Dropdown Options =====================
 
-        public List<string> ThicknessOptions { get; } = new()
+        public ObservableCollection<string> ThicknessOptions { get; } = new()
         {
             "3mm", "4mm", "5mm", "6mm", "8mm", "10mm", "12mm", "15mm", "19mm"
         };
 
-        public List<string> ColorOptions { get; } = new()
+        public ObservableCollection<string> ColorOptions { get; } = new()
         {
             "Clear",
             "HD Grey",
@@ -317,6 +322,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             "Normal Mill Aluminum",
             "Black Aluminum",
             "Warm Edge (Super Spacer)",
+            "Black Warm Edge",
             "Stainless Steel",
             "TGI Spacer"
         };
@@ -419,6 +425,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
                 "Normal Mill Aluminum" => 0m,
                 "Black Aluminum" => 5m,
                 "Warm Edge (Super Spacer)" => 15m,
+                // PHASE A: black-finish warm edge — premium over the
+                // standard warm edge spacer (matched to supplier quotes).
+                "Black Warm Edge" => 20m,
                 "Stainless Steel" => 10m,
                 "TGI Spacer" => 12m,
                 _ => 0m
