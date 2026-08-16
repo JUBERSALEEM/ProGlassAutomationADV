@@ -35,6 +35,7 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
+using System.Windows.Automation;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;

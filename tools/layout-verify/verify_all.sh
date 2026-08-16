@@ -8,6 +8,7 @@
 #   MC3061  attribute text emitted into element content
 #   MC3072  property element after content (App.xaml)
 #   MC3072  property element after content (TrendChartControl.xaml)
+#   CS0103  AutomationProperties used without its using directive
 #
 # Every check must pass. Non-zero exit = do not commit.
 # ══════════════════════════════════════════════════════════════════════
@@ -47,6 +48,7 @@ run "property el. order " python3 tools/layout-verify/property_element_order.py 
 
 echo "── C# ────────────────────────────────────────────────"
 run "brace balance      " python3 tools/layout-verify/brace_scan.py $CS
+run "missing usings     " python3 tools/layout-verify/using_check.py $CS
 
 echo "──────────────────────────────────────────────────────"
 if [ $FAIL -ne 0 ]; then
