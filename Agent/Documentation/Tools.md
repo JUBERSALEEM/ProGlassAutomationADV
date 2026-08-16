@@ -4,22 +4,74 @@ Tools are the **only** way the agent touches the application. There is no
 reflection-based discovery and no dynamic registration: the attack surface
 is exactly `Tools/Registry/AgentToolRegistry.cs`.
 
-## Registered in Phase F
+## Registered tools
 
-| Tool | Risk | Permission | What it does |
+13 tools plus navigation. Verified against
+`Tools/Registry/AgentToolRegistry.cs` — if this table and the registry
+disagree, the registry is right and this file is stale.
+
+### Read (12)
+
+| Tool | Permission | What it does |
+|---|---|---|
+| `search_proforma` | `ProformaInvoice.View` | Proformas by number / customer / project |
+| `search_joborder` | `JobOrder.View` | Job orders |
+| `search_delivery` | `DeliveryNote.View` | Delivery notes |
+| `search_taxinvoice` | `TaxInvoice.View` | Tax invoices |
+| `search_customer` | `ProformaInvoice.View` | Saved clients |
+| `get_inventory` | `SheetStore.View` | Types, available SQM, low stock (≤2) |
+| `get_activity` | `Audit.View` | Last 5 audited actions |
+| `get_profitability` | `ProformaInvoice.View` | Profit / cost / margin per job |
+| `get_document_chain` | `ProformaInvoice.View` | PI → JO → DN → TI, with delivery progress |
+| `get_statement` | `TaxInvoice.View` | Saved statements: invoiced, outstanding, overdue |
+| `get_sales_analytics` | `ProformaInvoice.View` | Period revenue, cost, profit, margin; glass cost by type |
+| `get_screen_context` | **none** | Active module, recent screens, current theme |
+
+`get_screen_context` is the **only** permissionless tool, because it
+exposes no ERP data — just the module name already on screen and the
+theme. Inventing a permission for "may see the window you already have
+open" would be security theatre. `OfflineBehaviourTests` asserts it is the
+only one, so a future permissionless tool fails the build.
+
+### Write (1)
+
+| Tool | Permission | Confirmation | What it does |
 |---|---|---|---|
-| `navigate` | Navigation | — | Opens a module screen |
-| `search_proforma` | Read | `ProformaInvoice.View` | Proformas by number / customer / project |
-| `search_joborder` | Read | `JobOrder.View` | Job orders |
-| `search_delivery` | Read | `DeliveryNote.View` | Delivery notes |
-| `search_taxinvoice` | Read | `TaxInvoice.View` | Tax invoices |
-| `search_customer` | Read | `ProformaInvoice.View` | Saved clients |
-| `get_inventory` | Read | `SheetStore.View` | Types, available SQM, low stock (≤2) |
-| `get_activity` | Read | `Audit.View` | Last 5 audited actions |
+| `update_sheet_stock` | `SheetStore.Edit` | **required** | Adds or consumes stock on ONE sheet |
 
-**No Write tool. No Destructive tool.** The gates that would govern them
-are implemented and enforced, but nothing can currently mutate ERP data
-through the agent.
+Capped at 500 per call, 15s timeout, reversible by its inverse, audited
+with before/after values. See `WriteTools.md`.
+
+### Destructive (0)
+
+**There is still no destructive tool.** Nothing the agent can reach
+deletes a record.
+
+## Reachability — a tool must be routable, not just registered
+
+A registered tool that no sentence can reach is a dead feature. Two
+shipped that way and neither failed a test:
+
+- `update_sheet_stock` (Phase Q) — intent keywords were `"add stock"` /
+  `"add to sheet"`, but its parser needs a quantity between verb and
+  target (`"add 10 to sheet 42"`), so no keyword match could ever fire.
+- The five `search_*` tools — matched only `"search X"` / `"find X"`, so
+  every natural phrasing (`"show delivery notes"`, `"list job orders"`)
+  fell through to the reasoning provider, which answers from general
+  knowledge instead of the ERP.
+
+Both were found by hand, because every other test called `ExecuteAsync`
+directly and so proved the tool WORKS without proving it is REACHABLE.
+`ToolReachabilityTests` now enumerates the registry and fails by name if
+any tool cannot be reached from a realistic sentence.
+
+## Answer provenance
+
+Tools that compute rather than quote attach an `AnswerProvenance`
+(`Known` / `Calculated` / `Inferred` / `Unknown`). `Unknown` is the
+default so an unfilled provenance never reads as authoritative, and
+`Known` carries no hedge — qualifying plain facts trains users to ignore
+qualifiers.
 
 ## Risk tiers
 

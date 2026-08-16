@@ -51,8 +51,9 @@ best-effort action.
 | `Intent/` | Deterministic phrase → intent DSL |
 | `Planning/` | Intent DSL → ordered steps |
 | `Tools/` | The **only** way the agent touches the app |
+| `Context/` | What is on screen, answer provenance, "it" resolution |
 | `Permissions/` | Identity + role gate, confirmation policy |
-| `Security/` | Sanitization, redaction, egress boundary, host allow-list, DPAPI secret wrapper |
+| `Security/` | Split by concern: `DataBoundary/` `Consent/` `Redaction/` `SecretProtection/` `Network/` `Integrity/` |
 | `Knowledge/` | Curated offline facts + seed |
 | `Teaching/` | Trigger → action rules, inert until approved |
 | `Memory/` | Session conversation (RAM) + approved facts (disk) |
@@ -74,6 +75,33 @@ Windows DPAPI (per-user)                                provider API keys
 The agent **never** opens `proglass.db`, `audit.db` or any other ERP
 database directly. It reads business data only through the existing
 repositories, via tools.
+
+## The context layer, and what it does NOT collect
+
+`Context/` lets the agent answer "how much is still pending?" about the
+document already on screen. Its boundaries are deliberate:
+
+| Observed | Not observed |
+|---|---|
+| Active module name | Screenshots, OCR |
+| A short label a module *opts in* to publishing (`editing PI-2026-014`) | Keystrokes, field contents |
+| In-session trail, capped at 10 entries | Microphone, continuous capture |
+| | Customer names, prices, balances |
+
+**Nothing in `Context/` is written to disk.** It is RAM only and dies with
+the process. Background observation that silently accumulates a permanent
+file is surveillance, not assistance.
+
+There is no timer and no navigation hook — the trail updates only when the
+agent is actually used, so nothing is watched while it sits idle. Clearing
+the conversation also clears the trail.
+
+Modules opt in via `IAgentContextAware`, a single string property, so a
+module that does not implement it reports nothing and no property-name
+guessing is involved. Five modules publish today: Proforma, Sheet Store,
+Job Order, Delivery Note, Tax Invoice — each an identifier only, never a
+value. A context label has no permission gate, which is exactly why no
+priced or named data may travel through it.
 
 ## Lazy startup
 
