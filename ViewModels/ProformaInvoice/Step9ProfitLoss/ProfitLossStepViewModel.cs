@@ -55,9 +55,13 @@ using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Collections.Specialized;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
+using System.Windows;
+using System.Windows.Threading;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Input;
@@ -499,11 +503,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         ///   MarginPercent = profit / NET REVENUE   (accounting margin)
         ///   MarkupPercent = profit / TOTAL COST    (Step 4's setting)
         ///
-        /// A DGU quoted at Step 4's 15% comes out at 150.51/SQM. Discount it
-        /// to 140 and the mark-up actually earned drops to about 7%, while
-        /// the accounting margin only moves from 21.6% to 15.7%. Showing the
-        /// mark-up makes the cost of a discount visible in the same units the
-        /// price was set in.
+        /// Worked example, 6mm HD Grey FT + 12mm ASP + 6mm Clear FT:
+        ///     cost basis = (48 + 25) / 0.85 + 45 = 130.88 per SQM
+        ///     Step 4 at 15%                      = 150.51 per SQM
+        /// Discount that to 140 and the mark-up actually earned is
+        ///     (140 - 130.88) / 130.88 = 6.97%
+        /// — less than half the intended 15%, for a 7% cut in price. Showing
+        /// the mark-up makes that visible in the same units the price was set
+        /// in; the accounting margin alone understates how much was given
+        /// away.
+        ///
+        /// One caveat this figure depends on: Step 4 quotes EX-VAT, while
+        /// Profit is measured against NET (gross / 1.05). If a Step 4 rate is
+        /// typed into Step 7 as a VAT-INCLUSIVE price, the mark-up shown here
+        /// lands near 9.5% rather than 15%, because a twentieth of the
+        /// revenue is tax rather than income.
         /// </summary>
         public decimal MarkupPercent
         {
@@ -559,6 +573,198 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             _lamVm = lamVm;
             _dguLamVm = dguLamVm;
             _grossProvider = grossProvider;
+
+            WireLiveRecalculation();
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  LIVE RECALCULATION
+        //
+        //  Bind() used to store these references and subscribe to nothing, so
+        //  the report only rebuilt when the step was entered or REFRESH was
+        //  pressed. Edit a size in Step 5, come back, and the figures were
+        //  from the previous visit — silently wrong rather than obviously
+        //  empty, which is the worse failure for a money screen.
+        //
+        //  Everything the costing reads is now watched:
+        //    · spec groups added or removed
+        //    · item rows added or removed inside a group
+        //    · width / height / quantity edits on any row
+        //    · the Step 4 pricing panels (rates, yield, margin)
+        //
+        //  Recalculation is coalesced: a paste that changes fifty rows fires
+        //  one rebuild, not fifty. Without that, bulk edits would re-run the
+        //  whole Sheet Store lookup per keystroke.
+        // ══════════════════════════════════════════════════════════════════
+
+        private bool _liveWired;
+        private bool _recalcQueued;
+
+        private void WireLiveRecalculation()
+        {
+            if (_liveWired) return;
+            _liveWired = true;
+
+            if (_dataGrid?.SpecGroups is INotifyCollectionChanged groups)
+            {
+                groups.CollectionChanged += (_, e) =>
+                {
+                    // Watch whatever just arrived, stop watching what left.
+                    if (e.NewItems != null)
+                        foreach (SpecGroup g in e.NewItems.OfType<SpecGroup>())
+                            WatchSpecGroup(g);
+
+                    if (e.OldItems != null)
+                        foreach (SpecGroup g in e.OldItems.OfType<SpecGroup>())
+                            UnwatchSpecGroup(g);
+
+                    QueueRecalculate();
+                };
+            }
+
+            foreach (var g in _dataGrid?.SpecGroups ?? Enumerable.Empty<SpecGroup>())
+                WatchSpecGroup(g);
+
+            // Step 4 panels: a rate, yield or margin change moves the cost
+            // basis, so the report must follow it.
+            WatchPanel(_dguVm);
+            WatchPanel(_sguVm);
+            WatchPanel(_lamVm);
+            WatchPanel(_dguLamVm);
+        }
+
+        private void WatchPanel(INotifyPropertyChanged? panel)
+        {
+            if (panel == null) return;
+            panel.PropertyChanged += (_, __) => QueueRecalculate();
+        }
+
+        private void WatchSpecGroup(SpecGroup group)
+        {
+            if (group == null) return;
+
+            // Detach first. A group can reach this method twice — added,
+            // then seen again in a collection Reset — and a doubled handler
+            // would rebuild the report twice per edit. Removing a handler
+            // that was never attached is a no-op, so this is always safe.
+            group.PropertyChanged -= OnSpecGroupChanged;
+            group.PropertyChanged += OnSpecGroupChanged;
+
+            if (group.ItemRows is INotifyCollectionChanged rows)
+            {
+                rows.CollectionChanged -= OnItemRowsChanged;
+                rows.CollectionChanged += OnItemRowsChanged;
+            }
+
+            foreach (var row in group.ItemRows ?? Enumerable.Empty<GlassItemRow>())
+                WatchItemRow(row);
+        }
+
+        private void UnwatchSpecGroup(SpecGroup group)
+        {
+            if (group == null) return;
+
+            group.PropertyChanged -= OnSpecGroupChanged;
+
+            if (group.ItemRows is INotifyCollectionChanged rows)
+                rows.CollectionChanged -= OnItemRowsChanged;
+
+            foreach (var row in group.ItemRows ?? Enumerable.Empty<GlassItemRow>())
+                row.PropertyChanged -= OnItemRowChanged;
+        }
+
+        private void WatchItemRow(GlassItemRow row)
+        {
+            if (row == null) return;
+
+            // Unsubscribe first: a row can be handed to Watch twice (added,
+            // then seen again in a Reset), and a doubled handler would fire
+            // two rebuilds per keystroke.
+            row.PropertyChanged -= OnItemRowChanged;
+            row.PropertyChanged += OnItemRowChanged;
+        }
+
+        private void OnSpecGroupChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            // Only the fields the costing actually reads.
+            if (e.PropertyName is nameof(SpecGroup.SelectedSpecName)
+                               or nameof(SpecGroup.SelectedGlassType))
+            {
+                QueueRecalculate();
+            }
+        }
+
+        private void OnItemRowsChanged(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            if (e.NewItems != null)
+                foreach (GlassItemRow r in e.NewItems.OfType<GlassItemRow>())
+                    WatchItemRow(r);
+
+            if (e.OldItems != null)
+                foreach (GlassItemRow r in e.OldItems.OfType<GlassItemRow>())
+                    r.PropertyChanged -= OnItemRowChanged;
+
+            // A Reset carries no item lists — re-watch the whole collection.
+            if (e.Action == NotifyCollectionChangedAction.Reset
+                && sender is IEnumerable<GlassItemRow> all)
+            {
+                foreach (var r in all) WatchItemRow(r);
+            }
+
+            QueueRecalculate();
+        }
+
+        private void OnItemRowChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            // Dimensions and quantity are the only row fields that change the
+            // cut area. Reacting to every property would rebuild the report on
+            // cosmetic edits such as the reference text.
+            if (e.PropertyName is nameof(GlassItemRow.W1) or nameof(GlassItemRow.H1)
+                               or nameof(GlassItemRow.W2) or nameof(GlassItemRow.H2)
+                               or nameof(GlassItemRow.Qty))
+            {
+                QueueRecalculate();
+            }
+        }
+
+        /// <summary>
+        /// Coalesces a burst of edits into a single rebuild on the dispatcher's
+        /// next idle turn.
+        /// </summary>
+        private void QueueRecalculate()
+        {
+            if (_recalcQueued) return;
+            _recalcQueued = true;
+
+            var dispatcher = Application.Current?.Dispatcher;
+
+            if (dispatcher == null)
+            {
+                // No UI thread (unit tests) — run it straight through.
+                _recalcQueued = false;
+                _ = RecalculateAsync();
+                return;
+            }
+
+            dispatcher.BeginInvoke(
+                new Action(async () =>
+                {
+                    _recalcQueued = false;
+
+                    // RecalculateAsync early-returns while a run is already
+                    // in flight. Without re-queueing, an edit made during
+                    // that run would be silently dropped and the report would
+                    // sit one change behind the data — the exact staleness
+                    // this wiring exists to remove.
+                    if (IsBusy)
+                    {
+                        QueueRecalculate();
+                        return;
+                    }
+
+                    await RecalculateAsync().ConfigureAwait(true);
+                }),
+                DispatcherPriority.Background);
         }
 
         private async void FireRecalculate()
@@ -719,8 +925,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             // The spacer sits between pane 1 and pane 2, and
                             // the interlayer between pane 2 and pane 3, so
                             // remember where each boundary fell.
+                            //
+                            // The interlayer index allows for the spacer that
+                            // will be spliced in ahead of it. Both positions
+                            // are captured now, but the spacer is inserted
+                            // FIRST and pushes everything after it down by
+                            // one. Recording the raw index here produced
+                            //     outer · spacer · interlayer · lam outer
+                            // — the interlayer landing before the pane it is
+                            // supposed to sit behind.
                             if (paneIndex == 0) spacerInsertAt = rows.Count;
-                            if (paneIndex == 1) interlayerInsertAt = rows.Count;
+                            if (paneIndex == 1) interlayerInsertAt = rows.Count + 1;
                         }
                     }
                     else if (outerMatch != null)
@@ -1242,6 +1457,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             if (unitRate <= 0m) return null;
 
             // ── Sheets required, wastage applied, always at least one ─────
+            //
+            // Wastage inflates the area BEFORE the sheet count is rounded up,
+            // so its effect is a step function: raising it from 10% to 20%
+            // often changes nothing, then a single extra point adds a whole
+            // sheet. That reads as "wastage is not being applied" when it is,
+            // so the row now states the inflated area it was rounded from —
+            // see the description below.
             decimal needed = cutSqm * (1m + (WastagePercent / 100m));
             int sheets = (int)Math.Ceiling(needed / sheetSqm);
             if (sheets < 1) sheets = 1;
@@ -1260,7 +1482,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 Description = BuildRowDescription(
                     group,
                     $"{side} pane · {thicknessMm}mm {color}",
-                    $"{sheets} sheet(s) · {source}"),
+                    // Shows the cut area, the wastage allowance and the area
+                    // actually rounded up, so the sheet count can be checked
+                    // by hand and wastage is visibly doing something even
+                    // when the count has not changed.
+                    $"{cutSqm:0.##} + {WastagePercent:0.#}% = {needed:0.##} sqm " +
+                    $"→ {sheets} sheet(s) · {source}"),
                 SheetSource = source,
                 SheetWidthMm = sheetW,
                 SheetHeightMm = sheetH,

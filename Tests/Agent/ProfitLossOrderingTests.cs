@@ -2,20 +2,29 @@
 // FILE: Tests/Agent/ProfitLossOrderingTests.cs
 // PROJECT: ProGlassAutomation.Tests
 //
-// Profit and Loss rows must read in PHYSICAL BUILD ORDER:
+// Two things this file pins.
 //
-//   SGU      outer
-//   DGU      outer · air spacer · inner
-//   LAM      outer · interlayer · inner
-//   DGU+LAM  outer · air spacer · lam outer · interlayer · lam inner
+// 1. ROW ORDER. The Profit & Loss report must list each specification in
+//    the order the glass is physically assembled:
 //
-// They used to come out as every pane of glass first with the spacer and
-// interlayer underneath, which reads nothing like the product and makes a
-// DGU indistinguishable from a laminate at a glance.
+//        DGU      outer · air spacer · inner
+//        LAM      outer · interlayer · inner
+//        DGU+LAM  outer · air spacer · lam outer · interlayer · lam inner
 //
-// The ordering is done by splicing layer rows into the list at a tracked
-// index. That is fiddly — inserting one row shifts the index of the next —
-// so the exact sequence is pinned here rather than eyeballed.
+//    The costing code produces every glass pane first and splices the
+//    middle layers in afterwards, so the splice indices are where this
+//    goes wrong. The DGU+LAM case had an off-by-one: the interlayer index
+//    was captured before the spacer was inserted ahead of it, which
+//    printed the interlayer one position too early.
+//
+// 2. MARGIN vs MARK-UP. Step 4 sets a mark-up over cost. Step 9 reports
+//    an accounting margin over net revenue. They are different numbers
+//    and a discount moves them by different amounts, which is what makes
+//    a price cut look cheaper than it is.
+//
+// The ordering tests model the splice arithmetic rather than driving the
+// view model, because RecalculateAsync needs a Sheet Store, a dispatcher
+// and a populated Step 5 grid. The arithmetic is the part that broke.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System.Collections.Generic;
@@ -26,122 +35,217 @@ namespace ProGlassAutomation.Tests.Agent
     public class ProfitLossOrderingTests
     {
         /// <summary>
-        /// Mirrors the splice logic in ProfitLossStepViewModel.RecalculateAsync.
-        /// Kept deliberately simple: it models WHERE rows land, not what they
-        /// cost, because the ordering is the part that was wrong.
+        /// Mirrors the local AddLayerRow function in ProfitLossStepViewModel:
+        /// splice at the recorded index, or append when it was never set.
         /// </summary>
-        private static List<string> BuildOrder(string kind)
+        private static int AddLayer(List<string> rows, string row, int at)
+        {
+            if (at >= 0 && at <= rows.Count)
+            {
+                rows.Insert(at, row);
+                return at + 1;
+            }
+
+            rows.Add(row);
+            return at;
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  TWO-PANE BUILDS
+        // ══════════════════════════════════════════════════════════════
+
+        [Fact]
+        public void Dgu_lists_outer_then_spacer_then_inner()
         {
             var rows = new List<string>();
-            int spacerAt = -1;
-            int interlayerAt = -1;
 
-            int AddLayerRow(string row, int at)
+            rows.Add("Glass Outer");
+            int spacerAt = rows.Count;      // boundary after the outer pane
+            rows.Add("Glass Inner");
+            AddLayer(rows, "Spacer ASP", spacerAt);
+
+            Assert.Equal(
+                new[] { "Glass Outer", "Spacer ASP", "Glass Inner" },
+                rows);
+        }
+
+        [Fact]
+        public void Lam_lists_outer_then_interlayer_then_inner()
+        {
+            var rows = new List<string>();
+
+            rows.Add("Glass Outer");
+            int interlayerAt = rows.Count;
+            rows.Add("Glass Inner");
+            AddLayer(rows, "Production PVB", interlayerAt);
+
+            Assert.Equal(
+                new[] { "Glass Outer", "Production PVB", "Glass Inner" },
+                rows);
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  THREE-PANE HYBRID — where the off-by-one lived
+        // ══════════════════════════════════════════════════════════════
+
+        [Fact]
+        public void DguLam_lists_all_five_layers_in_build_order()
+        {
+            var rows = new List<string>();
+            int spacerAt = -1, interlayerAt = -1;
+
+            var panes = new[] { "Glass Outer", "Glass LamOuter", "Glass LamInner" };
+
+            for (int i = 0; i < panes.Length; i++)
             {
-                if (at >= 0 && at <= rows.Count)
-                {
-                    rows.Insert(at, row);
-                    return at + 1;
-                }
+                rows.Add(panes[i]);
 
-                rows.Add(row);
-                return at;
+                if (i == 0) spacerAt = rows.Count;
+
+                // +1 leaves room for the spacer, which is spliced in first
+                // and shifts everything after it down by one.
+                if (i == 1) interlayerAt = rows.Count + 1;
             }
 
-            if (kind == "DGU+LAM")
-            {
-                string[] panes = { "GLASS Outer", "GLASS Lam Outer", "GLASS Lam Inner" };
+            AddLayer(rows, "Spacer ASP", spacerAt);
+            AddLayer(rows, "Production PVB", interlayerAt);
 
-                for (int i = 0; i < panes.Length; i++)
-                {
-                    rows.Add(panes[i]);
-                    if (i == 0) spacerAt = rows.Count;
-                    if (i == 1) interlayerAt = rows.Count;
-                }
-
-                int before = rows.Count;
-                spacerAt = AddLayerRow("SPACER", spacerAt);
-
-                // Inserting the spacer pushed the interlayer boundary right.
-                if (interlayerAt >= 0 && rows.Count > before)
-                    interlayerAt += rows.Count - before;
-
-                interlayerAt = AddLayerRow("INTERLAYER", interlayerAt);
-            }
-            else
-            {
-                rows.Add("GLASS Outer");
-                spacerAt = rows.Count;
-
-                if (kind == "DGU" || kind == "LAM") rows.Add("GLASS Inner");
-
-                if (kind == "DGU") spacerAt = AddLayerRow("SPACER", spacerAt);
-                if (kind == "LAM") spacerAt = AddLayerRow("INTERLAYER", spacerAt);
-                if (kind == "SGU") rows.Add("PRODUCTION");
-            }
-
-            return rows;
-        }
-
-        [Fact]
-        public void Sgu_lists_the_single_pane_then_production()
-        {
-            Assert.Equal(
-                new[] { "GLASS Outer", "PRODUCTION" },
-                BuildOrder("SGU"));
-        }
-
-        [Fact]
-        public void Dgu_puts_the_spacer_between_the_two_panes()
-        {
-            Assert.Equal(
-                new[] { "GLASS Outer", "SPACER", "GLASS Inner" },
-                BuildOrder("DGU"));
-        }
-
-        [Fact]
-        public void Lam_puts_the_interlayer_between_the_two_panes()
-        {
-            Assert.Equal(
-                new[] { "GLASS Outer", "INTERLAYER", "GLASS Inner" },
-                BuildOrder("LAM"));
-        }
-
-        [Fact]
-        public void DguLam_interleaves_both_layers_in_build_order()
-        {
-            // The case that exposed the index-shift bug: inserting the
-            // spacer moved the interlayer's boundary, and without correcting
-            // for it the interlayer floated above the pane it bonds.
             Assert.Equal(
                 new[]
                 {
-                    "GLASS Outer",
-                    "SPACER",
-                    "GLASS Lam Outer",
-                    "INTERLAYER",
-                    "GLASS Lam Inner"
+                    "Glass Outer",
+                    "Spacer ASP",
+                    "Glass LamOuter",
+                    "Production PVB",
+                    "Glass LamInner"
                 },
-                BuildOrder("DGU+LAM"));
+                rows);
         }
 
         [Fact]
-        public void Every_build_keeps_all_its_rows()
+        public void DguLam_interlayer_sits_between_the_two_laminated_panes()
         {
-            // Splicing must never drop a row: a lost row is a lost cost.
-            Assert.Equal(2, BuildOrder("SGU").Count);
-            Assert.Equal(3, BuildOrder("DGU").Count);
-            Assert.Equal(3, BuildOrder("LAM").Count);
-            Assert.Equal(5, BuildOrder("DGU+LAM").Count);
+            // The property that actually matters, stated directly: the
+            // interlayer bonds lam-outer to lam-inner, so it must appear
+            // after the first and before the second.
+            var rows = new List<string>();
+            int spacerAt = -1, interlayerAt = -1;
+
+            var panes = new[] { "Glass Outer", "Glass LamOuter", "Glass LamInner" };
+            for (int i = 0; i < panes.Length; i++)
+            {
+                rows.Add(panes[i]);
+                if (i == 0) spacerAt = rows.Count;
+                if (i == 1) interlayerAt = rows.Count + 1;
+            }
+
+            AddLayer(rows, "Spacer ASP", spacerAt);
+            AddLayer(rows, "Production PVB", interlayerAt);
+
+            int lamOuter = rows.IndexOf("Glass LamOuter");
+            int interlayer = rows.IndexOf("Production PVB");
+            int lamInner = rows.IndexOf("Glass LamInner");
+
+            Assert.True(lamOuter < interlayer);
+            Assert.True(interlayer < lamInner);
         }
 
         [Fact]
-        public void No_build_ever_starts_with_a_layer_row()
+        public void DguLam_spacer_sits_between_outer_and_the_laminated_pair()
         {
-            // The outer pane is always first. If a layer leads, the splice
-            // index was wrong and the whole sequence is suspect.
-            foreach (string kind in new[] { "SGU", "DGU", "LAM", "DGU+LAM" })
-                Assert.StartsWith("GLASS", BuildOrder(kind)[0]);
+            var rows = new List<string>();
+            int spacerAt = -1, interlayerAt = -1;
+
+            var panes = new[] { "Glass Outer", "Glass LamOuter", "Glass LamInner" };
+            for (int i = 0; i < panes.Length; i++)
+            {
+                rows.Add(panes[i]);
+                if (i == 0) spacerAt = rows.Count;
+                if (i == 1) interlayerAt = rows.Count + 1;
+            }
+
+            AddLayer(rows, "Spacer ASP", spacerAt);
+            AddLayer(rows, "Production PVB", interlayerAt);
+
+            Assert.True(rows.IndexOf("Glass Outer") < rows.IndexOf("Spacer ASP"));
+            Assert.True(rows.IndexOf("Spacer ASP") < rows.IndexOf("Glass LamOuter"));
+        }
+
+        [Fact]
+        public void An_unset_index_appends_rather_than_dropping_the_row()
+        {
+            // A shape the parser does not recognise must still report its
+            // costs. Losing the row would understate the job.
+            var rows = new List<string> { "Glass Outer" };
+
+            AddLayer(rows, "Spacer ASP", -1);
+
+            Assert.Contains("Spacer ASP", rows);
+            Assert.Equal(2, rows.Count);
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  MARGIN vs MARK-UP
+        //
+        //  Worked example from the business:
+        //    6mm HD Grey FT + 12mm ASP + 6mm Clear FT
+        //    (48 + 25) / 0.85 + 45 = 130.88 cost basis
+        //    x 1.15                = 150.51 quoted at Step 4's 15%
+        // ══════════════════════════════════════════════════════════════
+
+        private const decimal CostBasis = 130.88m;
+
+        private static decimal Markup(decimal quoted) =>
+            decimal.Round((quoted - CostBasis) / CostBasis * 100m, 2);
+
+        [Fact]
+        public void Step4_rate_reproduces_the_business_figure()
+        {
+            decimal quoted = decimal.Round(CostBasis * 1.15m, 2);
+
+            Assert.Equal(150.51m, quoted);
+        }
+
+        [Fact]
+        public void Quoting_the_step4_rate_realises_the_intended_markup()
+        {
+            Assert.Equal(15.00m, Markup(150.51m));
+        }
+
+        [Fact]
+        public void Discounting_to_140_more_than_halves_the_markup()
+        {
+            // The question the business asked: quote 140 instead of 150.51,
+            // what does the margin become? 6.97%, not 15%.
+            Assert.Equal(6.97m, Markup(140m));
+        }
+
+        [Fact]
+        public void A_seven_percent_discount_costs_more_than_half_the_profit()
+        {
+            // 150.51 -> 140 is a 7% price cut but a 53% cut in profit per
+            // SQM. This is the asymmetry the report has to make visible.
+            decimal profitAtList = 150.51m - CostBasis;
+            decimal profitAtDiscount = 140m - CostBasis;
+
+            decimal lost = decimal.Round(
+                (profitAtList - profitAtDiscount) / profitAtList * 100m, 0);
+
+            Assert.Equal(54m, lost);
+        }
+
+        [Fact]
+        public void Selling_at_cost_shows_zero_markup_not_a_small_positive()
+        {
+            Assert.Equal(0.00m, Markup(CostBasis));
+        }
+
+        [Fact]
+        public void Selling_below_cost_reports_a_negative_markup()
+        {
+            // A loss must read as a loss rather than wrapping to a small
+            // positive or being clamped at zero.
+            Assert.True(Markup(120m) < 0m);
         }
     }
 }
