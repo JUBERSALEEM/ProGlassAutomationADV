@@ -203,6 +203,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             SguVM.PropertyChanged += OnAnyPanelPropertyChanged;
             DguVM.PropertyChanged += OnAnyPanelPropertyChanged;
             LamVM.PropertyChanged += OnAnyPanelPropertyChanged;
+            DguLamVM.PropertyChanged += OnAnyPanelPropertyChanged;
 
             // Seed 4 glass type options
             GlassTypes = new ObservableCollection<GlassTypeCard>
@@ -267,8 +268,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 }
             });
 
-            // BUG-42: CanExecute checks spec name is real — DGU+LAM
-            // returns "" so save is disabled until it's implemented
+            // CanExecute still requires a real spec name, which is what
+            // keeps an unimplemented glass type from saving garbage. All
+            // four types now produce one.
             ApplyRateCommand = new RelayCommand(
                 async _ => await ApplyRateAsync(),
                 _ => TotalSpecsActive > 0
@@ -451,10 +453,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         /// <summary>
         /// Retrieves the current auto-generated spec name from the active panel.
         ///
-        /// BUG-42: Returns empty string for DGU+LAM (hybrid not implemented)
-        /// instead of "DGU+LAM Hybrid (not yet implemented)" placeholder.
-        /// Save command's CanExecute uses this to disable the button when
-        /// the current glass type has no real spec name.
+        /// BUG-42 originally forced DGU+LAM to "" because the hybrid had no
+        /// implementation and a placeholder string was being saved as if it
+        /// were a real specification. The hybrid is implemented now, so it
+        /// returns its true spec name — while "" was correct it also left
+        /// APPLY RATE permanently disabled, so a hybrid could be priced on
+        /// screen and never applied to a spec group.
+        ///
+        /// The empty-string guard in ApplyRateAsync stays: it is what stops
+        /// an unimplemented type from writing garbage, and it must keep
+        /// working for any type added later.
         /// </summary>
         private string GetCurrentSpecName(string glassType)
         {
@@ -463,7 +471,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 "SGU" => SguVM.GeneratedSpecName ?? "",
                 "DGU" => DguVM.GeneratedSpecName ?? "",
                 "LAM" => LamVM.GeneratedSpecName ?? "",
-                "DGU+LAM" => "",    // BUG-42: was garbage placeholder
+                "DGU+LAM" => DguLamVM.GeneratedSpecName ?? "",
                 _ => ""
             };
         }
@@ -484,6 +492,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 "SGU" => sender is SguParameters.SguParametersViewModel,
                 "DGU" => sender is DguParameters.DguParametersViewModel,
                 "LAM" => sender is LamParameters.LamParametersViewModel,
+                "DGU+LAM" => sender is DguLamParameters.DguLamParametersViewModel,
                 _ => false
             };
 

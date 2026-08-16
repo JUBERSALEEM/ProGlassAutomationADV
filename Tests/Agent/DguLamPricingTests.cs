@@ -225,6 +225,72 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Equal(3, spec.Split("Glass").Length - 1);
         }
 
+        // ══════════════════════════════════════════════════════════════
+        //  THREE PANES MEANS THREE OF EVERYTHING
+        //
+        //  The business asked for this explicitly. A hybrid priced with
+        //  two cutting or two tempering charges undercharges every job.
+        // ══════════════════════════════════════════════════════════════
+
+        [Fact]
+        public void Cutting_total_is_the_sum_of_three_distinct_panes()
+        {
+            var vm = Vm();
+            vm.OuterCuttingCost = 1m;
+            vm.LamOuterCuttingCost = 2m;
+            vm.LamInnerCuttingCost = 4m;
+
+            // Distinct powers of two: any dropped or double-counted pane
+            // produces a different total.
+            Assert.Equal(7m, vm.TotalCuttingCost);
+        }
+
+        [Fact]
+        public void Tempering_total_is_the_sum_of_three_distinct_panes()
+        {
+            var vm = Vm();
+            vm.OuterTemperingCost = 1m;
+            vm.LamOuterTemperingCost = 2m;
+            vm.LamInnerTemperingCost = 4m;
+
+            Assert.Equal(7m, vm.TotalTemperingCost);
+        }
+
+        [Fact]
+        public void Every_pane_charge_moves_the_rate()
+        {
+            // Guards against a field existing in the UI but never reaching
+            // the formula — the pane would look priced and be free.
+            decimal baseline = Vm().CalculateRate();
+
+            var a = Vm(); a.OuterCuttingCost += 1m;
+            var b = Vm(); b.LamOuterCuttingCost += 1m;
+            var c = Vm(); c.LamInnerCuttingCost += 1m;
+            var d = Vm(); d.OuterTemperingCost += 1m;
+            var e = Vm(); e.LamOuterTemperingCost += 1m;
+            var f = Vm(); f.LamInnerTemperingCost += 1m;
+
+            foreach (var vm in new[] { a, b, c, d, e, f })
+                Assert.True(vm.CalculateRate() > baseline);
+        }
+
+        [Fact]
+        public void Rate_reflects_all_six_processing_charges_at_once()
+        {
+            var vm = Vm();
+
+            // Zero every pane charge: the rate must fall by the full 62
+            // (30 cutting + 32 tempering) carried through the margin.
+            vm.OuterCuttingCost = 0m;
+            vm.LamOuterCuttingCost = 0m;
+            vm.LamInnerCuttingCost = 0m;
+            vm.OuterTemperingCost = 0m;
+            vm.LamOuterTemperingCost = 0m;
+            vm.LamInnerTemperingCost = 0m;
+
+            Assert.Equal(344.75m - (62m * 1.20m), vm.CalculateRate());
+        }
+
         [Fact]
         public void Spec_name_follows_the_selected_interlayer()
         {
