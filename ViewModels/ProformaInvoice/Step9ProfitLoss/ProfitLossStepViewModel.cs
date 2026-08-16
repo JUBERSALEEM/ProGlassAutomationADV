@@ -526,9 +526,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             {
                                 Kind = "Spacer",
                                 SpecNumber = group.GroupNumber,
-                                Description =
-                                    $"{spacerMm}mm air spacer (incl. cutting/tempering) · " +
-                                    $"{perimeterLm:0.##} LM",
+                                Description = BuildRowDescription(
+                                    group,
+                                    $"{spacerMm}mm air spacer (incl. cutting/tempering)",
+                                    $"{perimeterLm:0.##} LM"),
                                 Quantity = Math.Round(perimeterLm, 2),
                                 PricePerSqm = spacerPrice,
                                 Amount = amount
@@ -569,7 +570,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             {
                                 Kind = "Production",
                                 SpecNumber = group.GroupNumber,
-                                Description = $"{label} · {cutSqm:0.##} SQM",
+                                Description = BuildRowDescription(
+                                    group, label, $"{cutSqm:0.##} SQM"),
                                 Quantity = Math.Round(cutSqm, 2),
                                 PricePerSqm = lamRate,
                                 Amount = amount
@@ -593,8 +595,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                             {
                                 Kind = "Production",
                                 SpecNumber = group.GroupNumber,
-                                Description =
-                                    $"Cutting + tempering · {cutSqm:0.##} SQM",
+                                Description = BuildRowDescription(
+                                    group, "Cutting + tempering", $"{cutSqm:0.##} SQM"),
                                 Quantity = Math.Round(cutSqm, 2),
                                 PricePerSqm = rate,
                                 Amount = amount
@@ -705,6 +707,30 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         /// Prices one pane against the Sheet Store. Returns null when the
         /// store has no usable purchase price (caller counts it as skipped).
         /// </summary>
+        /// <summary>
+        /// Builds a P&amp;L row description that leads with the FULL
+        /// specification chosen in the Step 5 DataGrid.
+        ///
+        /// Previously each row described only its own fragment ("12mm air
+        /// spacer", "Outer · 6mm Clear"), so a printed P&amp;L could not be
+        /// tied back to the product being quoted. The spec name is the
+        /// authoritative description of the glass build-up, so it leads.
+        ///
+        /// Result: "6mm Clear FT + 12mm ASP + 6mm Clear FT — outer pane ·
+        /// 6mm Clear · 7 sheet(s) · chosen in Step 4".
+        /// Falls back to just the part when a group has no spec selected.
+        /// </summary>
+        private static string BuildRowDescription(
+            SpecGroup group, string part, string detail)
+        {
+            string spec = (group?.SelectedSpecName ?? "").Trim();
+            string tail = string.IsNullOrWhiteSpace(detail)
+                ? part
+                : $"{part} · {detail}";
+
+            return spec.Length == 0 ? tail : $"{spec} — {tail}";
+        }
+
         private async Task<ProfitLossRow?> BuildGlassRowAsync(
             SpecGroup group,
             string side,
@@ -790,8 +816,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             {
                 Kind = "Glass",
                 SpecNumber = specNumber,
-                Description =
-                    $"{side} · {thicknessMm}mm {color} · {sheets} sheet(s) · {source}",
+                // Full specification from the Step 5 DataGrid, so the row
+                // reads as the product actually being quoted rather than a
+                // fragment. Falls back to the parsed pane when a group has
+                // no spec selected.
+                Description = BuildRowDescription(
+                    group,
+                    $"{side} pane · {thicknessMm}mm {color}",
+                    $"{sheets} sheet(s) · {source}"),
                 SheetSource = source,
                 SheetWidthMm = sheetW,
                 SheetHeightMm = sheetH,

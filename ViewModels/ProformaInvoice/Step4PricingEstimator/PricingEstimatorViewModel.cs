@@ -402,23 +402,42 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
             {
                 switch (glassType)
                 {
+                    // Record the numeric width/height the user actually has
+                    // in the boxes. Those are the authoritative values now
+                    // that sheet size is two editable fields per side - a
+                    // typed custom size has no entry in the size dropdown.
                     case "DGU":
                         ProGlassAutomation.Services.ProformaInvoice.SpecSheetRegistry
                             .Record(specName,
-                                DguVM.SelectedOuterSheetSize,
-                                DguVM.SelectedInnerSheetSize);
+                                new ProGlassAutomation.Services.ProformaInvoice.SpecSheetSelection
+                                {
+                                    OuterWidthMm = DguVM.OuterSheetWidthMm,
+                                    OuterHeightMm = DguVM.OuterSheetHeightMm,
+                                    InnerWidthMm = DguVM.InnerSheetWidthMm,
+                                    InnerHeightMm = DguVM.InnerSheetHeightMm
+                                });
                         break;
 
                     case "SGU":
                         ProGlassAutomation.Services.ProformaInvoice.SpecSheetRegistry
-                            .Record(specName, SguVM.SelectedSheetSize, null);
+                            .Record(specName,
+                                new ProGlassAutomation.Services.ProformaInvoice.SpecSheetSelection
+                                {
+                                    OuterWidthMm = SguVM.SheetWidthMm,
+                                    OuterHeightMm = SguVM.SheetHeightMm
+                                });
                         break;
 
                     case "LAM":
                         ProGlassAutomation.Services.ProformaInvoice.SpecSheetRegistry
                             .Record(specName,
-                                LamVM.SelectedOuterSheetSize,
-                                LamVM.SelectedInnerSheetSize);
+                                new ProGlassAutomation.Services.ProformaInvoice.SpecSheetSelection
+                                {
+                                    OuterWidthMm = LamVM.OuterSheetWidthMm,
+                                    OuterHeightMm = LamVM.OuterSheetHeightMm,
+                                    InnerWidthMm = LamVM.InnerSheetWidthMm,
+                                    InnerHeightMm = LamVM.InnerSheetHeightMm
+                                });
                         break;
                 }
             }

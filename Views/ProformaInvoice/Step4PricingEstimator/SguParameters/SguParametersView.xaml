@@ -181,44 +181,30 @@
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="16"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
-                    <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="SHEET SIZE" Style="{StaticResource SguLabelStyle}"/>
-                    <ComboBox ItemsSource="{Binding SheetSizeOptions}"
-                              Text="{Binding SelectedSheetSize, UpdateSourceTrigger=PropertyChanged}"
-                              Style="{StaticResource StepEditableComboBoxStyle}"
-                              ToolTip="Stock sheet used for cutting (from Sheet Store)"/>
+                    <TextBlock Text="SHEET WIDTH (MM)" Style="{StaticResource SguLabelStyle}"/>
+                    <TextBox Text="{Binding SheetWidthMm, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
-                    <TextBlock Text="PURCHASE AED/SQM" Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding PurchasePerSqm, Mode=OneWay, StringFormat={}{0:0.##}}"
-                             IsReadOnly="True"
-                             Focusable="False"
-                             ToolTip="Read-only — Sheet Store purchase price"/>
+                    <TextBlock Text="SHEET HEIGHT (MM)" Style="{StaticResource SguLabelStyle}"/>
+                    <TextBox Text="{Binding SheetHeightMm, UpdateSourceTrigger=PropertyChanged}"
+                             ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="4">
-                    <TextBlock Text="SELLING AED/SQM" Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding SellPerSqm, Mode=OneWay, StringFormat={}{0:0.##}}"
-                             IsReadOnly="True"
-                             Focusable="False"
-                             ToolTip="Read-only — Sheet Store selling price"/>
-                </StackPanel>
-
-                <StackPanel Grid.Column="6">
-                    <TextBlock Text="SUGGESTED RATE AED/SQM" Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding SuggestedRate, Mode=OneWay, StringFormat={}{0:0.##}}"
-                             IsReadOnly="True"
-                             Focusable="False"
-                             ToolTip="Store selling price, or purchase + cutting + tempering — a hint only"/>
+                    <TextBlock Text="STOCK SIZE" Style="{StaticResource SguLabelStyle}"/>
+                    <ComboBox ItemsSource="{Binding SheetSizeOptions}"
+                              Text="{Binding SelectedSheetSize, UpdateSourceTrigger=PropertyChanged}"
+                              Style="{StaticResource StepEditableComboBoxStyle}"
+                              ToolTip="Other sizes stocked for this colour and thickness. Picking one fills width and height."/>
                 </StackPanel>
             </Grid>
 
-            <!-- Skippable Sheet Store guidance — theme WarningBrush -->
+                        <!-- Skippable Sheet Store guidance — theme WarningBrush -->
             <TextBlock Text="{Binding SheetStoreHint}"
                        FontSize="11"
                        FontWeight="SemiBold"

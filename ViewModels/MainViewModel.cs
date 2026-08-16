@@ -136,10 +136,34 @@ namespace ProGlassAutomation.ViewModels
                 if (_currentViewModel == value) return;
                 _currentViewModel = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(CurrentModuleTitle));
 
                 // v3 JARVIS: tell the AI assistant which screen the
                 // user is looking at (global screen awareness).
                 UpdateAiScreenContext();
+            }
+        }
+
+        /// <summary>
+        /// Human-readable name of the active module, shown in the top-bar
+        /// pill. Derived from the current ViewModel's type name using the
+        /// same PrettyModuleName conversion the AI screen context uses, so
+        /// the two can never disagree.
+        ///
+        /// The pill previously displayed the literal word "MODULE", which
+        /// told the user nothing.
+        /// </summary>
+        public string CurrentModuleTitle
+        {
+            get
+            {
+                var raw = _currentViewModel?.GetType().Name
+                    .Replace("ViewModel", "") ?? "";
+
+                var pretty = PrettyModuleName(raw);
+                return string.IsNullOrWhiteSpace(pretty)
+                    ? "MODULE"
+                    : pretty.ToUpperInvariant();
             }
         }
 

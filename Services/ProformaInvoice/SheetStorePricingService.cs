@@ -224,6 +224,69 @@ namespace ProGlassAutomation.Services.ProformaInvoice
         }
 
         /// <summary>
+        /// Price for an EXACT stock sheet: colour + thickness + width +
+        /// height.
+        ///
+        /// Why this exists: the same colour and thickness is often stocked
+        /// in more than one size at different rates (a 3210x2250 jumbo and
+        /// a 2440x1830 standard are not the same money). Step 4 lets the
+        /// user pick the size, so the base price must follow THAT sheet.
+        /// The colour+thickness overload cannot express this — it returns
+        /// the cheapest row regardless of size.
+        ///
+        /// Falls back to the cheapest positive purchase price for the
+        /// colour+thickness when the exact size is not stocked, so a typed
+        /// custom size still yields a sensible rate. Returns null when
+        /// nothing matches at all.
+        /// </summary>
+        public static async Task<(decimal PurchasePerSqm, decimal SellPerSqm, string Supplier)?>
+            TryGetPriceForSizeAsync(string? color, int thicknessMm, int widthMm, int heightMm)
+        {
+            var key = Norm(color);
+            if (key.Length == 0 || thicknessMm <= 0) return null;
+
+            var sheets = await LoadAllAsync().ConfigureAwait(false);
+
+            var sameGlass = sheets
+                .Where(s => s != null
+                            && Norm(s.Color) == key
+                            && s.ThicknessMm == thicknessMm)
+                .ToList();
+
+            if (sameGlass.Count == 0) return null;
+
+            if (widthMm > 0 && heightMm > 0)
+            {
+                // Match the size in either orientation — a 3210x2250 sheet
+                // and a 2250x3210 entry are the same physical stock.
+                var exact = sameGlass
+                    .Where(s => (s.WidthMm == widthMm && s.HeightMm == heightMm)
+                             || (s.WidthMm == heightMm && s.HeightMm == widthMm))
+                    .OrderBy(s => s.PurchasePricePerSqm > 0m ? 0 : 1)
+                    .ThenBy(s => s.PurchasePricePerSqm)
+                    .FirstOrDefault();
+
+                if (exact != null)
+                {
+                    return (exact.PurchasePricePerSqm,
+                            exact.SellPricePerSqm,
+                            exact.Supplier ?? string.Empty);
+                }
+            }
+
+            var priced = sameGlass
+                .Where(s => s.PurchasePricePerSqm > 0m)
+                .OrderBy(s => s.PurchasePricePerSqm)
+                .FirstOrDefault();
+
+            var pick = priced ?? sameGlass[0];
+
+            return (pick.PurchasePricePerSqm,
+                    pick.SellPricePerSqm,
+                    pick.Supplier ?? string.Empty);
+        }
+
+        /// <summary>
         /// Convenience overload accepting the UI thickness string
         /// ("6mm"). Delegates to <see cref="TryGetPriceAsync(string, int)"/>.
         /// </summary>

@@ -165,12 +165,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.La
         public decimal PvbMaterialRate
         {
             get => _pvbMaterialRate;
-            set
-            {
-                _pvbMaterialRate = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(SuggestedRate));   // PHASE J
-            }
+            set { _pvbMaterialRate = value; OnPropertyChanged(); }
         }
 
         private string _laminationPolish;

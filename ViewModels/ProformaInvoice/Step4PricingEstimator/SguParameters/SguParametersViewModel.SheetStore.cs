@@ -2,15 +2,22 @@
 // FILE: ViewModels/ProformaInvoice/Step4PricingEstimator/SguParameters/
 //         SguParametersViewModel.SheetStore.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Step 4 — SGU parameters ↔ Sheet Store adapter (PHASE A)
+// MODULE: Step 4 — SGU parameters ↔ Sheet Store adapter
 //
-// ADDITIVE PARTIAL — mirror of the DGU adapter for the single-pane panel.
-// The base SguParametersViewModel.cs is untouched apart from two one-line
-// setter hooks (OnGlassChanged) and the ObservableCollection option lists.
+// ADDITIVE PARTIAL. SguParametersViewModel.cs is untouched except for the
+// setter hook (OnGlassChanged) and the ObservableCollection option lists.
 //
-// SGU has one pane, so it exposes one set of prices. The property names
-// stay parallel to the DGU adapter (Purchase/Sell + SuggestedRate +
-// SheetStoreHint) so the Step 9 engine and the two views read alike.
+// WHAT THIS PROVIDES
+//   • Sheet WIDTH and HEIGHT as two separate numeric fields, auto-filled
+//     from Sheet Store as soon as a colour and thickness are chosen.
+//   • A size list, so a colour/thickness stocked in more than one size
+//     (3210×2250 vs 3660×2440) can be switched.
+//   • BasePricePerSqm auto-filled from the Sheet Store SELLING price of
+//     the exact sheet selected.
+//   • SheetStoreHint — one skippable warning line.
+//
+// The user may overwrite width, height and base price by hand; auto-fill
+// only writes when the glass selection or the sheet size changes.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.ProformaInvoice;
@@ -24,21 +31,66 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
 {
     public partial class SguParametersViewModel
     {
-        /// <summary>Shown when the color/thickness pair is not stocked.</summary>
+        /// <summary>Shown when the colour/thickness pair is not stocked.</summary>
         public const string NotInStoreHint =
             "This glass is not in Sheet Store — check Sheet Store or enter manually (skippable).";
 
+        private bool _isAutoFilling;
+
         // ═══════════════════════════════════════════════════════════════
-        //  SHEET SIZE OPTIONS
+        //  SHEET SIZE — WIDTH / HEIGHT
         // ═══════════════════════════════════════════════════════════════
 
-        /// <summary>Sheet sizes stocked for the selected color + thickness.</summary>
+        private int _sheetWidthMm;
+        /// <summary>
+        /// Stock sheet width in mm. Auto-filled from Sheet Store for the
+        /// chosen colour + thickness; editable for a custom sheet.
+        /// </summary>
+        public int SheetWidthMm
+        {
+            get => _sheetWidthMm;
+            set
+            {
+                if (_sheetWidthMm == value) return;
+                _sheetWidthMm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(SheetDisplay));
+                if (!_isAutoFilling) FireAndForget(RepriceAsync);
+            }
+        }
+
+        private int _sheetHeightMm;
+        /// <summary>Stock sheet height in mm. See <see cref="SheetWidthMm"/>.</summary>
+        public int SheetHeightMm
+        {
+            get => _sheetHeightMm;
+            set
+            {
+                if (_sheetHeightMm == value) return;
+                _sheetHeightMm = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(SheetDisplay));
+                if (!_isAutoFilling) FireAndForget(RepriceAsync);
+            }
+        }
+
+        /// <summary>"3210 × 2250", or empty when no sheet is set.</summary>
+        public string SheetDisplay =>
+            (SheetWidthMm > 0 && SheetHeightMm > 0)
+                ? $"{SheetWidthMm} × {SheetHeightMm}"
+                : "";
+
+        // ═══════════════════════════════════════════════════════════════
+        //  AVAILABLE SIZES
+        // ═══════════════════════════════════════════════════════════════
+
+        /// <summary>Sizes stocked for the selected colour + thickness.</summary>
         public ObservableCollection<string> SheetSizeOptions { get; } = new();
 
         private string _selectedSheetSize = "";
         /// <summary>
-        /// Chosen sheet size ("3210 × 2250"). Editable — a typed value that
-        /// is not in the store is kept verbatim.
+        /// Picking a size writes <see cref="SheetWidthMm"/> and
+        /// <see cref="SheetHeightMm"/>, which in turn reprices.
         /// </summary>
         public string SelectedSheetSize
         {
@@ -48,57 +100,22 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
                 if (_selectedSheetSize == value) return;
                 _selectedSheetSize = value ?? "";
                 OnPropertyChanged();
+
+                var (w, h) = SpecSheetRegistry.ParseSize(_selectedSheetSize);
+                if (w <= 0 || h <= 0) return;
+
+                _isAutoFilling = true;
+                SheetWidthMm = w;
+                SheetHeightMm = h;
+                _isAutoFilling = false;
+
+                FireAndForget(RepriceAsync);
             }
         }
 
         // ═══════════════════════════════════════════════════════════════
-        //  READ-ONLY PRICES FROM THE STORE
+        //  HINT
         // ═══════════════════════════════════════════════════════════════
-
-        private decimal _purchasePerSqm;
-        /// <summary>Store purchase price per SQM (read-only).</summary>
-        public decimal PurchasePerSqm
-        {
-            get => _purchasePerSqm;
-            private set
-            {
-                if (_purchasePerSqm == value) return;
-                _purchasePerSqm = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(SuggestedRate));
-            }
-        }
-
-        private decimal _sellPerSqm;
-        /// <summary>Store selling price per SQM (read-only).</summary>
-        public decimal SellPerSqm
-        {
-            get => _sellPerSqm;
-            private set
-            {
-                if (_sellPerSqm == value) return;
-                _sellPerSqm = value;
-                OnPropertyChanged();
-                OnPropertyChanged(nameof(SuggestedRate));
-            }
-        }
-
-        /// <summary>
-        /// Suggested SGU rate per SQM: store sell price when known,
-        /// otherwise the purchase price plus the panel's own cutting and
-        /// tempering costs — a floor the estimator can sanity-check against.
-        /// </summary>
-        public decimal SuggestedRate
-        {
-            get
-            {
-                if (SellPerSqm > 0m) return Math.Round(SellPerSqm, 2);
-                if (PurchasePerSqm > 0m)
-                    return Math.Round(
-                        PurchasePerSqm + CuttingCostPerSqm + TemperingCostPerSqm, 2);
-                return 0m;
-            }
-        }
 
         private string _sheetStoreHint = "";
         /// <summary>Skippable guidance line; empty when the glass resolved.</summary>
@@ -122,8 +139,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
         // ═══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Merges Sheet Store colors into <c>ColorOptions</c> and refreshes
-        /// sizes + prices. Idempotent; safe to call repeatedly.
+        /// Merges Sheet Store colours into <c>ColorOptions</c> (never
+        /// removes built-ins) and refreshes sizes and price. Idempotent.
         /// </summary>
         public async Task LoadSheetStoreAsync()
         {
@@ -149,7 +166,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
             }
         }
 
-        /// <summary>Setter hook — thickness/color changed.</summary>
+        /// <summary>Setter hook — thickness/colour changed.</summary>
         private void OnGlassChanged() => FireAndForget(RefreshFromStoreAsync);
 
         private static async void FireAndForget(Func<Task> work)
@@ -164,6 +181,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
             }
         }
 
+        /// <summary>
+        /// Colour or thickness changed: reload the size list, snap W/H to
+        /// the largest stocked sheet, and reprice.
+        /// </summary>
         private async Task RefreshFromStoreAsync()
         {
             int mm = SheetStorePricingService.ParseMm(SelectedThickness);
@@ -172,20 +193,48 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
                 .GetSizesAsync(GlassColor, mm).ConfigureAwait(true);
 
             SheetSizeOptions.Clear();
-            foreach (var s in sizes) SheetSizeOptions.Add(s.Display);
+            foreach (var sz in sizes) SheetSizeOptions.Add(sz.Display);
 
-            if (!SheetSizeOptions.Contains(SelectedSheetSize))
-                SelectedSheetSize = SheetSizeOptions.FirstOrDefault() ?? "";
+            _isAutoFilling = true;
+            if (sizes.Count > 0)
+            {
+                // Largest-area first — the jumbo sheet is the sensible
+                // default to quote against.
+                SheetWidthMm = sizes[0].W;
+                SheetHeightMm = sizes[0].H;
+                _selectedSheetSize = sizes[0].Display;
+                OnPropertyChanged(nameof(SelectedSheetSize));
+            }
+            _isAutoFilling = false;
+
+            await RepriceAsync().ConfigureAwait(true);
+        }
+
+        /// <summary>
+        /// Writes BasePricePerSqm from the Sheet Store SELLING price of the
+        /// exact sheet (colour + thickness + W + H) currently selected.
+        /// </summary>
+        private async Task RepriceAsync()
+        {
+            int mm = SheetStorePricingService.ParseMm(SelectedThickness);
 
             var price = await SheetStorePricingService
-                .TryGetPriceAsync(GlassColor, mm).ConfigureAwait(true);
+                .TryGetPriceForSizeAsync(GlassColor, mm, SheetWidthMm, SheetHeightMm)
+                .ConfigureAwait(true);
 
-            PurchasePerSqm = price?.PurchasePerSqm ?? 0m;
-            SellPerSqm = price?.SellPerSqm ?? 0m;
+            bool inStore = price.HasValue
+                && (price.Value.SellPerSqm > 0m || price.Value.PurchasePerSqm > 0m);
 
-            SheetStoreHint = (PurchasePerSqm <= 0m && SellPerSqm <= 0m)
-                ? NotInStoreHint
-                : "";
+            if (price.HasValue)
+            {
+                decimal sell = price.Value.SellPerSqm > 0m
+                    ? price.Value.SellPerSqm
+                    : price.Value.PurchasePerSqm;
+
+                if (sell > 0m) BasePricePerSqm = sell;
+            }
+
+            SheetStoreHint = inStore ? "" : NotInStoreHint;
         }
     }
 }
