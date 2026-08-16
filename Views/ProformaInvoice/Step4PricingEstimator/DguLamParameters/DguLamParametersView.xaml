@@ -89,7 +89,7 @@
                  LAYER 1 — OUTER GLASS
             ══════════════════════════════════════════════════════ -->
             <Expander Style="{StaticResource Step4SectionStyle}"
-                      Content="1 · OUTER GLASS"
+                      Header="1 · OUTER GLASS"
                       IsExpanded="True">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -135,7 +135,7 @@
                  LAYER 2 — AIR SPACER + FABRICATION EXTRAS
             ══════════════════════════════════════════════════════ -->
             <Expander Style="{StaticResource Step4SectionStyle}"
-                      Content="2 · AIR SPACER &amp; EXTRAS"
+                      Header="2 · AIR SPACER &amp; EXTRAS"
                       Tag="{Binding SpacerThickness}">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -185,7 +185,7 @@
                  LAYER 3 — LAMINATED OUTER
             ══════════════════════════════════════════════════════ -->
             <Expander Style="{StaticResource Step4SectionStyle}"
-                      Content="3 · LAMINATED OUTER">
+                      Header="3 · LAMINATED OUTER">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -230,7 +230,7 @@
                  LAYER 4 — INTERLAYER (OUTSOURCED) + EDGE POLISH
             ══════════════════════════════════════════════════════ -->
             <Expander Style="{StaticResource Step4SectionStyle}"
-                      Content="4 · INTERLAYER &amp; POLISH"
+                      Header="4 · INTERLAYER &amp; POLISH"
                       Tag="{Binding InterlayerMarginDisplay}">
                 <StackPanel>
                     <Grid Margin="0,0,0,5">
@@ -314,7 +314,7 @@
                  LAYER 5 — LAMINATED INNER
             ══════════════════════════════════════════════════════ -->
             <Expander Style="{StaticResource Step4SectionStyle}"
-                      Content="5 · LAMINATED INNER">
+                      Header="5 · LAMINATED INNER">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -362,7 +362,7 @@
                  HD Grey tempers at 12 where Clear tempers at 10.
             ══════════════════════════════════════════════════════ -->
             <Expander Style="{StaticResource Step4SectionStyle}"
-                      Content="CUTTING &amp; TEMPERING · 3 PANES">
+                      Header="CUTTING &amp; TEMPERING · 3 PANES">
                 <StackPanel>
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -434,7 +434,7 @@
                  COSTING
             ══════════════════════════════════════════════════════ -->
             <Expander Style="{StaticResource Step4SectionStyle}"
-                      Content="COSTING">
+                      Header="COSTING">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>

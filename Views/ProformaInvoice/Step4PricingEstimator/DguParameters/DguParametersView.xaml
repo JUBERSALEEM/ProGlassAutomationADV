@@ -18,12 +18,11 @@
         Two panes with an air spacer between them. One section per physical
         layer, in build order, so the screen reads like the product:
 
-            OUTER GLASS  ->  AIR SPACER  ->  INNER GLASS  ->  COSTING
+            OUTER GLASS  ->  FABRICATION EXTRAS  ->  INNER GLASS  ->  COSTING
 
-        The spacer section also carries the fabrication extras, because
-        that is where they belong on a sealed unit: the U-Insert is part of
-        the spacer, and the panel extras (overlap, cutouts, argon…) attach
-        to the unit as a whole.
+        The extras section holds the two dropdowns this panel has always
+        had: the U-Insert on the spacer, and the panel extras (overlap,
+        cutouts, argon…) that attach to the unit as a whole.
         ══════════════════════════════════════════════════════════════════
     -->
 
@@ -62,7 +61,7 @@
                  OUTER GLASS
             ══════════════════════════════════════════════════════ -->
             <Expander Style="{StaticResource Step4SectionStyle}"
-                      Content="OUTER GLASS"
+                      Header="OUTER GLASS"
                       IsExpanded="True">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -126,34 +125,15 @@
                  AIR SPACER + FABRICATION EXTRAS
             ══════════════════════════════════════════════════════ -->
             <Expander Style="{StaticResource Step4SectionStyle}"
-                      Content="AIR SPACER &amp; EXTRAS"
-                      Tag="{Binding SpacerWidth}">
+                      Header="FABRICATION EXTRAS">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="6"/>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="6"/>
-                        <ColumnDefinition Width="1.4*"/>
-                        <ColumnDefinition Width="6"/>
-                        <ColumnDefinition Width="1.6*"/>
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Column="0">
-                        <TextBlock Text="SPACER WIDTH" Style="{StaticResource Step4LabelStyle}"/>
-                        <ComboBox ItemsSource="{Binding SpacerWidthOptions}"
-                                  SelectedItem="{Binding SpacerWidth}"
-                                  Style="{StaticResource Step4ComboStyle}"/>
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="2">
-                        <TextBlock Text="SPACER / SQM" Style="{StaticResource Step4LabelStyle}"/>
-                        <TextBox Text="{Binding SpacerPrice, StringFormat={}{0:0.##}}"
-                                 Style="{StaticResource Step4InputStyle}"
-                                 ToolTip="AED per SQM. Includes cutting, tempering and production on the DGU side."/>
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="4">
                         <TextBlock Text="SPACER EXTRA" Style="{StaticResource Step4LabelStyle}"/>
                         <ComboBox ItemsSource="{Binding SpacerExtraOptions}"
                                   SelectedItem="{Binding SpacerExtra}"
@@ -161,7 +141,7 @@
                                   ToolTip="U-Insert variants. Appears on the spacer segment of the spec name."/>
                     </StackPanel>
 
-                    <StackPanel Grid.Column="6">
+                    <StackPanel Grid.Column="2">
                         <TextBlock Text="PANEL EXTRA" Style="{StaticResource Step4LabelStyle}"/>
                         <ComboBox ItemsSource="{Binding PanelExtraOptions}"
                                   SelectedItem="{Binding PanelExtra}"
@@ -175,7 +155,7 @@
                  INNER GLASS
             ══════════════════════════════════════════════════════ -->
             <Expander Style="{StaticResource Step4SectionStyle}"
-                      Content="INNER GLASS">
+                      Header="INNER GLASS">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -238,7 +218,7 @@
                  COSTING
             ══════════════════════════════════════════════════════ -->
             <Expander Style="{StaticResource Step4SectionStyle}"
-                      Content="COSTING">
+                      Header="COSTING">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>

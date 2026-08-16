@@ -125,6 +125,15 @@
          title, and (via the Tag) a one-line summary of what is inside, so
          a collapsed section still tells you its current values without
          being opened.
+
+         IMPORTANT — Header vs Content.
+         The section TITLE binds to Header. The section BODY is Content,
+         which XAML fills from the child element written inside the
+         <Expander> tag. Binding the title to Content instead sets that
+         property twice and fails the build with MC3024:
+             "'Expander.Content' has already been set and can be set
+              only once."
+         Always: Header="TITLE" as an attribute, body as the child.
     ══════════════════════════════════════════════════════════════ -->
     <Style x:Key="Step4SectionStyle" TargetType="Expander">
         <Setter Property="Margin"     Value="0,0,0,4"/>
@@ -174,7 +183,7 @@
                                                            Margin="0,0,8,0"/>
 
                                                 <TextBlock Grid.Column="1"
-                                                           Text="{TemplateBinding Content}"
+                                                           Text="{TemplateBinding Header}"
                                                            FontSize="10"
                                                            FontWeight="Bold"
                                                            Foreground="{DynamicResource PrimaryForegroundBrush}"

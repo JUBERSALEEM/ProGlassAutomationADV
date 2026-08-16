@@ -59,7 +59,7 @@
                  GLASS
             ══════════════════════════════════════════════════════ -->
             <Expander Style="{StaticResource Step4SectionStyle}"
-                      Content="GLASS"
+                      Header="GLASS"
                       IsExpanded="True"
                       Tag="{Binding GeneratedSpecName}">
                 <StackPanel>
@@ -140,7 +140,7 @@
                  COSTING
             ══════════════════════════════════════════════════════ -->
             <Expander Style="{StaticResource Step4SectionStyle}"
-                      Content="COSTING">
+                      Header="COSTING">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>

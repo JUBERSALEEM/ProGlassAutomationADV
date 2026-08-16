@@ -62,7 +62,7 @@
                  OUTER GLASS
             ══════════════════════════════════════════════════════ -->
             <Expander Style="{StaticResource Step4SectionStyle}"
-                      Content="OUTER GLASS"
+                      Header="OUTER GLASS"
                       IsExpanded="True">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -126,7 +126,7 @@
                  INTERLAYER + EDGE POLISH
             ══════════════════════════════════════════════════════ -->
             <Expander Style="{StaticResource Step4SectionStyle}"
-                      Content="INTERLAYER &amp; POLISH"
+                      Header="INTERLAYER &amp; POLISH"
                       Tag="{Binding LaminationPolish}">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -173,7 +173,7 @@
                  INNER GLASS
             ══════════════════════════════════════════════════════ -->
             <Expander Style="{StaticResource Step4SectionStyle}"
-                      Content="INNER GLASS">
+                      Header="INNER GLASS">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -236,7 +236,7 @@
                  CUTTING & TEMPERING — both panes, one row
             ══════════════════════════════════════════════════════ -->
             <Expander Style="{StaticResource Step4SectionStyle}"
-                      Content="CUTTING &amp; TEMPERING">
+                      Header="CUTTING &amp; TEMPERING">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
@@ -278,7 +278,7 @@
                  COSTING
             ══════════════════════════════════════════════════════ -->
             <Expander Style="{StaticResource Step4SectionStyle}"
-                      Content="COSTING">
+                      Header="COSTING">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
