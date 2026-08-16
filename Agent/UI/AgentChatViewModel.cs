@@ -68,7 +68,11 @@ namespace ProGlassAutomation.Agent.UI
         public AgentChatViewModel()
         {
             SendCommand = new RelayCommand(
-                _ => FireAndForget(SendAsync),
+                // Lambda, NOT the method group: SendAsync(bool fromVoice = false)
+                // has an optional parameter, and a method group with optional
+                // parameters cannot convert to Func<Task>. The lambda binds the
+                // default explicitly, so a typed turn stays silent.
+                _ => FireAndForget(() => SendAsync()),
                 _ => CanSend);
 
             ClearCommand = new RelayCommand(_ => ClearTranscript());
