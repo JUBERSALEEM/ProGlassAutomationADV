@@ -7,15 +7,18 @@
 // there is no reflection-based discovery and no dynamic registration,
 // so the attack surface is exactly this file.
 //
-// PHASE F ships READ + NAVIGATION tools only. No Write and no
-// Destructive tool exists yet; the gates that would govern them are
-// implemented and tested, but nothing can currently mutate ERP data
-// through the agent.
+// PHASE F shipped READ + NAVIGATION only. PHASE Q adds exactly ONE
+// Write tool (update_sheet_stock) after Phase P proved the permission
+// and confirmation gates with a fake write tool in the test assembly.
+//
+// There is still NO Destructive tool. Nothing the agent can reach
+// deletes a record.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Interfaces;
 using ProGlassAutomation.Agent.Tools.Navigation;
 using ProGlassAutomation.Agent.Tools.Read;
+using ProGlassAutomation.Agent.Tools.Write;
 using System;
 using System.Collections.Generic;
 
@@ -51,7 +54,21 @@ namespace ProGlassAutomation.Agent.Tools.Registry
                 // PHASE N — reads the profit Step 9 already computed and
                 // the mapper already persisted, so the agent and the Job
                 // Profitability module can never quote different numbers.
-                new GetProfitabilityTool()
+                new GetProfitabilityTool(),
+
+                // ── Write (PHASE Q) ───────────────────────────────────
+                //
+                // The FIRST write capability the agent has ever had.
+                // Reaching it requires, in order: the tool being listed
+                // here, the acting user matching the signed-in user, the
+                // SheetStore.Edit permission, AND an explicit Yes in a
+                // confirmation dialog. Every one of those gates is now
+                // covered by Tests/Agent.
+                //
+                // Scope is deliberately one sheet and one quantity per
+                // call, capped, reversible, and audited with before/after
+                // values. No deletion, no pricing, no bulk operations.
+                new UpdateSheetStockTool()
             };
 
             var map = new Dictionary<string, IAgentTool>(StringComparer.OrdinalIgnoreCase);

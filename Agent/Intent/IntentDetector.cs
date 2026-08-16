@@ -98,7 +98,19 @@ namespace ProGlassAutomation.Agent.Intent
             (new[] { "how much profit", "what profit", "profit on",
                      "margin on", "did we make money", "are we losing",
                      "losing money", "loss making", "profitable" },
-                "get_profitability")
+                "get_profitability"),
+
+            // PHASE Q — the only write intent.
+            //
+            // Ordering note: "stock" also appears in get_inventory's keys,
+            // which is matched EARLIER in this array. That is deliberate and
+            // is the safe precedence: an ambiguous sentence resolves to the
+            // read tool, never to the write tool. Only an explicit
+            // add/use/receive/consume verb reaches here.
+            (new[] { "add stock", "receive stock", "use stock", "consume stock",
+                     "add to sheet", "use from sheet", "issue stock",
+                     "update stock" },
+                "update_sheet_stock")
         };
 
         /// <summary>

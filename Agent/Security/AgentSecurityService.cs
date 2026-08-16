@@ -20,12 +20,10 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Agent.Configuration;
+using ProGlassAutomation.Agent.Security.Redaction;
 using ProGlassAutomation.Agent.Interfaces;
 using ProGlassAutomation.Agent.Security.Network;
 using System;
-using System.Linq;
-using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace ProGlassAutomation.Agent.Security
@@ -33,8 +31,12 @@ namespace ProGlassAutomation.Agent.Security
     /// <summary>Sanitization, redaction and the outbound-egress gate.</summary>
     public sealed class AgentSecurityService : IAgentSecurityService
     {
-        /// <summary>Maximum length of any sanitized input.</summary>
-        public const int MaxUntrustedLength = 8000;
+        /// <summary>
+        /// Maximum length of any sanitized input. Mirrors the Redaction
+        /// module so existing callers and tests keep compiling against
+        /// this name, while there is still only one real value.
+        /// </summary>
+        public const int MaxUntrustedLength = AgentRedaction.MaxUntrustedLength;
 
         private readonly IAgentAuditService? _audit;
 
@@ -51,94 +53,25 @@ namespace ProGlassAutomation.Agent.Security
         // ══════════════════════════════════════════════════════════════
 
         /// <summary>
-        /// Phrases that only ever appear in an attempt to hijack an agent.
-        /// Matched case-insensitively anywhere in the text.
+        /// PHASE T — delegates to the Redaction module.
+        /// The phrase list and control-character stripping now live in
+        /// Agent/Security/Redaction/AgentRedaction.cs so there is exactly
+        /// ONE implementation. Two copies of a security rule is how they
+        /// drift apart.
         /// </summary>
-        private static readonly string[] InjectionPhrases =
-        {
-            "ignore all previous instructions",
-            "ignore previous instructions",
-            "ignore the above",
-            "disregard all previous",
-            "disregard previous instructions",
-            "forget your instructions",
-            "you are now",
-            "system prompt",
-            "developer mode",
-            "jailbreak",
-            "reveal your instructions",
-            "print your prompt",
-            "act as an unrestricted"
-        };
-
-        /// <summary>
-        /// Neutralizes untrusted text: strips control characters, filters
-        /// injection phrases, caps length. Never throws.
-        /// </summary>
-        public string SanitizeUntrusted(string text)
-        {
-            if (string.IsNullOrEmpty(text)) return "";
-
-            // Strip control characters (keep tab/newline as whitespace).
-            var sb = new StringBuilder(text.Length);
-            foreach (var ch in text)
-            {
-                if (char.IsControl(ch) && ch != '\n' && ch != '\r' && ch != '\t')
-                    continue;
-                sb.Append(ch);
-            }
-
-            string cleaned = sb.ToString();
-
-            foreach (var phrase in InjectionPhrases)
-            {
-                cleaned = Regex.Replace(
-                    cleaned, Regex.Escape(phrase), "[filtered]",
-                    RegexOptions.IgnoreCase);
-            }
-
-            if (cleaned.Length > MaxUntrustedLength)
-                cleaned = cleaned[..MaxUntrustedLength];
-
-            return cleaned;
-        }
+        public string SanitizeUntrusted(string text) =>
+            AgentRedaction.SanitizeUntrusted(text);
 
         // ══════════════════════════════════════════════════════════════
         //  2. REDACT
         // ══════════════════════════════════════════════════════════════
 
-        private static readonly (Regex Pattern, string Label)[] SecretPatterns =
-        {
-            // Google API keys
-            (new Regex(@"AIza[0-9A-Za-z\-_]{10,}", RegexOptions.Compiled), "google-key"),
-            // OpenAI-style keys
-            (new Regex(@"\bsk-[0-9A-Za-z\-_]{10,}", RegexOptions.Compiled), "sk-key"),
-            // Bearer tokens
-            (new Regex(@"Bearer\s+[0-9A-Za-z\-_\.=]{10,}",
-                RegexOptions.Compiled | RegexOptions.IgnoreCase), "bearer"),
-            // Inline credentials
-            (new Regex(@"password\s*=\s*\S+",
-                RegexOptions.Compiled | RegexOptions.IgnoreCase), "password"),
-            (new Regex(@"api[_\-]?key\s*=\s*\S+",
-                RegexOptions.Compiled | RegexOptions.IgnoreCase), "api-key")
-        };
-
-        /// <summary>Replaces anything that looks like a secret.</summary>
-        public string Redact(string text)
-        {
-            if (string.IsNullOrEmpty(text)) return "";
-
-            string result = text;
-            foreach (var (pattern, _) in SecretPatterns)
-                result = pattern.Replace(result, "[REDACTED]");
-
-            return result;
-        }
+        /// <summary>PHASE T — delegates to the Redaction module.</summary>
+        public string Redact(string text) => AgentRedaction.Redact(text);
 
         /// <summary>True when the text still looks like it holds a secret.</summary>
         private static bool LooksLikeSecret(string text) =>
-            !string.IsNullOrEmpty(text) &&
-            SecretPatterns.Any(p => p.Pattern.IsMatch(text));
+            AgentRedaction.ContainsSecret(text);
 
         // ══════════════════════════════════════════════════════════════
         //  3. EGRESS GATE
