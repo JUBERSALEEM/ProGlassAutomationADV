@@ -1021,16 +1021,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     // rounded up, so summing rows would overstate the area).
                     specAreas[group.GroupNumber] = cutSqm;
 
-                    // Pre-margin cost basis for THIS specification's own glass
-                    // type, which is what a quoted rate must be measured
-                    // against. Taken from the Step 4 panel that owns the type
-                    // rather than from whichever type happens to be selected
-                    // on screen: a proforma can mix an SGU and a DGU, and
-                    // reading the live selection would score both against
-                    // whichever tab the user last opened.
-                    specBases[group.GroupNumber] =
-                        QuoteBasisFor(group.SelectedGlassType, isDgu, isLam, isDguLam);
-
                     string specName = group.SelectedSpecName ?? "";
 
                     // ── Parse the build out of the spec name ──────────────
@@ -1065,6 +1055,23 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     //  from the spec itself rather than assumed.
                     // ══════════════════════════════════════════════════════
                     bool isDguLam = spacerDetected && pvbDetected;
+
+                    // Pre-margin cost basis for THIS specification's own glass
+                    // type — the number a quoted rate must be measured
+                    // against.
+                    //
+                    // Placed here deliberately: it needs isDgu / isLam /
+                    // isDguLam, which are parsed out of the spec name just
+                    // above. An earlier version computed it before those
+                    // flags existed, which is a use-before-declaration and
+                    // would not compile.
+                    //
+                    // The build is read from the SPEC NAME rather than from
+                    // whichever Step 4 tab is open: one proforma can mix an
+                    // SGU and a DGU, and using the live selection would score
+                    // both against the same panel.
+                    specBases[group.GroupNumber] =
+                        QuoteBasisFor(group.SelectedGlassType, isDgu, isLam, isDguLam);
 
                     // Either construction has a second pane to cost.
                     bool hasInnerPane = isDgu || isLam;
