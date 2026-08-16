@@ -68,6 +68,12 @@ namespace ProGlassAutomation.Agent.Tools.Registry
                 // theme is safe; this tool cannot change it (§17/§44).
                 new GetScreenContextTool(),
 
+                // Statements (§9). READS saved statements only - it never
+                // calls StatementAggregator.BuildAsync, which would mint a
+                // new statement number. Gated on TaxInvoice.View, not
+                // Statement.Generate: that one is a WRITE right.
+                new GetStatementTool(),
+
                 // ── Write (PHASE Q) ───────────────────────────────────
                 //
                 // The FIRST write capability the agent has ever had.

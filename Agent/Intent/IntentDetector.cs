@@ -100,6 +100,11 @@ namespace ProGlassAutomation.Agent.Intent
                      "losing money", "loss making", "profitable" },
                 "get_profitability"),
 
+            // Statements / receivables (§9, §33).
+            (new[] { "statement", "outstanding", "receivable", "overdue",
+                     "owes us", "unpaid", "aging", "ageing" },
+                "get_statement"),
+
             // Screen/theme awareness. Deliberately narrow phrases so a
             // question about ERP data never lands here.
             (new[] { "what am i looking at", "what screen", "which module",
@@ -117,17 +122,11 @@ namespace ProGlassAutomation.Agent.Intent
                      "which tax invoice", "trace" },
                 "get_document_chain"),
 
-            // PHASE Q — the only write intent.
-            //
-            // Ordering note: "stock" also appears in get_inventory's keys,
-            // which is matched EARLIER in this array. That is deliberate and
-            // is the safe precedence: an ambiguous sentence resolves to the
-            // read tool, never to the write tool. Only an explicit
-            // add/use/receive/consume verb reaches here.
-            (new[] { "add stock", "receive stock", "use stock", "consume stock",
-                     "add to sheet", "use from sheet", "issue stock",
-                     "update stock" },
-                "update_sheet_stock")
+            // NOTE: the write intent is deliberately ABSENT from this
+            // catalog. It needs a quantity between the verb and the target
+            // ("add 10 to sheet 42"), which adjacent-keyword matching
+            // cannot express - see StockAdjustPattern, matched before this
+            // loop runs.
         };
 
         /// <summary>
@@ -202,6 +201,28 @@ namespace ProGlassAutomation.Agent.Intent
             var approve = ApprovePattern.Match(raw);
             if (approve.Success)
                 return $"approve:{approve.Groups[1].Value}";
+
+            // ══════════════════════════════════════════════════════════
+            //  3b ── STOCK ADJUSTMENT (the only write intent)
+            //
+            //  THIS WAS A DEAD FEATURE. The keyword list said "add stock"
+            //  and "add to sheet", but UpdateSheetStockTool's parser
+            //  requires a QUANTITY between the verb and the target -
+            //  "add 10 to sheet 42". No adjacent-keyword match could ever
+            //  fire, so every valid phrase fell through to navigation or
+            //  the reasoning provider and the write tool was unreachable
+            //  from the moment it shipped.
+            //
+            //  Matched by regex here, so intent detection and the tool's
+            //  parser agree on one syntax. Placed BEFORE the keyword
+            //  catalog because "sheet" would otherwise be swallowed by
+            //  get_inventory - the argument is passed through verbatim so
+            //  the tool re-validates it and remains the single authority
+            //  on what is acceptable.
+            // ══════════════════════════════════════════════════════════
+            var stock = StockAdjustPattern.Match(raw);
+            if (stock.Success)
+                return $"tool:update_sheet_stock:{Clean(stock.Value)}";
 
             // 4 ── tool intents (BEFORE navigation)
             foreach (var (keys, tool) in ToolCatalog)
@@ -281,6 +302,16 @@ namespace ProGlassAutomation.Agent.Intent
         /// Pulls the search term out of "search customer Al Futtaim" →
         /// "Al Futtaim". Returns "" when the phrase carried no term.
         /// </summary>
+        /// <summary>
+        /// Mirrors UpdateSheetStockTool.Syntax: verb + quantity + sheet
+        /// marker + id. Kept deliberately strict so an ambiguous sentence
+        /// never routes to the write tool; the tool re-validates anyway.
+        /// </summary>
+        private static readonly Regex StockAdjustPattern = new(
+            @"\b(?:add|buy|receive|use|consume|issue)\s+\d{1,4}\s+" +
+            @"(?:(?:to|from|on|for)\s+)?(?:sheet\s*|#)\d{1,9}\b",
+            RegexOptions.IgnoreCase | RegexOptions.Compiled);
+
         private static string ExtractQuery(string text, string[] keys)
         {
             string working = text ?? "";

@@ -16,6 +16,7 @@
 //   unverified claim this project forbids.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Agent.Intent;
 using ProGlassAutomation.Agent.Interfaces;
 using ProGlassAutomation.Agent.Tools.Registry;
 using ProGlassAutomation.Agent.Tools.Write;
@@ -33,6 +34,46 @@ namespace ProGlassAutomation.Tests.Agent
         //  These are what the permission gate reads. If any of them
         //  regress, the gate silently stops protecting the write.
         // ══════════════════════════════════════════════════════════════
+
+        // ══════════════════════════════════════════════════════════════
+        //  REACHABILITY — the tool must be routable from natural language
+        // ══════════════════════════════════════════════════════════════
+
+        [Theory]
+        [InlineData("add 10 to sheet 42")]
+        [InlineData("buy 10 sheet 42")]
+        [InlineData("use 5 from sheet 42")]
+        [InlineData("receive 25 to sheet 7")]
+        [InlineData("consume 5 sheet 42")]
+        [InlineData("issue 3 from sheet 19")]
+        public void Stock_phrases_route_to_the_write_tool(string phrase)
+        {
+            // REGRESSION. The write tool shipped UNREACHABLE: the intent
+            // keywords were "add stock" / "add to sheet", but the tool's
+            // parser requires a quantity in between ("add 10 to sheet 42"),
+            // so no adjacent-keyword match could ever fire. A registered,
+            // permission-gated, audited, tested tool that no sentence can
+            // reach is a dead feature, and nothing failed loudly enough to
+            // reveal it.
+            string intent = IntentDetector.Detect(
+                phrase, System.Array.Empty<TeachingRuleView>());
+
+            Assert.StartsWith("tool:update_sheet_stock", intent);
+        }
+
+        [Theory]
+        [InlineData("show inventory")]
+        [InlineData("what stock do we have")]
+        [InlineData("add some stock")]       // no quantity, no sheet id
+        [InlineData("low stock report")]
+        public void Vague_stock_phrases_stay_on_the_read_tool(string phrase)
+        {
+            // Ambiguity must resolve to the READ tool, never the write.
+            string intent = IntentDetector.Detect(
+                phrase, System.Array.Empty<TeachingRuleView>());
+
+            Assert.DoesNotContain("update_sheet_stock", intent);
+        }
 
         [Fact]
         public void Declares_write_risk_permission_and_confirmation()
