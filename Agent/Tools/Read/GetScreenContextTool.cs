@@ -25,6 +25,8 @@
 
 using ProGlassAutomation.Agent.Context;
 using ProGlassAutomation.Agent.Interfaces;
+using ProGlassAutomation.Services;
+using ProGlassAutomation.Services.Theme;
 using System;
 using System.Diagnostics;
 using System.Linq;
@@ -115,31 +117,71 @@ namespace ProGlassAutomation.Agent.Tools.Read
         }
 
         /// <summary>
-        /// Best-effort theme description. Returns empty rather than guessing
-        /// when the theme service does not answer.
+        /// Reports the ACTUAL theme state from ThemeManager (§16).
+        ///
+        /// READ ONLY, AND STRUCTURALLY SO (§17/§44). ThemeManager exposes
+        /// ApplyTheme, ToggleTheme, ApplyAccent and ResetAccent; none of
+        /// them is referenced here or anywhere else in the agent. Reading
+        /// the theme is safe, changing it as a side effect of answering a
+        /// question is not, so the agent has no path to it at all.
+        ///
+        /// Returns empty rather than guessing when the theme service does
+        /// not answer — a wrong colour is worse than no colour.
         /// </summary>
         private static string DescribeTheme()
         {
             try
             {
-                var app = System.Windows.Application.Current;
-                if (app == null) return "";
+                var mode = ThemeManager.CurrentTheme;
+                var accent = ThemeManager.AccentColor;
 
-                // The accent brush is the one theme value that is reliably
-                // present as a resource in this app.
-                if (app.TryFindResource("AccentBrush")
-                        is System.Windows.Media.SolidColorBrush accent)
-                {
-                    return $"Accent colour is {accent.Color}.";
-                }
+                // Name the preset when the accent matches one, so the answer
+                // is "Emerald" rather than "#FF10B981" — the user picked a
+                // name, not a hex code.
+                string accentName = MatchPreset(accent);
 
-                return "";
+                string accentText = string.IsNullOrWhiteSpace(accentName)
+                    ? $"a custom accent ({accent})"
+                    : $"the {accentName} accent ({accent})";
+
+                return $"Theme is {mode} mode with {accentText}.";
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"[GetScreenContextTool] theme: {ex.Message}");
                 return "";
             }
+        }
+
+        /// <summary>
+        /// Reverse-maps an accent colour to its preset name, or empty when
+        /// it is a custom colour.
+        ///
+        /// AccentPresets exposes ColorFor(key) and SwatchFor(key) but NO
+        /// reverse lookup, so the match is done here over the known keys
+        /// rather than adding a method to a shared service for one caller.
+        /// Empty is honest: calling a custom colour "Emerald" would be a
+        /// small fabrication.
+        /// </summary>
+        private static string MatchPreset(System.Windows.Media.Color accent)
+        {
+            string[] keys =
+            {
+                AccentPresets.GlassBlue,
+                AccentPresets.Emerald,
+                AccentPresets.Amber,
+                AccentPresets.Rose,
+                AccentPresets.Violet,
+                AccentPresets.Teal
+            };
+
+            foreach (var key in keys)
+            {
+                var c = AccentPresets.ColorFor(key);
+                if (c.HasValue && c.Value == accent) return key;
+            }
+
+            return "";
         }
     }
 }

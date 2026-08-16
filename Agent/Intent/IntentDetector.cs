@@ -67,22 +67,30 @@ namespace ProGlassAutomation.Agent.Intent
             (new[] { "inventory", "stock", "how many sheets", "sheets do we have" },
                 "get_inventory"),
 
+            // Verb-led forms PLUS the bare plural noun. People say "show me
+            // the customers" far more often than "search customer", and the
+            // verb-only lists made every such phrase unroutable.
             (new[] { "search customer", "find customer", "customer named",
-                     "look up customer", "client named" },
+                     "look up customer", "client named",
+                     "customers", "customer list", "clients" },
                 "search_customer"),
 
             (new[] { "search proforma", "find proforma", "search quotation",
-                     "find quotation", "proforma number" },
+                     "find quotation", "proforma number",
+                     "proformas", "proforma", "quotations", "quotation" },
                 "search_proforma"),
 
-            (new[] { "search job", "find job", "job order number", "search job order" },
+            (new[] { "search job", "find job", "job order number", "search job order",
+                     "job orders", "job order", "jobs list" },
                 "search_joborder"),
 
-            (new[] { "search delivery", "find delivery", "delivery note number" },
+            (new[] { "search delivery", "find delivery", "delivery note number",
+                     "delivery notes", "delivery note", "deliveries" },
                 "search_delivery"),
 
             (new[] { "search tax invoice", "find tax invoice", "search invoice",
-                     "find invoice", "invoice number" },
+                     "find invoice", "invoice number",
+                     "tax invoices", "tax invoice", "invoices" },
                 "search_taxinvoice"),
 
             (new[] { "activity", "audit", "recent actions", "who did", "what happened" },
