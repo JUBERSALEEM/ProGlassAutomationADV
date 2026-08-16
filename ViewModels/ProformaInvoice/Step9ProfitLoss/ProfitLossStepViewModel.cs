@@ -373,7 +373,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         public string NetDisplay => $"AED {NetExVat:N2}";
         public string GlassCostDisplay => $"AED {TotalGlassCost:N2}";
         public string ProductionCostDisplay => $"AED {TotalProductionCost:N2}";
-        public string ProfitDisplay => $"AED {Math.Abs(Profit):N2}";
+        /// <summary>
+        /// Math.Abs is correct ONLY because the caption flips to "LOSS",
+        /// so "AED 500.00" under a LOSS label reads right and avoids the
+        /// double-negative "-AED 500.00 LOSS".
+        ///
+        /// But IsLoss requires gross > 0. With no revenue entered yet the
+        /// profit is -cost, the caption still says PROFIT, and Math.Abs
+        /// would render that as a POSITIVE profit - the exact opposite of
+        /// the truth. That case now keeps its minus sign.
+        /// </summary>
+        public string ProfitDisplay =>
+            (!IsLoss && Profit < 0m)
+                ? $"AED -{Math.Abs(Profit):N2}"
+                : $"AED {Math.Abs(Profit):N2}";
         public string MarginDisplay => $"{MarginPercent:0.#}% margin";
 
         /// <summary>Tile caption — flips wording instead of showing a minus sign.</summary>
@@ -859,9 +872,25 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             decimal sheetSqm = Math.Round((sheetW * (decimal)sheetH) / 1_000_000m, 4);
             if (sheetSqm <= 0m) return null;
 
-            // ── Price: no purchase price → do not fake a zero cost ────────
+            // ══════════════════════════════════════════════════════════
+            //  PRICE MUST FOLLOW THE SHEET WE ARE COSTING.
+            //
+            //  This used to call TryGetPriceAsync(color, thickness), which
+            //  returns the CHEAPEST row for that colour+thickness
+            //  regardless of size. The amount below then multiplied that
+            //  price by the area of a DIFFERENT sheet - the one actually
+            //  chosen. So 6mm Clear costed at the 2440x1830 rate while
+            //  being multiplied by 3660x2440 of area silently understated
+            //  the cost on every jumbo job.
+            //
+            //  TryGetPriceForSizeAsync matches colour + thickness + size
+            //  (either orientation), and falls back to the cheapest
+            //  positive price only when that exact size is not stocked.
+            //  Same unit, same sheet, same money.
+            // ══════════════════════════════════════════════════════════
             var price = await SheetStorePricingService
-                .TryGetPriceAsync(color, thicknessMm).ConfigureAwait(true);
+                .TryGetPriceForSizeAsync(color, thicknessMm, sheetW, sheetH)
+                .ConfigureAwait(true);
 
             decimal purchase = price?.PurchasePerSqm ?? 0m;
             if (purchase <= 0m) return null;

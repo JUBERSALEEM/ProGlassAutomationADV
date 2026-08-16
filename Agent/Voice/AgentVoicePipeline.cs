@@ -43,6 +43,58 @@ namespace ProGlassAutomation.Agent.Voice
         public bool IsReady => _listener.IsReady;
 
         /// <summary>
+        /// Why voice is unavailable, surfaced so the CHAT can explain it.
+        /// Previously this only existed on the listener, so the chat could
+        /// not distinguish "model not downloaded" from "heard nothing".
+        /// </summary>
+        public string ReadinessMessage => _listener.ReadinessMessage;
+
+        /// <summary>
+        /// When true the agent never speaks. Checked inside Speak, so every
+        /// route into speech - voice turns and typed turns alike - honours
+        /// it, rather than only the one the mute button happens to know
+        /// about.
+        /// </summary>
+        public bool IsMuted { get; set; }
+
+        /// <summary>True while speech is in progress.</summary>
+        public bool IsSpeaking => _speaker.IsSpeaking;
+
+        /// <summary>
+        /// Transcribes one utterance WITHOUT running it through the agent,
+        /// so the caller can display what was heard before answering it.
+        /// Returns null when nothing was captured.
+        /// </summary>
+        public Task<string?> CaptureTranscriptAsync(int timeoutMs = 10000) =>
+            _listener.CaptureTranscriptAsync(timeoutMs);
+
+        /// <summary>Silences speech in progress. Never throws.</summary>
+        public void StopSpeaking()
+        {
+            try { _speaker.Stop(); }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[AgentVoice] stop failed: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// Speaks a response unless muted. Single choke point so mute
+        /// cannot be bypassed by a future caller.
+        /// </summary>
+        /// <summary>
+        /// Public, mute-aware speech entry point for callers outside the
+        /// pipeline (the chat window speaks answers to spoken questions).
+        /// </summary>
+        public void SpeakResponse(AgentResponse? response) => SpeakIfAllowed(response);
+
+        private void SpeakIfAllowed(AgentResponse? response)
+        {
+            if (IsMuted) return;
+            _speaker.Speak(response);
+        }
+
+        /// <summary>
         /// Captures one utterance, runs it through the agent and speaks
         /// the answer. Never throws.
         /// </summary>
@@ -56,7 +108,7 @@ namespace ProGlassAutomation.Agent.Voice
                     var notReady = AgentResponse.Fail(
                         $"Voice input is not ready. {_listener.ReadinessMessage}");
 
-                    _speaker.Speak(notReady);
+                    SpeakIfAllowed(notReady);
                     return notReady;
                 }
 
@@ -69,7 +121,7 @@ namespace ProGlassAutomation.Agent.Voice
                     var nothing = AgentResponse.Fail(
                         "I didn't hear anything. Try again and speak after the tone.");
 
-                    _speaker.Speak(nothing);
+                    SpeakIfAllowed(nothing);
                     return nothing;
                 }
 
@@ -80,7 +132,7 @@ namespace ProGlassAutomation.Agent.Voice
                     Username = username
                 }).ConfigureAwait(false);
 
-                _speaker.Speak(response);
+                SpeakIfAllowed(response);
                 return response;
             }
             catch (Exception ex)
@@ -90,7 +142,7 @@ namespace ProGlassAutomation.Agent.Voice
                 var failure = AgentResponse.Fail(
                     "Something went wrong with voice input, so I stopped.");
 
-                _speaker.Speak(failure);
+                SpeakIfAllowed(failure);
                 return failure;
             }
         }

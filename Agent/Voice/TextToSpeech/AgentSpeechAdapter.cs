@@ -29,6 +29,19 @@ namespace ProGlassAutomation.Agent.Voice.TextToSpeech
             _tts = tts;
         }
 
+        /// <summary>
+        /// True while speech is in progress. Guarded because a TTS
+        /// implementation can throw when the engine has been torn down.
+        /// </summary>
+        public bool IsSpeaking
+        {
+            get
+            {
+                try { return _tts is { IsSpeaking: true }; }
+                catch { return false; }
+            }
+        }
+
         /// <summary>True when speech synthesis can actually be used.</summary>
         public bool IsAvailable
         {

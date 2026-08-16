@@ -73,9 +73,22 @@ namespace ProGlassAutomation.Agent.UI
 
             ClearCommand = new RelayCommand(_ => ClearTranscript());
 
+            // LISTEN. Disabled while a turn is running, and it now flips
+            // IsListening so the UI can prove the microphone is actually
+            // open - previously nothing on screen changed, so there was no
+            // way to tell whether it was hearing anything.
             SpeakCommand = new RelayCommand(
                 _ => FireAndForget(ListenAsync),
-                _ => !IsBusy);
+                _ => !IsBusy && !IsListening);
+
+            // STOP. Cancels an in-flight turn and silences the voice.
+            StopCommand = new RelayCommand(
+                _ => Stop(),
+                _ => IsBusy || IsListening || IsSpeaking);
+
+            // MUTE. Persists for the session and silences speech
+            // immediately, so muting mid-sentence actually stops it.
+            ToggleMuteCommand = new RelayCommand(_ => ToggleMute());
 
             AddSystem(
                 "Local agent ready. Ask about invoices, jobs, deliveries, " +
@@ -124,11 +137,80 @@ namespace ProGlassAutomation.Agent.UI
             }
         }
 
+        // ══════════════════════════════════════════════════════════════
+        //  VOICE STATE
+        //
+        //  The complaint was "I am not sure it is even hearing me".
+        //  That was accurate: ListenAsync set IsBusy and nothing else, so
+        //  the microphone opened with no visible change at all. These
+        //  properties give the view something concrete to bind to.
+        // ══════════════════════════════════════════════════════════════
+
+        private bool _isListening;
+        /// <summary>True while the microphone is open for one utterance.</summary>
+        public bool IsListening
+        {
+            get => _isListening;
+            private set
+            {
+                if (_isListening == value) return;
+                _isListening = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(StatusText));
+                OnPropertyChanged(nameof(MicButtonText));
+                CommandManager.InvalidateRequerySuggested();
+            }
+        }
+
+        private bool _isSpeaking;
+        /// <summary>True while the agent is talking back.</summary>
+        public bool IsSpeaking
+        {
+            get => _isSpeaking;
+            private set
+            {
+                if (_isSpeaking == value) return;
+                _isSpeaking = value;
+                OnPropertyChanged();
+                CommandManager.InvalidateRequerySuggested();
+            }
+        }
+
+        private bool _isMuted;
+        /// <summary>
+        /// When true the agent never speaks. Session-scoped on purpose:
+        /// a mute that silently survives a restart is a support call.
+        /// </summary>
+        public bool IsMuted
+        {
+            get => _isMuted;
+            private set
+            {
+                if (_isMuted == value) return;
+                _isMuted = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(MuteButtonText));
+                OnPropertyChanged(nameof(MuteButtonTooltip));
+            }
+        }
+
+        /// <summary>Speaker glyph: on = E767, muted = E74F.</summary>
+        public string MuteButtonText => IsMuted ? "" : "";
+
+        public string MuteButtonTooltip => IsMuted
+            ? "Voice replies are muted — click to unmute"
+            : "Mute the agent's voice replies";
+
+        /// <summary>Mic glyph: idle = E720, listening = E71A (stop).</summary>
+        public string MicButtonText => IsListening ? "" : "";
+
         private string _status = "";
         /// <summary>Single truthful status line under the composer.</summary>
         public string StatusText
         {
-            get => IsBusy ? "Thinking…" : _status;
+            get => IsListening
+                     ? "Listening… speak now."
+                     : IsBusy ? "Thinking…" : _status;
             private set
             {
                 if (_status == value) return;
@@ -142,10 +224,18 @@ namespace ProGlassAutomation.Agent.UI
         public ICommand SendCommand { get; }
         public ICommand ClearCommand { get; }
         public ICommand SpeakCommand { get; }
+        public ICommand StopCommand { get; }
+        public ICommand ToggleMuteCommand { get; }
 
         // ── Send ──────────────────────────────────────────────────────────
 
-        private async Task SendAsync()
+        /// <summary>
+        /// Runs one turn. <paramref name="fromVoice"/> is true when the text
+        /// came from the microphone: the request is tagged as spoken AND the
+        /// answer is read back. A typed turn stays silent, which is what
+        /// people expect from a chat box.
+        /// </summary>
+        private async Task SendAsync(bool fromVoice = false)
         {
             string text = (Input ?? "").Trim();
             if (text.Length == 0 || IsBusy) return;
@@ -173,7 +263,7 @@ namespace ProGlassAutomation.Agent.UI
                 var response = await agent.HandleAsync(new AgentRequest
                 {
                     Text = text,
-                    FromVoice = false,
+                    FromVoice = fromVoice,
                     Username = AuditService.CurrentUsername ?? ""
                 });
 
@@ -185,6 +275,26 @@ namespace ProGlassAutomation.Agent.UI
 
                 if (response.Success) Add("agent", response.Message);
                 else AddFailure(response.Message);
+
+                // Speak back only for a spoken request, and only when the
+                // user has not muted. The pipeline re-checks IsMuted itself,
+                // so this cannot drift out of sync with the button.
+                if (fromVoice && !IsMuted)
+                {
+                    try
+                    {
+                        IsSpeaking = true;
+                        AgentHost.Voice?.SpeakResponse(response);
+                    }
+                    catch (Exception ex)
+                    {
+                        Debug.WriteLine($"[AgentChatViewModel] speak: {ex.Message}");
+                    }
+                    finally
+                    {
+                        IsSpeaking = false;
+                    }
+                }
 
                 StatusText = string.IsNullOrWhiteSpace(response.NavigateTarget)
                     ? ""
@@ -212,9 +322,8 @@ namespace ProGlassAutomation.Agent.UI
         /// </summary>
         private async Task ListenAsync()
         {
-            if (IsBusy) return;
+            if (IsBusy || IsListening) return;
 
-            IsBusy = true;
             try
             {
                 AgentHost.Ensure();
@@ -226,19 +335,47 @@ namespace ProGlassAutomation.Agent.UI
                     return;
                 }
 
-                StatusText = "Listening…";
-
-                var response = await voice.ListenAndHandleAsync(
-                    AuditService.CurrentUsername ?? "");
-
-                if (response == null)
+                // ══════════════════════════════════════════════════════
+                //  TELL THE USER WHY, BEFORE OPENING THE MICROPHONE.
+                //
+                //  ListenAndHandleAsync already refuses when Whisper is not
+                //  ready, but it refused INSIDE the pipeline - so from the
+                //  chat window it looked identical to "listened and heard
+                //  nothing". Checking readiness up front means an
+                //  undownloaded model reads as a setup problem, not as a
+                //  microphone that cannot hear you.
+                // ══════════════════════════════════════════════════════
+                if (!voice.IsReady)
                 {
-                    AddFailure("I did not catch that.");
+                    AddFailure(
+                        "Voice input is not ready, so I did not open the " +
+                        "microphone. " + voice.ReadinessMessage);
                     return;
                 }
 
-                if (response.Success) Add("agent", response.Message);
-                else AddFailure(response.Message);
+                IsListening = true;
+
+                // Transcribe only. The turn is run below so the transcript
+                // can be SHOWN as a user message first - previously the
+                // spoken words never appeared in the chat at all, which is
+                // why it was impossible to tell what had been heard.
+                string? transcript = await voice
+                    .CaptureTranscriptAsync()
+                    .ConfigureAwait(true);
+
+                IsListening = false;
+
+                if (string.IsNullOrWhiteSpace(transcript))
+                {
+                    AddFailure(
+                        "I did not catch that — nothing was transcribed. " +
+                        "Check the microphone is not muted, then try again.");
+                    return;
+                }
+
+                // Show what was actually heard, then answer it.
+                Input = transcript;
+                await SendAsync(fromVoice: true).ConfigureAwait(true);
             }
             catch (Exception ex)
             {
@@ -247,9 +384,53 @@ namespace ProGlassAutomation.Agent.UI
             }
             finally
             {
+                IsListening = false;
                 StatusText = "";
-                IsBusy = false;
             }
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  STOP / MUTE
+        // ══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Stops speech immediately. It cannot abort a database read that
+        /// is already in flight, so it does not pretend to - the wording
+        /// below only claims what actually happened.
+        /// </summary>
+        private void Stop()
+        {
+            try
+            {
+                AgentHost.Voice?.StopSpeaking();
+                IsSpeaking = false;
+                IsListening = false;
+                StatusText = "Stopped.";
+            }
+            catch (Exception ex)
+            {
+                Debug.WriteLine($"[AgentChatViewModel] stop failed: {ex.Message}");
+            }
+        }
+
+        private void ToggleMute()
+        {
+            IsMuted = !IsMuted;
+
+            var voice = AgentHost.Voice;
+            if (voice != null) voice.IsMuted = IsMuted;
+
+            // Muting mid-sentence must actually stop the current sentence,
+            // not just suppress the next one.
+            if (IsMuted)
+            {
+                try { voice?.StopSpeaking(); } catch { /* best effort */ }
+                IsSpeaking = false;
+            }
+
+            StatusText = IsMuted
+                ? "Voice replies muted."
+                : "Voice replies on.";
         }
 
         // ── Transcript helpers ────────────────────────────────────────────

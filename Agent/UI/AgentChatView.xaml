@@ -99,14 +99,55 @@
                 <StackPanel Grid.Column="2"
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
-                    <Button Content="SPEAK"
-                            Style="{StaticResource OutlinedPillButton}"
-                            Command="{Binding SpeakCommand}"
+                    <!-- LISTEN. Turns solid red while the microphone is
+                         open so there is no doubt it is hearing you. -->
+                    <Button Command="{Binding SpeakCommand}"
                             Margin="0,0,8,0"
-                            ToolTip="Capture one spoken request with Whisper"/>
+                            Cursor="Hand"
+                            FocusVisualStyle="{x:Null}"
+                            ToolTip="Listen — capture one spoken request with Whisper">
+                        <Button.Style>
+                            <Style TargetType="Button"
+                                   BasedOn="{StaticResource OutlinedPillButton}">
+                                <Setter Property="Content" Value="LISTEN"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsListening}" Value="True">
+                                        <Setter Property="Content" Value="LISTENING…"/>
+                                        <Setter Property="Background" Value="#B91C1C"/>
+                                        <Setter Property="Foreground" Value="White"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
+
+                    <!-- STOP. Enabled only when there is something to stop;
+                         CanExecute drives that, so it greys out by itself. -->
+                    <Button Content="STOP"
+                            Style="{StaticResource OutlinedPillButton}"
+                            Command="{Binding StopCommand}"
+                            Margin="0,0,8,0"
+                            Cursor="Hand"
+                            FocusVisualStyle="{x:Null}"
+                            ToolTip="Stop speaking and cancel listening"/>
+
+                    <!-- MUTE. Glyph and tooltip both come from the VM so
+                         they can never disagree with the actual state. -->
+                    <Button Content="{Binding MuteButtonText}"
+                            FontFamily="Segoe MDL2 Assets"
+                            FontSize="14"
+                            Style="{StaticResource OutlinedPillButton}"
+                            Command="{Binding ToggleMuteCommand}"
+                            Margin="0,0,8,0"
+                            Cursor="Hand"
+                            FocusVisualStyle="{x:Null}"
+                            ToolTip="{Binding MuteButtonTooltip}"/>
+
                     <Button Content="CLEAR"
                             Style="{StaticResource OutlinedPillButton}"
                             Command="{Binding ClearCommand}"
+                            Cursor="Hand"
+                            FocusVisualStyle="{x:Null}"
                             ToolTip="Clears this transcript only — taught rules and knowledge are kept"/>
                 </StackPanel>
             </Grid>
@@ -184,6 +225,13 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
 
+                    <!-- TYPED TEXT WAS INVISIBLE.
+                         This TextBox set no Background/Foreground and there
+                         is no global TextBox style in the app, so it
+                         inherited the panel's colours and rendered light
+                         text on a light field. Both are now explicit, and
+                         CaretBrush is set too - otherwise the cursor stays
+                         invisible even once the text shows. -->
                     <TextBox Grid.Column="0"
                              x:Name="InputBox"
                              Text="{Binding Input, UpdateSourceTrigger=PropertyChanged}"
@@ -191,6 +239,12 @@
                              MinHeight="40"
                              MaxHeight="120"
                              Padding="12,10"
+                             Background="White"
+                             Foreground="#1F2937"
+                             CaretBrush="#1F2937"
+                             SelectionBrush="{DynamicResource AccentBrush}"
+                             BorderBrush="{DynamicResource BorderBrush}"
+                             BorderThickness="1"
                              VerticalContentAlignment="Center"
                              AcceptsReturn="False"
                              TextWrapping="Wrap"

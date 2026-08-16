@@ -240,6 +240,12 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
 
         // ── State ─────────────────────────────────────────────────────────
 
+        /// <summary>
+        /// Set when a refresh arrives while a load is already running, so
+        /// the request is re-run instead of dropped. See LoadAsync.
+        /// </summary>
+        private bool _reloadRequested;
+
         private bool _isBusy;
         public bool IsBusy
         {
@@ -301,7 +307,27 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
         /// </summary>
         public async Task LoadAsync()
         {
-            if (IsBusy) return;
+            // ══════════════════════════════════════════════════════════
+            //  WHY THIS IS NOT JUST "if (IsBusy) return;"
+            //
+            //  The constructor kicks off a fire-and-forget first load, and
+            //  Navigate("JobProfitability") calls RefreshCommand on entry.
+            //  Open the module while that first load is still running - or
+            //  save an invoice and come straight back - and the refresh hit
+            //  the IsBusy guard and was SILENTLY DROPPED. The user saw
+            //  stale figures and no indication anything had been skipped,
+            //  which is exactly the "not updating instantly" symptom.
+            //
+            //  Now a refresh that arrives mid-load is REMEMBERED and re-run
+            //  once the in-flight load finishes, so the last request always
+            //  wins and the view ends up consistent with the database.
+            // ══════════════════════════════════════════════════════════
+            if (IsBusy)
+            {
+                _reloadRequested = true;
+                return;
+            }
+
             IsBusy = true;
 
             try
@@ -410,6 +436,15 @@ namespace ProGlassAutomation.ViewModels.JobProfitability
             finally
             {
                 IsBusy = false;
+            }
+
+            // A refresh that arrived mid-load runs now. Cleared BEFORE the
+            // re-entry so a load that keeps getting interrupted cannot spin
+            // forever - at most one extra pass per dropped request.
+            if (_reloadRequested)
+            {
+                _reloadRequested = false;
+                await LoadAsync().ConfigureAwait(true);
             }
         }
 
