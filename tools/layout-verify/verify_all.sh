@@ -9,6 +9,7 @@
 #   MC3072  property element after content (App.xaml)
 #   MC3072  property element after content (TrendChartControl.xaml)
 #   CS0103  AutomationProperties used without its using directive
+#   MC3050  same property set twice (attribute AND property element)
 #
 # Every check must pass. Non-zero exit = do not commit.
 # ══════════════════════════════════════════════════════════════════════
@@ -45,6 +46,7 @@ echo "── XAML ────────────────────�
 run "well-formed        " python3 tools/layout-verify/xaml_wellformed.py $XAML
 run "stray attributes   " python3 tools/layout-verify/stray_attr_check.py $XAML
 run "property el. order " python3 tools/layout-verify/property_element_order.py $XAML
+run "duplicate props    " python3 tools/layout-verify/dup_property_check.py $XAML
 
 echo "── C# ────────────────────────────────────────────────"
 run "brace balance      " python3 tools/layout-verify/brace_scan.py $CS

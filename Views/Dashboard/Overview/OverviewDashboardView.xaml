@@ -2,49 +2,51 @@
      FILE: Views/Dashboard/Overview/OverviewDashboardView.xaml
      PROJECT: ProGlassAutomation
 
-     2026 COMMAND-CENTRE REDESIGN
-     ════════════════════════════
-     Reference: the smart-park monitoring console supplied by the user —
-     a dense dark control room where every panel is visible at once,
-     numbers are the focal point, and chrome is reduced to hairlines.
+     SOFT-CARD REDESIGN — adopts the reference dashboard markup the
+     user supplied, applied identically across all 7 dashboards.
 
-     WHAT CHANGED AND WHY
-     ────────────────────
-     1. THEME CORRECTNESS (the "few boxes dynamic, few not" bug).
-        This view used to declare 11 local brushes with hardcoded hex:
-        CardBgGradient (#FFFFFF → #F4F8FE), CardBorderBrush (#C4D6ED),
-        AccentText (#1E40AF) and six *HeaderBrush colours. Those are
-        light-theme values compiled into markup, so in Dark theme the
-        cards stayed white with near-invisible headings, while the
-        neighbouring DynamicResource elements went dark — the exact
-        inconsistency reported. ALL of them are gone. Every colour now
-        comes from Styles/DashboardStyles.xaml, which resolves through
-        DynamicResource against keys defined in BOTH themes.
+     THE REFERENCE LANGUAGE (from the user's markup)
+     ───────────────────────────────────────────────
+       hero band radius 22 · 30px Bold title · 13px muted subtitle
+       cards radius 18 · padding 20 · stacking margin 0,0,0,20
+       hairline border + DropShadow(Blur 10, Depth 2, Opacity .08)
+       4px full-bleed colour cap across the top of every KPI card
+       11px label · 28px Bold value · 12px status line
+       40x40 radius-10 tinted badge, top-right
+       pill buttons radius 10, padding 14,8
+       recessed #F8FAFC radius-12 chart well
+     All of it lives in Styles/DashboardStyles.xaml as the Soft* keys,
+     so the seven dashboards share ONE definition of the look.
 
-     2. DENSITY. The old layout was four big cards stacked vertically
-        with 22,18 padding and a 160px chart, so the page always
-        scrolled and you could never see sales next to production.
-        The new grid is a fixed 3-column command board: KPI strip on
-        top, then three panels side by side. Compact, one screen.
+     THREE DEVIATIONS FROM THE PASTED MARKUP, EACH FORCED
+     ────────────────────────────────────────────────────
+     1. COLOUR comes from DynamicResource, not hardcoded hex. The
+        reference hardcodes #F1F5F9 / White / #0F172A. ThemeManager
+        swaps the theme dictionary at RUNTIME, so hardcoded cards stay
+        white with invisible text in Dark theme. In LIGHT theme these
+        keys evaluate to the reference's own values, so the look is
+        what was asked for; dark theme also works.
+     2. CHARTS use TrendChartControl, not lvc:CartesianChart.
+        LiveChartsCore is not referenced by the .csproj and NuGet is
+        unreachable from the build sandbox, so the xmlns in the
+        reference would not compile. The chart well reproduces the
+        reference's recessed framing exactly.
+     3. NO EMOJI. The reference used literal ✓ ↩ ⏳ characters. Those
+        render through a colour font, ignore Foreground, and look like
+        clip-art beside real UI. Segoe MDL2 glyphs replace them.
 
-     3. ICONS. Segoe MDL2 only — the old header used an emoji Tag.
-
-     BINDING CONTRACT — UNCHANGED
-     ────────────────────────────
-     Every property this view binds already exists on
-     OverviewDashboardViewModel and is used with its original name:
-       SalesTiles, ProductionTiles, DeliveryTiles, InventoryTiles
-       (ObservableCollection<KpiTileModel>: Icon, Label, DisplayValue,
-        Accent, IsAlert)
+     BINDING CONTRACT — UNCHANGED, NO VIEWMODEL EDIT
+     ───────────────────────────────────────────────
+       SalesTiles / ProductionTiles / DeliveryTiles / InventoryTiles
+         (KpiTileModel: Icon, Label, DisplayValue, Accent, IsAlert)
        RecentActivity / HasRecentActivity (ActivityFeedItem)
-       MonthlySalesBars / ChartTitle / HasChartData (ChartBarModel)
+       MonthlySalesBars / ChartTitle (ChartBarModel)
        IsLoading, HasError, ErrorMessage, LastRefreshed
        NewInvoiceCommand, SavedInvoicesCommand, ViewStockCommand,
        ViewJobsCommand, ViewDeliveriesCommand
-     No ViewModel edit was required for this redesign.
-     ExportReportCommand is intentionally NOT surfaced: it is wired as
+     ExportReportCommand stays unsurfaced: it is wired as
      RelayCommand(_ => { }, _ => false) — a permanently disabled no-op,
-     so showing it would be a dead button.
+     so a button for it would be dead furniture.
 ═══════════════════════════════════════════════════════════════════════ -->
 
 <UserControl x:Class="ProGlassAutomation.Views.Dashboard.Overview.OverviewDashboardView"
@@ -58,101 +60,8 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <UserControl.Resources>
-
-        <!-- ═══════════════════════════════════════════════════════════
-             ACTIVITY ROW
-             Uses the model's own StatusColor / TintColor brush KEYS
-             (resolved by BrushKeyConverter), which is already the
-             theme-aware path — those keys point at theme brushes.
-        ═══════════════════════════════════════════════════════════ -->
-        <DataTemplate x:Key="DashActivityRowTemplate">
-            <Border Background="{Binding TintColor,
-                                 Converter={StaticResource BrushKeyConverter}}"
-                    CornerRadius="7"
-                    Padding="9,7"
-                    Margin="0,0,0,5"
-                    SnapsToDevicePixels="True">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <Border Grid.Column="0"
-                            Width="24" Height="24"
-                            CornerRadius="6"
-                            VerticalAlignment="Top"
-                            Margin="0,0,9,0"
-                            Background="{Binding StatusColor,
-                                         Converter={StaticResource BrushKeyConverter}}">
-                        <TextBlock Text="{Binding Icon}"
-                                   FontFamily="Segoe MDL2 Assets"
-                                   FontSize="11"
-                                   HorizontalAlignment="Center"
-                                   VerticalAlignment="Center"
-                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                    </Border>
-
-                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
-                        <TextBlock Text="{Binding Title}"
-                                   FontSize="11"
-                                   FontWeight="SemiBold"
-                                   TextTrimming="CharacterEllipsis"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <TextBlock Text="{Binding SubTitle}"
-                                   FontSize="10"
-                                   Margin="0,1,0,0"
-                                   TextTrimming="CharacterEllipsis"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                    </StackPanel>
-
-                    <StackPanel Grid.Column="2"
-                                VerticalAlignment="Center"
-                                Margin="8,0,0,0">
-                        <TextBlock Text="{Binding ValueDisplay}"
-                                   FontSize="11"
-                                   FontWeight="Bold"
-                                   HorizontalAlignment="Right"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        <Border CornerRadius="4"
-                                Padding="5,1"
-                                Margin="0,2,0,0"
-                                HorizontalAlignment="Right"
-                                Background="{Binding StatusColor,
-                                             Converter={StaticResource BrushKeyConverter}}">
-                            <TextBlock Text="{Binding StatusLabel}"
-                                       FontSize="9"
-                                       FontWeight="Bold"
-                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
-                        </Border>
-                    </StackPanel>
-                </Grid>
-            </Border>
-        </DataTemplate>
-
-    </UserControl.Resources>
-
-    <!-- ═══════════════════════════════════════════════════════════════
-         ROOT — ambient wash stays inside a BitmapCached Canvas so
-         scrolling costs nothing (kept from the previous version; it
-         was a genuine performance win and both brushes are themed).
-    ═══════════════════════════════════════════════════════════════ -->
-    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
-
-        <Canvas Panel.ZIndex="0"
-                IsHitTestVisible="False"
-                CacheMode="BitmapCache">
-            <Rectangle Fill="{DynamicResource DashAmbientBrush}"
-                       Width="{Binding ActualWidth,
-                           RelativeSource={RelativeSource AncestorType=Canvas}}"
-                       Height="{Binding ActualHeight,
-                           RelativeSource={RelativeSource AncestorType=Canvas}}"/>
-        </Canvas>
-
-        <ScrollViewer Panel.ZIndex="1"
-                      VerticalScrollBarVisibility="Auto"
+    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled"
                       CanContentScroll="False"
                       PanningMode="VerticalOnly"
@@ -161,311 +70,239 @@
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
 
-            <Grid Margin="14,12,14,14">
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <!-- command bar -->
-                    <RowDefinition Height="Auto"/>
-                    <!-- status strip -->
-                    <RowDefinition Height="Auto"/>
-                    <!-- KPI board -->
-                    <RowDefinition Height="Auto"/>
-                    <!-- analysis row -->
-                </Grid.RowDefinitions>
+            <StackPanel Margin="24">
 
                 <!-- ═══════════════════════════════════════════════════
-                     QUICK ACTIONS
-
-                     The title, module icon and last-refreshed timestamp
-                     used to be repeated here. The workspace shell now
-                     renders all three for whichever module is active, so
-                     showing them again would be the same information
-                     twice on one screen. Only the actions remain.
+                     HERO
                 ═══════════════════════════════════════════════════ -->
-                <Grid Grid.Row="0" Margin="2,0,2,10">
-                    <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Right"
-                                VerticalAlignment="Center">
-                        <Button Style="{StaticResource DashActionButtonPrimaryStyle}"
-                                Content="NEW INVOICE"
-                                Tag="&#xE710;"
-                                Margin="0,0,7,0"
-                                Cursor="Hand"
-                                ToolTip="Start a new proforma invoice"
-                                Command="{Binding NewInvoiceCommand}"/>
-                        <Button Style="{StaticResource DashActionButtonStyle}"
-                                Content="INVOICES"
-                                Tag="&#xE8C8;"
-                                Margin="0,0,7,0"
-                                Cursor="Hand"
-                                ToolTip="Open saved invoices"
-                                Command="{Binding SavedInvoicesCommand}"/>
-                        <Button Style="{StaticResource DashActionButtonStyle}"
-                                Content="STOCK"
-                                Tag="&#xE7B8;"
-                                Margin="0,0,7,0"
-                                Cursor="Hand"
-                                ToolTip="Open sheet store"
-                                Command="{Binding ViewStockCommand}"/>
-                        <Button Style="{StaticResource DashActionButtonStyle}"
-                                Content="JOBS"
-                                Tag="&#xE9F9;"
-                                Margin="0,0,7,0"
-                                Cursor="Hand"
-                                ToolTip="Open job orders"
-                                Command="{Binding ViewJobsCommand}"/>
-                        <Button Style="{StaticResource DashActionButtonStyle}"
-                                Content="DELIVERIES"
-                                Tag="&#xE806;"
-                                Cursor="Hand"
-                                ToolTip="Open delivery notes"
-                                Command="{Binding ViewDeliveriesCommand}"/>
-                    </StackPanel>
-                </Grid>
+                <Border Style="{StaticResource SoftHeroStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                <!-- ═══════════════════════════════════════════════════
-                     STATUS STRIP — loading / error. Collapsed when idle
-                     so it never steals vertical space.
-                ═══════════════════════════════════════════════════ -->
-                <StackPanel Grid.Row="1">
-                    <Border Style="{StaticResource DashCardStyle}"
-                            Margin="2,0,2,8"
-                            Padding="12,8"
-                            Visibility="{Binding IsLoading,
-                                Converter={StaticResource BoolToVisibilityConverter}}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE895;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="12"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,8,0"
-                                       Foreground="{DynamicResource AccentBrush}"/>
-                            <TextBlock Text="Loading live business data…"
-                                       FontSize="11"
-                                       VerticalAlignment="Center"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Overview"
+                                       Style="{StaticResource SoftHeroTitleStyle}"/>
+                            <TextBlock Text="Operational analytics for invoices, jobs, delivery flow, and inventory"
+                                       Style="{StaticResource SoftHeroSubtitleStyle}"/>
                         </StackPanel>
-                    </Border>
 
-                    <Border Margin="2,0,2,8"
-                            Padding="12,8"
-                            CornerRadius="{StaticResource DashCardRadius}"
-                            Background="{DynamicResource TintRedBrush}"
-                            BorderBrush="{DynamicResource DangerBrush}"
-                            BorderThickness="1"
-                            Visibility="{Binding HasError,
-                                Converter={StaticResource BoolToVisibilityConverter}}">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE783;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="12"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,8,0"
-                                       Foreground="{DynamicResource DangerBrush}"/>
-                            <TextBlock Text="{Binding ErrorMessage}"
-                                       FontSize="11"
-                                       TextWrapping="Wrap"
-                                       VerticalAlignment="Center"
-                                       Foreground="{DynamicResource DangerBrush}"/>
-                        </StackPanel>
-                    </Border>
-                </StackPanel>
-
-                <!-- ═══════════════════════════════════════════════════
-                     KPI BOARD — 4 domains across one row.
-                     UniformGrid keeps the columns equal at any width;
-                     tiles inside each panel wrap so nothing clips.
-                ═══════════════════════════════════════════════════ -->
-                <WrapPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,4">
-
-                    <!-- SALES -->
-                    <Border Style="{StaticResource DashCardStyle}" Margin="0,0,8,8" VerticalAlignment="Top">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,9">
-                                <Border Width="20" Height="20"
-                                        CornerRadius="5"
-                                        Background="{DynamicResource AccentBrush}"
-                                        Margin="0,0,7,0">
-                                    <TextBlock Text="&#xE8EF;"
-                                               Style="{StaticResource DashGlyphStyle}"
-                                               FontSize="11"/>
-                                </Border>
-                                <TextBlock Text="SALES"
-                                           Style="{StaticResource DashSectionLabelStyle}"/>
-                            </StackPanel>
-                            <ItemsControl ItemsSource="{Binding SalesTiles}"
-                                          ItemTemplate="{StaticResource DashKpiTileTemplate}"
-                                          ItemsPanel="{StaticResource DashTileWrapPanel}"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- PRODUCTION -->
-                    <Border Style="{StaticResource DashCardStyle}" Margin="0,0,8,8" VerticalAlignment="Top">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,9">
-                                <Border Width="20" Height="20"
-                                        CornerRadius="5"
-                                        Background="{DynamicResource TintPurpleBrush}"
-                                        Margin="0,0,7,0">
-                                    <TextBlock Text="&#xE9F9;"
-                                               Style="{StaticResource DashGlyphStyle}"
+                        <StackPanel Grid.Column="1"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center">
+                            <Border Style="{StaticResource SoftChipStyle}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="8" Height="8"
+                                             Margin="0,0,6,0"
+                                             VerticalAlignment="Center"
+                                             Fill="{DynamicResource SuccessBrush}"/>
+                                    <TextBlock Text="Live"
                                                FontSize="11"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                </Border>
-                                <TextBlock Text="PRODUCTION"
-                                           Style="{StaticResource DashSectionLabelStyle}"/>
-                            </StackPanel>
-                            <ItemsControl ItemsSource="{Binding ProductionTiles}"
-                                          ItemTemplate="{StaticResource DashKpiTileTemplate}"
-                                          ItemsPanel="{StaticResource DashTileWrapPanel}"/>
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                </StackPanel>
+                            </Border>
+                            <TextBlock Text="{Binding LastRefreshed}"
+                                       Style="{StaticResource SoftMetaStyle}"
+                                       HorizontalAlignment="Right"
+                                       Margin="0,8,0,0"/>
                         </StackPanel>
-                    </Border>
-
-                    <!-- DELIVERY -->
-                    <Border Style="{StaticResource DashCardStyle}" Margin="0,0,8,8" VerticalAlignment="Top">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,9">
-                                <Border Width="20" Height="20"
-                                        CornerRadius="5"
-                                        Background="{DynamicResource WarningBrush}"
-                                        Margin="0,0,7,0">
-                                    <TextBlock Text="&#xE806;"
-                                               Style="{StaticResource DashGlyphStyle}"
-                                               FontSize="11"/>
-                                </Border>
-                                <TextBlock Text="DELIVERY"
-                                           Style="{StaticResource DashSectionLabelStyle}"/>
-                            </StackPanel>
-                            <ItemsControl ItemsSource="{Binding DeliveryTiles}"
-                                          ItemTemplate="{StaticResource DashKpiTileTemplate}"
-                                          ItemsPanel="{StaticResource DashTileWrapPanel}"/>
-                        </StackPanel>
-                    </Border>
-
-                    <!-- INVENTORY -->
-                    <Border Style="{StaticResource DashCardStyle}" Margin="0,0,8,8" VerticalAlignment="Top">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,9">
-                                <Border Width="20" Height="20"
-                                        CornerRadius="5"
-                                        Background="{DynamicResource InfoBrush}"
-                                        Margin="0,0,7,0">
-                                    <TextBlock Text="&#xE7B8;"
-                                               Style="{StaticResource DashGlyphStyle}"
-                                               FontSize="11"/>
-                                </Border>
-                                <TextBlock Text="INVENTORY"
-                                           Style="{StaticResource DashSectionLabelStyle}"/>
-                            </StackPanel>
-                            <ItemsControl ItemsSource="{Binding InventoryTiles}"
-                                          ItemTemplate="{StaticResource DashKpiTileTemplate}"
-                                          ItemsPanel="{StaticResource DashTileWrapPanel}"/>
-                        </StackPanel>
-                    </Border>
-                </WrapPanel>
+                    </Grid>
+                </Border>
 
                 <!-- ═══════════════════════════════════════════════════
-                     ANALYSIS ROW — revenue chart (2/3) + activity (1/3),
-                     side by side like the reference console.
+                     ACTION BAR — the reference's filter-bar row.
                 ═══════════════════════════════════════════════════ -->
-                <Grid Grid.Row="3">
+                <Border Style="{StaticResource SoftSectionStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Quick actions"
+                                   Style="{StaticResource SoftSectionTitleStyle}"
+                                   VerticalAlignment="Center"/>
+
+                        <WrapPanel Grid.Column="1"
+                                   HorizontalAlignment="Right"
+                                   VerticalAlignment="Center">
+                            <Button Content="New Invoice"
+                                    Tag="&#xE710;"
+                                    Style="{StaticResource SoftPillAccentStyle}"
+                                    ToolTip="Start a new proforma invoice"
+                                    Command="{Binding NewInvoiceCommand}"/>
+                            <Button Content="Saved Invoices"
+                                    Tag="&#xE8A5;"
+                                    Style="{StaticResource SoftPillButtonStyle}"
+                                    ToolTip="Open saved invoices"
+                                    Command="{Binding SavedInvoicesCommand}"/>
+                            <Button Content="Stock"
+                                    Tag="&#xE7B8;"
+                                    Style="{StaticResource SoftPillButtonStyle}"
+                                    ToolTip="Open sheet store"
+                                    Command="{Binding ViewStockCommand}"/>
+                            <Button Content="Jobs"
+                                    Tag="&#xE9F9;"
+                                    Style="{StaticResource SoftPillButtonStyle}"
+                                    ToolTip="Open job orders"
+                                    Command="{Binding ViewJobsCommand}"/>
+                            <Button Content="Deliveries"
+                                    Tag="&#xE806;"
+                                    Margin="0"
+                                    Style="{StaticResource SoftPillButtonStyle}"
+                                    ToolTip="Open delivery notes"
+                                    Command="{Binding ViewDeliveriesCommand}"/>
+                        </WrapPanel>
+                    </Grid>
+                </Border>
+
+                <!-- ═══════════════════════════════════════════════════
+                     STATUS — collapsed when idle so it costs no space.
+                ═══════════════════════════════════════════════════ -->
+                <Border Style="{StaticResource SoftSectionStyle}"
+                        Padding="16,14"
+                        Visibility="{Binding IsLoading,
+                            Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE895;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="14"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,10,0"
+                                   Foreground="{DynamicResource AccentBrush}"/>
+                        <TextBlock Text="Loading live business data…"
+                                   Style="{StaticResource SoftKpiFootStyle}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource SoftSectionStyle}"
+                        Padding="16,14"
+                        Background="{DynamicResource TintRedBrush}"
+                        BorderBrush="{DynamicResource DangerBrush}"
+                        Visibility="{Binding HasError,
+                            Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE783;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="14"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,10,0"
+                                   Foreground="{DynamicResource DangerBrush}"/>
+                        <TextBlock Text="{Binding ErrorMessage}"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource DangerBrush}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ═══════════════════════════════════════════════════
+                     SALES
+                ═══════════════════════════════════════════════════ -->
+                <TextBlock Text="Sales"
+                           Style="{StaticResource SoftGroupHeadingStyle}"/>
+                <ItemsControl ItemsSource="{Binding SalesTiles}"
+                              ItemTemplate="{StaticResource SoftKpiTileTemplate}"
+                              ItemsPanel="{StaticResource SoftKpiRowPanel}"
+                              Margin="-5,0,-5,10"/>
+
+                <!-- PRODUCTION -->
+                <TextBlock Text="Production"
+                           Style="{StaticResource SoftGroupHeadingStyle}"/>
+                <ItemsControl ItemsSource="{Binding ProductionTiles}"
+                              ItemTemplate="{StaticResource SoftKpiTileTemplate}"
+                              ItemsPanel="{StaticResource SoftKpiRowPanel}"
+                              Margin="-5,0,-5,10"/>
+
+                <!-- DELIVERY -->
+                <TextBlock Text="Delivery"
+                           Style="{StaticResource SoftGroupHeadingStyle}"/>
+                <ItemsControl ItemsSource="{Binding DeliveryTiles}"
+                              ItemTemplate="{StaticResource SoftKpiTileTemplate}"
+                              ItemsPanel="{StaticResource SoftKpiRowPanel}"
+                              Margin="-5,0,-5,10"/>
+
+                <!-- INVENTORY -->
+                <TextBlock Text="Inventory"
+                           Style="{StaticResource SoftGroupHeadingStyle}"/>
+                <ItemsControl ItemsSource="{Binding InventoryTiles}"
+                              ItemTemplate="{StaticResource SoftKpiTileTemplate}"
+                              ItemsPanel="{StaticResource SoftKpiRowPanel}"
+                              Margin="-5,0,-5,18"/>
+
+                <!-- ═══════════════════════════════════════════════════
+                     ANALYSIS — trend (2fr) beside activity (1fr).
+                ═══════════════════════════════════════════════════ -->
+                <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="2*"/>
                         <ColumnDefinition Width="1*"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- REVENUE TREND -->
                     <Border Grid.Column="0"
-                            Style="{StaticResource DashCardStyle}"
-                            Margin="2,0,4,0">
+                            Style="{StaticResource SoftSectionStyle}"
+                            Margin="0,0,10,20">
                         <StackPanel>
-                            <Grid Margin="0,0,0,10">
-                                <StackPanel Orientation="Horizontal">
-                                    <Border Width="20" Height="20"
-                                            CornerRadius="5"
-                                            Background="{DynamicResource AccentBrush}"
-                                            Margin="0,0,7,0">
-                                        <TextBlock Text="&#xE9D9;"
-                                                   Style="{StaticResource DashGlyphStyle}"
-                                                   FontSize="11"/>
-                                    </Border>
-                                    <TextBlock Text="REVENUE TREND"
-                                               Style="{StaticResource DashSectionLabelStyle}"/>
+                            <Grid>
+                                <StackPanel>
+                                    <TextBlock Text="Revenue Trend"
+                                               Style="{StaticResource SoftSectionTitleStyle}"/>
+                                    <TextBlock Text="Monthly invoiced value"
+                                               Style="{StaticResource SoftSectionSubtitleStyle}"/>
                                 </StackPanel>
                                 <TextBlock Text="{Binding ChartTitle}"
-                                           Style="{StaticResource DashCaptionStyle}"
+                                           Style="{StaticResource SoftMetaStyle}"
                                            HorizontalAlignment="Right"
-                                           VerticalAlignment="Center"/>
+                                           VerticalAlignment="Top"/>
                             </Grid>
 
-                            <!-- Revenue trend.
-
-                                 This was an ItemsControl of bare Borders
-                                 whose Height came from a ScaleConverter:
-                                 no value axis, no gridlines, no hover, no
-                                 tooltip, and the tallest bar was always
-                                 full height regardless of its value, so
-                                 the chart could not be read quantitatively.
-
-                                 TrendChartControl draws a real plot and
-                                 owns its own empty state, so the separate
-                                 empty-state Border below is gone. -->
-                            <trend:TrendChartControl
-                                Height="150"
-                                Points="{Binding MonthlySalesBars}"
-                                SeriesKind="Bar"
-                                ValuePrefix="AED "
-                                EmptyMessage="No revenue recorded yet."
-                                SeriesBrush="{DynamicResource AccentBrush}"
-                                GridBrush="{DynamicResource DividerBrush}"
-                                LabelBrush="{DynamicResource MutedForegroundBrush}"/>
+                            <Border Style="{StaticResource SoftChartWellStyle}">
+                                <trend:TrendChartControl
+                                    Height="260"
+                                    Points="{Binding MonthlySalesBars}"
+                                    SeriesKind="Bar"
+                                    ValuePrefix="AED "
+                                    EmptyMessage="No revenue recorded yet."
+                                    SeriesBrush="{DynamicResource AccentBrush}"
+                                    GridBrush="{DynamicResource DividerBrush}"
+                                    LabelBrush="{DynamicResource MutedForegroundBrush}"/>
+                            </Border>
                         </StackPanel>
                     </Border>
 
-                    <!-- RECENT ACTIVITY -->
                     <Border Grid.Column="1"
-                            Style="{StaticResource DashCardStyle}"
-                            Margin="4,0,2,0">
+                            Style="{StaticResource SoftSectionStyle}"
+                            Margin="10,0,0,20">
                         <StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
-                                <Border Width="20" Height="20"
-                                        CornerRadius="5"
-                                        Background="{DynamicResource TintPurpleBrush}"
-                                        Margin="0,0,7,0">
-                                    <TextBlock Text="&#xE81C;"
-                                               Style="{StaticResource DashGlyphStyle}"
-                                               FontSize="11"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                </Border>
-                                <TextBlock Text="RECENT ACTIVITY"
-                                           Style="{StaticResource DashSectionLabelStyle}"/>
-                            </StackPanel>
+                            <TextBlock Text="Recent Activity"
+                                       Style="{StaticResource SoftSectionTitleStyle}"/>
+                            <TextBlock Text="Latest movements across modules"
+                                       Style="{StaticResource SoftSectionSubtitleStyle}"/>
 
                             <ItemsControl ItemsSource="{Binding RecentActivity}"
-                                          ItemTemplate="{StaticResource DashActivityRowTemplate}"
+                                          ItemTemplate="{StaticResource SoftFeedRowTemplate}"
                                           Visibility="{Binding HasRecentActivity,
                                               Converter={StaticResource BoolToVisibilityConverter}}"/>
 
-                            <Border Padding="0,26"
+                            <Border Padding="0,40"
                                     Visibility="{Binding HasRecentActivity,
                                         Converter={StaticResource InverseBoolToVisibilityConverter}}">
                                 <StackPanel HorizontalAlignment="Center">
                                     <TextBlock Text="&#xE81C;"
-                                               FontFamily="Segoe MDL2 Assets"
-                                               FontSize="22"
-                                               HorizontalAlignment="Center"
-                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                               Style="{StaticResource DashEmptyStateGlyphStyle}"/>
                                     <TextBlock Text="No activity yet"
-                                               FontSize="11"
-                                               Margin="0,7,0,0"
-                                               HorizontalAlignment="Center"
-                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                               Style="{StaticResource DashEmptyStateTextStyle}"/>
                                 </StackPanel>
                             </Border>
                         </StackPanel>
                     </Border>
                 </Grid>
-            </Grid>
+
+            </StackPanel>
         </ScrollViewer>
     </Grid>
 </UserControl>

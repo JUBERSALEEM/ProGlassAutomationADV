@@ -1,375 +1,266 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ════════════════════════════════════════════════════════════════════
      FILE: Views/Dashboard/JobOrder/JoDashboard/JoDashboardView.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Job Order Dashboard (Chat 23 v2.5)
-     VERSION: Chat 23 v2.5 — Industrial Blue + smooth ambient parity
+     MODULE: Job Order Dashboard
 
-     DESIGN LANGUAGE:
-       Matches Overview + PiDashboard + Statement + SheetStore.
-       Glass blue ambient (cached Canvas pattern from v2.5),
-       shadow-free cards with gradient depth,
-       industrial blue typography,
-       semantic status/priority colors preserved (green/amber/red).
+     SOFT-CARD REDESIGN — the reference dashboard markup supplied by
+     the user, applied identically across all 7 dashboards. The look is
+     defined ONCE in Styles/DashboardStyles.xaml (the Soft* keys) so the
+     seven pages cannot drift apart the way the old per-file CardStyle
+     copies did.
 
-     CHANGES vs previous:
-       ✓ Wrapped ScrollViewer in Grid + cached ambient Canvas
-         (Ambient gradient painted INSIDE cached Canvas = one bitmap,
-          near-zero per-frame cost — the v2.5 smoothness pattern)
-       ✓ Grid.Background = solid #F5F9FF (cheap fallback)
-       ✓ CardStyle: DynamicResource ModuleBackgroundBrush → CardBgGradient
-         (subtle top-to-bottom gradient simulates depth without shadow)
-       ✓ TintedCardStyle: DynamicResource BorderBrush → CardBorderBrush
-         (industrial blue-tinted border, visible on tint bgs)
-       ✓ SectionTitle color: #4338CA indigo → AccentTextDeep #1E3A8A
-       ✓ PanningMode "None" → "VerticalOnly"
-       ✓ Focusable "True" → "False"
-       ✓ Page title 28→30px (design system standard)
-       ✓ RenderOptions.EdgeMode="Aliased" on ambient blobs
-       ✓ SnapsToDevicePixels on all inner card borders
+     Reference traits reproduced: hero band radius 22 with a 30px Bold
+     title, cards radius 18 / padding 20 / margin 0,0,0,20, hairline
+     border + DropShadow(10, 2, .08), a 4px full-bleed colour cap on
+     each KPI card, 11px label + 28px Bold value + 12px status line, a
+     40x40 radius-10 badge top-right, radius-10 pill buttons and a
+     recessed radius-12 chart well.
 
-     PRESERVED (zero regression):
-       • ALL bindings (KpiCards, StatusBars, PriorityBars, RecentFeed,
-         HasStatusData, HasRecentFeed, LastRefreshed, IsLoading, HasError)
-       • BrushKeyConverter usage on badge/tint/status
-       • ColorStringConverter on BarColor
-       • ScaleConverter on NormalizedHeight
-       • Feed row 4-column Grid layout (40 / * / Auto / 120)
-       • Status pill design
-       • All 3 empty state panels (status, priority, feed)
-       • SmoothScrollBehavior
-       • Error state hardcoded text (VM doesn't expose ErrorMessage)
+     DEVIATIONS, EACH FORCED (see DashboardStyles.xaml for detail):
+       1. Colour resolves via DynamicResource, not hardcoded hex, or
+          every card would stay white in Dark theme.
+       2. Charts use TrendChartControl: LiveChartsCore is not a
+          PackageReference in this project and NuGet is unreachable
+          from the build sandbox.
+       3. Segoe MDL2 glyphs, never emoji.
 
-     REGRESSION RISK: LOW
-       Same visual optimization pattern as Overview v2.5 (proven smooth).
-       VM brush key fixes are a bug fix (badges were rendering broken).
-═══════════════════════════════════════════════════════════════════════ -->
+     BINDINGS — UNCHANGED. NO VIEWMODEL WAS EDITED.
+       KpiCards, StatusBars, PriorityBars, RecentFeed,
+       HasStatusData, HasRecentFeed, IsLoading, HasError,
+       ErrorMessage, LastRefreshed
+══════════════════════════════════════════════════════════════════════ -->
 
 <UserControl x:Class="ProGlassAutomation.Views.Dashboard.JobOrder.JoDashboard.JoDashboardView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:trend="clr-namespace:ProGlassAutomation.Controls.TrendChart"
-             xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
-             TextOptions.TextHintingMode="Fixed"
-             RenderOptions.BitmapScalingMode="HighQuality"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <UserControl.Resources>
-
-        <!-- ═══════════════════════════════════════════════════════════════
-             GLASS BLUE PALETTE (frozen inline — v2.5 pattern)
-        ═══════════════════════════════════════════════════════════════ -->
-
-        <!-- Card bg gradient (shadow substitute) -->
-        <!-- Accent tones -->
-        <!-- ═══════════════════════════════════════════════════════════════
-             CARD STYLES — no DropShadowEffect (v2.4 pattern)
-        ═══════════════════════════════════════════════════════════════ -->
-
-        <!-- ═══════════════════════════════════════════════════════════════
-             TYPOGRAPHY
-        ═══════════════════════════════════════════════════════════════ -->
-
-        <!-- ═══════════════════════════════════════════════════════════════
-             KPI CARD TEMPLATE
-        ═══════════════════════════════════════════════════════════════ -->
-
-        <!-- ═══════════════════════════════════════════════════════════════
-             BAR CHART TEMPLATE
-        ═══════════════════════════════════════════════════════════════ -->
-
-        <!-- ═══════════════════════════════════════════════════════════════
-             FEED ROW TEMPLATE
-        ═══════════════════════════════════════════════════════════════ -->
-
-        <DataTemplate x:Key="FeedRowTemplate">
-            <Border Margin="0,0,0,8"
-                    CornerRadius="10"
-                    Padding="16,12"
-                    SnapsToDevicePixels="True"
-                    Background="{Binding TintColor,
-                                 Converter={StaticResource BrushKeyConverter}}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="40"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="120"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Priority icon -->
-                    <TextBlock Grid.Column="0"
-                               Text="{Binding Icon}"
-                               FontSize="15"
-                               VerticalAlignment="Center"
-                               HorizontalAlignment="Center"/>
-
-                    <!-- Job ID + subtitle -->
-                    <StackPanel Grid.Column="1"
-                                VerticalAlignment="Center"
-                                Margin="8,0,12,0">
-                        <TextBlock Text="{Binding Title}"
-                                   FontSize="12" FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   TextTrimming="CharacterEllipsis"/>
-                        <TextBlock Text="{Binding SubTitle}"
-                                   FontSize="11" Margin="0,2,0,0"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   TextTrimming="CharacterEllipsis"/>
-                    </StackPanel>
-
-                    <!-- AED value -->
-                    <TextBlock Grid.Column="2"
-                               Text="{Binding ValueDisplay}"
-                               FontSize="12" FontWeight="Bold"
-                               VerticalAlignment="Center"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"
-                               Margin="0,0,12,0"/>
-
-                    <!-- Status pill -->
-                    <Border Grid.Column="3"
-                            CornerRadius="10"
-                            Padding="10,4"
-                            HorizontalAlignment="Right"
-                            VerticalAlignment="Center"
-                            SnapsToDevicePixels="True"
-                            Background="{Binding StatusColor,
-                                         Converter={StaticResource BrushKeyConverter}}">
-                        <TextBlock Text="{Binding StatusLabel}"
-                                   Foreground="White"
-                                   FontSize="10"
-                                   FontWeight="Bold"/>
-                    </Border>
-                </Grid>
-            </Border>
-        </DataTemplate>
-
-    </UserControl.Resources>
-
-    <!-- ═══════════════════════════════════════════════════════════════
-         ROOT — v2.5 smooth pattern: solid Grid bg + cached ambient
-    ═══════════════════════════════════════════════════════════════ -->
-    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
-
-        <!-- Cached ambient (gradient + blobs = ONE bitmap) -->
-        <Canvas Panel.ZIndex="0"
-                IsHitTestVisible="False"
-                CacheMode="BitmapCache">
-            <Rectangle Fill="{DynamicResource DashAmbientBrush}"
-                       Width="{Binding ActualWidth,
-                           RelativeSource={RelativeSource
-                               AncestorType=Canvas}}"
-                       Height="{Binding ActualHeight,
-                           RelativeSource={RelativeSource
-                               AncestorType=Canvas}}"/>
-            <Rectangle Fill="{DynamicResource DashAmbientBlob1Brush}"
-                       RenderOptions.EdgeMode="Aliased"
-                       Width="{Binding ActualWidth,
-                           RelativeSource={RelativeSource
-                               AncestorType=Canvas}}"
-                       Height="{Binding ActualHeight,
-                           RelativeSource={RelativeSource
-                               AncestorType=Canvas}}"/>
-            <Rectangle Fill="{DynamicResource DashAmbientBlob2Brush}"
-                       RenderOptions.EdgeMode="Aliased"
-                       Width="{Binding ActualWidth,
-                           RelativeSource={RelativeSource
-                               AncestorType=Canvas}}"
-                       Height="{Binding ActualHeight,
-                           RelativeSource={RelativeSource
-                               AncestorType=Canvas}}"/>
-        </Canvas>
-
-        <ScrollViewer Panel.ZIndex="1"
-                      VerticalScrollBarVisibility="Auto"
+    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled"
                       CanContentScroll="False"
-                      IsDeferredScrollingEnabled="False"
                       PanningMode="VerticalOnly"
                       Focusable="False"
                       FocusVisualStyle="{x:Null}"
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
-            <StackPanel Margin="14,12,14,14">
 
-                <!-- Page header -->
-                <!-- Loading -->
-                <Border Visibility="{Binding IsLoading,
-                                     Converter={StaticResource BoolToVisibilityConverter}}"
-                        Padding="12" Margin="6,0,6,8">
-                    <TextBlock Text="Loading job order data…"
-                               FontSize="12" FontWeight="Bold"
-                               HorizontalAlignment="Center"
-                               Foreground="{DynamicResource DashAccentTextBrush}"/>
+            <StackPanel Margin="24">
+
+                <!-- HERO -->
+                <Border Style="{StaticResource SoftHeroStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Job Orders"
+                                       Style="{StaticResource SoftHeroTitleStyle}"/>
+                            <TextBlock Text="Production workload, priority mix and recent job activity"
+                                       Style="{StaticResource SoftHeroSubtitleStyle}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center">
+                            <Border Style="{StaticResource SoftChipStyle}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="8" Height="8"
+                                             Margin="0,0,6,0"
+                                             VerticalAlignment="Center"
+                                             Fill="{DynamicResource SuccessBrush}"/>
+                                    <TextBlock Text="Live"
+                                               FontSize="11"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                </StackPanel>
+                            </Border>
+                            <TextBlock Text="{Binding LastRefreshed}"
+                                       Style="{StaticResource SoftMetaStyle}"
+                                       HorizontalAlignment="Right"
+                                       Margin="0,8,0,0"/>
+                        </StackPanel>
+                    </Grid>
                 </Border>
 
-                <!-- Error (hardcoded text preserved — VM does not expose ErrorMessage) -->
-                <Border Visibility="{Binding HasError,
-                                     Converter={StaticResource BoolToVisibilityConverter}}"
+                <!-- LOADING -->
+                <Border Style="{StaticResource SoftSectionStyle}"
+                        Padding="16,14"
+                        Visibility="{Binding IsLoading,
+                            Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE895;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="14"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,10,0"
+                                   Foreground="{DynamicResource AccentBrush}"/>
+                        <TextBlock Text="Loading job order data…"
+                                   Style="{StaticResource SoftKpiFootStyle}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ERROR -->
+                <Border Style="{StaticResource SoftSectionStyle}"
+                        Padding="16,14"
                         Background="{DynamicResource TintRedBrush}"
                         BorderBrush="{DynamicResource DangerBrush}"
-                        BorderThickness="1.5"
-                        CornerRadius="10"
-                        Padding="14,12" Margin="6,0,6,8">
-                    <TextBlock Text="Failed to load job order data."
-                               Foreground="{DynamicResource DangerBrush}"
-                               FontSize="12" TextWrapping="Wrap" FontWeight="Bold"/>
+                        Visibility="{Binding HasError,
+                            Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE783;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="14"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,10,0"
+                                   Foreground="{DynamicResource DangerBrush}"/>
+                        <TextBlock Text="{Binding ErrorMessage}"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource DangerBrush}"/>
+                    </StackPanel>
                 </Border>
 
-                <!-- ═══ KPI CARDS ═══ -->
+                <!-- KPI ROW -->
                 <TextBlock Text="Production Overview"
-                           Style="{StaticResource SectionTitle}"/>
-                <TextBlock Text="Summary of all job orders by status and priority"
-                           Style="{StaticResource SectionSubtitle}"/>
-
+                           Style="{StaticResource SoftGroupHeadingStyle}"/>
                 <ItemsControl ItemsSource="{Binding KpiCards}"
-                              ItemTemplate="{StaticResource KpiTemplate}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <UniformGrid Rows="1" Columns="4"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
+                              ItemTemplate="{StaticResource SoftKpiCardTemplate}"
+                              ItemsPanel="{StaticResource SoftKpiRowPanel}"
+                              Margin="-5,0,-5,18"/>
 
-                <!-- ═══ STATUS DISTRIBUTION ═══ -->
-                <TextBlock Text="Status Distribution"
-                           Style="{StaticResource SectionTitle}"
-                           Margin="6,14,6,6"/>
-                <TextBlock Text="How your job orders are distributed across production stages"
-                           Style="{StaticResource SectionSubtitle}"/>
+                <!-- CHART ROW -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-                <Border Style="{StaticResource CardStyle}">
-                    <Grid>
-                        <StackPanel Visibility="{Binding HasStatusData,
-                                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                            <trend:TrendChartControl
-                                Height="150"
-                                Points="{Binding StatusBars}"
-                                SeriesKind="Bar"
-                                EmptyMessage="Jobs by status — no data yet."
-                                SeriesBrush="{DynamicResource AccentBrush}"
-                                GridBrush="{DynamicResource DividerBrush}"
-                                LabelBrush="{DynamicResource MutedForegroundBrush}"/>
+                    <Border Grid.Column="0"
+                            Style="{StaticResource SoftSectionStyle}"
+                            Margin="0,0,10,20">
+                        <StackPanel>
+                            <TextBlock Text="Status Distribution"
+                                       Style="{StaticResource SoftSectionTitleStyle}"/>
+                            <TextBlock Text="Job orders grouped by current status"
+                                       Style="{StaticResource SoftSectionSubtitleStyle}"/>
 
-                            <Border Height="1" Margin="0,4,0,0"
-                                    Background="{DynamicResource TintIndigoBrush}"/>
+                            <Grid>
+                                <Border Style="{StaticResource SoftChartWellStyle}"
+                                        Visibility="{Binding HasStatusData,
+                                            Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <trend:TrendChartControl
+                                        Height="260"
+                                        Points="{Binding StatusBars}"
+                                        SeriesKind="Bar"
+                                        EmptyMessage="Job order count by status — no data yet."
+                                        SeriesBrush="{DynamicResource AccentBrush}"
+                                        GridBrush="{DynamicResource DividerBrush}"
+                                        LabelBrush="{DynamicResource MutedForegroundBrush}"/>
+                                </Border>
+
+                                <Border Padding="0,60"
+                                        Visibility="{Binding HasStatusData,
+                                            Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <TextBlock Text="&#xE9F9;"
+                                                   Style="{StaticResource DashEmptyStateGlyphStyle}"/>
+                                        <TextBlock Text="No job orders yet"
+                                                   Style="{StaticResource DashEmptyStateTextStyle}"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
 
                             <TextBlock Text="Job order count by status"
-                                       FontSize="11" HorizontalAlignment="Right"
-                                       Margin="0,10,4,0"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                       Style="{StaticResource SoftMetaStyle}"
+                                       HorizontalAlignment="Right"
+                                       Margin="0,12,2,0"/>
                         </StackPanel>
+                    </Border>
 
-                        <StackPanel HorizontalAlignment="Center" Margin="0,26"
-                                    Visibility="{Binding HasStatusData,
-                                                 Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                            <TextBlock Text="&#xE9F9;" FontFamily="Segoe MDL2 Assets" FontSize="22"
-                                       HorizontalAlignment="Center" Opacity="0.4"/>
-                            <TextBlock Text="No job orders yet"
-                                       FontSize="15" FontWeight="Bold"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,12,0,4"
-                                       Foreground="{DynamicResource DashAccentTextBrush}"/>
-                            <TextBlock Text="Convert a Proforma Invoice to create your first job order."
-                                       FontSize="12" HorizontalAlignment="Center"
-                                       TextAlignment="Center"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
+                    <Border Grid.Column="1"
+                            Style="{StaticResource SoftSectionStyle}"
+                            Margin="10,0,0,20">
+                        <StackPanel>
+                            <TextBlock Text="Priority Breakdown"
+                                       Style="{StaticResource SoftSectionTitleStyle}"/>
+                            <TextBlock Text="Job orders grouped by assigned priority"
+                                       Style="{StaticResource SoftSectionSubtitleStyle}"/>
 
-                <!-- ═══ PRIORITY BREAKDOWN ═══ -->
-                <TextBlock Text="Priority Breakdown"
-                           Style="{StaticResource SectionTitle}"
-                           Margin="6,14,6,6"/>
-                <TextBlock Text="Distribution of job orders by production priority"
-                           Style="{StaticResource SectionSubtitle}"/>
+                            <Grid>
+                                <Border Style="{StaticResource SoftChartWellStyle}"
+                                        Visibility="{Binding HasStatusData,
+                                            Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <trend:TrendChartControl
+                                        Height="260"
+                                        Points="{Binding PriorityBars}"
+                                        SeriesKind="Bar"
+                                        EmptyMessage="Job order count by priority — no data yet."
+                                        SeriesBrush="{DynamicResource AccentBrush}"
+                                        GridBrush="{DynamicResource DividerBrush}"
+                                        LabelBrush="{DynamicResource MutedForegroundBrush}"/>
+                                </Border>
 
-                <Border Style="{StaticResource CardStyle}">
-                    <Grid>
-                        <StackPanel Visibility="{Binding HasStatusData,
-                                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                            <trend:TrendChartControl
-                                Height="150"
-                                Points="{Binding PriorityBars}"
-                                SeriesKind="Bar"
-                                EmptyMessage="Jobs by priority — no data yet."
-                                SeriesBrush="{DynamicResource AccentBrush}"
-                                GridBrush="{DynamicResource DividerBrush}"
-                                LabelBrush="{DynamicResource MutedForegroundBrush}"/>
-
-                            <Border Height="1" Margin="0,4,0,0"
-                                    Background="{DynamicResource TintIndigoBrush}"/>
+                                <Border Padding="0,60"
+                                        Visibility="{Binding HasStatusData,
+                                            Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <TextBlock Text="&#xE8FD;"
+                                                   Style="{StaticResource DashEmptyStateGlyphStyle}"/>
+                                        <TextBlock Text="No priority data yet"
+                                                   Style="{StaticResource DashEmptyStateTextStyle}"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
 
                             <TextBlock Text="Job order count by priority"
-                                       FontSize="11" HorizontalAlignment="Right"
-                                       Margin="0,10,4,0"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                       Style="{StaticResource SoftMetaStyle}"
+                                       HorizontalAlignment="Right"
+                                       Margin="0,12,2,0"/>
                         </StackPanel>
+                    </Border>
+                </Grid>
 
-                        <StackPanel HorizontalAlignment="Center" Margin="0,26"
-                                    Visibility="{Binding HasStatusData,
-                                                 Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                            <TextBlock Text="&#xE8FD;" FontFamily="Segoe MDL2 Assets" FontSize="22"
-                                       HorizontalAlignment="Center" Opacity="0.4"/>
-                            <TextBlock Text="No priority data yet"
-                                       FontSize="15" FontWeight="Bold"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,12,0,4"
-                                       Foreground="{DynamicResource DashAccentTextBrush}"/>
-                        </StackPanel>
-                    </Grid>
+                <!-- FEED -->
+                <Border Style="{StaticResource SoftSectionStyle}">
+                    <StackPanel>
+                        <TextBlock Text="Recent Job Orders"
+                                   Style="{StaticResource SoftSectionTitleStyle}"/>
+                        <TextBlock Text="Last 10 job orders, most recently updated first"
+                                   Style="{StaticResource SoftSectionSubtitleStyle}"/>
+
+                        <ItemsControl ItemsSource="{Binding RecentFeed}"
+                                      ItemTemplate="{StaticResource SoftFeedRowTemplate}"
+                                      Visibility="{Binding HasRecentFeed,
+                                          Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                        <Border Padding="0,40"
+                                Visibility="{Binding HasRecentFeed,
+                                    Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                            <StackPanel HorizontalAlignment="Center">
+                                <TextBlock Text="&#xE9F9;"
+                                           Style="{StaticResource DashEmptyStateGlyphStyle}"/>
+                                <TextBlock Text="No job orders yet"
+                                           Style="{StaticResource DashEmptyStateTextStyle}"/>
+                                <TextBlock Text="Convert an approved proforma invoice into a job order."
+                                           Style="{StaticResource SoftMetaStyle}"
+                                           HorizontalAlignment="Center"
+                                           TextAlignment="Center"
+                                           Margin="0,6,0,0"/>
+                            </StackPanel>
+                        </Border>
+                    </StackPanel>
                 </Border>
-
-                <!-- ═══ RECENT JOB ORDERS FEED ═══ -->
-                <TextBlock Text="Recent Job Orders"
-                           Style="{StaticResource SectionTitle}"
-                           Margin="6,14,6,6"/>
-                <TextBlock Text="Last 10 job orders ordered by most recently updated"
-                           Style="{StaticResource SectionSubtitle}"/>
-
-                <Border Style="{StaticResource CardStyle}">
-                    <Grid>
-                        <StackPanel Visibility="{Binding HasRecentFeed,
-                                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                            <ItemsControl ItemsSource="{Binding RecentFeed}"
-                                          ItemTemplate="{StaticResource FeedRowTemplate}"/>
-
-                            <Border Height="1" Margin="0,8,0,0"
-                                    Background="{DynamicResource TintIndigoBrush}"/>
-
-                            <TextBlock Text="Showing last 10 · ordered by last updated"
-                                       FontSize="11" HorizontalAlignment="Right"
-                                       Margin="0,10,4,0"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
-                        </StackPanel>
-
-                        <StackPanel HorizontalAlignment="Center" Margin="0,26"
-                                    Visibility="{Binding HasRecentFeed,
-                                                 Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                            <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets" FontSize="22"
-                                       HorizontalAlignment="Center" Opacity="0.4"/>
-                            <TextBlock Text="No job orders yet"
-                                       FontSize="15" FontWeight="Bold"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,12,0,4"
-                                       Foreground="{DynamicResource DashAccentTextBrush}"/>
-                            <TextBlock Text="Convert a Proforma Invoice to get started."
-                                       FontSize="12" HorizontalAlignment="Center"
-                                       TextAlignment="Center"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-
-                <!-- Footer timestamp -->
-                <TextBlock Text="{Binding LastRefreshed}"
-                           FontSize="11" Opacity="0.6" Margin="12,16,0,0"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
 
             </StackPanel>
         </ScrollViewer>

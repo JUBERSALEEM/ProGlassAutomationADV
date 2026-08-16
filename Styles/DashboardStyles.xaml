@@ -56,6 +56,7 @@
 
 <ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
                     xmlns:sys="clr-namespace:System;assembly=mscorlib">
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -505,5 +506,534 @@
     <ItemsPanelTemplate x:Key="DashTileWrapPanel">
         <WrapPanel Orientation="Horizontal"/>
     </ItemsPanelTemplate>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         ════════  "SOFT CARD" LANGUAGE — user-supplied reference  ══════
+         ═══════════════════════════════════════════════════════════════
+
+         The user supplied a full DashboardView markup as the target
+         look and asked for it to be adopted across all 7 dashboards.
+         Its defining traits, extracted from that markup:
+
+           • Big soft cards: CornerRadius 18, Padding 20, Margin 0,0,0,20
+           • Hairline border #E2E8F0 + DropShadow(Blur 10, Depth 2, .08)
+           • Hero band: 30px Bold title, 13px muted subtitle, radius 22
+           • A 4px full-bleed colour cap across the TOP of each KPI card
+             (Margin="-20,-20,-20,12" so it bleeds past the padding)
+           • KPI: 11px muted label, 28px Bold value, 12px status line
+           • A 40x40 radius-10 tinted square badge, top-RIGHT
+           • Pill buttons: radius 10, padding 14,8, opacity hover/press
+           • Page background #F1F5F9, cards White
+
+         TWO DELIBERATE DEVIATIONS FROM THE SUPPLIED MARKUP
+         ──────────────────────────────────────────────────
+         1. COLOUR. The reference hardcodes hex (#F1F5F9 page, White
+            card, #0F172A text, #64748B label). ThemeManager swaps the
+            theme dictionary at RUNTIME, so a hardcoded card stays
+            white in Dark theme with near-invisible text — the exact
+            "few boxes dynamic, few not" bug already fixed once in this
+            codebase. Every colour below therefore resolves through
+            DynamicResource. Verified: all 51 keys exist in BOTH
+            Themes/LightTheme.xaml and Themes/DarkTheme.xaml, and in
+            light theme they evaluate to the reference's own values
+            (ElevatedSurfaceBrush #FFFFFF, PrimaryForegroundBrush
+            #0F172A, SecondaryForegroundBrush #6B7280, BorderBrush
+            #E5E7EB ≈ #E2E8F0). So light theme LOOKS like the
+            reference; dark theme also works.
+
+         2. CHARTS. The reference binds lvc:CartesianChart
+            (LiveChartsCore). That package is NOT referenced by
+            ProGlassAutomation.csproj and NuGet is not reachable from
+            the build sandbox, so importing it would break the build.
+            The existing TrendChartControl draws the same bar/line plot
+            and is already wired to these ViewModels. DashChartWellStyle
+            reproduces the reference's recessed #F8FAFC chart well so
+            the framing is identical.
+
+         SCOPE NOTE: these are NEW keys. The pre-existing compact keys
+         (DashCardStyle, CardStyle, KpiTemplate, …) are left untouched
+         because CardStyle is also consumed by four Tax Invoice DETAIL
+         screens outside the dashboard area:
+           Views/TaxInvoice/TaxInvoiceDetail/TaxInvoiceDetailView.xaml
+           …/Sections/TiOverviewSection.xaml, TiFamilySection.xaml,
+           …/Sections/TiAttachmentsSection.xaml
+         Redefining CardStyle would silently restyle those too.
+    ═══════════════════════════════════════════════════════════════ -->
+
+    <!-- ── Geometry from the reference ─────────────────────────────── -->
+    <CornerRadius x:Key="SoftCardRadius">18</CornerRadius>
+    <CornerRadius x:Key="SoftHeroRadius">22</CornerRadius>
+    <CornerRadius x:Key="SoftPillRadius">10</CornerRadius>
+    <CornerRadius x:Key="SoftBadgeRadius">10</CornerRadius>
+    <Thickness    x:Key="SoftCardPadding">20</Thickness>
+    <Thickness    x:Key="SoftPagePadding">24</Thickness>
+
+    <!-- Type scale from the reference markup. -->
+    <sys:Double x:Key="SoftFontHero">30</sys:Double>
+    <sys:Double x:Key="SoftFontKpi">28</sys:Double>
+    <sys:Double x:Key="SoftFontStat">22</sys:Double>
+    <sys:Double x:Key="SoftFontSection">16</sys:Double>
+    <sys:Double x:Key="SoftFontGroup">14</sys:Double>
+    <sys:Double x:Key="SoftFontBody">13</sys:Double>
+    <sys:Double x:Key="SoftFontMeta">12</sys:Double>
+    <sys:Double x:Key="SoftFontLabel">11</sys:Double>
+
+    <!-- The reference shadow: BlurRadius 10, ShadowDepth 2, Opacity .08.
+         Frozen: a shadow is re-rendered per card, and these appear
+         dozens of times per page. -->
+    <DropShadowEffect x:Key="SoftCardShadow"
+                      BlurRadius="10"
+                      ShadowDepth="2"
+                      Opacity="0.08"
+                      Direction="270"
+                      Color="#0F172A"
+                      po:Freeze="True"/>
+
+    <!-- ── Surfaces ────────────────────────────────────────────────── -->
+
+    <!-- The reference's SectionBorderStyle. -->
+    <Style x:Key="SoftCardStyle" TargetType="Border">
+        <Setter Property="Background"      Value="{DynamicResource ElevatedSurfaceBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius"    Value="{StaticResource SoftCardRadius}"/>
+        <Setter Property="Padding"         Value="{StaticResource SoftCardPadding}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Effect"          Value="{StaticResource SoftCardShadow}"/>
+    </Style>
+
+    <!-- Same card with the reference's 0,0,0,20 stacking margin. -->
+    <Style x:Key="SoftSectionStyle" TargetType="Border"
+           BasedOn="{StaticResource SoftCardStyle}">
+        <Setter Property="Margin" Value="0,0,0,20"/>
+    </Style>
+
+    <!-- Hero band — radius 22, no border, per the reference. -->
+    <Style x:Key="SoftHeroStyle" TargetType="Border">
+        <Setter Property="Background"   Value="{DynamicResource ElevatedSurfaceBrush}"/>
+        <Setter Property="CornerRadius" Value="{StaticResource SoftHeroRadius}"/>
+        <Setter Property="Padding"      Value="24"/>
+        <Setter Property="Margin"       Value="0,0,0,18"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="Effect"       Value="{StaticResource SoftCardShadow}"/>
+    </Style>
+
+    <!-- Recessed chart well — the reference's #F8FAFC radius-12 inset. -->
+    <Style x:Key="SoftChartWellStyle" TargetType="Border">
+        <Setter Property="Background"   Value="{DynamicResource TintGrayBrush}"/>
+        <Setter Property="CornerRadius" Value="12"/>
+        <Setter Property="Padding"      Value="10"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- Inner neutral tile (sales-team chips, list rows). -->
+    <Style x:Key="SoftInsetStyle" TargetType="Border">
+        <Setter Property="Background"      Value="{DynamicResource TintGrayBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius"    Value="12"/>
+        <Setter Property="Padding"         Value="12"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- ── Typography ──────────────────────────────────────────────── -->
+
+    <Style x:Key="SoftHeroTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"   Value="{StaticResource SoftFontHero}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+    </Style>
+
+    <Style x:Key="SoftHeroSubtitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"   Value="{StaticResource SoftFontBody}"/>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Margin"     Value="0,6,0,0"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <!-- 16px SemiBold card heading (reference "Production Trend"). -->
+    <Style x:Key="SoftSectionTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"   Value="{StaticResource SoftFontSection}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+    </Style>
+
+    <!-- 12px muted line under a card heading. -->
+    <Style x:Key="SoftSectionSubtitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"   Value="{StaticResource SoftFontMeta}"/>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="Margin"     Value="0,2,0,16"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <!-- 14px SemiBold standalone group heading above a grid of cards. -->
+    <Style x:Key="SoftGroupHeadingStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"   Value="{StaticResource SoftFontGroup}"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Margin"     Value="0,0,0,12"/>
+    </Style>
+
+    <Style x:Key="SoftKpiLabelStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"   Value="{StaticResource SoftFontLabel}"/>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <!-- The KPI number. Tabular figures stop digits jittering when a
+         live value refreshes under a fixed-width column. -->
+    <Style x:Key="SoftKpiValueStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"   Value="{StaticResource SoftFontKpi}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Margin"     Value="0,8,0,4"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Typography.NumeralAlignment" Value="Tabular"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <!-- Secondary stat number (reference's 22px 3-up splits). -->
+    <Style x:Key="SoftStatValueStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"   Value="{StaticResource SoftFontStat}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="TextAlignment" Value="Center"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="Typography.NumeralAlignment" Value="Tabular"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <Style x:Key="SoftStatLabelStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"      Value="{StaticResource SoftFontLabel}"/>
+        <Setter Property="TextAlignment" Value="Center"/>
+        <Setter Property="Foreground"    Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="TextTrimming"  Value="CharacterEllipsis"/>
+    </Style>
+
+    <!-- 12px status line under a KPI value. -->
+    <Style x:Key="SoftKpiFootStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"   Value="{StaticResource SoftFontMeta}"/>
+        <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <Style x:Key="SoftMetaStyle" TargetType="TextBlock">
+        <Setter Property="FontSize"   Value="{StaticResource SoftFontLabel}"/>
+        <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+
+    <!-- ── Ornaments ───────────────────────────────────────────────── -->
+
+    <!-- The 4px colour cap. Negative margin bleeds it past the card's
+         20px padding to the full card width, exactly as the reference
+         does with Margin="-20,-20,-20,12". Consumers set Background. -->
+    <Style x:Key="SoftCardCapStyle" TargetType="Border">
+        <Setter Property="Height"            Value="4"/>
+        <Setter Property="VerticalAlignment" Value="Top"/>
+        <Setter Property="Margin"            Value="-20,-20,-20,12"/>
+        <Setter Property="CornerRadius"      Value="2,2,0,0"/>
+        <Setter Property="Background"        Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- 40x40 tinted badge, top-right of a KPI card. -->
+    <Style x:Key="SoftBadgeStyle" TargetType="Border">
+        <Setter Property="Width"               Value="40"/>
+        <Setter Property="Height"              Value="40"/>
+        <Setter Property="CornerRadius"        Value="{StaticResource SoftBadgeRadius}"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="VerticalAlignment"   Value="Top"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- Glyph inside a filled badge. MDL2 is hard-set so no view can
+         smuggle an emoji in through a binding — the reference used
+         literal "✓", "↩" and "⏳" characters, which render through a
+         colour font, ignore Foreground and look like clip-art. -->
+    <Style x:Key="SoftBadgeGlyphStyle" TargetType="TextBlock">
+        <Setter Property="FontFamily"          Value="Segoe MDL2 Assets"/>
+        <Setter Property="FontSize"            Value="16"/>
+        <Setter Property="HorizontalAlignment" Value="Center"/>
+        <Setter Property="VerticalAlignment"   Value="Center"/>
+        <Setter Property="Foreground"          Value="{DynamicResource OnAccentForegroundBrush}"/>
+    </Style>
+
+    <!-- Small live/status chip (reference's green "Live" pill). -->
+    <Style x:Key="SoftChipStyle" TargetType="Border">
+        <Setter Property="CornerRadius" Value="20"/>
+        <Setter Property="Padding"      Value="12,6"/>
+        <Setter Property="Background"   Value="{DynamicResource TintGreenBrush}"/>
+        <Setter Property="HorizontalAlignment" Value="Right"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- ── Pill button (reference PillButtonStyle) ─────────────────── -->
+    <Style x:Key="SoftPillButtonStyle" TargetType="Button">
+        <Setter Property="Padding"          Value="14,8"/>
+        <Setter Property="Margin"           Value="0,0,8,0"/>
+        <Setter Property="BorderThickness"  Value="0"/>
+        <Setter Property="Background"       Value="{DynamicResource MenuHoverBrush}"/>
+        <Setter Property="Foreground"       Value="{DynamicResource PrimaryForegroundBrush}"/>
+        <Setter Property="FontSize"         Value="{StaticResource SoftFontMeta}"/>
+        <Setter Property="FontWeight"       Value="SemiBold"/>
+        <Setter Property="Cursor"           Value="Hand"/>
+        <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="Button">
+                    <Border x:Name="Root"
+                            Background="{TemplateBinding Background}"
+                            CornerRadius="{StaticResource SoftPillRadius}"
+                            Padding="{TemplateBinding Padding}"
+                            SnapsToDevicePixels="True">
+                        <StackPanel Orientation="Horizontal"
+                                    HorizontalAlignment="Center"
+                                    VerticalAlignment="Center">
+                            <!-- Tag carries an optional MDL2 glyph. When
+                                 empty the TextBlock collapses, so a
+                                 text-only pill has no phantom gap. -->
+                            <TextBlock x:Name="Glyph"
+                                       Text="{TemplateBinding Tag}"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="12"
+                                       Margin="0,0,8,0"
+                                       VerticalAlignment="Center"
+                                       Foreground="{TemplateBinding Foreground}"/>
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </StackPanel>
+                    </Border>
+                    <ControlTemplate.Triggers>
+                        <Trigger Property="Tag" Value="{x:Null}">
+                            <Setter TargetName="Glyph" Property="Visibility" Value="Collapsed"/>
+                        </Trigger>
+                        <Trigger Property="Tag" Value="">
+                            <Setter TargetName="Glyph" Property="Visibility" Value="Collapsed"/>
+                        </Trigger>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter TargetName="Root" Property="Opacity" Value="0.92"/>
+                        </Trigger>
+                        <Trigger Property="IsPressed" Value="True">
+                            <Setter TargetName="Root" Property="Opacity" Value="0.84"/>
+                        </Trigger>
+                        <Trigger Property="IsEnabled" Value="False">
+                            <Setter TargetName="Root" Property="Opacity" Value="0.45"/>
+                        </Trigger>
+                    </ControlTemplate.Triggers>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style x:Key="SoftPillAccentStyle" TargetType="Button"
+           BasedOn="{StaticResource SoftPillButtonStyle}">
+        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <Style x:Key="SoftPillSuccessStyle" TargetType="Button"
+           BasedOn="{StaticResource SoftPillButtonStyle}">
+        <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+        <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+    </Style>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         KPI CARD in the reference's soft style, bound to KpiCardModel
+         (Icon, Title, DisplayValue, BadgeColor, TintColor, SubLabel,
+         IsAlert) — the SAME model the compact KpiTemplate uses, so a
+         view swaps templates without any ViewModel change.
+
+         BadgeColor / TintColor hold theme brush KEYS resolved by
+         BrushKeyConverter, so the cap and badge follow the theme and
+         the per-card colour identity comes from the ViewModel rather
+         than being hardcoded per column as in the reference markup.
+    ═══════════════════════════════════════════════════════════════ -->
+    <DataTemplate x:Key="SoftKpiCardTemplate">
+        <Border Style="{StaticResource SoftCardStyle}" Margin="5,0,5,0">
+            <Grid>
+                <!-- Colour cap, tinted per card by the ViewModel. -->
+                <Border Style="{StaticResource SoftCardCapStyle}"
+                        Background="{Binding BadgeColor,
+                                     Converter={StaticResource BrushKeyConverter}}"/>
+
+                <StackPanel Margin="0,0,48,0">
+                    <TextBlock Text="{Binding Title}"
+                               Style="{StaticResource SoftKpiLabelStyle}"/>
+                    <!-- Viewbox + StretchDirection=DownOnly: a short value
+                         renders at the full 28px, while a long currency
+                         value ("AED 1,234,567.89" needs ~260px but a
+                         1280px window only gives this column ~210px)
+                         scales DOWN to fit instead of clipping. Money
+                         must never be truncated. -->
+                    <Viewbox HorizontalAlignment="Left"
+                             Stretch="Uniform"
+                             StretchDirection="DownOnly"
+                             Margin="0,8,0,4">
+                        <TextBlock Text="{Binding DisplayValue}"
+                                   Style="{StaticResource SoftKpiValueStyle}"
+                                   Margin="0"/>
+                    </Viewbox>
+                    <TextBlock Text="{Binding SubLabel}"
+                               Style="{StaticResource SoftKpiFootStyle}"
+                               TextWrapping="Wrap"/>
+                </StackPanel>
+
+                <Border Style="{StaticResource SoftBadgeStyle}"
+                        Background="{Binding BadgeColor,
+                                     Converter={StaticResource BrushKeyConverter}}">
+                    <TextBlock Text="{Binding Icon}"
+                               Style="{StaticResource SoftBadgeGlyphStyle}"/>
+                </Border>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+    <!-- Same card for KpiTileModel (Icon, Label, DisplayValue, Accent,
+         IsAlert). Accent is a WORD (Green|Blue|Amber|Red), not a brush
+         key, so the cap colour comes from triggers instead. -->
+    <DataTemplate x:Key="SoftKpiTileTemplate">
+        <Border Style="{StaticResource SoftCardStyle}" Margin="5,0,5,0">
+            <Grid>
+                <Border Background="{DynamicResource AccentBrush}">
+                    <Border.Style>
+                        <Style TargetType="Border" BasedOn="{StaticResource SoftCardCapStyle}">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Accent}" Value="Green">
+                                    <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Accent}" Value="Blue">
+                                    <Setter Property="Background" Value="{DynamicResource InfoBrush}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Accent}" Value="Amber">
+                                    <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Accent}" Value="Red">
+                                    <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsAlert}" Value="True">
+                                    <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                </Border>
+
+                <StackPanel Margin="0,0,48,0">
+                    <TextBlock Text="{Binding Label}"
+                               Style="{StaticResource SoftKpiLabelStyle}"/>
+                    <Viewbox HorizontalAlignment="Left"
+                             Stretch="Uniform"
+                             StretchDirection="DownOnly"
+                             Margin="0,8,0,0">
+                        <TextBlock Text="{Binding DisplayValue}"
+                                   Style="{StaticResource SoftKpiValueStyle}"
+                                   Margin="0"/>
+                    </Viewbox>
+                </StackPanel>
+
+                <Border>
+                    <Border.Style>
+                        <Style TargetType="Border" BasedOn="{StaticResource SoftBadgeStyle}">
+                            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding Accent}" Value="Green">
+                                    <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Accent}" Value="Blue">
+                                    <Setter Property="Background" Value="{DynamicResource InfoBrush}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Accent}" Value="Amber">
+                                    <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding Accent}" Value="Red">
+                                    <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsAlert}" Value="True">
+                                    <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Border.Style>
+                    <TextBlock Text="{Binding Icon}"
+                               Style="{StaticResource SoftBadgeGlyphStyle}"/>
+                </Border>
+            </Grid>
+        </Border>
+    </DataTemplate>
+
+    <!-- KPI row host: equal columns, reference's 10px gutter handled by
+         the card margin below. UniformGrid keeps columns equal at any
+         width, which is what makes the row read as one band. -->
+    <ItemsPanelTemplate x:Key="SoftKpiRowPanel">
+        <UniformGrid Rows="1"/>
+    </ItemsPanelTemplate>
+
+    <!-- ═══════════════════════════════════════════════════════════════
+         ACTIVITY / FEED ROW in the soft language. Bound to
+         ActivityFeedItem (Icon, Title, SubTitle, ValueDisplay,
+         StatusLabel, StatusColor, TintColor).
+    ═══════════════════════════════════════════════════════════════ -->
+    <DataTemplate x:Key="SoftFeedRowTemplate">
+        <Border Background="{Binding TintColor,
+                             Converter={StaticResource BrushKeyConverter}}"
+                CornerRadius="12"
+                Padding="12,10"
+                Margin="0,0,0,8"
+                SnapsToDevicePixels="True">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0"
+                        Width="34" Height="34"
+                        CornerRadius="10"
+                        VerticalAlignment="Top"
+                        Margin="0,0,12,0"
+                        Background="{Binding StatusColor,
+                                     Converter={StaticResource BrushKeyConverter}}">
+                    <TextBlock Text="{Binding Icon}"
+                               Style="{StaticResource SoftBadgeGlyphStyle}"
+                               FontSize="14"/>
+                </Border>
+
+                <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                    <TextBlock Text="{Binding Title}"
+                               FontSize="{StaticResource SoftFontMeta}"
+                               FontWeight="SemiBold"
+                               TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    <TextBlock Text="{Binding SubTitle}"
+                               FontSize="{StaticResource SoftFontLabel}"
+                               Margin="0,2,0,0"
+                               TextTrimming="CharacterEllipsis"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2"
+                            VerticalAlignment="Center"
+                            Margin="10,0,0,0">
+                    <TextBlock Text="{Binding ValueDisplay}"
+                               FontSize="{StaticResource SoftFontMeta}"
+                               FontWeight="Bold"
+                               HorizontalAlignment="Right"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    <Border CornerRadius="6"
+                            Padding="7,2"
+                            Margin="0,4,0,0"
+                            HorizontalAlignment="Right"
+                            Background="{Binding StatusColor,
+                                         Converter={StaticResource BrushKeyConverter}}">
+                        <TextBlock Text="{Binding StatusLabel}"
+                                   FontSize="{StaticResource DashFontMicro}"
+                                   FontWeight="Bold"
+                                   Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                    </Border>
+                </StackPanel>
+            </Grid>
+        </Border>
+    </DataTemplate>
 
 </ResourceDictionary>

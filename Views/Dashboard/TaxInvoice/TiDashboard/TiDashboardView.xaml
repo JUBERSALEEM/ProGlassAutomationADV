@@ -1,981 +1,657 @@
-<!--
-═══════════════════════════════════════════════════════════════════════
-FILE: Views/Dashboard/TaxInvoice/TiDashboard/TiDashboardView.xaml
-CLASS: ProGlassAutomation.Views.Dashboard.TaxInvoice.TiDashboard.TiDashboardView
-VERSION: Chat 23 v2.5 — Industrial blue + smooth ambient parity
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Views/Dashboard/TaxInvoice/TiDashboard/TiDashboardView.xaml
+     PROJECT: ProGlassAutomation
+     MODULE: Tax Invoice Dashboard
 
-IMPORTANT — FOLDER MUST MATCH NAMESPACE:
-  The file MUST be physically located at:
-  Views\Dashboard\TaxInvoice\TiDashboard\TiDashboardView.xaml
+     SOFT-CARD REDESIGN — the reference dashboard markup supplied by the
+     user, applied identically across all 7 dashboards. The look lives
+     in Styles/DashboardStyles.xaml (Soft* keys). This file previously
+     carried ~200 lines of private card/button/tile styles that had
+     drifted from every other dashboard; those are gone and the shared
+     keys are used instead.
 
-CHANGES vs previous:
-  ✓ Wrapped ScrollViewer in Grid + cached ambient Canvas (v2.5 pattern)
-  ✓ TiParentCardStyle: removed DropShadowEffect, added glass gradient
-  ✓ TiCardIcon: removed DropShadowEffect
-  ✓ TiTileTemplate: green default → sapphire blue default (matches
-    Overview v2.4 tile palette)
-  ✓ TiQuickActionStyle: hover #6366F1 indigo → #2563EB blue-600
-  ✓ TiQuickActionStyle: pressed #3730A3 → #1E3A8A blue-900
-  ✓ TiSecondaryActionStyle: hover #6366F1 → #2563EB
-  ✓ Card header icon backgrounds shifted to industrial blue palette:
-      • KPI header:        #047857 green → #1E40AF sapphire
-      • Recent Invoices:   #4338CA indigo → #1E3A8A deep blue
-      • Invoice Aging:     #B91C1C KEPT (semantic red — overdue)
-      • Top Customers:     #B45309 amber → #0369A1 teal-blue
-      • Revenue Trend:     #4338CA indigo → #1D4ED8 royal blue
-  ✓ Card header title Foreground matches new icon color
-  ✓ PanningMode "None" → "VerticalOnly", Focusable "True" → "False"
-  ✓ Page title 28→30px
+     DEVIATIONS FROM THE PASTED REFERENCE, EACH FORCED
+     ─────────────────────────────────────────────────
+       1. DynamicResource colour, not hardcoded hex — ThemeManager
+          swaps dictionaries at runtime.
+       2. TrendChartControl, not lvc:CartesianChart — LiveChartsCore is
+          not referenced and NuGet is unreachable from the sandbox.
+       3. Segoe MDL2 glyphs, never emoji.
 
-PRESERVED (zero regression):
-  • ALL bindings (KpiTiles, RecentInvoices, AgingBrackets, TopCustomers,
-    RevenueBars, HasOverdueInvoices, OverdueCount, OverdueAmountDisplay,
-    HasRecentInvoices, HasAgingData, HasTopCustomers, HasRevenueData,
-    RevenueChartTitle, LastRefreshed, IsLoading, HasError, ErrorMessage,
-    CreateTaxInvoiceCommand, ViewOverdueCommand, ViewAllInvoicesCommand,
-    OpenInvoiceCommand)
-  • ALL DataTemplates (KpiTiles, RecentInvoices, AgingBrackets,
-    TopCustomers, RevenueBars)
-  • BrushKeyConverter usage
-  • ColorStringConverter + ScaleConverter + PercentToWidthConverter
-  • Overdue banner design (semantic red — critical alert)
-  • MouseBinding on invoice row (opens invoice via command)
-  • Rank/medal DataTrigger on TopCustomers
-  • SmoothScrollBehavior
+     EMOJI REMOVAL WITHOUT TOUCHING THE MODELS
+     ─────────────────────────────────────────
+     RecentInvoiceItem.StatusIcon returns ✅ 📤 ⚠️ 📝 ❌ 🚫 and
+     TopCustomerItem.MedalIcon returns 🥇 🥈 🥉. Both are model
+     properties, and models are ERP code that must not be edited for a
+     styling pass. So this view simply does NOT bind them: the status
+     glyph is derived from the already-bound Status string via
+     DataTriggers, and the medal is replaced by the numeric Rank in a
+     tinted disc. Nothing in C# changed; the emoji properties are left
+     in place, merely unused here.
 
-FLAG FOR LATER:
-  Cannot verify brush keys emitted by TaxInvoiceMetricsService for
-  RecentInvoiceItem.StatusColor, RecentInvoiceItem.TintColor,
-  AgingBracket.SeverityColor, AgingBracket.TintColor.
-  If those emit "RedBrush"/"AmberBrush"/"GreenBrush" (missing in theme),
-  pills will render transparent — same silent bug as JoDashboard v2.4
-  had. To verify, share TaxInvoiceMetricsService.cs.
-═══════════════════════════════════════════════════════════════════════
--->
-<UserControl
-    x:Class="ProGlassAutomation.Views.Dashboard.TaxInvoice.TiDashboard.TiDashboardView"
-    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
-    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
-    xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
-    FontFamily="Segoe UI"
-    TextOptions.TextFormattingMode="Display"
-    TextOptions.TextRenderingMode="ClearType"
-    TextOptions.TextHintingMode="Fixed"
-    RenderOptions.BitmapScalingMode="HighQuality"
-    UseLayoutRounding="True"
-    SnapsToDevicePixels="True">
+     BINDINGS — UNCHANGED. NO VIEWMODEL WAS EDITED.
+       KpiTiles (KpiTileModel), RecentInvoices, AgingBrackets,
+       TopCustomers, RevenueBars, RevenueChartTitle,
+       HasRecentInvoices, HasAgingData, HasTopCustomers,
+       HasRevenueData, HasOverdueInvoices, OverdueCount,
+       OverdueAmountDisplay, IsLoading, HasError, ErrorMessage,
+       LastRefreshed, CreateTaxInvoiceCommand, ViewAllInvoicesCommand,
+       ViewOverdueCommand, OpenInvoiceCommand
+═══════════════════════════════════════════════════════════════════════ -->
+
+<UserControl x:Class="ProGlassAutomation.Views.Dashboard.TaxInvoice.TiDashboard.TiDashboardView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:trend="clr-namespace:ProGlassAutomation.Controls.TrendChart"
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
 
     <UserControl.Resources>
 
-        <!-- ═══ Glass blue palette (frozen inline) ═══ -->
+        <!-- ═══════════════════════════════════════════════════════════
+             RECENT INVOICE ROW
+             Status glyph comes from DataTriggers on Status, so the
+             model's emoji StatusIcon is never rendered.
+        ═══════════════════════════════════════════════════════════ -->
+        <DataTemplate x:Key="TiRecentInvoiceTemplate">
+            <Border Margin="0,0,0,8"
+                    CornerRadius="12"
+                    Padding="12,10"
+                    Cursor="Hand"
+                    SnapsToDevicePixels="True"
+                    Background="{Binding TintColor,
+                                 Converter={StaticResource BrushKeyConverter}}"
+                    ToolTip="Open this invoice">
+                <Border.InputBindings>
+                    <MouseBinding MouseAction="LeftClick"
+                                  Command="{Binding DataContext.OpenInvoiceCommand,
+                                            RelativeSource={RelativeSource
+                                                AncestorType=UserControl}}"
+                                  CommandParameter="{Binding}"/>
+                </Border.InputBindings>
 
-        <!-- Header brand tones -->
-        <!-- ═══ Parent card (no shadow, glass gradient) ═══ -->
-        <Style x:Key="TiParentCardStyle" TargetType="Border">
-            <Setter Property="Background"          Value="{DynamicResource DashGlassSurfaceBrush}"/>
-            <Setter Property="BorderBrush"         Value="{DynamicResource DashGlassBorderBrush}"/>
-            <Setter Property="BorderThickness"     Value="1"/>
-            <Setter Property="CornerRadius"        Value="16"/>
-            <Setter Property="Padding"             Value="22,18"/>
-            <Setter Property="Margin"              Value="8"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-        </Style>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
 
-        <Style x:Key="TiCardHeader" TargetType="StackPanel">
-            <Setter Property="Orientation" Value="Horizontal"/>
-            <Setter Property="Margin"      Value="0,0,0,18"/>
-        </Style>
-
-        <!-- Icon badge — no shadow -->
-        <Style x:Key="TiCardIcon" TargetType="Border">
-            <Setter Property="Width"             Value="38"/>
-            <Setter Property="Height"            Value="38"/>
-            <Setter Property="CornerRadius"      Value="10"/>
-            <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-        </Style>
-
-        <!-- ═══ KPI TILE — sapphire blue default (v2.4 palette) ═══ -->
-        <DataTemplate x:Key="TiTileTemplate">
-            <Border CornerRadius="10" Padding="14,12" Margin="5"
-                    SnapsToDevicePixels="True">
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <!-- Default (Green from VM) reinterpreted as SAPPHIRE BLUE -->
-                        <Setter Property="Background"      Value="{DynamicResource TintIndigoBrush}"/>
-                        <Setter Property="BorderBrush"     Value="{DynamicResource AccentLightBrush}"/>
-                        <Setter Property="BorderThickness" Value="1.5"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding Accent}" Value="Blue">
-                                <Setter Property="Background"  Value="{DynamicResource TintBlueBrush}"/>
-                                <Setter Property="BorderBrush" Value="{DynamicResource AccentLightBrush}"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding Accent}" Value="Amber">
-                                <Setter Property="Background"  Value="{DynamicResource TintAmberBrush}"/>
-                                <Setter Property="BorderBrush" Value="{DynamicResource WarningBrush}"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding Accent}" Value="Red">
-                                <Setter Property="Background"  Value="{DynamicResource TintRedBrush}"/>
-                                <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding IsAlert}" Value="True">
-                                <Setter Property="BorderBrush"     Value="{DynamicResource DangerBrush}"/>
-                                <Setter Property="BorderThickness" Value="2"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-
-                <StackPanel>
-                    <StackPanel Orientation="Horizontal">
-                        <TextBlock Text="{Binding Icon}"
-                                   FontSize="15"
-                                   VerticalAlignment="Center"/>
-                        <TextBlock Text="{Binding Label}"
-                                   FontSize="11" FontWeight="Bold"
-                                   Margin="7,0,0,0"
-                                   VerticalAlignment="Center"
-                                   TextTrimming="CharacterEllipsis">
+                    <Border Grid.Column="0"
+                            Width="34" Height="34"
+                            CornerRadius="10"
+                            VerticalAlignment="Center"
+                            Margin="0,0,12,0"
+                            SnapsToDevicePixels="True"
+                            Background="{Binding StatusColor,
+                                         Converter={StaticResource BrushKeyConverter}}">
+                        <TextBlock FontSize="14">
                             <TextBlock.Style>
-                                <Style TargetType="TextBlock">
-                                    <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                <Style TargetType="TextBlock"
+                                       BasedOn="{StaticResource SoftBadgeGlyphStyle}">
+                                    <!-- default: generic document -->
+                                    <Setter Property="Text" Value="&#xE8A5;"/>
                                     <Style.Triggers>
-                                        <DataTrigger Binding="{Binding Accent}" Value="Blue">
-                                            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                        <DataTrigger Binding="{Binding Status}" Value="Paid">
+                                            <Setter Property="Text" Value="&#xE73E;"/>
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding Accent}" Value="Amber">
-                                            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
+                                        <DataTrigger Binding="{Binding Status}" Value="Issued">
+                                            <Setter Property="Text" Value="&#xE725;"/>
                                         </DataTrigger>
-                                        <DataTrigger Binding="{Binding Accent}" Value="Red">
-                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+                                        <DataTrigger Binding="{Binding Status}" Value="Overdue">
+                                            <Setter Property="Text" Value="&#xE7BA;"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Status}" Value="Draft">
+                                            <Setter Property="Text" Value="&#xE8E5;"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Status}" Value="Cancelled">
+                                            <Setter Property="Text" Value="&#xE711;"/>
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding Status}" Value="Void">
+                                            <Setter Property="Text" Value="&#xE7BA;"/>
                                         </DataTrigger>
                                     </Style.Triggers>
                                 </Style>
                             </TextBlock.Style>
                         </TextBlock>
+                    </Border>
+
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center">
+                        <TextBlock Text="{Binding InvoiceNumber}"
+                                   FontSize="12"
+                                   FontWeight="Bold"
+                                   TextTrimming="CharacterEllipsis"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                        <TextBlock FontSize="11"
+                                   Margin="0,2,0,0"
+                                   TextTrimming="CharacterEllipsis"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}">
+                            <Run Text="{Binding CustomerName, Mode=OneWay}"/>
+                            <Run Text=" · "/>
+                            <Run Text="{Binding IssueDateDisplay, Mode=OneWay}"/>
+                        </TextBlock>
                     </StackPanel>
 
-                    <TextBlock Text="{Binding DisplayValue}"
-                               FontSize="15" FontWeight="Bold"
-                               Margin="0,8,0,0"
-                               TextTrimming="CharacterEllipsis">
-                        <TextBlock.Style>
-                            <Style TargetType="TextBlock">
-                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-                                <Style.Triggers>
-                                    <DataTrigger Binding="{Binding Accent}" Value="Blue">
-                                        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Accent}" Value="Amber">
-                                        <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
-                                    </DataTrigger>
-                                    <DataTrigger Binding="{Binding Accent}" Value="Red">
-                                        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
-                                    </DataTrigger>
-                                </Style.Triggers>
-                            </Style>
-                        </TextBlock.Style>
-                    </TextBlock>
+                    <StackPanel Grid.Column="2"
+                                VerticalAlignment="Center"
+                                Margin="10,0,0,0">
+                        <TextBlock Text="{Binding AmountDisplay}"
+                                   FontSize="12"
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Right"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                        <Border CornerRadius="6"
+                                Padding="7,2"
+                                Margin="0,4,0,0"
+                                HorizontalAlignment="Right"
+                                SnapsToDevicePixels="True"
+                                Background="{Binding StatusColor,
+                                             Converter={StaticResource BrushKeyConverter}}">
+                            <TextBlock Text="{Binding Status}"
+                                       FontSize="9"
+                                       FontWeight="Bold"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                        </Border>
+                    </StackPanel>
+                </Grid>
+            </Border>
+        </DataTemplate>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             AGING BRACKET ROW — label, count, amount, severity bar.
+             The bar uses a 2-column Grid with star widths rather than
+             the old PercentToWidthConverter with a hardcoded 260px
+             parameter, which mis-sized the fill whenever the card was
+             not exactly 260px wide.
+        ═══════════════════════════════════════════════════════════ -->
+        <DataTemplate x:Key="TiAgingRowTemplate">
+            <Border Margin="0,0,0,10"
+                    Padding="12,10"
+                    CornerRadius="12"
+                    SnapsToDevicePixels="True"
+                    Background="{Binding TintColor,
+                                 Converter={StaticResource BrushKeyConverter}}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Grid.Column="0"
+                                   Text="{Binding Label}"
+                                   FontSize="12"
+                                   FontWeight="Bold"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding CountDisplay}"
+                                   FontSize="10"
+                                   Margin="10,0,0,0"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+
+                        <TextBlock Grid.Column="2"
+                                   Text="{Binding AmountDisplay}"
+                                   FontSize="12"
+                                   FontWeight="Bold"
+                                   HorizontalAlignment="Right"
+                                   Foreground="{Binding SeverityColor,
+                                                Converter={StaticResource BrushKeyConverter}}"/>
+                    </Grid>
+
+                    <Border Height="8"
+                            CornerRadius="4"
+                            Margin="0,8,0,0"
+                            SnapsToDevicePixels="True"
+                            Background="{DynamicResource BorderBrush}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition
+                                    Width="{Binding NormalizedWidth,
+                                            Converter={StaticResource FractionToStarConverter}}"/>
+                                <ColumnDefinition
+                                    Width="{Binding NormalizedWidth,
+                                            Converter={StaticResource FractionToStarConverter},
+                                            ConverterParameter=invert}"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0"
+                                    CornerRadius="4"
+                                    SnapsToDevicePixels="True"
+                                    Background="{Binding SeverityColor,
+                                                 Converter={StaticResource BrushKeyConverter}}"/>
+                        </Grid>
+                    </Border>
                 </StackPanel>
             </Border>
         </DataTemplate>
 
-        <!-- ═══ Quick Action Primary (industrial blue) ═══ -->
-        <Style x:Key="TiQuickActionStyle" TargetType="Button">
-            <Setter Property="Foreground"      Value="White"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding"         Value="18,10"/>
-            <Setter Property="Cursor"          Value="Hand"/>
-            <Setter Property="FontSize"        Value="12"/>
-            <Setter Property="FontWeight"      Value="Bold"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Root"
-                                CornerRadius="10"
-                                SnapsToDevicePixels="True"
-                                Background="{DynamicResource AccentBrush}"
-                                Padding="{TemplateBinding Padding}">
-                            <StackPanel Orientation="Horizontal">
-                                <TextBlock Text="{TemplateBinding Tag}"
-                                           FontSize="12"
-                                           VerticalAlignment="Center"
-                                           Margin="0,0,8,0"/>
-                                <TextBlock Text="{TemplateBinding Content}"
-                                           FontSize="{TemplateBinding FontSize}"
-                                           FontWeight="{TemplateBinding FontWeight}"
-                                           Foreground="{TemplateBinding Foreground}"
-                                           VerticalAlignment="Center"/>
-                            </StackPanel>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource AccentDarkBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="Root" Property="Opacity" Value="0.35"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <!-- ═══════════════════════════════════════════════════════════
+             TOP CUSTOMER ROW — numeric rank disc instead of the
+             model's medal emoji.
+        ═══════════════════════════════════════════════════════════ -->
+        <DataTemplate x:Key="TiTopCustomerTemplate">
+            <Border Margin="0,0,0,10"
+                    Padding="12,10"
+                    CornerRadius="12"
+                    SnapsToDevicePixels="True"
+                    Background="{DynamicResource TintGrayBrush}">
+                <StackPanel>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-        <!-- ═══ Quick Action Secondary (outline blue) ═══ -->
-        <Style x:Key="TiSecondaryActionStyle" TargetType="Button">
-            <Setter Property="Foreground"      Value="{DynamicResource AccentBrush}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding"         Value="14,7"/>
-            <Setter Property="Cursor"          Value="Hand"/>
-            <Setter Property="FontSize"        Value="11"/>
-            <Setter Property="FontWeight"      Value="Bold"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Root"
-                                BorderBrush="{DynamicResource AccentBrush}"
-                                BorderThickness="1.5"
-                                CornerRadius="10"
+                        <Border Grid.Column="0"
+                                Width="26" Height="26"
+                                CornerRadius="13"
+                                Margin="0,0,10,0"
+                                VerticalAlignment="Center"
                                 SnapsToDevicePixels="True"
-                                Background="{DynamicResource ElevatedSurfaceBrush}"
-                                Padding="{TemplateBinding Padding}">
-                            <TextBlock Text="{TemplateBinding Content}"
-                                       FontSize="{TemplateBinding FontSize}"
-                                       FontWeight="{TemplateBinding FontWeight}"
-                                       Foreground="{TemplateBinding Foreground}"
-                                       VerticalAlignment="Center"/>
+                                Background="{Binding BarColor,
+                                             Converter={StaticResource ColorStringConverter}}">
+                            <TextBlock Text="{Binding Rank}"
+                                       FontSize="12"
+                                       FontWeight="Bold"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Root" Property="Opacity" Value="0.8"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+
+                        <StackPanel Grid.Column="1"
+                                    VerticalAlignment="Center"
+                                    Margin="0,0,8,0">
+                            <TextBlock Text="{Binding CustomerName}"
+                                       FontSize="12"
+                                       FontWeight="Bold"
+                                       TextTrimming="CharacterEllipsis"
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            <TextBlock Text="{Binding InvoiceCountDisplay}"
+                                       FontSize="10"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                        </StackPanel>
+
+                        <TextBlock Grid.Column="2"
+                                   Text="{Binding AmountDisplay}"
+                                   FontSize="12"
+                                   FontWeight="Bold"
+                                   VerticalAlignment="Center"
+                                   HorizontalAlignment="Right"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    </Grid>
+
+                    <Border Height="5"
+                            CornerRadius="3"
+                            Margin="0,8,0,0"
+                            SnapsToDevicePixels="True"
+                            Background="{DynamicResource BorderBrush}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition
+                                    Width="{Binding NormalizedWidth,
+                                            Converter={StaticResource FractionToStarConverter}}"/>
+                                <ColumnDefinition
+                                    Width="{Binding NormalizedWidth,
+                                            Converter={StaticResource FractionToStarConverter},
+                                            ConverterParameter=invert}"/>
+                            </Grid.ColumnDefinitions>
+                            <Border Grid.Column="0"
+                                    CornerRadius="3"
+                                    SnapsToDevicePixels="True"
+                                    Background="{Binding BarColor,
+                                                 Converter={StaticResource ColorStringConverter}}"/>
+                        </Grid>
+                    </Border>
+                </StackPanel>
+            </Border>
+        </DataTemplate>
 
     </UserControl.Resources>
 
-    <!-- ═══ Root: v2.5 smooth pattern ═══ -->
-    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
-
-        <Canvas Panel.ZIndex="0"
-                IsHitTestVisible="False"
-                CacheMode="BitmapCache">
-            <Rectangle Fill="{DynamicResource DashAmbientBrush}"
-                       Width="{Binding ActualWidth,
-                           RelativeSource={RelativeSource
-                               AncestorType=Canvas}}"
-                       Height="{Binding ActualHeight,
-                           RelativeSource={RelativeSource
-                               AncestorType=Canvas}}"/>
-            <Rectangle Fill="{DynamicResource DashAmbientBlob1Brush}"
-                       RenderOptions.EdgeMode="Aliased"
-                       Width="{Binding ActualWidth,
-                           RelativeSource={RelativeSource
-                               AncestorType=Canvas}}"
-                       Height="{Binding ActualHeight,
-                           RelativeSource={RelativeSource
-                               AncestorType=Canvas}}"/>
-            <Rectangle Fill="{DynamicResource DashAmbientBlob2Brush}"
-                       RenderOptions.EdgeMode="Aliased"
-                       Width="{Binding ActualWidth,
-                           RelativeSource={RelativeSource
-                               AncestorType=Canvas}}"
-                       Height="{Binding ActualHeight,
-                           RelativeSource={RelativeSource
-                               AncestorType=Canvas}}"/>
-        </Canvas>
-
-        <ScrollViewer Panel.ZIndex="1"
-                      VerticalScrollBarVisibility="Auto"
+    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled"
                       CanContentScroll="False"
-                      IsDeferredScrollingEnabled="False"
                       PanningMode="VerticalOnly"
                       Focusable="False"
                       FocusVisualStyle="{x:Null}"
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
 
-            <StackPanel Margin="14,12,14,14">
+            <StackPanel Margin="24">
 
-                <!-- Page header -->
-                <Grid Margin="6,0,6,10">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <StackPanel Grid.Column="0">
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE8EF;" FontFamily="Segoe MDL2 Assets" FontSize="15"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,10,0"/>
-                            <TextBlock Text="Tax Invoices"
-                                       FontSize="15" FontWeight="Bold"
-                                       Foreground="{DynamicResource DashAccentTextBrush}"
-                                       VerticalAlignment="Center"/>
-                        </StackPanel>
-                        <TextBlock Text="Revenue, VAT, aging and customer analysis — UAE 5% VAT."
-                                   FontSize="12" Margin="0,4,0,0"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                    </StackPanel>
-
-                    <Button Grid.Column="1"
-                            Style="{StaticResource TiQuickActionStyle}"
-                            Content="Create Tax Invoice"
-                            Tag="&#xE8EF;"
-                            Command="{Binding CreateTaxInvoiceCommand}"
-                            VerticalAlignment="Center"/>
-                </Grid>
-
-                <!-- Loading -->
-                <Border Visibility="{Binding IsLoading,
-                                     Converter={StaticResource BoolToVisibilityConverter}}"
-                        Padding="12" Margin="6,0,6,8">
-                    <TextBlock Text="Loading tax invoice data…"
-                               FontSize="12" FontWeight="Bold"
-                               HorizontalAlignment="Center"
-                               Foreground="{DynamicResource DashAccentTextBrush}"/>
-                </Border>
-
-                <!-- Error (semantic red) -->
-                <Border Visibility="{Binding HasError,
-                                     Converter={StaticResource BoolToVisibilityConverter}}"
-                        Background="{DynamicResource TintRedBrush}"
-                        BorderBrush="{DynamicResource DangerBrush}"
-                        BorderThickness="1.5"
-                        CornerRadius="10"
-                        Padding="14,12"
-                        Margin="6,0,6,8">
-                    <TextBlock Text="{Binding ErrorMessage}"
-                               Foreground="{DynamicResource DangerBrush}"
-                               FontSize="12"
-                               TextWrapping="Wrap"
-                               FontWeight="Bold"/>
-                </Border>
-
-                <!-- Overdue Alert Banner (semantic red — critical) -->
-                <Border Visibility="{Binding HasOverdueInvoices,
-                                     Converter={StaticResource BoolToVisibilityConverter}}"
-                        Background="{DynamicResource TintRedBrush}"
-                        BorderBrush="{DynamicResource DangerBrush}"
-                        BorderThickness="1.5"
-                        CornerRadius="10"
-                        Padding="16,12"
-                        Margin="8,0,8,16">
+                <!-- HERO -->
+                <Border Style="{StaticResource SoftHeroStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
                             <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
 
-                        <StackPanel Grid.Column="0"
-                                    Orientation="Horizontal"
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Tax Invoices"
+                                       Style="{StaticResource SoftHeroTitleStyle}"/>
+                            <TextBlock Text="Revenue, ageing and collection health"
+                                       Style="{StaticResource SoftHeroSubtitleStyle}"/>
+                        </StackPanel>
+
+                        <StackPanel Grid.Column="1"
+                                    HorizontalAlignment="Right"
                                     VerticalAlignment="Center">
-                            <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="15"
+                            <Border Style="{StaticResource SoftChipStyle}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="8" Height="8"
+                                             Margin="0,0,6,0"
+                                             VerticalAlignment="Center"
+                                             Fill="{DynamicResource SuccessBrush}"/>
+                                    <TextBlock Text="Live"
+                                               FontSize="11"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                </StackPanel>
+                            </Border>
+                            <TextBlock Text="{Binding LastRefreshed}"
+                                       Style="{StaticResource SoftMetaStyle}"
+                                       HorizontalAlignment="Right"
+                                       Margin="0,8,0,0"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- ACTIONS -->
+                <Border Style="{StaticResource SoftSectionStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBlock Text="Quick actions"
+                                   Style="{StaticResource SoftSectionTitleStyle}"
+                                   VerticalAlignment="Center"/>
+
+                        <WrapPanel Grid.Column="1"
+                                   HorizontalAlignment="Right"
+                                   VerticalAlignment="Center">
+                            <Button Content="New Tax Invoice"
+                                    Tag="&#xE710;"
+                                    Style="{StaticResource SoftPillAccentStyle}"
+                                    ToolTip="Create a new tax invoice"
+                                    Command="{Binding CreateTaxInvoiceCommand}"/>
+                            <Button Content="View All"
+                                    Tag="&#xE8FD;"
+                                    Margin="0"
+                                    Style="{StaticResource SoftPillButtonStyle}"
+                                    ToolTip="Open the tax invoice list"
+                                    Command="{Binding ViewAllInvoicesCommand}"/>
+                        </WrapPanel>
+                    </Grid>
+                </Border>
+
+                <!-- LOADING -->
+                <Border Style="{StaticResource SoftSectionStyle}"
+                        Padding="16,14"
+                        Visibility="{Binding IsLoading,
+                            Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE895;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="14"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,10,0"
+                                   Foreground="{DynamicResource AccentBrush}"/>
+                        <TextBlock Text="Loading tax invoice data…"
+                                   Style="{StaticResource SoftKpiFootStyle}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ERROR -->
+                <Border Style="{StaticResource SoftSectionStyle}"
+                        Padding="16,14"
+                        Background="{DynamicResource TintRedBrush}"
+                        BorderBrush="{DynamicResource DangerBrush}"
+                        Visibility="{Binding HasError,
+                            Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE783;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="14"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,10,0"
+                                   Foreground="{DynamicResource DangerBrush}"/>
+                        <TextBlock Text="{Binding ErrorMessage}"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource DangerBrush}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- OVERDUE ALERT -->
+                <Border Style="{StaticResource SoftSectionStyle}"
+                        Padding="16,14"
+                        Background="{DynamicResource TintRedBrush}"
+                        BorderBrush="{DynamicResource DangerBrush}"
+                        Visibility="{Binding HasOverdueInvoices,
+                            Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Orientation="Horizontal"
+                                    VerticalAlignment="Center">
+                            <TextBlock Text="&#xE7BA;"
+                                       FontFamily="Segoe MDL2 Assets"
+                                       FontSize="15"
                                        VerticalAlignment="Center"
-                                       Margin="0,0,10,0"/>
+                                       Margin="0,0,10,0"
+                                       Foreground="{DynamicResource DangerBrush}"/>
                             <StackPanel VerticalAlignment="Center">
-                                <TextBlock FontSize="12" FontWeight="Bold"
+                                <TextBlock FontSize="12"
+                                           FontWeight="Bold"
                                            Foreground="{DynamicResource DangerBrush}">
                                     <Run Text="{Binding OverdueCount, Mode=OneWay}"/>
                                     <Run Text=" invoice(s) overdue — total "/>
                                     <Run Text="{Binding OverdueAmountDisplay, Mode=OneWay}"/>
                                 </TextBlock>
-                                <TextBlock
-                                    Text="Action required: follow up with customers on outstanding payments."
-                                    FontSize="11"
-                                    Foreground="{DynamicResource DangerBrush}"
-                                    Margin="0,2,0,0"/>
+                                <TextBlock Text="Action required: follow up with customers on outstanding payments."
+                                           FontSize="11"
+                                           Margin="0,2,0,0"
+                                           Foreground="{DynamicResource DangerBrush}"/>
                             </StackPanel>
                         </StackPanel>
 
                         <Button Grid.Column="1"
-                                Content="View Overdue →"
-                                Command="{Binding ViewOverdueCommand}"
-                                VerticalAlignment="Center"
+                                Content="View Overdue"
+                                Tag="&#xE7BA;"
                                 Margin="12,0,0,0"
-                                Cursor="Hand"
-                                Background="Transparent"
-                                BorderThickness="0"
-                                Padding="0">
-                            <Button.Template>
-                                <ControlTemplate TargetType="Button">
-                                    <Border x:Name="Root"
-                                            Background="Transparent"
-                                            BorderBrush="{DynamicResource DangerBrush}"
-                                            BorderThickness="1.5"
-                                            CornerRadius="10"
-                                            SnapsToDevicePixels="True"
-                                            Padding="14,7">
-                                        <TextBlock Text="{TemplateBinding Content}"
-                                                   FontSize="11" FontWeight="Bold"
-                                                   Foreground="{DynamicResource DangerBrush}"
-                                                   VerticalAlignment="Center"/>
-                                    </Border>
-                                    <ControlTemplate.Triggers>
-                                        <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="Root"
-                                                    Property="Background"
-                                                    Value="{DynamicResource TintRedBrush}"/>
-                                        </Trigger>
-                                    </ControlTemplate.Triggers>
-                                </ControlTemplate>
-                            </Button.Template>
-                        </Button>
+                                VerticalAlignment="Center"
+                                Style="{StaticResource SoftPillButtonStyle}"
+                                Background="{DynamicResource DangerBrush}"
+                                Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                ToolTip="Show only overdue invoices"
+                                Command="{Binding ViewOverdueCommand}"/>
                     </Grid>
                 </Border>
 
-                <!-- KPI HERO TILES -->
-                <Border Style="{StaticResource TiParentCardStyle}"
-                        Margin="8,0,8,4">
-                    <StackPanel>
-                        <StackPanel Style="{StaticResource TiCardHeader}">
-                            <Border Style="{StaticResource TiCardIcon}"
-                                    Background="{DynamicResource DashAccentTextBrush}">
-                                <TextBlock Text="&#xE8EF;" FontFamily="Segoe MDL2 Assets" FontSize="15"
-                                           Foreground="White"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"/>
+                <!-- KPI ROW -->
+                <TextBlock Text="Revenue Overview"
+                           Style="{StaticResource SoftGroupHeadingStyle}"/>
+                <ItemsControl ItemsSource="{Binding KpiTiles}"
+                              ItemTemplate="{StaticResource SoftKpiTileTemplate}"
+                              ItemsPanel="{StaticResource SoftKpiRowPanel}"
+                              Margin="-5,0,-5,18"/>
+
+                <!-- ROW: RECENT INVOICES + AGEING -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0"
+                            Style="{StaticResource SoftSectionStyle}"
+                            Margin="0,0,10,20">
+                        <StackPanel>
+                            <TextBlock Text="Recent Invoices"
+                                       Style="{StaticResource SoftSectionTitleStyle}"/>
+                            <TextBlock Text="Last 5 invoices · click a row to open it"
+                                       Style="{StaticResource SoftSectionSubtitleStyle}"/>
+
+                            <ItemsControl ItemsSource="{Binding RecentInvoices}"
+                                          ItemTemplate="{StaticResource TiRecentInvoiceTemplate}"
+                                          Visibility="{Binding HasRecentInvoices,
+                                              Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                            <Border Padding="0,40"
+                                    Visibility="{Binding HasRecentInvoices,
+                                        Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="&#xE8EF;"
+                                               Style="{StaticResource DashEmptyStateGlyphStyle}"/>
+                                    <TextBlock Text="No invoices yet"
+                                               Style="{StaticResource DashEmptyStateTextStyle}"/>
+                                    <TextBlock Text="Create your first Tax Invoice to see data."
+                                               Style="{StaticResource SoftMetaStyle}"
+                                               HorizontalAlignment="Center"
+                                               Margin="0,6,0,0"/>
+                                </StackPanel>
                             </Border>
-                            <TextBlock Text="TAX INVOICE KPIs"
-                                       FontSize="15" FontWeight="Bold"
-                                       Foreground="{DynamicResource DashAccentTextBrush}"
-                                       VerticalAlignment="Center"
-                                       Margin="12,0,0,0"/>
-                            <TextBlock Text="— Month to Date"
-                                       FontSize="11"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       VerticalAlignment="Center"
-                                       Margin="8,2,0,0"/>
-                        </StackPanel>
-
-                        <ItemsControl ItemsSource="{Binding KpiTiles}"
-                                      ItemTemplate="{StaticResource TiTileTemplate}">
-                            <ItemsControl.ItemsPanel>
-                                <ItemsPanelTemplate>
-                                    <UniformGrid Rows="1" Columns="5"/>
-                                </ItemsPanelTemplate>
-                            </ItemsControl.ItemsPanel>
-                        </ItemsControl>
-                    </StackPanel>
-                </Border>
-
-                <!-- ROW 2: Recent Invoices + Aging Report -->
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="*"/>
-                    </Grid.ColumnDefinitions>
-
-                    <!-- Recent Invoices -->
-                    <Border Grid.Column="0"
-                            Style="{StaticResource TiParentCardStyle}">
-                        <StackPanel>
-                            <Grid Margin="0,0,0,14">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <StackPanel Grid.Column="0"
-                                            Orientation="Horizontal"
-                                            VerticalAlignment="Center">
-                                    <Border Style="{StaticResource TiCardIcon}"
-                                            Background="{DynamicResource DashAccentTextBrush}">
-                                        <TextBlock Text="&#xE8FD;" FontFamily="Segoe MDL2 Assets" FontSize="15"
-                                                   Foreground="White"
-                                                   HorizontalAlignment="Center"
-                                                   VerticalAlignment="Center"/>
-                                    </Border>
-                                    <StackPanel VerticalAlignment="Center"
-                                                Margin="12,0,0,0">
-                                        <TextBlock Text="RECENT TAX INVOICES"
-                                                   FontSize="12" FontWeight="Bold"
-                                                   Foreground="{DynamicResource DashAccentTextBrush}"/>
-                                        <TextBlock Text="Last 5 invoices"
-                                                   FontSize="10"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                    </StackPanel>
-                                </StackPanel>
-
-                                <Button Grid.Column="1"
-                                        Style="{StaticResource TiSecondaryActionStyle}"
-                                        Content="View All →"
-                                        Command="{Binding ViewAllInvoicesCommand}"
-                                        VerticalAlignment="Center"/>
-                            </Grid>
-
-                            <ItemsControl
-                                ItemsSource="{Binding RecentInvoices}"
-                                Visibility="{Binding HasRecentInvoices,
-                                             Converter={StaticResource BoolToVisibilityConverter}}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Margin="0,0,0,6"
-                                                CornerRadius="10"
-                                                Padding="12,10"
-                                                Cursor="Hand"
-                                                SnapsToDevicePixels="True"
-                                                Background="{Binding TintColor,
-                                                             Converter={StaticResource BrushKeyConverter}}">
-                                            <Border.InputBindings>
-                                                <MouseBinding
-                                                    MouseAction="LeftClick"
-                                                    Command="{Binding DataContext.OpenInvoiceCommand,
-                                                              RelativeSource={RelativeSource
-                                                                  AncestorType=UserControl}}"
-                                                    CommandParameter="{Binding}"/>
-                                            </Border.InputBindings>
-
-                                            <Grid>
-                                                <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                    <ColumnDefinition Width="*"/>
-                                                    <ColumnDefinition Width="Auto"/>
-                                                </Grid.ColumnDefinitions>
-
-                                                <Border Grid.Column="0"
-                                                        Width="34" Height="34"
-                                                        CornerRadius="17"
-                                                        SnapsToDevicePixels="True"
-                                                        Background="{Binding StatusColor,
-                                                                     Converter={StaticResource BrushKeyConverter}}"
-                                                        VerticalAlignment="Center"
-                                                        Margin="0,0,12,0">
-                                                    <TextBlock Text="{Binding StatusIcon}"
-                                                               FontSize="15"
-                                                               HorizontalAlignment="Center"
-                                                               VerticalAlignment="Center"/>
-                                                </Border>
-
-                                                <StackPanel Grid.Column="1"
-                                                            VerticalAlignment="Center">
-                                                    <TextBlock Text="{Binding InvoiceNumber}"
-                                                               FontSize="12" FontWeight="Bold"
-                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                               TextTrimming="CharacterEllipsis"/>
-                                                    <TextBlock FontSize="11"
-                                                               Margin="0,2,0,0"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                               TextTrimming="CharacterEllipsis">
-                                                        <Run Text="{Binding CustomerName, Mode=OneWay}"/>
-                                                        <Run Text=" · "/>
-                                                        <Run Text="{Binding IssueDateDisplay, Mode=OneWay}"/>
-                                                    </TextBlock>
-                                                </StackPanel>
-
-                                                <StackPanel Grid.Column="2"
-                                                            VerticalAlignment="Center"
-                                                            HorizontalAlignment="Right">
-                                                    <TextBlock Text="{Binding AmountDisplay}"
-                                                               FontSize="12" FontWeight="Bold"
-                                                               HorizontalAlignment="Right"
-                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                    <Border CornerRadius="8"
-                                                            Padding="8,3"
-                                                            Margin="0,4,0,0"
-                                                            HorizontalAlignment="Right"
-                                                            SnapsToDevicePixels="True"
-                                                            Background="{Binding StatusColor,
-                                                                         Converter={StaticResource BrushKeyConverter}}">
-                                                        <TextBlock Text="{Binding Status}"
-                                                                   FontSize="9" FontWeight="Bold"
-                                                                   Foreground="White"/>
-                                                    </Border>
-                                                </StackPanel>
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                            <StackPanel HorizontalAlignment="Center"
-                                        Margin="0,30"
-                                        Visibility="{Binding HasRecentInvoices,
-                                                     Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                <TextBlock Text="&#xE8EF;" FontFamily="Segoe MDL2 Assets" FontSize="15"
-                                           HorizontalAlignment="Center" Opacity="0.35"/>
-                                <TextBlock Text="No invoices yet"
-                                           FontSize="12" FontWeight="Bold"
-                                           HorizontalAlignment="Center"
-                                           Margin="0,8,0,4"
-                                           Foreground="{DynamicResource DashAccentTextBrush}"/>
-                                <TextBlock Text="Create your first Tax Invoice to see data."
-                                           FontSize="11"
-                                           HorizontalAlignment="Center"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            </StackPanel>
                         </StackPanel>
                     </Border>
 
-                    <!-- Invoice Aging (semantic red header — overdue meaning) -->
                     <Border Grid.Column="1"
-                            Style="{StaticResource TiParentCardStyle}">
+                            Style="{StaticResource SoftSectionStyle}"
+                            Margin="10,0,0,20">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource TiCardHeader}">
-                                <Border Style="{StaticResource TiCardIcon}"
-                                        Background="{DynamicResource DangerBrush}">
-                                    <TextBlock Text="&#xE823;" FontFamily="Segoe MDL2 Assets" FontSize="15"
-                                               Foreground="White"
+                            <TextBlock Text="Invoice Ageing"
+                                       Style="{StaticResource SoftSectionTitleStyle}"/>
+                            <TextBlock Text="Overdue amounts grouped by bracket"
+                                       Style="{StaticResource SoftSectionSubtitleStyle}"/>
+
+                            <ItemsControl ItemsSource="{Binding AgingBrackets}"
+                                          ItemTemplate="{StaticResource TiAgingRowTemplate}"
+                                          Visibility="{Binding HasAgingData,
+                                              Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                            <Border Padding="0,40"
+                                    Visibility="{Binding HasAgingData,
+                                        Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="&#xE73E;"
+                                               Style="{StaticResource DashEmptyStateGlyphStyle}"
+                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                    <TextBlock Text="No overdue invoices"
+                                               Style="{StaticResource DashEmptyStateTextStyle}"/>
+                                    <TextBlock Text="All invoices are within payment terms."
+                                               Style="{StaticResource SoftMetaStyle}"
                                                HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"/>
-                                </Border>
-                                <StackPanel VerticalAlignment="Center"
-                                            Margin="12,0,0,0">
-                                    <TextBlock Text="INVOICE AGING"
-                                               FontSize="12" FontWeight="Bold"
-                                               Foreground="{DynamicResource DangerBrush}"/>
-                                    <TextBlock Text="Overdue by bracket"
-                                               FontSize="10"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                               Margin="0,6,0,0"/>
                                 </StackPanel>
-                            </StackPanel>
-
-                            <ItemsControl
-                                ItemsSource="{Binding AgingBrackets}"
-                                Visibility="{Binding HasAgingData,
-                                             Converter={StaticResource BoolToVisibilityConverter}}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Margin="0,0,0,10"
-                                                Padding="12,10"
-                                                CornerRadius="10"
-                                                SnapsToDevicePixels="True"
-                                                Background="{Binding TintColor,
-                                                             Converter={StaticResource BrushKeyConverter}}">
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto"/>
-                                                    <RowDefinition Height="Auto"/>
-                                                </Grid.RowDefinitions>
-
-                                                <Grid Grid.Row="0">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                    </Grid.ColumnDefinitions>
-
-                                                    <TextBlock Grid.Column="0"
-                                                               Text="{Binding Label}"
-                                                               FontSize="12" FontWeight="Bold"
-                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                               VerticalAlignment="Center"/>
-
-                                                    <TextBlock Grid.Column="1"
-                                                               Text="{Binding CountDisplay}"
-                                                               FontSize="10"
-                                                               Margin="10,0,0,0"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                               VerticalAlignment="Center"/>
-
-                                                    <TextBlock Grid.Column="2"
-                                                               Text="{Binding AmountDisplay}"
-                                                               FontSize="12" FontWeight="Bold"
-                                                               Foreground="{Binding SeverityColor,
-                                                                            Converter={StaticResource BrushKeyConverter}}"
-                                                               HorizontalAlignment="Right"/>
-                                                </Grid>
-
-                                                <Border Grid.Row="1"
-                                                        Height="8"
-                                                        CornerRadius="4"
-                                                        Background="{DynamicResource TintIndigoBrush}"
-                                                        Margin="0,8,0,0">
-                                                    <Border CornerRadius="4"
-                                                            HorizontalAlignment="Left"
-                                                            SnapsToDevicePixels="True"
-                                                            Background="{Binding SeverityColor,
-                                                                         Converter={StaticResource BrushKeyConverter}}"
-                                                            Width="{Binding NormalizedWidth,
-                                                                    Converter={StaticResource PercentToWidthConverter},
-                                                                    ConverterParameter=260}"/>
-                                                </Border>
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                            <StackPanel HorizontalAlignment="Center"
-                                        Margin="0,30"
-                                        Visibility="{Binding HasAgingData,
-                                                     Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="15"
-                                           HorizontalAlignment="Center" Opacity="0.6"/>
-                                <TextBlock Text="No overdue invoices"
-                                           FontSize="12" FontWeight="Bold"
-                                           HorizontalAlignment="Center"
-                                           Margin="0,8,0,4"
-                                           Foreground="{DynamicResource DashAccentTextBrush}"/>
-                                <TextBlock Text="All invoices are within payment terms."
-                                           FontSize="11"
-                                           HorizontalAlignment="Center"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            </StackPanel>
+                            </Border>
                         </StackPanel>
                     </Border>
                 </Grid>
 
-                <!-- ROW 3: Top Customers + Revenue Chart -->
+                <!-- ROW: TOP CUSTOMERS + REVENUE -->
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- Top Customers -->
                     <Border Grid.Column="0"
-                            Style="{StaticResource TiParentCardStyle}">
+                            Style="{StaticResource SoftSectionStyle}"
+                            Margin="0,0,10,20">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource TiCardHeader}">
-                                <Border Style="{StaticResource TiCardIcon}"
-                                        Background="{DynamicResource DashAccentTextBrush}">
-                                    <TextBlock Text="&#xE735;" FontFamily="Segoe MDL2 Assets" FontSize="15"
-                                               Foreground="White"
+                            <TextBlock Text="Top Customers"
+                                       Style="{StaticResource SoftSectionTitleStyle}"/>
+                            <TextBlock Text="By invoiced amount, last 12 months"
+                                       Style="{StaticResource SoftSectionSubtitleStyle}"/>
+
+                            <ItemsControl ItemsSource="{Binding TopCustomers}"
+                                          ItemTemplate="{StaticResource TiTopCustomerTemplate}"
+                                          Visibility="{Binding HasTopCustomers,
+                                              Converter={StaticResource BoolToVisibilityConverter}}"/>
+
+                            <Border Padding="0,40"
+                                    Visibility="{Binding HasTopCustomers,
+                                        Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                <StackPanel HorizontalAlignment="Center">
+                                    <TextBlock Text="&#xE735;"
+                                               Style="{StaticResource DashEmptyStateGlyphStyle}"/>
+                                    <TextBlock Text="No customer data"
+                                               Style="{StaticResource DashEmptyStateTextStyle}"/>
+                                    <TextBlock Text="Issue invoices to see top customers."
+                                               Style="{StaticResource SoftMetaStyle}"
                                                HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"/>
-                                </Border>
-                                <StackPanel VerticalAlignment="Center"
-                                            Margin="12,0,0,0">
-                                    <TextBlock Text="TOP 5 CUSTOMERS"
-                                               FontSize="12" FontWeight="Bold"
-                                               Foreground="{DynamicResource DashAccentTextBrush}"/>
-                                    <TextBlock Text="By invoiced amount (last 12 months)"
-                                               FontSize="10"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                                               Margin="0,6,0,0"/>
                                 </StackPanel>
-                            </StackPanel>
-
-                            <ItemsControl
-                                ItemsSource="{Binding TopCustomers}"
-                                Visibility="{Binding HasTopCustomers,
-                                             Converter={StaticResource BoolToVisibilityConverter}}">
-                                <ItemsControl.ItemTemplate>
-                                    <DataTemplate>
-                                        <Border Margin="0,0,0,10"
-                                                Padding="12,10"
-                                                CornerRadius="10"
-                                                SnapsToDevicePixels="True"
-                                                Background="{DynamicResource MenuHoverBrush}">
-                                            <Grid>
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="Auto"/>
-                                                    <RowDefinition Height="Auto"/>
-                                                </Grid.RowDefinitions>
-
-                                                <Grid Grid.Row="0">
-                                                    <Grid.ColumnDefinitions>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                        <ColumnDefinition Width="*"/>
-                                                        <ColumnDefinition Width="Auto"/>
-                                                    </Grid.ColumnDefinitions>
-
-                                                    <TextBlock Grid.Column="0"
-                                                               FontSize="15"
-                                                               VerticalAlignment="Center"
-                                                               Margin="0,0,8,0">
-                                                        <TextBlock.Style>
-                                                            <Style TargetType="TextBlock">
-                                                                <Setter Property="Text"
-                                                                        Value="{Binding MedalIcon}"/>
-                                                                <Style.Triggers>
-                                                                    <DataTrigger
-                                                                        Binding="{Binding MedalIcon}"
-                                                                        Value="">
-                                                                        <Setter Property="Text"
-                                                                                Value="{Binding Rank}"/>
-                                                                        <Setter Property="FontSize"
-                                                                                Value="13"/>
-                                                                        <Setter Property="FontWeight"
-                                                                                Value="Bold"/>
-                                                                        <Setter Property="Foreground"
-                                                                                Value="{DynamicResource MutedForegroundBrush}"/>
-                                                                    </DataTrigger>
-                                                                </Style.Triggers>
-                                                            </Style>
-                                                        </TextBlock.Style>
-                                                    </TextBlock>
-
-                                                    <StackPanel Grid.Column="1"
-                                                                VerticalAlignment="Center"
-                                                                Margin="0,0,8,0">
-                                                        <TextBlock Text="{Binding CustomerName}"
-                                                                   FontSize="12" FontWeight="Bold"
-                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                                   TextTrimming="CharacterEllipsis"/>
-                                                        <TextBlock Text="{Binding InvoiceCountDisplay}"
-                                                                   FontSize="10"
-                                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                                    </StackPanel>
-
-                                                    <TextBlock Grid.Column="2"
-                                                               Text="{Binding AmountDisplay}"
-                                                               FontSize="12" FontWeight="Bold"
-                                                               Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                               HorizontalAlignment="Right"
-                                                               VerticalAlignment="Center"/>
-                                                </Grid>
-
-                                                <Border Grid.Row="1"
-                                                        Height="5"
-                                                        CornerRadius="3"
-                                                        Margin="0,8,0,0"
-                                                        Background="{DynamicResource TintIndigoBrush}">
-                                                    <Border CornerRadius="3"
-                                                            HorizontalAlignment="Left"
-                                                            SnapsToDevicePixels="True"
-                                                            Background="{Binding BarColor,
-                                                                         Converter={StaticResource ColorStringConverter}}"
-                                                            Width="{Binding NormalizedWidth,
-                                                                    Converter={StaticResource PercentToWidthConverter},
-                                                                    ConverterParameter=250}"/>
-                                                </Border>
-                                            </Grid>
-                                        </Border>
-                                    </DataTemplate>
-                                </ItemsControl.ItemTemplate>
-                            </ItemsControl>
-
-                            <StackPanel HorizontalAlignment="Center"
-                                        Margin="0,30"
-                                        Visibility="{Binding HasTopCustomers,
-                                                     Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                <TextBlock Text="&#xE735;" FontFamily="Segoe MDL2 Assets" FontSize="15"
-                                           HorizontalAlignment="Center" Opacity="0.3"/>
-                                <TextBlock Text="No customer data"
-                                           FontSize="12" FontWeight="Bold"
-                                           HorizontalAlignment="Center"
-                                           Margin="0,8,0,4"
-                                           Foreground="{DynamicResource DashAccentTextBrush}"/>
-                                <TextBlock Text="Issue invoices to see top customers."
-                                           FontSize="11"
-                                           HorizontalAlignment="Center"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            </StackPanel>
+                            </Border>
                         </StackPanel>
                     </Border>
 
-                    <!-- Revenue Chart -->
                     <Border Grid.Column="1"
-                            Style="{StaticResource TiParentCardStyle}">
+                            Style="{StaticResource SoftSectionStyle}"
+                            Margin="10,0,0,20">
                         <StackPanel>
-                            <StackPanel Style="{StaticResource TiCardHeader}">
-                                <Border Style="{StaticResource TiCardIcon}"
-                                        Background="{DynamicResource DashAccentTextBrush}">
-                                    <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="15"
-                                               Foreground="White"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"/>
-                                </Border>
-                                <StackPanel VerticalAlignment="Center"
-                                            Margin="12,0,0,0">
-                                    <TextBlock Text="REVENUE TREND"
-                                               FontSize="12" FontWeight="Bold"
-                                               Foreground="{DynamicResource DashAccentTextBrush}"/>
-                                    <TextBlock Text="{Binding RevenueChartTitle}"
-                                               FontSize="10"
-                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                            <Grid>
+                                <StackPanel>
+                                    <TextBlock Text="Revenue Trend"
+                                               Style="{StaticResource SoftSectionTitleStyle}"/>
+                                    <TextBlock Text="Amounts in AED · excludes Draft, Cancelled and Void"
+                                               Style="{StaticResource SoftSectionSubtitleStyle}"/>
                                 </StackPanel>
-                            </StackPanel>
-
-                            <Grid Visibility="{Binding HasRevenueData,
-                                               Converter={StaticResource BoolToVisibilityConverter}}">
-                                <ItemsControl ItemsSource="{Binding RevenueBars}">
-                                    <ItemsControl.ItemsPanel>
-                                        <ItemsPanelTemplate>
-                                            <UniformGrid Rows="1"
-                                                         HorizontalAlignment="Stretch"/>
-                                        </ItemsPanelTemplate>
-                                    </ItemsControl.ItemsPanel>
-                                    <ItemsControl.ItemTemplate>
-                                        <DataTemplate>
-                                            <Grid Margin="8,0"
-                                                  HorizontalAlignment="Center">
-                                                <Grid.RowDefinitions>
-                                                    <RowDefinition Height="*"/>
-                                                    <RowDefinition Height="Auto"/>
-                                                </Grid.RowDefinitions>
-
-                                                <Grid Grid.Row="0"
-                                                      VerticalAlignment="Bottom"
-                                                      Height="160">
-                                                    <TextBlock Text="{Binding ValueDisplay}"
-                                                               FontSize="9" FontWeight="Bold"
-                                                               HorizontalAlignment="Center"
-                                                               VerticalAlignment="Top"
-                                                               Margin="0,0,0,4"
-                                                               TextWrapping="NoWrap"
-                                                               Foreground="{DynamicResource DashAccentTextBrush}"/>
-                                                    <Border Width="46"
-                                                            CornerRadius="6,6,0,0"
-                                                            VerticalAlignment="Bottom"
-                                                            HorizontalAlignment="Center"
-                                                            SnapsToDevicePixels="True"
-                                                            Background="{Binding BarColor,
-                                                                         Converter={StaticResource ColorStringConverter}}"
-                                                            Height="{Binding NormalizedHeight,
-                                                                     Converter={StaticResource ScaleConverter},
-                                                                     ConverterParameter=140}"
-                                                            ToolTip="{Binding TooltipText}"/>
-                                                </Grid>
-
-                                                <TextBlock Grid.Row="1"
-                                                           Text="{Binding Label}"
-                                                           FontSize="11" FontWeight="Bold"
-                                                           HorizontalAlignment="Center"
-                                                           Margin="0,8,0,0"
-                                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                            </Grid>
-                                        </DataTemplate>
-                                    </ItemsControl.ItemTemplate>
-                                </ItemsControl>
-
-                                <TextBlock Text="Amounts in AED · excl. Draft/Cancelled/Void"
-                                           FontSize="9"
+                                <TextBlock Text="{Binding RevenueChartTitle}"
+                                           Style="{StaticResource SoftMetaStyle}"
                                            HorizontalAlignment="Right"
-                                           Margin="0,8,4,0"
-                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                           VerticalAlignment="Top"/>
                             </Grid>
 
-                            <StackPanel HorizontalAlignment="Center"
-                                        Margin="0,40"
+                            <Grid>
+                                <Border Style="{StaticResource SoftChartWellStyle}"
                                         Visibility="{Binding HasRevenueData,
-                                                     Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                                <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets" FontSize="22"
-                                           HorizontalAlignment="Center" Opacity="0.4"/>
-                                <TextBlock Text="No revenue data yet"
-                                           FontSize="12" FontWeight="Bold"
-                                           HorizontalAlignment="Center"
-                                           Margin="0,10,0,4"
-                                           Foreground="{DynamicResource DashAccentTextBrush}"/>
-                                <TextBlock Text="Issue Tax Invoices to see the revenue trend."
-                                           FontSize="11"
-                                           HorizontalAlignment="Center"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            </StackPanel>
+                                            Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <trend:TrendChartControl
+                                        Height="260"
+                                        Points="{Binding RevenueBars}"
+                                        SeriesKind="Bar"
+                                        ValuePrefix="AED "
+                                        EmptyMessage="No revenue recorded yet."
+                                        SeriesBrush="{DynamicResource AccentBrush}"
+                                        GridBrush="{DynamicResource DividerBrush}"
+                                        LabelBrush="{DynamicResource MutedForegroundBrush}"/>
+                                </Border>
+
+                                <Border Padding="0,60"
+                                        Visibility="{Binding HasRevenueData,
+                                            Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <TextBlock Text="&#xE9D9;"
+                                                   Style="{StaticResource DashEmptyStateGlyphStyle}"/>
+                                        <TextBlock Text="No revenue data yet"
+                                                   Style="{StaticResource DashEmptyStateTextStyle}"/>
+                                        <TextBlock Text="Issue Tax Invoices to see the revenue trend."
+                                                   Style="{StaticResource SoftMetaStyle}"
+                                                   HorizontalAlignment="Center"
+                                                   Margin="0,6,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
                         </StackPanel>
                     </Border>
                 </Grid>
-
-                <!-- Footer -->
-                <TextBlock Text="{Binding LastRefreshed}"
-                           FontSize="10" Opacity="0.6"
-                           Margin="12,12,0,0"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
 
             </StackPanel>
         </ScrollViewer>

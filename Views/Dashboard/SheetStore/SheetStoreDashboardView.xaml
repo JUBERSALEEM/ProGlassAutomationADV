@@ -1,239 +1,191 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ════════════════════════════════════════════════════════════════════
      FILE: Views/Dashboard/SheetStore/SheetStoreDashboardView.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Sheet Store Dashboard (Chat 23 v2.1)
-     VERSION: Chat 23 v2.1 — Industrial Blue Glassmorphism
+     MODULE: Sheet Store Dashboard
 
-     DESIGN LANGUAGE:
-       Matches Overview + Statement dashboards v2.0/v1.7.
-       Glass blue ambient background, white glass cards with blue
-       border sheen, industrial typography, frozen shadows.
+     SOFT-CARD REDESIGN — the reference dashboard markup supplied by
+     the user, applied identically across all 7 dashboards. The look is
+     defined ONCE in Styles/DashboardStyles.xaml (the Soft* keys) so the
+     seven pages cannot drift apart the way the old per-file CardStyle
+     copies did.
 
-     CRITICAL ARCHITECTURE:
-       Ambient/glass/shadow colors declared INLINE as frozen local
-       resources (proven pattern from Chat 23 v1.7 — DynamicResource
-       ambient keys were not resolving reliably in this build).
-       Semantic channels (Badge/Tint via BrushKeyConverter) preserved
-       as DynamicResource — those channels resolve correctly.
+     Reference traits reproduced: hero band radius 22 with a 30px Bold
+     title, cards radius 18 / padding 20 / margin 0,0,0,20, hairline
+     border + DropShadow(10, 2, .08), a 4px full-bleed colour cap on
+     each KPI card, 11px label + 28px Bold value + 12px status line, a
+     40x40 radius-10 badge top-right, radius-10 pill buttons and a
+     recessed radius-12 chart well.
 
-     CHANGES vs previous:
-       • Wrapped ScrollViewer in Grid with inline glass blue ambient
-       • Added ambient blob overlays with BitmapCache
-       • CardStyle rebuilt as glass surface with blue border sheen
-       • TintedCardStyle border changed from theme BorderBrush to
-         inline glass blue (visible on tinted bg, no more washed-out look)
-       • SectionTitle: #4338CA indigo → #1E3A8A industrial blue
-       • CategoryBar highlight glow: #6366F1 → #1D4ED8 (frozen shared)
-       • Page title enlarged 28→30px (design system standard)
-       • Loading text uses accent blue
-       • Empty state icon color tone updated
-       • Chart card uses glass surface style
+     DEVIATIONS, EACH FORCED (see DashboardStyles.xaml for detail):
+       1. Colour resolves via DynamicResource, not hardcoded hex, or
+          every card would stay white in Dark theme.
+       2. Charts use TrendChartControl: LiveChartsCore is not a
+          PackageReference in this project and NuGet is unreachable
+          from the build sandbox.
+       3. Segoe MDL2 glyphs, never emoji.
 
-     PRESERVED (zero regression):
-       • ALL bindings (KpiCards, CategoryBars, HasChartData,
-         IsLoading, HasError, ErrorMessage, LastRefreshed)
-       • KpiCardModel structure (Icon, Title, DisplayValue,
-         BadgeColor, TintColor, SubLabel, IsAlert)
-       • ChartBarModel structure
-       • BrushKeyConverter usage on badge + tint
-       • ColorStringConverter on BarColor
-       • ScaleConverter on NormalizedHeight
-       • IsAlert DataTrigger — red border override
-       • IsHighlight DataTrigger — bar glow
-       • SmoothScrollBehavior
-       • Empty state layout
-       • Error state (semantic red)
-
-     REGRESSION RISK: LOW
-       Inline colors proven to render. Bindings unchanged.
-═══════════════════════════════════════════════════════════════════════ -->
+     BINDINGS — UNCHANGED. NO VIEWMODEL WAS EDITED.
+       KpiCards, CategoryBars, HasChartData, IsLoading,
+       HasError, ErrorMessage, LastRefreshed
+══════════════════════════════════════════════════════════════════════ -->
 
 <UserControl x:Class="ProGlassAutomation.Views.Dashboard.SheetStore.SheetStoreDashboardView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:trend="clr-namespace:ProGlassAutomation.Controls.TrendChart"
-             xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
-             TextOptions.TextHintingMode="Fixed"
-             RenderOptions.BitmapScalingMode="HighQuality"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <UserControl.Resources>
-
-        <!-- ═══════════════════════════════════════════════════════════════
-             GLASS BLUE PALETTE (frozen inline — guaranteed render)
-        ═══════════════════════════════════════════════════════════════ -->
-
-        <!-- Ambient background gradient -->
-
-        <!-- Ambient blobs -->
-
-        <!-- Glass surface + border -->
-        <!-- Accent tones -->
-        <!-- Shadows -->
-        <DropShadowEffect x:Key="CardShadow"
-                          BlurRadius="20"
-                          ShadowDepth="4"
-                          Opacity="0.14"
-                          Color="#1E3A8A"
-                          Direction="270"
-                          po:Freeze="True"/>
-
-        <!-- Bar highlight glow (was inline #6366F1, now frozen royal blue) -->
-        <DropShadowEffect x:Key="BarHighlightGlow"
-                          BlurRadius="20"
-                          ShadowDepth="0"
-                          Opacity="0.45"
-                          Color="#1D4ED8"
-                          po:Freeze="True"/>
-
-        <!-- ═══════════════════════════════════════════════════════════════
-             CARD STYLES
-        ═══════════════════════════════════════════════════════════════ -->
-
-        <!-- Plain glass card (chart container) -->
-        <!-- Tinted KPI card (uses VM TintColor via BrushKeyConverter) -->
-        <!-- ═══════════════════════════════════════════════════════════════
-             TYPOGRAPHY
-        ═══════════════════════════════════════════════════════════════ -->
-
-        <!-- ═══════════════════════════════════════════════════════════════
-             KPI CARD TEMPLATE
-        ═══════════════════════════════════════════════════════════════ -->
-        <!-- ═══════════════════════════════════════════════════════════════
-             CATEGORY BAR TEMPLATE
-        ═══════════════════════════════════════════════════════════════ -->
-    </UserControl.Resources>
-
-    <!-- ═══════════════════════════════════════════════════════════════
-         ROOT — GLASS BLUE AMBIENT
-    ═══════════════════════════════════════════════════════════════ -->
-    <Grid Background="{DynamicResource DashAmbientBrush}">
-
-        <!-- Ambient blob overlays (BitmapCached) -->
-        <Canvas Panel.ZIndex="0"
-                IsHitTestVisible="False"
-                CacheMode="BitmapCache">
-            <Rectangle Fill="{DynamicResource DashAmbientBlob1Brush}"
-                       Width="{Binding ActualWidth,
-                           RelativeSource={RelativeSource
-                               AncestorType=Canvas}}"
-                       Height="{Binding ActualHeight,
-                           RelativeSource={RelativeSource
-                               AncestorType=Canvas}}"/>
-            <Rectangle Fill="{DynamicResource DashAmbientBlob2Brush}"
-                       Width="{Binding ActualWidth,
-                           RelativeSource={RelativeSource
-                               AncestorType=Canvas}}"
-                       Height="{Binding ActualHeight,
-                           RelativeSource={RelativeSource
-                               AncestorType=Canvas}}"/>
-        </Canvas>
-
-        <!-- Main scroll surface -->
-        <ScrollViewer Panel.ZIndex="1"
-                      VerticalScrollBarVisibility="Auto"
+    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+        <ScrollViewer VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled"
                       CanContentScroll="False"
-                      IsDeferredScrollingEnabled="False"
                       PanningMode="VerticalOnly"
-                      Focusable="True"
+                      Focusable="False"
                       FocusVisualStyle="{x:Null}"
                       Background="Transparent"
                       behaviors:SmoothScrollBehavior.IsEnabled="True">
-            <StackPanel Margin="14,12,14,14">
 
-                <!-- Page header -->
-                <!-- Loading -->
-                <Border Visibility="{Binding IsLoading,
-                                     Converter={StaticResource BoolToVisibilityConverter}}"
-                        Padding="12" Margin="6,0,6,8">
-                    <TextBlock Text="Loading sheet store data…"
-                               FontSize="12" FontWeight="Bold"
-                               HorizontalAlignment="Center"
-                               Foreground="{DynamicResource DashAccentTextBrush}"/>
-                </Border>
+            <StackPanel Margin="24">
 
-                <!-- Error (semantic red — preserved) -->
-                <Border Visibility="{Binding HasError,
-                                     Converter={StaticResource BoolToVisibilityConverter}}"
-                        Background="{DynamicResource TintRedBrush}"
-                        BorderBrush="{DynamicResource DangerBrush}"
-                        BorderThickness="1.5"
-                        CornerRadius="10"
-                        Padding="14,12" Margin="6,0,6,8">
-                    <TextBlock Text="{Binding ErrorMessage}"
-                               Foreground="{DynamicResource DangerBrush}"
-                               FontSize="12" TextWrapping="Wrap" FontWeight="Bold"/>
-                </Border>
-
-                <!-- Inventory Overview section -->
-                <TextBlock Text="Inventory Overview" Style="{StaticResource SectionTitle}"/>
-                <TextBlock Text="Live snapshot of your glass sheet stock" Style="{StaticResource SectionSubtitle}"/>
-
-                <ItemsControl ItemsSource="{Binding KpiCards}"
-                              ItemTemplate="{StaticResource KpiTemplate}">
-                    <ItemsControl.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <UniformGrid Rows="1" Columns="4"/>
-                        </ItemsPanelTemplate>
-                    </ItemsControl.ItemsPanel>
-                </ItemsControl>
-
-                <!-- Chart section -->
-                <TextBlock Text="Available SQM by Category"
-                           Style="{StaticResource SectionTitle}"
-                           Margin="6,14,6,6"/>
-                <TextBlock Text="Balance sheets grouped by glass category"
-                           Style="{StaticResource SectionSubtitle}"/>
-
-                <Border Style="{StaticResource CardStyle}">
+                <!-- HERO -->
+                <Border Style="{StaticResource SoftHeroStyle}">
                     <Grid>
-                        <StackPanel Visibility="{Binding HasChartData,
-                                                 Converter={StaticResource BoolToVisibilityConverter}}">
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                            <trend:TrendChartControl
-                                Height="150"
-                                Points="{Binding CategoryBars}"
-                                SeriesKind="Bar"
-                                EmptyMessage="Stock by category — no data yet."
-                                SeriesBrush="{DynamicResource AccentBrush}"
-                                GridBrush="{DynamicResource DividerBrush}"
-                                LabelBrush="{DynamicResource MutedForegroundBrush}"/>
-
-                            <Border Height="1" Margin="0,4,0,0"
-                                    Background="{DynamicResource TintIndigoBrush}"/>
-
-                            <TextBlock Text="Values in m² · balance sheets only"
-                                       FontSize="11" HorizontalAlignment="Right"
-                                       Margin="0,10,4,0"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
+                        <StackPanel VerticalAlignment="Center">
+                            <TextBlock Text="Sheet Store"
+                                       Style="{StaticResource SoftHeroTitleStyle}"/>
+                            <TextBlock Text="Live snapshot of glass sheet stock, value and coverage"
+                                       Style="{StaticResource SoftHeroSubtitleStyle}"/>
                         </StackPanel>
 
-                        <StackPanel HorizontalAlignment="Center" Margin="0,26"
-                                    Visibility="{Binding HasChartData,
-                                                 Converter={StaticResource InverseBoolToVisibilityConverter}}">
-                            <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets" FontSize="22"
-                                       HorizontalAlignment="Center" Opacity="0.4"/>
-                            <TextBlock Text="No sheet store data yet"
-                                       FontSize="15" FontWeight="Bold"
-                                       HorizontalAlignment="Center"
-                                       Margin="0,12,0,4"
-                                       Foreground="{DynamicResource DashAccentTextBrush}"/>
-                            <TextBlock Text="Add glass sheets in the Sheet Store module."
-                                       FontSize="12" HorizontalAlignment="Center"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                        <StackPanel Grid.Column="1"
+                                    HorizontalAlignment="Right"
+                                    VerticalAlignment="Center">
+                            <Border Style="{StaticResource SoftChipStyle}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="8" Height="8"
+                                             Margin="0,0,6,0"
+                                             VerticalAlignment="Center"
+                                             Fill="{DynamicResource SuccessBrush}"/>
+                                    <TextBlock Text="Live"
+                                               FontSize="11"
+                                               FontWeight="SemiBold"
+                                               Foreground="{DynamicResource SuccessBrush}"/>
+                                </StackPanel>
+                            </Border>
+                            <TextBlock Text="{Binding LastRefreshed}"
+                                       Style="{StaticResource SoftMetaStyle}"
+                                       HorizontalAlignment="Right"
+                                       Margin="0,8,0,0"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <TextBlock Text="{Binding LastRefreshed}"
-                           FontSize="11" Opacity="0.6" Margin="12,16,0,0"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                <!-- LOADING -->
+                <Border Style="{StaticResource SoftSectionStyle}"
+                        Padding="16,14"
+                        Visibility="{Binding IsLoading,
+                            Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE895;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="14"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,10,0"
+                                   Foreground="{DynamicResource AccentBrush}"/>
+                        <TextBlock Text="Loading sheet store data…"
+                                   Style="{StaticResource SoftKpiFootStyle}"
+                                   VerticalAlignment="Center"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- ERROR -->
+                <Border Style="{StaticResource SoftSectionStyle}"
+                        Padding="16,14"
+                        Background="{DynamicResource TintRedBrush}"
+                        BorderBrush="{DynamicResource DangerBrush}"
+                        Visibility="{Binding HasError,
+                            Converter={StaticResource BoolToVisibilityConverter}}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="&#xE783;"
+                                   FontFamily="Segoe MDL2 Assets"
+                                   FontSize="14"
+                                   VerticalAlignment="Center"
+                                   Margin="0,0,10,0"
+                                   Foreground="{DynamicResource DangerBrush}"/>
+                        <TextBlock Text="{Binding ErrorMessage}"
+                                   FontSize="12"
+                                   TextWrapping="Wrap"
+                                   VerticalAlignment="Center"
+                                   Foreground="{DynamicResource DangerBrush}"/>
+                    </StackPanel>
+                </Border>
+
+                <!-- KPI ROW -->
+                <TextBlock Text="Inventory Overview"
+                           Style="{StaticResource SoftGroupHeadingStyle}"/>
+                <ItemsControl ItemsSource="{Binding KpiCards}"
+                              ItemTemplate="{StaticResource SoftKpiCardTemplate}"
+                              ItemsPanel="{StaticResource SoftKpiRowPanel}"
+                              Margin="-5,0,-5,18"/>
+
+                <!-- CHART ROW -->
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+
+                    <Border Grid.Column="0"
+                            Style="{StaticResource SoftSectionStyle}"
+                            Margin="0,0,0,20">
+                        <StackPanel>
+                            <TextBlock Text="Available SQM by Category"
+                                       Style="{StaticResource SoftSectionTitleStyle}"/>
+                            <TextBlock Text="Balance sheets grouped by glass category"
+                                       Style="{StaticResource SoftSectionSubtitleStyle}"/>
+
+                            <Grid>
+                                <Border Style="{StaticResource SoftChartWellStyle}"
+                                        Visibility="{Binding HasChartData,
+                                            Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <trend:TrendChartControl
+                                        Height="260"
+                                        Points="{Binding CategoryBars}"
+                                        SeriesKind="Bar"
+                                        EmptyMessage="Stock by category — no data yet."
+                                        SeriesBrush="{DynamicResource AccentBrush}"
+                                        GridBrush="{DynamicResource DividerBrush}"
+                                        LabelBrush="{DynamicResource MutedForegroundBrush}"/>
+                                </Border>
+
+                                <Border Padding="0,60"
+                                        Visibility="{Binding HasChartData,
+                                            Converter={StaticResource InverseBoolToVisibilityConverter}}">
+                                    <StackPanel HorizontalAlignment="Center">
+                                        <TextBlock Text="&#xE7B8;"
+                                                   Style="{StaticResource DashEmptyStateGlyphStyle}"/>
+                                        <TextBlock Text="No sheet store data yet"
+                                                   Style="{StaticResource DashEmptyStateTextStyle}"/>
+                                    </StackPanel>
+                                </Border>
+                            </Grid>
+
+                            <TextBlock Text="Values in m² · balance sheets only"
+                                       Style="{StaticResource SoftMetaStyle}"
+                                       HorizontalAlignment="Right"
+                                       Margin="0,12,2,0"/>
+                        </StackPanel>
+                    </Border>
+                </Grid>
 
             </StackPanel>
         </ScrollViewer>
