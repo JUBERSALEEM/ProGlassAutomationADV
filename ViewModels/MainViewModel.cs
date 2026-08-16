@@ -49,6 +49,7 @@ using ProGlassAutomation.ViewModels.ProformaInvoice;
 using ProGlassAutomation.ViewModels.Production;
 using ProGlassAutomation.ViewModels.Reports;
 using ProGlassAutomation.ViewModels.Settings;
+using ProGlassAutomation.ViewModels.Shared;
 using ProGlassAutomation.ViewModels.Diagnostics;
 using ProGlassAutomation.ViewModels.SheetStore;
 using ProGlassAutomation.ViewModels.SystemCenter;
@@ -89,6 +90,10 @@ namespace ProGlassAutomation.ViewModels
         // NEW: Logs & Activity — technical log + per-module activity tabs
         public DiagnosticsViewModel DiagnosticsVM { get; } =
             new DiagnosticsViewModel();
+
+        // ── PHASE E: top-bar global search ────────────────────────────────
+        // Constructed in the ctor because it needs the Navigate callback.
+        public GlobalSearchViewModel GlobalSearchVM { get; }
 
         // ── AI chat ───────────────────────────────────────────────────────
         // Chat 24 v1.2: Now receives voice services for 🎤 mic + 🔊 speaker.
@@ -271,6 +276,11 @@ namespace ProGlassAutomation.ViewModels
             // AiChatViewModel handles null gracefully — voice buttons
             // simply hide when services are unavailable.
             AiChatVM = new AiChatViewModel(App.Ai, App.SpeechToText, App.TextToSpeech);
+
+            // PHASE E: global search navigates through the SAME Navigate()
+            // switch the sidebar uses, so wallpaper + AI screen context stay
+            // correct no matter how the user reached a module.
+            GlobalSearchVM = new GlobalSearchViewModel(target => Navigate(target));
 
             // ── wire dashboard navigation callbacks ───────────────────────
             DashboardVM.NavigateTo = target =>

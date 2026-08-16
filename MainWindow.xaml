@@ -43,6 +43,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options"
         xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+        xmlns:globalSearch="clr-namespace:ProGlassAutomation.Controls.GlobalSearch"
         xmlns:vm="clr-namespace:ProGlassAutomation.ViewModels"
         xmlns:vmDashboard="clr-namespace:ProGlassAutomation.ViewModels.Dashboard"
         xmlns:vmProforma="clr-namespace:ProGlassAutomation.ViewModels.ProformaInvoice"
@@ -535,6 +536,11 @@
                             Orientation="Horizontal"
                             VerticalAlignment="Center"
                             Margin="0,0,8,0">
+
+                    <!-- PHASE E: cross-module global search -->
+                    <globalSearch:GlobalSearchBar DataContext="{Binding GlobalSearchVM}"
+                                                  VerticalAlignment="Center"
+                                                  Margin="0,0,12,0"/>
 
                     <!-- Live date/time (auto-updating every second) -->
                     <Border CornerRadius="999"
