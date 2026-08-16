@@ -19,18 +19,32 @@
              FIELD LABEL — 11px SemiBold indigo (this section's accent color)
         ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="SguLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="11"/>
+            <Setter Property="FontSize"   Value="10"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="#4338CA"/>
-            <Setter Property="Margin"     Value="0,0,0,6"/>
+            <Setter Property="Margin"     Value="0,0,0,3"/>
         </Style>
 
         <!-- ══════════════════════════════════════════════════════════════
-             NOTE: TextBoxes inherit GLOBAL App.xaml style
-             (Height=38, CornerRadius=8, focus glow, indigo hover).
-             behaviors:TextBoxBehaviors.SelectAllOnFocus=True already
-             applied globally in App.xaml.
+             TEXTBOX — local compact override.
+
+             These used to inherit the global App.xaml TextBox style, which
+             hard-sets Height=38. That is taller than the 30px combo boxes
+             beside them, so the two controls in a row sat at different
+             heights and the panel ran past the bottom of the view.
+
+             Only the density properties are restated. Everything else
+             (brushes, corner radius, focus behaviour, SelectAllOnFocus)
+             still comes from the global style via BasedOn, so this cannot
+             drift away from the app's look.
         ══════════════════════════════════════════════════════════════ -->
+        <Style x:Key="SguInputStyle"
+               TargetType="TextBox"
+               BasedOn="{StaticResource {x:Type TextBox}}">
+            <Setter Property="Height"   Value="30"/>
+            <Setter Property="Padding"  Value="8,0"/>
+            <Setter Property="FontSize" Value="12"/>
+        </Style>
 
         <!-- ══════════════════════════════════════════════════════════════
              COMBOBOX — matches global input rendering (Height=38, indigo focus)
@@ -41,8 +55,8 @@
             <Setter Property="BorderThickness"          Value="1"/>
             <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
             <Setter Property="FontSize"                 Value="13"/>
-            <Setter Property="Padding"                  Value="10,0"/>
-            <Setter Property="Height"                   Value="38"/>
+            <Setter Property="Padding"                  Value="8,0"/>
+            <Setter Property="Height"                   Value="30"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
@@ -69,15 +83,15 @@
          SGU PARAMETERS CARD
     ══════════════════════════════════════════════════════════════════ -->
     <Border Background="{DynamicResource ModuleBackgroundBrush}"
-            CornerRadius="16"
-            Padding="20"
-            Margin="0,10,0,0"
+            CornerRadius="14"
+            Padding="14"
+            Margin="0,6,0,0"
             BorderThickness="1"
             BorderBrush="{DynamicResource BorderBrush}">
         <StackPanel>
 
             <!-- ── Section header — icon badge + title ── -->
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                 <Border Background="{DynamicResource TintIndigoBrush}"
                         Width="26" Height="26"
                         CornerRadius="8"
@@ -104,7 +118,7 @@
                     BorderThickness="1"
                     CornerRadius="10"
                     Padding="14,10"
-                    Margin="0,0,0,16"
+                    Margin="0,0,0,8"
                     HorizontalAlignment="Left">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE7C1;"
@@ -131,14 +145,14 @@
             <!-- ══════════════════════════════════════════════════════════
                  ROW 1: Thickness · Color · Treatment · Base Price
             ══════════════════════════════════════════════════════════ -->
-            <Grid Margin="0,0,0,16">
+            <Grid Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
@@ -165,7 +179,8 @@
 
                 <StackPanel Grid.Column="6">
                     <TextBlock Text="BASE PRICE / SQM (AED)" Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding BasePricePerSqm, StringFormat={}{0:0.##}}"/>
+                    <TextBox Text="{Binding BasePricePerSqm, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource SguInputStyle}"/>
                 </StackPanel>
             </Grid>
 
@@ -174,22 +189,24 @@
                  Editable sheet size + read-only store prices. All of it is
                  advisory: the estimator never overwrites BASE PRICE.
             ══════════════════════════════════════════════════════════ -->
-            <Grid Margin="0,0,0,16">
+            <Grid Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="SHEET WIDTH (MM)" Style="{StaticResource SguLabelStyle}"/>
                     <TextBox Text="{Binding SheetWidthMm, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource SguInputStyle}"
                              ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="SHEET HEIGHT (MM)" Style="{StaticResource SguLabelStyle}"/>
                     <TextBox Text="{Binding SheetHeightMm, UpdateSourceTrigger=PropertyChanged}"
+                             Style="{StaticResource SguInputStyle}"
                              ToolTip="Auto-filled from Sheet Store for the selected colour and thickness. Editable."/>
                 </StackPanel>
             </Grid>
@@ -199,41 +216,45 @@
                        FontSize="11"
                        FontWeight="SemiBold"
                        TextWrapping="Wrap"
-                       Margin="0,0,0,14"
+                       Margin="0,0,0,8"
                        Foreground="{DynamicResource WarningBrush}"/>
 
             <!-- ══════════════════════════════════════════════════════════
                  ROW 2: Cutting · Tempering · Yield · Margin
             ══════════════════════════════════════════════════════════ -->
-            <Grid Margin="0,0,0,16">
+            <Grid Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <StackPanel Grid.Column="0">
                     <TextBlock Text="CUTTING COST / SQM" Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding CuttingCostPerSqm, StringFormat={}{0:0.##}}"/>
+                    <TextBox Text="{Binding CuttingCostPerSqm, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource SguInputStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">
                     <TextBlock Text="TEMPERING COST / SQM" Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding TemperingCostPerSqm, StringFormat={}{0:0.##}}"/>
+                    <TextBox Text="{Binding TemperingCostPerSqm, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource SguInputStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="4">
                     <TextBlock Text="YIELD FACTOR (CLEARING)" Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}"/>
+                    <TextBox Text="{Binding YieldFactor, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource SguInputStyle}"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="6">
                     <TextBlock Text="TARGET MARGIN %" Style="{StaticResource SguLabelStyle}"/>
-                    <TextBox Text="{Binding TargetMarginPercent, StringFormat={}{0:0.##}}"/>
+                    <TextBox Text="{Binding TargetMarginPercent, StringFormat={}{0:0.##}}"
+                             Style="{StaticResource SguInputStyle}"/>
                 </StackPanel>
             </Grid>
 
@@ -243,9 +264,9 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 

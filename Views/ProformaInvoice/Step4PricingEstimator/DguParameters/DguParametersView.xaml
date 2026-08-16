@@ -19,10 +19,10 @@
              DGU LABEL — purple accent (glass type identity)
         ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="DguLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="11"/>
+            <Setter Property="FontSize"   Value="10"/>
             <Setter Property="FontWeight" Value="SemiBold"/>
             <Setter Property="Foreground" Value="#7C3AED"/>
-            <Setter Property="Margin"     Value="0,0,0,6"/>
+            <Setter Property="Margin"     Value="0,0,0,3"/>
         </Style>
 
         <!-- ══════════════════════════════════════════════════════════════
@@ -36,8 +36,8 @@
             <Setter Property="BorderThickness"          Value="1"/>
             <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
             <Setter Property="FontSize"                 Value="13"/>
-            <Setter Property="Padding"                  Value="12,0"/>
-            <Setter Property="Height"                   Value="38"/>
+            <Setter Property="Padding"                  Value="8,0"/>
+            <Setter Property="Height"                   Value="30"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Setter Property="CaretBrush"               Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="SelectionBrush"           Value="#7C3AED"/>
@@ -81,8 +81,8 @@
             <Setter Property="BorderThickness"          Value="1"/>
             <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
             <Setter Property="FontSize"                 Value="13"/>
-            <Setter Property="Padding"                  Value="10,0"/>
-            <Setter Property="Height"                   Value="38"/>
+            <Setter Property="Padding"                  Value="8,0"/>
+            <Setter Property="Height"                   Value="30"/>
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
@@ -109,15 +109,15 @@
          DGU CARD
     ══════════════════════════════════════════════════════════════════ -->
     <Border Background="{DynamicResource ModuleBackgroundBrush}"
-            CornerRadius="16"
-            Padding="20"
-            Margin="0,10,0,0"
+            CornerRadius="14"
+            Padding="14"
+            Margin="0,6,0,0"
             BorderThickness="1"
             BorderBrush="{DynamicResource BorderBrush}">
         <StackPanel>
 
             <!-- ── Section header — purple icon + title ── -->
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                 <Border Background="#FAF5FF"
                         Width="26" Height="26"
                         CornerRadius="8"
@@ -144,7 +144,7 @@
                     BorderThickness="1"
                     CornerRadius="10"
                     Padding="14,10"
-                    Margin="0,0,0,16"
+                    Margin="0,0,0,8"
                     HorizontalAlignment="Left">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE7C1;"
@@ -171,14 +171,14 @@
             <!-- ══════════════════════════════════════════════════════════
                  ROW 1 — OUTER GLASS
             ══════════════════════════════════════════════════════════ -->
-            <Grid Margin="0,0,0,16">
+            <Grid Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
@@ -215,10 +215,10 @@
                  Sheet size is editable (type a custom size); the two price
                  boxes are read-only mirrors of the Sheet Store record.
             ══════════════════════════════════════════════════════════ -->
-            <Grid Margin="0,0,0,16">
+            <Grid Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
@@ -244,10 +244,10 @@
                  SpacerExtra  → appended after spacer (middle of spec name)
                  PanelExtra   → appended after inner glass (end of spec name)
             ══════════════════════════════════════════════════════════ -->
-            <Grid Margin="0,0,0,16">
+            <Grid Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="2*"/>
                 </Grid.ColumnDefinitions>
 
@@ -271,14 +271,14 @@
             <!-- ══════════════════════════════════════════════════════════
                  ROW 4 — INNER GLASS
             ══════════════════════════════════════════════════════════ -->
-            <Grid Margin="0,0,0,16">
+            <Grid Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
@@ -313,10 +313,10 @@
             <!-- ══════════════════════════════════════════════════════════
                  ROW 4b — INNER SHEET STORE (PHASE A)
             ══════════════════════════════════════════════════════════ -->
-            <Grid Margin="0,0,0,16">
+            <Grid Margin="0,0,0,8">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
@@ -349,9 +349,9 @@
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="16"/>
+                    <ColumnDefinition Width="10"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
