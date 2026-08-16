@@ -121,7 +121,16 @@ namespace ProGlassAutomation.Agent.Memory
         public void ClearConversation()
         {
             lock (_lock) _conversation.Clear();
-            _audit?.Teaching("", "Conversation cleared", "session memory only");
+
+            // The screen trail is session state too, so "clear the
+            // conversation" must drop it as well. Leaving it behind would
+            // mean the agent still knew where the user had been after being
+            // told to forget - which is exactly the behaviour a privacy
+            // control is supposed to prevent.
+            ProGlassAutomation.Agent.Context.AgentScreenContext.Clear();
+
+            _audit?.Teaching("", "Conversation cleared",
+                "session memory and screen trail only");
         }
 
         /// <summary>Drops persisted facts. The session is untouched.</summary>

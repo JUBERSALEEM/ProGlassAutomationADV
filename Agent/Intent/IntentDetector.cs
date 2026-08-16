@@ -100,6 +100,14 @@ namespace ProGlassAutomation.Agent.Intent
                      "losing money", "loss making", "profitable" },
                 "get_profitability"),
 
+            // Screen/theme awareness. Deliberately narrow phrases so a
+            // question about ERP data never lands here.
+            (new[] { "what am i looking at", "what screen", "which module",
+                     "what module", "current screen", "where am i",
+                     "what theme", "accent colour", "accent color",
+                     "dark mode" },
+                "get_screen_context"),
+
             // Document chain. Placed BEFORE the write intent and after the
             // plain searches: these phrases are unambiguous requests to
             // follow a document through the workflow.

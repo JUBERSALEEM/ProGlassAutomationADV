@@ -62,6 +62,12 @@ namespace ProGlassAutomation.Agent.Tools.Registry
                 // ERP uses - no second query layer, no DbContext.
                 new GetDocumentChainTool(),
 
+                // Screen + theme awareness (§14/§15/§16). Exposes NO ERP
+                // data - only the module name already tracked by the app's
+                // own AiScreenContext, plus the accent colour. Reading the
+                // theme is safe; this tool cannot change it (§17/§44).
+                new GetScreenContextTool(),
+
                 // ── Write (PHASE Q) ───────────────────────────────────
                 //
                 // The FIRST write capability the agent has ever had.
