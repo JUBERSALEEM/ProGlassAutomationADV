@@ -176,6 +176,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         public ObservableCollection<WizardStep> WizardSteps { get; }
 
         private WizardStep _currentStep;
+
+        // Highest step number the user has navigated to in this invoice.
+        // Drives the tick marks on the step rail; reset whenever the wizard
+        // restarts so a fresh invoice does not inherit the previous one's
+        // progress.
+        private int _furthestStepReached = 1;
         public WizardStep CurrentStep
         {
             get => _currentStep;
@@ -350,6 +356,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
 
             CurrentStep = WizardSteps[0];
 
+            // Fresh wizard session: clear progress ticks.
+            _furthestStepReached = 1;
+            foreach (var ws in WizardSteps)
+                ws.IsCompleted = false;
+
             // ── Navigation commands ───────────────────────────────────
             NextStepCommand = new RelayCommand(
                 _ => GoToStep(CurrentStepNumber + 1),
@@ -437,6 +448,22 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
 
             CurrentStep = step;
 
+            // Mark progress on the step rail.
+            //
+            // WizardStep.IsCompleted existed but nothing ever assigned it, so
+            // the "done" state could never render. A step counts as complete
+            // once the user has moved past it: every step before the furthest
+            // point reached shows a tick.
+            //
+            // Deliberately NOT validation-driven. The wizard lets you jump to
+            // any step at any time, so a tick means "you have been through
+            // this", not "this passed validation". Anything stronger would
+            // have to block navigation, which would change how the wizard
+            // behaves today.
+            _furthestStepReached = Math.Max(_furthestStepReached, stepNumber);
+            foreach (var ws in WizardSteps)
+                ws.IsCompleted = ws.StepNumber < _furthestStepReached;
+
             // PHASE A/J: Step 4 prices come from live Sheet Store stock,
             // which the user may have edited since the wizard opened.
             if (stepNumber == 4)
@@ -519,6 +546,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
 
             // ── Navigate to Step 1 and show wizard ────────────────────
             CurrentStep = WizardSteps[0];
+
+            // Fresh wizard session: clear progress ticks.
+            _furthestStepReached = 1;
+            foreach (var ws in WizardSteps)
+                ws.IsCompleted = false;
             IsListView = false;
         }
 
@@ -587,6 +619,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             await Step8VM.LoadAsync();
 
             CurrentStep = WizardSteps[0];
+
+            // Fresh wizard session: clear progress ticks.
+            _furthestStepReached = 1;
+            foreach (var ws in WizardSteps)
+                ws.IsCompleted = false;
             IsListView = false;
         }
 
@@ -634,6 +671,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             await Step8VM.LoadAsync();
 
             CurrentStep = WizardSteps[0];
+
+            // Fresh wizard session: clear progress ticks.
+            _furthestStepReached = 1;
+            foreach (var ws in WizardSteps)
+                ws.IsCompleted = false;
             IsListView = false;
         }
 

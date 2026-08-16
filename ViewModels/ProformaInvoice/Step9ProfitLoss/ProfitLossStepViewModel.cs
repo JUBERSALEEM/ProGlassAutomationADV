@@ -1666,7 +1666,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 return Math.Round(basis, 2);
             }
 
-            if (type == "SGU")
+            // SINGLE GLAZED — the default, and the only build with no marker
+            // of its own in the spec name.
+            //
+            // The other three are recognised from the specification text: a
+            // spacer means DGU, an interlayer means LAM, both mean the
+            // hybrid. Single glazing has neither, so it can only be reached
+            // by elimination. Requiring the glass-type text to read exactly
+            // "SGU" meant a specification with that field blank, or worded
+            // "Single Glazed", got no basis at all — the rate box then fell
+            // back to materials cost and reported a margin against the wrong
+            // number, silently.
+            //
+            // Reaching here means the spec carries no spacer and no
+            // interlayer, so a single pane is the correct reading.
+            if (type == "SGU" || type.Length == 0 || type.Contains("SINGLE"))
             {
                 var vm = _sguVm;
                 if (vm == null) return 0m;
