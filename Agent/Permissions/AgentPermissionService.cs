@@ -38,12 +38,35 @@ namespace ProGlassAutomation.Agent.Permissions
         private readonly ConfirmationPrompt? _prompt;
         private readonly IAgentAuditService? _audit;
 
+        /// <summary>
+        /// PHASE P — how the gate learns who is signed in.
+        ///
+        /// This used to read AuditService.CurrentUsername/CurrentUser
+        /// directly. Those are static, and the only way to set them is
+        /// SwitchUserAsync, which hits audit.db and verifies a password —
+        /// so the identity and role branches of this gate could not be
+        /// exercised by a test at all.
+        ///
+        /// Defaulting to AuditService keeps production behaviour byte-for-
+        /// byte identical; a test supplies a fake instead. This is a seam,
+        /// not a backdoor: nothing mutates AuditService, and the agent
+        /// still cannot choose its own identity — AgentHost always
+        /// constructs this with the default.
+        /// </summary>
+        private readonly Func<(string Username, string Role)> _identity;
+
+        private static (string Username, string Role) SignedInUser() =>
+            (AuditService.CurrentUsername ?? "",
+             AuditService.CurrentUser?.Role ?? "");
+
         public AgentPermissionService(
             ConfirmationPrompt? prompt = null,
-            IAgentAuditService? audit = null)
+            IAgentAuditService? audit = null,
+            Func<(string Username, string Role)>? identity = null)
         {
             _prompt = prompt;
             _audit = audit;
+            _identity = identity ?? SignedInUser;
         }
 
         // ══════════════════════════════════════════════════════════════
@@ -56,7 +79,8 @@ namespace ProGlassAutomation.Agent.Permissions
                 return PermissionDecision.Deny("No tool was specified.");
 
             // ── Identity: the caller must BE the signed-in user ──────────
-            string current = AuditService.CurrentUsername ?? "";
+            var (current, role) = _identity();
+            current ??= "";
             string acting = (username ?? "").Trim();
 
             if (acting.Length == 0)
@@ -73,7 +97,7 @@ namespace ProGlassAutomation.Agent.Permissions
                     $"'{acting}'. I will not act on someone else's behalf.");
             }
 
-            string role = AuditService.CurrentUser?.Role ?? "";
+            role ??= "";
 
             switch (tool.Risk)
             {

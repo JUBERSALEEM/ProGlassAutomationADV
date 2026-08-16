@@ -17,6 +17,22 @@
 		<FileVersion>2.0.0.0</FileVersion>
 	</PropertyGroup>
 
+	<!-- ══════════════════════════════════════════════════════════════
+	     PHASE P — keep the test project out of the app project.
+
+	     The app project lives at the repository ROOT, so SDK-style default
+	     globbing would otherwise compile Tests/**/*.cs into the
+	     application itself. That would drag xUnit into the shipped binary
+	     and create a circular reference, because the test project already
+	     references this one.
+	══════════════════════════════════════════════════════════════════ -->
+	<ItemGroup>
+		<Compile Remove="Tests/**" />
+		<None Remove="Tests/**" />
+		<Page Remove="Tests/**" />
+		<Resource Remove="Tests/**" />
+	</ItemGroup>
+
 	<ItemGroup>
 		<PackageReference Include="ClosedXML" Version="0.105.0" />
 		<PackageReference Include="CsvHelper" Version="33.1.0" />

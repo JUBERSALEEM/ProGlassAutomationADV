@@ -27,29 +27,25 @@ Verified state right now:
 
 ---
 
-## Phase P — `Tests/Agent/**` · the security test suite
+## ~~Phase P — `Tests/Agent/**`~~ · **DELIVERED**
 
-**The largest remaining gap, and the one your spec was most explicit
-about.** Eight required cases, none written:
+Shipped. `Tests/ProGlassAutomation.Tests.csproj` (xUnit, net8.0-windows),
+added to `ProGlassAutomation.slnx`, ~35 tests across three files covering
+all eight spec cases. See `Tests/README.md`.
 
-offline · cloud-disabled · no-API-key · unauthorized-write ·
-missing-confirmation · prompt-injection · corrupted-model ·
-interrupted-download
+Two findings worth carrying forward:
 
-**Why it matters more than it sounds:** the permission and confirmation
-gates have *never executed against a Write tool*, because no Write tool
-exists. That machinery is unproven. Phase P proves it with a test-only
-fake Write tool that is never registered in the real registry.
+1. **The gates were untestable.** `AgentPermissionService` read
+   `AuditService` statics that only `SwitchUserAsync` (DB + password) can
+   set. Added an optional identity provider defaulting to `AuditService` —
+   production behaviour unchanged.
+2. **`Tests/**` had to be excluded from the app project.** The app csproj
+   sits at the repo root, so default globbing would have compiled the
+   tests into the shipped binary and created a circular reference.
 
-Work: add `ProGlassAutomation.Tests` (xUnit, net8.0-windows), add it to
-`ProGlassAutomation.slnx`, write the 8 cases plus redaction and
-whitelist coverage.
-
-**Decision needed from you:** adding a second project changes your build.
-If you'd rather keep a single-project solution, say so and I'll write the
-tests as a `#if DEBUG` self-check harness instead.
-
----
+*Corrupted-model* and *interrupted-download* are covered as "no model
+present", because this product never downloads models. If that changes,
+these tests must be extended — recorded here rather than claimed.
 
 ## Phase Q — Write tools, behind the gates
 
