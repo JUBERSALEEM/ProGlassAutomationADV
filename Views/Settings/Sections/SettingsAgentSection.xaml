@@ -28,7 +28,19 @@
         </ResourceDictionary>
     </UserControl.Resources>
 
-    <Grid>
+    <!-- x:Name="AgentRoot": the code-behind assigns the
+         AgentSettingsViewModel to THIS Grid, not to the UserControl root.
+
+         Why it matters: SettingsView sets this control's Visibility with a
+         binding. If the root's DataContext were replaced by the agent VM,
+         that binding would resolve IsAgentPage against a VM that has no
+         such property, fail, and fall back to Visible - which made this
+         page render on top of every other settings page.
+
+         Keeping the agent VM one level down leaves the root inheriting
+         SettingsViewModel, so page switching works, while every child
+         here still binds to the agent VM exactly as before. -->
+    <Grid x:Name="AgentRoot">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>

@@ -22,6 +22,7 @@
        SettingsAboutSection      — product knowledge cards
 ═══════════════════════════════════════════════════════════════════════ -->
 <UserControl x:Class="ProGlassAutomation.Views.Settings.SettingsView"
+             x:Name="SettingsRoot"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:sections="clr-namespace:ProGlassAutomation.Views.Settings.Sections"
@@ -222,28 +223,59 @@
         <!-- ══════════════════════════════════════════════════════════
              RIGHT — SECTION HOSTS (visibility-switched pages)
         ══════════════════════════════════════════════════════════════ -->
+        <!-- ═══════════════════════════════════════════════════════════
+             CRITICAL: every Visibility binding below MUST be anchored to
+             this SettingsView's own DataContext via ElementName.
+
+             A binding declared on an element resolves against THAT
+             ELEMENT'S DataContext. SettingsAgentSection used to replace
+             its root DataContext with an AgentSettingsViewModel, which has
+             no page-flag property, so an unanchored binding here silently
+             failed, Visibility fell back to its default of Visible, and
+             the Agent page rendered on TOP of every other settings page.
+
+             ElementName=SettingsRoot pins the source to this view
+             (DataContext = SettingsViewModel), so a section may own its
+             DataContext without breaking page switching.
+             FallbackValue/TargetNullValue=Collapsed means any future
+             binding failure hides the page instead of stacking it.
+        ═══════════════════════════════════════════════════════════════ -->
         <Grid Grid.Column="1">
             <sections:SettingsAppearanceSection
-                Visibility="{Binding IsAppearancePage,
-                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+                Visibility="{Binding DataContext.IsAppearancePage,
+                    ElementName=SettingsRoot,
+                    Converter={StaticResource BoolToVisibilityConverter},
+                    FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
             <sections:SettingsAiSection
-                Visibility="{Binding IsAiPage,
-                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+                Visibility="{Binding DataContext.IsAiPage,
+                    ElementName=SettingsRoot,
+                    Converter={StaticResource BoolToVisibilityConverter},
+                    FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
             <sections:SettingsAgentSection
-                Visibility="{Binding IsAgentPage,
-                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+                Visibility="{Binding DataContext.IsAgentPage,
+                    ElementName=SettingsRoot,
+                    Converter={StaticResource BoolToVisibilityConverter},
+                    FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
             <sections:SettingsVoiceSection
-                Visibility="{Binding IsVoicePage,
-                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+                Visibility="{Binding DataContext.IsVoicePage,
+                    ElementName=SettingsRoot,
+                    Converter={StaticResource BoolToVisibilityConverter},
+                    FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
             <sections:SettingsUpdatesSection
-                Visibility="{Binding IsUpdatesPage,
-                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+                Visibility="{Binding DataContext.IsUpdatesPage,
+                    ElementName=SettingsRoot,
+                    Converter={StaticResource BoolToVisibilityConverter},
+                    FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
             <sections:SettingsDataSection
-                Visibility="{Binding IsDataPage,
-                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+                Visibility="{Binding DataContext.IsDataPage,
+                    ElementName=SettingsRoot,
+                    Converter={StaticResource BoolToVisibilityConverter},
+                    FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
             <sections:SettingsAboutSection
-                Visibility="{Binding IsAboutPage,
-                    Converter={StaticResource BoolToVisibilityConverter}}"/>
+                Visibility="{Binding DataContext.IsAboutPage,
+                    ElementName=SettingsRoot,
+                    Converter={StaticResource BoolToVisibilityConverter},
+                    FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
         </Grid>
     </Grid>
 </UserControl>
