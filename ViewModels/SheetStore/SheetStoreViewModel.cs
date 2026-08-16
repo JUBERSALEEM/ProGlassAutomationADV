@@ -26,8 +26,44 @@ using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.SheetStore
 {
-    public class SheetStoreViewModel : ViewModelBase
+    public class SheetStoreViewModel : ViewModelBase,
+        ProGlassAutomation.Agent.Context.IAgentContextAware
     {
+        // ══════════════════════════════════════════════════════════════
+        //  AGENT CONTEXT (opt-in, read-only)
+        //
+        //  Publishes the SPECIFICATION of the selected sheet - thickness,
+        //  colour, size - because that is what identifies it to a user.
+        //
+        //  Deliberately EXCLUDES purchase price, selling price and stock
+        //  levels. Those are commercially sensitive and must be fetched
+        //  through get_inventory, which carries a SheetStore.View
+        //  permission check. A context label has no permission gate, so
+        //  nothing sensitive may travel through it.
+        // ══════════════════════════════════════════════════════════════
+        public string AgentContextDetail
+        {
+            get
+            {
+                try
+                {
+                    var s = SelectedSheet;
+                    if (s == null) return "";
+
+                    var bits = new System.Collections.Generic.List<string>();
+                    if (s.ThicknessMm > 0) bits.Add($"{s.ThicknessMm}mm");
+                    if (!string.IsNullOrWhiteSpace(s.Color)) bits.Add(s.Color);
+                    if (s.WidthMm > 0 && s.HeightMm > 0)
+                        bits.Add($"{s.WidthMm}x{s.HeightMm}");
+
+                    return bits.Count == 0
+                        ? ""
+                        : "sheet selected: " + string.Join(" ", bits);
+                }
+                catch { return ""; }
+            }
+        }
+
         private readonly ISheetStoreRepository _repo;
         private readonly ISheetHistoryRepository _historyRepo;
         private readonly SheetStoreCsvService _csvService;

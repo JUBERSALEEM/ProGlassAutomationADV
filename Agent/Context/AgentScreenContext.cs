@@ -89,14 +89,40 @@ namespace ProGlassAutomation.Agent.Context
         }
 
         /// <summary>
+        /// Supplies the live view-model so detail can be re-resolved at read
+        /// time. Set once by the shell; null simply means no detail.
+        ///
+        /// WHY A PULL AND NOT A PUSH: AiScreenContext.CurrentDetail is only
+        /// written when navigation happens. Select a different sheet without
+        /// leaving Sheet Store and that stored string goes stale, so the
+        /// agent would confidently name the PREVIOUS record. Asking the live
+        /// view-model at the moment of the question cannot go stale.
+        /// </summary>
+        public static Func<object?>? CurrentViewModelProvider { get; set; }
+
+        /// <summary>
         /// Optional short detail a module chose to publish, e.g.
-        /// "editing PI-2026-014". Modules opt in; nothing is scraped.
+        /// "editing PI-2026-014". Modules opt in via IAgentContextAware;
+        /// nothing is scraped and nothing is guessed.
         /// </summary>
         public static string CurrentDetail
         {
             get
             {
-                try { return AiScreenContext.CurrentDetail ?? ""; }
+                try
+                {
+                    // Live value first - see the staleness note above.
+                    var vm = CurrentViewModelProvider?.Invoke();
+
+                    if (vm is IAgentContextAware aware)
+                    {
+                        string live = aware.AgentContextDetail ?? "";
+                        if (live.Length > 0) return live;
+                    }
+
+                    // Fall back to whatever navigation last recorded.
+                    return AiScreenContext.CurrentDetail ?? "";
+                }
                 catch (Exception ex)
                 {
                     Debug.WriteLine($"[AgentScreenContext] {ex.Message}");

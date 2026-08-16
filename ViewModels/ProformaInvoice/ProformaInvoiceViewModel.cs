@@ -81,9 +81,38 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
     /// S-07:            Client→Project filter wired via PropertyChanged subscription.
     ///                  Subscription is made ONCE in constructor — safe for VM lifetime.
     /// </summary>
-    public class ProformaInvoiceViewModel : ViewModelBase
+    public class ProformaInvoiceViewModel : ViewModelBase,
+        ProGlassAutomation.Agent.Context.IAgentContextAware
     {
         public string Title { get; } = "Proforma Invoice Builder";
+
+        // ══════════════════════════════════════════════════════════════
+        //  AGENT CONTEXT (opt-in, read-only)
+        //
+        //  Publishes ONLY the proforma number, so the agent can resolve
+        //  "how much is still pending?" against the invoice on screen
+        //  instead of asking which one you meant.
+        //
+        //  Deliberately excludes customer, project and totals: those are
+        //  ERP values and must go through an audited read tool with a
+        //  permission check, never leak through a context label.
+        //
+        //  Empty while a new invoice has no number yet - an empty string
+        //  is honest, a stale number would make the agent answer about
+        //  the wrong document.
+        // ══════════════════════════════════════════════════════════════
+        public string AgentContextDetail
+        {
+            get
+            {
+                try
+                {
+                    var id = Step1VM?.ProformaId;
+                    return string.IsNullOrWhiteSpace(id) ? "" : $"editing {id}";
+                }
+                catch { return ""; }
+            }
+        }
         public string Subtitle { get; } = "Create professional glass invoices in 8 simple steps";
 
         /// <summary>

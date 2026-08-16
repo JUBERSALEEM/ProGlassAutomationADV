@@ -202,8 +202,34 @@ namespace ProGlassAutomation.ViewModels
             {
                 var raw = _currentViewModel?.GetType().Name
                     .Replace("ViewModel", "") ?? "";
+
+                // A module may OPT IN to publishing which record is open by
+                // implementing IAgentContextAware. Modules that do not simply
+                // report no detail - nothing is scraped or guessed, and no
+                // other view-model needed editing to make this work.
+                //
+                // The detail is a short identifier only ("PI-2026-014"). ERP
+                // values still require an audited read tool with a permission
+                // check; they must never leak through a context label.
+                string detail = "";
+
+                if (_currentViewModel is ProGlassAutomation.Agent.Context
+                        .IAgentContextAware aware)
+                {
+                    try { detail = aware.AgentContextDetail ?? ""; }
+                    catch { detail = ""; }   // a broken module must not break nav
+                }
+
                 ProGlassAutomation.Services.AI.AIContext.AiScreenContext
-                    .Set(PrettyModuleName(raw));
+                    .Set(PrettyModuleName(raw), detail);
+
+                // Let the agent re-read the LIVE view-model when it is asked,
+                // rather than relying on this snapshot. Selecting a different
+                // record without navigating would otherwise leave the stored
+                // detail stale, and a confidently wrong document reference is
+                // worse than none.
+                ProGlassAutomation.Agent.Context.AgentScreenContext
+                    .CurrentViewModelProvider = () => _currentViewModel;
             }
             catch { /* screen awareness must never break navigation */ }
         }

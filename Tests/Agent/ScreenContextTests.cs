@@ -153,6 +153,76 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Contains("cannot tell", result.Message);
         }
 
+        // ══════════════════════════════════════════════════════════════
+        //  OPT-IN DOCUMENT DETAIL
+        // ══════════════════════════════════════════════════════════════
+
+        private sealed class FakeAwareVm : IAgentContextAware
+        {
+            public string Detail = "";
+            public string AgentContextDetail => Detail;
+        }
+
+        private sealed class FakeThrowingVm : IAgentContextAware
+        {
+            public string AgentContextDetail =>
+                throw new System.InvalidOperationException("module is broken");
+        }
+
+        [Fact]
+        public void Live_view_model_detail_wins_over_the_navigation_snapshot()
+        {
+            // The snapshot goes stale when the user selects a different
+            // record without navigating. The live value must take priority.
+            AiScreenContext.Set("Sheet Store", "sheet selected: 6mm Clear");
+
+            var vm = new FakeAwareVm { Detail = "sheet selected: 12mm Grey" };
+            AgentScreenContext.CurrentViewModelProvider = () => vm;
+
+            try
+            {
+                Assert.Equal("sheet selected: 12mm Grey",
+                    AgentScreenContext.CurrentDetail);
+            }
+            finally
+            {
+                AgentScreenContext.CurrentViewModelProvider = null;
+            }
+        }
+
+        [Fact]
+        public void A_module_that_publishes_nothing_reports_nothing()
+        {
+            AiScreenContext.Set("Dashboard", "");
+            AgentScreenContext.CurrentViewModelProvider = () => new FakeAwareVm();
+
+            try
+            {
+                Assert.Equal("", AgentScreenContext.CurrentDetail);
+            }
+            finally
+            {
+                AgentScreenContext.CurrentViewModelProvider = null;
+            }
+        }
+
+        [Fact]
+        public void A_module_that_throws_cannot_break_the_agent()
+        {
+            // A defect in one module must not take out screen awareness.
+            AiScreenContext.Set("Job Order", "");
+            AgentScreenContext.CurrentViewModelProvider = () => new FakeThrowingVm();
+
+            try
+            {
+                Assert.Equal("", AgentScreenContext.CurrentDetail);
+            }
+            finally
+            {
+                AgentScreenContext.CurrentViewModelProvider = null;
+            }
+        }
+
         [Fact]
         public void Registry_still_has_no_destructive_tool()
         {
