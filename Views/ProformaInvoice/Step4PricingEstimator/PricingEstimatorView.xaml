@@ -35,10 +35,10 @@ CHAT 17 — PERFORMANCE + UI POLISH
 
         <!-- Section title inside sub-cards -->
         <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="11"/>
+            <Setter Property="FontSize"   Value="10"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground" Value="#4338CA"/>
-            <Setter Property="Margin"     Value="0,0,0,12"/>
+            <Setter Property="Margin"     Value="0,0,0,6"/>
         </Style>
 
         <!--
@@ -60,51 +60,42 @@ CHAT 17 — PERFORMANCE + UI POLISH
 
     <ScrollViewer VerticalScrollBarVisibility="Auto"
                   HorizontalScrollBarVisibility="Disabled"
-                  Padding="24,20,32,20">
+                  Padding="20,10,24,10">
         <StackPanel>
 
             <!-- ══════════════════════════════════════════════════════════
                  STEP HEADER
             ══════════════════════════════════════════════════════════ -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                <!-- PERF-01: DropShadowEffect removed -->
                 <Border Background="{DynamicResource AccentBrush}"
-                        Width="44"
-                        Height="44"
-                        CornerRadius="12"
+                        Width="30"
+                        Height="30"
+                        CornerRadius="8"
                         VerticalAlignment="Center">
                     <TextBlock Text="&#xE8EF;"
                                FontFamily="Segoe MDL2 Assets"
-                               FontSize="20"
+                               FontSize="14"
                                Foreground="White"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
                 </Border>
 
-                <StackPanel VerticalAlignment="Center" Margin="16,0,0,0">
-                    <TextBlock Text="Smart Pricing Estimator"
-                               FontSize="22"
-                               FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock
-                        Text="Pick glass structure, configure factors and apply computed rates to specifications."
-                        FontSize="12"
-                        Foreground="{DynamicResource SecondaryForegroundBrush}"
-                        Margin="0,4,0,0"
-                        TextWrapping="Wrap"/>
-                </StackPanel>
-            </StackPanel>
+                <TextBlock Text="Smart Pricing Estimator"
+                           FontSize="16"
+                           FontWeight="Bold"
+                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                           VerticalAlignment="Center"
+                           Margin="10,0,0,0"/>
 
-            <!-- Divider -->
-            <Border Background="{DynamicResource BorderBrush}"
-                    Height="1"
-                    Margin="0,20,0,20"/>
+                <!-- The subtitle repeated the step name and cost a full line;
+                     the guidance now lives on the controls it describes. -->
+            </StackPanel>
 
             <!-- ══════════════════════════════════════════════════════════
                  GLASS TYPE CARDS — 4 columns × 1 row
                  Each type has its own saturated accent color for identity
             ══════════════════════════════════════════════════════════ -->
-            <ItemsControl ItemsSource="{Binding GlassTypes}" Margin="0,0,0,14">
+            <ItemsControl ItemsSource="{Binding GlassTypes}" Margin="0,0,0,8">
                 <ItemsControl.ItemsPanel>
                     <ItemsPanelTemplate>
                         <UniformGrid Columns="4" Rows="1"/>
@@ -112,174 +103,86 @@ CHAT 17 — PERFORMANCE + UI POLISH
                 </ItemsControl.ItemsPanel>
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
+                        <!--
+                            Compact selector chip.
+
+                            The old card carried a 32 px icon badge, a
+                            two-line description and a SELECT badge: 158 px
+                            of vertical space for four buttons, which is a
+                            large part of why this page scrolled. The
+                            description now lives in the ToolTip and the
+                            SELECT badge is gone, because the border and
+                            fill already say which type is selected.
+                        -->
                         <Button Command="{Binding DataContext.SelectGlassTypeCommand,
                                                   RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"
                                 Background="Transparent"
                                 BorderThickness="0"
                                 Padding="0"
-                                Margin="5"
+                                Margin="3"
                                 HorizontalContentAlignment="Stretch"
-                                Cursor="Hand">
+                                Cursor="Hand"
+                                FocusVisualStyle="{x:Null}"
+                                ToolTip="{Binding Description}">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="CardBorder"
                                             Background="{DynamicResource ModuleBackgroundBrush}"
-                                            CornerRadius="14"
-                                            Padding="14"
-                                            BorderThickness="2"
+                                            CornerRadius="8"
+                                            Padding="10,0"
+                                            Height="38"
+                                            BorderThickness="1"
                                             BorderBrush="{DynamicResource BorderBrush}"
                                             SnapsToDevicePixels="True">
-                                        <StackPanel>
-
-                                            <!-- Icon badge + code -->
-                                            <StackPanel Orientation="Horizontal"
-                                                        Margin="0,0,0,10">
-                                                <Border x:Name="IconBorder"
-                                                        Width="32"
-                                                        Height="32"
-                                                        CornerRadius="8"
-                                                        VerticalAlignment="Center">
-                                                    <Border.Style>
-                                                        <Style TargetType="Border">
-                                                            <Setter Property="Background" Value="#4338CA"/>
-                                                            <Style.Triggers>
-                                                                <DataTrigger Binding="{Binding Code}" Value="DGU">
-                                                                    <Setter Property="Background" Value="#7C3AED"/>
-                                                                </DataTrigger>
-                                                                <DataTrigger Binding="{Binding Code}" Value="LAM">
-                                                                    <Setter Property="Background" Value="#047857"/>
-                                                                </DataTrigger>
-                                                                <DataTrigger Binding="{Binding Code}" Value="DGU+LAM">
-                                                                    <Setter Property="Background" Value="#B45309"/>
-                                                                </DataTrigger>
-                                                            </Style.Triggers>
-                                                        </Style>
-                                                    </Border.Style>
-                                                    <TextBlock Text="{Binding Icon}"
-                                                               FontSize="15"
-                                                               Foreground="White"
-                                                               HorizontalAlignment="Center"
-                                                               VerticalAlignment="Center"/>
-                                                </Border>
-                                                <TextBlock Text="{Binding Code}"
-                                                           FontSize="14"
-                                                           FontWeight="Bold"
-                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                           VerticalAlignment="Center"
-                                                           Margin="10,0,0,0"/>
-                                            </StackPanel>
-
-                                            <!-- Description -->
-                                            <TextBlock Text="{Binding Description}"
-                                                       FontSize="11"
-                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                       TextWrapping="Wrap"
-                                                       Margin="0,0,0,10"
-                                                       MaxHeight="48"
-                                                       TextTrimming="CharacterEllipsis"/>
-
-                                            <!-- Status badge -->
-                                            <Border x:Name="StatusBadge"
-                                                    CornerRadius="6"
-                                                    Padding="8,4"
-                                                    HorizontalAlignment="Left"
-                                                    Background="{DynamicResource MenuHoverBrush}">
-                                                <StackPanel Orientation="Horizontal">
-                                                    <TextBlock x:Name="StatusIcon"
-                                                               Text="&#xE73E;"
-                                                               FontFamily="Segoe MDL2 Assets"
-                                                               FontSize="9"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                               VerticalAlignment="Center"
-                                                               Margin="0,0,5,0"
-                                                               Visibility="Collapsed"/>
-                                                    <TextBlock x:Name="StatusText"
-                                                               Text="SELECT"
-                                                               FontSize="10"
-                                                               FontWeight="Bold"
-                                                               Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                                </StackPanel>
+                                        <StackPanel Orientation="Horizontal"
+                                                    VerticalAlignment="Center">
+                                            <Border x:Name="IconBorder"
+                                                    Width="20"
+                                                    Height="20"
+                                                    CornerRadius="5"
+                                                    VerticalAlignment="Center"
+                                                    Margin="0,0,8,0">
+                                                <Border.Style>
+                                                    <Style TargetType="Border">
+                                                        <Setter Property="Background" Value="#4338CA"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding Code}" Value="DGU">
+                                                                <Setter Property="Background" Value="#7C3AED"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Code}" Value="LAM">
+                                                                <Setter Property="Background" Value="#047857"/>
+                                                            </DataTrigger>
+                                                            <DataTrigger Binding="{Binding Code}" Value="DGU+LAM">
+                                                                <Setter Property="Background" Value="#B45309"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </Border.Style>
+                                                <TextBlock Text="{Binding Icon}"
+                                                           FontSize="10"
+                                                           Foreground="White"
+                                                           HorizontalAlignment="Center"
+                                                           VerticalAlignment="Center"/>
                                             </Border>
 
+                                            <TextBlock Text="{Binding Code}"
+                                                       FontSize="12"
+                                                       FontWeight="Bold"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                       VerticalAlignment="Center"/>
                                         </StackPanel>
                                     </Border>
-
                                     <ControlTemplate.Triggers>
-
-                                        <!-- Hover (unselected only) -->
-                                        <MultiDataTrigger>
-                                            <MultiDataTrigger.Conditions>
-                                                <Condition Binding="{Binding IsMouseOver,
-                                                    RelativeSource={RelativeSource Self}}"
-                                                           Value="True"/>
-                                                <Condition Binding="{Binding IsSelected}"
-                                                           Value="False"/>
-                                            </MultiDataTrigger.Conditions>
-                                            <Setter TargetName="CardBorder"
-                                                    Property="Background"
-                                                    Value="{DynamicResource MenuHoverBrush}"/>
-                                            <Setter TargetName="CardBorder"
-                                                    Property="BorderBrush"
-                                                    Value="#6366F1"/>
-                                        </MultiDataTrigger>
-
-                                        <!-- SGU selected — deep indigo -->
-                                        <MultiDataTrigger>
-                                            <MultiDataTrigger.Conditions>
-                                                <Condition Binding="{Binding IsSelected}" Value="True"/>
-                                                <Condition Binding="{Binding Code}" Value="SGU"/>
-                                            </MultiDataTrigger.Conditions>
+                                        <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                             <Setter TargetName="CardBorder" Property="BorderBrush" Value="#4338CA"/>
-                                            <Setter TargetName="StatusBadge" Property="Background" Value="#4338CA"/>
-                                            <Setter TargetName="StatusText" Property="Text" Value="ACTIVE"/>
-                                            <Setter TargetName="StatusText" Property="Foreground" Value="White"/>
-                                            <Setter TargetName="StatusIcon" Property="Foreground" Value="White"/>
-                                            <Setter TargetName="StatusIcon" Property="Visibility" Value="Visible"/>
-                                        </MultiDataTrigger>
-
-                                        <!-- DGU selected — deep purple -->
-                                        <MultiDataTrigger>
-                                            <MultiDataTrigger.Conditions>
-                                                <Condition Binding="{Binding IsSelected}" Value="True"/>
-                                                <Condition Binding="{Binding Code}" Value="DGU"/>
-                                            </MultiDataTrigger.Conditions>
-                                            <Setter TargetName="CardBorder" Property="BorderBrush" Value="#7C3AED"/>
-                                            <Setter TargetName="StatusBadge" Property="Background" Value="#7C3AED"/>
-                                            <Setter TargetName="StatusText" Property="Text" Value="ACTIVE"/>
-                                            <Setter TargetName="StatusText" Property="Foreground" Value="White"/>
-                                            <Setter TargetName="StatusIcon" Property="Foreground" Value="White"/>
-                                            <Setter TargetName="StatusIcon" Property="Visibility" Value="Visible"/>
-                                        </MultiDataTrigger>
-
-                                        <!-- LAM selected — deep forest green -->
-                                        <MultiDataTrigger>
-                                            <MultiDataTrigger.Conditions>
-                                                <Condition Binding="{Binding IsSelected}" Value="True"/>
-                                                <Condition Binding="{Binding Code}" Value="LAM"/>
-                                            </MultiDataTrigger.Conditions>
-                                            <Setter TargetName="CardBorder" Property="BorderBrush" Value="#047857"/>
-                                            <Setter TargetName="StatusBadge" Property="Background" Value="#047857"/>
-                                            <Setter TargetName="StatusText" Property="Text" Value="ACTIVE"/>
-                                            <Setter TargetName="StatusText" Property="Foreground" Value="White"/>
-                                            <Setter TargetName="StatusIcon" Property="Foreground" Value="White"/>
-                                            <Setter TargetName="StatusIcon" Property="Visibility" Value="Visible"/>
-                                        </MultiDataTrigger>
-
-                                        <!-- DGU+LAM selected — dark amber -->
-                                        <MultiDataTrigger>
-                                            <MultiDataTrigger.Conditions>
-                                                <Condition Binding="{Binding IsSelected}" Value="True"/>
-                                                <Condition Binding="{Binding Code}" Value="DGU+LAM"/>
-                                            </MultiDataTrigger.Conditions>
-                                            <Setter TargetName="CardBorder" Property="BorderBrush" Value="#B45309"/>
-                                            <Setter TargetName="StatusBadge" Property="Background" Value="#B45309"/>
-                                            <Setter TargetName="StatusText" Property="Text" Value="ACTIVE"/>
-                                            <Setter TargetName="StatusText" Property="Foreground" Value="White"/>
-                                            <Setter TargetName="StatusIcon" Property="Foreground" Value="White"/>
-                                            <Setter TargetName="StatusIcon" Property="Visibility" Value="Visible"/>
-                                        </MultiDataTrigger>
-
+                                            <Setter TargetName="CardBorder" Property="BorderThickness" Value="2"/>
+                                            <Setter TargetName="CardBorder" Property="Background"
+                                                    Value="{DynamicResource TintPurpleBrush}"/>
+                                        </DataTrigger>
+                                        <Trigger Property="IsMouseOver" Value="True">
+                                            <Setter TargetName="CardBorder" Property="BorderBrush" Value="#6366F1"/>
+                                        </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
                             </Button.Template>
@@ -371,9 +274,9 @@ CHAT 17 — PERFORMANCE + UI POLISH
                  SELECT SPECIFICATION TARGET GROUPS
             ══════════════════════════════════════════════════════════ -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    CornerRadius="16"
-                    Padding="20"
-                    Margin="0,14,0,0"
+                    CornerRadius="10"
+                    Padding="10"
+                    Margin="0,6,0,0"
                     BorderThickness="1"
                     BorderBrush="{DynamicResource BorderBrush}">
                 <StackPanel>
@@ -560,9 +463,9 @@ CHAT 17 — PERFORMANCE + UI POLISH
             ══════════════════════════════════════════════════════════ -->
             <!-- PERF-02: DropShadowEffect removed. BorderThickness=2. -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    CornerRadius="16"
-                    Padding="20"
-                    Margin="0,14,0,0"
+                    CornerRadius="10"
+                    Padding="12,8"
+                    Margin="0,6,0,0"
                     BorderThickness="2"
                     BorderBrush="#4338CA">
 
@@ -578,7 +481,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                    FontSize="10"
                                    FontWeight="Bold"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   Margin="0,0,0,8"/>
+                                   Margin="0,0,0,3"/>
                         <StackPanel Orientation="Horizontal">
                             <TextBlock Text="AED"
                                        FontSize="15"
@@ -588,7 +491,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                        Margin="0,0,6,4"/>
                             <TextBlock Text="{Binding EstimatedRatePerSqm,
                                            StringFormat={}{0:N2}}"
-                                       FontSize="28"
+                                       FontSize="22"
                                        FontWeight="Bold"
                                        Foreground="{DynamicResource SuccessBrush}"
                                        VerticalAlignment="Center"/>
@@ -612,9 +515,9 @@ CHAT 17 — PERFORMANCE + UI POLISH
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="ApplyBorder"
                                         Background="{DynamicResource AccentBrush}"
-                                        CornerRadius="22"
-                                        Padding="24,0"
-                                        Height="44"
+                                        CornerRadius="17"
+                                        Padding="18,0"
+                                        Height="34"
                                         SnapsToDevicePixels="True">
                                     <StackPanel Orientation="Horizontal"
                                                 VerticalAlignment="Center">
