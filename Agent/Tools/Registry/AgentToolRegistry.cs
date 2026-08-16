@@ -46,7 +46,12 @@ namespace ProGlassAutomation.Agent.Tools.Registry
                 new SearchTaxInvoiceTool(),
                 new SearchCustomerTool(),
                 new GetInventoryTool(),
-                new GetActivityTool()
+                new GetActivityTool(),
+
+                // PHASE N — reads the profit Step 9 already computed and
+                // the mapper already persisted, so the agent and the Job
+                // Profitability module can never quote different numbers.
+                new GetProfitabilityTool()
             };
 
             var map = new Dictionary<string, IAgentTool>(StringComparer.OrdinalIgnoreCase);

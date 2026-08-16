@@ -86,7 +86,19 @@ namespace ProGlassAutomation.Agent.Intent
                 "search_taxinvoice"),
 
             (new[] { "activity", "audit", "recent actions", "who did", "what happened" },
-                "get_activity")
+                "get_activity"),
+
+            // PHASE N — profit QUESTIONS answer with data.
+            //
+            // Ordering note: the nav catalog also owns "profit" (it opens the
+            // Job Profitability module) and tools are checked FIRST. These
+            // keys are therefore deliberately phrased as questions - "how
+            // much profit", "did we make money" - so that asking a question
+            // returns figures, while "open profitability" still navigates.
+            (new[] { "how much profit", "what profit", "profit on",
+                     "margin on", "did we make money", "are we losing",
+                     "losing money", "loss making", "profitable" },
+                "get_profitability")
         };
 
         /// <summary>

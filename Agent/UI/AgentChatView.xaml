@@ -1,0 +1,216 @@
+<!-- ═══════════════════════════════════════════════════════════════════
+     FILE: Agent/UI/AgentChatView.xaml
+     PROJECT: ProGlassAutomation — ProGlass Agent (PHASE L)
+     MODULE: Agent chat — the conversational surface
+
+     The typed counterpart to the voice pipeline. Every message runs
+     through the same ProGlassAgent.HandleAsync gate chain, so this adds
+     a surface, never a capability.
+
+     Layout rules observed here, learned from the Settings overlap bug:
+       • The ScrollViewer sets HorizontalScrollBarVisibility="Disabled".
+         At the default (Auto) WPF measures content at INFINITE width,
+         which makes TextWrapping inert and runs bubbles off-screen.
+       • Bubbles cap at MaxWidth so a long answer wraps instead of
+         stretching the row.
+       • This control does NOT replace its own root DataContext.
+═══════════════════════════════════════════════════════════════════════ -->
+<UserControl x:Class="ProGlassAutomation.Agent.UI.AgentChatView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             FontFamily="Segoe UI"
+             TextOptions.TextFormattingMode="Display"
+             TextOptions.TextRenderingMode="ClearType"
+             UseLayoutRounding="True"
+             SnapsToDevicePixels="True">
+
+    <UserControl.Resources>
+
+        <!-- Message bubbles -->
+        <Style x:Key="AgentUserBubble" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+            <Setter Property="CornerRadius" Value="14,14,4,14"/>
+            <Setter Property="Padding" Value="14,10"/>
+            <Setter Property="Margin" Value="60,4,0,4"/>
+            <Setter Property="HorizontalAlignment" Value="Right"/>
+            <Setter Property="MaxWidth" Value="620"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <Style x:Key="AgentReplyBubble" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="CornerRadius" Value="14,14,14,4"/>
+            <Setter Property="Padding" Value="14,10"/>
+            <Setter Property="Margin" Value="0,4,60,4"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="MaxWidth" Value="620"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+    </UserControl.Resources>
+
+    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- ══ HEADER ══════════════════════════════════════════════════ -->
+        <Border Grid.Row="0"
+                Padding="20,16"
+                Background="{DynamicResource ModuleBackgroundBrush}"
+                BorderBrush="{DynamicResource DividerBrush}"
+                BorderThickness="0,0,0,1">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0"
+                        Width="38" Height="38"
+                        CornerRadius="10"
+                        Background="{DynamicResource TintIndigoBrush}"
+                        VerticalAlignment="Center">
+                    <TextBlock Text="&#xE99A;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="17"
+                               Foreground="{DynamicResource AccentBrush}"
+                               HorizontalAlignment="Center"
+                               VerticalAlignment="Center"/>
+                </Border>
+
+                <StackPanel Grid.Column="1"
+                            Margin="14,0,20,0"
+                            VerticalAlignment="Center">
+                    <TextBlock Text="ProGlass Agent"
+                               FontSize="16" FontWeight="Bold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                    <TextBlock FontSize="11"
+                               TextWrapping="Wrap"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               Text="Runs locally. Reads your ERP data, never writes without asking."/>
+                </StackPanel>
+
+                <StackPanel Grid.Column="2"
+                            Orientation="Horizontal"
+                            VerticalAlignment="Center">
+                    <Button Content="SPEAK"
+                            Style="{StaticResource OutlinedPillButton}"
+                            Command="{Binding SpeakCommand}"
+                            Margin="0,0,8,0"
+                            ToolTip="Capture one spoken request with Whisper"/>
+                    <Button Content="CLEAR"
+                            Style="{StaticResource OutlinedPillButton}"
+                            Command="{Binding ClearCommand}"
+                            ToolTip="Clears this transcript only — taught rules and knowledge are kept"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
+        <!-- ══ TRANSCRIPT ══════════════════════════════════════════════ -->
+        <ScrollViewer Grid.Row="1"
+                      x:Name="TranscriptScroller"
+                      VerticalScrollBarVisibility="Auto"
+                      HorizontalScrollBarVisibility="Disabled"
+                      CanContentScroll="False"
+                      PanningMode="VerticalOnly"
+                      Padding="20,14">
+            <ItemsControl ItemsSource="{Binding Messages}">
+                <ItemsControl.ItemTemplate>
+                    <DataTemplate>
+                        <StackPanel>
+
+                            <!-- User -->
+                            <Border Style="{StaticResource AgentUserBubble}"
+                                    Visibility="{Binding IsUser,
+                                        Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Text="{Binding Text}"
+                                           FontSize="12.5"
+                                           TextWrapping="Wrap"
+                                           Foreground="{DynamicResource OnAccentForegroundBrush}"/>
+                            </Border>
+
+                            <!-- Agent -->
+                            <Border Style="{StaticResource AgentReplyBubble}"
+                                    Visibility="{Binding IsAgent,
+                                        Converter={StaticResource BoolToVisibilityConverter}}">
+                                <StackPanel>
+                                    <TextBlock Text="{Binding Text}"
+                                               FontSize="12.5"
+                                               TextWrapping="Wrap">
+                                        <TextBlock.Style>
+                                            <Style TargetType="TextBlock">
+                                                <Setter Property="Foreground"
+                                                        Value="{DynamicResource PrimaryForegroundBrush}"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsFailure}" Value="True">
+                                                        <Setter Property="Foreground"
+                                                                Value="{DynamicResource WarningBrush}"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </TextBlock.Style>
+                                    </TextBlock>
+
+                                    <TextBlock Text="{Binding TimeDisplay}"
+                                               FontSize="9.5"
+                                               Margin="0,6,0,0"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                </StackPanel>
+                            </Border>
+
+                        </StackPanel>
+                    </DataTemplate>
+                </ItemsControl.ItemTemplate>
+            </ItemsControl>
+        </ScrollViewer>
+
+        <!-- ══ COMPOSER ════════════════════════════════════════════════ -->
+        <Border Grid.Row="2"
+                Padding="20,14"
+                Background="{DynamicResource ModuleBackgroundBrush}"
+                BorderBrush="{DynamicResource DividerBrush}"
+                BorderThickness="0,1,0,0">
+            <StackPanel>
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="12"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+
+                    <TextBox Grid.Column="0"
+                             x:Name="InputBox"
+                             Text="{Binding Input, UpdateSourceTrigger=PropertyChanged}"
+                             FontSize="13"
+                             MinHeight="40"
+                             MaxHeight="120"
+                             Padding="12,10"
+                             VerticalContentAlignment="Center"
+                             AcceptsReturn="False"
+                             TextWrapping="Wrap"
+                             KeyDown="InputBox_KeyDown"
+                             ToolTip="Ask a question, or teach: whenever I say X, open Y"/>
+
+                    <Button Grid.Column="2"
+                            Content="SEND"
+                            MinWidth="96"
+                            Style="{StaticResource PrimaryPillButton}"
+                            Command="{Binding SendCommand}"
+                            IsDefault="True"/>
+                </Grid>
+
+                <TextBlock Text="{Binding StatusText}"
+                           FontSize="11"
+                           Margin="2,8,0,0"
+                           TextWrapping="Wrap"
+                           Foreground="{DynamicResource AccentBrush}"/>
+            </StackPanel>
+        </Border>
+    </Grid>
+</UserControl>

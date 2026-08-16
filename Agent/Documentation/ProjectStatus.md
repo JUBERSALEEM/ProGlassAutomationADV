@@ -46,7 +46,9 @@ The "never modify existing ERP behavior" constraint was honoured.
 - **Intent** — deterministic, no LLM. Precedence: help → teach → approve →
   tool → nav → approved teaching (user rules last, so they cannot shadow
   system behaviour).
-- **Tools** — 7 read tools + `navigate`, capped results, truthful failures.
+- **Tools** — 8 read tools + `navigate`, capped results, truthful failures.
+  Phase N added `get_profitability`, which reads the profit Step 9 already
+  persisted rather than recalculating it.
 - **Permissions** — identity must equal `AuditService.CurrentUser`;
   Read gated on `RequiredPermission`.
 - **Teaching** — propose → approve → revoke, nothing acts until approved.
@@ -65,10 +67,10 @@ The "never modify existing ERP behavior" constraint was honoured.
 
 | Gap | Impact |
 |-----|--------|
-| **No chat UI.** `HandleAsync` has exactly one caller — `AgentVoicePipeline`. | You **cannot type to the agent**. Your requirement "learns from teaching in chat" is **not reachable** — teaching can only be approved/revoked in Settings, never proposed conversationally. **This is the biggest gap.** |
-| **`AgentHost.Navigate` is never assigned.** | `navigate` tool is registered but inert — the agent cannot actually move you between modules. |
-| **`AgentHost.Confirm` is never assigned.** | Harmless today (no Write tools exist), but any future Write tool will deny-by-default until wired. |
-| **No `Tests/Agent/**`.** | The spec's 8 required cases (offline, cloud-disabled, no-API-key, unauthorized-write, missing-confirmation, prompt-injection, corrupted-model, interrupted-download) are unwritten. |
+| ~~No chat UI~~ | **CLOSED (Phase L).** `Agent/UI/AgentChatView` + `AgentChatViewModel`, opened from the top-bar robot button. Teaching can now be proposed conversationally. |
+| ~~`AgentHost.Navigate` never assigned~~ | **CLOSED (Phase K).** Wired to `MainViewModel.NavigateFromAgent`, which routes through the same switch the sidebar uses and marshals to the UI thread. |
+| ~~`AgentHost.Confirm` never assigned~~ | **CLOSED (Phase K).** Wired to a Yes/No modal defaulting to No; fail-closed on any exception. |
+| **No `Tests/Agent/**`.** | The spec's 8 required cases (offline, cloud-disabled, no-API-key, unauthorized-write, missing-confirmation, prompt-injection, corrupted-model, interrupted-download) are unwritten. **Still the largest remaining gap.** |
 | **No Write/Destructive tools at all.** | Deliberate and safe, but the permission/confirmation machinery is therefore **untested in practice**. |
 | **No local model runtime.** | `LocalReasoningProvider` answers from the knowledge base only. `LocalModelAdvisor` recommends but never downloads, as instructed. |
 

@@ -101,6 +101,30 @@ namespace ProGlassAutomation.ViewModels
         // speech services are unavailable — voice buttons hide gracefully.
         public AiChatViewModel AiChatVM { get; }
 
+        /// <summary>
+        /// PHASE L — the agent's chat surface. Created eagerly (it is a
+        /// tiny view-model), but the AGENT itself is still built lazily on
+        /// the first message, so opening ProGlass costs nothing.
+        /// </summary>
+        public ProGlassAutomation.Agent.UI.AgentChatViewModel AgentChatVM { get; }
+            = new ProGlassAutomation.Agent.UI.AgentChatViewModel();
+
+        private bool _isAgentChatOpen;
+        /// <summary>True while the agent chat panel is on screen.</summary>
+        public bool IsAgentChatOpen
+        {
+            get => _isAgentChatOpen;
+            set
+            {
+                if (_isAgentChatOpen == value) return;
+                _isAgentChatOpen = value;
+                OnPropertyChanged();
+            }
+        }
+
+        /// <summary>Opens/closes the agent chat panel.</summary>
+        public ICommand ToggleAgentChatCommand { get; private set; }
+
         // ── placeholder modules ───────────────────────────────────────────
         public SheetStoreViewModel SheetStoreVM { get; } = new SheetStoreViewModel();
         public JobOrderViewModel JobOrderVM { get; } = new JobOrderViewModel();
@@ -301,6 +325,10 @@ namespace ProGlassAutomation.ViewModels
             // simply hide when services are unavailable.
             AiChatVM = new AiChatViewModel(App.Ai, App.SpeechToText, App.TextToSpeech);
 
+            // PHASE L: agent chat toggle.
+            ToggleAgentChatCommand = new RelayCommand(
+                _ => IsAgentChatOpen = !IsAgentChatOpen);
+
             // PHASE E: global search navigates through the SAME Navigate()
             // switch the sidebar uses, so wallpaper + AI screen context stay
             // correct no matter how the user reached a module.
@@ -392,9 +420,100 @@ namespace ProGlassAutomation.ViewModels
 
             // Live clock on the top bar.
             StartClock();
+
+            // ── PHASE K: hand the agent its two shell capabilities ────────
+            //
+            // Both are assigned BEFORE AgentHost.Ensure() ever runs (the
+            // agent is built lazily when Settings > AI & Agent is opened),
+            // so the built instance captures them.
+            //
+            // Until now both were null: the navigate tool was registered but
+            // inert, and every Write/Destructive tool would have been denied
+            // for want of a confirmation prompt. Nothing else about the
+            // agent's posture changes — navigation still goes through the
+            // same switch the sidebar uses, and the prompt is a real modal
+            // the user must accept.
+            try
+            {
+                ProGlassAutomation.Agent.Core.AgentHost.Navigate = NavigateFromAgent;
+                ProGlassAutomation.Agent.Core.AgentHost.Confirm = AgentConfirmAsync;
+            }
+            catch (Exception ex)
+            {
+                // The shell must start even if the agent assembly misbehaves.
+                System.Diagnostics.Debug.WriteLine(
+                    $"[MainViewModel] agent wiring failed: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// PHASE K — the confirmation gate for agent actions that write or
+        /// destroy. Returns true only on an explicit user Yes.
+        ///
+        /// Fail-closed by construction: any exception, or no UI thread,
+        /// returns false, so an action can never proceed unconfirmed.
+        /// Destructive prompts carry the "IRREVERSIBLE" wording the agent
+        /// supplies and default to No.
+        /// </summary>
+        private static System.Threading.Tasks.Task<bool> AgentConfirmAsync(
+            string title, string message, bool destructive)
+        {
+            try
+            {
+                var dispatcher = System.Windows.Application.Current?.Dispatcher;
+                if (dispatcher == null)
+                    return System.Threading.Tasks.Task.FromResult(false);
+
+                bool Ask()
+                {
+                    var result = System.Windows.MessageBox.Show(
+                        message,
+                        string.IsNullOrWhiteSpace(title) ? "ProGlass Agent" : title,
+                        System.Windows.MessageBoxButton.YesNo,
+                        destructive
+                            ? System.Windows.MessageBoxImage.Warning
+                            : System.Windows.MessageBoxImage.Question,
+                        System.Windows.MessageBoxResult.No);
+
+                    return result == System.Windows.MessageBoxResult.Yes;
+                }
+
+                bool answer = dispatcher.CheckAccess() ? Ask() : dispatcher.Invoke(Ask);
+                return System.Threading.Tasks.Task.FromResult(answer);
+            }
+            catch (Exception ex)
+            {
+                System.Diagnostics.Debug.WriteLine(
+                    $"[MainViewModel] agent confirm failed: {ex.Message}");
+                return System.Threading.Tasks.Task.FromResult(false);
+            }
         }
 
         // ── navigation ────────────────────────────────────────────────────
+        /// <summary>
+        /// PHASE K — public navigation entry point for the ProGlass Agent.
+        ///
+        /// The agent's NavigateTool holds an Action&lt;string&gt; and has no
+        /// reference to the shell. Wiring it here routes agent navigation
+        /// through the SAME switch the sidebar uses, so the agent can never
+        /// reach a screen the user could not reach themselves, and any
+        /// module added to the switch is automatically available to both.
+        ///
+        /// Marshals to the UI thread: the agent runs its pipeline on a
+        /// background task, and CurrentViewModel drives WPF bindings.
+        /// </summary>
+        public void NavigateFromAgent(string target)
+        {
+            if (string.IsNullOrWhiteSpace(target)) return;
+
+            var dispatcher = System.Windows.Application.Current?.Dispatcher;
+
+            if (dispatcher != null && !dispatcher.CheckAccess())
+                dispatcher.Invoke(() => Navigate(target));
+            else
+                Navigate(target);
+        }
+
         private void Navigate(object parameter)
         {
             switch (parameter?.ToString())

@@ -165,3 +165,57 @@ Open each from the sidebar; confirm it renders and has no binding errors.
 Every box in section 1 ticked, every earlier-phase box in section 2 ticked,
 and no regression in the Output window. Agent findings can be fed back for
 fixes without blocking the ERP.
+
+---
+
+## Phases K–O — agent wiring, chat, profitability
+
+### Phase K — shell capabilities (previously dead)
+
+- [ ] Open Settings → AI & Agent once so the agent builds.
+- [ ] In agent chat type **"open sheet store"** → the Sheet Store module
+      opens. Before Phase K the navigate tool was registered but
+      `AgentHost.Navigate` was never assigned, so it was inert.
+- [ ] Type **"open something that does not exist"** → refused truthfully,
+      no crash, view unchanged.
+- [ ] Confirm navigation happens on the UI thread (no cross-thread
+      exception) when the agent replies.
+
+### Phase L — chat surface
+
+- [ ] Robot button in the top bar opens/closes the panel.
+- [ ] **Enter** sends; the composer clears; the transcript auto-scrolls.
+- [ ] Ask **"what is in stock"** → inventory figures, not an empty answer.
+- [ ] Ask something unsupported → a truthful refusal, never a stack trace.
+- [ ] **CLEAR** empties the transcript, then Settings → AI & Agent still
+      shows the same taught rules and knowledge. *Clearing chat must not
+      clear teaching.*
+- [ ] Resize the window narrow → bubbles wrap, nothing runs off-screen.
+- [ ] **SPEAK** with no Whisper model → "Voice is not available", no hang.
+
+### Phase M — chat does not disturb the shell
+
+- [ ] Open the panel, then navigate modules via the sidebar → no overlap,
+      no z-order fight with the existing AI assistant.
+- [ ] Close and reopen → transcript preserved for the session.
+- [ ] The ERP works normally with the panel open.
+
+### Phase N — profitability tool
+
+- [ ] Ask **"how much profit on <invoice no>"** → figures match what the
+      Job Profitability module shows for the same invoice. *They read the
+      same snapshot; any disagreement is a bug.*
+- [ ] Ask **"are we losing money"** → lowest-margin jobs, losses flagged.
+- [ ] An invoice saved before Step 9 existed is reported as *not costed*,
+      never as 100% margin.
+- [ ] Say **"open profitability"** → the module opens (navigation), not a
+      figures dump. Ask **"how much profit"** → figures, not navigation.
+- [ ] Sign in as a user WITHOUT `ProformaView` → the tool is denied.
+
+### Phase K — confirmation gate
+
+- [ ] No Write or Destructive tool is registered, so nothing should
+      prompt. Verify `AgentToolRegistry.Build` still lists Read +
+      Navigation only.
+- [ ] `AgentHost.Confirm` is now assigned, so a future Write tool will
+      prompt rather than being denied for want of a prompt.

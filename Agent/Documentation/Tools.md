@@ -52,3 +52,32 @@ Available SQM is computed exactly as the Sheet Store module does:
 ```
 
 so the agent can never quote a figure that disagrees with the screen.
+
+## get_profitability (Phase N)
+
+Reports profit, cost and margin for saved proforma invoices.
+
+- **Risk:** Read · **Permission:** `ProformaView`
+- **Argument:** optional. An invoice number, customer or project name.
+  With no argument it reports the lowest-margin jobs and how many are
+  running at a loss.
+
+**Reads, never recalculates.** Step 9 already computes profit and the
+mapper persists it; this tool deserialises the same snapshot the Job
+Profitability module reads, via the same
+`ProformaInvoiceMapper.DeserializeSnapshot` path. The agent and the module
+therefore cannot quote different numbers.
+
+**Truthfulness rules:**
+
+| Case | Behaviour |
+|------|-----------|
+| Invoice saved before Step 9 existed | Reported as *not costed* and excluded — never as 100% margin |
+| Repository unavailable | Says so, rather than "no results" (which reads as "no profitable jobs") |
+| Negative profit | Stated as `LOSS AED n`, not buried in a signed number |
+
+**Intent routing note:** the navigation catalog also owns the word
+"profit" (it opens the Job Profitability module), and tools are matched
+*before* navigation. The tool's keys are therefore phrased as questions —
+"how much profit", "did we make money", "margin on" — so a question
+returns figures while "open profitability" still navigates.
