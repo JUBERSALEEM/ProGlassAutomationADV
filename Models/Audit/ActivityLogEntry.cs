@@ -68,5 +68,15 @@ namespace ProGlassAutomation.Models.Audit
         /// Empty when the entry carries no field-level diff (v2).
         /// </summary>
         public string ChangesJson { get; set; } = "";
+
+        /// <summary>
+        /// PHASE D — the human WHY behind the action ("price corrected
+        /// after supplier re-quote"). Optional and free-text: the audit
+        /// trail already records WHAT changed, this records the reason a
+        /// reviewer would otherwise have to guess.
+        /// Empty for entries written without one.
+        /// </summary>
+        [MaxLength(500)]
+        public string Reason { get; set; } = "";
     }
 }

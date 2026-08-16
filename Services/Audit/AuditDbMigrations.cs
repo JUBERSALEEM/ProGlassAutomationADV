@@ -35,6 +35,10 @@ namespace ProGlassAutomation.Services.Audit
                 AddColumnIfMissing(connection,
                     "ActivityLog", "ChangesJson", "TEXT NOT NULL DEFAULT ''");
 
+                // PHASE D — optional WHY note on every audit entry.
+                AddColumnIfMissing(connection,
+                    "ActivityLog", "Reason", "TEXT NOT NULL DEFAULT ''");
+
                 Execute(connection, @"
                     CREATE TABLE IF NOT EXISTS RecordMetadata (
                         EntityType     TEXT NOT NULL,

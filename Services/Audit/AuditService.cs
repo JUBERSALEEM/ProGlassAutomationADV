@@ -163,9 +163,11 @@ namespace ProGlassAutomation.Services.Audit
             string action,
             string details = "",
             string entityType = "",
-            string entityId = "")
+            string entityId = "",
+            string reason = "")
         {
-            WriteEntry(BuildEntry(section, action, details, entityType, entityId));
+            WriteEntry(BuildEntry(
+                section, action, details, entityType, entityId, reason));
         }
 
         /// <summary>
@@ -178,10 +180,11 @@ namespace ProGlassAutomation.Services.Audit
             string details,
             string entityType,
             string entityId,
-            List<AuditChange> changes)
+            List<AuditChange> changes,
+            string reason = "")
         {
             var entry = BuildEntry(
-                section, action, details, entityType, entityId);
+                section, action, details, entityType, entityId, reason);
             entry.ChangesJson = AuditChangeSerializer.ToJson(changes);
             WriteEntry(entry);
         }
@@ -192,10 +195,11 @@ namespace ProGlassAutomation.Services.Audit
             string action,
             string details = "",
             string entityType = "",
-            string entityId = "")
+            string entityId = "",
+            string reason = "")
         {
-            await WriteEntryAsync(
-                BuildEntry(section, action, details, entityType, entityId));
+            await WriteEntryAsync(BuildEntry(
+                section, action, details, entityType, entityId, reason));
         }
 
         private static ActivityLogEntry BuildEntry(
@@ -203,7 +207,8 @@ namespace ProGlassAutomation.Services.Audit
             string action,
             string details,
             string entityType,
-            string entityId)
+            string entityId,
+            string reason = "")
         {
             return new ActivityLogEntry
             {
@@ -214,7 +219,8 @@ namespace ProGlassAutomation.Services.Audit
                 Action = action ?? "",
                 Details = Truncate(details, 1000),
                 EntityType = Truncate(entityType, 20),
-                EntityId = Truncate(entityId, 60)
+                EntityId = Truncate(entityId, 60),
+                Reason = Truncate(reason, 500)
             };
         }
 
@@ -343,7 +349,8 @@ namespace ProGlassAutomation.Services.Audit
                 string username,
                 string displayName,
                 string role,
-                string password)
+                string password,
+                string reason = "")
         {
             try
             {
@@ -379,7 +386,7 @@ namespace ProGlassAutomation.Services.Audit
 
                 Log(AuditSections.Users, "User created",
                     $"{displayName} ({username}) — role {role}",
-                    "USER", username);
+                    "USER", username, reason);
 
                 return (true, "");
             }

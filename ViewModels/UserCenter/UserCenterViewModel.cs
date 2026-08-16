@@ -84,6 +84,18 @@ namespace ProGlassAutomation.ViewModels.UserCenter
         public string CurrentUserName =>
             AuditService.CurrentUser?.DisplayName ?? "Administrator";
 
+        private string _reasonNote = "";
+        /// <summary>
+        /// PHASE D — optional WHY note recorded with the "User created"
+        /// audit entry ("new estimator joined the Dubai branch").
+        /// Cleared after a successful create.
+        /// </summary>
+        public string ReasonNote
+        {
+            get => _reasonNote;
+            set { _reasonNote = value ?? ""; OnPropertyChanged(); }
+        }
+
         public ICommand RefreshCommand { get; }
         public ICommand SelectUserCommand { get; }
         public ICommand ToggleActiveCommand { get; private set; }
@@ -178,13 +190,15 @@ namespace ProGlassAutomation.ViewModels.UserCenter
             }
 
             var (ok, error) = await AuditService.CreateUserAsync(
-                Username.Trim(), DisplayName.Trim(), SelectedRole, password);
+                Username.Trim(), DisplayName.Trim(), SelectedRole, password,
+                ReasonNote.Trim());
 
             Status = ok ? "User created ✔ " + DisplayName : error;
             if (ok)
             {
                 Username = "";
                 DisplayName = "";
+                ReasonNote = "";
                 await LoadAsync();
             }
         }

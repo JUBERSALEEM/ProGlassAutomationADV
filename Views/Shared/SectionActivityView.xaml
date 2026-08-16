@@ -190,14 +190,36 @@
                                                        TextTrimming="CharacterEllipsis"/>
                                         </Border>
 
-                                        <TextBlock Grid.Column="2"
-                                                   Margin="12,0,0,0"
-                                                   FontSize="12"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                   Text="{Binding Details}"
-                                                   TextTrimming="CharacterEllipsis"
-                                                   VerticalAlignment="Center"
-                                                   ToolTip="{Binding Details}"/>
+                                        <!-- Details + PHASE D "Why" note -->
+                                        <StackPanel Grid.Column="2"
+                                                    Margin="12,0,0,0"
+                                                    VerticalAlignment="Center">
+                                            <TextBlock FontSize="12"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                       Text="{Binding Details}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       ToolTip="{Binding Details}"/>
+
+                                            <!-- The human reason behind the action -->
+                                            <TextBlock FontSize="11"
+                                                       FontStyle="Italic"
+                                                       Margin="0,3,0,0"
+                                                       Foreground="{DynamicResource AccentBrush}"
+                                                       TextTrimming="CharacterEllipsis"
+                                                       ToolTip="{Binding Reason}">
+                                                <TextBlock.Style>
+                                                    <Style TargetType="TextBlock">
+                                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                                        <Style.Triggers>
+                                                            <DataTrigger Binding="{Binding HasReason}" Value="True">
+                                                                <Setter Property="Visibility" Value="Visible"/>
+                                                            </DataTrigger>
+                                                        </Style.Triggers>
+                                                    </Style>
+                                                </TextBlock.Style>
+                                                <Run Text="Why: "/><Run Text="{Binding Reason, Mode=OneWay}"/>
+                                            </TextBlock>
+                                        </StackPanel>
 
                                         <!-- GitHub-style diff viewer -->
                                         <Button Grid.Column="3"

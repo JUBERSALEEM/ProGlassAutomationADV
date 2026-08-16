@@ -264,6 +264,15 @@
                                       VerticalAlignment="Center"/>
                         </DockPanel>
 
+                        <!-- PHASE D — WHY note recorded with the audit entry -->
+                        <StackPanel Margin="0,16,0,0">
+                            <TextBlock Text="WHY / NOTE (OPTIONAL — RECORDED IN THE AUDIT TRAIL)"
+                                       Style="{StaticResource CcFieldLabel}"/>
+                            <TextBox Text="{Binding ReasonNote, UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource CcTextBox}"
+                                     ToolTip="Reason for this change, e.g. 'TRN corrected after trade licence renewal'"/>
+                        </StackPanel>
+
                         <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
                             <Button Style="{StaticResource SuccessPillButton}"
                                     Tag="&#xE74E;" Content="SAVE COMPANY"

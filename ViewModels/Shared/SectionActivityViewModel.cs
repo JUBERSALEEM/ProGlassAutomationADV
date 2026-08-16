@@ -40,6 +40,16 @@ namespace ProGlassAutomation.ViewModels.Shared
             !string.IsNullOrWhiteSpace(ChangesJson);
 
         /// <summary>
+        /// PHASE D — the WHY the user typed when performing this action.
+        /// Empty for entries recorded without a reason.
+        /// </summary>
+        public string Reason { get; set; } = "";
+
+        /// <summary>True when a WHY note was recorded.</summary>
+        public bool HasReason =>
+            !string.IsNullOrWhiteSpace(Reason);
+
+        /// <summary>
         /// Full row tooltip: date/time · user · module · action · details.
         /// Shown on hover so every field is discoverable even when the
         /// row is trimmed.
@@ -57,6 +67,8 @@ namespace ProGlassAutomation.ViewModels.Shared
                 };
                 if (!string.IsNullOrWhiteSpace(Details))
                     parts.Add($"Details: {Details}");
+                if (!string.IsNullOrWhiteSpace(Reason))
+                    parts.Add($"Why:     {Reason}");
                 return string.Join("\n", parts);
             }
         }
@@ -146,7 +158,8 @@ namespace ProGlassAutomation.ViewModels.Shared
                 Action = e.Action,
                 Details = e.Details,
                 Section = e.Section,
-                ChangesJson = e.ChangesJson ?? ""
+                ChangesJson = e.ChangesJson ?? "",
+                Reason = e.Reason ?? ""
             };
         }
 

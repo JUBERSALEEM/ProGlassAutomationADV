@@ -18,6 +18,7 @@ using ProGlassAutomation.Models.MasterData;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.ViewModels;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using System.Windows.Input;
@@ -124,6 +125,20 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
         }
 
         // ── commands ─────────────────────────────────────────────────
+        private string _reasonNote = "";
+        /// <summary>
+        /// PHASE D — optional WHY note attached to the next save. The
+        /// audit trail already records WHICH fields changed; this records
+        /// the reason, which a reviewer would otherwise have to guess.
+        /// Cleared after every successful save so a note is never reused
+        /// accidentally on an unrelated edit.
+        /// </summary>
+        public string ReasonNote
+        {
+            get => _reasonNote;
+            set { _reasonNote = value ?? ""; OnPropertyChanged(); }
+        }
+
         public ICommand NewCompanyCommand { get; }
         public ICommand SaveCompanyCommand { get; private set; }
         public ICommand DeleteCompanyCommand { get; private set; }
@@ -189,13 +204,43 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
                         }
                     }
 
+                    // PHASE D: capture the BEFORE state so the audit
+                    // entry can carry a real field-level diff. Read before
+                    // the write, and never let a diff failure block a save.
+                    List<AuditChange> changes = new();
+                    if (_editingId != 0)
+                    {
+                        try
+                        {
+                            var previous = (await App.MasterData
+                                    .GetAllCompaniesAsync())
+                                .FirstOrDefault(c => c.Id == _editingId);
+
+                            if (previous != null)
+                                changes = BuildCompanyDiff(previous, entity);
+                        }
+                        catch (Exception diffEx)
+                        {
+                            System.Diagnostics.Debug.WriteLine(
+                                "[CompanyCenter] diff skipped: " + diffEx.Message);
+                        }
+                    }
+
                     await App.MasterData.SaveOrUpdateCompanyAsync(entity);
 
-                    AuditService.Log(AuditSections.Settings,
+                    string reason = ReasonNote.Trim();
+
+                    AuditService.LogWithChanges(
+                        AuditSections.Settings,
                         _editingId == 0 ? "Company created" : "Company updated",
-                        entity.CompanyName);
+                        entity.CompanyName,
+                        "COMPANY",
+                        entity.Id.ToString(),
+                        changes,
+                        reason);
 
                     Status = "Saved ✔ " + entity.CompanyName;
+                    ReasonNote = "";
                     BeginEdit(null);
                     await LoadAsync();
                 }
@@ -235,6 +280,45 @@ namespace ProGlassAutomation.ViewModels.CompanyCenter
             });
 
             _ = LoadAsync();
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  PHASE D — field-level diff for the audit trail
+        // ══════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Compares the stored company against the edited one and returns
+        /// one AuditChange per field that actually moved. Unchanged fields
+        /// are omitted so the diff viewer shows signal, not noise.
+        /// </summary>
+        private static List<AuditChange> BuildCompanyDiff(
+            SavedCompany before, SavedCompany after)
+        {
+            var changes = new List<AuditChange>();
+
+            void Compare(string field, string? oldValue, string? newValue)
+            {
+                oldValue ??= "";
+                newValue ??= "";
+                if (string.Equals(oldValue, newValue, StringComparison.Ordinal))
+                    return;
+                changes.Add(AuditChangeSerializer.Modified(
+                    field, oldValue, newValue));
+            }
+
+            Compare("Name", before.CompanyName, after.CompanyName);
+            Compare("TRN", before.CompanyTrn, after.CompanyTrn);
+            Compare("Location", before.CompanyLocation, after.CompanyLocation);
+            Compare("Representative", before.Representative, after.Representative);
+            Compare("Mobile", before.RepresentativeMobile, after.RepresentativeMobile);
+            Compare("Email", before.CompanyEmail, after.CompanyEmail);
+            Compare("Account", before.AccountNumber, after.AccountNumber);
+            Compare("Bank", before.BankName, after.BankName);
+            Compare("Default",
+                before.IsDefault ? "Yes" : "No",
+                after.IsDefault ? "Yes" : "No");
+
+            return changes;
         }
 
         // ── loading / editing ────────────────────────────────────────
