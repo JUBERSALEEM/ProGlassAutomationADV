@@ -914,6 +914,11 @@
                 </Border.Style>
 
                 <Grid>
+                    <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
+                    </Grid.RowDefinitions>
+                    <Grid Grid.Row="0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
                         <ColumnDefinition Width="Auto"/>
@@ -1081,10 +1086,10 @@
                             Minimum="0" Maximum="1"
                             SmallChange="0.05" LargeChange="0.15"
                             ValueChanged="ScrollSlider_ValueChanged"/>
-                </Grid>
+                    </Grid>
 
                 <!-- Storage footer — real data-folder size, not a mockup value. -->
-                <Border Margin="12,0,12,14"
+                <Border Grid.Row="1" Margin="12,0,12,14"
                         Padding="12,10"
                         CornerRadius="12"
                         Background="{DynamicResource MenuHoverBrush}"
@@ -1108,7 +1113,8 @@
                                    Foreground="{DynamicResource MutedForegroundBrush}"
                                    TextWrapping="Wrap"/>
                     </StackPanel>
-                </Border>
+                    </Border>
+                </Grid>
             </Border>
 
             <!-- v3.1: RIGHT DRAWER (SETTINGS) REMOVED
