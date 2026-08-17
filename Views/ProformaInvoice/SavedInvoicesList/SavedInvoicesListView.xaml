@@ -249,7 +249,7 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <Border Grid.Row="0"
-                                Background="#3730A3"
+                                Background="{DynamicResource AccentDarkBrush}"
                                 CornerRadius="12,12,0,0"/>
                         <Border Grid.Row="1" Padding="20,14">
                             <StackPanel>

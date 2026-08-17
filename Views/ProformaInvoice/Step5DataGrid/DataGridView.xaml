@@ -109,7 +109,7 @@ PRESERVED EXACTLY:
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="InputBorder"
-                                        Property="BorderBrush" Value="#6366F1"/>
+                                        Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
                             </Trigger>
                             <Trigger Property="IsFocused" Value="True">
                                 <Setter TargetName="InputBorder"
@@ -163,7 +163,7 @@ PRESERVED EXACTLY:
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="InputBorder"
-                                        Property="BorderBrush" Value="#6366F1"/>
+                                        Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
                             </Trigger>
                             <Trigger Property="IsFocused" Value="True">
                                 <Setter TargetName="InputBorder"
@@ -215,7 +215,7 @@ PRESERVED EXACTLY:
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="InputBorder"
-                                        Property="BorderBrush" Value="#6366F1"/>
+                                        Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
                             </Trigger>
                             <Trigger Property="IsFocused" Value="True">
                                 <Setter TargetName="InputBorder"
@@ -415,7 +415,7 @@ PRESERVED EXACTLY:
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="MainBorder"
-                                        Property="BorderBrush" Value="#6366F1"/>
+                                        Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
                                 <Setter TargetName="Arrow" Property="Fill"
                                         Value="{DynamicResource PrimaryForegroundBrush}"/>
                             </Trigger>
@@ -523,7 +523,7 @@ PRESERVED EXACTLY:
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="MainBorder"
-                                        Property="BorderBrush" Value="#6366F1"/>
+                                        Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
                             </Trigger>
                             <Trigger Property="IsKeyboardFocusWithin" Value="True">
                                 <Setter TargetName="MainBorder"
@@ -1685,11 +1685,11 @@ PRESERVED EXACTLY:
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="AGB"
-                                        Property="Background" Value="#6366F1"/>
+                                        Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="AGB"
-                                        Property="Background" Value="#3730A3"/>
+                                        Property="Background" Value="{DynamicResource AccentDarkBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>

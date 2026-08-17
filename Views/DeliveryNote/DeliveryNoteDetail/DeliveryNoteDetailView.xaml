@@ -201,10 +201,10 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="#6366F1"/>
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="#3730A3"/>
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentDarkBrush}"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
                                 <Setter TargetName="Bg" Property="Opacity" Value="0.45"/>
@@ -522,8 +522,8 @@
         <Border Grid.Row="1" Style="{StaticResource MasterDnBannerStyle}">
             <Border.Background>
                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                    <GradientStop Color="#4338CA" Offset="0"/>
-                    <GradientStop Color="#6366F1" Offset="1"/>
+                    <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                    <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
                 </LinearGradientBrush>
             </Border.Background>
             <Grid>

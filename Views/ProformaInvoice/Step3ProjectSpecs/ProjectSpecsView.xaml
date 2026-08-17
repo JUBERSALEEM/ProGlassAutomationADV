@@ -105,7 +105,7 @@ CHAT 17 — UI POLISH + BUG FIXES
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="LinkText"
                                         Property="Foreground"
-                                        Value="#6366F1"/>
+                                        Value="{DynamicResource AccentHoverBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -133,7 +133,7 @@ CHAT 17 — UI POLISH + BUG FIXES
                         <DropShadowEffect BlurRadius="12"
                                           ShadowDepth="2"
                                           Direction="270"
-                                          Color="#4338CA"
+                                          Color="{DynamicResource AccentColor}"
                                           Opacity="0.30"/>
                     </Border.Effect>
                     <TextBlock Text="&#xE8A5;"

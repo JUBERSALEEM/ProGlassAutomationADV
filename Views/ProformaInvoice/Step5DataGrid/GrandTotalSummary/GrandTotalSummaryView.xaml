@@ -84,7 +84,7 @@ PRESERVED EXACTLY:
             <DropShadowEffect BlurRadius="16"
                               ShadowDepth="3"
                               Direction="270"
-                              Color="#4338CA"
+                              Color="{DynamicResource AccentColor}"
                               Opacity="0.10"/>
         </Border.Effect>
 
@@ -108,7 +108,7 @@ PRESERVED EXACTLY:
                         <DropShadowEffect BlurRadius="10"
                                           ShadowDepth="2"
                                           Direction="270"
-                                          Color="#4338CA"
+                                          Color="{DynamicResource AccentColor}"
                                           Opacity="0.30"/>
                     </Border.Effect>
                     <TextBlock Text="&#xE9D2;"
@@ -311,15 +311,15 @@ PRESERVED EXACTLY:
                 </Border.Style>
                 <Border.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                        <GradientStop Color="#4338CA" Offset="0"/>
-                        <GradientStop Color="#6366F1" Offset="1"/>
+                        <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                        <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
                     </LinearGradientBrush>
                 </Border.Background>
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="14"
                                       ShadowDepth="3"
                                       Direction="270"
-                                      Color="#4338CA"
+                                      Color="{DynamicResource AccentColor}"
                                       Opacity="0.35"/>
                 </Border.Effect>
 

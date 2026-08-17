@@ -73,8 +73,8 @@
                                    TrendArrow="&#xE8A5;"
                                    TrendText="{Binding SourceProformaId}"
                                    TrendVisibility="Visible"
-                                   GradientStartColor="#4338CA"
-                                   GradientEndColor="#6366F1"
+                                   GradientStartColor="{DynamicResource AccentColor}"
+                                   GradientEndColor="{DynamicResource AccentHoverColor}"
                                    Margin="8,0,8,24"
                                    MinHeight="160"/>
 

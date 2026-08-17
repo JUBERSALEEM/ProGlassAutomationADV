@@ -136,8 +136,8 @@
                     <Border Grid.Row="0" CornerRadius="12,12,0,0" Padding="18,14">
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                <GradientStop Color="#4338CA" Offset="0"/>
-                                <GradientStop Color="#6366F1" Offset="1"/>
+                                <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                                <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
                             </LinearGradientBrush>
                         </Border.Background>
                         <Grid>
@@ -589,8 +589,8 @@
                                                 <Border CornerRadius="12,12,0,0" Padding="14,10">
                                                     <Border.Background>
                                                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                            <GradientStop Color="#4338CA" Offset="0"/>
-                                                            <GradientStop Color="#6366F1" Offset="1"/>
+                                                            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                                                            <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
                                                         </LinearGradientBrush>
                                                     </Border.Background>
                                                     <Grid>
@@ -846,7 +846,7 @@
                                                                              Padding="4,4,8,4" Margin="2,3"
                                                                              BorderBrush="{DynamicResource AccentBrush}"
                                                                              Background="{DynamicResource TintIndigoBrush}"
-                                                                             Foreground="#3730A3"
+                                                                             Foreground="{DynamicResource AccentDarkBrush}"
                                                                              VerticalContentAlignment="Center"/>
 
                                                                     <Border Grid.Column="7"

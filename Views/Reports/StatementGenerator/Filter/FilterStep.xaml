@@ -46,7 +46,7 @@
         <SolidColorBrush x:Key="ClearBtnBg" Color="#FFFFFF" Opacity="0.67" po:Freeze="True"/>
 
         <SolidColorBrush x:Key="IndigoPrimary" Color="#4F46E5" po:Freeze="True"/>
-        <SolidColorBrush x:Key="IndigoDark" Color="#4338CA" po:Freeze="True"/>
+        <SolidColorBrush x:Key="IndigoDark" Color="{DynamicResource AccentColor}"/>
         <SolidColorBrush x:Key="IndigoLight" Color="#EEF2FF" po:Freeze="True"/>
         <SolidColorBrush x:Key="VioletAccent" Color="#8B5CF6" po:Freeze="True"/>
         <SolidColorBrush x:Key="CyanAccent" Color="#06B6D4" po:Freeze="True"/>

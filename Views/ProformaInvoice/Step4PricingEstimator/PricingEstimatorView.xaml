@@ -181,7 +181,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                                     Value="{DynamicResource TintPurpleBrush}"/>
                                         </DataTrigger>
                                         <Trigger Property="IsMouseOver" Value="True">
-                                            <Setter TargetName="CardBorder" Property="BorderBrush" Value="#6366F1"/>
+                                            <Setter TargetName="CardBorder" Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
                                         </Trigger>
                                     </ControlTemplate.Triggers>
                                 </ControlTemplate>
@@ -441,10 +441,10 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                                     </MultiDataTrigger.Conditions>
                                                     <Setter TargetName="PillBorder"
                                                             Property="Background"
-                                                            Value="#6366F1"/>
+                                                            Value="{DynamicResource AccentHoverBrush}"/>
                                                     <Setter TargetName="PillBorder"
                                                             Property="BorderBrush"
-                                                            Value="#6366F1"/>
+                                                            Value="{DynamicResource AccentHoverBrush}"/>
                                                 </MultiDataTrigger>
 
                                             </ControlTemplate.Triggers>
@@ -538,12 +538,12 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                     <Trigger Property="IsMouseOver" Value="True">
                                         <Setter TargetName="ApplyBorder"
                                                 Property="Background"
-                                                Value="#6366F1"/>
+                                                Value="{DynamicResource AccentHoverBrush}"/>
                                     </Trigger>
                                     <Trigger Property="IsPressed" Value="True">
                                         <Setter TargetName="ApplyBorder"
                                                 Property="Background"
-                                                Value="#3730A3"/>
+                                                Value="{DynamicResource AccentDarkBrush}"/>
                                     </Trigger>
                                     <Trigger Property="IsEnabled" Value="False">
                                         <Setter TargetName="ApplyBorder"

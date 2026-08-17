@@ -91,7 +91,7 @@
         <SolidColorBrush x:Key="StepBadgeIdle" Color="#94A3B8" po:Freeze="True"/>
 
         <!-- Metric accents -->
-        <SolidColorBrush x:Key="MetricOrdered" Color="#4338CA" po:Freeze="True"/>
+        <SolidColorBrush x:Key="MetricOrdered" Color="{DynamicResource AccentColor}"/>
         <SolidColorBrush x:Key="MetricDelivered" Color="#1D4ED8" po:Freeze="True"/>
         <SolidColorBrush x:Key="MetricBalance" Color="#B91C1C" po:Freeze="True"/>
         <SolidColorBrush x:Key="MetricRate" Color="#B45309" po:Freeze="True"/>
@@ -108,7 +108,7 @@
         </LinearGradientBrush>
 
         <LinearGradientBrush x:Key="ProgressGradient" StartPoint="0,0" EndPoint="1,0" po:Freeze="True">
-            <GradientStop Color="#4338CA" Offset="0"/>
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
             <GradientStop Color="#8B5CF6" Offset="0.5"/>
             <GradientStop Color="#EC4899" Offset="1"/>
         </LinearGradientBrush>

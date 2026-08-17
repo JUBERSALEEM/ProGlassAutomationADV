@@ -31,8 +31,8 @@
                             Style="{StaticResource SectionHeaderStyle}">
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                <GradientStop Color="#4338CA" Offset="0"/>
-                                <GradientStop Color="#6366F1" Offset="1"/>
+                                <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                                <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
                             </LinearGradientBrush>
                         </Border.Background>
                         <Grid>

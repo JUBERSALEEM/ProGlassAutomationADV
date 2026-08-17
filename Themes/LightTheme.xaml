@@ -73,6 +73,14 @@
     <SolidColorBrush x:Key="AccentHoverBrush"
                      Color="#2563EB"
                      po:Freeze="True"/>
+    <!-- Color-typed counterparts of the accent brushes. These exist so
+         Color-only properties (gradient stops, DropShadowEffect.Color)
+         can follow the accent instead of hardcoding it. ThemeManager
+         re-derives and re-publishes AccentColor on every accent/light-dark
+         change so it tracks custom and Monet accents too. -->
+    <Color x:Key="AccentColor">#1D4ED8</Color>
+    <Color x:Key="AccentHoverColor">#2563EB</Color>
+    <Color x:Key="AccentDarkColor">#1E3A8A</Color>
     <SolidColorBrush x:Key="AccentDarkBrush"
                      Color="#1E3A8A"
                      po:Freeze="True"/>

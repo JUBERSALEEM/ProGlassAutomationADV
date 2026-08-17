@@ -160,7 +160,7 @@
                                                 <Setter Property="Effect">
                                                     <Setter.Value>
                                                         <DropShadowEffect BlurRadius="6" ShadowDepth="0"
-                                                                          Opacity="0.5" Color="#4338CA"/>
+                                                                          Opacity="0.5" Color="{DynamicResource AccentColor}"/>
                                                     </Setter.Value>
                                                 </Setter>
                                             </DataTrigger>
@@ -242,7 +242,7 @@
                                                 <Setter Property="Effect">
                                                     <Setter.Value>
                                                         <DropShadowEffect BlurRadius="6" ShadowDepth="0"
-                                                                          Opacity="0.5" Color="#4338CA"/>
+                                                                          Opacity="0.5" Color="{DynamicResource AccentColor}"/>
                                                     </Setter.Value>
                                                 </Setter>
                                             </DataTrigger>
@@ -324,7 +324,7 @@
                                                 <Setter Property="Effect">
                                                     <Setter.Value>
                                                         <DropShadowEffect BlurRadius="6" ShadowDepth="0"
-                                                                          Opacity="0.5" Color="#4338CA"/>
+                                                                          Opacity="0.5" Color="{DynamicResource AccentColor}"/>
                                                     </Setter.Value>
                                                 </Setter>
                                             </DataTrigger>
@@ -406,7 +406,7 @@
                                                 <Setter Property="Effect">
                                                     <Setter.Value>
                                                         <DropShadowEffect BlurRadius="6" ShadowDepth="0"
-                                                                          Opacity="0.5" Color="#4338CA"/>
+                                                                          Opacity="0.5" Color="{DynamicResource AccentColor}"/>
                                                     </Setter.Value>
                                                 </Setter>
                                             </DataTrigger>

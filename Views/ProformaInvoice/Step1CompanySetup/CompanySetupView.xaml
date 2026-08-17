@@ -63,7 +63,7 @@ CHAT 17 — UI POLISH
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="#6366F1"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
                 </Trigger>
                 <Trigger Property="IsKeyboardFocusWithin" Value="True">
                     <Setter Property="BorderBrush"     Value="{DynamicResource AccentBrush}"/>
@@ -83,7 +83,7 @@ CHAT 17 — UI POLISH
             <Setter Property="VerticalContentAlignment" Value="Center"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="#6366F1"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
                 </Trigger>
                 <Trigger Property="IsKeyboardFocusWithin" Value="True">
                     <Setter Property="BorderBrush"     Value="{DynamicResource AccentBrush}"/>
@@ -137,7 +137,7 @@ CHAT 17 — UI POLISH
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="LinkText"
                                         Property="Foreground"
-                                        Value="#6366F1"/>
+                                        Value="{DynamicResource AccentHoverBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -163,7 +163,7 @@ CHAT 17 — UI POLISH
                         <DropShadowEffect BlurRadius="12"
                                           ShadowDepth="2"
                                           Direction="270"
-                                          Color="#4338CA"
+                                          Color="{DynamicResource AccentColor}"
                                           Opacity="0.30"/>
                     </Border.Effect>
                     <TextBlock Text="&#xE821;"
@@ -592,12 +592,12 @@ CHAT 17 — UI POLISH
                                             <Trigger Property="IsMouseOver" Value="True">
                                                 <Setter TargetName="GoBorder"
                                                         Property="Background"
-                                                        Value="#6366F1"/>
+                                                        Value="{DynamicResource AccentHoverBrush}"/>
                                             </Trigger>
                                             <Trigger Property="IsPressed" Value="True">
                                                 <Setter TargetName="GoBorder"
                                                         Property="Background"
-                                                        Value="#3730A3"/>
+                                                        Value="{DynamicResource AccentDarkBrush}"/>
                                             </Trigger>
                                         </ControlTemplate.Triggers>
                                     </ControlTemplate>

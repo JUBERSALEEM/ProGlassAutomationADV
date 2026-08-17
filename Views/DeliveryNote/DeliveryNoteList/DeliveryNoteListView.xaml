@@ -455,8 +455,8 @@
                                 SnapsToDevicePixels="True">
                             <Border.BorderBrush>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#4338CA" Offset="0"/>
-                                    <GradientStop Color="#6366F1" Offset="1"/>
+                                    <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                                    <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.BorderBrush>
                             <Border.Background>
@@ -476,8 +476,8 @@
                                            VerticalAlignment="Center">
                                     <TextBlock.Foreground>
                                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                            <GradientStop Color="#4338CA" Offset="0"/>
-                                            <GradientStop Color="#6366F1" Offset="1"/>
+                                            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                                            <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
                                         </LinearGradientBrush>
                                     </TextBlock.Foreground>
                                 </TextBlock>
@@ -559,8 +559,8 @@
                 <hero:GradientHeroCard Grid.Column="0" Icon="&#xE7B8;"
                            Value="{Binding HeroCard1Value}"
                            Label="{Binding HeroCard1Label}"
-                           GradientStartColor="#4338CA"
-                           GradientEndColor="#6366F1"
+                           GradientStartColor="{DynamicResource AccentColor}"
+                           GradientEndColor="{DynamicResource AccentHoverColor}"
                            Margin="4" MinHeight="92"/>
 
                 <hero:GradientHeroCard Grid.Column="1" Icon="&#xE81C;"

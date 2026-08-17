@@ -141,6 +141,15 @@ namespace ProGlassAutomation.Services
             FreezeAndSet(resources, "AccentBrush", core);
             FreezeAndSet(resources, "AccentHoverBrush",
                 ColorMath.Lighten(core, dark ? 0.08 : 0.06));
+
+            // Color-typed counterparts for gradient stops /
+            // DropShadowEffect.Color so they follow the accent too.
+            // (A Color is a struct — no Freeze needed, just assign.)
+            resources["AccentColor"] = core;
+            resources["AccentHoverColor"] =
+                ColorMath.Lighten(core, dark ? 0.08 : 0.06);
+            resources["AccentDarkColor"] =
+                ColorMath.FromHsl(h, Math.Min(1, s + 0.05), Math.Max(0.16, l - 0.18));
             FreezeAndSet(resources, "AccentDarkBrush",
                 ColorMath.FromHsl(h, Math.Min(1, s + 0.05), Math.Max(0.16, l - 0.18)));
             FreezeAndSet(resources, "AccentLightBrush",

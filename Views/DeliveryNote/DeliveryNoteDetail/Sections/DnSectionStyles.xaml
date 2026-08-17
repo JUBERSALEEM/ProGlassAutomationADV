@@ -95,7 +95,7 @@
             <Setter Property="BorderThickness" Value="1.5"/>
             <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
             <Setter Property="Background" Value="#EEF2FF"/>
-            <Setter Property="Foreground" Value="#3730A3"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentDarkBrush}"/>
             <Setter Property="Visibility" Value="Visible"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding DataContext.IsMasterDn,
