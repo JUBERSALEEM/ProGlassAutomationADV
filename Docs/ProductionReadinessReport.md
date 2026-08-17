@@ -89,9 +89,17 @@ upload anywhere. Outbound hosts are only: 3 AI providers (opt-in), `api.github.c
 | S-2 | SQL injection — all 23 raw-SQL sites use hardcoded constants, no user input | — | **CLEAN** |
 | S-3 | TLS — no cert-validation bypass, no `http://`, all 5 callers HTTPS + timeouts | — | **CLEAN** |
 | S-4 | API keys at rest — DPAPI CurrentUser + app entropy, no home-rolled crypto | — | **CLEAN** |
-| S-5 | Path traversal — `ExportFileNamer` whitelists `[A-Z0-9-]`; `..` and separators cannot survive | — | **CLEAN** |
-| S-6 | 22 multi-line silent `catch { }` blocks | MEDIUM | OPEN |
+| S-5 | Path traversal in **exports** — `ExportFileNamer` whitelists `[A-Z0-9-]`; `..` and separators cannot survive | — | **CLEAN** (but see S-8 — this conclusion was over-generalised) |
+| S-6 | 24 multi-line silent `catch { }` blocks | MEDIUM | **CLOSED** — 5 converted, 19 reviewed and justified (§16a) |
 | S-7 | No registry writes; 27 `SpecialFolder.ApplicationData`, 2 `UserProfile` | — | CLEAN (Store-friendly) |
+| **S-8** | **Path traversal in attachments** — `SanitizeName` filtered invalid chars but not `..`, and the result is used as a path segment | **HIGH** | **FIXED** — full write-up in §7 |
+
+> **Correction to S-5.** S-5 was recorded as "path traversal — CLEAN". That
+> conclusion came from auditing `ExportFileNamer`, which does whitelist correctly,
+> and was then generalised to the whole application. It was not. The two attachment
+> services used a different, weaker blacklist helper that let `..` through into a
+> path segment (S-8). **Checking one implementation of a concern does not clear the
+> concern** — the same mistake as the R-1 recurrence, in a different area.
 
 ---
 
@@ -183,6 +191,47 @@ corruption the finding is about.
 **Compulsory:** no, while nothing aggregates in SQL. **Safely automatable:** no.
 **Could break existing functionality:** yes — that is why it is documented rather
 than changed.
+
+### S-8 — path traversal in attachment naming (HIGH, fixed)
+
+**Location:** `SanitizeName` in `Services/ProformaInvoice/Attachments/ProformaAttachmentService.cs`
+and `Services/DeliveryNote/Attachments/AttachmentService.cs` (two intentionally
+identical copies).
+
+**Exact problem.** The helper replaced `Path.GetInvalidFileNameChars()` only. `.`
+is **not** in that set, so `..` passed through untouched — and the result is used
+as a **path segment**:
+
+```csharp
+Path.Combine(_rootFolder, SanitizeName(proformaId))
+```
+
+`Path.Combine` resolves `..`, so a Proforma ID of `..` or `..\..\x` walked out of
+`%AppData%\ProGlassAutomation\ProformaInvoices\Attachments`. The same helper also
+names attachment files on copy and rename.
+
+**Reachability — verified, not assumed.** The only validation on Proforma ID is a
+non-empty check (`CompanySetupViewModel.ProformaIdValidationMessage`), and the
+field is a free-text `TextBox` in Step 1. So the traversal value is user-supplied
+in the ordinary flow, not just theoretically constructible.
+
+**Why it matters.** Attachment writes and deletes land outside the intended
+folder. `DeleteAsync` calls `DeleteFile(record.FilePath)`, so a crafted ID turns
+into arbitrary file deletion within the user's own privileges. Not remote —
+requires someone typing the ID — but it is the user's own data at risk, and an
+imported or pasted ID makes it plausible rather than exotic.
+
+**Fixed.** Blank → `_`; directory separators stripped; any all-dots segment
+replaced outright (so `...` cannot degrade into `.`); trailing dots and spaces
+removed, because Windows drops them silently and two distinct IDs would otherwise
+collide on one folder; length capped at 120 for MAX_PATH.
+
+**Regression check.** Both old and new rules were mirrored and compared: 11
+traversal payloads now escape the root **0** times (several did before), and 9
+realistic IDs/filenames — `PI-2024-001`, `site photo 3.jpg`, Arabic text,
+parenthesised names — produce **byte-identical** output to the old helper. Existing
+attachment folders therefore keep resolving to the same path; no migration needed.
+The mirror is a model of the C# logic, not a run of it.
 
 ### R-1 RECURRENCE — the original fix was scoped too narrowly (HIGH)
 
