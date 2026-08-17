@@ -854,7 +854,7 @@
                     <Grid x:Name="NotificationButton" Margin="0,0,10,0">
                         <Button Style="{StaticResource TopIconButton}"
                                 Content="&#xEA8F;"
-                                Click="NotificationButton_Click"
+                                Click="DropdownButton_Click"
                                 MouseEnter="TopBarButton_MouseEnter"
                                 MouseLeave="TopBarButton_MouseLeave"
                                 ToolTip="Recent activity"/>
@@ -872,7 +872,7 @@
                     <Button x:Name="SettingsButton"
                             Style="{StaticResource TopIconButton}"
                             Content="&#xE713;"
-                            Click="SettingsButton_Click"
+                            Click="DropdownButton_Click"
                             MouseEnter="TopBarButton_MouseEnter"
                             MouseLeave="TopBarButton_MouseLeave"
                             ToolTip="Settings"
@@ -882,7 +882,7 @@
                     <Button x:Name="AboutButton"
                             Style="{StaticResource TopIconButton}"
                             Content="&#xE946;"
-                            Click="AboutButton_Click"
+                            Click="DropdownButton_Click"
                             MouseEnter="TopBarButton_MouseEnter"
                             MouseLeave="TopBarButton_MouseLeave"
                             ToolTip="About"
@@ -897,7 +897,7 @@
                             BorderThickness="0"
                             Cursor="Hand"
                             FocusVisualStyle="{x:Null}"
-                            Click="UserCardButton_Click"
+                            Click="DropdownButton_Click"
                             ToolTip="Switch user — click to open, click again to close">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
