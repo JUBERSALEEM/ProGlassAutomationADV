@@ -61,8 +61,8 @@ and items 2 and 3 have an owner decision.
 | C-3 | HIGH | `Services/Export/Csv/CsvExportEngine.cs` | CSV formula injection; protection shipped disabled. | `=cmd\|'/c calc'!A0` as a customer name executes on the accountant's machine. | **FIXED** |
 | V-1 | HIGH | `ProformaInvoiceRepository.cs:102` | `int.Parse` on an unbounded `\d+` capture. `PI-99999999999` → `OverflowException`, swallowed by R-1. | Invoice creation stops working with no message. | **FIXED** |
 | X-2/X-3 | HIGH | `App.xaml.cs` | No `AppDomain.UnhandledException`, no `TaskScheduler.UnobservedTaskException`. | Background crashes and faulted fire-and-forget tasks invisible. | **FIXED** |
-| A-1 | HIGH | 18 call sites | Authorization enforced **only in ViewModels**; 0 checks at the service/repository layer. | Brief §26: "never rely only on hiding a button". Any future caller bypasses permissions. | **OPEN** |
-| A-2 | MEDIUM-HIGH | `AuditService.cs:500` | Passwords hashed with **single-round SHA-256** + 16-byte random salt. | Salt is correct, but SHA-256 is fast — GPU brute-force of weak passwords is cheap. Needs PBKDF2/Rfc2898. | **OPEN** |
+| A-1 | HIGH | 18 call sites | Authorization enforced **only in ViewModels**; 0 checks at the service/repository layer. | Brief §26: "never rely only on hiding a button". Any future caller bypasses permissions. | **FIXED** — `OperationGuard.Demand` on all 34 mutating repository methods + the final 3 service methods (§16a). Caveat: guards an identity the app never authenticates — see Remaining Risks #1. |
+| A-2 | MEDIUM-HIGH | `AuditService.cs:500` | Passwords hashed with **single-round SHA-256** + 16-byte random salt. | Salt is correct, but SHA-256 is fast — GPU brute-force of weak passwords is cheap. Needs PBKDF2/Rfc2898. | **FIXED** — PBKDF2-HMAC-SHA256, 210k iterations, legacy hashes auto-migrate on next sign-in (§16a). |
 
 ---
 
@@ -138,7 +138,7 @@ created. Calling them "16 leaks" would be inaccurate.
 | V-1 | 11-digit invoice number | `OverflowException` | `TryParse` fallback | **FIXED** |
 | X-5 | Printer unavailable / PDF locked | try/catch in `PdfExportEngine` (5 sites) | Already correct | PASS |
 | X-6 | Close during save | No `Closing`/`SessionEnding` handler on MainWindow | `CriticalOperationTracker` + both handlers; close during a cross-DB save warns and defaults to Cancel | **FIXED** (§16a) |
-| R-1 rec. | Any failure in 92 `catch` blocks whose only action is `Debug.WriteLine` | Stripped in Release ⇒ silent | 3 highest-impact converted; 89 remain | **PARTIAL — see §7** |
+| R-1 rec. | Any failure in 92 `catch` blocks whose only action is `Debug.WriteLine` | Stripped in Release ⇒ silent | 3 highest-impact converted; 90 remain | **PARTIAL — see §7** |
 | U-2 | Interrupted Whisper model download | Truncated `.bin` fed to the native GGML parser | Size check added; incomplete file discarded | **FIXED (completeness only) — see §7** |
 
 *R-1 recurrence and U-2 are written up in full at the end of §7, alongside D-6,
@@ -262,9 +262,9 @@ shipped build. The original finding's reasoning applied to all of them.
 | `Services/Audit/AuditDbMigrations.cs:73` | If the additive schema upgrade fails, later audit writes referencing the new columns/tables fail and **the audit trail silently stops recording** — precisely the evidence needed to investigate an incident. |
 | `Services/AI/AIVoice/WhisperModelManager.cs` | A failed 142 MB–3 GB download reported nothing at all in Release. |
 
-**Remaining: 89.** Not converted because most are genuinely low-value (cosmetic
+**Remaining: 90.** Not converted because most are genuinely low-value (cosmetic
 UI refreshes, optional lookups) or already surface a message to the user by other
-means. They are a consistency and diagnosability debt, not 89 hidden crashes. The
+means. They are a consistency and diagnosability debt, not 90 hidden crashes. The
 full list is reproducible with a brace-matched scan for catches containing
 `Debug.WriteLine` and no `AppLogService` / `MessageBox` / `throw` / `return`.
 
