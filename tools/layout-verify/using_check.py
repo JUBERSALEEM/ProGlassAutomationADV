@@ -30,6 +30,11 @@ import os
 # type -> (namespace, generic_ok)
 #   generic_ok=True  means `Name<...>` also requires this namespace
 TYPES = {
+    # CsvHelper: the writer type is in CsvHelper, but configuration types
+    # are in CsvHelper.Configuration. Easy to miss because "using CsvHelper"
+    # is already present and looks sufficient (audit fix C-3).
+    'CsvConfiguration':     ('CsvHelper.Configuration', False),
+    'InjectionOptions':     ('CsvHelper.Configuration', False),
     'AutomationProperties': ('System.Windows.Automation', False),
     'SystemParameters':     ('System.Windows', False),
     'DoubleAnimation':      ('System.Windows.Media.Animation', False),

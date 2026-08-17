@@ -122,7 +122,91 @@ namespace ProGlassAutomation
         /// </summary>
         public static UserPresenceService Presence { get; private set; }
 
+        // ══════════════════════════════════════════════════════════════
+        //  STARTUP — CRASH-GUARDED ENTRY POINT  (audit finding C-2)
+        //
+        //  THE PROBLEM THIS SOLVES
+        //  Application_Startup is `async void`, which is unavoidable for a
+        //  WPF Startup handler. But an exception thrown AFTER the first
+        //  `await` inside an async void method is posted to the
+        //  SynchronizationContext and does NOT pass through
+        //  DispatcherUnhandledException — the handler installed a few
+        //  lines below could never see it. The nine database
+        //  initialisations run inside a `Task.WhenAll` with no try/catch,
+        //  so a corrupt, locked, or read-only SQLite file produced a bare
+        //  OS-level crash at launch: no log entry, no error ID, no
+        //  message the user could act on, and no way to diagnose it
+        //  remotely.
+        //
+        //  THE FIX
+        //  The entire original body moved unchanged into
+        //  StartupCoreAsync(). This wrapper awaits it inside a try/catch
+        //  so any startup fault is logged, written to the crash report,
+        //  and shown to the user in the same professional format used by
+        //  the dispatcher handler. Startup logic itself is untouched —
+        //  this only adds the safety net around it.
+        // ══════════════════════════════════════════════════════════════
         private async void Application_Startup(
+            object sender, StartupEventArgs e)
+        {
+            try
+            {
+                await StartupCoreAsync(sender, e);
+            }
+            catch (Exception ex)
+            {
+                HandleFatalStartupFailure(ex);
+            }
+        }
+
+        /// <summary>
+        /// Last-resort startup failure path. Logs, writes the crash report
+        /// and tells the user what actually happened, instead of letting
+        /// the process die silently.
+        /// </summary>
+        private void HandleFatalStartupFailure(Exception ex)
+        {
+            string errorId;
+
+            try
+            {
+                errorId = AppLogService.Critical(
+                    "Fatal error during application startup", ex,
+                    new LogContext { Operation = "Startup" });
+
+                WriteCrashReport(errorId, ex);
+            }
+            catch
+            {
+                // Logging itself failed (disk full, permissions). Still
+                // show the user something rather than vanishing.
+                errorId = "UNLOGGED";
+            }
+
+            try
+            {
+                MessageBox.Show(
+                    "ProGlass could not finish starting up.\n\n" +
+                    $"Error ID: {errorId}\n" +
+                    $"Type:    {ex.GetType().Name}\n" +
+                    $"Message: {ex.Message}\n\n" +
+                    "Your data has not been changed. This most often " +
+                    "means a database file is missing, locked by another " +
+                    "copy of the app, or read-only.\n\n" +
+                    "Technical details were saved to:\n" +
+                    $"{CrashReportPath}",
+                    "ProGlass — Startup Failed",
+                    MessageBoxButton.OK, MessageBoxImage.Error);
+            }
+            catch
+            {
+                // No UI available — nothing further we can do.
+            }
+
+            Shutdown(1);
+        }
+
+        private async Task StartupCoreAsync(
             object sender, StartupEventArgs e)
         {
             // OTA bootstrap FIRST (Velopack): handles pending updates and
@@ -156,6 +240,68 @@ namespace ProGlassAutomation
                 MessageBox.Show(msg, "ProGlass — Error",
                     MessageBoxButton.OK, MessageBoxImage.Error);
                 args.Handled = true;
+            };
+
+            // ── Non-UI-thread crashes (audit finding X-3) ───────────────
+            // DispatcherUnhandledException only covers the UI thread. An
+            // exception on a Task.Run worker, a timer callback or any
+            // background thread bypassed it entirely and killed the
+            // process with no log line at all. This cannot mark the
+            // exception handled — the CLR is already tearing down — but
+            // it guarantees the crash is recorded and diagnosable.
+            AppDomain.CurrentDomain.UnhandledException += (_, args) =>
+            {
+                try
+                {
+                    var ex = args.ExceptionObject as Exception
+                             ?? new Exception(
+                                 "Non-Exception throw: " +
+                                 args.ExceptionObject);
+
+                    string errorId = AppLogService.Critical(
+                        args.IsTerminating
+                            ? "Unhandled background exception (terminating)"
+                            : "Unhandled background exception",
+                        ex,
+                        new LogContext
+                        {
+                            Operation = "UnhandledException"
+                        });
+
+                    WriteCrashReport(errorId, ex);
+                }
+                catch
+                {
+                    // Never throw from the last-chance handler.
+                }
+            };
+
+            // ── Faulted tasks nobody awaited (audit finding X-2) ────────
+            // A Task that faults and is never awaited raises this when it
+            // is finalised. Left unobserved these are invisible: a failed
+            // fire-and-forget save looks like success. Observing the
+            // exception also prevents the process-level escalation that
+            // some configurations still apply.
+            TaskScheduler.UnobservedTaskException += (_, args) =>
+            {
+                try
+                {
+                    AppLogService.Error(
+                        "Unobserved task exception", args.Exception,
+                        new LogContext
+                        {
+                            Operation = "UnobservedTaskException"
+                        });
+
+                    // Mark observed: the failure is now recorded in the
+                    // log, so escalating it to a process kill would lose
+                    // more information than it preserves.
+                    args.SetObserved();
+                }
+                catch
+                {
+                    // Never throw from the last-chance handler.
+                }
             };
 
             AppLogService.Info(

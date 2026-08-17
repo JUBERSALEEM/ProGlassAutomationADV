@@ -79,7 +79,29 @@ namespace ProGlassAutomation.ViewModels.Shared
     /// Create one per module shell and bind the Activity tab to it.
     /// Pass section = null for an ALL-sections feed (Diagnostics module).
     /// </summary>
-    public class SectionActivityViewModel : ViewModelBase
+    /// <summary>
+    /// Live audit feed for one section.
+    /// </summary>
+    /// <remarks>
+    /// IMPLEMENTS IDisposable — audit finding M-1.
+    ///
+    /// This type subscribes to <see cref="AuditService.ActivityLogged"/>,
+    /// which is a STATIC event. A static event is a garbage-collection
+    /// root that lives for the whole process, so every instance that
+    /// subscribes stays reachable — together with its Rows collection and
+    /// anything those rows reference — until the process exits, even after
+    /// the owning view is long gone.
+    ///
+    /// That matters here because this class is instantiated at TWELVE
+    /// sites, nine of them inside DiagnosticsViewModel (one tab per
+    /// module). Without an unsubscribe path there is no way for a caller
+    /// to release an instance at all.
+    ///
+    /// Callers that create instances dynamically must call Dispose().
+    /// Instances owned for the lifetime of the application (the module
+    /// ViewModels created once by MainViewModel) need not, but can.
+    /// </remarks>
+    public class SectionActivityViewModel : ViewModelBase, IDisposable
     {
         private readonly string? _section;
         private const int MaxRows = 200;
@@ -166,5 +188,28 @@ namespace ProGlassAutomation.ViewModels.Shared
         private static List<Services.Audit.AuditChange>
             AuditService_ChangesFromRow(ActivityRowViewModel row) =>
             Services.Audit.AuditChangeSerializer.FromJson(row.ChangesJson);
+
+        // ══════════════════════════════════════════════════════════════
+        //  DISPOSAL — audit finding M-1
+        // ══════════════════════════════════════════════════════════════
+
+        private bool _disposed;
+
+        /// <summary>
+        /// Detaches from the static <see cref="AuditService.ActivityLogged"/>
+        /// event so this instance can be collected. Safe to call more than
+        /// once, and safe to call on an instance that is never collected.
+        /// </summary>
+        public void Dispose()
+        {
+            if (_disposed) return;
+            _disposed = true;
+
+            // Unsubscribing from the static event removes the last root
+            // holding this object alive.
+            AuditService.ActivityLogged -= OnActivityLogged;
+
+            GC.SuppressFinalize(this);
+        }
     }
 }

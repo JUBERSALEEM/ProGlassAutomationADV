@@ -108,10 +108,18 @@ namespace ProGlassAutomation.Services.AI.AIService
             try
             {
                 var model = _settings.Model;
+
+                // ── CREDENTIAL PLACEMENT (audit finding P-2) ──────────
+                // The key used to be appended as "?key=..." in the query
+                // string. Query strings are the single most commonly
+                // captured part of an HTTP request: they surface in proxy
+                // logs, corporate TLS-inspection appliances, crash dumps
+                // and any future logging of the request URL. Google
+                // supports the x-goog-api-key header for exactly this
+                // reason. The URL now carries no credential.
                 var url =
                     $"https://generativelanguage.googleapis.com/v1beta/" +
-                    $"models/{model}:generateContent" +
-                    $"?key={_settings.GeminiApiKey}";
+                    $"models/{model}:generateContent";
 
                 // ─────────────────────────────────────────────────────
                 // FIX: Use Gemini's systemInstruction field properly.
@@ -134,7 +142,16 @@ namespace ProGlassAutomation.Services.AI.AIService
                 var content = new StringContent(
                     json, Encoding.UTF8, "application/json");
 
-                var response = await _http.PostAsync(url, content);
+                // Key travels in the header, not the URL (see above).
+                using var request = new HttpRequestMessage(
+                    HttpMethod.Post, url)
+                {
+                    Content = content
+                };
+                request.Headers.TryAddWithoutValidation(
+                    "x-goog-api-key", _settings.GeminiApiKey);
+
+                var response = await _http.SendAsync(request);
                 var body = await response.Content.ReadAsStringAsync();
 
                 // Rate limit — friendly message
@@ -320,10 +337,12 @@ namespace ProGlassAutomation.Services.AI.AIService
                 };
 
             var model = _settings.Model;
+            // Key moved to the x-goog-api-key header — audit finding P-2.
+            // "alt=sse" stays in the query: it is a transport option, not
+            // a credential.
             var url =
                 $"https://generativelanguage.googleapis.com/v1beta/" +
-                $"models/{model}:streamGenerateContent" +
-                $"?alt=sse&key={_settings.GeminiApiKey}";
+                $"models/{model}:streamGenerateContent?alt=sse";
 
             var accumulated = new StringBuilder();
 
@@ -336,6 +355,8 @@ namespace ProGlassAutomation.Services.AI.AIService
                     Content = new StringContent(
                         json, Encoding.UTF8, "application/json")
                 };
+                request.Headers.TryAddWithoutValidation(
+                    "x-goog-api-key", _settings.GeminiApiKey);
 
                 // Headers-only first: we must start reading the SSE
                 // stream as soon as the server begins sending.

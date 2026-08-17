@@ -29,6 +29,90 @@ namespace ProGlassAutomation.Services.Updates
         private static readonly HttpClient _http = CreateClient();
 
         // ══════════════════════════════════════════════════════════════
+        //  SECURITY — DOWNLOAD ORIGIN ALLOWLIST  (audit finding C-1)
+        //
+        //  THE PROBLEM THIS SOLVES
+        //  DownloadUrl is read out of the GitHub API JSON
+        //  ("browser_download_url") and was used verbatim: downloaded to
+        //  the user's Downloads folder and then handed to Process.Start
+        //  with UseShellExecute = true. Nothing verified where that URL
+        //  actually pointed. Any tampering with the JSON response — a
+        //  hostile proxy, DNS interception, a compromised release asset,
+        //  or simply a bad edit to a release — would cause the app to
+        //  fetch and EXECUTE an arbitrary binary with the user's
+        //  privileges. That is remote code execution.
+        //
+        //  WHY AN ALLOWLIST RATHER THAN A HASH
+        //  A hash has to come from somewhere. If it comes from the same
+        //  JSON as the URL, it proves nothing — an attacker who can edit
+        //  the URL can edit the hash beside it. A real integrity check
+        //  needs an out-of-band trust anchor: Authenticode signature
+        //  verification on the downloaded file, or the publisher's key.
+        //  That is exactly what Velopack already does, and Velopack is
+        //  the preferred path (VelopackUpdateService).
+        //
+        //  So this fix does what CAN be done correctly here: it pins the
+        //  transport to HTTPS and pins the origin to GitHub's own release
+        //  hosts. It does NOT claim to verify authenticity — see
+        //  VerifyDownloadOrigin's remarks and Docs/SecurityAudit.md.
+        //
+        //  Hosts: github.com serves the release page redirect;
+        //  objects.githubusercontent.com serves the actual asset bytes.
+        // ══════════════════════════════════════════════════════════════
+        private static readonly string[] AllowedDownloadHosts =
+        {
+            "github.com",
+            "www.github.com",
+            "objects.githubusercontent.com",
+            "release-assets.githubusercontent.com",
+            "api.github.com"
+        };
+
+        /// <summary>
+        /// True when <paramref name="url"/> is an absolute HTTPS URL whose
+        /// host is a GitHub release host. Used to refuse any asset URL that
+        /// did not come from where we expect.
+        /// </summary>
+        /// <remarks>
+        /// This is an ORIGIN check, not an authenticity check. It stops the
+        /// app being redirected to an attacker-controlled server. It cannot
+        /// detect a malicious file legitimately hosted on GitHub — only a
+        /// code-signature check can do that, which is why the Store build
+        /// and the Velopack path are preferred over this downloader.
+        /// </remarks>
+        /// <remarks>
+        /// Public rather than internal so the security test suite
+        /// (Tests/Agent/UpdateOriginSecurityTests.cs) can pin its
+        /// behaviour without an InternalsVisibleTo attribute. It is a
+        /// pure, side-effect-free predicate, so exposing it costs
+        /// nothing and makes the guarantee testable.
+        /// </remarks>
+        public static bool IsAllowedDownloadUrl(string? url)
+        {
+            if (string.IsNullOrWhiteSpace(url)) return false;
+
+            if (!Uri.TryCreate(url, UriKind.Absolute, out var uri))
+                return false;
+
+            // HTTPS only — never fetch an executable over plaintext.
+            if (!string.Equals(uri.Scheme, Uri.UriSchemeHttps,
+                    StringComparison.OrdinalIgnoreCase))
+                return false;
+
+            // Exact host match. Deliberately NOT EndsWith(".github.com"):
+            // that would accept "evil-github.com" and
+            // "github.com.attacker.net".
+            foreach (var host in AllowedDownloadHosts)
+            {
+                if (string.Equals(uri.Host, host,
+                        StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+
+            return false;
+        }
+
+        // ══════════════════════════════════════════════════════════════
         //  v3 OTA ORCHESTRATOR (spec §7 states + §13 activity + §17
         //  offline + §18 automatic checking)
         //
@@ -216,6 +300,32 @@ namespace ProGlassAutomation.Services.Updates
                 if (path.EndsWith(".exe",
                         StringComparison.OrdinalIgnoreCase))
                 {
+                    // ── DEFENCE IN DEPTH (audit C-1) ──────────────────
+                    // DownloadedInstallerPath is only ever assigned after
+                    // DownloadUpdateAsync passed the origin check, so a
+                    // rogue URL cannot reach here. This second check makes
+                    // that guarantee explicit and local: if the field is
+                    // ever set from somewhere else in future, launching
+                    // still requires the file to sit inside the folder we
+                    // downloaded it to, not an arbitrary path.
+                    var downloadsRoot = Path.GetFullPath(
+                        Environment.GetFolderPath(
+                            Environment.SpecialFolder.UserProfile));
+                    var fullPath = Path.GetFullPath(path);
+
+                    if (!fullPath.StartsWith(downloadsRoot,
+                            StringComparison.OrdinalIgnoreCase))
+                    {
+                        AuditService.Log(AuditSections.Updates,
+                            "UPDATE_INSTALL_BLOCKED",
+                            "Installer path outside the user profile.");
+
+                        SetState(UpdateState.Failed,
+                            "The update installer is not in the expected " +
+                            "location and was not launched.");
+                        return;
+                    }
+
                     Process.Start(new ProcessStartInfo(path)
                     {
                         UseShellExecute = true
@@ -392,6 +502,30 @@ namespace ProGlassAutomation.Services.Updates
             {
                 if (string.IsNullOrWhiteSpace(update.DownloadUrl))
                     return (false, "", "This release has no downloadable asset.");
+
+                // ── SECURITY GATE (audit C-1) ─────────────────────────
+                // Refuse anything that is not HTTPS-from-GitHub before a
+                // single byte is fetched. See IsAllowedDownloadUrl.
+                if (!IsAllowedDownloadUrl(update.DownloadUrl))
+                {
+                    AppLogService.Warning(
+                        "Update download refused: asset URL is not an " +
+                        "HTTPS GitHub release URL.",
+                        new LogContext
+                        {
+                            Module = "Updates",
+                            Operation = "DownloadUpdate"
+                        });
+
+                    AuditService.Log(AuditSections.Updates,
+                        "UPDATE_DOWNLOAD_BLOCKED",
+                        "Asset URL failed the origin check.");
+
+                    return (false, "",
+                        "This update was blocked because its download " +
+                        "location could not be verified as an official " +
+                        "GitHub release. No file was downloaded.");
+                }
 
                 var downloads = Environment.GetFolderPath(
                     Environment.SpecialFolder.UserProfile);
