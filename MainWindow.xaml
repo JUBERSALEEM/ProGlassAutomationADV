@@ -1054,11 +1054,14 @@
                                 <!-- SALES (expandable) -->
                                 <TextBlock Text="SALES"
                                            Style="{StaticResource SidebarGroupLabel}"/>
-                                <StackPanel x:Name="SalesGroupHost">
+                                <StackPanel x:Name="SalesGroupHost"
+                                            MouseEnter="SidebarGroup_MouseEnter"
+                                            MouseLeave="SidebarGroup_MouseLeave">
                                 <ToggleButton x:Name="SalesGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Sales &amp; Orders"
-                                              Tag="&#xE8A5;"/>
+                                              Tag="&#xE8A5;"
+                                              IsHitTestVisible="False"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
                                         Visibility="{Binding IsChecked, ElementName=SalesGroup,
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
@@ -1078,11 +1081,14 @@
                                 <!-- PRODUCTION (expandable) -->
                                 <TextBlock Text="PRODUCTION"
                                            Style="{StaticResource SidebarGroupLabel}"/>
-                                <StackPanel x:Name="ProductionGroupHost">
+                                <StackPanel x:Name="ProductionGroupHost"
+                                            MouseEnter="SidebarGroup_MouseEnter"
+                                            MouseLeave="SidebarGroup_MouseLeave">
                                 <ToggleButton x:Name="ProductionGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Production"
-                                              Tag="&#xE7B8;"/>
+                                              Tag="&#xE7B8;"
+                                              IsHitTestVisible="False"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
                                         Visibility="{Binding IsChecked, ElementName=ProductionGroup,
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
@@ -1130,11 +1136,14 @@
                                 <!-- DISPATCH (expandable) -->
                                 <TextBlock Text="DISPATCH"
                                            Style="{StaticResource SidebarGroupLabel}"/>
-                                <StackPanel x:Name="DispatchGroupHost">
+                                <StackPanel x:Name="DispatchGroupHost"
+                                            MouseEnter="SidebarGroup_MouseEnter"
+                                            MouseLeave="SidebarGroup_MouseLeave">
                                 <ToggleButton x:Name="DispatchGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Dispatch"
-                                              Tag="&#xE7F4;"/>
+                                              Tag="&#xE7F4;"
+                                              IsHitTestVisible="False"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
                                         Visibility="{Binding IsChecked, ElementName=DispatchGroup,
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
@@ -1154,11 +1163,14 @@
                                 <!-- REPORTS (expandable) -->
                                 <TextBlock Text="REPORTS"
                                            Style="{StaticResource SidebarGroupLabel}"/>
-                                <StackPanel x:Name="ReportsGroupHost">
+                                <StackPanel x:Name="ReportsGroupHost"
+                                            MouseEnter="SidebarGroup_MouseEnter"
+                                            MouseLeave="SidebarGroup_MouseLeave">
                                 <ToggleButton x:Name="ReportsGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Reports"
-                                              Tag="&#xE9F9;"/>
+                                              Tag="&#xE9F9;"
+                                              IsHitTestVisible="False"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
                                         Visibility="{Binding IsChecked, ElementName=ReportsGroup,
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
@@ -1178,11 +1190,14 @@
                                 <!-- MASTER DATA (expandable) -->
                                 <TextBlock Text="MASTER DATA"
                                            Style="{StaticResource SidebarGroupLabel}"/>
-                                <StackPanel x:Name="MasterDataGroupHost">
+                                <StackPanel x:Name="MasterDataGroupHost"
+                                            MouseEnter="SidebarGroup_MouseEnter"
+                                            MouseLeave="SidebarGroup_MouseLeave">
                                 <ToggleButton x:Name="MasterDataGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Master Data"
-                                              Tag="&#xE822;"/>
+                                              Tag="&#xE822;"
+                                              IsHitTestVisible="False"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
                                         Visibility="{Binding IsChecked, ElementName=MasterDataGroup,
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
@@ -1202,11 +1217,14 @@
                                 <!-- SYSTEM (expandable) -->
                                 <TextBlock Text="SYSTEM"
                                            Style="{StaticResource SidebarGroupLabel}"/>
-                                <StackPanel x:Name="SystemGroupHost">
+                                <StackPanel x:Name="SystemGroupHost"
+                                            MouseEnter="SidebarGroup_MouseEnter"
+                                            MouseLeave="SidebarGroup_MouseLeave">
                                 <ToggleButton x:Name="SystemGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="System"
-                                              Tag="&#xE713;"/>
+                                              Tag="&#xE713;"
+                                              IsHitTestVisible="False"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
                                         Visibility="{Binding IsChecked, ElementName=SystemGroup,
                                                      Converter={StaticResource BoolToVisibilityConverter}}">

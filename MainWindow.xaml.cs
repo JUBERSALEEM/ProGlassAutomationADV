@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: MainWindow.xaml.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Main Shell (Chat 23 v3.1)
@@ -23,6 +23,7 @@
 using ProGlassAutomation.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -322,17 +323,49 @@ namespace ProGlassAutomation
             }
         }
 
-        // ── sidebar groups: click to expand, STAY open (reference Expander
-        //    model) ────────────────────────────────────────────────────────
-        // Each group header is a native ToggleButton whose sub-menu card is
-        // bound to its IsChecked. Clicking a header toggles it open/closed
-        // and it STAYS open until the user clicks it again. Groups are fully
-        // independent (any number can be open), matching the reference shell.
-        // There is deliberately no code-behind here: the earlier hover-open
-        // model (MouseEnter + CloseOtherSidebarGroups) made a group open on
-        // hover, then close again when the user clicked its own header to
-        // "pin" it — the flapping the user reported. Native ToggleButton
-        // behaviour is what the reference uses, so no handlers are wired.
+        // ── sidebar groups: MOUSE ON/OFF open/close (hover menu) ─────────
+        // Mouse over a group header opens its sub-menu; moving away closes it.
+        // The header is a ToggleButton (so the chevron + accent follow IsChecked),
+        // but IsHitTestVisible is False so a click cannot natively toggle it and
+        // fight the hover. The whole group (header + sub-menu card) is ONE
+        // StackPanel host, so moving the pointer from the header into the
+        // sub-menu stays inside the host and never collapses. Only one group
+        // is open at a time (hover-accordion).
+
+        private void SidebarGroup_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (sender is not StackPanel host || host.Children.Count == 0) return;
+            if (host.Children[0] is not ToggleButton tb) return;
+            tb.IsChecked = true;
+            CloseOtherSidebarGroups(host);
+        }
+
+        private void SidebarGroup_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (sender is not StackPanel host || host.Children.Count == 0) return;
+            if (host.Children[0] is not ToggleButton tb) return;
+            tb.IsChecked = false;
+        }
+
+        /// <summary>Closes every sidebar group host except <paramref name="keep"/>.</summary>
+        private void CloseOtherSidebarGroups(StackPanel keep)
+        {
+            var all = new[]
+            {
+                FindName("SalesGroupHost") as StackPanel,
+                FindName("ProductionGroupHost") as StackPanel,
+                FindName("DispatchGroupHost") as StackPanel,
+                FindName("ReportsGroupHost") as StackPanel,
+                FindName("MasterDataGroupHost") as StackPanel,
+                FindName("SystemGroupHost") as StackPanel
+            };
+            foreach (var host in all)
+            {
+                if (host == null || ReferenceEquals(host, keep)) continue;
+                if (host.Children.Count > 0 && host.Children[0] is ToggleButton tb)
+                    tb.IsChecked = false;
+            }
+        }
 
         private void UserSwitchPopup_Opened(object sender, System.EventArgs e)
         {
