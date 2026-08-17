@@ -99,6 +99,37 @@
                                    TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
+
+                <!-- Screenshot quality popup (reference UI) -->
+                <Popup x:Name="ScreenshotQualityPopup"
+                       PlacementTarget="{Binding ElementName=CaptureMenuButton}"
+                       Placement="Bottom"
+                       VerticalOffset="6"
+                       AllowsTransparency="True"
+                       StaysOpen="False"
+                       PopupAnimation="Fade">
+                    <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                            BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderThickness="1.5"
+                            CornerRadius="12"
+                            MinWidth="300"
+                            Padding="0">
+                        <Border.Effect>
+                            <DropShadowEffect BlurRadius="24" ShadowDepth="3"
+                                              Opacity="0.18" Color="#000000" Direction="270"/>
+                        </Border.Effect>
+                        <StackPanel>
+                            <Border Background="{DynamicResource AccentBrush}"
+                                    CornerRadius="12,12,0,0"
+                                    Padding="16,12">
+                                <TextBlock Text="📷  Screenshot Quality"
+                                           FontSize="13" FontWeight="Bold"
+                                           Foreground="White"/>
+                            </Border>
+                            <StackPanel x:Name="QualityList" Margin="8,10,8,10"/>
+                        </StackPanel>
+                    </Border>
+                </Popup>
             </StackPanel>
         </Grid>
     </Border>
