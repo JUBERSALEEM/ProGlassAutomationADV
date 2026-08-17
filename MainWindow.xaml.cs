@@ -49,6 +49,20 @@ namespace ProGlassAutomation
             // X-6: refuse to close while a multi-step write is running.
             Closing += MainWindow_Closing;
 
+            // Close any open top-bar popup when the window deactivates, so a
+            // stray popup never lingers over another app (reference behaviour).
+            Deactivated += (_, _) =>
+            {
+                if (DataContext is MainViewModel vm)
+                {
+                    vm.IsSettingsOpen = false;
+                    vm.IsAboutOpen = false;
+                    vm.IsNotificationsOpen = false;
+                    vm.IsUserSwitchOpen = false;
+                }
+                StopCloseTimer();
+            };
+
             // Close any open top-bar popup when the user clicks anywhere that
             // is NOT its trigger button AND NOT inside the popup's own content.
             // (Clicking inside an open popup must not dismiss it.) Keeps each
