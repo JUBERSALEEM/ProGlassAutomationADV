@@ -63,32 +63,39 @@ namespace ProGlassAutomation.Views.Shared
             // Render on the UI thread (the visual tree must be read there).
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                string? path = ScreenshotService.CaptureMainWindow(width, height);
+                var result = ScreenshotService.CaptureMainWindow(width, height);
 
-                if (path == null)
+                if (!result.Success)
                 {
-                    CaptureStatus.Text = "Capture failed — see the log.";
+                    CaptureStatus.Text = "Capture failed:\n" + result.Error;
                     return;
                 }
 
-                CaptureStatus.Text = "Saved:\n" + path;
+                string size = result.FileSizeBytes >= 1024 * 1024
+                    ? $"{result.FileSizeBytes / (1024.0 * 1024.0):F2} MB"
+                    : $"{result.FileSizeBytes / 1024.0:F1} KB";
+
+                CaptureStatus.Text =
+                    $"Saved {result.Width} × {result.Height} · {size}\n" +
+                    result.Path;
 
                 // Offer to open the folder.
-                var result = MessageBox.Show(
-                    "Screenshot saved:\n\n" + path +
-                    "\n\nOpen the Screenshots folder?",
+                var msg = MessageBox.Show(
+                    $"Screenshot saved:\n\n{result.Path}\n\n" +
+                    $"{result.Width} × {result.Height} · {size} · PNG (lossless)\n\n" +
+                    "Open the Screenshots folder?",
                     "Screenshot Saved",
                     MessageBoxButton.YesNo,
                     MessageBoxImage.Information);
 
-                if (result == MessageBoxResult.Yes)
+                if (msg == MessageBoxResult.Yes)
                 {
                     try
                     {
                         System.Diagnostics.Process.Start(
                             new System.Diagnostics.ProcessStartInfo
                             {
-                                FileName = System.IO.Path.GetDirectoryName(path),
+                                FileName = System.IO.Path.GetDirectoryName(result.Path),
                                 UseShellExecute = true
                             });
                     }

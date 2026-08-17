@@ -1,25 +1,33 @@
 // ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Export/ScreenshotService.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Export — window screenshots
+// MODULE: Export — high-clarity window / UI capture
 //
-// Captures the main application window as a high-quality image at a chosen
-// resolution (720p / 1080p / 2K / 4K) and saves it under
+// Captures the application's active module UI as a professional image at a
+// requested output resolution (720p / 1080p / 2K / 4K) and saves it under
 //   %AppData%\ProGlassAutomation\Screenshots\<Module>_yyyy-MM-dd_HH-mm-ss.png
 //
-// CLARITY TECHNIQUE (supersampling, adapted from the reference):
-//   1. The visual tree is rendered at a higher pixel density than the
-//      target (2× per axis) so text and vector edges are captured crisply.
-//   2. That high-res render is downscaled to the exact target resolution
-//      with high-quality (bilinear/linear) interpolation, which removes
-//      aliasing and "jaggies" that plain Viewbox scaling produces.
-//   3. The result is composited centred on a white canvas sized to the
-//      exact requested resolution, so 720p/1080p/2K/4K are always the true
-//      output dimensions.
+// RENDERING METHOD (correct WPF approach)
+//   The existing live visual is rendered DIRECTLY with RenderTargetBitmap
+//   at a computed pixel scale. There is NO re-parenting of the element into
+//   a Viewbox/Border (that breaks the visual tree and yields a tiny/partial
+//   capture), and there is NO upscaling of a low-resolution bitmap. The
+//   vector UI (text, borders, icons, charts, rounded cards, gradients) is
+//   re-rasterized at the target pixel size, so output is genuinely crisp.
 //
-// The filename embeds the current module name (from the shell's
-// CurrentModuleTitle) plus a local date/time stamp, so each capture is
-// unique and traceable to the screen that produced it.
+//   scale = targetOutputPixels / sourceVisualDips
+//   pixelWidth  = sourceVisualWidth  * scale
+//   pixelHeight = sourceVisualHeight * scale
+//   dpiX = dpiY = 96 * scale
+//
+//   The bitmap is then composited centred on an exact-resolution white
+//   canvas so 720p/1080p/2K/4K always yield the true output dimensions,
+//   regardless of the window's aspect ratio.
+//
+// SHARPENING: supersampling is NOT a resize-up. We render at a supersampled
+// DPI so vector edges are rasterized more densely, then downscale to the
+// exact target only when the aspect ratio differs. No "AI" upscaling, no
+// external services — everything stays local (privacy-safe).
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -30,9 +38,13 @@ using System.Windows.Media.Imaging;
 
 namespace ProGlassAutomation.Services.Export
 {
+    /// <summary>
+    /// Generates high-clarity screenshots of the application UI at an exact
+    /// output resolution by re-rasterizing the live WPF visual directly.
+    /// </summary>
     public static class ScreenshotService
     {
-        /// <summary>Target resolutions offered to the user.</summary>
+        /// <summary>Target output resolutions offered to the user.</summary>
         public static (string Label, int Width, int Height)[] Resolutions { get; } = new[]
         {
             ("720p",   1280,  720),
@@ -41,8 +53,12 @@ namespace ProGlassAutomation.Services.Export
             ("4K",     3840, 2160)
         };
 
-        /// <summary>Oversample factor per axis for extra sharpness.</summary>
-        private const int SuperSample = 2;
+        /// <summary>
+        /// Extra DPI oversampling per axis for sharper vector/text edges.
+        /// Rendering at 2× the target DPI and downscaling removes aliasing
+        /// without enlarging the output dimensions.
+        /// </summary>
+        private const double Oversample = 2.0;
 
         private static string ScreenshotsFolder
         {
@@ -57,19 +73,37 @@ namespace ProGlassAutomation.Services.Export
             }
         }
 
+        /// <summary>Capture result carrying the path + diagnostics.</summary>
+        public sealed class CaptureResult
+        {
+            public bool Success { get; init; }
+            public string? Path { get; init; }
+            public int Width { get; init; }
+            public int Height { get; init; }
+            public int Dpi { get; init; }
+            public long FileSizeBytes { get; init; }
+            public string? Error { get; init; }
+        }
+
         /// <summary>
-        /// Captures the main window as a PNG at the given width/height and
-        /// returns the saved file path, or null on failure.
+        /// Captures the main window's UI at the given output width/height and
+        /// returns the saved path + diagnostics, or a failed result.
         /// </summary>
-        public static string? CaptureMainWindow(int width, int height)
+        public static CaptureResult CaptureMainWindow(int width, int height)
         {
             var window = Application.Current?.MainWindow;
-            if (window == null) return null;
+            if (window == null)
+                return Fail("Application window is not available.");
 
             try
             {
+                // Ensure the current layout is fully realized before render.
+                window.UpdateLayout();
+                DispatcherHelper.WaitForRender(window);
+
                 var bitmap = RenderToBitmap(window, width, height);
-                if (bitmap == null) return null;
+                if (bitmap == null)
+                    return Fail("The visual could not be rendered.");
 
                 string module = SafeModuleName();
                 string stamp = DateTime.Now.ToString("yyyy-MM-dd_HH-mm-ss");
@@ -79,13 +113,23 @@ namespace ProGlassAutomation.Services.Export
                 var encoder = new PngBitmapEncoder();
                 encoder.Frames.Add(BitmapFrame.Create(bitmap));
 
+                long sizeBytes;
                 using (var fs = new FileStream(
                     path, FileMode.Create, FileAccess.Write, FileShare.None))
                 {
                     encoder.Save(fs);
+                    sizeBytes = fs.Length;
                 }
 
-                return path;
+                return new CaptureResult
+                {
+                    Success = true,
+                    Path = path,
+                    Width = bitmap.PixelWidth,
+                    Height = bitmap.PixelHeight,
+                    Dpi = 96,
+                    FileSizeBytes = sizeBytes
+                };
             }
             catch (Exception ex)
             {
@@ -97,76 +141,65 @@ namespace ProGlassAutomation.Services.Export
                         Class = nameof(ScreenshotService),
                         Operation = "Capture"
                     });
-                return null;
+                return Fail(ex.Message);
             }
         }
 
+        private static CaptureResult Fail(string error) => new()
+        {
+            Success = false,
+            Error = error
+        };
+
         /// <summary>
-        /// Renders the element to an exact target resolution using a
-        /// supersampling + high-quality downscale pipeline for maximum
-        /// clarity.
+        /// Renders the existing <paramref name="element"/> directly to a
+        /// bitmap of the requested output size. Re-rasterizes vector content
+        /// at the target resolution — no low-res upscale, no re-parenting.
         /// </summary>
         private static BitmapSource? RenderToBitmap(
             FrameworkElement element, int targetWidth, int targetHeight)
         {
-            var size = new Size(
-                Math.Max(1, element.ActualWidth),
-                Math.Max(1, element.ActualHeight));
+            double sourceW = element.ActualWidth;
+            double sourceH = element.ActualHeight;
+            if (sourceW <= 0 || sourceH <= 0) return null;
 
-            if (size.Width <= 0 || size.Height <= 0) return null;
+            // ── Compute the DPI-aware render scale ───────────────────────
+            // Render at an oversampled DPI so edges are crisp, then scale to
+            // the exact target. scale maps source DIPs -> output pixels.
+            double scale = Math.Min(
+                targetWidth / sourceW,
+                targetHeight / sourceH) * Oversample;
 
-            // ── 1. Supersampled high-DPI render of the visual tree ──────
-            int renderW = Math.Max(1, (int)Math.Round(size.Width * SuperSample));
-            int renderH = Math.Max(1, (int)Math.Round(size.Height * SuperSample));
-            int renderDpi = 96 * SuperSample;
+            int renderDpi = Math.Max(96, (int)Math.Round(96 * scale));
+            int pixelW = Math.Max(1, (int)Math.Round(sourceW * scale));
+            int pixelH = Math.Max(1, (int)Math.Round(sourceH * scale));
 
+            // ── Render the LIVE visual directly (no clone / re-parent) ──
             var highRes = new RenderTargetBitmap(
-                renderW, renderH, renderDpi, renderDpi, PixelFormats.Pbgra32);
-
-            // Wrap in a Viewbox so the tree scales to the render size while
-            // keeping its aspect ratio; the inner Border provides the
-            // background (Viewbox has none).
-            var surface = new System.Windows.Controls.Border
-            {
-                Background = Brushes.White,
-                Child = element
-            };
-            var container = new System.Windows.Controls.Viewbox
-            {
-                Stretch = Stretch.Uniform,
-                Width = renderW,
-                Height = renderH,
-                Child = surface
-            };
-
-            container.Measure(new Size(renderW, renderH));
-            container.Arrange(new Rect(0, 0, renderW, renderH));
-            container.UpdateLayout();
-
-            highRes.Render(container);
+                pixelW, pixelH, renderDpi, renderDpi, PixelFormats.Pbgra32);
+            highRes.Render(element);
             highRes.Freeze();
 
-            // ── 2. Downscale to fit the target with high-quality sampling ──
-            double fitScale = Math.Min(
-                targetWidth / (double)renderW,
-                targetHeight / (double)renderH);
-
-            int fitW = Math.Max(1, (int)Math.Round(renderW * fitScale));
-            int fitH = Math.Max(1, (int)Math.Round(renderH * fitScale));
+            // ── Downscale the oversampled render to the exact target ─────
+            // (only when the aspect ratio differs from the target).
+            double fit = Math.Min(
+                targetWidth / (double)highRes.PixelWidth,
+                targetHeight / (double)highRes.PixelHeight);
 
             BitmapSource fitted = highRes;
-            if (fitW != renderW || fitH != renderH)
+            if (Math.Abs(fit - 1.0) > 0.001)
             {
+                int fw = Math.Max(1, (int)Math.Round(highRes.PixelWidth * fit));
+                int fh = Math.Max(1, (int)Math.Round(highRes.PixelHeight * fit));
                 var scaled = new TransformedBitmap(
                     highRes,
-                    new ScaleTransform(fitW / (double)renderW, fitH / (double)renderH));
+                    new ScaleTransform(fw / (double)highRes.PixelWidth,
+                                       fh / (double)highRes.PixelHeight));
                 scaled.Freeze();
                 fitted = scaled;
             }
 
-            // ── 3. Compose centred on an exact-resolution white canvas ────
-            // (ensures the output is exactly targetWidth x targetHeight even
-            //  when the window's aspect ratio differs from the target).
+            // ── Exact-resolution composition (centred on white canvas) ───
             if (fitted.PixelWidth == targetWidth && fitted.PixelHeight == targetHeight)
                 return fitted;
 
@@ -176,9 +209,9 @@ namespace ProGlassAutomation.Services.Export
                 dc.DrawRectangle(Brushes.White, null,
                     new Rect(0, 0, targetWidth, targetHeight));
 
-                double x = (targetWidth - fitW) / 2.0;
-                double y = (targetHeight - fitH) / 2.0;
-                dc.DrawImage(fitted, new Rect(x, y, fitW, fitH));
+                double x = (targetWidth - fitted.PixelWidth) / 2.0;
+                double y = (targetHeight - fitted.PixelHeight) / 2.0;
+                dc.DrawImage(fitted, new Rect(x, y, fitted.PixelWidth, fitted.PixelHeight));
             }
 
             var final = new RenderTargetBitmap(
@@ -200,6 +233,36 @@ namespace ProGlassAutomation.Services.Export
                 name = name.Replace(c, '_');
 
             return string.IsNullOrWhiteSpace(name) ? "MODULE" : name.Trim();
+        }
+    }
+
+    /// <summary>Small helpers for correct UI-thread / render-cycle waits.</summary>
+    internal static class DispatcherHelper
+    {
+        /// <summary>
+        /// Pumps the dispatcher through a Loaded-priority frame so the current
+        /// layout/render pass completes before we snapshot it. Avoids capturing
+        /// a half-rendered frame and does not block the UI with Sleep.
+        /// </summary>
+        public static void WaitForRender(FrameworkElement element)
+        {
+            var dispatcher = element.Dispatcher;
+            if (dispatcher == null || dispatcher.HasShutdownStarted) return;
+
+            try
+            {
+                // Process queued operations up to the Render priority so
+                // bindings/layout settle before the RenderTargetBitmap render.
+                var frame = new System.Windows.Threading.DispatcherFrame();
+                dispatcher.BeginInvoke(
+                    System.Windows.Threading.DispatcherPriority.Render,
+                    new Action(() => frame.Continue = false));
+                System.Windows.Threading.Dispatcher.PushFrame(frame);
+            }
+            catch
+            {
+                // A failed render-wait must never break the screenshot.
+            }
         }
     }
 }
