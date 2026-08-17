@@ -133,7 +133,7 @@
          needs to stay visually separate from a tinted (Monet) surface.
          Overridden at runtime by ThemeManager.ApplyOutline. -->
     <SolidColorBrush x:Key="OutlineBrush"
-                     Color="#D4D9E0"
+                     Color="#AAB4C2"
                      po:Freeze="True"/>
 
     <!-- The "defined" variant the Appearance toggle switches to: a near-black
@@ -143,7 +143,7 @@
          OutlineBrush at runtime, so it needs a pristine source to restore
          from when the toggle is switched back off. -->
     <SolidColorBrush x:Key="OutlineDefaultBrush"
-                     Color="#D4D9E0"
+                     Color="#AAB4C2"
                      po:Freeze="True"/>
 
     <SolidColorBrush x:Key="OutlineStrongBrush"

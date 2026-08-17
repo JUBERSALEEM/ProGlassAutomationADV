@@ -185,8 +185,11 @@ namespace ProGlassAutomation.Views.Login
 
         private void ShowError(string message)
         {
+            // The message lives inside ErrorPanel (icon + text), so the
+            // PANEL is what gets shown — setting the TextBlock's own
+            // Visibility would leave an empty bordered box on screen.
             ErrorText.Text = message;
-            ErrorText.Visibility = Visibility.Visible;
+            ErrorPanel.Visibility = Visibility.Visible;
         }
     }
 }
