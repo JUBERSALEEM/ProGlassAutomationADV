@@ -121,7 +121,12 @@ created. Calling them "16 leaks" would be inaccurate.
 | X-4 | UI-thread throw | Handled, crash report + Error ID | Already correct | PASS |
 | V-1 | 11-digit invoice number | `OverflowException` | `TryParse` fallback | **FIXED** |
 | X-5 | Printer unavailable / PDF locked | try/catch in `PdfExportEngine` (5 sites) | Already correct | PASS |
-| X-6 | Close during save | **No `Closing`/`SessionEnding` handler on MainWindow** | In-flight save can be cut mid-write | **OPEN** |
+| X-6 | Close during save | No `Closing`/`SessionEnding` handler on MainWindow | `CriticalOperationTracker` + both handlers; close during a cross-DB save warns and defaults to Cancel | **FIXED** (§16a) |
+| R-1 rec. | Any failure in 92 `catch` blocks whose only action is `Debug.WriteLine` | Stripped in Release ⇒ silent | 3 highest-impact converted; 89 remain | **PARTIAL — see §7** |
+| U-2 | Interrupted Whisper model download | Truncated `.bin` fed to the native GGML parser | Size check added; incomplete file discarded | **FIXED (completeness only) — see §7** |
+
+*R-1 recurrence and U-2 are written up in full at the end of §7, alongside D-6,
+to keep the three new findings of this round together.*
 
 ---
 
@@ -179,7 +184,63 @@ corruption the finding is about.
 **Could break existing functionality:** yes — that is why it is documented rather
 than changed.
 
-### Also examined this round and found clean
+### R-1 RECURRENCE — the original fix was scoped too narrowly (HIGH)
+
+**This corrects an error in my own earlier remediation.** R-1 was reported and
+fixed as *"`RelayCommand.Execute` reports failures only via `Debug.WriteLine`,
+which is `[Conditional("DEBUG")]` and is removed by the compiler in Release"*. I
+fixed the one occurrence in `RelayCommand` and marked R-1 **FIXED**.
+
+That treated a *class* of defect as a single instance. A brace-matched sweep of
+every `catch` block in the codebase finds **92 further catches whose only action
+is a `Debug.WriteLine`** — the catch runs, and then does nothing observable in a
+shipped build. The original finding's reasoning applied to all of them.
+
+**Converted this round (3),** chosen because a silent failure is both invisible
+*and* consequential:
+
+| Location | Why this one |
+|----------|--------------|
+| `Services/Database/DatabaseInitializer.cs:22` | If the main database is never created, the Sheet Store simply appears empty. No reason is recorded anywhere. |
+| `Services/Audit/AuditDbMigrations.cs:73` | If the additive schema upgrade fails, later audit writes referencing the new columns/tables fail and **the audit trail silently stops recording** — precisely the evidence needed to investigate an incident. |
+| `Services/AI/AIVoice/WhisperModelManager.cs` | A failed 142 MB–3 GB download reported nothing at all in Release. |
+
+**Remaining: 89.** Not converted because most are genuinely low-value (cosmetic
+UI refreshes, optional lookups) or already surface a message to the user by other
+means. They are a consistency and diagnosability debt, not 89 hidden crashes. The
+full list is reproducible with a brace-matched scan for catches containing
+`Debug.WriteLine` and no `AppLogService` / `MessageBox` / `throw` / `return`.
+
+**Lesson recorded:** when a finding's root cause is a *pattern*, fixing the one
+instance that was found does not close it. The sweep should have been part of the
+original R-1 fix.
+
+### U-2 — Whisper model download has no integrity verification (MEDIUM)
+
+**Location:** `Services/AI/AIVoice/WhisperModelManager.cs:DownloadModelAsync`.
+
+**Problem.** The method read `Content-Length` into `totalBytes` and accumulated
+`downloadedBytes` for the progress bar, but **never compared them**. A connection
+dropped at 80% wrote a truncated `.bin`, deleted any existing good model, and
+promoted the partial file to the real filename. That file is then passed to
+`WhisperFactory.FromPath` — the **native GGML parser** from `Whisper.net.Runtime`
+— so a malformed model fails inside native code rather than managed code.
+
+**Fixed:** the size comparison now runs before the temp file is promoted; an
+incomplete download is discarded and logged.
+
+**Explicitly NOT fixed — do not read this as supply-chain verification.** This is
+a **completeness** check, not an **authenticity** check. It catches truncated and
+interrupted downloads. It does **not** prove the file is the genuine upstream
+model. Real authenticity needs a published per-file SHA-256, which the upstream
+`ggerganov/whisper.cpp` repository does not currently provide. Same distinction
+as C-1, where the fix was origin validation, not signature verification.
+
+**Checked and clean:** the download URLs are hardcoded constants against a fixed
+`https://huggingface.co/...` path — there is no attacker-controlled URL here,
+unlike C-1.
+
+---
 
 Recording these so they are not silently re-audited later. Each was checked by
 reading the code, not by pattern-matching.
