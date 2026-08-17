@@ -95,8 +95,13 @@
                                           Style="{StaticResource ModernToggleSwitch}"/>
                         </DockPanel>
                         <TextBlock Style="{StaticResource HintTextStyle}"
-                                   Margin="0,10,0,0">
-                            <Run Text="When enabled, the AI receives a real-time summary of your invoices, jobs, deliveries, and balances."/>
+                                   Margin="0,10,0,0"
+                                   TextWrapping="Wrap">
+                            <Run Text="When enabled, a real-time summary of your invoices, jobs, deliveries and balances is"/>
+                            <Run Text="sent over the internet to your chosen AI provider" FontWeight="Bold"/>
+                            <Run Text="(Gemini, Groq or Cohere) as part of every message."/>
+                            <LineBreak/>
+                            <Run Text="This includes real customer names, project names and AED totals. Those companies process the data under their own privacy terms, not yours. Turn this off to keep the assistant to general questions only — it will still work, but it will not know your data."/>
                         </TextBlock>
                     </StackPanel>
                 </Border>

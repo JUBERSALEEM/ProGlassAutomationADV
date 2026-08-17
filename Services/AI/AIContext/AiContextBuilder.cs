@@ -36,6 +36,30 @@
 //     BuildEntityContextAsync() — single record JSON parse.
 //     Called by AiChatViewModel when user references specific ID.
 //
+// ⚠ PRIVACY — P-1. READ BEFORE ADDING FIELDS HERE.
+//   Everything this class returns is appended to the system prompt and
+//   sent OVER THE INTERNET to a third-party LLM (Gemini / Groq / Cohere).
+//   That already includes real customer names, project names and AED
+//   totals. It is NOT anonymised and NOT redacted.
+//
+//   Gated by AiSettings.UseRealData, which defaults to TRUE — so this is
+//   opt-OUT, not opt-in. The Settings toggle now states plainly that the
+//   data leaves the machine and names the recipients.
+//
+//   Adding a field here is a privacy decision, not a feature decision.
+//   Never add: TRN / tax registration numbers, bank or IBAN details,
+//   phone numbers, email addresses, postal addresses, passwords, or
+//   per-line cost prices that would expose the company's margins.
+//   Aggregates and document IDs are the intended level of detail.
+//
+//   Still open (documented in the readiness report, not fixed here):
+//   there is no per-request consent prompt and no redaction pass. The
+//   Agent subsystem under Agent/ has a stricter model — LocalOnly by
+//   default, then explicit cloud consent, host whitelist, size cap and a
+//   post-redaction sanity check. Aligning this path with that model is
+//   the correct long-term fix and is deliberately NOT bolted on here,
+//   because it changes AI chat behaviour and needs the user's decision.
+//
 // THREAD SAFETY:
 //   SemaphoreSlim(1,1) ensures one build at a time.
 //   Cache reused for 30 seconds. InvalidateCache() clears on data change.
