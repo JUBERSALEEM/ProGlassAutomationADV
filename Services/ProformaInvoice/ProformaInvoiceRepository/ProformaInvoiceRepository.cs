@@ -285,6 +285,40 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 .ToListAsync(cancellationToken);
         }
 
+        public async Task<List<ProformaSearchRow>> SearchAsync(
+            string term, int take)
+        {
+            using var db = new ProformaInvoicesDbContext();
+
+            string q = term?.Trim() ?? "";
+            if (string.IsNullOrEmpty(q) || take <= 0)
+                return new List<ProformaSearchRow>();
+
+            // Escape LIKE wildcards so DB-side search matches the previous
+            // in-memory IndexOf(OrdinalIgnoreCase) semantics for literal terms.
+            string like = q.Replace("%", "[%]").Replace("_", "[_]");
+            string pattern = $"%{like}%";
+
+            return await db.ProformaInvoices
+                .AsNoTracking()
+                .Where(p =>
+                    EF.Functions.Like(p.ProformaId ?? "", pattern) ||
+                    EF.Functions.Like(p.CustomerName ?? "", pattern) ||
+                    EF.Functions.Like(p.ProjectName ?? "", pattern) ||
+                    EF.Functions.Like(p.CompanyName ?? "", pattern))
+                .OrderByDescending(p => p.CreatedAt)
+                .Take(take)
+                .Select(p => new ProformaSearchRow
+                {
+                    ProformaId = p.ProformaId,
+                    CustomerName = p.CustomerName,
+                    ProjectName = p.ProjectName,
+                    CompanyName = p.CompanyName,
+                    Status = p.Status
+                })
+                .ToListAsync();
+        }
+
         public async Task DeleteAsync(int id)
         {
             // A-1: service-layer authorization. The UI also checks,

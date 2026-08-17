@@ -50,5 +50,15 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
         /// counts and sums.
         /// </summary>
         Task<List<JobOrderAnalyticsRow>> GetAnalyticsRowsAsync();
+
+        /// <summary>
+        /// Bounded, DB-side search for the global-search box. Filters the
+        /// indexed columns with a case-insensitive contains and returns at
+        /// most <paramref name="take"/> rows, projecting only the columns
+        /// search displays. Avoids loading every row (and its
+        /// FullSnapshotJson blob) just to find top matches.
+        /// </summary>
+        Task<List<JobOrderSearchRow>> SearchAsync(
+            string term, int take);
     }
 }

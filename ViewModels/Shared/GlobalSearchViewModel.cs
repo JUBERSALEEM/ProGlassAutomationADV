@@ -340,14 +340,13 @@ namespace ProGlassAutomation.ViewModels.Shared
             try
             {
                 if (App.Invoices == null) return;
-                var list = await App.Invoices.GetAllAsync().ConfigureAwait(true);
 
-                foreach (var pi in list.Where(p =>
-                             Hit(p.ProformaId, term) ||
-                             Hit(p.CustomerName, term) ||
-                             Hit(p.ProjectName, term) ||
-                             Hit(p.CompanyName, term))
-                         .Take(MaxResults))
+                // PERF: bounded, DB-side search - only the top matches are
+                // returned, so the FullSnapshotJson blobs are never loaded.
+                var rows = await App.Invoices
+                    .SearchAsync(term, MaxResults).ConfigureAwait(true);
+
+                foreach (var pi in rows)
                 {
                     hits.Add(new GlobalSearchResult
                     {
@@ -368,14 +367,13 @@ namespace ProGlassAutomation.ViewModels.Shared
             try
             {
                 if (App.Jobs == null) return;
-                var list = await App.Jobs.GetAllAsync().ConfigureAwait(true);
 
-                foreach (var jo in list.Where(j =>
-                             Hit(j.JobOrderId, term) ||
-                             Hit(j.CustomerName, term) ||
-                             Hit(j.ProjectName, term) ||
-                             Hit(j.SourceProformaId, term))
-                         .Take(MaxResults))
+                // PERF: bounded, DB-side search - only the top matches are
+                // returned, so the FullSnapshotJson blobs are never loaded.
+                var rows = await App.Jobs
+                    .SearchAsync(term, MaxResults).ConfigureAwait(true);
+
+                foreach (var jo in rows)
                 {
                     hits.Add(new GlobalSearchResult
                     {

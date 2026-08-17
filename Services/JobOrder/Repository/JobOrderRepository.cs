@@ -152,6 +152,42 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
                 .ToListAsync();
         }
 
+        // ── SEARCH (bounded, DB-side) ─────────────────────────────────────
+
+        public async Task<List<JobOrderSearchRow>> SearchAsync(
+            string term, int take)
+        {
+            using var db = new JobOrdersDbContext();
+
+            string q = term?.Trim() ?? "";
+            if (string.IsNullOrEmpty(q) || take <= 0)
+                return new List<JobOrderSearchRow>();
+
+            // Escape LIKE wildcards so DB-side search matches the previous
+            // in-memory IndexOf(OrdinalIgnoreCase) semantics for literal terms.
+            string like = q.Replace("%", "[%]").Replace("_", "[_]");
+            string pattern = $"%{like}%";
+
+            return await db.JobOrders
+                .AsNoTracking()
+                .Where(j =>
+                    EF.Functions.Like(j.JobOrderId ?? "", pattern) ||
+                    EF.Functions.Like(j.CustomerName ?? "", pattern) ||
+                    EF.Functions.Like(j.ProjectName ?? "", pattern) ||
+                    EF.Functions.Like(j.SourceProformaId ?? "", pattern))
+                .OrderByDescending(j => j.UpdatedAt)
+                .Take(take)
+                .Select(j => new JobOrderSearchRow
+                {
+                    JobOrderId = j.JobOrderId,
+                    CustomerName = j.CustomerName,
+                    ProjectName = j.ProjectName,
+                    SourceProformaId = j.SourceProformaId,
+                    Status = j.Status
+                })
+                .ToListAsync();
+        }
+
         // ── LOOKUP FROM PI ────────────────────────────────────────────────
 
         public async Task<List<SavedJobOrder>> GetBySourceProformaIdAsync(string proformaId)

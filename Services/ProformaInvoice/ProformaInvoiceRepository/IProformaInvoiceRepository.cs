@@ -69,6 +69,16 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         Task<List<ProformaAnalyticsRow>> GetAnalyticsRowsAsync(
             CancellationToken cancellationToken = default);
 
+        /// <summary>
+        /// Bounded, DB-side search for the global-search box. Filters the
+        /// indexed columns with a case-insensitive contains and returns at
+        /// most <paramref name="take"/> rows, projecting only the columns
+        /// search displays. Avoids loading every row (and its
+        /// FullSnapshotJson blob) just to find top matches.
+        /// </summary>
+        Task<List<ProformaSearchRow>> SearchAsync(
+            string term, int take);
+
         Task DeleteAsync(int id);
     }
 }
