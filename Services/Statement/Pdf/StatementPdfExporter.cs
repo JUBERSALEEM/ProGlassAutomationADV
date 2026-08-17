@@ -66,8 +66,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
         // gross revenue). Setting it is idempotent, so call it defensively at
         // every generation point rather than relying on one call-site.
         private static void EnsureLicense()
-            => QuestPDF.Infrastructure.QuestPDF.Settings.License =
-                QuestPDF.Infrastructure.LicenseType.Community;
+            => QuestPDF.Settings.License = LicenseType.Community;
 
         // ═════════════════════════════════════════════════════════════════
         //  NEW ENTRY POINT — WORKFLOW-BASED EXPORT
