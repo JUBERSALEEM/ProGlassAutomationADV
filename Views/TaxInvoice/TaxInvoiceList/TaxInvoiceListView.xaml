@@ -190,7 +190,7 @@
         ══════════════════════════════════════════════════════════════ -->
         <DataTemplate x:Key="FamilyRowTemplate">
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderThickness="1" CornerRadius="10"
+                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" CornerRadius="10"
                     Padding="14,12" Margin="0,0,0,8"
                     Cursor="Hand" SnapsToDevicePixels="True"
                     MouseLeftButtonUp="OnFamilyRowLeftClick"
