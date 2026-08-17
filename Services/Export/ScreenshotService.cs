@@ -165,12 +165,33 @@ namespace ProGlassAutomation.Services.Export
 
             var savedScrollBar = sv.VerticalScrollBarVisibility;
             double savedOffset = sv.VerticalOffset;
+            bool savedCanScroll = sv.CanContentScroll;
+            bool forcedPixel = false;
             try
             {
                 // Hide the vertical scrollbar so it never appears in the
                 // portrait and the viewport is identical across every section.
                 sv.VerticalScrollBarVisibility =
                     System.Windows.Controls.ScrollBarVisibility.Hidden;
+
+                // Some lists scroll by ITEM (ScrollUnit=Item, e.g. Job Order /
+                // Sheet Store): their ExtentHeight/ViewportHeight are reported
+                // in ITEMS, not pixels, which would corrupt the stitch geometry.
+                // Force PIXEL scrolling for the duration of the capture so the
+                // math is exact. (This realises the list's content while the
+                // capture runs, which is inherent to capturing the full module;
+                // it is restored in finally.)
+                if (savedCanScroll)
+                {
+                    forcedPixel = true;
+                    sv.CanContentScroll = false;
+                    for (var a = sv; a != null;
+                         a = System.Windows.Media.VisualTreeHelper.GetParent(a) as System.Windows.DependencyObject)
+                    {
+                        if (a is System.Windows.Controls.ItemsControl ic)
+                            System.Windows.Controls.ScrollViewer.SetCanContentScroll(ic, false);
+                    }
+                }
                 window.UpdateLayout();
 
                 double viewportW = Math.Max(1, sv.ViewportWidth);
@@ -264,6 +285,16 @@ namespace ProGlassAutomation.Services.Export
                 {
                     try
                     {
+                        if (forcedPixel)
+                        {
+                            for (var a = sv; a != null;
+                                 a = System.Windows.Media.VisualTreeHelper.GetParent(a) as System.Windows.DependencyObject)
+                            {
+                                if (a is System.Windows.Controls.ItemsControl ic)
+                                    System.Windows.Controls.ScrollViewer.SetCanContentScroll(ic, savedCanScroll);
+                            }
+                            sv.CanContentScroll = savedCanScroll;
+                        }
                         sv.VerticalScrollBarVisibility = savedScrollBar;
                         sv.InvalidateMeasure();
                         sv.InvalidateArrange();
