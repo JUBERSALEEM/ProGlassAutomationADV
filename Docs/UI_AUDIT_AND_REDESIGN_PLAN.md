@@ -393,6 +393,28 @@ Runtime visual verification on Windows across all themes is still required.
 
 ---
 
+### Type-scale normalization — investigated, **NOT a safe change** (recorded)
+
+The audit's "non-token title sizes (26/28/36)" were investigated before
+acting. On inspection they are **intentional hero-header and KPI designs**,
+not broken page titles:
+
+- `SavedInvoicesList` (28) and `StatementList` (28) use a **hero header**: an
+  accent banner with large white count numbers (`TotalCount`, `TotalStatements`)
+  — a legitimate alternative header pattern, not a stray size.
+- `FontSize=36` on `AiChatView`, `Diagnostics`, `SectionActivity`, `SystemCenter`,
+  `AttachmentsStep` are **icon glyphs** (Segoe MDL2 / emoji), not titles.
+- The only genuine "page title" sizes outside `ModulePageTitleStyle` are the
+  hero headers above, which are a **different, coherent pattern** (title on
+  accent + KPI numbers), and collapsing them to 24 would damage the hierarchy.
+
+**Conclusion:** do **not** mass-replace 26/28/36 with `ModulePageTitleStyle`.
+The page-title scale is already consistent where it matters (the JO/DN/TI/
+SheetStore lists all use `ModulePageTitleStyle`). This finding is recorded so
+future work does not "normalize" intentional KPI/hero emphasis.
+
+---
+
 ## Part 6 — Fastest wins (smallest change, biggest visual payoff)
 
 1. **Fix the accent token** (Phase 0) — single central change that makes
