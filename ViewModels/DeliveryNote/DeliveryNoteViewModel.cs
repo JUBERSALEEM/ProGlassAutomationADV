@@ -1,6 +1,7 @@
-using ProGlassAutomation.Commands;
+﻿using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.DeliveryNote.Mapper;
 using ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail;
 using ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList;
@@ -529,9 +530,23 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                     joSnapshot = JsonSerializer.Deserialize<JobOrderSnapshot>(
                         jobOrder.FullSnapshotJson, _jsonOptions);
                 }
-                catch
+                catch (Exception ex)
                 {
-                    // Snapshot malformed — proceed with null
+                    // S-5: the user already gets a "snapshot corrupted"
+                    // dialog below (joSnapshot stays null), so this is not
+                    // hidden from them — but the PARSE ERROR itself was
+                    // discarded, which made the corruption impossible to
+                    // diagnose afterwards. Behaviour is unchanged; the
+                    // cause is now recoverable from the log.
+                    AppLogService.Warning(
+                        $"Job Order snapshot for '{jobOrder.JobOrderId}' "
+                        + $"could not be deserialized: {ex.Message}",
+                        new LogContext
+                        {
+                            Module = "DeliveryNote",
+                            Class = nameof(DeliveryNoteViewModel),
+                            Operation = "CreateFirstDnAsync"
+                        });
                 }
             }
 

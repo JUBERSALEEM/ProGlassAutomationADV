@@ -18,6 +18,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Services.AI.AIService;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Security;
 using System;
 using System.IO;
@@ -164,9 +165,25 @@ namespace ProGlassAutomation.Services.AI.AIConfig
                     ai.CohereApiKey = c;
                 }
             }
-            catch
+            catch (Exception ex)
             {
-                // Config is optional — silent fail
+                // S-5: this used to be silent. It is the worst place in the
+                // app to be silent: Save() failing means the user's settings
+                // (AI provider choice, theme, company details) were NOT
+                // written, yet every caller reports success. The user then
+                // loses the change on restart with no explanation.
+                // Still non-throwing — a settings write must not crash the
+                // app — but it is now visible in the log.
+                AppLogService.Error(
+                    "Failed to save app configuration — changes will be " +
+                    "lost on restart.",
+                    ex,
+                    new LogContext
+                    {
+                        Module = "Config",
+                        Class = nameof(ConfigService),
+                        Operation = "Save"
+                    });
             }
         }
 
