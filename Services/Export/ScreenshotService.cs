@@ -267,7 +267,7 @@ namespace ProGlassAutomation.Services.Export
             var sfd = new Microsoft.Win32.SaveFileDialog
             {
                 Filter = "PNG Image|*.png|BMP Image|*.bmp|JPEG Image|*.jpg",
-                FileName = $"{SafeModuleName()}_{GetLabel(quality)}_{DateTime.Now:yyyyMMdd_HHmmss}.png",
+                FileName = $"{SafeModuleName()}_{label}_{DateTime.Now:yyyyMMdd_HHmmss}.png",
                 Title = "Save Screenshot",
                 DefaultExt = ".png",
                 AddExtension = true
