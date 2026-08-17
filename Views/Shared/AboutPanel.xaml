@@ -72,7 +72,7 @@
                                        FontSize="11" FontWeight="SemiBold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        VerticalAlignment="Center"/>
-                            <ToggleButton x:Name="CaptureToggle"
+                            <Button x:Name="CaptureToggle"
                                           HorizontalAlignment="Right"
                                           Style="{StaticResource PrimaryPillButton}"
                                           MinWidth="110"
@@ -90,7 +90,7 @@
                                                Foreground="White"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
-                            </ToggleButton>
+                            </Button>
                         </Grid>
 
                         <!-- Inline quality selector (revealed on click).

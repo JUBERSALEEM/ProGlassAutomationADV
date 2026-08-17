@@ -36,16 +36,13 @@ namespace ProGlassAutomation.Views.Shared
         }
 
         /// <summary>Reveals/hides the inline quality selector.</summary>
+        private bool _qualityPanelOpen;
+
         private void CaptureToggle_Click(object sender, RoutedEventArgs e)
         {
-            if (CaptureToggle.IsChecked == true)
-            {
-                QualityPanel.Visibility = Visibility.Visible;
-            }
-            else
-            {
-                QualityPanel.Visibility = Visibility.Collapsed;
-            }
+            _qualityPanelOpen = !_qualityPanelOpen;
+            QualityPanel.Visibility =
+                _qualityPanelOpen ? Visibility.Visible : Visibility.Collapsed;
         }
 
         /// <summary>Builds the reference-style quality rows.</summary>
@@ -138,7 +135,7 @@ namespace ProGlassAutomation.Views.Shared
             button.Click += (_, _) =>
             {
                 QualityPanel.Visibility = Visibility.Collapsed;
-                CaptureToggle.IsChecked = false;
+                _qualityPanelOpen = false;
                 Capture(quality);
             };
             return button;
