@@ -244,7 +244,9 @@ namespace ProGlassAutomation.Services.Export
                         sv.ScrollToVerticalOffset(yTop);
                         WaitForRender(window);
 
-                        using var section = CaptureViewport(sv, viewportW, viewportH, scale, dpi);
+                        // BitmapSource is a Freezable, not IDisposable — no
+                        // `using` (it is collected by the GC once out of scope).
+                        var section = CaptureViewport(sv, viewportW, viewportH, scale, dpi);
                         if (section == null) continue;
 
                         int secW = section.PixelWidth;
