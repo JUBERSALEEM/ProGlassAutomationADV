@@ -549,7 +549,7 @@
                         </ItemsControl.ItemTemplate>
                     </ItemsControl>
 
-                    <Border Grid.Row="4"
+                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Row="4"
                             Background="{DynamicResource MenuHoverBrush}"
                             CornerRadius="8"
                             Padding="14,10">

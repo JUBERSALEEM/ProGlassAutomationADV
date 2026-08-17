@@ -185,7 +185,7 @@
                                VerticalAlignment="Center"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
 
-                    <Border CornerRadius="8" Padding="10,3"
+                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" CornerRadius="8" Padding="10,3"
                             Margin="10,0,0,0" VerticalAlignment="Center"
                             Background="{DynamicResource TintIndigoBrush}">
                         <TextBlock Text="{Binding Status}"
@@ -193,7 +193,7 @@
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     </Border>
 
-                    <Border CornerRadius="8" Padding="10,3"
+                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" CornerRadius="8" Padding="10,3"
                             Margin="6,0,0,0" VerticalAlignment="Center"
                             Background="{DynamicResource TintRedBrush}">
                         <Border.Style>
@@ -211,7 +211,7 @@
                                    Foreground="{DynamicResource DangerBrush}"/>
                     </Border>
 
-                    <Border CornerRadius="8" Padding="10,3"
+                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" CornerRadius="8" Padding="10,3"
                             Margin="6,0,0,0" VerticalAlignment="Center"
                             Background="{DynamicResource TintAmberBrush}"
                             Visibility="{Binding IsSaving,
@@ -280,7 +280,7 @@
                            FontSize="14" HorizontalAlignment="Center"
                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
             </Border>
-            <Border Visibility="{Binding HasStatusMessage,
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Visibility="{Binding HasStatusMessage,
                                  Converter={StaticResource BoolToVisibilityConverter}}"
                     Background="{DynamicResource TintIndigoBrush}"
                     CornerRadius="10" Padding="14,10"

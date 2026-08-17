@@ -63,7 +63,7 @@
                                             <TextBlock Text="{Binding Field}"
                                                        FontSize="12" FontWeight="Bold"
                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                            <Border Margin="8,0,0,0"
+                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Margin="8,0,0,0"
                                                     CornerRadius="7"
                                                     Padding="6,1"
                                                     VerticalAlignment="Center"
@@ -74,7 +74,7 @@
                                             </Border>
                                         </StackPanel>
 
-                                        <Border Margin="0,6,0,0"
+                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Margin="0,6,0,0"
                                                 Background="{DynamicResource TintRedBrush}"
                                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Padding="10,6">
@@ -92,7 +92,7 @@
                                     </StackPanel>
 
                                     <!-- RIGHT: after -->
-                                    <Border Grid.Column="1"
+                                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Column="1"
                                             Background="{DynamicResource TintGreenBrush}"
                                             CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Padding="10,6"

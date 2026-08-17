@@ -431,7 +431,7 @@
                                FontSize="20" FontWeight="Bold"
                                VerticalAlignment="Center"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <Border CornerRadius="8" Padding="10,3"
+                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" CornerRadius="8" Padding="10,3"
                             Margin="10,0,0,0" VerticalAlignment="Center"
                             Background="{DynamicResource TintIndigoBrush}">
                         <TextBlock Text="{Binding DeliveryType}"
@@ -453,7 +453,7 @@
                                    FontSize="10" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     </Border>
-                    <Border CornerRadius="8" Padding="10,3"
+                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" CornerRadius="8" Padding="10,3"
                             Margin="6,0,0,0" VerticalAlignment="Center"
                             Background="{DynamicResource TintGreenBrush}">
                         <TextBlock Text="{Binding Status}"

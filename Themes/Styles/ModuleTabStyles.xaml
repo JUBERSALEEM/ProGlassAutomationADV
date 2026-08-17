@@ -25,6 +25,8 @@
 
     <!-- ══ TAB STRIP CONTAINER ════════════════════════════════════════ -->
     <Style x:Key="ModuleTabStripStyle" TargetType="Border">
+        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Background"
                 Value="{DynamicResource MenuHoverBrush}"/>
         <Setter Property="CornerRadius"

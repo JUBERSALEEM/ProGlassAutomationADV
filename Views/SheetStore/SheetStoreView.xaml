@@ -349,7 +349,7 @@
                     </Grid>
 
                     <!-- Row 2: Search -->
-                    <Border Background="{DynamicResource MenuHoverBrush}"
+                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Background="{DynamicResource MenuHoverBrush}"
                             CornerRadius="8" Padding="12,8" Margin="0,10,0,0"
                             SnapsToDevicePixels="True">
                         <DockPanel>
@@ -498,15 +498,15 @@
                                     <TextBlock Grid.Column="10" Text="{Binding TotalSellValue, StringFormat={}{0:N0}}"
                                                FontSize="12" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"
                                                VerticalAlignment="Center" HorizontalAlignment="Right"/>
-                                    <Border Grid.Column="11" Background="{DynamicResource TintGreenBrush}" CornerRadius="6"
+                                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Column="11" Background="{DynamicResource TintGreenBrush}" CornerRadius="6"
                                             Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding Stock}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
                                     </Border>
-                                    <Border Grid.Column="12" Background="{DynamicResource TintRedBrush}" CornerRadius="6"
+                                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Column="12" Background="{DynamicResource TintRedBrush}" CornerRadius="6"
                                             Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding Used}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}"/>
                                     </Border>
-                                    <Border Grid.Column="13" Background="{DynamicResource TintAmberBrush}" CornerRadius="6"
+                                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Column="13" Background="{DynamicResource TintAmberBrush}" CornerRadius="6"
                                             Padding="8,3" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <TextBlock Text="{Binding Balance}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
                                     </Border>

@@ -634,6 +634,8 @@
 
     <!-- Hero band — radius 22, no border, per the reference. -->
     <Style x:Key="SoftHeroStyle" TargetType="Border">
+        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Background"   Value="{DynamicResource ElevatedSurfaceBrush}"/>
         <Setter Property="CornerRadius" Value="{StaticResource SoftHeroRadius}"/>
         <Setter Property="Padding"      Value="24"/>
@@ -644,6 +646,8 @@
 
     <!-- Recessed chart well — the reference's #F8FAFC radius-12 inset. -->
     <Style x:Key="SoftChartWellStyle" TargetType="Border">
+        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="Background"   Value="{DynamicResource TintGrayBrush}"/>
         <Setter Property="CornerRadius" Value="12"/>
         <Setter Property="Padding"      Value="10"/>

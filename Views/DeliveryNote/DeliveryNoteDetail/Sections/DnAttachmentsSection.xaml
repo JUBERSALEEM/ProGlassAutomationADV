@@ -103,7 +103,7 @@
                                           Margin="10,6,10,10">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Margin="0,4" Padding="12,10"
+                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Margin="0,4" Padding="12,10"
                                                 CornerRadius="10"
                                                 Background="{DynamicResource MenuHoverBrush}"
                                                 SnapsToDevicePixels="True">

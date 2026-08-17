@@ -43,7 +43,7 @@
         <StackPanel HorizontalAlignment="Center">
 
             <!-- Tinted icon badge (Overview-dashboard style) -->
-            <Border Width="64" Height="64"
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Width="64" Height="64"
                     CornerRadius="20"
                     HorizontalAlignment="Center"
                     Background="{DynamicResource TintIndigoBrush}">

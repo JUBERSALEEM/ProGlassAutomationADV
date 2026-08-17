@@ -164,7 +164,7 @@ CHAT 17 — LAYOUT FIX
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Root"
+                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" x:Name="Root"
                                 Background="{DynamicResource MenuHoverBrush}"
                                 CornerRadius="22"
                                 Padding="22,0"

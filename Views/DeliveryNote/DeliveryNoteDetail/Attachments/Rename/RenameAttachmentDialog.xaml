@@ -174,7 +174,7 @@
             </Grid>
 
             <!-- ── VALIDATION AREA ─────────────────────────────────────── -->
-            <Border Grid.Row="3"
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Row="3"
                     x:Name="ValidationBorder"
                     Margin="28,4,28,0"
                     Padding="12,8"
@@ -189,7 +189,7 @@
             </Border>
 
             <!-- ── ACTION BUTTONS ──────────────────────────────────────── -->
-            <Border Grid.Row="4"
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Row="4"
                     Background="{DynamicResource MenuHoverBrush}"
                     CornerRadius="0,0,20,20"
                     Padding="20,14">

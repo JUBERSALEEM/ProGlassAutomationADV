@@ -177,7 +177,7 @@
                                                    VerticalAlignment="Center"
                                                    ToolTip="Date &amp; time of the action"/>
 
-                                        <Border Grid.Column="1"
+                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Column="1"
                                                 Background="{DynamicResource TintIndigoBrush}"
                                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Padding="8,3"

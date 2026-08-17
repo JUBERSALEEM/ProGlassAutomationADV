@@ -397,7 +397,7 @@ PRESERVED EXACTLY:
                     </Style>
                 </StackPanel.Style>
 
-                <Border Background="{DynamicResource TintIndigoBrush}"
+                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Background="{DynamicResource TintIndigoBrush}"
                         Width="44" Height="44"
                         CornerRadius="22"
                         HorizontalAlignment="Center"

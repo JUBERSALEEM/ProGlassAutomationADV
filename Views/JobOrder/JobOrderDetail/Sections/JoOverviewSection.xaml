@@ -158,7 +158,7 @@
                                             </StackPanel>
                                         </Border>
 
-                                        <Border CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource MenuHoverBrush}"
+                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource MenuHoverBrush}"
                                                 Padding="0,2">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
@@ -261,7 +261,7 @@
                                             </ItemsControl.ItemTemplate>
                                         </ItemsControl>
 
-                                        <Border Background="{DynamicResource TintGrayBrush}"
+                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Background="{DynamicResource TintGrayBrush}"
                                                 Padding="10,8"
                                                 CornerRadius="0,0,8,8">
                                             <StackPanel Orientation="Horizontal">
@@ -293,7 +293,7 @@
                             </ItemsControl.ItemTemplate>
                         </ItemsControl>
 
-                        <Border Background="{DynamicResource TintGreenBrush}"
+                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Background="{DynamicResource TintGreenBrush}"
                                 CornerRadius="12" Padding="20,16"
                                 Margin="0,14,0,12"
                                 SnapsToDevicePixels="True">

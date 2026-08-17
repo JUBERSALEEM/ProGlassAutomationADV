@@ -1127,7 +1127,7 @@ PRESERVED EXACTLY:
                                                            FontWeight="SemiBold"
                                                            Foreground="{DynamicResource MutedForegroundBrush}"
                                                            VerticalAlignment="Center"/>
-                                                <Border Background="{DynamicResource TintIndigoBrush}"
+                                                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Background="{DynamicResource TintIndigoBrush}"
                                                         CornerRadius="6"
                                                         Padding="10,3"
                                                         MinWidth="34">
@@ -1141,7 +1141,7 @@ PRESERVED EXACTLY:
                                         </Grid>
 
                                         <!-- Column headers -->
-                                        <Border Background="{DynamicResource MenuHoverBrush}"
+                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Background="{DynamicResource MenuHoverBrush}"
                                                 CornerRadius="6"
                                                 Padding="4,7">
                                             <Border.Style>
@@ -1379,7 +1379,7 @@ PRESERVED EXACTLY:
                                         </ListView>
 
                                         <!-- FOOTER TOTALS -->
-                                        <Border Background="{DynamicResource MenuHoverBrush}"
+                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Background="{DynamicResource MenuHoverBrush}"
                                                 CornerRadius="6"
                                                 Padding="4,8"
                                                 Margin="0,6,0,0">

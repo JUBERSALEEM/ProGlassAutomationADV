@@ -71,7 +71,7 @@
                     BorderThickness="0">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
-                        <Border Background="{DynamicResource TintRedBrush}"
+                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Background="{DynamicResource TintRedBrush}"
                                 CornerRadius="{DynamicResource PillCornerRadius}"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center"

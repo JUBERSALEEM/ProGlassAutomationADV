@@ -127,6 +127,8 @@
         </Style>
 
         <Style x:Key="AiBubble" TargetType="Border">
+        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="HorizontalAlignment" Value="Left"/>
             <Setter Property="MaxWidth"            Value="380"/>
             <Setter Property="CornerRadius"        Value="16,16,16,4"/>
@@ -446,7 +448,7 @@
                          Hidden while streaming (the live bubble below
                          takes over once tokens arrive).
                     ════════════════════════════════════════════════ -->
-                    <Border HorizontalAlignment="Left"
+                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" HorizontalAlignment="Left"
                             VerticalAlignment="Bottom"
                             Background="{DynamicResource MenuHoverBrush}"
                             CornerRadius="16,16,16,4"
@@ -600,7 +602,7 @@
                          token-by-token while Gemini streams it.
                          Bound to ActiveStream (StreamingChatMessage).
                     ════════════════════════════════════════════════ -->
-                    <Border HorizontalAlignment="Left"
+                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" HorizontalAlignment="Left"
                             VerticalAlignment="Bottom"
                             Background="{DynamicResource MenuHoverBrush}"
                             CornerRadius="16,16,16,4"
@@ -889,7 +891,7 @@
                         </Grid>
 
                         <!-- Text input -->
-                        <Border Grid.Column="2"
+                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Column="2"
                                 Background="{DynamicResource MenuHoverBrush}"
                                 CornerRadius="21"
                                 Padding="14,0"

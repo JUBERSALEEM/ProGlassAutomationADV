@@ -74,7 +74,7 @@
                         <!-- LAYOUT FIX: Grid.Column="2" was missing, so the
                              PREVIOUSLY DELIVERED tile rendered on top of the
                              ORDERED tile. -->
-                        <Border Grid.Row="0" Grid.Column="2"
+                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Row="0" Grid.Column="2"
                                 Style="{StaticResource CompactStatTileStyle}"
                                 Background="{DynamicResource TintIndigoBrush}">
                             <StackPanel HorizontalAlignment="Center">
@@ -91,7 +91,7 @@
                             </StackPanel>
                         </Border>
 
-                        <Border Grid.Row="2" Grid.Column="0"
+                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Row="2" Grid.Column="0"
                                 Style="{StaticResource CompactStatTileStyle}"
                                 Background="{DynamicResource TintGreenBrush}">
                             <StackPanel HorizontalAlignment="Center">
@@ -108,7 +108,7 @@
                             </StackPanel>
                         </Border>
 
-                        <Border Grid.Row="2" Grid.Column="2"
+                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Row="2" Grid.Column="2"
                                 Style="{StaticResource CompactStatTileStyle}"
                                 Background="{DynamicResource TintAmberBrush}">
                             <StackPanel HorizontalAlignment="Center">
@@ -129,7 +129,7 @@
                     </Grid>
 
                     <!-- Progress bar -->
-                    <Border Margin="12,0,12,12" CornerRadius="8"
+                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Margin="12,0,12,12" CornerRadius="8"
                             Padding="12,8"
                             Background="{DynamicResource MenuHoverBrush}">
                         <StackPanel>

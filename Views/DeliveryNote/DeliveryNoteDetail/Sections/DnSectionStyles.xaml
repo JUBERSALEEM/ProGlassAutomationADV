@@ -117,6 +117,8 @@
             </Style.Triggers>
         </Style>
         <Style x:Key="DifferentDnWarningStyle" TargetType="Border">
+        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Padding" Value="12,8"/>
             <Setter Property="Margin" Value="10,10,10,0"/>
             <Setter Property="CornerRadius" Value="10"/>

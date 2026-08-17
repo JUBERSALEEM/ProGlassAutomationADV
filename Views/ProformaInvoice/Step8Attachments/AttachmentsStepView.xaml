@@ -55,7 +55,7 @@
                 </Grid.ColumnDefinitions>
 
                 <!-- Icon badge -->
-                <Border Grid.Column="0"
+                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Column="0"
                         Width="46" Height="46"
                         CornerRadius="14"
                         Background="{DynamicResource TintIndigoBrush}"
@@ -84,7 +84,7 @@
                 </StackPanel>
 
                 <!-- Count pill -->
-                <Border Grid.Column="2"
+                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Column="2"
                         Background="{DynamicResource TintIndigoBrush}"
                         CornerRadius="{DynamicResource PillCornerRadius}"
                         Padding="14,7"
@@ -197,7 +197,7 @@
                                     <Grid Grid.Column="0"
                                           Width="56" Height="56"
                                           VerticalAlignment="Center">
-                                        <Border CornerRadius="10"
+                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" CornerRadius="10"
                                                 Background="{DynamicResource TintGrayBrush}">
                                             <TextBlock Text="{Binding TypeIcon}"
                                                        FontSize="24"

@@ -310,7 +310,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg"
                                 Background="{DynamicResource MenuHoverBrush}"
-                                BorderBrush="#33000000"
+                                BorderBrush="{DynamicResource OutlineBrush}"
                                 BorderThickness="1"
                                 CornerRadius="20"
                                 Padding="0"
