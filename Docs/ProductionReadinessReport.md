@@ -224,13 +224,32 @@ security/reliability pass, and a schema change would have broken existing user d
 
 ## 15. Remaining Risks
 
-1. **A-1** — authorization is UI-only (0 service-layer checks). Highest open item.
-2. **A-2** — SHA-256 password hashing should be PBKDF2.
-3. **X-6** — no window-closing guard; close during save can interrupt a write.
-4. **Performance** — `CanContentScroll="False"` defeats virtualization on list screens.
-5. **D-4** — no cross-database transaction for the PI→JO→DN→TI chain.
-6. **S-6** — 22 multi-line silent catches.
-7. **Everything in §12** that could not be tested.
+*Rewritten after the second remediation round. Items 1–4 and 6 of the original
+list (A-1, A-2, X-6, virtualization, silent catches) are now fixed and are
+recorded in §16a; what follows is what is genuinely still open.*
+
+1. **No authentication boundary.** This is now the highest open item, and it is
+   a **design gap, not a bug**. The app has no sign-in screen: it starts as the
+   lowest-`Id` active user, which on a fresh install is an administrator. A-3
+   added password rotation and a default-credential warning, but a warning is
+   not authentication. Until a sign-in screen exists, the A-1 permission guards
+   describe what the current user *may* do without ever establishing *who they
+   are*, and anyone with physical access to the machine has full rights.
+   Reasonable for a single-operator offline install; **not** acceptable if the
+   workstation is shared.
+2. **D-4** — no cross-database transaction for the PI→JO→DN→TI chain. Eleven
+   separate SQLite files cannot be committed atomically. The X-6 tracker warns
+   on shutdown mid-write and the failure is now logged and audited, but a
+   partially-linked chain is still reachable on power loss or End-task. This is
+   architectural; a real fix means consolidating the databases.
+3. **QuestPDF licence** — Community tier is only valid below USD 1M revenue.
+4. **`UpdateService` origin checking is not authenticity checking.** The
+   download URL is restricted to an exact GitHub host allowlist over HTTPS, but
+   the payload itself is **not signature-verified**. A compromised release asset
+   would still install.
+5. **Everything in §12** that could not be tested — no .NET SDK, no Windows, no
+   profiler in this environment. **The three security test files have still
+   never been executed.**
 
 ## 16a. Second remediation round — what changed
 
@@ -241,7 +260,8 @@ security/reliability pass, and a schema change would have broken existing user d
 | **X-6** | No `Closing`, no `SessionEnding` | `CriticalOperationTracker` + both handlers. Close during a cross-database save now warns, defaulting to Cancel. **FIXED** |
 | **D-4** | Cross-DB failure logged only to `Debug.WriteLine` (absent in Release) | Logged **and** audited, with a message stating that re-saving repairs the link. Still non-fatal by design. **VISIBILITY FIXED**; the architectural limit remains. |
 | **PERF-1** | Believed a defect, then believed intentional | Both readings were incomplete. `SmoothScrollBehavior` now resolves its mode from `VirtualizingPanel.ScrollUnit`, so the 11 real list hosts run `CanContentScroll=True` + `ScrollUnit=Pixel` — **virtualization and smooth scrolling together**. **FIXED** |
-| **S-5** | 22 multi-line silent catches | 3 highest-impact converted to logged warnings (audit trail, AI-memory clear, backup pruning). 19 remain. **PARTIAL** |
+| **S-5** | 24 multi-line silent catches | Reviewed individually. **5 converted** across both rounds (audit trail, AI-memory clear, backup pruning, config save, JO snapshot parse); the other 19 are deliberately silent — logger internals, last-chance handlers, the audit-of-denial path, and viewer-launch/temp-cleanup best-effort catches — and converting them would risk recursion or false alarms. **CLOSED** |
+| **A-3** | Default `admin`/`admin`, "never forced to rotate" | Understated. There was **no change-password path at all**, and no sign-in screen, so a fresh install runs as full administrator unprompted. Rotation added + default-credential banner. **FIXED, with the authentication gap recorded as a remaining risk.** |
 | **R-2** | Reported as "25 unguarded async mutating commands" | Re-enumerated properly: **81** async command sites, of which **3** are genuinely double-click-reachable. All 3 guarded. **FIXED** — see below. |
 
 ### R-2 — why the number fell from 25 to 3
@@ -276,6 +296,43 @@ Two things worth recording:
   throwing download left the flag set and the button dead for the rest of the
   session. Adding the guard without the `finally` would have made that worse, not
   better. Every new flag here is released in a `finally`.
+
+### A-3 — the finding was understated; corrected severity **HIGH**
+
+A-3 was recorded as *"default admin/admin seeded, never forced to rotate"*.
+Reading the code showed something worse: **there was no change-password path
+anywhere in the application**, so the seeded credential was not merely
+un-rotated, it was **unrotatable**.
+
+Three facts together set the real severity:
+
+1. `App.xaml.cs` shows `MainWindow` unconditionally — there is **no sign-in
+   screen anywhere in the repository** (no login view, no auth gate).
+2. `AuditService.InitializeAsync` selects the lowest-`Id` active user with no
+   authentication, which on a fresh install is the seeded `admin`.
+3. `Administrator` maps to `AppPermissions.All`.
+
+So every fresh install runs with **full administrator rights and no prompt**,
+and the A-1 service-layer guards can never deny anything, because the ambient
+identity is always an administrator. A-1 hardened the enforcement layer; A-3 is
+why that layer had nothing to enforce against.
+
+**Fixed:** `AuditService.ChangePasswordAsync` (proves the current password via
+the same dual-scheme path as sign-in, so a legacy SHA-256 hash still
+authenticates the change, then always stores PBKDF2; audits the event without
+ever logging the password), `IsUsingDefaultPasswordAsync`, shared
+`DefaultAdminUsername` / `DefaultAdminPassword` constants now used by the seeder
+too so detector and seed cannot drift, plus a User Center change-password form
+and a warning banner shown while the default credential is live.
+
+**Deliberately not done — and this is a real remaining limitation.** I did not
+block startup on the default password. With no sign-in screen and no recovery
+path, refusing to start would lock the user out of their own offline data. What
+shipped is a **warning, not authentication**. This app still has **no
+authentication boundary at all**; the permission system describes what the
+current user *may* do, it does not establish *who they are*. Adding a real
+sign-in screen is a scoped feature, not an audit fix, and is listed under
+Remaining Risks.
 
 **Rejected fix:** adding a `Func<object, Task>` overload to `RelayCommand`. C#
 overload resolution prefers a `Task`-returning delegate over `Action`, so the
