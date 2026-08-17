@@ -289,6 +289,32 @@ namespace ProGlassAutomation.ViewModels.Settings
         //  APPEARANCE
         // ══════════════════════════════════════════════════════════════
 
+        /// <summary>
+        /// Appearance toggle for the strong card/pill definition edge.
+        /// Persisted so the choice survives a restart, and re-applied by
+        /// ThemeManager after every Light/Dark swap.
+        /// </summary>
+        public bool UseDefinedOutline
+        {
+            get => App.Config?.Appearance?.UseDefinedOutline ?? false;
+            set
+            {
+                if (App.Config?.Appearance == null) return;
+                if (App.Config.Appearance.UseDefinedOutline == value) return;
+
+                App.Config.Appearance.UseDefinedOutline = value;
+                ThemeManager.ApplyOutline(value);
+                Services.AI.AIConfig.ConfigService.Save(App.Config);
+
+                ProGlassAutomation.Services.Audit.AuditService.Log(
+                    ProGlassAutomation.Services.Audit.AuditSections.Settings,
+                    "Card outline changed",
+                    value ? "Defined edge ON" : "Defined edge OFF");
+
+                OnPropertyChanged();
+            }
+        }
+
         public bool IsDarkTheme
         {
             get => ThemeManager.CurrentTheme == AppTheme.Dark;

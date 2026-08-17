@@ -365,7 +365,7 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Chrome"
                             Background="{DynamicResource AccentBrush}"
-                            BorderBrush="#4DFFFFFF"
+                            BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="1"
                             CornerRadius="8"
                             Height="30"
@@ -594,7 +594,7 @@
     <!-- The reference's SectionBorderStyle. -->
     <Style x:Key="SoftCardStyle" TargetType="Border">
         <Setter Property="Background"      Value="{DynamicResource ElevatedSurfaceBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius"    Value="{StaticResource SoftCardRadius}"/>
         <Setter Property="Padding"         Value="{StaticResource SoftCardPadding}"/>
@@ -625,7 +625,7 @@
          softening the very numbers this dashboard exists to show. -->
     <Style x:Key="SoftTileStyle" TargetType="Border">
         <Setter Property="Background"      Value="{DynamicResource ElevatedSurfaceBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius"    Value="{StaticResource SoftCardRadius}"/>
         <Setter Property="Padding"         Value="{StaticResource SoftCardPadding}"/>
@@ -653,7 +653,7 @@
     <!-- Inner neutral tile (sales-team chips, list rows). -->
     <Style x:Key="SoftInsetStyle" TargetType="Border">
         <Setter Property="Background"      Value="{DynamicResource TintGrayBrush}"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius"    Value="12"/>
         <Setter Property="Padding"         Value="12"/>

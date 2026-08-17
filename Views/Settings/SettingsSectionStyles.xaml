@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Settings/SettingsSectionStyles.xaml
      PROJECT: ProGlassAutomation
      MODULE: Settings v2 — shared resource dictionary
@@ -40,7 +40,7 @@
     ═══════════════════════════════════════════════════════════════ -->
     <Style x:Key="SectionCardStyle" TargetType="Border">
         <Setter Property="Background"          Value="{DynamicResource ModuleBackgroundBrush}"/>
-        <Setter Property="BorderBrush"         Value="{DynamicResource AccentBrush}"/>
+        <Setter Property="BorderBrush"         Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness"     Value="1.5"/>
         <Setter Property="CornerRadius"        Value="14"/>
         <Setter Property="Padding"             Value="24,20"/>

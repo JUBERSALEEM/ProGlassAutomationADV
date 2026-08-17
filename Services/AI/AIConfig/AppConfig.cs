@@ -1,4 +1,4 @@
-using ProGlassAutomation.Services.AI.AIService;
+﻿using ProGlassAutomation.Services.AI.AIService;
 using System.Collections.Generic;
 
 namespace ProGlassAutomation.Services.AI.AIConfig
@@ -19,6 +19,13 @@ namespace ProGlassAutomation.Services.AI.AIConfig
     {
         /// <summary>"Normal" | "Monet" | "Professional".</summary>
         public string VisualTheme { get; set; } = "Normal";
+
+        /// <summary>
+        /// When true, rounded pills and cards draw a strong near-black
+        /// definition edge so they stay visually separate from tinted
+        /// (Monet) surfaces instead of blending into them.
+        /// </summary>
+        public bool UseDefinedOutline { get; set; }
 
         /// <summary>Global wallpaper image path (empty = none).</summary>
         public string WallpaperPath { get; set; } = "";

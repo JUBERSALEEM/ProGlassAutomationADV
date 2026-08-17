@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Splash/SplashView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Splash Screen — v4 industrial redesign
@@ -211,6 +211,122 @@
             </StackPanel>
         </Border>
 
+        <!-- ═══════════════════════════════════════════════════════════
+             SIDE CAPABILITY RAILS
+             The stage previously had one centred column with large empty
+             margins left and right. These rails use that space to say what
+             the product actually does, which is what a professional splash
+             is for. Purely decorative: IsHitTestVisible=False everywhere so
+             they can never intercept a click meant for the terms gate.
+        ═══════════════════════════════════════════════════════════ -->
+        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center"
+                    Margin="56,0,0,0" Width="230"
+                    IsHitTestVisible="False">
+            <TextBlock Text="MODULES"
+                       FontSize="10" FontWeight="Bold"
+                       Opacity="0.55"
+                       Foreground="{StaticResource Azure}"
+                       Margin="2,0,0,14"/>
+
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,13">
+                <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets"
+                           FontSize="15" Foreground="{StaticResource Azure}"
+                           Opacity="0.75" VerticalAlignment="Center"
+                           Margin="0,0,12,0"/>
+                <TextBlock Text="Proforma Invoicing" FontSize="12.5"
+                           Foreground="{StaticResource Frost}" Opacity="0.85"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,13">
+                <TextBlock Text="&#xE9F9;" FontFamily="Segoe MDL2 Assets"
+                           FontSize="15" Foreground="{StaticResource Azure}"
+                           Opacity="0.75" VerticalAlignment="Center"
+                           Margin="0,0,12,0"/>
+                <TextBlock Text="Job Orders &amp; Production" FontSize="12.5"
+                           Foreground="{StaticResource Frost}" Opacity="0.85"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,13">
+                <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets"
+                           FontSize="15" Foreground="{StaticResource Azure}"
+                           Opacity="0.75" VerticalAlignment="Center"
+                           Margin="0,0,12,0"/>
+                <TextBlock Text="Delivery Notes" FontSize="12.5"
+                           Foreground="{StaticResource Frost}" Opacity="0.85"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" Margin="0,0,0,13">
+                <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets"
+                           FontSize="15" Foreground="{StaticResource Azure}"
+                           Opacity="0.75" VerticalAlignment="Center"
+                           Margin="0,0,12,0"/>
+                <TextBlock Text="VAT Tax Invoices" FontSize="12.5"
+                           Foreground="{StaticResource Frost}" Opacity="0.85"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal">
+                <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets"
+                           FontSize="15" Foreground="{StaticResource Azure}"
+                           Opacity="0.75" VerticalAlignment="Center"
+                           Margin="0,0,12,0"/>
+                <TextBlock Text="Profit &amp; Loss Analysis" FontSize="12.5"
+                           Foreground="{StaticResource Frost}" Opacity="0.85"
+                           VerticalAlignment="Center"/>
+            </StackPanel>
+        </StackPanel>
+
+        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center"
+                    Margin="0,0,56,0" Width="230"
+                    IsHitTestVisible="False">
+            <TextBlock Text="BUILT FOR"
+                       FontSize="10" FontWeight="Bold"
+                       Opacity="0.55"
+                       HorizontalAlignment="Right"
+                       Foreground="{StaticResource Azure}"
+                       Margin="0,0,2,14"/>
+
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,13">
+                <TextBlock Text="Works Fully Offline" FontSize="12.5"
+                           Foreground="{StaticResource Frost}" Opacity="0.85"
+                           VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets"
+                           FontSize="15" Foreground="{StaticResource Azure}"
+                           Opacity="0.75" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,13">
+                <TextBlock Text="FTA 5% VAT Ready" FontSize="12.5"
+                           Foreground="{StaticResource Frost}" Opacity="0.85"
+                           VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets"
+                           FontSize="15" Foreground="{StaticResource Azure}"
+                           Opacity="0.75" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,13">
+                <TextBlock Text="Data Stays On Your PC" FontSize="12.5"
+                           Foreground="{StaticResource Frost}" Opacity="0.85"
+                           VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <TextBlock Text="&#xE72E;" FontFamily="Segoe MDL2 Assets"
+                           FontSize="15" Foreground="{StaticResource Azure}"
+                           Opacity="0.75" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,13">
+                <TextBlock Text="Full Audit Trail" FontSize="12.5"
+                           Foreground="{StaticResource Frost}" Opacity="0.85"
+                           VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets"
+                           FontSize="15" Foreground="{StaticResource Azure}"
+                           Opacity="0.75" VerticalAlignment="Center"/>
+            </StackPanel>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                <TextBlock Text="Automatic Backups" FontSize="12.5"
+                           Foreground="{StaticResource Frost}" Opacity="0.85"
+                           VerticalAlignment="Center" Margin="0,0,12,0"/>
+                <TextBlock Text="&#xE8F7;" FontFamily="Segoe MDL2 Assets"
+                           FontSize="15" Foreground="{StaticResource Azure}"
+                           Opacity="0.75" VerticalAlignment="Center"/>
+            </StackPanel>
+        </StackPanel>
+
         <!-- ═══ CENTER STAGE ═══ -->
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
 
@@ -340,87 +456,127 @@
                            IsHitTestVisible="False"/>
             </StackPanel>
 
-            <!-- ═══ TERMS GATE ═══
-                 Shown once loading finishes. Acceptance is REQUIRED: the
-                 splash cannot be passed until the box is ticked, and the
-                 acceptance (version + UTC timestamp + user) is recorded so
-                 there is an auditable record rather than just a UI state. -->
-            <Border x:Name="TermsPanel"
-                    Width="620"
-                    Margin="0,26,0,0"
-                    Padding="22,18"
-                    CornerRadius="14"
+        </StackPanel>
+
+        <!-- ═══════════════════════════════════════════════════════════
+             TERMS GATE — FULL PAGE
+             A sibling of the centre stage, not a child of it, so it can
+             occupy the entire window. Terms are long-form legal text: a
+             cramped 620px box made them unreadable, and a user who cannot
+             comfortably read them cannot meaningfully accept them.
+             Sits above the stage with a scrim so the branding stays
+             visible behind but recedes.
+        ═══════════════════════════════════════════════════════════ -->
+        <Grid x:Name="TermsPanel"
+              Background="#E60A1428"
+              Visibility="Collapsed"
+              Opacity="0"
+              Panel.ZIndex="10">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!-- Header -->
+            <StackPanel Grid.Row="0"
+                        HorizontalAlignment="Center"
+                        Margin="0,46,0,0">
+                <TextBlock Text="TERMS OF USE"
+                           FontSize="26" FontWeight="Bold"
+                           HorizontalAlignment="Center"
+                           Foreground="White"/>
+                <TextBlock Text="United Arab Emirates · Please read before continuing"
+                           FontSize="12.5"
+                           HorizontalAlignment="Center"
+                           Margin="0,6,0,0"
+                           Foreground="{StaticResource Frost}"/>
+                <Rectangle Height="1" Width="360" Margin="0,18,0,0"
+                           Opacity="0.25" Fill="{StaticResource Azure}"/>
+            </StackPanel>
+
+            <!-- Body: readable measure, generous line height -->
+            <Border Grid.Row="1"
+                    MaxWidth="980"
+                    Margin="60,26,60,10"
+                    Padding="42,34"
+                    CornerRadius="18"
                     Background="#14FFFFFF"
-                    BorderBrush="#33FFFFFF"
-                    BorderThickness="1"
-                    Visibility="Collapsed"
-                    Opacity="0">
-                <StackPanel>
-                    <TextBlock Text="TERMS OF USE — UNITED ARAB EMIRATES"
-                               FontSize="11" FontWeight="Bold"
-                               Foreground="{StaticResource Azure}"
-                               HorizontalAlignment="Center"/>
+                    BorderBrush="#2EFFFFFF"
+                    BorderThickness="1">
+                <ScrollViewer VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Disabled"
+                              PanningMode="VerticalOnly">
+                    <TextBlock Foreground="{StaticResource Frost}"
+                               FontSize="13.5"
+                               LineHeight="25"
+                               TextWrapping="Wrap">
+                        <Run Text="1. Tax compliance is yours, not the software's." FontWeight="Bold" Foreground="White"/>
+                        <LineBreak/>
+                        <Run Text="This software assists with preparing tax invoices and records. Federal Decree-Law No. 8 of 2017 on Value Added Tax and Federal Decree-Law No. 28 of 2022 on Tax Procedures place the obligation to issue correct tax invoices, apply the correct VAT treatment, and retain records for the periods required by the Federal Tax Authority on YOU, the taxable person. You must verify every figure before issuing, filing or relying on it."/>
+                        <LineBreak/><LineBreak/>
+                        <Run Text="2. Record retention." FontWeight="Bold" Foreground="White"/>
+                        <LineBreak/>
+                        <Run Text="UAE tax law requires accounting records and tax invoices to be retained for the statutory period — generally five years, and longer for real-estate records. All data is stored locally on this computer only. Maintaining backups sufficient to meet that obligation is your responsibility."/>
+                        <LineBreak/><LineBreak/>
+                        <Run Text="3. Electronic records and signatures." FontWeight="Bold" Foreground="White"/>
+                        <LineBreak/>
+                        <Run Text="Federal Decree-Law No. 46 of 2021 on Electronic Transactions and Trust Services governs electronic records in the UAE. Documents produced here are electronic records; you are responsible for their integrity, storage, and any signature requirements applicable to your business."/>
+                        <LineBreak/><LineBreak/>
+                        <Run Text="4. Personal data protection." FontWeight="Bold" Foreground="White"/>
+                        <LineBreak/>
+                        <Run Text="Federal Decree-Law No. 45 of 2021 on the Protection of Personal Data applies to personal data you enter, such as customer and contact details. You act as the data controller. If you enable the optional AI assistant with real business data, customer names, project names and amounts are transmitted to a third-party AI provider outside this device. That feature is optional and can be switched off at any time in Settings."/>
+                        <LineBreak/><LineBreak/>
+                        <Run Text="5. Intellectual property and licence." FontWeight="Bold" Foreground="White"/>
+                        <LineBreak/>
+                        <Run Text="You are granted a non-transferable licence to use this software for your business. The software, its design and its source remain the property of the author. You may not resell, sublicense, or redistribute it."/>
+                        <LineBreak/><LineBreak/>
+                        <Run Text="6. Acceptable use." FontWeight="Bold" Foreground="White"/>
+                        <LineBreak/>
+                        <Run Text="You agree not to use this software to produce false, misleading or fraudulent invoices or records, or for any purpose unlawful under UAE federal or emirate law."/>
+                        <LineBreak/><LineBreak/>
+                        <Run Text="7. No warranty and limitation of liability." FontWeight="Bold" Foreground="White"/>
+                        <LineBreak/>
+                        <Run Text="The software is provided 'as is', without warranty of any kind, express or implied. Pricing, costing, VAT and profit calculations are aids, not professional advice. To the maximum extent permitted by law, no liability is accepted for any direct, indirect or consequential loss arising from use of, or reliance on, its output. Consult a qualified tax adviser regarding your obligations."/>
+                        <LineBreak/><LineBreak/>
+                        <Run Text="8. Updates." FontWeight="Bold" Foreground="White"/>
+                        <LineBreak/>
+                        <Run Text="Updates may be offered from time to time. Installing them is your choice; continuing to use an outdated version may affect compliance with changing tax rules."/>
+                        <LineBreak/><LineBreak/>
+                        <Run Text="9. Governing law." FontWeight="Bold" Foreground="White"/>
+                        <LineBreak/>
+                        <Run Text="These terms are governed by the laws of the United Arab Emirates and of the Emirate in which you operate. Disputes are subject to the competent UAE courts."/>
+                    </TextBlock>
+                </ScrollViewer>
+            </Border>
 
-                    <ScrollViewer Height="150"
-                                  Margin="0,12,0,0"
-                                  VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Disabled">
-                        <StackPanel>
-                            <TextBlock Foreground="{StaticResource Frost}"
-                                       FontSize="11.5"
-                                       LineHeight="18"
-                                       TextWrapping="Wrap">
-                                <Run Text="1. Tax compliance." FontWeight="Bold"/>
-                                <Run Text="This software assists with preparing tax invoices and records. Federal Decree-Law No. 8 of 2017 on Value Added Tax and Federal Decree-Law No. 28 of 2022 on Tax Procedures place the obligation to issue correct tax invoices, apply the correct VAT treatment, and retain records for the periods required by the Federal Tax Authority on YOU, the taxable person — not on this software or its author. You must verify every figure before issuing, filing or relying on it."/>
-                                <LineBreak/><LineBreak/>
-                                <Run Text="2. Record retention." FontWeight="Bold"/>
-                                <Run Text="UAE tax law requires accounting records and tax invoices to be retained for the statutory period (generally five years, and longer for real-estate records). All data is stored locally on this computer only. Maintaining backups sufficient to meet that obligation is your responsibility."/>
-                                <LineBreak/><LineBreak/>
-                                <Run Text="3. Electronic records and signatures." FontWeight="Bold"/>
-                                <Run Text="Federal Decree-Law No. 46 of 2021 on Electronic Transactions and Trust Services governs electronic records in the UAE. Documents produced here are electronic records; you are responsible for their integrity, storage and any signature requirements applicable to your business."/>
-                                <LineBreak/><LineBreak/>
-                                <Run Text="4. Data protection." FontWeight="Bold"/>
-                                <Run Text="Federal Decree-Law No. 45 of 2021 on the Protection of Personal Data applies to personal data you enter, such as customer and contact details. You are the data controller. If you enable the optional AI assistant with real business data, customer names, project names and amounts are transmitted to a third-party AI provider outside this device; that feature is optional and can be disabled in Settings."/>
-                                <LineBreak/><LineBreak/>
-                                <Run Text="5. No warranty." FontWeight="Bold"/>
-                                <Run Text="The software is provided 'as is', without warranty of any kind. Pricing, costing, VAT and profit calculations are aids, not professional advice. No liability is accepted for any loss arising from reliance on its output. Consult a qualified tax adviser for your obligations."/>
-                                <LineBreak/><LineBreak/>
-                                <Run Text="6. Governing law." FontWeight="Bold"/>
-                                <Run Text="These terms are governed by the laws of the United Arab Emirates and the Emirate in which you operate."/>
-                            </TextBlock>
-                        </StackPanel>
-                    </ScrollViewer>
-
+            <!-- Accept bar -->
+            <Border Grid.Row="2"
+                    Background="#1AFFFFFF"
+                    BorderBrush="#26FFFFFF"
+                    BorderThickness="0,1,0,0"
+                    Padding="60,20">
+                <Grid MaxWidth="980">
                     <CheckBox x:Name="AcceptTermsCheck"
-                              Margin="0,14,0,0"
+                              HorizontalAlignment="Left"
+                              VerticalAlignment="Center"
                               Foreground="{StaticResource Frost}"
-                              FontSize="12"
+                              FontSize="12.5"
                               Cursor="Hand"
                               Checked="AcceptTerms_Changed"
                               Unchecked="AcceptTerms_Changed">
                         <TextBlock Text="I have read and accept these terms, and I accept responsibility for the accuracy of the records I produce."
                                    TextWrapping="Wrap"
-                                   MaxWidth="520"/>
+                                   MaxWidth="620"/>
                     </CheckBox>
 
                     <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center"
-                                Margin="0,16,0,0">
-                        <Button x:Name="ContinueButton"
-                                Content="CONTINUE"
-                                Width="180" Height="38"
-                                FontSize="12" FontWeight="Bold"
-                                Cursor="Hand"
-                                IsEnabled="False"
-                                FocusVisualStyle="{x:Null}"
-                                Foreground="White"
-                                Background="{StaticResource Royal}"
-                                BorderThickness="0"
-                                Click="ContinueFromTerms_Click"/>
+                                HorizontalAlignment="Right"
+                                VerticalAlignment="Center">
                         <Button x:Name="DeclineButton"
                                 Content="DECLINE AND EXIT"
-                                Width="160" Height="38"
-                                Margin="10,0,0,0"
+                                Width="170" Height="42"
+                                Margin="0,0,12,0"
                                 FontSize="11"
                                 Cursor="Hand"
                                 FocusVisualStyle="{x:Null}"
@@ -429,10 +585,21 @@
                                 BorderBrush="#40FFFFFF"
                                 BorderThickness="1"
                                 Click="DeclineTerms_Click"/>
+                        <Button x:Name="ContinueButton"
+                                Content="ACCEPT AND CONTINUE"
+                                Width="220" Height="42"
+                                FontSize="12" FontWeight="Bold"
+                                Cursor="Hand"
+                                IsEnabled="False"
+                                FocusVisualStyle="{x:Null}"
+                                Foreground="White"
+                                Background="{StaticResource Royal}"
+                                BorderThickness="0"
+                                Click="ContinueFromTerms_Click"/>
                     </StackPanel>
-                </StackPanel>
+                </Grid>
             </Border>
-        </StackPanel>
+        </Grid>
 
         <!-- ═══ FOOTER ═══ -->
         <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center"

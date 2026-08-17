@@ -1,4 +1,4 @@
-<!--
+﻿<!--
     FILE: Themes/LightTheme.xaml
     PROJECT: ProGlassAutomation
     VERSION: Chat 23 v1.6 — Add Dashboard glass/ambient keys
@@ -123,6 +123,31 @@
     <!-- ── Borders + dividers ──────────────────────────────────────── -->
     <SolidColorBrush x:Key="BorderBrush"
                      Color="#E5E7EB"
+                     po:Freeze="True"/>
+
+    <!-- OUTLINE — the definition edge for rounded pills and cards.
+         Deliberately a SEPARATE key from BorderBrush: BorderBrush is also
+         used by text inputs, dividers and table gridlines, and darkening
+         those globally would make every field look heavy. This one applies
+         only to pill buttons and card shapes, which is where an element
+         needs to stay visually separate from a tinted (Monet) surface.
+         Overridden at runtime by ThemeManager.ApplyOutline. -->
+    <SolidColorBrush x:Key="OutlineBrush"
+                     Color="#D4D9E0"
+                     po:Freeze="True"/>
+
+    <!-- The "defined" variant the Appearance toggle switches to: a near-black
+         ink, not pure #000, which reads as a deliberate edge rather than a
+         harsh line on white. -->
+    <!-- Immutable copy of the subtle default. ApplyOutline overwrites
+         OutlineBrush at runtime, so it needs a pristine source to restore
+         from when the toggle is switched back off. -->
+    <SolidColorBrush x:Key="OutlineDefaultBrush"
+                     Color="#D4D9E0"
+                     po:Freeze="True"/>
+
+    <SolidColorBrush x:Key="OutlineStrongBrush"
+                     Color="#111827"
                      po:Freeze="True"/>
     <SolidColorBrush x:Key="DividerBrush"
                      Color="#E5E7EB"

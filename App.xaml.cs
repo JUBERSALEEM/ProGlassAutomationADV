@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: App.xaml.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Application startup (Chat 25 v4.0 — non-blocking Whisper init)
@@ -461,6 +461,12 @@ namespace ProGlassAutomation
                 ProGlassAutomation.Services.Theme.AccentPresets.ColorFor(
                     Config.Appearance?.AccentPreset ?? "GlassBlue"),
                 raiseEvent: false);
+
+            // 9f) Restore the persisted card/pill outline choice. Must run
+            //     AFTER ApplyAccent, because both write into the same live
+            //     resource dictionary and this one must win for OutlineBrush.
+            ProGlassAutomation.Services.ThemeManager.ApplyOutline(
+                Config.Appearance?.UseDefinedOutline ?? false);
 
             AuditService.Log(
                 AuditSections.App, "App started",

@@ -1,4 +1,4 @@
-<!--
+﻿<!--
     FILE: Themes/DarkTheme.xaml
     PROJECT: ProGlassAutomation
     VERSION: Chat 23 v1.6 — Add Dashboard glass/ambient keys (dark)
@@ -116,6 +116,25 @@
     <SolidColorBrush x:Key="BorderBrush"
                      Color="#334155"
                      po:Freeze="True"/>
+    <!-- OUTLINE — see LightTheme for why this is separate from BorderBrush.
+         NOTE: pure black is NOT usable here. On a dark surface (#0F172A and
+         friends) a #000 edge disappears and reads as a hole, so the dark
+         theme uses a LIFTED slate that still separates the shape. -->
+    <SolidColorBrush x:Key="OutlineBrush"
+                     Color="#3A4658"
+                     po:Freeze="True"/>
+
+    <!-- Immutable copy of the subtle default. ApplyOutline overwrites
+         OutlineBrush at runtime, so it needs a pristine source to restore
+         from when the toggle is switched back off. -->
+    <SolidColorBrush x:Key="OutlineDefaultBrush"
+                     Color="#3A4658"
+                     po:Freeze="True"/>
+
+    <SolidColorBrush x:Key="OutlineStrongBrush"
+                     Color="#7C8CA6"
+                     po:Freeze="True"/>
+
     <SolidColorBrush x:Key="DividerBrush"
                      Color="#334155"
                      po:Freeze="True"/>

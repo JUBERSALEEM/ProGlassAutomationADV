@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Styles/ButtonStyles.xaml
      PROJECT: ProGlassAutomation
      PURPOSE: Centralized button design system.
@@ -49,7 +49,7 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Bg"
                             Background="{DynamicResource AccentBrush}"
-                            BorderBrush="#4DFFFFFF"
+                            BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="1"
                             CornerRadius="20"
                             Padding="{TemplateBinding Padding}"
@@ -115,7 +115,7 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Bg"
                             Background="{DynamicResource SuccessBrush}"
-                            BorderBrush="#4DFFFFFF"
+                            BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="1"
                             CornerRadius="20"
                             Padding="{TemplateBinding Padding}"

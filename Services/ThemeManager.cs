@@ -98,6 +98,11 @@ namespace ProGlassAutomation.Services
             // surfaces so hover/tint/contrast stay correct.
             ApplyAccent(_customAccent, raiseEvent: false);
 
+            // Loading a theme dictionary restores that theme's own
+            // OutlineBrush, which would silently discard the user's
+            // "defined edge" choice on every Light/Dark swap.
+            ReapplyOutline();
+
             ThemeChanged?.Invoke(null, EventArgs.Empty);
         }
 
@@ -308,6 +313,58 @@ namespace ProGlassAutomation.Services
         /// App-level entries override the merged theme dictionaries,
         /// which is exactly how derived values win over defaults.
         /// </summary>
+        // ══════════════════════════════════════════════════════════════
+        //  OUTLINE ENGINE — the "defined edge" toggle
+        // ══════════════════════════════════════════════════════════════
+
+        private static bool _definedOutline;
+
+        /// <summary>
+        /// True when rounded pills and cards draw a strong, near-black
+        /// definition edge instead of the subtle default hairline.
+        /// </summary>
+        public static bool UseDefinedOutline => _definedOutline;
+
+        /// <summary>
+        /// Switches OutlineBrush between the subtle default and the strong
+        /// "defined" edge.
+        ///
+        /// WHY A SEPARATE KEY FROM BorderBrush: BorderBrush is also used by
+        /// text inputs, dividers and table gridlines. Darkening that globally
+        /// would make every field look heavy. OutlineBrush is consumed only by
+        /// pill buttons and card shapes, which are the elements that need to
+        /// stay visually separate from a tinted (Monet) surface.
+        ///
+        /// WHY NOT LITERAL BLACK: on the dark theme a #000 edge against a
+        /// near-black card disappears and reads as a hole, so the dark theme
+        /// resolves the same key to a LIFTED slate. Both themes therefore get
+        /// a visible edge from one switch.
+        /// </summary>
+        public static void ApplyOutline(bool defined)
+        {
+            _definedOutline = defined;
+
+            var resources = Application.Current?.Resources;
+            if (resources == null) return;
+
+            // Read the theme-provided value rather than hardcoding a colour
+            // here, so each theme keeps control of what "strong" and "subtle"
+            // mean for its own surfaces.
+            string sourceKey = defined ? "OutlineStrongBrush" : "OutlineDefaultBrush";
+
+            if (resources[sourceKey] is SolidColorBrush src)
+            {
+                FreezeAndSet(resources, "OutlineBrush", src.Color);
+            }
+        }
+
+        /// <summary>
+        /// Re-applies the current outline choice. Called after a theme swap,
+        /// because loading a new dictionary restores that theme's own
+        /// OutlineBrush and would silently discard the user's preference.
+        /// </summary>
+        private static void ReapplyOutline() => ApplyOutline(_definedOutline);
+
         private static void FreezeAndSet(
             ResourceDictionary resources, string key, Color color)
         {

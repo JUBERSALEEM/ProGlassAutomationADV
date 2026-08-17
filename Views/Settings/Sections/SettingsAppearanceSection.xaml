@@ -81,6 +81,34 @@
                                    Margin="0,10,0,0"
                                    TextWrapping="Wrap"
                                    Text="Normal = clean default. Monet = colour-adaptive glass surfaces derived from your accent colour. Professional = premium corporate finish with cool crisp surfaces."/>
+
+                        <!-- Defined card edge — one switch, applied globally
+                             through the OutlineBrush theme key. -->
+                        <Border Height="1" Margin="0,18,0,16"
+                                Background="{DynamicResource DividerBrush}"/>
+
+                        <DockPanel>
+                            <StackPanel Orientation="Horizontal"
+                                        VerticalAlignment="Center">
+                                <TextBlock Text="&#xE71B;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="16"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,10,0"
+                                           IsHitTestVisible="False"/>
+                                <TextBlock Text="Defined Card Edges"
+                                           Style="{StaticResource RowTitleStyle}"/>
+                            </StackPanel>
+                            <ToggleButton HorizontalAlignment="Right"
+                                          IsChecked="{Binding UseDefinedOutline, Mode=TwoWay}"
+                                          Style="{StaticResource ModernToggleSwitch}"/>
+                        </DockPanel>
+
+                        <TextBlock Style="{StaticResource HintTextStyle}"
+                                   Margin="0,10,0,0"
+                                   TextWrapping="Wrap"
+                                   Text="Draws a strong dark outline on rounded cards and pill buttons so they stay clearly separate from tinted surfaces instead of blending into them. Applies everywhere in the app and adapts to Light and Dark themes."/>
                     </StackPanel>
                 </Border>
 
