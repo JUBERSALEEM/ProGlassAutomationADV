@@ -5,6 +5,7 @@ using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Csv;
 using ProGlassAutomation.Services.Export.Excel;
 using ProGlassAutomation.Services.Export.Pdf;
+using ProGlassAutomation.Services.JobOrder.Mapper;
 using ProGlassAutomation.Services.ProformaInvoice.Export;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.ViewModels;
@@ -558,6 +559,23 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 var entity = await App.Invoices.GetByIdAsync(item.Id);
                 if (entity == null) return;
 
+                // Already approved — nothing to do (approval also converts once).
+                if (string.Equals(newStatus, "Approved", StringComparison.OrdinalIgnoreCase)
+                    && string.Equals(entity.Status, "Approved", StringComparison.OrdinalIgnoreCase))
+                {
+                    await LoadInvoicesAsync();
+                    return;
+                }
+
+                // Approving is gated: the customer must have signed the PI OR
+                // provided an LPO. On confirmation the invoice is approved and
+                // automatically converted to a Job Order.
+                if (string.Equals(newStatus, "Approved", StringComparison.OrdinalIgnoreCase))
+                {
+                    await ApproveAsync(entity, item);
+                    return;   // ApproveAsync reloads the list
+                }
+
                 entity.Status = newStatus;
                 await App.Invoices.UpdateAsync(entity);
                 await LoadInvoicesAsync();
@@ -569,6 +587,119 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     "Status Change Failed",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Approve gate: asks how the customer confirmed the quote (Signed PI
+        /// or LPO), persists the LPO into the invoice snapshot when chosen,
+        /// marks the invoice Approved, and auto-converts it to a Job Order.
+        /// </summary>
+        private async Task ApproveAsync(
+            SavedProformaInvoice entity, SavedInvoiceListItem item)
+        {
+            if (entity == null || App.Invoices == null) return;
+
+            // 1. Customer-confirmation gate (signed PI OR LPO).
+            var dlg =
+                new ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
+                    .InvoiceApprovalDialog
+                {
+                    Owner = Application.Current?.MainWindow
+                };
+            if (dlg.ShowDialog() != true || !dlg.Approved)
+                return;   // cancelled — status unchanged
+
+            // 2. "Received LPO" → persist the LPO number into the snapshot
+            //    (Step 3 Project.LpoNumber) so invoices / statement generator
+            //    always carry it. "Received Signed PI" needs no LPO.
+            if (!dlg.IsSignedPi)
+            {
+                string lpo = dlg.LpoNumber?.Trim() ?? "";
+                if (string.IsNullOrWhiteSpace(lpo))
+                {
+                    MessageBox.Show(
+                        "Enter the LPO / purchase order number to approve " +
+                        "this invoice.",
+                        "LPO Required",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Warning);
+                    return;
+                }
+
+                var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
+                snapshot.Project.LpoNumber = lpo;
+                entity.FullSnapshotJson =
+                    ProformaInvoiceMapper.SerializeSnapshot(snapshot);
+            }
+
+            // 3. Approve + persist.
+            entity.Status = "Approved";
+            entity.UpdatedAt = DateTime.Now;
+            await App.Invoices.UpdateAsync(entity);
+
+            AuditService.Log(
+                AuditSections.Proforma, "Invoice approved",
+                $"{entity.ProformaId} approved " +
+                $"({(dlg.IsSignedPi ? "signed PI" : "LPO " + dlg.LpoNumber)})",
+                "PI", entity.ProformaId);
+
+            // 4. Auto-convert to a Job Order.
+            await ConvertToJobOrderAsync(entity);
+
+            await LoadInvoicesAsync();
+
+            MessageBox.Show(
+                $"Invoice '{entity.ProformaId}' approved and converted to a " +
+                "Job Order.",
+                "Approved",
+                MessageBoxButton.OK,
+                MessageBoxImage.Information);
+        }
+
+        /// <summary>
+        /// Auto-converts an approved Proforma Invoice to a Job Order using the
+        /// same mapper/repository the old manual "Convert to Job Order" action
+        /// used. Skips when a Job Order already exists for the proforma, so a
+        /// re-approval can never duplicate it.
+        /// </summary>
+        private async Task ConvertToJobOrderAsync(SavedProformaInvoice piEntity)
+        {
+            if (piEntity == null || App.Jobs == null) return;
+
+            try
+            {
+                var existing = await App.Jobs.GetBySourceProformaIdAsync(
+                    piEntity.ProformaId ?? "");
+                if (existing != null && existing.Count > 0) return;   // already converted
+
+                var jobSnapshot = JobOrderMapper.BuildFromProformaInvoice(piEntity);
+                if (await App.Jobs.ExistsByJobOrderIdAsync(jobSnapshot.JobOrderId))
+                {
+                    jobSnapshot.JobOrderId = await App.Jobs.SuggestNextIdAsync(
+                        jobSnapshot.JobOrderId);
+                }
+
+                var jobEntity = JobOrderMapper.BuildEntityFromSnapshot(
+                    jobSnapshot, piEntity.GrandTotalVatInclusive);
+                await App.Jobs.InsertAsync(jobEntity);
+
+                AuditService.Log(
+                    AuditSections.JobOrder, "Job Order auto-created on approval",
+                    $"{jobEntity.JobOrderId} ← {piEntity.ProformaId}",
+                    "JO", jobEntity.JobOrderId);
+            }
+            catch (Exception ex)
+            {
+                // A Job Order failure must not roll back the approval itself.
+                ProGlassAutomation.Services.Logging.AppLogService.Error(
+                    "Auto-convert to Job Order on approval failed.", ex,
+                    new ProGlassAutomation.Services.Logging.LogContext
+                    {
+                        Module = "Proforma",
+                        Class = nameof(SavedInvoicesListViewModel),
+                        Operation = "ApproveAutoConvert"
+                    });
             }
         }
 

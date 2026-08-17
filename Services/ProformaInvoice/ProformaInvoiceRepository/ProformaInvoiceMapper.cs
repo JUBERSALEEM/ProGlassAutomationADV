@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/ProformaInvoice/ProformaInvoiceRepository/ProformaInvoiceMapper.cs
 // ═══════════════════════════════════════════════════════════════════════
 // CHAT 20 — PER-SPEC TARGETING PERSISTENCE
@@ -398,6 +398,16 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 return new ProformaInvoiceSnapshot();
             }
         }
+
+        /// <summary>
+        /// Serializes a snapshot back to JSON using the SAME options the rest
+        /// of the mapper uses, so a snapshot modified in memory (e.g. an LPO
+        /// number added at approval time) round-trips exactly like a normal
+        /// save. Used when a business action edits snapshot state outside the
+        /// wizard (e.g. approving an invoice and storing the LPO).
+        /// </summary>
+        public static string SerializeSnapshot(ProformaInvoiceSnapshot snapshot)
+            => JsonSerializer.Serialize(snapshot ?? new ProformaInvoiceSnapshot(), _jsonOptions);
 
         public static void RestoreWizardFromSnapshot(
             ProformaInvoiceSnapshot snap,
