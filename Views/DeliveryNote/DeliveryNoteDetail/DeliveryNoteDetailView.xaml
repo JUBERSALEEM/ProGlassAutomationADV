@@ -184,7 +184,7 @@
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Padding" Value="14,8"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Background" Value="#4338CA"/>
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
             <Setter Property="Foreground" Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Visibility" Value="Visible"/>
@@ -356,7 +356,7 @@
             <Setter Property="Padding" Value="10,3"/>
             <Setter Property="Margin" Value="6,0,0,0"/>
             <Setter Property="VerticalAlignment" Value="Center"/>
-            <Setter Property="Background" Value="#4338CA"/>
+            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
             <Setter Property="Visibility" Value="Collapsed"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsMasterDn}" Value="True">

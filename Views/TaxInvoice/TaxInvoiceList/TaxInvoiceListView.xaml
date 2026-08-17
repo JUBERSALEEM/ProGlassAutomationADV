@@ -87,7 +87,7 @@
                                 <Setter TargetName="Card" Property="Background"
                                         Value="{DynamicResource MenuHoverBrush}"/>
                                 <Setter TargetName="Card" Property="BorderBrush"
-                                        Value="#4338CA"/>
+                                        Value="{DynamicResource AccentBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -203,13 +203,13 @@
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background"
                                         Value="{DynamicResource MenuHoverBrush}"/>
-                                <Setter Property="BorderBrush" Value="#4338CA"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                             </Trigger>
                             <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                 <Setter Property="Background"
                                         Value="{DynamicResource TintIndigoBrush}"/>
                                 <Setter Property="BorderThickness" Value="2"/>
-                                <Setter Property="BorderBrush" Value="#4338CA"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding IsFullyPaid}" Value="True">
                                 <Setter Property="BorderBrush" Value="#047857"/>
@@ -336,7 +336,7 @@
                             <Border CornerRadius="4" HorizontalAlignment="Left">
                                 <Border.Style>
                                     <Style TargetType="Border">
-                                        <Setter Property="Background" Value="#4338CA"/>
+                                        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsFullyPaid}"
                                                          Value="True">

@@ -39,7 +39,7 @@
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter Property="Background"
                                         Value="{DynamicResource MenuHoverBrush}"/>
-                                <Setter Property="BorderBrush" Value="#4338CA"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                             </Trigger>
                             <DataTrigger Binding="{Binding AllDelivered}" Value="True">
                                 <Setter Property="BorderBrush" Value="#047857"/>
@@ -237,7 +237,7 @@
                             <Border CornerRadius="4" HorizontalAlignment="Left">
                                 <Border.Style>
                                     <Style TargetType="Border">
-                                        <Setter Property="Background" Value="#4338CA"/>
+                                        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding AllDelivered}" Value="True">
                                                 <Setter Property="Background" Value="#047857"/>
@@ -310,7 +310,7 @@
     <Run Text="{Binding InvoicedCountDisplay, Mode=OneWay}">
         <Run.Style>
             <Style TargetType="Run">
-                <Setter Property="Foreground" Value="#4338CA"/>
+                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                 <Style.Triggers>
                     <DataTrigger Binding="{Binding IsFullyInvoiced}" Value="True">
                         <Setter Property="Foreground" Value="#047857"/>
@@ -434,7 +434,7 @@
                             <Trigger Property="IsMouseOver" Value="True">
                                 <Setter TargetName="Card" Property="Background"
                                         Value="{DynamicResource MenuHoverBrush}"/>
-                                <Setter TargetName="Card" Property="BorderBrush" Value="#4338CA"/>
+                                <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
