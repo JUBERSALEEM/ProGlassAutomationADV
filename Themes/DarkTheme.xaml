@@ -37,6 +37,10 @@
     <SolidColorBrush x:Key="MenuHoverBrush"
                      Color="#334155"
                      po:Freeze="True"/>
+    <!-- Sidebar sub-menu / nested card surface — elevated above the menu. -->
+    <SolidColorBrush x:Key="SidebarCardBrush"
+                     Color="#273449"
+                     po:Freeze="True"/>
     <SolidColorBrush x:Key="OverlayButtonBackgroundBrush"
                      Color="#3B82F6"
                      po:Freeze="True"/>

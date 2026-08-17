@@ -45,6 +45,11 @@
     <SolidColorBrush x:Key="MenuHoverBrush"
                      Color="#F3F4F6"
                      po:Freeze="True"/>
+    <!-- Sidebar sub-menu / nested card surface. Brighter than the menu
+         hover tint so the expandable groups read as clean white cards. -->
+    <SolidColorBrush x:Key="SidebarCardBrush"
+                     Color="#FFFFFF"
+                     po:Freeze="True"/>
     <SolidColorBrush x:Key="OverlayButtonBackgroundBrush"
                      Color="#1D4ED8"
                      po:Freeze="True"/>

@@ -293,6 +293,14 @@ namespace ProGlassAutomation.ViewModels
             }
         }
 
+        private string _currentUserRole = "";
+        /// <summary>Role of the signed-in user ("Administrator", "Manager", "Operator").</summary>
+        public string CurrentUserRole
+        {
+            get => _currentUserRole;
+            private set { if (_currentUserRole == value) return; _currentUserRole = value; OnPropertyChanged(); }
+        }
+
         /// <summary>Two-letter initials derived from the display name.</summary>
         public string CurrentUserInitials
         {
@@ -380,7 +388,18 @@ namespace ProGlassAutomation.ViewModels
                 string.IsNullOrWhiteSpace(user?.DisplayName)
                     ? Services.Audit.AuditService.CurrentUsername
                     : user!.DisplayName!;
+            CurrentUserRole = PrettyRole(user?.Role);
         }
+
+        /// <summary>Normalises the stored role into a friendly label.</summary>
+        private static string PrettyRole(string? role) => role switch
+        {
+            "Admin" => "Administrator",
+            "Manager" => "Manager",
+            "Operator" => "Operator",
+            "Store" => "Store",
+            _ => string.IsNullOrWhiteSpace(role) ? "User" : role
+        };
 
         /// <summary>
         /// Computes the app's data-folder size for the sidebar storage
@@ -440,6 +459,15 @@ namespace ProGlassAutomation.ViewModels
 
         /// <summary>v3.1: Navigates to the Settings page (was toggle drawer).</summary>
         public ICommand ShowSettingsCommand { get; }
+
+        /// <summary>
+        /// Opens the secure user-switch dialog. Lists the active users and
+        /// switches the signed-in identity only after the selected user's
+        /// password is verified (reuses AuditService.SwitchUserAsync, so a
+        /// user whose password was set by someone else cannot be entered
+        /// without that password).
+        /// </summary>
+        public ICommand ShowUserSwitchCommand { get; }
 
         // ═════════════════════════════════════════════════════════════════
         public MainViewModel()
@@ -534,6 +562,15 @@ namespace ProGlassAutomation.ViewModels
             {
                 CurrentViewModel = SettingsVM;
                 IsMenuOpen = false;
+            });
+
+            // Opens the user-switch dialog (secure — password verified).
+            ShowUserSwitchCommand = new RelayCommand(_ =>
+            {
+                System.Windows.Application.Current?.Dispatcher.Invoke(
+                    () => ProGlassAutomation.Views.Shared.UserSwitchDialog.Show(
+                        System.Windows.Application.Current.MainWindow));
+                RefreshCurrentUser();
             });
 
             // ── connectivity pill: follow the shared ConnectivityService ──
