@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/AI/AiChatView.xaml
      PROJECT: ProGlassAutomation
      MODULE: AI Chat (Chat 25 v4.0 — StatusMessage visibility fix)
@@ -173,7 +173,7 @@
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="Background"
-                            Value="{DynamicResource BorderBrush}"/>
+                            Value="{DynamicResource OutlineBrush}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>

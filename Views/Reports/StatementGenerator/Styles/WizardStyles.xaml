@@ -110,7 +110,7 @@
         <Setter Property="Height"               Value="2"/>
         <Setter Property="VerticalAlignment"    Value="Center"/>
         <Setter Property="Margin"               Value="0,0,0,18"/>
-        <Setter Property="Background"           Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="Background"           Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="SnapsToDevicePixels"  Value="True"/>
     </Style>
 
@@ -376,7 +376,7 @@
 
     <Style x:Key="WizardCardStyle" TargetType="Border">
         <Setter Property="Background"           Value="{DynamicResource ModuleBackgroundBrush}"/>
-        <Setter Property="BorderBrush"          Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderBrush"          Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness"      Value="1"/>
         <Setter Property="CornerRadius"         Value="12"/>
         <Setter Property="Padding"              Value="20"/>
@@ -456,7 +456,7 @@
 
     <Style x:Key="OptionCardStyle" TargetType="Border">
         <Setter Property="Background"           Value="{DynamicResource ModuleBackgroundBrush}"/>
-        <Setter Property="BorderBrush"          Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderBrush"          Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness"      Value="1"/>
         <Setter Property="CornerRadius"         Value="10"/>
         <Setter Property="Padding"              Value="12,10"/>
@@ -477,7 +477,7 @@
 
     <Style x:Key="MetricCardStyle" TargetType="Border">
         <Setter Property="Background"           Value="{DynamicResource ModuleBackgroundBrush}"/>
-        <Setter Property="BorderBrush"          Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderBrush"          Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness"      Value="1"/>
         <Setter Property="CornerRadius"         Value="12"/>
         <Setter Property="Padding"              Value="20,18"/>

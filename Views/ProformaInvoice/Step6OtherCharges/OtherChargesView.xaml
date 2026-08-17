@@ -109,7 +109,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
 
         <Style x:Key="MetricCardStyle" TargetType="Border">
             <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius"    Value="12"/>
             <Setter Property="Padding"         Value="14,12"/>

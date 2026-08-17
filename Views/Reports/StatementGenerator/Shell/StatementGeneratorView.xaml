@@ -148,7 +148,7 @@
                                 <Border.Style>
                                     <Style TargetType="Border" BasedOn="{StaticResource StepNumberBadgeStyle}">
                                         <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsStep1Complete}" Value="True">
                                                 <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
@@ -230,7 +230,7 @@
                                 <Border.Style>
                                     <Style TargetType="Border" BasedOn="{StaticResource StepNumberBadgeStyle}">
                                         <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsStep2Complete}" Value="True">
                                                 <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
@@ -312,7 +312,7 @@
                                 <Border.Style>
                                     <Style TargetType="Border" BasedOn="{StaticResource StepNumberBadgeStyle}">
                                         <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsStep3Complete}" Value="True">
                                                 <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
@@ -394,7 +394,7 @@
                                 <Border.Style>
                                     <Style TargetType="Border" BasedOn="{StaticResource StepNumberBadgeStyle}">
                                         <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-                                        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsStep4Complete}" Value="True">
                                                 <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>

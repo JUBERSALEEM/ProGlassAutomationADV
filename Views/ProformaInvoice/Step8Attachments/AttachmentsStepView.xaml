@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/ProformaInvoice/Step8Attachments/AttachmentsStepView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Proforma Invoice — Step 8 Attachments
@@ -24,7 +24,7 @@
             <Setter Property="Background"
                     Value="{DynamicResource ElevatedSurfaceBrush}"/>
             <Setter Property="BorderBrush"
-                    Value="{DynamicResource BorderBrush}"/>
+                    Value="{DynamicResource OutlineBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius"
                     Value="{DynamicResource CardCornerRadius}"/>

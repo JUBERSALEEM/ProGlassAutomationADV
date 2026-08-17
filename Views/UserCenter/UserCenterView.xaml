@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/UserCenter/UserCenterView.xaml
      PROJECT: ProGlassAutomation
      MODULE: User Center (Phase 1)
@@ -119,7 +119,7 @@
                                 <Border.Style>
                                     <Style TargetType="Border">
                                         <Setter Property="BorderBrush"
-                                                Value="{DynamicResource BorderBrush}"/>
+                                                Value="{DynamicResource OutlineBrush}"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                                 <Setter Property="BorderBrush"

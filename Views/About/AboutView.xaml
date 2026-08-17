@@ -39,9 +39,14 @@
             <Setter Property="UseLayoutRounding"   Value="True"/>
         </Style>
 
+        <!-- Hero previously used AccentBrush at 1.5px, so with an orange
+             accent it drew a bright orange frame while every other card
+             showed a neutral hairline - the cards looked like they belonged
+             to different designs. It now uses the same OutlineBrush as the
+             rest and earns its emphasis from thickness alone, so it stays
+             consistent whatever accent colour the user picks. -->
         <Style x:Key="HeroCardStyle" TargetType="Border"
                BasedOn="{StaticResource AboutCardStyle}">
-            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
             <Setter Property="BorderThickness" Value="1.5"/>
         </Style>
 

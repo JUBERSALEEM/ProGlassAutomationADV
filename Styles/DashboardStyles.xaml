@@ -111,7 +111,7 @@
     <Style x:Key="DashTileStyle" TargetType="Border">
         <Setter Property="Background"
                 Value="{DynamicResource ElevatedSurfaceBrush}"/>
-        <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
         <Setter Property="CornerRadius" Value="{StaticResource DashTileRadius}"/>
         <Setter Property="Padding" Value="12,10"/>

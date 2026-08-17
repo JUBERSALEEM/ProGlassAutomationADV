@@ -1,4 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════════
+﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/About/AboutViewModel.cs
 // PROJECT: ProGlassAutomation
 // MODULE: About (Chat 23 v3.0)
@@ -147,12 +147,17 @@ public sealed class AboutViewModel : ViewModelBase
     /// <summary>
     /// Left-side vertical pillars in the hero card.
     /// Emphasis on QUANTITY / IDENTITY:
-    ///   🧩 Modules count · 🇦🇪 UAE-built · 🎨 Theme flexibility.
+    ///   Modules count · UAE-built · Theme flexibility.
     /// </summary>
     public IReadOnlyList<HeroPillar> LeftPillars { get; } = new[]
     {
         new HeroPillar("\uE9F9", "8",     "MODULES"),
-        new HeroPillar("🇦🇪", "UAE",   "BUILT"),
+        // E909 (Globe), NOT the UAE flag emoji. HeroPillarTemplate renders
+        // this through FontFamily="Segoe MDL2 Assets", which contains no
+        // emoji glyphs, so the flag fell back to four .notdef boxes on
+        // screen - visible as tofu in the hero card. Every pillar glyph must
+        // therefore be an MDL2 codepoint.
+        new HeroPillar("\uE909", "UAE",   "BUILT"),
         new HeroPillar("\uE790", "DARK",  "+ LIGHT"),
     };
 

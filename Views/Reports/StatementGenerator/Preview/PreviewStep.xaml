@@ -362,7 +362,7 @@
                                     <Border.Style>
                                         <Style TargetType="Border">
                                             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-                                            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
                                             <Setter Property="Opacity" Value="1.0"/>
                                             <Style.Triggers>
                                                 <MultiDataTrigger>
@@ -657,7 +657,7 @@
                                     <Border.Style>
                                         <Style TargetType="Border">
                                             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-                                            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+                                            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding HasOverInvoicing}" Value="True">
                                                     <Setter Property="Background" Value="#FEF2F2"/>
