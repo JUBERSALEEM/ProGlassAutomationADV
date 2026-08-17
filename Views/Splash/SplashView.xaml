@@ -225,10 +225,28 @@
                     <Ellipse Width="220" Height="220"
                              Fill="{StaticResource IconHalo}"
                              IsHitTestVisible="False"/>
-                    <Border Width="150" Height="150"
-                            CornerRadius="34"
+                    <!-- The app icon is a blue glass pane on a blue field, so
+                         on the deep-navy stage it was blue-on-blue and read as
+                         a dark smudge. A frosted light plate sits behind it to
+                         give the icon a surface to contrast against, matching
+                         the bluish-glass identity rather than fighting it. -->
+                    <Border Width="164" Height="164"
+                            CornerRadius="38"
                             Effect="{StaticResource IconShadow}"
                             SnapsToDevicePixels="True">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                                <GradientStop Color="#F2FFFFFF" Offset="0.0"/>
+                                <GradientStop Color="#D9E8F2FF" Offset="0.55"/>
+                                <GradientStop Color="#BFD3E8FF" Offset="1.0"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+
+                        <Border Width="150" Height="150"
+                                CornerRadius="34"
+                                BorderBrush="#66FFFFFF"
+                                BorderThickness="1"
+                                SnapsToDevicePixels="True">
                         <Border.Background>
                             <ImageBrush ImageSource="pack://application:,,,/Resources/proglass_icon_256.png"
                                         Stretch="UniformToFill"/>
@@ -249,6 +267,7 @@
                                     <TranslateTransform x:Name="ShimmerTranslate" X="-200"/>
                                 </Border.RenderTransform>
                             </Border>
+                        </Border>
                         </Border>
                     </Border>
                 </Grid>
@@ -304,7 +323,8 @@
                         SnapsToDevicePixels="True"/>
             </Grid>
 
-            <StackPanel Orientation="Horizontal"
+            <StackPanel x:Name="LoadingStrip"
+                        Orientation="Horizontal"
                         HorizontalAlignment="Center"
                         Margin="0,12,0,0">
                 <TextBlock x:Name="LoadingText"
@@ -319,6 +339,99 @@
                            Foreground="{StaticResource Azure}"
                            IsHitTestVisible="False"/>
             </StackPanel>
+
+            <!-- ═══ TERMS GATE ═══
+                 Shown once loading finishes. Acceptance is REQUIRED: the
+                 splash cannot be passed until the box is ticked, and the
+                 acceptance (version + UTC timestamp + user) is recorded so
+                 there is an auditable record rather than just a UI state. -->
+            <Border x:Name="TermsPanel"
+                    Width="620"
+                    Margin="0,26,0,0"
+                    Padding="22,18"
+                    CornerRadius="14"
+                    Background="#14FFFFFF"
+                    BorderBrush="#33FFFFFF"
+                    BorderThickness="1"
+                    Visibility="Collapsed"
+                    Opacity="0">
+                <StackPanel>
+                    <TextBlock Text="TERMS OF USE — UNITED ARAB EMIRATES"
+                               FontSize="11" FontWeight="Bold"
+                               Foreground="{StaticResource Azure}"
+                               HorizontalAlignment="Center"/>
+
+                    <ScrollViewer Height="150"
+                                  Margin="0,12,0,0"
+                                  VerticalScrollBarVisibility="Auto"
+                                  HorizontalScrollBarVisibility="Disabled">
+                        <StackPanel>
+                            <TextBlock Foreground="{StaticResource Frost}"
+                                       FontSize="11.5"
+                                       LineHeight="18"
+                                       TextWrapping="Wrap">
+                                <Run Text="1. Tax compliance." FontWeight="Bold"/>
+                                <Run Text="This software assists with preparing tax invoices and records. Federal Decree-Law No. 8 of 2017 on Value Added Tax and Federal Decree-Law No. 28 of 2022 on Tax Procedures place the obligation to issue correct tax invoices, apply the correct VAT treatment, and retain records for the periods required by the Federal Tax Authority on YOU, the taxable person — not on this software or its author. You must verify every figure before issuing, filing or relying on it."/>
+                                <LineBreak/><LineBreak/>
+                                <Run Text="2. Record retention." FontWeight="Bold"/>
+                                <Run Text="UAE tax law requires accounting records and tax invoices to be retained for the statutory period (generally five years, and longer for real-estate records). All data is stored locally on this computer only. Maintaining backups sufficient to meet that obligation is your responsibility."/>
+                                <LineBreak/><LineBreak/>
+                                <Run Text="3. Electronic records and signatures." FontWeight="Bold"/>
+                                <Run Text="Federal Decree-Law No. 46 of 2021 on Electronic Transactions and Trust Services governs electronic records in the UAE. Documents produced here are electronic records; you are responsible for their integrity, storage and any signature requirements applicable to your business."/>
+                                <LineBreak/><LineBreak/>
+                                <Run Text="4. Data protection." FontWeight="Bold"/>
+                                <Run Text="Federal Decree-Law No. 45 of 2021 on the Protection of Personal Data applies to personal data you enter, such as customer and contact details. You are the data controller. If you enable the optional AI assistant with real business data, customer names, project names and amounts are transmitted to a third-party AI provider outside this device; that feature is optional and can be disabled in Settings."/>
+                                <LineBreak/><LineBreak/>
+                                <Run Text="5. No warranty." FontWeight="Bold"/>
+                                <Run Text="The software is provided 'as is', without warranty of any kind. Pricing, costing, VAT and profit calculations are aids, not professional advice. No liability is accepted for any loss arising from reliance on its output. Consult a qualified tax adviser for your obligations."/>
+                                <LineBreak/><LineBreak/>
+                                <Run Text="6. Governing law." FontWeight="Bold"/>
+                                <Run Text="These terms are governed by the laws of the United Arab Emirates and the Emirate in which you operate."/>
+                            </TextBlock>
+                        </StackPanel>
+                    </ScrollViewer>
+
+                    <CheckBox x:Name="AcceptTermsCheck"
+                              Margin="0,14,0,0"
+                              Foreground="{StaticResource Frost}"
+                              FontSize="12"
+                              Cursor="Hand"
+                              Checked="AcceptTerms_Changed"
+                              Unchecked="AcceptTerms_Changed">
+                        <TextBlock Text="I have read and accept these terms, and I accept responsibility for the accuracy of the records I produce."
+                                   TextWrapping="Wrap"
+                                   MaxWidth="520"/>
+                    </CheckBox>
+
+                    <StackPanel Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                Margin="0,16,0,0">
+                        <Button x:Name="ContinueButton"
+                                Content="CONTINUE"
+                                Width="180" Height="38"
+                                FontSize="12" FontWeight="Bold"
+                                Cursor="Hand"
+                                IsEnabled="False"
+                                FocusVisualStyle="{x:Null}"
+                                Foreground="White"
+                                Background="{StaticResource Royal}"
+                                BorderThickness="0"
+                                Click="ContinueFromTerms_Click"/>
+                        <Button x:Name="DeclineButton"
+                                Content="DECLINE AND EXIT"
+                                Width="160" Height="38"
+                                Margin="10,0,0,0"
+                                FontSize="11"
+                                Cursor="Hand"
+                                FocusVisualStyle="{x:Null}"
+                                Foreground="{StaticResource Frost}"
+                                Background="Transparent"
+                                BorderBrush="#40FFFFFF"
+                                BorderThickness="1"
+                                Click="DeclineTerms_Click"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
         </StackPanel>
 
         <!-- ═══ FOOTER ═══ -->

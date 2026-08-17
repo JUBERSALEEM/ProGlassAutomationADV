@@ -2,8 +2,8 @@
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         Title="Sign in — ProGlass Automation"
-        Width="440" Height="560"
-        WindowStartupLocation="CenterScreen"
+        WindowState="Maximized"
+        WindowStyle="None"
         ResizeMode="NoResize"
         ShowInTaskbar="True"
         FontFamily="Segoe UI"
@@ -33,7 +33,18 @@
         </Style>
     </Window.Resources>
 
-    <Border Padding="34,30">
+    <!-- Full-screen stage, with the sign-in card centred on it. Filling the
+         whole screen with form fields would look broken; a centred card on a
+         maximized window is the standard full-screen sign-in shape. -->
+    <Grid>
+        <Border Width="460"
+                Padding="40,36"
+                CornerRadius="18"
+                VerticalAlignment="Center"
+                HorizontalAlignment="Center"
+                Background="{DynamicResource ElevatedSurfaceBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
+                BorderThickness="1">
         <StackPanel>
 
             <!-- Brand -->
@@ -136,5 +147,6 @@
                        Margin="0,18,0,0"
                        Foreground="{DynamicResource MutedForegroundBrush}"/>
         </StackPanel>
-    </Border>
+        </Border>
+    </Grid>
 </Window>

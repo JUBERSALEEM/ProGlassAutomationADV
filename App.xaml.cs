@@ -1,4 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════════
+﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: App.xaml.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Application startup (Chat 25 v4.0 — non-blocking Whisper init)
@@ -526,37 +526,58 @@ namespace ProGlassAutomation
             // 13) Loading delay for splash animations
             await Task.Delay(2800);
 
-            // 13b) AUTH-1 — sign in before the main window exists.
+            // 13b) TERMS GATE + AUTH-1 — both happen ON the splash, before
+            // the main window exists.
             //
-            // Previously the app went straight to MainWindow as whichever
-            // active user had the lowest Id, which on a fresh install is an
-            // Administrator. The A-1 service-layer guards were therefore
-            // authorizing an identity nobody had ever established.
+            // Order is deliberate and was wrong before: the splash IS the
+            // first screen, so it must stay on screen while the user accepts
+            // the terms. Only then does sign-in appear.
+            //
+            // ShutdownMode MUST be pinned to OnExplicitShutdown across this
+            // handover. The default is OnLastWindowClose, and there are
+            // moments below with ZERO windows open (splash closed, login not
+            // yet shown) which would otherwise terminate the process before
+            // anyone could sign in. Restored once MainWindow exists.
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
+            // Terms are shown on the splash itself. A previous acceptance of
+            // THIS version is remembered, so it is asked once, not every run.
+            if (!SplashView.HasAcceptedCurrentTerms())
+            {
+                splash.ShowTermsGate();
+
+                // The splash is already visible; block here until it closes,
+                // which happens on Continue or Decline.
+                var termsWait = new System.Threading.Tasks.TaskCompletionSource<bool>();
+                splash.Closed += (_, __) => termsWait.TrySetResult(true);
+                await termsWait.Task;
+
+                if (!splash.TermsAccepted)
+                {
+                    // Declining is a legitimate choice, not a failure.
+                    Shutdown(0);
+                    return;
+                }
+            }
+            else
+            {
+                // Already accepted previously — close the splash normally.
+                splash.Close();
+            }
+
+            // Sign-in. Previously the app went straight to MainWindow as
+            // whichever active user had the lowest Id, which on a fresh
+            // install is an Administrator, so the A-1 service-layer guards
+            // were authorizing an identity nobody had ever established.
             //
             // This is a LOCAL identity gate for audit accuracy and role
             // enforcement — not protection against someone who already has
-            // the machine and the SQLite files.
-            //
-            // ShutdownMode MUST be pinned to OnExplicitShutdown across this
-            // handover. The default is OnLastWindowClose, and there is a
-            // moment below where the splash has closed and the login dialog
-            // has not yet opened — zero windows — which would otherwise
-            // terminate the process before anyone could sign in. It is
-            // restored to OnLastWindowClose once MainWindow exists, so the
-            // normal "close the last window to quit" behaviour is unchanged.
-            ShutdownMode = ShutdownMode.OnExplicitShutdown;
-
-            // Close the splash FIRST: it is a topmost borderless window, so
-            // showing the sign-in dialog underneath it would look like a hang.
-            splash.Close();
-
+            // the machine and the unencrypted SQLite files.
             var login = new Views.Login.LoginWindow();
             login.ShowDialog();
 
             if (!login.SignedIn)
             {
-                // Closing the login window is an ordinary "not today",
-                // not a failure: exit quietly with success.
                 Shutdown(0);
                 return;
             }

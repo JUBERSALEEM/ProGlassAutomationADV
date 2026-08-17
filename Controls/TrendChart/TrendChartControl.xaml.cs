@@ -249,7 +249,33 @@ namespace ProGlassAutomation.Controls.TrendChart
         //  RENDER
         // ═════════════════════════════════════════════════════════════
 
-        private void OnSizeChanged(object sender, SizeChangedEventArgs e) => Redraw();
+        // PERF-3: Redraw() clears four layers and rebuilds the whole visual
+        // tree — grid lines, axis labels, the series path and one dot per
+        // point, typically 40+ visuals. SizeChanged fires for width AND
+        // height, and for sub-pixel changes that cannot alter the rendering,
+        // so a layout pass that nudged the height by a fraction of a pixel
+        // was paying for a full chart rebuild.
+        //
+        // Only rebuild when a dimension actually moved by at least 1px.
+        // 1px is the threshold because the chart is laid out on pixel
+        // boundaries (UseLayoutRounding), so a smaller delta cannot change
+        // what is drawn.
+        private double _lastDrawnWidth = -1;
+        private double _lastDrawnHeight = -1;
+
+        private void OnSizeChanged(object sender, SizeChangedEventArgs e)
+        {
+            double w = e.NewSize.Width;
+            double h = e.NewSize.Height;
+
+            if (Math.Abs(w - _lastDrawnWidth) < 1.0 &&
+                Math.Abs(h - _lastDrawnHeight) < 1.0)
+                return;
+
+            _lastDrawnWidth = w;
+            _lastDrawnHeight = h;
+            Redraw();
+        }
 
         /// <summary>
         /// True when animation should run.

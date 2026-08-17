@@ -39,6 +39,7 @@
 //   feature strip renders identically to hand-written v3.0 version.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
 using System.Windows;
@@ -376,6 +377,124 @@ namespace ProGlassAutomation.Views.Splash
         /// Calls <paramref name="onCompleted"/> just before closing so
         /// the caller (App.xaml.cs) can show + activate the main window.
         /// </summary>
+        // ══════════════════════════════════════════════════════════════════
+        //  TERMS GATE (UAE)
+        // ══════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Bump when the wording changes materially. A user who accepted an
+        /// older version is asked again, so consent always maps to the text
+        /// that was actually shown.
+        /// </summary>
+        public const string TermsVersion = "2026-08-UAE-1";
+
+        /// <summary>
+        /// True once the user has ticked the box and pressed Continue, or
+        /// when a previous acceptance of THIS version was already recorded.
+        /// App.xaml.cs must not proceed to sign-in unless this is true.
+        /// </summary>
+        public bool TermsAccepted { get; private set; }
+
+        private static string TermsMarkerPath => System.IO.Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "ProGlassAutomation", "terms-accepted.txt");
+
+        /// <summary>
+        /// Has this exact terms version already been accepted on this machine?
+        /// Read failures return false: re-asking is the safe direction, since
+        /// wrongly assuming consent is the outcome that must never happen.
+        /// </summary>
+        public static bool HasAcceptedCurrentTerms()
+        {
+            try
+            {
+                if (!System.IO.File.Exists(TermsMarkerPath)) return false;
+                foreach (var line in System.IO.File.ReadAllLines(TermsMarkerPath))
+                    if (line.StartsWith("version=", StringComparison.Ordinal) &&
+                        line["version=".Length..].Trim() == TermsVersion)
+                        return true;
+                return false;
+            }
+            catch
+            {
+                return false;
+            }
+        }
+
+        private void RecordAcceptance()
+        {
+            try
+            {
+                var dir = System.IO.Path.GetDirectoryName(TermsMarkerPath);
+                if (!string.IsNullOrEmpty(dir))
+                    System.IO.Directory.CreateDirectory(dir);
+
+                // Plain text on purpose: this is a record the owner can read,
+                // and an auditor can be shown, without needing the app.
+                System.IO.File.WriteAllText(
+                    TermsMarkerPath,
+                    $"version={TermsVersion}" + Environment.NewLine +
+                    $"acceptedUtc={DateTime.UtcNow:yyyy-MM-dd HH:mm:ss}Z" + Environment.NewLine +
+                    $"machine={Environment.MachineName}" + Environment.NewLine +
+                    $"windowsUser={Environment.UserName}" + Environment.NewLine);
+            }
+            catch (Exception ex)
+            {
+                // Never block entry because the marker could not be written -
+                // the user did accept. They will simply be asked again.
+                AppLogService.Warning(
+                    "Could not record terms acceptance: " + ex.Message,
+                    new LogContext
+                    {
+                        Module = "Startup",
+                        Class = nameof(SplashView),
+                        Operation = "RecordAcceptance"
+                    });
+            }
+        }
+
+        /// <summary>
+        /// Swaps the loading strip for the terms panel. Called by
+        /// App.xaml.cs once startup work has finished.
+        /// </summary>
+        public void ShowTermsGate()
+        {
+            _loadingMessageTimer?.Stop();
+            _loadingDotsTimer?.Stop();
+
+            LoadingText.Text = "Please review the terms to continue";
+            LoadingDots.Text = "";
+
+            TermsPanel.Visibility = Visibility.Visible;
+            TermsPanel.BeginAnimation(OpacityProperty, new DoubleAnimation
+            {
+                From = 0,
+                To = 1,
+                Duration = TimeSpan.FromMilliseconds(280),
+                EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+            });
+        }
+
+        private void AcceptTerms_Changed(object sender, RoutedEventArgs e)
+            => ContinueButton.IsEnabled = AcceptTermsCheck.IsChecked == true;
+
+        private void ContinueFromTerms_Click(object sender, RoutedEventArgs e)
+        {
+            // Defence in depth: the button is disabled until the box is
+            // ticked, but never rely on UI state alone for a consent gate.
+            if (AcceptTermsCheck.IsChecked != true) return;
+
+            RecordAcceptance();
+            TermsAccepted = true;
+            Close();
+        }
+
+        private void DeclineTerms_Click(object sender, RoutedEventArgs e)
+        {
+            TermsAccepted = false;
+            Close();
+        }
+
         public void FadeOutAndClose(Action onCompleted)
         {
             // Stop all timers
