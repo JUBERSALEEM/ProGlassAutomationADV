@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Settings/SettingsSectionStyles.xaml
      PROJECT: ProGlassAutomation
      MODULE: Settings v2 — shared resource dictionary
@@ -38,9 +38,16 @@
     <!-- ═══════════════════════════════════════════════════════════════
          2. CARDS
     ═══════════════════════════════════════════════════════════════ -->
+    <!-- The accent border is INTENTIONAL and original. It is what gives every
+         Settings section card its visible coloured edge, and it follows the
+         chosen accent preset (Glass Blue / Emerald / Amber / Rose / Violet /
+         Teal) because ThemeManager.ApplyAccent rewrites AccentBrush.
+         A previous edit swapped this for the neutral OutlineBrush, which
+         erased the coloured card edges the user relies on - do not repeat
+         that. Neutral hairlines belong on plain surfaces, not on these. -->
     <Style x:Key="SectionCardStyle" TargetType="Border">
         <Setter Property="Background"          Value="{DynamicResource ModuleBackgroundBrush}"/>
-        <Setter Property="BorderBrush"         Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderBrush"         Value="{DynamicResource AccentBrush}"/>
         <Setter Property="BorderThickness"     Value="1.5"/>
         <Setter Property="CornerRadius"        Value="14"/>
         <Setter Property="Padding"             Value="24,20"/>

@@ -121,14 +121,14 @@
          friends) a #000 edge disappears and reads as a hole, so the dark
          theme uses a LIFTED slate that still separates the shape. -->
     <SolidColorBrush x:Key="OutlineBrush"
-                     Color="#52637A"
+                     Color="#64748B"
                      po:Freeze="True"/>
 
     <!-- Immutable copy of the subtle default. ApplyOutline overwrites
          OutlineBrush at runtime, so it needs a pristine source to restore
          from when the toggle is switched back off. -->
     <SolidColorBrush x:Key="OutlineDefaultBrush"
-                     Color="#52637A"
+                     Color="#64748B"
                      po:Freeze="True"/>
 
     <SolidColorBrush x:Key="OutlineStrongBrush"
