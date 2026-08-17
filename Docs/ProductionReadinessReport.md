@@ -110,6 +110,49 @@ created. Calling them "16 leaks" would be inaccurate.
 | R-2 | Double-click on Generate Invoice | Async command, `CanExecute` cannot update in time → fired twice | Symptom was a spurious error dialog (DB blocked the duplicate), not corruption | **FIXED** (DN path; the wider async-command sweep is resolved in §16a) |
 | D-4 | 11 separate SQLite DBs | Cross-DB operations cannot be transactional | Inherent to design; PI→JO→DN→TI chain is not atomic | **OPEN (architectural)** |
 | D-5 | `while(true)` in JO numbering | Bounded at 99999 + GUID fallback | Safe | PASS |
+| D-6 | 4 money columns declared `decimal(18,2)` / `HasPrecision(18,2)` | On SQLite this gives **NUMERIC affinity → REAL (binary float)** storage, not exact decimal. Inconsistent with the other 19 money columns, which are explicitly `TEXT`. | **Latent.** No SQL-side `SUM`/comparison currently runs against these columns, so no value is being corrupted today. Becomes real the moment someone adds a `SumAsync`/`OrderBy` that EF translates to SQL. | **OPEN (documented, not changed)** |
+
+### D-6 — decimal storage affinity (MEDIUM, latent)
+
+**Location:** `Services/Database/AppDbContext.cs:51,55,68`
+(`GlassSheet.PurchasePricePerSqm`, `GlassSheet.SellPricePerSqm`,
+`SheetHistory.ValueChanged`) and
+`Services/ProformaInvoice/SpecificationsRepository/SpecificationsDbContext.cs:50`
+(`SavedSpecification.PricePerSqm`).
+
+**Exact problem.** SQLite has no native decimal type. Its column affinity is
+derived from the *declared type name*: a name containing `DECIMAL` falls through
+to **NUMERIC affinity**, which stores the value as an 8-byte IEEE-754 REAL. The
+EF Core SQLite provider's default for an unconfigured `System.Decimal` is a
+**TEXT** column precisely to avoid that. So the four properties above are the only
+money columns in the codebase that opted *out* of exact storage — by using the
+API that on SQL Server would have been the correct hardening step.
+
+**Why it matters / demonstrated.** Reproduced against SQLite directly: inserting
+1,000 rows of `0.07` into a `decimal(18,2)` column and running `SELECT SUM(v)`
+returns `69.99999999999966` instead of `70.00`. The same data in a TEXT column
+sums to exactly `70.00`.
+
+**Why it is not currently causing corruption — verified, not assumed.** Every
+money aggregation in the app is a LINQ-to-Objects `Sum` over an
+already-materialized `List<T>`, i.e. C# `decimal` arithmetic, which is exact.
+The only `SumAsync` in the codebase (`DeliveryNoteRepository.cs:539`) sums
+`DeliveredQty`, an `int`. The one `OrderBy` on a money column
+(`SheetStorePricingService.cs:216`) runs after `ToList()`. Values also survive a
+round-trip intact at typical magnitudes; the loss appears in *SQL-side
+accumulation*, which nothing does yet.
+
+**Recommended fix — deliberately NOT applied here.** Align the four columns with
+the rest of the codebase by using `.HasColumnType("TEXT")`. This is a **column
+type change on databases that already contain live customer pricing**, so it is
+not a safe audit-time edit: it needs a migration, a backup, and a verified
+round-trip test on real data — none of which can be executed in this environment
+(no .NET SDK, no Windows). Applying it blind would risk the exact financial
+corruption the finding is about.
+
+**Compulsory:** no, while nothing aggregates in SQL. **Safely automatable:** no.
+**Could break existing functionality:** yes — that is why it is documented rather
+than changed.
 
 ---
 
