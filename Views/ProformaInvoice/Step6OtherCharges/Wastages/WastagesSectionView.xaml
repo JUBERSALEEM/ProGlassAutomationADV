@@ -50,7 +50,7 @@
                                 <Setter TargetName="B" Property="BorderBrush" Value="#6366F1"/>
                             </Trigger>
                             <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="B" Property="BorderBrush"     Value="#4338CA"/>
+                                <Setter TargetName="B" Property="BorderBrush"     Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="B" Property="BorderThickness" Value="2"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -115,7 +115,7 @@
                                 <Setter TargetName="B" Property="BorderBrush" Value="#6366F1"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="B" Property="BorderBrush"     Value="#4338CA"/>
+                                <Setter TargetName="B" Property="BorderBrush"     Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="B" Property="BorderThickness" Value="2"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -175,7 +175,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="AB"
                                 Background="{DynamicResource ModuleBackgroundBrush}"
-                                BorderBrush="#4338CA"
+                                BorderBrush="{DynamicResource AccentBrush}"
                                 BorderThickness="1.5"
                                 CornerRadius="8"
                                 Padding="14,8"
@@ -197,7 +197,7 @@
                                 <Setter TargetName="AB" Property="Background" Value="#EEF2FF"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="AB" Property="Background" Value="#4338CA"/>
+                                <Setter TargetName="AB" Property="Background" Value="{DynamicResource AccentBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -257,7 +257,7 @@
                                        AllowsTransparency="True"
                                        PopupAnimation="Fade">
                                     <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                                            BorderBrush="#4338CA"
+                                            BorderBrush="{DynamicResource AccentBrush}"
                                             BorderThickness="1.5"
                                             CornerRadius="10"
                                             Padding="14"

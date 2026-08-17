@@ -50,7 +50,7 @@
                                 <Setter TargetName="B" Property="BorderBrush" Value="#6366F1"/>
                             </Trigger>
                             <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="B" Property="BorderBrush"     Value="#4338CA"/>
+                                <Setter TargetName="B" Property="BorderBrush"     Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="B" Property="BorderThickness" Value="2"/>
                             </Trigger>
                             <Trigger Property="IsReadOnly" Value="True">
@@ -86,7 +86,7 @@
                     <Setter Property="BorderBrush" Value="#6366F1"/>
                 </Trigger>
                 <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                    <Setter Property="BorderBrush"     Value="#4338CA"/>
+                    <Setter Property="BorderBrush"     Value="{DynamicResource AccentBrush}"/>
                     <Setter Property="BorderThickness" Value="2"/>
                 </Trigger>
             </Style.Triggers>
@@ -247,7 +247,7 @@
                                 </Border>
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
-                                        <Setter TargetName="B" Property="BorderBrush" Value="#4338CA"/>
+                                        <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                         <Setter TargetName="B" Property="Background"  Value="#EEF2FF"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
@@ -419,7 +419,7 @@
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="B"
                                                             Background="Transparent"
-                                                            BorderBrush="#4338CA"
+                                                            BorderBrush="{DynamicResource AccentBrush}"
                                                             BorderThickness="1"
                                                             CornerRadius="6"
                                                             Padding="8,3">
@@ -440,7 +440,7 @@
                                                             <Setter TargetName="B" Property="Background" Value="#EEF2FF"/>
                                                         </Trigger>
                                                         <Trigger Property="IsPressed" Value="True">
-                                                            <Setter TargetName="B" Property="Background" Value="#4338CA"/>
+                                                            <Setter TargetName="B" Property="Background" Value="{DynamicResource AccentBrush}"/>
                                                         </Trigger>
                                                     </ControlTemplate.Triggers>
                                                 </ControlTemplate>

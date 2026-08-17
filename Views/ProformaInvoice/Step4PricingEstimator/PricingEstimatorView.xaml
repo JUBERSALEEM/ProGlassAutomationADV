@@ -37,7 +37,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
         <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
             <Setter Property="FontSize"   Value="10"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#4338CA"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
             <Setter Property="Margin"     Value="0,0,0,6"/>
         </Style>
 
@@ -145,7 +145,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                                     Margin="0,0,8,0">
                                                 <Border.Style>
                                                     <Style TargetType="Border">
-                                                        <Setter Property="Background" Value="#4338CA"/>
+                                                        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding Code}" Value="DGU">
                                                                 <Setter Property="Background" Value="#7C3AED"/>
@@ -175,7 +175,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                     </Border>
                                     <ControlTemplate.Triggers>
                                         <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                            <Setter TargetName="CardBorder" Property="BorderBrush" Value="#4338CA"/>
+                                            <Setter TargetName="CardBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                             <Setter TargetName="CardBorder" Property="BorderThickness" Value="2"/>
                                             <Setter TargetName="CardBorder" Property="Background"
                                                     Value="{DynamicResource TintPurpleBrush}"/>
@@ -378,10 +378,10 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                                              Value="True">
                                                     <Setter TargetName="PillBorder"
                                                             Property="Background"
-                                                            Value="#4338CA"/>
+                                                            Value="{DynamicResource AccentBrush}"/>
                                                     <Setter TargetName="PillBorder"
                                                             Property="BorderBrush"
-                                                            Value="#4338CA"/>
+                                                            Value="{DynamicResource AccentBrush}"/>
                                                     <Setter TargetName="CheckIcon"
                                                             Property="Foreground"
                                                             Value="White"/>
@@ -427,7 +427,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                                             Value="#EEF2FF"/>
                                                     <Setter TargetName="PillBorder"
                                                             Property="BorderBrush"
-                                                            Value="#4338CA"/>
+                                                            Value="{DynamicResource AccentBrush}"/>
                                                 </MultiDataTrigger>
 
                                                 <!-- Hover selected -->
@@ -467,7 +467,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                     Padding="12,8"
                     Margin="0,6,0,0"
                     BorderThickness="2"
-                    BorderBrush="#4338CA">
+                    BorderBrush="{DynamicResource AccentBrush}">
 
                 <Grid>
                     <Grid.ColumnDefinitions>

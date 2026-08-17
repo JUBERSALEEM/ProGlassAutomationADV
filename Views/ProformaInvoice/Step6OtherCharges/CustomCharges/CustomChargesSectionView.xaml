@@ -50,7 +50,7 @@
                                 <Setter TargetName="B" Property="BorderBrush" Value="#6366F1"/>
                             </Trigger>
                             <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="B" Property="BorderBrush"     Value="#4338CA"/>
+                                <Setter TargetName="B" Property="BorderBrush"     Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="B" Property="BorderThickness" Value="2"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -80,7 +80,7 @@
                     <Setter Property="BorderBrush" Value="#6366F1"/>
                 </Trigger>
                 <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                    <Setter Property="BorderBrush"     Value="#4338CA"/>
+                    <Setter Property="BorderBrush"     Value="{DynamicResource AccentBrush}"/>
                     <Setter Property="BorderThickness" Value="2"/>
                 </Trigger>
             </Style.Triggers>

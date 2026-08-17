@@ -116,7 +116,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="BorderBrush" Value="#4338CA"/>
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="Bg" Property="Background"  Value="#EEF2FF"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
@@ -135,7 +135,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
              PRIMARY TOOLBAR BUTTON — deep indigo fill (Print action)
         ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="PrimaryToolbarButtonStyle" TargetType="Button">
-            <Setter Property="Background"      Value="#4338CA"/>
+            <Setter Property="Background"      Value="{DynamicResource AccentBrush}"/>
             <Setter Property="Foreground"      Value="White"/>
             <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Padding"         Value="18,0"/>

@@ -79,7 +79,7 @@ CHAT 17 — LAYOUT FIX
             <Setter Property="MinWidth"        Value="150"/>
             <Setter Property="Cursor"          Value="Hand"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Background"      Value="#4338CA"/>
+            <Setter Property="Background"      Value="{DynamicResource AccentBrush}"/>
             <Setter Property="Foreground"      Value="White"/>
             <Setter Property="FontSize"        Value="13"/>
             <Setter Property="FontWeight"      Value="SemiBold"/>
@@ -137,7 +137,7 @@ CHAT 17 — LAYOUT FIX
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Root" Property="BorderBrush" Value="#4338CA"/>
+                                <Setter TargetName="Root" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="Root" Property="Background"  Value="#EEF2FF"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
@@ -430,8 +430,8 @@ CHAT 17 — LAYOUT FIX
                                                     <Setter TargetName="NumberText" Property="Foreground" Value="White"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding IsActive}" Value="True">
-                                                    <Setter TargetName="StepBorder" Property="Background" Value="#4338CA"/>
-                                                    <Setter TargetName="StepBorder" Property="BorderBrush" Value="#4338CA"/>
+                                                    <Setter TargetName="StepBorder" Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                                    <Setter TargetName="StepBorder" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                                     <Setter TargetName="TitleText" Property="Foreground" Value="White"/>
                                                     <Setter TargetName="NumberCircle" Property="Background" Value="#33FFFFFF"/>
                                                     <Setter TargetName="NumberText" Property="Foreground" Value="White"/>

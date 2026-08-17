@@ -98,7 +98,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                                 <Setter TargetName="B" Property="BorderBrush" Value="#6366F1"/>
                             </Trigger>
                             <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="B" Property="BorderBrush" Value="#4338CA"/>
+                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="B" Property="BorderThickness" Value="2"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -161,7 +161,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                                 <Setter TargetName="B" Property="BorderBrush" Value="#6366F1"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="B" Property="BorderBrush" Value="#4338CA"/>
+                                <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="B" Property="BorderThickness" Value="2"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
@@ -194,7 +194,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
             <Border Background="{DynamicResource BorderBrush}" Height="1" Margin="0,20,0,20"/>
 
             <!-- METRIC DISCOVERY HUB (PERF-02 + UI-01 applied) -->
-            <Border Background="{DynamicResource ModuleBackgroundBrush}" CornerRadius="14" Padding="18" BorderThickness="1" BorderBrush="#4338CA" Margin="0,0,0,18">
+            <Border Background="{DynamicResource ModuleBackgroundBrush}" CornerRadius="14" Padding="18" BorderThickness="1" BorderBrush="{DynamicResource AccentBrush}" Margin="0,0,0,18">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
                         <Border Background="{DynamicResource AccentBrush}" Width="28" Height="28" CornerRadius="8" VerticalAlignment="Center" Margin="0,0,10,0">
@@ -460,7 +460,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                                                      stretch on very long spec names — beyond that,
                                                      wrapping kicks in. -->
                                                 <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                                                        BorderBrush="#4338CA"
+                                                        BorderBrush="{DynamicResource AccentBrush}"
                                                         BorderThickness="1.5"
                                                         CornerRadius="10"
                                                         Padding="14"

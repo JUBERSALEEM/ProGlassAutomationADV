@@ -79,7 +79,7 @@ PRESERVED EXACTLY:
             Padding="22"
             Margin="0,16,0,0"
             BorderThickness="1"
-            BorderBrush="#4338CA">
+            BorderBrush="{DynamicResource AccentBrush}">
         <Border.Effect>
             <DropShadowEffect BlurRadius="16"
                               ShadowDepth="3"

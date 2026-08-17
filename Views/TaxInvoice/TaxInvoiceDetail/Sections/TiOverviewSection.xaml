@@ -844,7 +844,7 @@
                                                                              FontSize="12" FontWeight="Bold"
                                                                              TextAlignment="Right"
                                                                              Padding="4,4,8,4" Margin="2,3"
-                                                                             BorderBrush="#4338CA"
+                                                                             BorderBrush="{DynamicResource AccentBrush}"
                                                                              Background="{DynamicResource TintIndigoBrush}"
                                                                              Foreground="#3730A3"
                                                                              VerticalContentAlignment="Center"/>

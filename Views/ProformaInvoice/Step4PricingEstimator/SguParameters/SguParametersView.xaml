@@ -43,13 +43,13 @@
                     <TextBlock Text="&#xE7C1;"
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="10"
-                               Foreground="#4338CA"
+                               Foreground="{DynamicResource AccentBrush}"
                                VerticalAlignment="Center"
                                Margin="0,0,6,0"/>
                     <TextBlock Text="{Binding GeneratedSpecName}"
                                FontSize="11"
                                FontWeight="Bold"
-                               Foreground="#4338CA"
+                               Foreground="{DynamicResource AccentBrush}"
                                TextWrapping="Wrap"
                                VerticalAlignment="Center"/>
                 </StackPanel>
