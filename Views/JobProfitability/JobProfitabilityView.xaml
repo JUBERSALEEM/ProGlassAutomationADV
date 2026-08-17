@@ -48,7 +48,7 @@
         <Style x:Key="JpTileStyle" TargetType="Border">
             <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
             <Setter Property="CornerRadius"    Value="12"/>
             <Setter Property="Padding"         Value="18,14"/>
         </Style>
@@ -96,7 +96,7 @@
         <Border Grid.Row="0"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
-                BorderThickness="1"
+                BorderThickness="1.5"
                 CornerRadius="16"
                 Margin="20,20,20,0"
                 Padding="20">
@@ -254,7 +254,7 @@
         <Border Grid.Row="2"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
-                BorderThickness="1"
+                BorderThickness="1.5"
                 CornerRadius="16"
                 Margin="20,16,20,0">
             <Grid>

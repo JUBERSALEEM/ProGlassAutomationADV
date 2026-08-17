@@ -1,4 +1,4 @@
-using ProGlassAutomation.Services.Logging;
+﻿using ProGlassAutomation.Services.Logging;
 using System;
 
 namespace ProGlassAutomation.Services.Database

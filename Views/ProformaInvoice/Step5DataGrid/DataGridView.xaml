@@ -710,7 +710,7 @@ PRESERVED EXACTLY:
             ══════════════════════════════════════════════════════════ -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="1"
+                    BorderThickness="1.5"
                     CornerRadius="12"
                     Padding="40,32"
                     Margin="0,0,0,16"
@@ -776,7 +776,7 @@ PRESERVED EXACTLY:
                             CornerRadius="12"
                             Padding="20"
                             Margin="0,0,0,16"
-                            BorderThickness="1"
+                            BorderThickness="1.5"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             SnapsToDevicePixels="True">
                             <Border.InputBindings>
@@ -927,7 +927,7 @@ PRESERVED EXACTLY:
                                     <!-- SURCHARGE RATE — live green badge -->
                                     <Border Background="{DynamicResource TintGreenBrush}"
                                             BorderBrush="{DynamicResource OutlineBrush}"
-                                            BorderThickness="1"
+                                            BorderThickness="1.5"
                                             CornerRadius="8"
                                             Padding="12,7">
                                         <StackPanel Orientation="Horizontal">
@@ -975,7 +975,7 @@ PRESERVED EXACTLY:
                                     ══════════════════════════════════ -->
                                     <Border Background="{DynamicResource TintIndigoBrush}"
                                             BorderBrush="{DynamicResource OutlineBrush}"
-                                            BorderThickness="1"
+                                            BorderThickness="1.5"
                                             CornerRadius="8"
                                             Padding="12,7">
                                         <Border.Style>
@@ -1084,7 +1084,7 @@ PRESERVED EXACTLY:
                                     Background="{DynamicResource WindowBackgroundBrush}"
                                     CornerRadius="10"
                                     Padding="12"
-                                    BorderThickness="1"
+                                    BorderThickness="1.5"
                                     BorderBrush="{DynamicResource OutlineBrush}"
                                     SnapsToDevicePixels="True">
                                     <Border.ContextMenu>
@@ -1127,7 +1127,7 @@ PRESERVED EXACTLY:
                                                            FontWeight="SemiBold"
                                                            Foreground="{DynamicResource MutedForegroundBrush}"
                                                            VerticalAlignment="Center"/>
-                                                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Background="{DynamicResource TintIndigoBrush}"
+                                                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Background="{DynamicResource TintIndigoBrush}"
                                                         CornerRadius="6"
                                                         Padding="10,3"
                                                         MinWidth="34">
@@ -1141,7 +1141,7 @@ PRESERVED EXACTLY:
                                         </Grid>
 
                                         <!-- Column headers -->
-                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Background="{DynamicResource MenuHoverBrush}"
+                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Background="{DynamicResource MenuHoverBrush}"
                                                 CornerRadius="6"
                                                 Padding="4,7">
                                             <Border.Style>
@@ -1379,7 +1379,7 @@ PRESERVED EXACTLY:
                                         </ListView>
 
                                         <!-- FOOTER TOTALS -->
-                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Background="{DynamicResource MenuHoverBrush}"
+                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Background="{DynamicResource MenuHoverBrush}"
                                                 CornerRadius="6"
                                                 Padding="4,8"
                                                 Margin="0,6,0,0">

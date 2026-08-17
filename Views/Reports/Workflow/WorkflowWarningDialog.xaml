@@ -21,7 +21,7 @@
 
     <Border Background="{DynamicResource ModuleBackgroundBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
-            BorderThickness="1"
+            BorderThickness="1.5"
             CornerRadius="12">
         <Grid>
             <Grid.RowDefinitions>
@@ -128,7 +128,7 @@
                     Padding="14,12"
                     CornerRadius="10"
                     Background="{DynamicResource SideMenuBackgroundBrush}"
-                    BorderThickness="1"
+                    BorderThickness="1.5"
                     BorderBrush="{DynamicResource OutlineBrush}">
                 <StackPanel>
                     <TextBlock Text="UNINVOICED DELIVERY NOTES"
@@ -145,7 +145,7 @@
                                 <DataTemplate>
                                     <Border Background="{DynamicResource ModuleBackgroundBrush}"
                                             BorderBrush="{DynamicResource OutlineBrush}"
-                                            BorderThickness="1"
+                                            BorderThickness="1.5"
                                             CornerRadius="8"
                                             Padding="12,10"
                                             Margin="0,0,0,6">

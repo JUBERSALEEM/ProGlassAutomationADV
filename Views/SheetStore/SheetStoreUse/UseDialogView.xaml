@@ -35,7 +35,7 @@
             </StackPanel>
 
             <!-- Sheet info card -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Background="{DynamicResource MenuHoverBrush}"
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Background="{DynamicResource MenuHoverBrush}"
                     CornerRadius="10" Padding="16,12" Margin="0,0,0,16">
                 <StackPanel>
                     <TextBlock Text="{Binding Sheet.Category}" FontSize="16" FontWeight="Bold"
@@ -65,7 +65,7 @@
             </Border>
 
             <!-- Job Order Reference -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Background="{DynamicResource ModuleBackgroundBrush}"
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Background="{DynamicResource ModuleBackgroundBrush}"
                     CornerRadius="12" Padding="20,16" Margin="0,0,0,16">
                 <StackPanel>
                     <TextBlock Text="JOB ORDER REFERENCE (optional)" FontSize="10" FontWeight="Bold"
@@ -85,7 +85,7 @@
             </Border>
 
             <!-- Quantity selector -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Background="{DynamicResource ModuleBackgroundBrush}"
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Background="{DynamicResource ModuleBackgroundBrush}"
                     CornerRadius="12" Padding="20,16" Margin="0,0,0,16">
                 <StackPanel>
                     <TextBlock Text="QUANTITY TO USE (sheets)" FontSize="10" FontWeight="Bold"
@@ -116,7 +116,7 @@
             </Border>
 
             <!-- Preview -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Background="{DynamicResource ModuleBackgroundBrush}"
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Background="{DynamicResource ModuleBackgroundBrush}"
                     CornerRadius="12" Padding="20,16" Margin="0,0,0,16">
                 <StackPanel>
                     <TextBlock Text="USAGE PREVIEW" FontSize="10" FontWeight="Bold"
@@ -148,7 +148,7 @@
             </Border>
 
             <!-- Error -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Background="{DynamicResource TintRedBrush}" CornerRadius="8"
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Background="{DynamicResource TintRedBrush}" CornerRadius="8"
                     Padding="12,8" Margin="0,0,0,10"
                     Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}">
                 <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource DangerBrush}" FontSize="12"/>

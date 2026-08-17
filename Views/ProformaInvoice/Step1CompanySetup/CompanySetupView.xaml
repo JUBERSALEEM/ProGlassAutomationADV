@@ -196,7 +196,7 @@ CHAT 17 — UI POLISH
                 Consistent with Sales Report filter cards.
             -->
             <Border Margin="0,0,0,24"
-                    BorderThickness="1"
+                    BorderThickness="1.5"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     CornerRadius="16"
                     ClipToBounds="True">
@@ -212,7 +212,7 @@ CHAT 17 — UI POLISH
                             CornerRadius="16,16,0,0"/>
 
                     <!-- Card body -->
-                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1"
+                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1"
                             Background="{DynamicResource ModuleBackgroundBrush}"
                             Padding="24,20,24,24">
                         <StackPanel>
@@ -372,7 +372,7 @@ CHAT 17 — UI POLISH
                                     Margin="0,0,0,8"
                                     Background="{DynamicResource WindowBackgroundBrush}"
                                     BorderBrush="{DynamicResource OutlineBrush}"
-                                    BorderThickness="1">
+                                    BorderThickness="1.5">
                                 <Border.Style>
                                     <Style TargetType="Border">
                                         <Setter Property="Visibility" Value="Collapsed"/>

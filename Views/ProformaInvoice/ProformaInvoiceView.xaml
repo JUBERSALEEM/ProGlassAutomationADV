@@ -164,7 +164,7 @@ CHAT 17 — LAYOUT FIX
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" x:Name="Root"
+                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" x:Name="Root"
                                 Background="{DynamicResource MenuHoverBrush}"
                                 CornerRadius="22"
                                 Padding="22,0"
@@ -315,7 +315,7 @@ CHAT 17 — LAYOUT FIX
                     Background="{DynamicResource SideMenuBackgroundBrush}"
                     CornerRadius="10"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="1"
+                    BorderThickness="1.5"
                     Padding="8,6"
                     Margin="20,0,20,8">
                 <Grid>
@@ -472,7 +472,7 @@ CHAT 17 — LAYOUT FIX
                             Background="{DynamicResource ModuleBackgroundBrush}"
                             CornerRadius="20"
                             BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="1"
+                            BorderThickness="1.5"
                             SnapsToDevicePixels="True">
                         <Grid>
 
@@ -683,7 +683,7 @@ CHAT 17 — LAYOUT FIX
                             Background="{DynamicResource ModuleBackgroundBrush}"
                             CornerRadius="20"
                             BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="1"
+                            BorderThickness="1.5"
                             Margin="0,16,0,0"
                             Padding="20,14"
                             SnapsToDevicePixels="True">

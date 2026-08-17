@@ -242,7 +242,7 @@
                                    VerticalOffset="4">
                                 <Border Background="White"
                                         BorderBrush="{DynamicResource OutlineBrush}"
-                                        BorderThickness="1"
+                                        BorderThickness="1.5"
                                         CornerRadius="10"
                                         MinWidth="{TemplateBinding ActualWidth}"
                                         MaxHeight="280"
@@ -414,7 +414,7 @@
         <Style x:Key="PdfOptionCardStyle" TargetType="Border">
             <Setter Property="Margin" Value="8"/>
             <Setter Property="CornerRadius" Value="14"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
             <Setter Property="Background" Value="{StaticResource GlassInnerBg}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -579,7 +579,7 @@
                     <Border Grid.Column="1"
                             Background="{DynamicResource ModuleBackgroundBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="1"
+                            BorderThickness="1.5"
                             CornerRadius="16"
                             Padding="22,18"
                             VerticalAlignment="Center"
@@ -617,7 +617,7 @@
                 <Border Grid.Row="2"
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="1"
+                        BorderThickness="1.5"
                         CornerRadius="20"
                         Padding="0"
                         Effect="{StaticResource CardShadow}"
@@ -679,7 +679,7 @@
                                         <Border x:Name="bd"
                                                 Background="{StaticResource ClearBtnBg}"
                                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                                BorderThickness="1"
+                                                BorderThickness="1.5"
                                                 CornerRadius="10"
                                                 Padding="{TemplateBinding Padding}"
                                                 SnapsToDevicePixels="True">
@@ -868,7 +868,7 @@
                 <Border Grid.Row="4"
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="1"
+                        BorderThickness="1.5"
                         CornerRadius="20"
                         Padding="0"
                         Effect="{StaticResource CardShadow}"

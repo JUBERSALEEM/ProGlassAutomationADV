@@ -73,7 +73,7 @@
         <Border Grid.Row="1"
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                 BorderBrush="{DynamicResource OutlineBrush}"
-                BorderThickness="1"
+                BorderThickness="1.5"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 ClipToBounds="True">
 
@@ -177,7 +177,7 @@
                                                    VerticalAlignment="Center"
                                                    ToolTip="Date &amp; time of the action"/>
 
-                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Column="1"
+                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Grid.Column="1"
                                                 Background="{DynamicResource TintIndigoBrush}"
                                                 CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Padding="8,3"

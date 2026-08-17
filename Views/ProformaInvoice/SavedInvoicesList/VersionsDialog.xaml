@@ -44,7 +44,7 @@
 
         <Border Grid.Row="1"
                 BorderBrush="{DynamicResource OutlineBrush}"
-                BorderThickness="1"
+                BorderThickness="1.5"
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                 ClipToBounds="True">
             <Grid>
@@ -134,7 +134,7 @@
                 <ControlTemplate TargetType="Button">
                     <Border Background="{DynamicResource MenuHoverBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="1"
+                            BorderThickness="1.5"
                             CornerRadius="{DynamicResource PillCornerRadius}"
                             Padding="{TemplateBinding Padding}">
                         <ContentPresenter HorizontalAlignment="Center"

@@ -40,7 +40,7 @@
         <Style x:Key="PlTileStyle" TargetType="Border">
             <Setter Property="Background"      Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderThickness" Value="1.5"/>
             <Setter Property="CornerRadius"    Value="12"/>
             <Setter Property="Padding"         Value="16,14"/>
         </Style>
@@ -91,7 +91,7 @@
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     CornerRadius="16"
                     Padding="20"
-                    BorderThickness="1"
+                    BorderThickness="1.5"
                     BorderBrush="{DynamicResource OutlineBrush}">
                 <StackPanel>
 
@@ -290,7 +290,7 @@
                     CornerRadius="16"
                     Padding="0"
                     Margin="0,16,0,0"
-                    BorderThickness="1"
+                    BorderThickness="1.5"
                     BorderBrush="{DynamicResource OutlineBrush}">
                 <StackPanel>
 
@@ -419,7 +419,7 @@
                                         <!-- ── RATE CHECK ────────────────── -->
                                         <Border Background="{DynamicResource TintPurpleBrush}"
                                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                                BorderThickness="1"
+                                                BorderThickness="1.5"
                                                 CornerRadius="6"
                                                 Padding="10,7"
                                                 Margin="0,8,0,0">

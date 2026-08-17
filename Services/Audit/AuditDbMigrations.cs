@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Audit/AuditDbMigrations.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Core — additive audit.db migrations

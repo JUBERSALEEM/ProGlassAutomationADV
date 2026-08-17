@@ -1,4 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════════
+﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/.../DguLamParameters/DguLamParametersViewModel.cs
 // PROJECT: ProGlassAutomation — Step 4 Pricing Estimator
 //

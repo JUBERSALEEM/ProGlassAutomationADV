@@ -1,4 +1,4 @@
-<!-- ═══════════════════════════════════════════════════════════════════
+﻿<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Dashboard/Statement/StDashboardView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Account Statement Dashboard
@@ -70,7 +70,7 @@
                     SnapsToDevicePixels="True"
                     Background="{DynamicResource TintGrayBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="1">
+                    BorderThickness="1.5">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>

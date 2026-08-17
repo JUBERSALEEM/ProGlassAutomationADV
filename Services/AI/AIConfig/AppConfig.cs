@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Services.AI.AIService;
+using ProGlassAutomation.Services.AI.AIService;
 using System.Collections.Generic;
 
 namespace ProGlassAutomation.Services.AI.AIConfig

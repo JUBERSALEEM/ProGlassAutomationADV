@@ -352,7 +352,7 @@
             <!-- ── SEARCH & FILTER SECTION ──────────────────────────── -->
             <Border Background="{DynamicResource SideMenuBackgroundBrush}"
                     CornerRadius="12"
-                    BorderThickness="1"
+                    BorderThickness="1.5"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     Margin="0,0,0,16"
                     SnapsToDevicePixels="True"
@@ -503,7 +503,7 @@
         ═══════════════════════════════════════════════════════════════ -->
         <Border Grid.Row="1"
                 Background="{DynamicResource ModuleBackgroundBrush}"
-                BorderThickness="1"
+                BorderThickness="1.5"
                 BorderBrush="{DynamicResource OutlineBrush}"
                 CornerRadius="12"
                 Margin="24,0,24,16"

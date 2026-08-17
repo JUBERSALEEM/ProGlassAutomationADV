@@ -345,7 +345,7 @@
                     <Border x:Name="bd"
                             Background="{DynamicResource MenuHoverBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="1"
+                            BorderThickness="1.5"
                             CornerRadius="17"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True"

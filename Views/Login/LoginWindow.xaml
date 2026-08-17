@@ -64,7 +64,7 @@
                                 CornerRadius="12"
                                 Background="{DynamicResource ModuleBackgroundBrush}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                BorderThickness="1"
+                                BorderThickness="1.5"
                                 SnapsToDevicePixels="True">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -114,7 +114,7 @@
                                 CornerRadius="12"
                                 Background="{DynamicResource ModuleBackgroundBrush}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                BorderThickness="1"
+                                BorderThickness="1.5"
                                 SnapsToDevicePixels="True">
                             <Grid>
                                 <Grid.ColumnDefinitions>
@@ -167,7 +167,7 @@
                                 CornerRadius="12"
                                 Background="{DynamicResource AccentBrush}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                BorderThickness="1"
+                                BorderThickness="1.5"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
@@ -202,7 +202,7 @@
                                 CornerRadius="12"
                                 Background="Transparent"
                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                BorderThickness="1"
+                                BorderThickness="1.5"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
@@ -246,7 +246,7 @@
                 CornerRadius="22"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
-                BorderThickness="1"
+                BorderThickness="1.5"
                 Effect="{StaticResource CardShadow}"
                 SnapsToDevicePixels="True">
 

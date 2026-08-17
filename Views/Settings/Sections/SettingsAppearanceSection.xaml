@@ -189,6 +189,18 @@
                                     <TextBlock Text="Teal" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </Button>
+
+                            <!-- Near-black (#111827), not pure #000000: a
+                                 literal black edge on a near-black dark card
+                                 is about 1.18:1 and reads as a hole. This
+                                 stays neutral instead of being pushed to a
+                                 blue-grey by the accent saturation floor. -->
+                            <Button Command="{Binding ApplyAccentCommand}" CommandParameter="Black" Style="{StaticResource AccentChipStyle}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Ellipse Width="11" Height="11" Fill="#111827" VerticalAlignment="Center" Margin="0,0,8,0"/>
+                                    <TextBlock Text="Black" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Button>
                         </WrapPanel>
                         <TextBlock Style="{StaticResource HintTextStyle}"
                                    Margin="0,2,0,0"

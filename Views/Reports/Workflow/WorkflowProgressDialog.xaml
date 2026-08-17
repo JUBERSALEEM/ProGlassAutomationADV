@@ -22,7 +22,7 @@
 
     <Border Background="{DynamicResource ModuleBackgroundBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
-            BorderThickness="1"
+            BorderThickness="1.5"
             CornerRadius="12">
         <Grid>
             <Grid.RowDefinitions>
@@ -107,7 +107,7 @@
                             <Border Margin="0,0,0,8"
                                     Padding="14,12"
                                     CornerRadius="10"
-                                    BorderThickness="1"
+                                    BorderThickness="1.5"
                                     Background="{DynamicResource SideMenuBackgroundBrush}"
                                     BorderBrush="{DynamicResource OutlineBrush}">
                                 <Grid>

@@ -106,7 +106,7 @@
                 Margin="0,4,0,0"
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                 BorderBrush="{DynamicResource OutlineBrush}"
-                BorderThickness="1"
+                BorderThickness="1.5"
                 ClipToBounds="True">
                 <Grid>
             <DataGrid Style="{StaticResource GodViewGridStyle}"

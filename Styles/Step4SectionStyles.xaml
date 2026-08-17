@@ -143,7 +143,7 @@
                 <ControlTemplate TargetType="Expander">
                     <Border Background="{DynamicResource ModuleBackgroundBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="1"
+                            BorderThickness="1.5"
                             CornerRadius="8"
                             SnapsToDevicePixels="True">
                         <Grid>

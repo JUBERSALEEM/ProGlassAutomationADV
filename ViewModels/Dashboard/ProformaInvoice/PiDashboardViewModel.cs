@@ -1,4 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════════
+﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Dashboard/PiDashboardViewModel.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Proforma Invoice Dashboard (Chat 23 v2.2)

@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/UserCenter/UserCenterView.xaml
      PROJECT: ProGlassAutomation
      MODULE: User Center (Phase 1)
@@ -162,7 +162,7 @@
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Background="{DynamicResource TintIndigoBrush}"
+                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Background="{DynamicResource TintIndigoBrush}"
                                                 CornerRadius="8" Padding="8,3">
                                             <Border.Style>
                                                 <Style TargetType="Border">
@@ -196,7 +196,7 @@
                 <Border Grid.Column="2"
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="1" CornerRadius="14"
+                        BorderThickness="1.5" CornerRadius="14"
                         Padding="24,20">
                     <StackPanel>
 

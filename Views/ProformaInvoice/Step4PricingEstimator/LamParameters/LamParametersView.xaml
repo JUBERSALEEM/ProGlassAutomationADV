@@ -1,4 +1,4 @@
-<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.LamParameters.LamParametersView"
+﻿<UserControl x:Class="ProGlassAutomation.Views.ProformaInvoice.Step4PricingEstimator.LamParameters.LamParametersView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
@@ -31,14 +31,14 @@
             CornerRadius="12"
             Padding="10"
             Margin="0,6,0,0"
-            BorderThickness="1"
+            BorderThickness="1.5"
             BorderBrush="{DynamicResource OutlineBrush}">
         <StackPanel>
 
             <!-- ── Live spec preview ── -->
             <Border Background="{DynamicResource TintGreenBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="1"
+                    BorderThickness="1.5"
                     CornerRadius="6"
                     Padding="8,5"
                     Margin="0,0,0,6">

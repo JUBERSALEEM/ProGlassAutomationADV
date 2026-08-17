@@ -25,6 +25,15 @@ namespace ProGlassAutomation.Services.Theme
         public const string Teal      = "Teal";
 
         /// <summary>
+        /// Near-black accent. Uses #111827 rather than pure #000000: on
+        /// the dark theme a literal black edge against a near-black card
+        /// measures about 1.18:1 and reads as a hole rather than a line,
+        /// so the keyline derivation would have nothing to work with.
+        /// ApplyAccent lifts this for dark mode automatically.
+        /// </summary>
+        public const string Black     = "Black";
+
+        /// <summary>
         /// Maps a preset key to its colour. GlassBlue (and any unknown
         /// key) returns null = follow the theme's built-in blue.
         /// </summary>
@@ -37,6 +46,7 @@ namespace ProGlassAutomation.Services.Theme
                 Rose    => Color.FromRgb(0xE1, 0x1D, 0x48),
                 Violet  => Color.FromRgb(0x7C, 0x3A, 0xED),
                 Teal    => Color.FromRgb(0x0D, 0x94, 0x88),
+                Black   => Color.FromRgb(0x11, 0x18, 0x27),
                 _       => (Color?)null   // Glass Blue = theme default
             };
         }

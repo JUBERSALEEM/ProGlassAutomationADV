@@ -60,7 +60,7 @@
                     </Border>
 
                     <!-- Viewing-different-family-member warning -->
-                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Row="1"
+                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Grid.Row="1"
                             Padding="12,8" Margin="10,10,10,0"
                             CornerRadius="10"
                             Background="{DynamicResource TintAmberBrush}"
@@ -123,7 +123,7 @@
                                           Margin="10,6,10,10">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Margin="0,4" Padding="12,10"
+                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Margin="0,4" Padding="12,10"
                                                 CornerRadius="10"
                                                 Background="{DynamicResource MenuHoverBrush}"
                                                 SnapsToDevicePixels="True">

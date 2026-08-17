@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/AI/AiChatView.xaml
      PROJECT: ProGlassAutomation
      MODULE: AI Chat (Chat 25 v4.0 — StatusMessage visibility fix)
@@ -207,7 +207,7 @@
             hidden"). The messages row (*) absorbs the shrink; the
             mic/speaker/status rows always stay visible.
         -->
-        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Width="420" Height="600"
+        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Width="420" Height="600"
                 MaxHeight="{Binding ActualHeight,
                             RelativeSource={RelativeSource AncestorType=Window},
                             Converter={StaticResource WindowInsetConverter},
@@ -448,7 +448,7 @@
                          Hidden while streaming (the live bubble below
                          takes over once tokens arrive).
                     ════════════════════════════════════════════════ -->
-                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" HorizontalAlignment="Left"
+                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" HorizontalAlignment="Left"
                             VerticalAlignment="Bottom"
                             Background="{DynamicResource MenuHoverBrush}"
                             CornerRadius="16,16,16,4"
@@ -602,7 +602,7 @@
                          token-by-token while Gemini streams it.
                          Bound to ActiveStream (StreamingChatMessage).
                     ════════════════════════════════════════════════ -->
-                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" HorizontalAlignment="Left"
+                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" HorizontalAlignment="Left"
                             VerticalAlignment="Bottom"
                             Background="{DynamicResource MenuHoverBrush}"
                             CornerRadius="16,16,16,4"
@@ -676,7 +676,7 @@
                 </Border>
 
                 <!-- Input area -->
-                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Row="3"
+                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Grid.Row="3"
                         Background="{DynamicResource SideMenuBackgroundBrush}"
                         CornerRadius="0,0,20,20"
                         Padding="12"

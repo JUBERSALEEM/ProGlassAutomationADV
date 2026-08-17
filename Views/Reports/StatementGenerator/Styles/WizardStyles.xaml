@@ -209,7 +209,7 @@
                     <Border x:Name="bd"
                             Background="{DynamicResource ModuleBackgroundBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="1"
+                            BorderThickness="1.5"
                             CornerRadius="10"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">
@@ -249,7 +249,7 @@
                     <Border x:Name="bd"
                             Background="Transparent"
                             BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="1"
+                            BorderThickness="1.5"
                             CornerRadius="10"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">
@@ -377,7 +377,7 @@
     <Style x:Key="WizardCardStyle" TargetType="Border">
         <Setter Property="Background"           Value="{DynamicResource ModuleBackgroundBrush}"/>
         <Setter Property="BorderBrush"          Value="{DynamicResource OutlineBrush}"/>
-        <Setter Property="BorderThickness"      Value="1"/>
+        <Setter Property="BorderThickness"      Value="1.5"/>
         <Setter Property="CornerRadius"         Value="12"/>
         <Setter Property="Padding"              Value="20"/>
         <Setter Property="SnapsToDevicePixels"  Value="True"/>
@@ -457,7 +457,7 @@
     <Style x:Key="OptionCardStyle" TargetType="Border">
         <Setter Property="Background"           Value="{DynamicResource ModuleBackgroundBrush}"/>
         <Setter Property="BorderBrush"          Value="{DynamicResource OutlineBrush}"/>
-        <Setter Property="BorderThickness"      Value="1"/>
+        <Setter Property="BorderThickness"      Value="1.5"/>
         <Setter Property="CornerRadius"         Value="10"/>
         <Setter Property="Padding"              Value="12,10"/>
         <Setter Property="Margin"               Value="0,0,8,8"/>
@@ -478,7 +478,7 @@
     <Style x:Key="MetricCardStyle" TargetType="Border">
         <Setter Property="Background"           Value="{DynamicResource ModuleBackgroundBrush}"/>
         <Setter Property="BorderBrush"          Value="{DynamicResource OutlineBrush}"/>
-        <Setter Property="BorderThickness"      Value="1"/>
+        <Setter Property="BorderThickness"      Value="1.5"/>
         <Setter Property="CornerRadius"         Value="12"/>
         <Setter Property="Padding"              Value="20,18"/>
         <Setter Property="MinHeight"            Value="90"/>

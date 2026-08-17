@@ -1,4 +1,4 @@
-using CsvHelper;
+﻿using CsvHelper;
 // CsvConfiguration and InjectionOptions live in CsvHelper.Configuration,
 // not CsvHelper — required by SafeCsvConfig below (audit fix C-3).
 using CsvHelper.Configuration;

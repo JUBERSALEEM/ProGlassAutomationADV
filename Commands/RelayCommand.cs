@@ -1,4 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════════
+﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: Commands/RelayCommand.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Commands (Chat 25 v1.0 — async-safe)

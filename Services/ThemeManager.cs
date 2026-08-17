@@ -182,10 +182,24 @@ namespace ProGlassAutomation.Services
             // Written to OutlineDefaultBrush as well, so the
             // "Defined Card Edges" toggle can still restore this value
             // when it is switched back off.
-            Color keyline = ColorMath.FromHsl(
-                h,
-                Math.Max(s * (dark ? 0.80 : 0.85), dark ? 0.40 : 0.45),
-                dark ? Math.Max(l, 0.52) : Math.Min(Math.Max(l, 0.42), 0.55));
+            //
+            // The saturation floor is conditional. Raising a vivid accent
+            // to 0.45 keeps the edge from washing out, but applying the
+            // same floor to a deliberately neutral accent (the Black
+            // preset, #111827 at S=0.39) would drag it to a navy blue -
+            // a "Black" option that renders blue. So near-neutral accents
+            // keep their own saturation and only get a lightness lift.
+            bool neutralAccent = s < 0.42;
+
+            double keySat = neutralAccent
+                ? s
+                : Math.Max(s * (dark ? 0.80 : 0.85), dark ? 0.40 : 0.45);
+
+            double keyLight = dark
+                ? Math.Max(l, neutralAccent ? 0.62 : 0.52)
+                : Math.Min(Math.Max(l, neutralAccent ? 0.26 : 0.42), 0.55);
+
+            Color keyline = ColorMath.FromHsl(h, keySat, keyLight);
 
             FreezeAndSet(resources, "OutlineBrush", keyline);
             FreezeAndSet(resources, "OutlineDefaultBrush", keyline);

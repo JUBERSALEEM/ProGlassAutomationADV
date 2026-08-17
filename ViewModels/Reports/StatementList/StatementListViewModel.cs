@@ -1,4 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════════
+﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Reports/StatementList/StatementListViewModel.cs
 // PROJECT: ProGlassAutomation
 // CHAT 17 — ALL BUGS FIXED

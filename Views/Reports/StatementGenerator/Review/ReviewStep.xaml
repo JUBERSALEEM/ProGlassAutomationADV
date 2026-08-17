@@ -358,7 +358,7 @@
                                     <Border x:Name="bd"
                                             Background="{DynamicResource ModuleBackgroundBrush}"
                                             BorderBrush="{DynamicResource OutlineBrush}"
-                                            BorderThickness="1"
+                                            BorderThickness="1.5"
                                             CornerRadius="10">
                                         <StackPanel Orientation="Horizontal"
                                                     HorizontalAlignment="Center"
@@ -666,7 +666,7 @@
                                         <DataTemplate>
                                             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                                                     BorderBrush="{DynamicResource OutlineBrush}"
-                                                    BorderThickness="1"
+                                                    BorderThickness="1.5"
                                                     CornerRadius="10"
                                                     Padding="14,12"
                                                     Margin="0,0,0,6">
@@ -721,7 +721,7 @@
                                         <DataTemplate>
                                             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                                                     BorderBrush="{DynamicResource OutlineBrush}"
-                                                    BorderThickness="1"
+                                                    BorderThickness="1.5"
                                                     CornerRadius="10"
                                                     Padding="14,12"
                                                     Margin="0,0,0,6">
@@ -776,7 +776,7 @@
                                         <DataTemplate>
                                             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                                                     BorderBrush="{DynamicResource OutlineBrush}"
-                                                    BorderThickness="1"
+                                                    BorderThickness="1.5"
                                                     CornerRadius="10"
                                                     Padding="14,12"
                                                     Margin="0,0,0,6">
@@ -832,7 +832,7 @@
             <Border Grid.Row="5"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="1"
+                    BorderThickness="1.5"
                     CornerRadius="12"
                     Padding="20,14">
                 <Grid>

@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: MainWindow.xaml
      PROJECT: ProGlassAutomation
      MODULE: Main Shell (Chat 23 v3.1)
@@ -372,7 +372,7 @@
                 <Border x:Name="border"
                         Background="Transparent"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="1"
+                        BorderThickness="1.5"
                         CornerRadius="14"
                         Padding="10,0"
                         SnapsToDevicePixels="True">
@@ -776,7 +776,7 @@
                  so the effect rasterizes one empty rounded rectangle
                  instead of the entire live module tree. Non-hit-testable so
                  it can never intercept a click meant for the module. -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Margin="12"
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Margin="12"
                     CornerRadius="16"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     Effect="{StaticResource CardShadow}"
@@ -792,7 +792,7 @@
                  corners — without it, square content paints over them. -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="1"
+                    BorderThickness="1.5"
                     CornerRadius="16"
                     Margin="12"
                     ClipToBounds="True"
@@ -822,7 +822,7 @@
             </Rectangle>
 
             <!-- LEFT DRAWER — NAVIGATION MENU -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Width="290"
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Width="290"
                     HorizontalAlignment="Left"
                     Background="{DynamicResource SideMenuBackgroundBrush}"
                     CornerRadius="0,16,16,0"

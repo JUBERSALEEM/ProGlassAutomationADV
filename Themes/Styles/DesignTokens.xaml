@@ -53,7 +53,7 @@
                 Value="{DynamicResource ModuleBackgroundBrush}"/>
         <Setter Property="BorderBrush"
                 Value="{DynamicResource OutlineBrush}"/>
-        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="CornerRadius"
                 Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding" Value="20,16"/>

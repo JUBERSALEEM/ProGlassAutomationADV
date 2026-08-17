@@ -1,4 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════════
+﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: Behaviors/SmoothScrollBehavior.cs
 // PROJECT: ProGlassAutomation
 // PURPOSE: Buttery-smooth 60fps scroll behavior for ScrollViewer.
