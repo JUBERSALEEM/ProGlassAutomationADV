@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.Services.Database;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ProGlassAutomation.Services.Audit;
 
 namespace ProGlassAutomation.Services.SheetStore
 {
@@ -32,6 +33,11 @@ namespace ProGlassAutomation.Services.SheetStore
 
         public async Task<GlassSheet> AddAsync(GlassSheet sheet)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.SheetStoreCreate, "add a glass sheet");
+
             using var db = new AppDbContext();
             sheet.CreatedAt = DateTime.Now;
             sheet.LastUpdated = DateTime.Now;
@@ -45,6 +51,11 @@ namespace ProGlassAutomation.Services.SheetStore
 
         public async Task UpdateAsync(GlassSheet sheet)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.SheetStoreEdit, "update a glass sheet");
+
             using var db = new AppDbContext();
             sheet.LastUpdated = DateTime.Now;
             db.GlassSheets.Update(sheet);
@@ -53,6 +64,11 @@ namespace ProGlassAutomation.Services.SheetStore
 
         public async Task DeleteAsync(int id)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.SheetStoreDelete, "delete a glass sheet");
+
             using var db = new AppDbContext();
             var sheet = await db.GlassSheets.FindAsync(id);
             if (sheet != null)

@@ -222,6 +222,33 @@ namespace ProGlassAutomation
             // diagnosed without guessing.
             DispatcherUnhandledException += (s, args) =>
             {
+                // ── A-1: authorization denials are NOT crashes ─────────
+                // OperationGuard throws PermissionDeniedException from the
+                // service layer. That is an expected, designed outcome —
+                // the security boundary doing its job — not a fault. It
+                // must not produce a crash report or a scary "Something
+                // went wrong" dialog telling the user to contact support.
+                // Show the precise, already-sanitised explanation instead.
+                // The denial itself was audited inside OperationGuard.
+                if (args.Exception is Services.Audit.PermissionDeniedException denied)
+                {
+                    AppLogService.Warning(
+                        $"Blocked unauthorized operation: {denied.Operation} " +
+                        $"(needs {denied.Permission})",
+                        new LogContext
+                        {
+                            Module = "Security",
+                            Operation = "PermissionDenied"
+                        });
+
+                    MessageBox.Show(
+                        denied.UserMessage, "Permission Denied",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+
+                    args.Handled = true;
+                    return;
+                }
+
                 string errorId = AppLogService.Critical(
                     "Unhandled UI exception", args.Exception,
                     new LogContext { Operation = "UnhandledException" });

@@ -12,6 +12,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Audit;
 
 namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 {
@@ -934,6 +935,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
         private async Task DeleteAsync(DeliveryNoteRowViewModel row)
         {
+            // A-1 (UI layer): tell the user BEFORE the confirm
+            // dialog. The repository guard is the real boundary.
+            if (!PermissionService.Require(
+                    AppPermissions.DeliveryNoteEdit, "delete a delivery note"))
+                return;
+
             // Safety guard — Master DNs must never be deleted from list
             if (row.IsMasterDn)
             {

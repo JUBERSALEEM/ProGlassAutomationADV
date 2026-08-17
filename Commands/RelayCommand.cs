@@ -63,6 +63,28 @@ namespace ProGlassAutomation.Commands
             {
                 _execute(parameter);
             }
+            catch (Services.Audit.PermissionDeniedException denied)
+            {
+                // A-1: the service-layer guard refused this operation.
+                // Expected behaviour, not a fault — surface the precise
+                // reason and do not rethrow into the crash path. The
+                // denial was already written to the audit trail by
+                // OperationGuard.
+                Services.Logging.AppLogService.Warning(
+                    $"Blocked unauthorized operation: {denied.Operation} " +
+                    $"(needs {denied.Permission})",
+                    new Services.Logging.LogContext
+                    {
+                        Module = "Security",
+                        Class = nameof(RelayCommand),
+                        Operation = "PermissionDenied"
+                    });
+
+                System.Windows.MessageBox.Show(
+                    denied.UserMessage, "Permission Denied",
+                    System.Windows.MessageBoxButton.OK,
+                    System.Windows.MessageBoxImage.Warning);
+            }
             catch (Exception ex)
             {
                 // ══════════════════════════════════════════════════════

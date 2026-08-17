@@ -1,10 +1,11 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Services.JobOrder.Database;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ProGlassAutomation.Services.Audit;
 
 namespace ProGlassAutomation.Services.JobOrder.Repository
 {
@@ -47,6 +48,11 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
 
         public async Task<SavedJobOrder> InsertAsync(SavedJobOrder jobOrder)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.JobOrderEdit, "create a job order");
+
             using var db = new JobOrdersDbContext();
             jobOrder.CreatedAt = DateTime.Now;
             jobOrder.UpdatedAt = DateTime.Now;
@@ -57,6 +63,11 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
 
         public async Task UpdateAsync(SavedJobOrder jobOrder)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.JobOrderEdit, "update a job order");
+
             using var db = new JobOrdersDbContext();
             jobOrder.UpdatedAt = DateTime.Now;
             db.JobOrders.Update(jobOrder);
@@ -65,6 +76,11 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
 
         public async Task DeleteAsync(int id)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.JobOrderDelete, "delete a job order");
+
             using var db = new JobOrdersDbContext();
             var job = await db.JobOrders.FindAsync(id);
             if (job != null)

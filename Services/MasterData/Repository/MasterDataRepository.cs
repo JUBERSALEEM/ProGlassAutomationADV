@@ -16,6 +16,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ProGlassAutomation.Services.Audit;
 
 namespace ProGlassAutomation.Services.MasterData.Repository
 {
@@ -101,6 +102,11 @@ namespace ProGlassAutomation.Services.MasterData.Repository
 
         public async Task<SavedCompany> SaveOrUpdateCompanyAsync(SavedCompany company)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.SettingsManage, "save a company");
+
             if (company == null)
                 throw new ArgumentNullException(nameof(company));
 
@@ -159,6 +165,11 @@ namespace ProGlassAutomation.Services.MasterData.Repository
 
         public async Task DeleteCompanyAsync(int id)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.SettingsManage, "delete a company");
+
             using var ctx = new MasterDataDbContext();
             var entity = await ctx.Companies.FindAsync(id);
             if (entity == null) return;
@@ -173,6 +184,11 @@ namespace ProGlassAutomation.Services.MasterData.Repository
 
         public async Task<SavedClient> SaveOrUpdateClientAsync(SavedClient client)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.ProformaEdit, "save a client");
+
             if (client == null)
                 throw new ArgumentNullException(nameof(client));
 
@@ -236,6 +252,11 @@ namespace ProGlassAutomation.Services.MasterData.Repository
 
         public async Task DeleteClientAsync(int id)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.SettingsManage, "delete a client");
+
             using var ctx = new MasterDataDbContext();
             var entity = await ctx.Clients.FindAsync(id);
             if (entity == null) return;
@@ -250,6 +271,11 @@ namespace ProGlassAutomation.Services.MasterData.Repository
 
         public async Task<SavedProject> SaveOrUpdateProjectAsync(SavedProject project)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.ProformaEdit, "save a project");
+
             if (project == null)
                 throw new ArgumentNullException(nameof(project));
 
@@ -327,6 +353,11 @@ namespace ProGlassAutomation.Services.MasterData.Repository
 
         public async Task DeleteProjectAsync(int id)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.SettingsManage, "delete a project");
+
             using var ctx = new MasterDataDbContext();
             var entity = await ctx.Projects.FindAsync(id);
             if (entity == null) return;
@@ -342,6 +373,11 @@ namespace ProGlassAutomation.Services.MasterData.Repository
         public async Task<SavedSalesman> SaveOrUpdateSalesmanAsync(
             SavedSalesman salesman)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.SettingsManage, "save a salesman");
+
             if (salesman == null)
                 throw new ArgumentNullException(nameof(salesman));
 
@@ -401,6 +437,11 @@ namespace ProGlassAutomation.Services.MasterData.Repository
 
         public async Task DeleteSalesmanAsync(int id)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.SettingsManage, "delete a salesman");
+
             using var ctx = new MasterDataDbContext();
             var entity = await ctx.Salesmen.FindAsync(id);
             if (entity == null) return;

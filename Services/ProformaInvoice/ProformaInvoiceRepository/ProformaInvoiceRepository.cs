@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using ProGlassAutomation.Services.Audit;
 
 namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 {
@@ -152,6 +153,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 
         public async Task<int> InsertAsync(SavedProformaInvoice invoice)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.ProformaCreate, "create a proforma invoice");
+
             if (invoice == null)
                 throw new ArgumentNullException(nameof(invoice));
 
@@ -183,6 +189,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         /// </summary>
         public async Task UpdateAsync(SavedProformaInvoice invoice)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.ProformaEdit, "update a proforma invoice");
+
             if (invoice == null)
                 throw new ArgumentNullException(nameof(invoice));
 
@@ -250,6 +261,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
 
         public async Task DeleteAsync(int id)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.ProformaDelete, "delete a proforma invoice");
+
             using var db = new ProformaInvoicesDbContext();
             var entity = await db.ProformaInvoices.FindAsync(id);
             if (entity == null) return;

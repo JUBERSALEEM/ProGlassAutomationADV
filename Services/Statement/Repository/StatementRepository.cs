@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Statement/Repository/StatementRepository.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Account Statement / Sales Report (Chat 16 + Chat 21 v2 fix)
@@ -39,6 +39,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using ProGlassAutomation.Services.Audit;
 
 namespace ProGlassAutomation.Services.Statement.Repository
 {
@@ -191,6 +192,11 @@ namespace ProGlassAutomation.Services.Statement.Repository
 
         public async Task<SavedStatement> InsertAsync(SavedStatement entity)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.StatementGenerate, "create a statement");
+
             await using var ctx = new StatementDbContext();
 
             // Set timestamps explicitly (BUG-11 pattern)
@@ -206,6 +212,11 @@ namespace ProGlassAutomation.Services.Statement.Repository
 
         public async Task UpdateAsync(SavedStatement entity)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.StatementGenerate, "update a statement");
+
             await using var ctx = new StatementDbContext();
 
             entity.UpdatedAt = DateTime.UtcNow;
@@ -229,6 +240,11 @@ namespace ProGlassAutomation.Services.Statement.Repository
 
         public async Task DeleteAsync(int id)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.StatementGenerate, "delete a statement");
+
             await using var ctx = new StatementDbContext();
             var entity = await ctx.Statements
                 .Include(s => s.LineItems)
@@ -260,6 +276,11 @@ namespace ProGlassAutomation.Services.Statement.Repository
             string pdfPath,
             bool hasAttachments)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.StatementGenerate, "update a statement PDF path");
+
             await using var ctx = new StatementDbContext();
             var entity = await ctx.Statements.FindAsync(statementId);
             if (entity == null) return;

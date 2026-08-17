@@ -450,6 +450,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
         private async Task DuplicateAsync(SavedInvoiceListItem item)
         {
+            // A-1 (UI layer): tell the user BEFORE the confirm
+            // dialog. The repository guard is the real boundary.
+            if (!PermissionService.Require(
+                    AppPermissions.ProformaCreate, "duplicate a proforma invoice"))
+                return;
+
             if (item == null || App.Invoices == null) return;
 
             var confirm = MessageBox.Show(

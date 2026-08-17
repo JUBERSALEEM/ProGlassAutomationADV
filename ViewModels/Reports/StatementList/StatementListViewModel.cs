@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Reports/StatementList/StatementListViewModel.cs
 // PROJECT: ProGlassAutomation
 // CHAT 17 — ALL BUGS FIXED
@@ -22,6 +22,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Input;
+using ProGlassAutomation.Services.Audit;
 
 namespace ProGlassAutomation.ViewModels.Reports.StatementList
 {
@@ -309,6 +310,12 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementList
         // ═════════════════════════════════════════════════════════════════
         private async Task DeleteAsync(StatementListRowViewModel? row)
         {
+            // A-1 (UI layer): tell the user BEFORE the confirm
+            // dialog. The repository guard is the real boundary.
+            if (!PermissionService.Require(
+                    AppPermissions.StatementGenerate, "delete a statement"))
+                return;
+
             if (row == null) return;
 
             var result = MessageBox.Show(

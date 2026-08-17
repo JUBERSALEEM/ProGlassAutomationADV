@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Services.DeliveryNote.Database;
 using ProGlassAutomation.Utilities;
@@ -6,6 +6,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ProGlassAutomation.Services.Audit;
 
 namespace ProGlassAutomation.Services.DeliveryNote.Repository
 {
@@ -80,6 +81,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             string masterDnId,
             List<DeliveryNoteItem> items)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.DeliveryNoteEdit, "create a master delivery note");
+
             using var ctx = new DeliveryNotesDbContext();
 
             bool exists = await ctx.DeliveryNotes
@@ -129,6 +135,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             string jobOrderId,
             string triggeredByDnId)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.DeliveryNoteEdit, "update a master delivery note");
+
             using var ctx = new DeliveryNotesDbContext();
 
             var masterDn = await ctx.DeliveryNotes
@@ -641,6 +652,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
         public async Task<SavedDeliveryNote> InsertAsync(SavedDeliveryNote entity)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.DeliveryNoteEdit, "create a delivery note");
+
             using var ctx = new DeliveryNotesDbContext();
             entity.CreatedAt = DateTime.Now;
             entity.UpdatedAt = DateTime.Now;
@@ -651,6 +667,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
         public async Task UpdateAsync(SavedDeliveryNote entity)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.DeliveryNoteEdit, "update a delivery note");
+
             using var ctx = new DeliveryNotesDbContext();
             entity.UpdatedAt = DateTime.Now;
 
@@ -667,6 +688,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
         public async Task DeleteAsync(int id)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.DeliveryNoteEdit, "delete a delivery note");
+
             using var ctx = new DeliveryNotesDbContext();
             var entity = await ctx.DeliveryNotes
                 .Include(x => x.Items)
@@ -710,6 +736,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         public async Task<DeliveryNoteAttachment> AddAttachmentAsync(
             DeliveryNoteAttachment entity)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.DeliveryNoteEdit, "add a delivery note attachment");
+
             using var ctx = new DeliveryNotesDbContext();
             entity.UploadedAt = DateTime.Now;
             ctx.DeliveryNoteAttachments.Add(entity);
@@ -719,6 +750,11 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
         public async Task DeleteAttachmentAsync(int attachmentId)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.DeliveryNoteEdit, "delete a delivery note attachment");
+
             using var ctx = new DeliveryNotesDbContext();
             var entity = await ctx.DeliveryNoteAttachments
                 .FirstOrDefaultAsync(a => a.Id == attachmentId);

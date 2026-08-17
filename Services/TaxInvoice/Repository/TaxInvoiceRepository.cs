@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.TaxInvoice.Attachment;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Models.TaxInvoice.TaxInvoiceFamily;
@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ProGlassAutomation.Services.Audit;
 
 namespace ProGlassAutomation.Services.TaxInvoice.Repository
 {
@@ -232,6 +233,11 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
         public async Task<SavedTaxInvoice> InsertAsync(SavedTaxInvoice entity)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.TaxInvoiceEdit, "create a tax invoice");
+
             using var ctx = new TaxInvoiceDbContext();
             entity.CreatedAt = DateTime.Now;
             entity.UpdatedAt = DateTime.Now;
@@ -242,6 +248,11 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
         public async Task UpdateAsync(SavedTaxInvoice entity)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.TaxInvoiceEdit, "update a tax invoice");
+
             using var ctx = new TaxInvoiceDbContext();
             entity.UpdatedAt = DateTime.Now;
 
@@ -260,6 +271,11 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
         public async Task DeleteAsync(int id)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.TaxInvoiceEdit, "delete a tax invoice");
+
             using var ctx = new TaxInvoiceDbContext();
             var entity = await ctx.TaxInvoices
                 .Include(x => x.Items)
@@ -293,6 +309,11 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
         public async Task UpdateStatusAsync(
             string invoiceNumber, string newStatus)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.TaxInvoiceEdit, "change a tax invoice status");
+
             using var ctx = new TaxInvoiceDbContext();
             var entity = await ctx.TaxInvoices
                 .FirstOrDefaultAsync(x => x.InvoiceNumber == invoiceNumber);
@@ -322,6 +343,11 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
         public async Task<TaxInvoiceAttachment> AddAttachmentAsync(
             TaxInvoiceAttachment entity)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.TaxInvoiceEdit, "add a tax invoice attachment");
+
             using var ctx = new TaxInvoiceDbContext();
             entity.UploadedAt = DateTime.Now;
             ctx.TaxInvoiceAttachments.Add(entity);
@@ -331,6 +357,11 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
         public async Task DeleteAttachmentAsync(int attachmentId)
         {
+            // A-1: service-layer authorization. The UI also checks,
+            // but this is the boundary that cannot be bypassed.
+            OperationGuard.Demand(
+                AppPermissions.TaxInvoiceEdit, "delete a tax invoice attachment");
+
             using var ctx = new TaxInvoiceDbContext();
             var entity = await ctx.TaxInvoiceAttachments
                 .FirstOrDefaultAsync(a => a.Id == attachmentId);

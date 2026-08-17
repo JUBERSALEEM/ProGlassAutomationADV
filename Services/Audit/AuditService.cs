@@ -448,11 +448,18 @@ namespace ProGlassAutomation.Services.Audit
                 if (!user.IsActive)
                     return (false, "This user is deactivated.");
 
-                if (!VerifyPassword(user, password))
+                if (!VerifyPassword(user, password, out bool needsUpgrade))
                     return (false, "Incorrect password.");
 
                 user.LastActiveAtUtc = DateTime.UtcNow;
                 await db.SaveChangesAsync();
+
+                // A-2: silently migrate a legacy SHA-256 hash now that
+                // the plaintext has been proven correct. Runs after the
+                // sign-in is already committed, so a failure here cannot
+                // prevent the user getting in.
+                if (needsUpgrade)
+                    await UpgradePasswordHashAsync(db, user, password);
 
                 _currentUser = user;
 
@@ -490,26 +497,91 @@ namespace ProGlassAutomation.Services.Audit
             };
         }
 
+        // ══════════════════════════════════════════════════════════════
+        //  AUDIT A-2 — PBKDF2 replaces single-round SHA-256
+        //
+        //  The old scheme was SHA256(saltHex + password). The salt was
+        //  fine (16 random bytes, per user) but SHA-256 is fast by
+        //  design, so audit.db — an ordinary file in %AppData% that is
+        //  also copied into every backup set — was brute-forceable on a
+        //  commodity GPU. Hashing now goes through
+        //  Services/Security/PasswordHasher (PBKDF2-HMAC-SHA256,
+        //  210,000 iterations, OWASP-recommended).
+        //
+        //  MIGRATION IS SILENT AND REQUIRES NO USER ACTION. Existing
+        //  installations already hold SHA-256 hashes; rejecting them
+        //  would lock every user out of their own ERP on upgrade.
+        //  VerifyPassword accepts both formats and reports when an old
+        //  one was used, and the caller re-hashes with PBKDF2 using the
+        //  password just proven correct.
+        // ══════════════════════════════════════════════════════════════
+
         private static string GenerateSalt()
         {
+            // Retained for the AppUser.PasswordSalt column, which stays
+            // populated for legacy rows. PBKDF2 carries its own salt
+            // inside the stored value, so new rows do not depend on it.
             var bytes = new byte[16];
             RandomNumberGenerator.Fill(bytes);
             return Convert.ToHexString(bytes);
         }
 
         private static string HashPassword(string password, string saltHex)
+            => Security.PasswordHasher.Hash(password ?? "");
+
+        /// <summary>
+        /// Verifies a password against either hashing scheme.
+        /// <paramref name="needsUpgrade"/> is true when the stored hash
+        /// was the legacy SHA-256 form and should be re-hashed.
+        /// </summary>
+        private static bool VerifyPassword(
+            AppUser user, string password, out bool needsUpgrade)
         {
-            var input = Encoding.UTF8.GetBytes(saltHex + (password ?? ""));
-            var hash = SHA256.HashData(input);
-            return Convert.ToHexString(hash);
+            var result = Security.PasswordHasher.Verify(
+                password, user.PasswordHash, user.PasswordSalt);
+
+            needsUpgrade = result.NeedsUpgrade;
+            return result.Success;
         }
 
         private static bool VerifyPassword(AppUser user, string password)
+            => VerifyPassword(user, password, out _);
+
+        /// <summary>
+        /// Re-hashes a verified password with the current scheme and
+        /// persists it. Best-effort: a migration failure must never
+        /// block a sign-in that has already succeeded.
+        /// </summary>
+        private static async Task UpgradePasswordHashAsync(
+            AuditDbContext db, AppUser user, string password)
         {
-            var expected = HashPassword(password, user.PasswordSalt);
-            return string.Equals(
-                expected, user.PasswordHash,
-                StringComparison.OrdinalIgnoreCase);
+            try
+            {
+                user.PasswordHash = Security.PasswordHasher.Hash(password);
+                await db.SaveChangesAsync();
+
+                Logging.AppLogService.Info(
+                    $"Password hash upgraded to PBKDF2 for '{user.Username}'.",
+                    new Logging.LogContext
+                    {
+                        Module = "Security",
+                        Class = nameof(AuditService),
+                        Operation = "UpgradePasswordHash"
+                    });
+            }
+            catch (Exception ex)
+            {
+                // The user is already authenticated; they simply keep the
+                // legacy hash and we retry on their next sign-in.
+                Logging.AppLogService.Warning(
+                    $"Password hash upgrade failed for '{user.Username}': {ex.Message}",
+                    new Logging.LogContext
+                    {
+                        Module = "Security",
+                        Class = nameof(AuditService),
+                        Operation = "UpgradePasswordHash"
+                    });
+            }
         }
 
         // ══════════════════════════════════════════════════════════════
