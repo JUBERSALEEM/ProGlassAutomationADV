@@ -6,7 +6,7 @@
         <Style x:Key="CardLabelStyle" TargetType="TextBlock">
             <Setter Property="FontSize"   Value="11"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#4338CA"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
         </Style>
         <Style x:Key="FieldInputStyle" TargetType="TextBox">
             <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
@@ -44,7 +44,7 @@
         <Style x:Key="SectionTitleStyle" TargetType="TextBlock">
             <Setter Property="FontSize"   Value="18"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#4338CA"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
         </Style>
         <Style x:Key="SpecDataCellStyle" TargetType="TextBlock">
             <Setter Property="FontSize"          Value="9"/>
@@ -61,7 +61,7 @@
         <Style x:Key="SubSectionHeaderStyle" TargetType="TextBlock">
             <Setter Property="FontSize"   Value="11"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground" Value="#4338CA"/>
+            <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
         </Style>
 
 </ResourceDictionary>

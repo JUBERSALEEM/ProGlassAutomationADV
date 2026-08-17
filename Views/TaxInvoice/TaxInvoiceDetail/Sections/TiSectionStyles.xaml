@@ -111,7 +111,7 @@
                 <DataTrigger Binding="{Binding IsSelected}" Value="True">
                     <Setter Property="BorderThickness" Value="2"/>
                     <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
-                    <Setter Property="BorderBrush" Value="#4338CA"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding IsCurrentInvoice}" Value="True">
                     <Setter Property="BorderThickness" Value="4,2,2,2"/>
