@@ -177,6 +177,22 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             // Instant refresh when sample data is seeded.
             ProGlassAutomation.Services.SampleData.SampleDataService.DataSeeded +=
                 async () => { try { await LoadInvoicesAsync(); } catch { } };
+
+            // Instant refresh when proforma data changes ANYWHERE — e.g. a Job
+            // Order delete/reject cascade updates a source invoice's status in
+            // another module. The repository raises SavedInvoicesChanged on
+            // every insert/update/delete, so the list never needs a manual
+            // Refresh to reflect external changes.
+            ProformaInvoiceRepository.SavedInvoicesChanged += () =>
+            {
+                var dispatcher = System.Windows.Application.Current?.Dispatcher;
+                if (dispatcher == null) return;
+                if (dispatcher.CheckAccess())
+                    _ = LoadInvoicesAsync();
+                else
+                    dispatcher.InvokeAsync(
+                        async () => { try { await LoadInvoicesAsync(); } catch { } });
+            };
             ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
             LoadInvoiceCommand = new RelayCommand(p => RequestLoad(p as SavedInvoiceListItem));
 
