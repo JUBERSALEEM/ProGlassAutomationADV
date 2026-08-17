@@ -185,7 +185,7 @@ namespace ProGlassAutomation.Services.Export
                 {
                     forcedPixel = true;
                     sv.CanContentScroll = false;
-                    for (var a = sv; a != null;
+                    for (System.Windows.DependencyObject a = sv; a != null;
                          a = System.Windows.Media.VisualTreeHelper.GetParent(a) as System.Windows.DependencyObject)
                     {
                         if (a is System.Windows.Controls.ItemsControl ic)
@@ -289,7 +289,7 @@ namespace ProGlassAutomation.Services.Export
                     {
                         if (forcedPixel)
                         {
-                            for (var a = sv; a != null;
+                            for (System.Windows.DependencyObject a = sv; a != null;
                                  a = System.Windows.Media.VisualTreeHelper.GetParent(a) as System.Windows.DependencyObject)
                             {
                                 if (a is System.Windows.Controls.ItemsControl ic)
