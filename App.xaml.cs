@@ -526,18 +526,58 @@ namespace ProGlassAutomation
             // 13) Loading delay for splash animations
             await Task.Delay(2800);
 
+            // 13b) AUTH-1 — sign in before the main window exists.
+            //
+            // Previously the app went straight to MainWindow as whichever
+            // active user had the lowest Id, which on a fresh install is an
+            // Administrator. The A-1 service-layer guards were therefore
+            // authorizing an identity nobody had ever established.
+            //
+            // This is a LOCAL identity gate for audit accuracy and role
+            // enforcement — not protection against someone who already has
+            // the machine and the SQLite files.
+            //
+            // ShutdownMode MUST be pinned to OnExplicitShutdown across this
+            // handover. The default is OnLastWindowClose, and there is a
+            // moment below where the splash has closed and the login dialog
+            // has not yet opened — zero windows — which would otherwise
+            // terminate the process before anyone could sign in. It is
+            // restored to OnLastWindowClose once MainWindow exists, so the
+            // normal "close the last window to quit" behaviour is unchanged.
+            ShutdownMode = ShutdownMode.OnExplicitShutdown;
+
+            // Close the splash FIRST: it is a topmost borderless window, so
+            // showing the sign-in dialog underneath it would look like a hang.
+            splash.Close();
+
+            var login = new Views.Login.LoginWindow();
+            login.ShowDialog();
+
+            if (!login.SignedIn)
+            {
+                // Closing the login window is an ordinary "not today",
+                // not a failure: exit quietly with success.
+                Shutdown(0);
+                return;
+            }
+
             // 14) Main window handoff
             var mainWindow = new MainWindow();
             MainWindow = mainWindow;
 
-            splash.FadeOutAndClose(() =>
-            {
-                mainWindow.Show();
-                mainWindow.Activate();
-                mainWindow.Focus();
-                mainWindow.Topmost = true;
-                mainWindow.Topmost = false;
-            });
+            // AUTH-1: main window exists, so restore the normal shutdown
+            // behaviour — closing it quits the app, exactly as before.
+            ShutdownMode = ShutdownMode.OnLastWindowClose;
+
+            // AUTH-1: the splash was already closed at 13b so the sign-in
+            // dialog would not appear behind it, so there is no fade-out to
+            // run here any more. Showing the main window directly is what
+            // the fade callback used to do.
+            mainWindow.Show();
+            mainWindow.Activate();
+            mainWindow.Focus();
+            mainWindow.Topmost = true;
+            mainWindow.Topmost = false;
 
             // 15) v3 OTA §18 — daily background update check.
             // Fully async + offline-safe; never delays or blocks
