@@ -791,7 +791,7 @@
                  ClipToBounds keeps module content inside the rounded
                  corners — without it, square content paints over them. -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{StaticResource ModuleFrameBorder}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="1"
                     CornerRadius="16"
                     Margin="12"

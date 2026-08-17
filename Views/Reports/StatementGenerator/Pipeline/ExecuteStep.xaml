@@ -160,7 +160,7 @@
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Margin" Value="0,0,0,8"/>
             <Setter Property="Background" Value="{StaticResource StepIdleBg}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource BorderSubtle}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsSuccess}" Value="True">
@@ -210,8 +210,8 @@
 
         <!-- Metric card style -->
         <Style x:Key="MetricCardStyleGlass" TargetType="Border">
-            <Setter Property="Background" Value="{StaticResource GlassCardBg}"/>
-            <Setter Property="BorderBrush" Value="{StaticResource GlassCardBorder}"/>
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="14"/>
             <Setter Property="Padding" Value="16,14"/>
@@ -285,8 +285,8 @@
                  CACHED: content only changes on status/percent update
             ═══════════════════════════════════════════════════════ -->
             <Border Grid.Row="2"
-                    Background="{StaticResource GlassCardBg}"
-                    BorderBrush="{StaticResource GlassCardBorder}"
+                    Background="{DynamicResource ModuleBackgroundBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="1"
                     CornerRadius="16"
                     Padding="24,20"
@@ -360,8 +360,8 @@
 
                 <!-- ═══ COLUMN 1: PIPELINE STEPS (glass card) ═══ -->
                 <Border Grid.Column="0"
-                        Background="{StaticResource GlassCardBg}"
-                        BorderBrush="{StaticResource GlassCardBorder}"
+                        Background="{DynamicResource ModuleBackgroundBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="1"
                         CornerRadius="16"
                         Padding="20"
@@ -590,8 +590,8 @@
 
                 <!-- ═══ COLUMN 3: WARNINGS & ALERTS ═══ -->
                 <Border Grid.Column="4"
-                        Background="{StaticResource GlassCardBg}"
-                        BorderBrush="{StaticResource GlassCardBorder}"
+                        Background="{DynamicResource ModuleBackgroundBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="1"
                         CornerRadius="16"
                         Padding="20"

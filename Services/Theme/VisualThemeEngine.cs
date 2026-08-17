@@ -59,7 +59,15 @@ namespace ProGlassAutomation.Services.Theme
             "CardCornerRadius", "CardCornerRadiusLarge",
             "ControlCornerRadius",
             "WallpaperOpacityValue",
-            "ModuleWallpaperBrush"
+            "ModuleWallpaperBrush",
+
+            // The card keyline. Monet and Professional recolour every
+            // surface, so a keyline fixed by the base theme stops
+            // relating to the surface it outlines and the cards read as
+            // flat. These families now derive it from their own palette
+            // and it is removed again on Normal, exactly like the
+            // surfaces above.
+            "OutlineBrush", "OutlineDefaultBrush"
         };
 
         /// <summary>Currently active family.</summary>
@@ -395,6 +403,34 @@ namespace ProGlassAutomation.Services.Theme
             resources["CardCornerRadius"] = new CornerRadius(18);
             resources["CardCornerRadiusLarge"] = new CornerRadius(24);
             resources["ControlCornerRadius"] = new CornerRadius(12);
+
+            // Keyline derived from the SAME accent hue as the glass
+            // surfaces, so the outline belongs to the material instead
+            // of sitting on it as a foreign grey. Lightness is pinned to
+            // a value that keeps roughly 2-3:1 against the card it
+            // outlines: visible as a hairline, never a heavy box.
+            ApplyKeyline(resources,
+                ColorMath.FromHsl(h, Math.Min(s, 0.28),
+                    dark ? 0.46 : 0.62));
+        }
+
+        /// <summary>
+        /// Writes the card keyline for a visual family.
+        /// <para>
+        /// Sets BOTH OutlineBrush (what every card binds) and
+        /// OutlineDefaultBrush (the restore value the Defined Card Edges
+        /// toggle reads). Without the second one, turning the toggle off
+        /// would snap the keyline back to the base theme's grey and lose
+        /// the family's derived colour.
+        /// </para>
+        /// </summary>
+        private static void ApplyKeyline(
+            ResourceDictionary resources, Color keyline)
+        {
+            var brush = new SolidColorBrush(keyline);
+            brush.Freeze();
+            resources["OutlineBrush"] = brush;
+            resources["OutlineDefaultBrush"] = brush;
         }
 
         /// <summary>
@@ -470,6 +506,13 @@ namespace ProGlassAutomation.Services.Theme
                 : Color.FromRgb(0xF1, 0xF5, 0xF9));
             hover.Freeze();
             resources["MenuHoverBrush"] = hover;
+
+            // Cool slate keyline to match the cooled surfaces above.
+            // Professional is the "premium corporate" family, so the
+            // edge is a touch crisper than Monet's.
+            ApplyKeyline(resources, dark
+                ? Color.FromRgb(0x5A, 0x6B, 0x82)
+                : Color.FromRgb(0x8C, 0x9C, 0xB0));
         }
 
         // ── Helpers ─────────────────────────────────────────────────────

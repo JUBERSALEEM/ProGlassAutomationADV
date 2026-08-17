@@ -365,6 +365,19 @@ namespace ProGlassAutomation.Services
         /// </summary>
         private static void ReapplyOutline() => ApplyOutline(_definedOutline);
 
+        /// <summary>
+        /// Public re-apply for callers that rewrite the outline keys behind
+        /// ThemeManager's back — specifically VisualThemeEngine, whose Monet
+        /// and Professional families derive their own keyline.
+        /// <para>
+        /// Ordering matters: the engine must run FIRST (it writes
+        /// OutlineDefaultBrush for its family), then this restores the
+        /// user's Defined Card Edges choice on top. Without it, selecting a
+        /// visual theme silently turned the toggle off.
+        /// </para>
+        /// </summary>
+        public static void ReapplyOutlinePreference() => ReapplyOutline();
+
         private static void FreezeAndSet(
             ResourceDictionary resources, string key, Color color)
         {

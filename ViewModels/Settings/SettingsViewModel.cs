@@ -946,6 +946,13 @@ namespace ProGlassAutomation.ViewModels.Settings
                 ProGlassAutomation.Services.Theme.VisualThemeEngine
                     .LastRequestedModule,
                 appearance);
+
+            // The engine has just written this family's own keyline into
+            // OutlineDefaultBrush. Re-assert the user's Defined Card Edges
+            // choice on top of it, or switching visual theme would appear
+            // to turn that toggle off.
+            ProGlassAutomation.Services.ThemeManager
+                .ReapplyOutlinePreference();
         }
 
         // ══════════════════════════════════════════════════════════════

@@ -135,7 +135,7 @@
                             <Border.Style>
                                 <Style TargetType="Border">
                                     <Setter Property="BorderBrush"
-                                            Value="{StaticResource PillBorderLightBrush}"/>
+                                            Value="{DynamicResource OutlineBrush}"/>
                                     <Setter Property="Background"
                                             Value="{DynamicResource ModuleBackgroundBrush}"/>
                                     <Style.Triggers>
@@ -349,7 +349,7 @@
 
                                 <!-- Model file location -->
                                 <Border Background="{DynamicResource MenuHoverBrush}"
-                                        BorderBrush="{StaticResource PillBorderLightBrush}"
+                                        BorderBrush="{DynamicResource OutlineBrush}"
                                         BorderThickness="1" CornerRadius="8"
                                         Padding="10,8" Margin="0,10,0,0"
                                         SnapsToDevicePixels="True"

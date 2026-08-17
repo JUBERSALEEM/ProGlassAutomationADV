@@ -58,9 +58,14 @@
 
     <Style x:Key="InfoCardStyle" TargetType="Border">
         <Setter Property="Background"          Value="{DynamicResource TintIndigoBrush}"/>
-        <Setter Property="BorderBrush"         Value="{StaticResource PillBorderLightBrush}"/>
+        <!-- Was StaticResource PillBorderLightBrush, a frozen #93C5FD.
+             StaticResource resolves ONCE at load, so this keyline could
+             never follow a Light/Dark swap or a Monet/Professional
+             recolour - which is why the About and Help cards stayed pale
+             blue while Appearance adapted. Now the shared dynamic token. -->
+        <Setter Property="BorderBrush"         Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness"     Value="1.5"/>
-        <Setter Property="CornerRadius"        Value="16"/>
+        <Setter Property="CornerRadius"        Value="{DynamicResource CardCornerRadiusLarge}"/>
         <Setter Property="Padding"             Value="22,18"/>
         <Setter Property="Margin"              Value="0,0,0,18"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -76,7 +81,7 @@
         <Setter Property="BorderThickness"     Value="1.5"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding"   Value="True"/>
-        <Setter Property="BorderBrush"         Value="{StaticResource PillBorderLightBrush}"/>
+        <Setter Property="BorderBrush"         Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="Background"          Value="{DynamicResource ModuleBackgroundBrush}"/>
     </Style>
 
@@ -284,7 +289,7 @@
         <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
         <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
         <Setter Property="BorderThickness"          Value="1.5"/>
-        <Setter Property="BorderBrush"              Value="{StaticResource PillBorderLightBrush}"/>
+        <Setter Property="BorderBrush"              Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="SnapsToDevicePixels"      Value="True"/>
         <Setter Property="UseLayoutRounding"        Value="True"/>
         <Setter Property="Template">
@@ -454,7 +459,7 @@
         <Setter Property="Cursor"              Value="Hand"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
         <Setter Property="UseLayoutRounding"   Value="True"/>
-        <Setter Property="BorderBrush"         Value="{StaticResource PillBorderLightBrush}"/>
+        <Setter Property="BorderBrush"         Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="Background"          Value="{DynamicResource ModuleBackgroundBrush}"/>
     </Style>
 
