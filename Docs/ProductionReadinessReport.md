@@ -6,23 +6,48 @@ Commit audited: `59c42a3`. Codebase: 408 C# files (82,608 LOC), 117 XAML,
 
 ---
 
-> **UPDATE — second remediation round complete.** A-1, A-2, X-6, D-4 visibility,
-> PERF-1 and part of S-5 are now fixed. See §16a for the revised recommendation.
-> Status remains **NOT READY** for one reason only: the runtime test phases have
-> still never been executed, and that cannot be done from this environment.
+> **UPDATE — third remediation round complete.** Fixed since the original report:
+> A-1 (now including the last 3 service methods), A-2, A-3, X-6, D-4 visibility,
+> PERF-1, R-2 and S-5. P-1 has honest disclosure but **the egress itself is
+> unchanged and still on by default**. New finding **D-6** (decimal storage
+> affinity) is documented and deliberately not changed. See §7 and §16a.
+>
+> Status remains **NOT READY**, but the reasons have changed. It is no longer
+> "one reason only":
+> 1. The runtime test phases have still never been executed — no .NET SDK, no
+>    Windows, no profiler in this environment. The 58–59 security test cases in
+>    `Tests/Agent/` have **never been run**.
+> 2. **There is no authentication boundary.** A-3 added password rotation, but
+>    the app still has no sign-in screen and starts as an administrator.
+> 3. **P-1** sends customer names and AED totals to a third-party LLM by default.
+>
+> Items 2 and 3 are design decisions that need the owner's call, not audit fixes.
 
 ## 1. Overall Status
 
 # **NOT READY**
 
-Downgraded from my earlier "CONDITIONALLY READY" after completing the phases I had
-skipped. The reason is **R-1**: `RelayCommand.Execute` reported failures only via
-`Debug.WriteLine`, which is `[Conditional("DEBUG")]` and is **removed by the compiler in
-Release**. Your shipped build has been discarding every command failure silently. That is
-now fixed, but it means **no production behaviour of this app has ever been observable**,
-and the runtime test phases (7, 22, 34, 35, 36) have still never been executed.
+Originally downgraded from "CONDITIONALLY READY" because of **R-1**:
+`RelayCommand.Execute` reported failures only via `Debug.WriteLine`, which is
+`[Conditional("DEBUG")]` and is **removed by the compiler in Release**, so the shipped
+build silently discarded every command failure. R-1 is fixed — but the consequence
+stands: **no production behaviour of this app has ever been observable**, and the
+runtime phases (7, 22, 34, 35, 36) have still never been executed.
 
-Status becomes CONDITIONALLY READY once the runtime matrix in §11 is run on Windows.
+Three things now hold the status at NOT READY:
+
+1. **Nothing has been executed.** No .NET SDK, no Windows, no profiler here. The
+   58–59 security test cases written during this audit have never been run. Every
+   code change in this report is verified by reading and by the XAML/brace/using
+   gate — **not by a compiler and not at runtime.**
+2. **No authentication boundary** (see Remaining Risks #1). The permission system
+   is now enforced at the service layer, but it authorizes an identity the app
+   never establishes.
+3. **P-1 egress is on by default** (see Remaining Risks #3) — a Store
+   privacy-policy blocker, not just an internal concern.
+
+Status becomes CONDITIONALLY READY once the runtime matrix in §11 is run on Windows
+and items 2 and 3 have an owner decision.
 
 ---
 
