@@ -1396,6 +1396,11 @@ namespace ProGlassAutomation.ViewModels.Settings
 
             DownloadUpdateCommand = new RelayCommand(async _ =>
             {
+                // R-2: this command has no canExecute, and the lambda is
+                // async void, so a second click during the download would
+                // start a concurrent download of the same package.
+                if (IsDownloadingUpdate) return;
+
                 // Installed builds download via Velopack (delta packages).
                 if (Services.Updates.VelopackUpdateService.IsInstalled)
                 {
@@ -1407,11 +1412,20 @@ namespace ProGlassAutomation.ViewModels.Settings
                     IsDownloadingUpdate = true;
                     UpdateDownloadProgress = 0;
                     UpdateStatus = "Downloading update…";
-                    var okV = await Services.Updates.VelopackUpdateService
-                        .DownloadAsync(p2 => System.Windows.Application.Current
-                            ?.Dispatcher.InvokeAsync(
-                                () => UpdateDownloadProgress = p2));
-                    IsDownloadingUpdate = false;
+                    bool okV;
+                    try
+                    {
+                        okV = await Services.Updates.VelopackUpdateService
+                            .DownloadAsync(p2 => System.Windows.Application.Current
+                                ?.Dispatcher.InvokeAsync(
+                                    () => UpdateDownloadProgress = p2));
+                    }
+                    finally
+                    {
+                        // R-2: without this, a throwing download would leave
+                        // the flag set and the button permanently disabled.
+                        IsDownloadingUpdate = false;
+                    }
                     if (okV)
                     {
                         IsUpdateReady = true;
@@ -1431,14 +1445,21 @@ namespace ProGlassAutomation.ViewModels.Settings
                 UpdateDownloadProgress = 0;
                 UpdateStatus = "Downloading update…";
 
-                var (ok, path, error) = await Services.Updates.UpdateService
-                    .DownloadNowAsync(
-                        update,
-                        progress => System.Windows.Application.Current
-                            ?.Dispatcher.InvokeAsync(
-                                () => UpdateDownloadProgress = progress));
-
-                IsDownloadingUpdate = false;
+                bool ok; string error;
+                try
+                {
+                    (ok, _, error) = await Services.Updates.UpdateService
+                        .DownloadNowAsync(
+                            update,
+                            progress => System.Windows.Application.Current
+                                ?.Dispatcher.InvokeAsync(
+                                    () => UpdateDownloadProgress = progress));
+                }
+                finally
+                {
+                    // R-2: release on the exception path too.
+                    IsDownloadingUpdate = false;
+                }
 
                 if (!ok && string.IsNullOrEmpty(error))
                     UpdateStatus = "Update cancelled.";

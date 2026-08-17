@@ -454,6 +454,16 @@ namespace ProGlassAutomation.ViewModels.AI
 
         private async Task SendAsync()
         {
+            // R-2: re-entry guard at the METHOD, not the command.
+            // RelayCommand takes Action<object>, so "async _ => await
+            // SendAsync()" is an async void lambda: Execute() returns at
+            // the first await and CanExecute cannot observe in-flight
+            // work. SendCommand's CanSend covers only call site #1;
+            // SuggestionCommand and the voice path (_ = SendAsync())
+            // bypass it entirely. Guarding here covers all three and
+            // stops a second turn being appended mid-request.
+            if (IsBusy) return;
+
             if (string.IsNullOrWhiteSpace(CurrentInput)) return;
 
             _tts?.Stop();

@@ -171,6 +171,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
         public bool HasYieldFactorWarning => !string.IsNullOrEmpty(_yieldFactorWarning);
 
         // BUG-44: non-blocking status line for save success/failure
+        // R-2: re-entry guard for ApplyRateAsync. ApplyRateCommand's
+        // canExecute checks spec validity only, and the async lambda is
+        // async void, so Execute() returns at the first await and a
+        // second click would run SaveOrUpdateAsync concurrently
+        // (double-counting UsageCount). Plain bool, not Interlocked:
+        // commands are raised on the UI thread only.
+        private bool _isApplyingRate;
+
         private string _applyStatusMessage = "";
         public string ApplyStatusMessage
         {
@@ -360,6 +368,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                 return;
             }
 
+            // R-2: guard placed after the validation returns above so the
+            // early-exit paths still surface their status message.
+            if (_isApplyingRate) return;
+            _isApplyingRate = true;
+
             try
             {
                 var savedSpec = await App.Specs.SaveOrUpdateAsync(
@@ -389,6 +402,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                     MessageBoxImage.Error);
 
                 ApplyStatusMessage = $"✗  Save failed: {ex.Message}";
+            }
+            finally
+            {
+                // Must release on EVERY path, including the failure path,
+                // or the Apply button stays dead for the rest of the session.
+                _isApplyingRate = false;
             }
         }
 
