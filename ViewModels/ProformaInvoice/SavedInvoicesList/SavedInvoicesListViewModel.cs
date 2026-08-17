@@ -41,10 +41,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         /// <summary>
         /// Fired when approving and the invoice has no Step 8 attachments:
         /// the shell opens that invoice in the wizard AT Step 8 (Attachments)
-        /// so the user can upload the signed PI or LPO (jpg/pdf) before the
-        /// approval is allowed.
+        /// with the matching uploader open. The bool is true for a PDF upload,
+        /// false for a JPG / image upload.
         /// </summary>
-        public Action<int> OnInvoiceUploadRequested { get; set; }
+        public Action<int, bool> OnInvoiceUploadRequested { get; set; }
 
         private List<SavedInvoiceListItem> _allItems = new();
         public ObservableCollection<SavedInvoiceListItem> FilteredItems { get; } = new();
@@ -616,28 +616,25 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             if (entity == null || App.Invoices == null) return;
 
             // Step 8 gate — must have real attachments (signed PI or LPO).
-            // If none, take the user to Step 8 to upload instead of approving.
+            // If none, ask whether the user is uploading a JPG or PDF, then
+            // take them to Step 8 with the matching uploader open.
             var attachments = await new ProformaAttachmentService()
                 .LoadManifestAsync(entity.ProformaId ?? "");
             if (attachments == null || attachments.Count == 0)
             {
-                var go = MessageBox.Show(
-                    $"Invoice '{entity.ProformaId}' has no Step 8 attachments.\n\n" +
-                    "To approve it you must upload the signed Proforma Invoice " +
-                    "or the LPO document (jpg / pdf) in Step 8.\n\n" +
-                    "Go to Step 8 (Attachments) now?",
-                    "Approval Needs Attachments",
-                    MessageBoxButton.YesNo,
-                    MessageBoxImage.Question,
-                    MessageBoxResult.Yes);
+                var choice =
+                    new ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
+                        .ApprovalUploadChoiceDialog
+                    {
+                        Owner = Application.Current?.MainWindow
+                    };
+                if (choice.ShowDialog() != true || !choice.Chosen)
+                    return;   // cancelled — status unchanged
 
-                if (go == MessageBoxResult.Yes)
-                {
-                    // Load this invoice into the wizard and jump to Step 8 so
-                    // the user can upload right away.
-                    OnInvoiceUploadRequested?.Invoke(entity.Id);
-                }
-                return;   // status unchanged until the upload is done
+                // Open Step 8 (Attachments) with the matching uploader:
+                // JPG/image uploader or PDF uploader, per the user's pick.
+                OnInvoiceUploadRequested?.Invoke(entity.Id, choice.UploadPdf);
+                return;
             }
 
             // 1. Customer-confirmation gate (signed PI OR LPO), grounded on the

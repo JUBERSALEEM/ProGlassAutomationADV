@@ -397,9 +397,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 SafeFireAsync(() => LoadInvoiceIntoWizardAsync(id));
 
             // Approval with no Step 8 attachments → open the invoice in the
-            // wizard AT Step 8 so the user can upload the signed PI / LPO.
-            SavedInvoicesListVM.OnInvoiceUploadRequested = id =>
-                SafeFireAsync(() => OpenInvoiceAtStepAsync(id, 8));
+            // wizard AT Step 8 with the matching uploader open (jpg or pdf).
+            SavedInvoicesListVM.OnInvoiceUploadRequested = (id, uploadPdf) =>
+                SafeFireAsync(() => OpenInvoiceAtStepAndUploadAsync(id, uploadPdf));
 
             // v2 version history: open an old version's snapshot
             SavedInvoicesListVM.OnSnapshotRestoreRequested = json =>
@@ -633,14 +633,22 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         }
 
         /// <summary>
-        /// Loads an invoice into the wizard and jumps straight to a specific
-        /// step — used by the approval flow to drop the user onto Step 8
-        /// (Attachments) so they can upload the signed PI / LPO (jpg/pdf).
+        /// Loads an invoice into the wizard, jumps to Step 8 (Attachments),
+        /// and opens the matching uploader (JPG/image or PDF) so the user can
+        /// immediately attach the signed PI / LPO. Used by the approval flow.
         /// </summary>
-        private async Task OpenInvoiceAtStepAsync(int invoiceId, int stepNumber)
+        private async Task OpenInvoiceAtStepAndUploadAsync(int invoiceId, bool uploadPdf)
         {
             await LoadInvoiceIntoWizardAsync(invoiceId);
-            GoToStep(stepNumber);
+            GoToStep(8);
+
+            // Open the file picker for the chosen type right away. The uploader
+            // is modal, so let the Step 8 view lay out first.
+            Application.Current?.Dispatcher.BeginInvoke(new Action(() =>
+            {
+                if (uploadPdf) Step8VM.AddPdfCommand.Execute(null);
+                else Step8VM.AddImageCommand.Execute(null);
+            }));
         }
 
         /// <summary>
