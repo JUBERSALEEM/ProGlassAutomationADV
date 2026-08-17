@@ -1,4 +1,4 @@
-﻿<!-- ═══════════════════════════════════════════════════════════════════
+<!-- ═══════════════════════════════════════════════════════════════════
      FILE: Views/Dashboard/Statement/StDashboardView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Account Statement Dashboard
@@ -295,8 +295,6 @@
                             Style="{StaticResource SoftCardStyle}"
                             Margin="0,0,10,0">
                         <Grid>
-                            <Border Style="{StaticResource SoftCardCapStyle}"
-                                    Background="{DynamicResource AccentBrush}"/>
                             <StackPanel Margin="0,0,48,0">
                                 <TextBlock Text="Total Statements"
                                            Style="{StaticResource SoftKpiLabelStyle}"/>
@@ -324,8 +322,6 @@
                             Style="{StaticResource SoftCardStyle}"
                             Margin="10,0,10,0">
                         <Grid>
-                            <Border Style="{StaticResource SoftCardCapStyle}"
-                                    Background="{DynamicResource InfoBrush}"/>
                             <StackPanel Margin="0,0,48,0">
                                 <TextBlock Text="Total Invoiced"
                                            Style="{StaticResource SoftKpiLabelStyle}"/>
@@ -353,8 +349,6 @@
                             Style="{StaticResource SoftCardStyle}"
                             Margin="10,0,10,0">
                         <Grid>
-                            <Border Style="{StaticResource SoftCardCapStyle}"
-                                    Background="{DynamicResource WarningBrush}"/>
                             <StackPanel Margin="0,0,48,0">
                                 <TextBlock Text="Outstanding"
                                            Style="{StaticResource SoftKpiLabelStyle}"/>
@@ -384,22 +378,6 @@
                             Style="{StaticResource SoftCardStyle}"
                             Margin="10,0,0,0">
                         <Grid>
-                            <Border>
-                                <Border.Style>
-                                    <Style TargetType="Border"
-                                           BasedOn="{StaticResource SoftCardCapStyle}">
-                                        <Setter Property="Background"
-                                                Value="{DynamicResource SuccessBrush}"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding HasOverdue}" Value="True">
-                                                <Setter Property="Background"
-                                                        Value="{DynamicResource DangerBrush}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                            </Border>
-
                             <StackPanel Margin="0,0,48,0">
                                 <TextBlock Text="Overdue"
                                            Style="{StaticResource SoftKpiLabelStyle}"/>

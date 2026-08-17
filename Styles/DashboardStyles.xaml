@@ -751,18 +751,6 @@
 
     <!-- ── Ornaments ───────────────────────────────────────────────── -->
 
-    <!-- The 4px colour cap. Negative margin bleeds it past the card's
-         20px padding to the full card width, exactly as the reference
-         does with Margin="-20,-20,-20,12". Consumers set Background. -->
-    <Style x:Key="SoftCardCapStyle" TargetType="Border">
-        <Setter Property="Height"            Value="4"/>
-        <Setter Property="VerticalAlignment" Value="Top"/>
-        <Setter Property="Margin"            Value="-20,-20,-20,12"/>
-        <Setter Property="CornerRadius"      Value="2,2,0,0"/>
-        <Setter Property="Background"        Value="{DynamicResource AccentBrush}"/>
-        <Setter Property="SnapsToDevicePixels" Value="True"/>
-    </Style>
-
     <!-- 40x40 tinted badge, top-right of a KPI card. -->
     <Style x:Key="SoftBadgeStyle" TargetType="Border">
         <Setter Property="Width"               Value="40"/>
@@ -879,11 +867,6 @@
     <DataTemplate x:Key="SoftKpiCardTemplate">
         <Border Style="{StaticResource SoftTileStyle}" Margin="5,0,5,0">
             <Grid>
-                <!-- Colour cap, tinted per card by the ViewModel. -->
-                <Border Style="{StaticResource SoftCardCapStyle}"
-                        Background="{Binding BadgeColor,
-                                     Converter={StaticResource BrushKeyConverter}}"/>
-
                 <StackPanel Margin="0,0,48,0">
                     <TextBlock Text="{Binding Title}"
                                Style="{StaticResource SoftKpiLabelStyle}"/>
@@ -922,30 +905,6 @@
     <DataTemplate x:Key="SoftKpiTileTemplate">
         <Border Style="{StaticResource SoftTileStyle}" Margin="5,0,5,0">
             <Grid>
-                <Border CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource AccentBrush}">
-                    <Border.Style>
-                        <Style TargetType="Border" BasedOn="{StaticResource SoftCardCapStyle}">
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding Accent}" Value="Green">
-                                    <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Accent}" Value="Blue">
-                                    <Setter Property="Background" Value="{DynamicResource InfoBrush}"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Accent}" Value="Amber">
-                                    <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding Accent}" Value="Red">
-                                    <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
-                                </DataTrigger>
-                                <DataTrigger Binding="{Binding IsAlert}" Value="True">
-                                    <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </Border.Style>
-                </Border>
-
                 <StackPanel Margin="0,0,48,0">
                     <TextBlock Text="{Binding Label}"
                                Style="{StaticResource SoftKpiLabelStyle}"/>

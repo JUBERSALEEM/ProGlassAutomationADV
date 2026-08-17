@@ -114,9 +114,20 @@ namespace ProGlassAutomation.Views.Shared
                 bool ok = fullPage
                     ? ScreenshotService.CaptureFullPageAndSave(quality)
                     : ScreenshotService.CaptureAndSave(quality);
-                CaptureStatus.Text = ok
-                    ? $"{ScreenshotService.GetLabel(quality)} saved."
-                    : "Capture cancelled or failed.";
+
+                if (ok)
+                {
+                    // Close the screenshot popup as soon as the file is saved.
+                    if (Application.Current?.MainWindow?.DataContext
+                        is ViewModels.MainViewModel vm)
+                    {
+                        vm.IsScreenshotOpen = false;
+                    }
+                }
+                else
+                {
+                    CaptureStatus.Text = "Capture cancelled or failed.";
+                }
             }));
         }
     }
