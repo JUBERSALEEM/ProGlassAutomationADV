@@ -114,16 +114,23 @@ namespace ProGlassAutomation.Services.Export
             var rtb = new RenderTargetBitmap(
                 w, h, 96, 96, PixelFormats.Pbgra32);
 
-            // Wrap the element in a container sized to the capture so the
-            // layout renders at the intended pixel dimensions.
+            // Wrap the element in a Viewbox so the captured window scales up
+            // to the target resolution while keeping its aspect ratio. The
+            // Border inside provides the background (Viewbox has none).
             var container = new System.Windows.Controls.Viewbox
             {
-                Child = element,
                 Stretch = Stretch.Uniform,
                 Width = w,
-                Height = h,
-                Background = Brushes.White
+                Height = h
             };
+
+            var surface = new System.Windows.Controls.Border
+            {
+                Background = Brushes.White,
+                Child = element
+            };
+
+            container.Child = surface;
 
             container.Measure(new Size(w, h));
             container.Arrange(new Rect(0, 0, w, h));
