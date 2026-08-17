@@ -135,18 +135,21 @@ namespace ProGlassAutomation.Services.Export
 
         /// <summary>
         /// Captures the FULL content of the active view's main scroll region
-        /// (long lists) instead of only the visible viewport.
+        /// (long lists) as a long portrait — not just the visible viewport.
         ///
-        /// WHY NOT RENDER THE ScrollViewer: a ScrollViewer only ever renders
-        /// its viewport, and its ActualHeight is clamped by the shell's
-        /// fixed-size content card — so the old approach of "expand the
-        /// ScrollViewer and render it" still produced only the visible page.
+        /// WHY THIS IS HARD: rendering a ScrollViewer only ever captures its
+        /// viewport, and its ActualHeight is clamped by the shell's fixed-size
+        /// content card, so "set a big Height and render the viewer" produced
+        /// only the visible page. Virtualized lists (ListBox/DataGrid) add a
+        /// second trap: they only REALIZE the items currently in view, so
+        /// rendering their content alone leaves rows below the fold blank.
         ///
-        /// CORRECT APPROACH: a ScrollViewer MEASURES its content with
-        /// unbounded height (that is how scrolling works), so the content
-        /// element is already laid out at its FULL extent. We therefore render
-        /// the CONTENT element (not the clipped viewer) at the full page size.
-        /// The layout is restored in a finally block.
+        /// FIX: find the module's main vertical ScrollViewer, then EXPAND it to
+        /// its full content extent by measuring/arranging the viewer directly
+        /// at that size (which defeats ancestor clamping and makes a
+        /// virtualizing list realize EVERY item), then render the expanded
+        /// viewer. Everything is restored in a finally block, and any failure
+        /// degrades to a normal window capture rather than breaking the action.
         /// </summary>
         public static BitmapSource? CaptureFullPage(ScreenshotQuality quality)
         {
@@ -154,51 +157,53 @@ namespace ProGlassAutomation.Services.Export
             if (window == null) return null;
 
             System.Windows.Controls.ScrollViewer? sv = null;
-            System.Windows.FrameworkElement? content = null;
-            bool changed = false;
-            double? savedHeight = null;
+            double savedHeight = double.NaN;
+            double savedOffset = 0;
             var savedScrollBar = System.Windows.Controls.ScrollBarVisibility.Auto;
 
             try
             {
-                // Find the active view (ContentControl hosts CurrentViewModel).
-                if (window.Content is System.Windows.Controls.Border root
-                    && root.Child is System.Windows.Controls.Grid grid)
-                {
-                    sv = FindMainVerticalScrollViewer(grid);
-                }
+                // The window's ROOT is a <Grid>, not a Border, so walk from
+                // the window's content root down through the whole shell and
+                // the active module view. (The earlier guard
+                // "window.Content is Border" was never true, so this method
+                // silently fell back to a window capture and never produced a
+                // long portrait — the bug the user reported.)
+                if (window.Content is System.Windows.DependencyObject root)
+                    sv = FindMainVerticalScrollViewer(root);
 
                 if (sv == null || sv.ScrollableHeight <= 0)
                 {
-                    // Nothing actually scrolls — a normal capture is equivalent.
+                    // Nothing actually scrolls — a window capture is equivalent.
                     return CaptureMainWindow(quality);
                 }
 
-                content = sv.Content as System.Windows.FrameworkElement;
-                if (content == null)
-                {
-                    // The scroll host is an internal presenter (e.g. a DataGrid)
-                    // with no directly reachable content — fall back safely.
-                    return CaptureMainWindow(quality);
-                }
-
-                // The content is measured unbounded vertically, so its
-                // ExtentHeight already equals the full page height.
-                double fullW = Math.Max(1, content.ActualWidth);
+                double fullW = Math.Max(1, sv.ExtentWidth);
                 double fullH = Math.Max(1, sv.ExtentHeight);
+                double viewportW = Math.Max(1, sv.ViewportWidth);
 
-                // Pump layout so ExtentHeight/ActualWidth are current.
-                window.UpdateLayout();
-
-                // Force the content to its full extent explicitly so the
-                // rendered bitmap is as tall as the whole page, and hide the
-                // scrollbar so it never appears inside the frame.
-                savedHeight = content.Height;
-                content.Height = fullH;
+                // Remember state so we can restore it in finally.
+                savedHeight = sv.Height;
+                savedOffset = sv.VerticalOffset;
                 savedScrollBar = sv.VerticalScrollBarVisibility;
+
+                // Start the portrait at the top of the content.
+                sv.ScrollToVerticalOffset(0);
+                sv.ScrollToHorizontalOffset(0);
+
+                // EXPAND: make the viewer's viewport equal the whole page. A
+                // virtualizing list therefore realizes every row, and nothing
+                // is clipped. We Measure/Arrange the viewer directly at the
+                // full size so a bounded ancestor cannot clamp it back to the
+                // window; rendering the viewer uses its OWN arranged size
+                // (ancestor clipping only matters when rendering the ancestor).
                 sv.VerticalScrollBarVisibility =
                     System.Windows.Controls.ScrollBarVisibility.Hidden;
-                changed = true;
+                sv.Height = fullH + 2;
+                sv.Measure(new Size(viewportW, fullH + 2));
+                sv.Arrange(new Rect(0, 0, viewportW, fullH + 2));
+                // NOTE: no forced window.UpdateLayout() here — a relayout from
+                // the ancestor would re-clamp the viewer to the window size.
 
                 var frame = new DispatcherFrame();
                 window.Dispatcher.BeginInvoke(
@@ -206,15 +211,12 @@ namespace ProGlassAutomation.Services.Export
                     new Action(() => frame.Continue = false));
                 Dispatcher.PushFrame(frame);
 
-                // RENDER THE CONTENT, NOT THE ScrollViewER: rendering the
-                // viewer clips to its viewport; rendering the content captures
-                // the whole page (vectors/text are re-rasterised at scale).
                 var (targetWidth, targetHeight) = GetTargetSize(quality);
                 var (width, height, dpi) =
                     ComputeRaster(fullW, fullH, targetWidth, targetHeight);
 
                 var rtb = new RenderTargetBitmap(width, height, dpi, dpi, PixelFormats.Pbgra32);
-                rtb.Render(content);
+                rtb.Render(sv);   // render the EXPANDED viewer → long portrait
                 rtb.Freeze();
                 return rtb;
             }
@@ -228,18 +230,22 @@ namespace ProGlassAutomation.Services.Export
                         Class = nameof(ScreenshotService),
                         Operation = "CaptureFullPage"
                     });
-                return null;
+                // Never fail the action — give the user at least a window shot.
+                return CaptureMainWindow(quality);
             }
             finally
             {
                 // Always restore the layout so the app is never left broken.
-                if (changed && content != null && sv != null)
+                if (sv != null)
                 {
                     try
                     {
-                        content.Height = savedHeight.GetValueOrDefault();
+                        sv.Height = savedHeight;
                         sv.VerticalScrollBarVisibility = savedScrollBar;
+                        sv.InvalidateMeasure();
+                        sv.InvalidateArrange();
                         window.UpdateLayout();
+                        sv.ScrollToVerticalOffset(savedOffset);
                     }
                     catch { /* restore is best-effort */ }
                 }
@@ -275,13 +281,12 @@ namespace ProGlassAutomation.Services.Export
         }
 
         /// <summary>
-        /// Depth-first search for the module's main vertical scroll region.
-        /// Prefers a ScrollViewer that (a) actually scrolls vertically and
-        /// (b) has directly reachable content (its Content is a
-        /// FrameworkElement we can render), choosing the one with the largest
-        /// ExtentHeight. Nested, non-reachable scroll hosts (e.g. a DataGrid's
-        /// internal presenter) are skipped so we don't grab a viewer whose
-        /// content we cannot render.
+        /// Depth-first search for the module's main vertical scroll region —
+        /// the ScrollViewer that can actually scroll vertically and has the
+        /// largest ExtentHeight (so a virtualized ListBox/DataGrid list wins
+        /// over a short wrapper). No content filter: for lists the scroll host
+        /// is the control's internal ScrollViewer, and we expand+render that
+        /// viewer directly.
         /// </summary>
         private static System.Windows.Controls.ScrollViewer? FindMainVerticalScrollViewer(
             System.Windows.DependencyObject parent)
@@ -292,15 +297,13 @@ namespace ProGlassAutomation.Services.Export
             void Walk(System.Windows.DependencyObject node)
             {
                 if (node is System.Windows.Controls.ScrollViewer sv
-                    && sv.Content is System.Windows.FrameworkElement
                     && sv.ScrollableHeight > 0
                     && sv.ExtentHeight > bestExtent)
                 {
                     best = sv;
                     bestExtent = sv.ExtentHeight;
                 }
-                // Keep walking into it — there may be a deeper scrolling
-                // list that holds more content than the wrapper.
+                // Keep walking into it — there may be a deeper scrolling list.
                 int count = System.Windows.Media.VisualTreeHelper.GetChildrenCount(node);
                 for (int i = 0; i < count; i++)
                     Walk(System.Windows.Media.VisualTreeHelper.GetChild(node, i));
