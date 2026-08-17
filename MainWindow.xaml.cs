@@ -303,37 +303,94 @@ namespace ProGlassAutomation
             StartCloseTimer();
         }
 
-        // ── sidebar groups: hover-open + click-pin (reference-friendly) ───
-        // Hover opens a group. Moving away closes it after a short delay so
-        // the pointer can travel into the sub-menu. Clicking the header pins
-        // it open so sub-items stay reachable; a second click closes it.
+        // ── sidebar groups: hover-open + click-pin ────────────────────────
+        // Hover opens a group and closes the others (only one open at a time).
+        // Moving away closes it after a short delay so the pointer can travel
+        // into the sub-menu. Clicking the header pins it open so sub-items
+        // stay reachable; a second click closes it. A single shared timer
+        // avoids the per-group timers that raced and left groups half-open.
 
         private readonly System.Collections.Generic.HashSet<object> _sidebarPinned = new();
+        private DispatcherTimer? _sidebarCloseTimer;
+        private StackPanel? _sidebarHoverHost;
 
         private void SidebarGroup_MouseEnter(object sender, MouseEventArgs e)
         {
-            if (sender is StackPanel sp && sp.Children.Count > 0
-                && sp.Children[0] is ToggleButton tb)
-            {
-                tb.IsChecked = true;
-            }
+            if (sender is not StackPanel host || host.Children.Count == 0) return;
+            if (host.Children[0] is not ToggleButton tb) return;
+
+            _sidebarHoverHost = host;
+            StopSidebarCloseTimer();
+
+            // Open this group, close every other (only one open at a time).
+            tb.IsChecked = true;
+            CloseOtherSidebarGroups(host);
         }
 
         private void SidebarGroup_MouseLeave(object sender, MouseEventArgs e)
         {
-            if (sender is not StackPanel host || host.Children.Count == 0) return;
-            var tb = host.Children[0] as ToggleButton;
-            if (tb == null) return;
-            if (_sidebarPinned.Contains(host)) return;
+            if (sender is not StackPanel host) return;
+            if (_sidebarPinned.Contains(host)) return;   // pinned stays open
+            StartSidebarCloseTimer();
+        }
 
-            var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(250) };
-            timer.Tick += (_, _) =>
+        private void StartSidebarCloseTimer()
+        {
+            StopSidebarCloseTimer();
+            _sidebarCloseTimer = new DispatcherTimer
             {
-                timer.Stop();
-                if (_sidebarPinned.Contains(host)) return;
-                tb.IsChecked = false;
+                Interval = TimeSpan.FromMilliseconds(400)
             };
-            timer.Start();
+            _sidebarCloseTimer.Tick += (_, _) =>
+            {
+                _sidebarCloseTimer!.Stop();
+                _sidebarCloseTimer = null;
+                if (_sidebarHoverHost == null) return;
+                // Re-enter the sub-menu cancels; otherwise close the hovered host.
+                if (_sidebarPinned.Contains(_sidebarHoverHost)) return;
+                if (_sidebarHoverHost.Children.Count > 0
+                    && _sidebarHoverHost.Children[0] is ToggleButton tb
+                    && !IsPointerOver(_sidebarHoverHost))
+                {
+                    tb.IsChecked = false;
+                }
+            };
+            _sidebarCloseTimer.Start();
+        }
+
+        private void StopSidebarCloseTimer()
+        {
+            if (_sidebarCloseTimer == null) return;
+            _sidebarCloseTimer.Stop();
+            _sidebarCloseTimer = null;
+        }
+
+        /// <summary>Closes every sidebar group host except <paramref name="keep"/>.</summary>
+        private void CloseOtherSidebarGroups(StackPanel keep)
+        {
+            var all = new[]
+            {
+                FindName("SalesGroupHost") as StackPanel,
+                FindName("ProductionGroupHost") as StackPanel,
+                FindName("DispatchGroupHost") as StackPanel,
+                FindName("ReportsGroupHost") as StackPanel,
+                FindName("MasterDataGroupHost") as StackPanel,
+                FindName("SystemGroupHost") as StackPanel
+            };
+            foreach (var host in all)
+            {
+                if (host == null || ReferenceEquals(host, keep)) continue;
+                if (host.Children.Count > 0 && host.Children[0] is ToggleButton tb)
+                    tb.IsChecked = false;
+            }
+        }
+
+        /// <summary>True when the pointer is over the element or its sub-menu.</summary>
+        private static bool IsPointerOver(StackPanel host)
+        {
+            var point = Mouse.GetPosition(host);
+            return point.X >= 0 && point.Y >= 0
+                && point.X <= host.ActualWidth && point.Y <= host.ActualHeight;
         }
 
         // Pin/unpin on click so the hover-close cannot collapse a chosen group.
