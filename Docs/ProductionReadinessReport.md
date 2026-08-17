@@ -153,9 +153,15 @@ package knowledge, not a vulnerability feed.
 1. **Disable `UpdateService` when packaged.** The Store owns updates; an app that downloads
    and launches its own installer fails certification (Policy 10.1.1 / 10.2).
 2. **QuestPDF licence tier** — confirm.
-3. **A-1 service-layer authorization** — UI-only permission checks.
-4. **Privacy policy must disclose** that customer names + financial totals leave the device
-   when the user configures an AI key, and that Whisper models download from huggingface.co.
+3. ~~**A-1 service-layer authorization**~~ — **DONE.** All mutating repository and
+   service methods now go through `OperationGuard`. Note the caveat under
+   Remaining Risks #1: with no sign-in screen the guards still run against an
+   ambient administrator identity.
+4. **Privacy policy must disclose** that customer names, project names and AED totals leave
+   the device when the user configures an AI key — and that this is **on by default**
+   (`UseRealData = true`), not opt-in — plus that Whisper models download from
+   huggingface.co. See Remaining Risks #3; a reviewer testing the default install will
+   observe the egress.
 
 ### PACKAGING / STORE LATER
 MSIX identity, publisher certificate, capability declarations, `%AppData%` behaviour under
@@ -242,7 +248,13 @@ recorded in §16a; what follows is what is genuinely still open.*
    on shutdown mid-write and the failure is now logged and audited, but a
    partially-linked chain is still reachable on power loss or End-task. This is
    architectural; a real fix means consolidating the databases.
-3. **QuestPDF licence** — Community tier is only valid below USD 1M revenue.
+3. **P-1 — business data still egresses to a third-party LLM by default.**
+   `UseRealData` defaults to `true`, so customer names, project names and AED
+   totals are sent to Gemini / Groq / Cohere unless the user turns it off. The
+   disclosure is now honest and the boundary is documented, but no consent
+   prompt or redaction pass exists. **This is a Store privacy-policy blocker,
+   not just an internal risk.**
+4. **QuestPDF licence** — Community tier is only valid below USD 1M revenue.
 4. **`UpdateService` origin checking is not authenticity checking.** The
    download URL is restricted to an exact GitHub host allowlist over HTTPS, but
    the payload itself is **not signature-verified**. A compromised release asset
@@ -262,6 +274,32 @@ recorded in §16a; what follows is what is genuinely still open.*
 | **PERF-1** | Believed a defect, then believed intentional | Both readings were incomplete. `SmoothScrollBehavior` now resolves its mode from `VirtualizingPanel.ScrollUnit`, so the 11 real list hosts run `CanContentScroll=True` + `ScrollUnit=Pixel` — **virtualization and smooth scrolling together**. **FIXED** |
 | **S-5** | 24 multi-line silent catches | Reviewed individually. **5 converted** across both rounds (audit trail, AI-memory clear, backup pruning, config save, JO snapshot parse); the other 19 are deliberately silent — logger internals, last-chance handlers, the audit-of-denial path, and viewer-launch/temp-cleanup best-effort catches — and converting them would risk recursion or false alarms. **CLOSED** |
 | **A-3** | Default `admin`/`admin`, "never forced to rotate" | Understated. There was **no change-password path at all**, and no sign-in screen, so a fresh install runs as full administrator unprompted. Rotation added + default-credential banner. **FIXED, with the authentication gap recorded as a remaining risk.** |
+| **A-1 remainder** | 3 mutating service methods still unguarded | `SpecificationsRepository.SaveOrUpdateAsync` (`ProformaEdit`) and `.DeleteAsync` (`ProformaDelete`); `ProformaAttachmentService.DeleteAsync` / `.RenameAsync` (`ProformaEdit`). `MarkAsUsedAsync` left unguarded on purpose — it only bumps a usage counter, and guarding it would make an Operator's normal use of an existing spec fail. **CLOSED** |
+| **P-1** | Customer names + AED totals sent to a third-party LLM, undisclosed | Disclosure fixed and boundary documented; **the egress itself is unchanged and still opt-out**. See below. |
+
+### P-1 — what was fixed, and what was not
+
+Verified what actually leaves the machine: **customer names, project names,
+company names and AED totals** (grand totals, outstanding, overdue, VAT).
+Confirmed by grep that **TRN, bank/IBAN, phone, email and postal address are not
+sent today** — so the "never add" list now in the `AiContextBuilder` header
+describes a boundary that currently holds rather than an aspiration.
+
+The egress is gated by `AiSettings.UseRealData` — but that **defaults to `true`**,
+so it is **opt-out, not opt-in**. The old Settings hint said only that "the AI
+receives a real-time summary", which describes the feature without disclosing
+that the data leaves the machine. It now names the recipients (Gemini / Groq /
+Cohere), says what is included, and states that those companies process the data
+under their own terms.
+
+**Not fixed, deliberately:** there is still **no per-request consent prompt and no
+redaction pass**, and the default is still on. The `Agent/` subsystem already
+implements the stricter model — LocalOnly by default, then explicit cloud
+consent, host whitelist, size cap and a post-redaction sanity check. Aligning AI
+chat with that model is the correct long-term fix, but it changes chat behaviour
+and defaults, so it is the user's decision rather than something to bolt on
+during an audit. **Anyone treating P-1 as closed because the wording improved
+would be misreading this: the data still leaves the machine by default.**
 | **R-2** | Reported as "25 unguarded async mutating commands" | Re-enumerated properly: **81** async command sites, of which **3** are genuinely double-click-reachable. All 3 guarded. **FIXED** — see below. |
 
 ### R-2 — why the number fell from 25 to 3
