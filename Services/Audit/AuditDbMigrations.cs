@@ -1,4 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════════
+﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Audit/AuditDbMigrations.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Core — additive audit.db migrations
@@ -72,8 +72,23 @@ namespace ProGlassAutomation.Services.Audit
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
-                    $"[AuditDbMigrations] Apply failed: {ex.Message}");
+                // R-1 RECURRENCE: Debug.WriteLine is [Conditional("DEBUG")]
+                // and is stripped in Release, so a failed schema upgrade was
+                // invisible in shipped builds. That matters here more than
+                // most places: if these additive migrations do not apply,
+                // audit writes that reference the new columns/tables fail
+                // later, and the audit trail silently stops recording -
+                // exactly the evidence needed to investigate an incident.
+                Logging.AppLogService.Error(
+                    "audit.db schema upgrade failed. Change history and "
+                    + "record versioning may not be recorded.",
+                    ex,
+                    new Logging.LogContext
+                    {
+                        Module = "Audit",
+                        Class = nameof(AuditDbMigrations),
+                        Operation = "Apply"
+                    });
             }
         }
 

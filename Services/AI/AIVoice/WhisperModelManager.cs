@@ -21,6 +21,7 @@
 // REGRESSION RISK: ZERO — external call sites unchanged.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Services.Logging;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -232,6 +233,36 @@ namespace ProGlassAutomation.Services.AI.AIVoice
                 await fileStream.FlushAsync(cancellationToken);
                 fileStream.Close();
 
+                // INTEGRITY (U-2): the server advertises Content-Length but
+                // nothing compared it against what actually arrived. A
+                // connection dropped at 80% left a truncated .bin that was
+                // then promoted to the real filename and handed to the
+                // native GGML parser, which fails in native code rather
+                // than in managed code.
+                //
+                // This is a COMPLETENESS check, not an authenticity check.
+                // It catches a truncated or interrupted download. It does
+                // NOT prove the file is the genuine upstream model - that
+                // needs a published SHA-256, which the upstream repo does
+                // not currently provide per-file. Documented as U-2.
+                if (totalBytes > 0 && downloadedBytes != totalBytes)
+                {
+                    AppLogService.Error(
+                        $"Whisper model '{modelKey}' download incomplete: "
+                        + $"expected {totalBytes} bytes, got {downloadedBytes}. "
+                        + "Discarded rather than loaded.",
+                        null,
+                        new LogContext
+                        {
+                            Module = "Voice",
+                            Class = nameof(WhisperModelManager),
+                            Operation = "DownloadModelAsync"
+                        });
+
+                    CleanupTemp(tempPath);
+                    return false;
+                }
+
                 if (File.Exists(targetPath)) File.Delete(targetPath);
                 File.Move(tempPath, targetPath);
 
@@ -245,8 +276,18 @@ namespace ProGlassAutomation.Services.AI.AIVoice
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
-                    $"[WhisperModelManager] Download failed: {ex.Message}");
+                // R-1 RECURRENCE: was Debug.WriteLine only, so in Release a
+                // failed 142MB-3GB download reported nothing at all.
+                AppLogService.Error(
+                    $"Whisper model '{modelKey}' download failed.",
+                    ex,
+                    new LogContext
+                    {
+                        Module = "Voice",
+                        Class = nameof(WhisperModelManager),
+                        Operation = "DownloadModelAsync"
+                    });
+
                 CleanupTemp(tempPath);
                 return false;
             }
