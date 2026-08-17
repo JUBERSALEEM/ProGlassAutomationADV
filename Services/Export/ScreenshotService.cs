@@ -134,12 +134,122 @@ namespace ProGlassAutomation.Services.Export
         }
 
         /// <summary>
+        /// Captures the FULL content of the active view's main scroll region
+        /// (for long lists). Temporarily expands the ScrollViewer to its full
+        /// ExtentHeight so nothing is clipped, renders, then restores the
+        /// layout in a finally block.
+        /// </summary>
+        public static BitmapSource? CaptureFullPage(ScreenshotQuality quality)
+        {
+            var window = Application.Current?.MainWindow;
+            if (window == null) return null;
+
+            System.Windows.Controls.ScrollViewer? sv = null;
+            bool svChanged = false;
+            double svHeight = 0;
+
+            try
+            {
+                // Find the active view (ContentControl hosts CurrentViewModel).
+                if (window.Content is System.Windows.Controls.Border root
+                    && root.Child is System.Windows.Controls.Grid grid)
+                {
+                    sv = FindDescendant<System.Windows.Controls.ScrollViewer>(grid);
+                }
+                if (sv == null)
+                {
+                    // No scroll region — fall back to a normal window capture.
+                    return CaptureMainWindow(quality);
+                }
+
+                // Remember state and expand to the full content extent.
+                svHeight = sv.Height;
+                sv.Height = sv.ExtentHeight + 24;   // a little breathing room
+                sv.VerticalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Hidden;
+                svChanged = true;
+
+                // Pump layout so the expanded height is realized.
+                window.UpdateLayout();
+                var frame = new DispatcherFrame();
+                window.Dispatcher.BeginInvoke(
+                    DispatcherPriority.Render,
+                    new Action(() => frame.Continue = false));
+                Dispatcher.PushFrame(frame);
+
+                var (targetWidth, targetHeight) = GetTargetSize(quality);
+                double actualW = Math.Max(1, window.ActualWidth);
+                double actualH = Math.Max(1, window.ActualHeight);
+                double scale = Math.Max(targetWidth / actualW, targetHeight / actualH);
+                if (scale < 4.0) scale = 4.0;
+
+                int width = (int)(actualW * scale);
+                int height = (int)(actualH * scale);
+                int dpi = (int)(96 * scale);
+
+                var rtb = new RenderTargetBitmap(width, height, dpi, dpi, PixelFormats.Pbgra32);
+                rtb.Render(window);
+                rtb.Freeze();
+                return rtb;
+            }
+            catch (Exception ex)
+            {
+                Services.Logging.AppLogService.Error(
+                    "Full-page screenshot render failed.", ex,
+                    new Services.Logging.LogContext
+                    {
+                        Module = "Export",
+                        Class = nameof(ScreenshotService),
+                        Operation = "CaptureFullPage"
+                    });
+                return null;
+            }
+            finally
+            {
+                // Always restore the layout so the app is never left broken.
+                if (sv != null && svChanged)
+                {
+                    try
+                    {
+                        sv.Height = svHeight;
+                        sv.VerticalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Auto;
+                        window.UpdateLayout();
+                    }
+                    catch { /* restore is best-effort */ }
+                }
+            }
+        }
+
+        /// <summary>Depth-first search for a descendant of type T.</summary>
+        private static T? FindDescendant<T>(System.Windows.DependencyObject parent)
+            where T : System.Windows.DependencyObject
+        {
+            int count = System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent);
+            for (int i = 0; i < count; i++)
+            {
+                var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
+                if (child is T match) return match;
+                var deeper = FindDescendant<T>(child);
+                if (deeper != null) return deeper;
+            }
+            return null;
+        }
+
+        /// <summary>
         /// Runs the reference's capture + SaveFileDialog flow. Returns true
         /// when a file was saved.
         /// </summary>
         public static bool CaptureAndSave(ScreenshotQuality quality)
+            => SaveBitmap(CaptureMainWindow(quality), GetLabel(quality));
+
+        /// <summary>
+        /// Captures the full scrollable page (long lists) then prompts for a
+        /// save location. Returns true when a file was saved.
+        /// </summary>
+        public static bool CaptureFullPageAndSave(ScreenshotQuality quality)
+            => SaveBitmap(CaptureFullPage(quality), GetLabel(quality) + "_FullPage");
+
+        private static bool SaveBitmap(BitmapSource? bitmap, string label)
         {
-            var bitmap = CaptureMainWindow(quality);
             if (bitmap == null)
             {
                 System.Windows.MessageBox.Show(

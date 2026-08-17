@@ -104,6 +104,13 @@
                                        FontSize="10" FontWeight="SemiBold"
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        Margin="0,0,0,6"/>
+                            <CheckBox x:Name="FullPageCheck"
+                                      Content="Full page (capture long lists entirely)"
+                                      FontSize="11"
+                                      Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                      Margin="0,0,0,8"
+                                      IsChecked="False"
+                                      ToolTip="Expands the active list to its full height so no rows are cut off"/>
                             <StackPanel x:Name="QualityList"/>
                         </StackPanel>
 

@@ -134,21 +134,25 @@ namespace ProGlassAutomation.Views.Shared
             button.Content = grid;
             button.Click += (_, _) =>
             {
+                bool fullPage = FullPageCheck?.IsChecked == true;
                 QualityPanel.Visibility = Visibility.Collapsed;
                 _qualityPanelOpen = false;
-                Capture(quality);
+                Capture(quality, fullPage);
             };
             return button;
         }
 
-        private void Capture(ScreenshotQuality quality)
+        private void Capture(ScreenshotQuality quality, bool fullPage = false)
         {
-            CaptureStatus.Text = $"Capturing {ScreenshotService.GetLabel(quality)}…";
+            CaptureStatus.Text =
+                $"Capturing {(fullPage ? "full page · " : "")}{ScreenshotService.GetLabel(quality)}…";
 
             // Render + save dialog run on the UI thread (visual tree access).
             Dispatcher.BeginInvoke(new Action(() =>
             {
-                bool ok = ScreenshotService.CaptureAndSave(quality);
+                bool ok = fullPage
+                    ? ScreenshotService.CaptureFullPageAndSave(quality)
+                    : ScreenshotService.CaptureAndSave(quality);
                 CaptureStatus.Text = ok
                     ? $"{ScreenshotService.GetLabel(quality)} saved."
                     : "Capture cancelled or failed.";
