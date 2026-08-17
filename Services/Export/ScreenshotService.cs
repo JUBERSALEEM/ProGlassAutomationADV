@@ -3,14 +3,23 @@
 // PROJECT: ProGlassAutomation
 // MODULE: Export — window screenshots
 //
-// Captures the main application window as a high-quality PNG at a chosen
-// resolution (720p / 1080p / 2K / 4K), renders the visual tree to a bitmap
-// at the requested size, and saves it under
+// Captures the main application window as a high-quality image at a chosen
+// resolution (720p / 1080p / 2K / 4K) and saves it under
 //   %AppData%\ProGlassAutomation\Screenshots\<Module>_yyyy-MM-dd_HH-mm-ss.png
 //
+// CLARITY TECHNIQUE (supersampling, adapted from the reference):
+//   1. The visual tree is rendered at a higher pixel density than the
+//      target (2× per axis) so text and vector edges are captured crisply.
+//   2. That high-res render is downscaled to the exact target resolution
+//      with high-quality (bilinear/linear) interpolation, which removes
+//      aliasing and "jaggies" that plain Viewbox scaling produces.
+//   3. The result is composited centred on a white canvas sized to the
+//      exact requested resolution, so 720p/1080p/2K/4K are always the true
+//      output dimensions.
+//
 // The filename embeds the current module name (from the shell's
-// CurrentModuleTitle) plus a UTC-ish local date/time stamp, so each capture
-// is unique and traceable to the screen that produced it.
+// CurrentModuleTitle) plus a local date/time stamp, so each capture is
+// unique and traceable to the screen that produced it.
 // ═══════════════════════════════════════════════════════════════════════
 
 using System;
@@ -26,11 +35,14 @@ namespace ProGlassAutomation.Services.Export
         /// <summary>Target resolutions offered to the user.</summary>
         public static (string Label, int Width, int Height)[] Resolutions { get; } = new[]
         {
-            ("720p",   1280, 720),
+            ("720p",   1280,  720),
             ("1080p",  1920, 1080),
             ("2K",     2560, 1440),
             ("4K",     3840, 2160)
         };
+
+        /// <summary>Oversample factor per axis for extra sharpness.</summary>
+        private const int SuperSample = 2;
 
         private static string ScreenshotsFolder
         {
@@ -90,9 +102,9 @@ namespace ProGlassAutomation.Services.Export
         }
 
         /// <summary>
-        /// Renders the element's visual tree to a WriteableBitmap at the
-        /// target size. Scales the bitmap up/down to the requested
-        /// resolution while keeping the layout's aspect ratio.
+        /// Renders the element to an exact target resolution using a
+        /// supersampling + high-quality downscale pipeline for maximum
+        /// clarity.
         /// </summary>
         private static BitmapSource? RenderToBitmap(
             FrameworkElement element, int targetWidth, int targetHeight)
@@ -103,42 +115,77 @@ namespace ProGlassAutomation.Services.Export
 
             if (size.Width <= 0 || size.Height <= 0) return null;
 
-            // Preserve the element's aspect ratio, scaled to fit the target.
-            double scale = Math.Min(
-                targetWidth / size.Width,
-                targetHeight / size.Height);
+            // ── 1. Supersampled high-DPI render of the visual tree ──────
+            int renderW = Math.Max(1, (int)Math.Round(size.Width * SuperSample));
+            int renderH = Math.Max(1, (int)Math.Round(size.Height * SuperSample));
+            int renderDpi = 96 * SuperSample;
 
-            int w = Math.Max(1, (int)Math.Round(size.Width * scale));
-            int h = Math.Max(1, (int)Math.Round(size.Height * scale));
+            var highRes = new RenderTargetBitmap(
+                renderW, renderH, renderDpi, renderDpi, PixelFormats.Pbgra32);
 
-            var rtb = new RenderTargetBitmap(
-                w, h, 96, 96, PixelFormats.Pbgra32);
-
-            // Wrap the element in a Viewbox so the captured window scales up
-            // to the target resolution while keeping its aspect ratio. The
-            // Border inside provides the background (Viewbox has none).
-            var container = new System.Windows.Controls.Viewbox
-            {
-                Stretch = Stretch.Uniform,
-                Width = w,
-                Height = h
-            };
-
+            // Wrap in a Viewbox so the tree scales to the render size while
+            // keeping its aspect ratio; the inner Border provides the
+            // background (Viewbox has none).
             var surface = new System.Windows.Controls.Border
             {
                 Background = Brushes.White,
                 Child = element
             };
+            var container = new System.Windows.Controls.Viewbox
+            {
+                Stretch = Stretch.Uniform,
+                Width = renderW,
+                Height = renderH,
+                Child = surface
+            };
 
-            container.Child = surface;
-
-            container.Measure(new Size(w, h));
-            container.Arrange(new Rect(0, 0, w, h));
+            container.Measure(new Size(renderW, renderH));
+            container.Arrange(new Rect(0, 0, renderW, renderH));
             container.UpdateLayout();
 
-            rtb.Render(container);
-            rtb.Freeze();
-            return rtb;
+            highRes.Render(container);
+            highRes.Freeze();
+
+            // ── 2. Downscale to fit the target with high-quality sampling ──
+            double fitScale = Math.Min(
+                targetWidth / (double)renderW,
+                targetHeight / (double)renderH);
+
+            int fitW = Math.Max(1, (int)Math.Round(renderW * fitScale));
+            int fitH = Math.Max(1, (int)Math.Round(renderH * fitScale));
+
+            BitmapSource fitted = highRes;
+            if (fitW != renderW || fitH != renderH)
+            {
+                var scaled = new TransformedBitmap(
+                    highRes,
+                    new ScaleTransform(fitW / (double)renderW, fitH / (double)renderH));
+                scaled.Freeze();
+                fitted = scaled;
+            }
+
+            // ── 3. Compose centred on an exact-resolution white canvas ────
+            // (ensures the output is exactly targetWidth x targetHeight even
+            //  when the window's aspect ratio differs from the target).
+            if (fitted.PixelWidth == targetWidth && fitted.PixelHeight == targetHeight)
+                return fitted;
+
+            var visual = new DrawingVisual();
+            using (var dc = visual.RenderOpen())
+            {
+                dc.DrawRectangle(Brushes.White, null,
+                    new Rect(0, 0, targetWidth, targetHeight));
+
+                double x = (targetWidth - fitW) / 2.0;
+                double y = (targetHeight - fitH) / 2.0;
+                dc.DrawImage(fitted, new Rect(x, y, fitW, fitH));
+            }
+
+            var final = new RenderTargetBitmap(
+                targetWidth, targetHeight, 96, 96, PixelFormats.Pbgra32);
+            final.Render(visual);
+            final.Freeze();
+            return final;
         }
 
         /// <summary>Module name for the filename, sanitised for the file system.</summary>
