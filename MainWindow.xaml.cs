@@ -166,6 +166,78 @@ namespace ProGlassAutomation
             return false;
         }
 
+        // ── top-bar hover-peek ────────────────────────────────────────────
+        // Hovering a top-bar icon opens its popup; moving away closes it.
+        // Clicking still toggles (pins it open/closed). A short close delay
+        // lets the user move the pointer into the opened popup before it
+        // disappears.
+
+        private void TopBarButton_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (DataContext is not MainViewModel vm) return;
+            _topBarClosePending = false;
+
+            if (ReferenceEquals(sender, SettingsButton)) vm.IsSettingsOpen = true;
+            else if (ReferenceEquals(sender, AboutButton)) vm.IsAboutOpen = true;
+            else if (ReferenceEquals(sender, NotificationButton)) vm.IsNotificationsOpen = true;
+        }
+
+        private void TopBarButton_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (DataContext is not MainViewModel vm) return;
+            _topBarClosePending = true;
+
+            var timer = new System.Windows.Threading.DispatcherTimer
+            {
+                Interval = TimeSpan.FromMilliseconds(300)
+            };
+            timer.Tick += (_, _) =>
+            {
+                timer.Stop();
+                if (!_topBarClosePending) return;
+                if (ReferenceEquals(sender, SettingsButton)) vm.IsSettingsOpen = false;
+                else if (ReferenceEquals(sender, AboutButton)) vm.IsAboutOpen = false;
+                else if (ReferenceEquals(sender, NotificationButton)) vm.IsNotificationsOpen = false;
+            };
+            timer.Start();
+        }
+
+        private bool _topBarClosePending;
+
+        // Moving the pointer into an open popup cancels the scheduled close,
+        // so the user can read/click it without it vanishing.
+        private void PopupContent_MouseEnter(object sender, MouseEventArgs e)
+            => _topBarClosePending = false;
+
+        private void PopupContent_MouseLeave(object sender, MouseEventArgs e)
+            => _topBarClosePending = true;
+
+        // ── sidebar hover-expand ──────────────────────────────────────────
+        // Hovering over a group opens it; moving away closes it. The user
+        // can still click the group header to toggle it manually. The hover
+        // container is the StackPanel wrapping the toggle + its sub-menu, so
+        // moving into the opened sub-menu does not close it.
+
+        private void SidebarGroup_MouseEnter(object sender, MouseEventArgs e)
+        {
+            if (sender is not System.Windows.FrameworkElement fe) return;
+            if (fe is StackPanel sp && sp.Children.Count > 0
+                && sp.Children[0] is ToggleButton tb)
+            {
+                tb.IsChecked = true;
+            }
+        }
+
+        private void SidebarGroup_MouseLeave(object sender, MouseEventArgs e)
+        {
+            if (sender is not System.Windows.FrameworkElement fe) return;
+            if (fe is StackPanel sp && sp.Children.Count > 0
+                && sp.Children[0] is ToggleButton tb)
+            {
+                tb.IsChecked = false;
+            }
+        }
+
         private void UserSwitchPopup_Opened(object sender, System.EventArgs e)
         {
             if (UserSwitchPanelHost != null)

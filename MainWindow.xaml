@@ -850,11 +850,13 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- NOTIFICATION BELL — opens a non-blocking activity popup -->
+                    <!-- NOTIFICATION BELL — hover to peek, click to toggle -->
                     <Grid x:Name="NotificationButton" Margin="0,0,10,0">
                         <Button Style="{StaticResource TopIconButton}"
                                 Content="&#xEA8F;"
                                 Command="{Binding ToggleNotificationsCommand}"
+                                MouseEnter="TopBarButton_MouseEnter"
+                                MouseLeave="TopBarButton_MouseLeave"
                                 ToolTip="Recent activity"/>
                         <Ellipse Width="10" Height="10"
                                  Fill="{DynamicResource DangerBrush}"
@@ -866,19 +868,23 @@
                                  IsHitTestVisible="False"/>
                     </Grid>
 
-                    <!-- SETTINGS — opens a non-blocking quick-settings popup -->
+                    <!-- SETTINGS — hover to peek, click to toggle -->
                     <Button x:Name="SettingsButton"
                             Style="{StaticResource TopIconButton}"
                             Content="&#xE713;"
                             Command="{Binding ToggleSettingsCommand}"
+                            MouseEnter="TopBarButton_MouseEnter"
+                            MouseLeave="TopBarButton_MouseLeave"
                             ToolTip="Settings"
                             Margin="0,0,10,0"/>
 
-                    <!-- ABOUT — opens a non-blocking About popup -->
+                    <!-- ABOUT — hover to peek, click to toggle -->
                     <Button x:Name="AboutButton"
                             Style="{StaticResource TopIconButton}"
                             Content="&#xE946;"
                             Command="{Binding ToggleAboutCommand}"
+                            MouseEnter="TopBarButton_MouseEnter"
+                            MouseLeave="TopBarButton_MouseLeave"
                             ToolTip="About"
                             Margin="0,0,10,0"/>
 
@@ -1068,11 +1074,13 @@
                                 <!-- SALES (expandable) -->
                                 <TextBlock Text="SALES"
                                            Style="{StaticResource SidebarGroupLabel}"/>
+                                <StackPanel x:Name="SalesGroupHost"
+                                           MouseEnter="SidebarGroup_MouseEnter"
+                                           MouseLeave="SidebarGroup_MouseLeave">
                                 <ToggleButton x:Name="SalesGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Sales &amp; Orders"
-                                              Tag="&#xE8A5;"
-                                              IsChecked="True"/>
+                                              Tag="&#xE8A5;"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
                                         Visibility="{Binding IsChecked, ElementName=SalesGroup,
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
@@ -1087,10 +1095,14 @@
                                                 CommandParameter="JobOrder"/>
                                     </StackPanel>
                                 </Border>
+                                </StackPanel>
 
                                 <!-- PRODUCTION (expandable) -->
                                 <TextBlock Text="PRODUCTION"
                                            Style="{StaticResource SidebarGroupLabel}"/>
+                                <StackPanel x:Name="ProductionGroupHost"
+                                           MouseEnter="SidebarGroup_MouseEnter"
+                                           MouseLeave="SidebarGroup_MouseLeave">
                                 <ToggleButton x:Name="ProductionGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Production"
@@ -1137,10 +1149,14 @@
                                                 CommandParameter="DoublingLamination"/>
                                     </StackPanel>
                                 </Border>
+                                </StackPanel>
 
                                 <!-- DISPATCH (expandable) -->
                                 <TextBlock Text="DISPATCH"
                                            Style="{StaticResource SidebarGroupLabel}"/>
+                                <StackPanel x:Name="DispatchGroupHost"
+                                           MouseEnter="SidebarGroup_MouseEnter"
+                                           MouseLeave="SidebarGroup_MouseLeave">
                                 <ToggleButton x:Name="DispatchGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Dispatch"
@@ -1159,10 +1175,14 @@
                                                 CommandParameter="TaxInvoice"/>
                                     </StackPanel>
                                 </Border>
+                                </StackPanel>
 
                                 <!-- REPORTS (expandable) -->
                                 <TextBlock Text="REPORTS"
                                            Style="{StaticResource SidebarGroupLabel}"/>
+                                <StackPanel x:Name="ReportsGroupHost"
+                                           MouseEnter="SidebarGroup_MouseEnter"
+                                           MouseLeave="SidebarGroup_MouseLeave">
                                 <ToggleButton x:Name="ReportsGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Reports"
@@ -1181,10 +1201,14 @@
                                                 CommandParameter="JobProfitability"/>
                                     </StackPanel>
                                 </Border>
+                                </StackPanel>
 
                                 <!-- MASTER DATA (expandable) -->
                                 <TextBlock Text="MASTER DATA"
                                            Style="{StaticResource SidebarGroupLabel}"/>
+                                <StackPanel x:Name="MasterDataGroupHost"
+                                           MouseEnter="SidebarGroup_MouseEnter"
+                                           MouseLeave="SidebarGroup_MouseLeave">
                                 <ToggleButton x:Name="MasterDataGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Master Data"
@@ -1203,10 +1227,14 @@
                                                 CommandParameter="UserCenter"/>
                                     </StackPanel>
                                 </Border>
+                                </StackPanel>
 
                                 <!-- SYSTEM (expandable) -->
                                 <TextBlock Text="SYSTEM"
                                            Style="{StaticResource SidebarGroupLabel}"/>
+                                <StackPanel x:Name="SystemGroupHost"
+                                           MouseEnter="SidebarGroup_MouseEnter"
+                                           MouseLeave="SidebarGroup_MouseLeave">
                                 <ToggleButton x:Name="SystemGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="System"
@@ -1225,6 +1253,7 @@
                                                 CommandParameter="Diagnostics"/>
                                     </StackPanel>
                                 </Border>
+                                </StackPanel>
 
                             </StackPanel>
                         </ScrollViewer>
@@ -1327,7 +1356,8 @@
                IsOpen="{Binding IsSettingsOpen, Mode=TwoWay}"
                Opened="SettingsPopup_Opened"
                Closed="SettingsPopup_Closed">
-            <viewsShared:QuickSettingsPanel x:Name="SettingsPanelHost" Width="280"/>
+            <viewsShared:QuickSettingsPanel x:Name="SettingsPanelHost" Width="280"
+                                            MouseEnter="PopupContent_MouseEnter" MouseLeave="PopupContent_MouseLeave"/>
         </Popup>
 
         <!-- About popup (non-blocking) -->
@@ -1341,7 +1371,8 @@
                IsOpen="{Binding IsAboutOpen, Mode=TwoWay}"
                Opened="AboutPopup_Opened"
                Closed="AboutPopup_Closed">
-            <viewsShared:AboutPanel x:Name="AboutPanelHost"/>
+            <viewsShared:AboutPanel x:Name="AboutPanelHost"
+                                     MouseEnter="PopupContent_MouseEnter" MouseLeave="PopupContent_MouseLeave"/>
         </Popup>
 
         <!-- Notifications / activity popup (non-blocking) -->
@@ -1355,7 +1386,8 @@
                IsOpen="{Binding IsNotificationsOpen, Mode=TwoWay}"
                Opened="NotificationsPopup_Opened"
                Closed="NotificationsPopup_Closed">
-            <viewsShared:ActivityPanel x:Name="ActivityPanelHost"/>
+            <viewsShared:ActivityPanel x:Name="ActivityPanelHost"
+                                        MouseEnter="PopupContent_MouseEnter" MouseLeave="PopupContent_MouseLeave"/>
         </Popup>
 </Grid>
 </Window>
