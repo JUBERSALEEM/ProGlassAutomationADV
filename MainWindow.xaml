@@ -761,6 +761,16 @@
                             </StackPanel>
                     </Border>
 
+                    <!-- Notification bell — opens the real Logs & Activity
+                         (Diagnostics) module, the closest real analogue to a
+                         notification inbox. -->
+                    <Button Style="{StaticResource TopBarPillIcon}"
+                            Content="&#xEA8F;"
+                            Command="{Binding NavigateCommand}"
+                            CommandParameter="Diagnostics"
+                            ToolTip="Logs &amp; Activity"
+                            Margin="0,0,8,0"/>
+
                     <!-- PHASE L: ProGlass Agent chat -->
                     <Button Style="{StaticResource TopBarPillIcon}"
                             Content="&#xE99A;"
