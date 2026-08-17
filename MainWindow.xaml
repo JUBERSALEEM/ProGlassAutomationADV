@@ -1347,7 +1347,8 @@
                IsOpen="{Binding IsUserSwitchOpen, Mode=TwoWay}"
                Opened="UserSwitchPopup_Opened"
                Closed="UserSwitchPopup_Closed">
-            <viewsShared:UserSwitchPanel x:Name="UserSwitchPanelHost" Width="360"/>
+            <viewsShared:UserSwitchPanel x:Name="UserSwitchPanelHost" Width="360"
+                                        MouseEnter="PopupContent_MouseEnter" MouseLeave="PopupContent_MouseLeave"/>
         </Popup>
 
         <!-- Quick-settings popup (non-blocking, same pattern as user card) -->

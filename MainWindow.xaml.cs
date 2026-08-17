@@ -185,7 +185,14 @@ namespace ProGlassAutomation
         {
             _isMouseOverPopup = false;
             StopCloseTimer();
-            SetOpen(sender, true);
+            // Open ONLY this one; close the others (reference behaviour).
+            if (DataContext is MainViewModel vm)
+            {
+                vm.IsSettingsOpen = ReferenceEquals(sender, SettingsButton);
+                vm.IsAboutOpen = ReferenceEquals(sender, AboutButton);
+                vm.IsNotificationsOpen = ReferenceEquals(sender, NotificationButton);
+                vm.IsUserSwitchOpen = ReferenceEquals(sender, UserCardButton);
+            }
         }
 
         private void CloseDropdown(object sender)
@@ -206,10 +213,12 @@ namespace ProGlassAutomation
             StopCloseTimer();
             _dropdownCloseTimer = new DispatcherTimer
             {
-                Interval = TimeSpan.FromMilliseconds(300)
+                Interval = TimeSpan.FromMilliseconds(400)   // give time to reach the popup
             };
             _dropdownCloseTimer.Tick += (_, _) =>
             {
+                _dropdownCloseTimer!.Stop();
+                _dropdownCloseTimer = null;
                 if (_isMouseOverPopup) return;   // pointer reached the popup
                 // Close whichever is open.
                 if (DataContext is MainViewModel vm)
@@ -219,13 +228,11 @@ namespace ProGlassAutomation
                     vm.IsNotificationsOpen = false;
                     vm.IsUserSwitchOpen = false;
                 }
-                _dropdownCloseTimer!.Stop();
-                _dropdownCloseTimer = null;
             };
             _dropdownCloseTimer.Start();
         }
 
-        // Hover a button: open its popup.
+        // Hover a button: open ITS popup (and close the others).
         private void TopBarButton_MouseEnter(object sender, MouseEventArgs e)
         {
             _isMouseOverPopup = false;
