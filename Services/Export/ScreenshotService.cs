@@ -177,17 +177,21 @@ namespace ProGlassAutomation.Services.Export
                 Dispatcher.PushFrame(frame);
 
                 var (targetWidth, targetHeight) = GetTargetSize(quality);
-                double actualW = Math.Max(1, window.ActualWidth);
-                double actualH = Math.Max(1, window.ActualHeight);
-                double scale = Math.Max(targetWidth / actualW, targetHeight / actualH);
+
+                // Render the EXPANDED ScrollViewer directly (its full content
+                // is now laid out at ExtentHeight), not the window — the window
+                // is fixed-size and would clip the long content.
+                double svActualW = Math.Max(1, sv.ActualWidth);
+                double svActualH = Math.Max(1, sv.ActualHeight);
+                double scale = Math.Max(targetWidth / svActualW, targetHeight / svActualH);
                 if (scale < 4.0) scale = 4.0;
 
-                int width = (int)(actualW * scale);
-                int height = (int)(actualH * scale);
+                int width = (int)(svActualW * scale);
+                int height = (int)(svActualH * scale);
                 int dpi = (int)(96 * scale);
 
                 var rtb = new RenderTargetBitmap(width, height, dpi, dpi, PixelFormats.Pbgra32);
-                rtb.Render(window);
+                rtb.Render(sv);
                 rtb.Freeze();
                 return rtb;
             }
