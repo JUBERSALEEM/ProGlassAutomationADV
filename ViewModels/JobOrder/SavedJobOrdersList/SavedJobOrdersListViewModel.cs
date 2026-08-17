@@ -203,6 +203,16 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         /// <summary>v2 §24: shows the version history dialog for a row.</summary>
         public ICommand ShowVersionsCommand { get; }
 
+        /// <summary>
+        /// Raises a new Job Order from an approved Proforma Invoice.
+        /// <para>
+        /// The module had no create entry point at all — job orders could
+        /// only appear via sample data or code paths outside the UI, even
+        /// though JobOrderMapper.BuildFromProformaInvoice already existed.
+        /// </para>
+        /// </summary>
+        public ICommand CreateJobOrderCommand { get; }
+
         // ═════════════════════════════════════════════════════════════════
         //  CONSTRUCTOR
         // ═════════════════════════════════════════════════════════════════
@@ -244,6 +254,9 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 async param => await ShowVersionsAsync(
                     param as JobOrderRowViewModel));
             ClearFiltersCommand = new RelayCommand(_ => ClearFilters());
+
+            CreateJobOrderCommand = new RelayCommand(
+                async _ => await CreateJobOrderAsync());
 
             // Load on construction
             _ = LoadJobOrdersAsync();
@@ -427,6 +440,122 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 MessageBox.Show(
                     $"Failed to delete job order:\n\n{ex.Message}",
                     "Delete Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        /// <summary>
+        /// Opens the Proforma picker and converts the chosen quote into a
+        /// new Job Order.
+        /// <para>
+        /// Reuses JobOrderMapper.BuildFromProformaInvoice and
+        /// BuildEntityFromSnapshot, which already existed and were already
+        /// exercised by the sample-data path — this only supplies the UI
+        /// entry point that was missing, so there is no second conversion
+        /// implementation to keep in step.
+        /// </para>
+        /// </summary>
+        private async Task CreateJobOrderAsync()
+        {
+            // Same guard the repository enforces, checked here so the user
+            // is told before filling in a dialog rather than after.
+            if (!ProGlassAutomation.Services.Audit.PermissionService.Require(
+                ProGlassAutomation.Services.Audit.AppPermissions.JobOrderEdit,
+                "create a job order"))
+                return;
+
+            if (App.Invoices == null || App.Jobs == null)
+            {
+                MessageBox.Show(
+                    "Databases are still initialising. Try again in a moment.",
+                    "Not Ready",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return;
+            }
+
+            var dialog = new ProGlassAutomation.Views.JobOrder
+                .SavedJobOrdersList.ProformaPicker
+                .JobOrderProformaPickerDialog();
+
+            if (dialog.ShowDialog() != true) return;
+
+            string proformaId = dialog.SelectedProformaId;
+            if (string.IsNullOrWhiteSpace(proformaId)) return;
+
+            try
+            {
+                var saved = (await App.Invoices.GetAllAsync())
+                    .FirstOrDefault(p => string.Equals(
+                        p.ProformaId, proformaId,
+                        StringComparison.OrdinalIgnoreCase));
+
+                if (saved == null)
+                {
+                    MessageBox.Show(
+                        $"Proforma Invoice '{proformaId}' could not be loaded.",
+                        "Create Failed",
+                        MessageBoxButton.OK,
+                        MessageBoxImage.Error);
+                    return;
+                }
+
+                // A quote can legitimately be built twice (a revised order,
+                // a split delivery), so this warns rather than blocks - but
+                // it has to warn, or a double-click silently duplicates a
+                // production job.
+                var existing = await App.Jobs
+                    .GetBySourceProformaIdAsync(proformaId);
+
+                if (existing != null && existing.Count > 0)
+                {
+                    string ids = string.Join(", ",
+                        existing.Select(j => j.JobOrderId));
+
+                    var again = MessageBox.Show(
+                        $"{proformaId} already has {existing.Count} job "
+                        + $"order(s): {ids}.\n\n"
+                        + "Create another one from the same quote?",
+                        "Already Converted",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Warning,
+                        MessageBoxResult.No);
+
+                    if (again != MessageBoxResult.Yes) return;
+                }
+
+                var snapshot = JobOrderMapper
+                    .BuildFromProformaInvoice(saved);
+
+                // The mapper derives JOB-YYYY-NNN from the PI number, which
+                // collides as soon as a quote is converted twice. Ask the
+                // repository for the next free id in that series.
+                snapshot.JobOrderId = await App.Jobs
+                    .SuggestNextIdAsync(snapshot.JobOrderId);
+
+                var entity = JobOrderMapper.BuildEntityFromSnapshot(
+                    snapshot, saved.GrandTotalVatInclusive);
+
+                var inserted = await App.Jobs.InsertAsync(entity);
+
+                AuditService.Log(
+                    AuditSections.JobOrder, "Job order created",
+                    $"{inserted.JobOrderId} from {proformaId}"
+                    + (dialog.ProceededWithoutApproval
+                        ? " — RELEASED WITHOUT CONFIRMED APPROVAL"
+                        : ""),
+                    "JO", inserted.JobOrderId);
+
+                await LoadJobOrdersAsync();
+
+                OnJobOrderOpenRequested?.Invoke(inserted.Id);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Failed to create job order:\n\n{ex.Message}",
+                    "Create Failed",
                     MessageBoxButton.OK,
                     MessageBoxImage.Error);
             }
