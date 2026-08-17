@@ -64,11 +64,20 @@ namespace ProGlassAutomation
                 if (vm.IsUserSwitchOpen && !In(UserCardButton))
                     vm.IsUserSwitchOpen = false;
                 if (vm.IsSettingsOpen && !In(SettingsButton))
+                {
                     vm.IsSettingsOpen = false;
+                    _pinSettings = false;
+                }
                 if (vm.IsAboutOpen && !In(AboutButton))
+                {
                     vm.IsAboutOpen = false;
+                    _pinAbout = false;
+                }
                 if (vm.IsNotificationsOpen && !In(NotificationButton))
+                {
                     vm.IsNotificationsOpen = false;
+                    _pinNotifications = false;
+                }
             };
         }
 
@@ -167,11 +176,14 @@ namespace ProGlassAutomation
             return false;
         }
 
-        // ── top-bar hover-peek ────────────────────────────────────────────
-        // Hovering a top-bar icon opens its popup; moving away closes it.
-        // Clicking still toggles (pins it open/closed). A short close delay
-        // lets the user move the pointer into the opened popup before it
-        // disappears.
+        // ── top-bar hover-peek + click-pin ─────────────────────────────────
+        // Hover opens a popup (peek) and closes it on leave after a short
+        // delay. A CLICK pins the popup open so it stays while you read or
+        // use it; a second click closes it. This avoids the bug where hover
+        // opened the popup and the click's blind toggle closed it instantly.
+
+        private bool _pinSettings, _pinAbout, _pinNotifications;
+        private bool _topBarClosePending;
 
         private void TopBarButton_MouseEnter(object sender, MouseEventArgs e)
         {
@@ -186,8 +198,41 @@ namespace ProGlassAutomation
         private void TopBarButton_MouseLeave(object sender, MouseEventArgs e)
         {
             if (DataContext is not MainViewModel vm) return;
-            _topBarClosePending = true;
+            ScheduleClose();
+        }
 
+        // Click pins the popup open (keeps it from closing on hover-leave)
+        // and toggles it closed on a second click.
+        private void SettingsButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is not MainViewModel vm) return;
+            if (vm.IsSettingsOpen && _pinSettings) { vm.IsSettingsOpen = false; _pinSettings = false; }
+            else { vm.IsSettingsOpen = true; _pinSettings = true; _topBarClosePending = false; }
+        }
+
+        private void AboutButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is not MainViewModel vm) return;
+            if (vm.IsAboutOpen && _pinAbout) { vm.IsAboutOpen = false; _pinAbout = false; }
+            else { vm.IsAboutOpen = true; _pinAbout = true; _topBarClosePending = false; }
+        }
+
+        private void NotificationButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is not MainViewModel vm) return;
+            if (vm.IsNotificationsOpen && _pinNotifications)
+            {
+                vm.IsNotificationsOpen = false; _pinNotifications = false;
+            }
+            else
+            {
+                vm.IsNotificationsOpen = true; _pinNotifications = true; _topBarClosePending = false;
+            }
+        }
+
+        private void ScheduleClose()
+        {
+            _topBarClosePending = true;
             var timer = new System.Windows.Threading.DispatcherTimer
             {
                 Interval = TimeSpan.FromMilliseconds(300)
@@ -196,14 +241,15 @@ namespace ProGlassAutomation
             {
                 timer.Stop();
                 if (!_topBarClosePending) return;
-                if (ReferenceEquals(sender, SettingsButton)) vm.IsSettingsOpen = false;
-                else if (ReferenceEquals(sender, AboutButton)) vm.IsAboutOpen = false;
-                else if (ReferenceEquals(sender, NotificationButton)) vm.IsNotificationsOpen = false;
+                if (DataContext is not MainViewModel vm) return;
+
+                // A pinned popup stays open even when the pointer leaves.
+                if (!_pinSettings) vm.IsSettingsOpen = false;
+                if (!_pinAbout) vm.IsAboutOpen = false;
+                if (!_pinNotifications) vm.IsNotificationsOpen = false;
             };
             timer.Start();
         }
-
-        private bool _topBarClosePending;
 
         // Moving the pointer into an open popup cancels the scheduled close,
         // so the user can read/click it without it vanishing.
@@ -211,13 +257,21 @@ namespace ProGlassAutomation
             => _topBarClosePending = false;
 
         private void PopupContent_MouseLeave(object sender, MouseEventArgs e)
-            => _topBarClosePending = true;
+            => ScheduleClose();
 
         // ── sidebar hover-expand ──────────────────────────────────────────
         // Hovering over a group opens it; moving away closes it. The user
         // can still click the group header to toggle it manually. The hover
         // container is the StackPanel wrapping the toggle + its sub-menu, so
         // moving into the opened sub-menu does not close it.
+
+        // ── sidebar hover-expand + click-pin ──────────────────────────────
+        // Hovering over a group opens it; moving away closes it after a short
+        // delay so the pointer can travel into the sub-menu. Clicking the
+        // group header pins it open (a second click closes it), so selecting
+        // a sub-item is never interrupted by the hover-close.
+
+        private readonly System.Collections.Generic.HashSet<object> _sidebarPinned = new();
 
         private void SidebarGroup_MouseEnter(object sender, MouseEventArgs e)
         {
@@ -232,11 +286,39 @@ namespace ProGlassAutomation
         private void SidebarGroup_MouseLeave(object sender, MouseEventArgs e)
         {
             if (sender is not System.Windows.FrameworkElement fe) return;
-            if (fe is StackPanel sp && sp.Children.Count > 0
-                && sp.Children[0] is ToggleButton tb)
+            var host = fe as StackPanel;
+            if (host == null || host.Children.Count == 0) return;
+            var tb = host.Children[0] as ToggleButton;
+            if (tb == null) return;
+
+            // If pinned, keep it open even when the pointer leaves.
+            if (_sidebarPinned.Contains(host)) return;
+
+            var timer = new System.Windows.Threading.DispatcherTimer
             {
+                Interval = TimeSpan.FromMilliseconds(250)
+            };
+            timer.Tick += (_, _) =>
+            {
+                timer.Stop();
+                if (_sidebarPinned.Contains(host)) return;
                 tb.IsChecked = false;
-            }
+            };
+            timer.Start();
+        }
+
+        // The group ToggleButton toggles IsChecked on click; we also pin it so
+        // the hover-close cannot collapse it while the user reads the sub-menu.
+        private void SidebarGroup_Click(object sender, RoutedEventArgs e)
+        {
+            if (sender is not ToggleButton tb) return;
+            var host = tb.Parent as StackPanel;
+            if (host == null) return;
+
+            if (tb.IsChecked == true)
+                _sidebarPinned.Add(host);
+            else
+                _sidebarPinned.Remove(host);
         }
 
         private void UserSwitchPopup_Opened(object sender, System.EventArgs e)

@@ -854,7 +854,7 @@
                     <Grid x:Name="NotificationButton" Margin="0,0,10,0">
                         <Button Style="{StaticResource TopIconButton}"
                                 Content="&#xEA8F;"
-                                Command="{Binding ToggleNotificationsCommand}"
+                                Click="NotificationButton_Click"
                                 MouseEnter="TopBarButton_MouseEnter"
                                 MouseLeave="TopBarButton_MouseLeave"
                                 ToolTip="Recent activity"/>
@@ -872,7 +872,7 @@
                     <Button x:Name="SettingsButton"
                             Style="{StaticResource TopIconButton}"
                             Content="&#xE713;"
-                            Command="{Binding ToggleSettingsCommand}"
+                            Click="SettingsButton_Click"
                             MouseEnter="TopBarButton_MouseEnter"
                             MouseLeave="TopBarButton_MouseLeave"
                             ToolTip="Settings"
@@ -882,7 +882,7 @@
                     <Button x:Name="AboutButton"
                             Style="{StaticResource TopIconButton}"
                             Content="&#xE946;"
-                            Command="{Binding ToggleAboutCommand}"
+                            Click="AboutButton_Click"
                             MouseEnter="TopBarButton_MouseEnter"
                             MouseLeave="TopBarButton_MouseLeave"
                             ToolTip="About"
@@ -1080,7 +1080,8 @@
                                 <ToggleButton x:Name="SalesGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Sales &amp; Orders"
-                                              Tag="&#xE8A5;"/>
+                                              Tag="&#xE8A5;"
+                                              Click="SidebarGroup_Click"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
                                         Visibility="{Binding IsChecked, ElementName=SalesGroup,
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
@@ -1106,7 +1107,8 @@
                                 <ToggleButton x:Name="ProductionGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Production"
-                                              Tag="&#xE7B8;"/>
+                                              Tag="&#xE7B8;"
+                                              Click="SidebarGroup_Click"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
                                         Visibility="{Binding IsChecked, ElementName=ProductionGroup,
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
@@ -1160,7 +1162,8 @@
                                 <ToggleButton x:Name="DispatchGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Dispatch"
-                                              Tag="&#xE7F4;"/>
+                                              Tag="&#xE7F4;"
+                                              Click="SidebarGroup_Click"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
                                         Visibility="{Binding IsChecked, ElementName=DispatchGroup,
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
@@ -1186,7 +1189,8 @@
                                 <ToggleButton x:Name="ReportsGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Reports"
-                                              Tag="&#xE9F9;"/>
+                                              Tag="&#xE9F9;"
+                                              Click="SidebarGroup_Click"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
                                         Visibility="{Binding IsChecked, ElementName=ReportsGroup,
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
@@ -1212,7 +1216,8 @@
                                 <ToggleButton x:Name="MasterDataGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Master Data"
-                                              Tag="&#xE822;"/>
+                                              Tag="&#xE822;"
+                                              Click="SidebarGroup_Click"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
                                         Visibility="{Binding IsChecked, ElementName=MasterDataGroup,
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
@@ -1238,7 +1243,8 @@
                                 <ToggleButton x:Name="SystemGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="System"
-                                              Tag="&#xE713;"/>
+                                              Tag="&#xE713;"
+                                              Click="SidebarGroup_Click"/>
                                 <Border Style="{StaticResource SidebarSubMenuCard}"
                                         Visibility="{Binding IsChecked, ElementName=SystemGroup,
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
