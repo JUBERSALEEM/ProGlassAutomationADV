@@ -23,7 +23,6 @@
 using ProGlassAutomation.ViewModels;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Threading;
 
@@ -56,7 +55,6 @@ namespace ProGlassAutomation
                 if (DataContext is MainViewModel vm)
                 {
                     vm.IsSettingsOpen = false;
-                    vm.IsAboutOpen = false;
                     vm.IsNotificationsOpen = false;
                     vm.IsUserSwitchOpen = false;
                     vm.IsScreenshotOpen = false;
@@ -82,8 +80,6 @@ namespace ProGlassAutomation
                     vm.IsUserSwitchOpen = false;
                 if (vm.IsSettingsOpen && !In(SettingsButton) && !In(SettingsPanelHost))
                     vm.IsSettingsOpen = false;
-                if (vm.IsAboutOpen && !In(LogoPanel) && !In(AboutPanelHost))
-                    vm.IsAboutOpen = false;
                 if (vm.IsNotificationsOpen && !In(NotificationButton) && !In(ActivityPanelHost))
                     vm.IsNotificationsOpen = false;
                 if (vm.IsScreenshotOpen && !In(ScreenshotButton) && !In(ScreenshotPanelHost))
@@ -241,7 +237,6 @@ namespace ProGlassAutomation
                 if (DataContext is MainViewModel vm)
                 {
                     vm.IsSettingsOpen = false;
-                    vm.IsAboutOpen = false;
                     vm.IsNotificationsOpen = false;
                     vm.IsUserSwitchOpen = false;
                     vm.IsScreenshotOpen = false;
@@ -307,75 +302,37 @@ namespace ProGlassAutomation
             StartCloseTimer();
         }
 
-        /// <summary>Clicking the app logo opens the About panel.</summary>
+        /// <summary>
+        /// Clicking the app logo opens the FULL, stylish About module (the
+        /// rich AboutView), not a small popup. Navigation goes through the
+        /// same switch the sidebar/agent use so the module wallpaper and AI
+        /// screen context stay correct.
+        /// </summary>
         private void Logo_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
         {
             if (DataContext is MainViewModel vm)
             {
-                // Only the About popup opens (close the other top-bar popups).
-                vm.IsAboutOpen = true;
+                // Close every top-bar popup, then open the full About module.
                 vm.IsSettingsOpen = false;
                 vm.IsNotificationsOpen = false;
                 vm.IsScreenshotOpen = false;
                 vm.IsUserSwitchOpen = false;
                 StopCloseTimer();
+                vm.NavigateFromAgent("About");
             }
         }
 
-        // ── sidebar groups: open and STAY open (reference Expander model) ─
-        // Hover or click opens a group; it STAYS open so the user can read
-        // and click its sub-items. Opening another group closes the previous
-        // one (only one open at a time). Clicking the same header closes it.
-        // There is deliberately NO hover auto-close: auto-closing on mouse
-        // leave is what made groups collapse while the user was reading them.
-
-        private readonly System.Collections.Generic.HashSet<object> _sidebarPinned = new();
-
-        private void SidebarGroup_MouseEnter(object sender, MouseEventArgs e)
-        {
-            if (sender is not StackPanel host || host.Children.Count == 0) return;
-            if (host.Children[0] is not ToggleButton tb) return;
-
-            // Open this group, close every other (only one open at a time).
-            tb.IsChecked = true;
-            CloseOtherSidebarGroups(host);
-        }
-
-        /// <summary>Closes every sidebar group host except <paramref name="keep"/>.</summary>
-        private void CloseOtherSidebarGroups(StackPanel keep)
-        {
-            var all = new[]
-            {
-                FindName("SalesGroupHost") as StackPanel,
-                FindName("ProductionGroupHost") as StackPanel,
-                FindName("DispatchGroupHost") as StackPanel,
-                FindName("ReportsGroupHost") as StackPanel,
-                FindName("MasterDataGroupHost") as StackPanel,
-                FindName("SystemGroupHost") as StackPanel
-            };
-            foreach (var host in all)
-            {
-                if (host == null || ReferenceEquals(host, keep)) continue;
-                if (host.Children.Count > 0 && host.Children[0] is ToggleButton tb)
-                    tb.IsChecked = false;
-            }
-        }
-
-        // Clicking a group header toggles it (open/stays, or close).
-        private void SidebarGroup_Click(object sender, RoutedEventArgs e)
-        {
-            if (sender is not ToggleButton tb) return;
-            if (tb.Parent is not StackPanel host) return;
-            if (tb.IsChecked == true)
-            {
-                _sidebarPinned.Add(host);
-                CloseOtherSidebarGroups(host);
-            }
-            else
-            {
-                _sidebarPinned.Remove(host);
-            }
-        }
+        // ── sidebar groups: click to expand, STAY open (reference Expander
+        //    model) ────────────────────────────────────────────────────────
+        // Each group header is a native ToggleButton whose sub-menu card is
+        // bound to its IsChecked. Clicking a header toggles it open/closed
+        // and it STAYS open until the user clicks it again. Groups are fully
+        // independent (any number can be open), matching the reference shell.
+        // There is deliberately no code-behind here: the earlier hover-open
+        // model (MouseEnter + CloseOtherSidebarGroups) made a group open on
+        // hover, then close again when the user clicked its own header to
+        // "pin" it — the flapping the user reported. Native ToggleButton
+        // behaviour is what the reference uses, so no handlers are wired.
 
         private void UserSwitchPopup_Opened(object sender, System.EventArgs e)
         {
@@ -395,9 +352,6 @@ namespace ProGlassAutomation
             // Nothing to preload — quick-settings rows navigate on demand.
         }
         private void SettingsPopup_Closed(object sender, System.EventArgs e) { }
-
-        private void AboutPopup_Opened(object sender, System.EventArgs e) { }
-        private void AboutPopup_Closed(object sender, System.EventArgs e) { }
 
         private void NotificationsPopup_Opened(object sender, System.EventArgs e)
         {

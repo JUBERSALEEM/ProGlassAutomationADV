@@ -135,9 +135,18 @@ namespace ProGlassAutomation.Services.Export
 
         /// <summary>
         /// Captures the FULL content of the active view's main scroll region
-        /// (for long lists). Temporarily expands the ScrollViewer to its full
-        /// ExtentHeight so nothing is clipped, renders, then restores the
-        /// layout in a finally block.
+        /// (long lists) instead of only the visible viewport.
+        ///
+        /// WHY NOT RENDER THE ScrollViewer: a ScrollViewer only ever renders
+        /// its viewport, and its ActualHeight is clamped by the shell's
+        /// fixed-size content card — so the old approach of "expand the
+        /// ScrollViewer and render it" still produced only the visible page.
+        ///
+        /// CORRECT APPROACH: a ScrollViewer MEASURES its content with
+        /// unbounded height (that is how scrolling works), so the content
+        /// element is already laid out at its FULL extent. We therefore render
+        /// the CONTENT element (not the clipped viewer) at the full page size.
+        /// The layout is restored in a finally block.
         /// </summary>
         public static BitmapSource? CaptureFullPage(ScreenshotQuality quality)
         {
@@ -145,8 +154,10 @@ namespace ProGlassAutomation.Services.Export
             if (window == null) return null;
 
             System.Windows.Controls.ScrollViewer? sv = null;
-            bool svChanged = false;
-            double svHeight = 0;
+            System.Windows.FrameworkElement? content = null;
+            bool changed = false;
+            double? savedHeight = null;
+            var savedScrollBar = System.Windows.Controls.ScrollBarVisibility.Auto;
 
             try
             {
@@ -154,44 +165,56 @@ namespace ProGlassAutomation.Services.Export
                 if (window.Content is System.Windows.Controls.Border root
                     && root.Child is System.Windows.Controls.Grid grid)
                 {
-                    sv = FindDescendant<System.Windows.Controls.ScrollViewer>(grid);
+                    sv = FindMainVerticalScrollViewer(grid);
                 }
-                if (sv == null)
+
+                if (sv == null || sv.ScrollableHeight <= 0)
                 {
-                    // No scroll region — fall back to a normal window capture.
+                    // Nothing actually scrolls — a normal capture is equivalent.
                     return CaptureMainWindow(quality);
                 }
 
-                // Remember state and expand to the full content extent.
-                svHeight = sv.Height;
-                sv.Height = sv.ExtentHeight + 24;   // a little breathing room
-                sv.VerticalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Hidden;
-                svChanged = true;
+                content = sv.Content as System.Windows.FrameworkElement;
+                if (content == null)
+                {
+                    // The scroll host is an internal presenter (e.g. a DataGrid)
+                    // with no directly reachable content — fall back safely.
+                    return CaptureMainWindow(quality);
+                }
 
-                // Pump layout so the expanded height is realized.
+                // The content is measured unbounded vertically, so its
+                // ExtentHeight already equals the full page height.
+                double fullW = Math.Max(1, content.ActualWidth);
+                double fullH = Math.Max(1, sv.ExtentHeight);
+
+                // Pump layout so ExtentHeight/ActualWidth are current.
                 window.UpdateLayout();
+
+                // Force the content to its full extent explicitly so the
+                // rendered bitmap is as tall as the whole page, and hide the
+                // scrollbar so it never appears inside the frame.
+                savedHeight = content.Height;
+                content.Height = fullH;
+                savedScrollBar = sv.VerticalScrollBarVisibility;
+                sv.VerticalScrollBarVisibility =
+                    System.Windows.Controls.ScrollBarVisibility.Hidden;
+                changed = true;
+
                 var frame = new DispatcherFrame();
                 window.Dispatcher.BeginInvoke(
                     DispatcherPriority.Render,
                     new Action(() => frame.Continue = false));
                 Dispatcher.PushFrame(frame);
 
+                // RENDER THE CONTENT, NOT THE ScrollViewER: rendering the
+                // viewer clips to its viewport; rendering the content captures
+                // the whole page (vectors/text are re-rasterised at scale).
                 var (targetWidth, targetHeight) = GetTargetSize(quality);
-
-                // Render the EXPANDED ScrollViewer directly (its full content
-                // is now laid out at ExtentHeight), not the window — the window
-                // is fixed-size and would clip the long content.
-                double svActualW = Math.Max(1, sv.ActualWidth);
-                double svActualH = Math.Max(1, sv.ActualHeight);
-                double scale = Math.Max(targetWidth / svActualW, targetHeight / svActualH);
-                if (scale < 4.0) scale = 4.0;
-
-                int width = (int)(svActualW * scale);
-                int height = (int)(svActualH * scale);
-                int dpi = (int)(96 * scale);
+                var (width, height, dpi) =
+                    ComputeRaster(fullW, fullH, targetWidth, targetHeight);
 
                 var rtb = new RenderTargetBitmap(width, height, dpi, dpi, PixelFormats.Pbgra32);
-                rtb.Render(sv);
+                rtb.Render(content);
                 rtb.Freeze();
                 return rtb;
             }
@@ -210,12 +233,12 @@ namespace ProGlassAutomation.Services.Export
             finally
             {
                 // Always restore the layout so the app is never left broken.
-                if (sv != null && svChanged)
+                if (changed && content != null && sv != null)
                 {
                     try
                     {
-                        sv.Height = svHeight;
-                        sv.VerticalScrollBarVisibility = System.Windows.Controls.ScrollBarVisibility.Auto;
+                        content.Height = savedHeight.GetValueOrDefault();
+                        sv.VerticalScrollBarVisibility = savedScrollBar;
                         window.UpdateLayout();
                     }
                     catch { /* restore is best-effort */ }
@@ -223,19 +246,68 @@ namespace ProGlassAutomation.Services.Export
             }
         }
 
-        /// <summary>Depth-first search for a descendant of type T.</summary>
-        private static T? FindDescendant<T>(System.Windows.DependencyObject parent)
-            where T : System.Windows.DependencyObject
+        /// <summary>
+        /// Computes the raster dimensions/DPI for a content box using the
+        /// reference scale formula (target ÷ actual, with a 4× supersample
+        /// floor), then clamps so neither output dimension exceeds WPF's
+        /// practical texture limit (16384). Without the clamp a very long
+        /// page could be requested at tens of thousands of pixels tall, which
+        /// WPF cannot rasterise (it throws or renders blank).
+        /// </summary>
+        private static (int Width, int Height, int Dpi) ComputeRaster(
+            double contentW, double contentH, double targetW, double targetH)
         {
-            int count = System.Windows.Media.VisualTreeHelper.GetChildrenCount(parent);
-            for (int i = 0; i < count; i++)
+            double scale = Math.Max(targetW / contentW, targetH / contentH);
+            if (scale < 4.0) scale = 4.0;   // reference supersample floor
+
+            // Cap to the WPF texture limit, scaling the supersample down only
+            // when the page is exceptionally tall/wide.
+            const double maxDim = 16384.0;
+            double scaleX = maxDim / (contentW * scale);
+            double scaleY = maxDim / (contentH * scale);
+            double cap = Math.Min(scaleX, scaleY);
+            if (cap < 1.0) scale *= cap;
+
+            int width = Math.Max(1, (int)(contentW * scale));
+            int height = Math.Max(1, (int)(contentH * scale));
+            int dpi = Math.Max(1, (int)(96 * scale));
+            return (width, height, dpi);
+        }
+
+        /// <summary>
+        /// Depth-first search for the module's main vertical scroll region.
+        /// Prefers a ScrollViewer that (a) actually scrolls vertically and
+        /// (b) has directly reachable content (its Content is a
+        /// FrameworkElement we can render), choosing the one with the largest
+        /// ExtentHeight. Nested, non-reachable scroll hosts (e.g. a DataGrid's
+        /// internal presenter) are skipped so we don't grab a viewer whose
+        /// content we cannot render.
+        /// </summary>
+        private static System.Windows.Controls.ScrollViewer? FindMainVerticalScrollViewer(
+            System.Windows.DependencyObject parent)
+        {
+            System.Windows.Controls.ScrollViewer? best = null;
+            double bestExtent = 0;
+
+            void Walk(System.Windows.DependencyObject node)
             {
-                var child = System.Windows.Media.VisualTreeHelper.GetChild(parent, i);
-                if (child is T match) return match;
-                var deeper = FindDescendant<T>(child);
-                if (deeper != null) return deeper;
+                if (node is System.Windows.Controls.ScrollViewer sv
+                    && sv.Content is System.Windows.FrameworkElement
+                    && sv.ScrollableHeight > 0
+                    && sv.ExtentHeight > bestExtent)
+                {
+                    best = sv;
+                    bestExtent = sv.ExtentHeight;
+                }
+                // Keep walking into it — there may be a deeper scrolling
+                // list that holds more content than the wrapper.
+                int count = System.Windows.Media.VisualTreeHelper.GetChildrenCount(node);
+                for (int i = 0; i < count; i++)
+                    Walk(System.Windows.Media.VisualTreeHelper.GetChild(node, i));
             }
-            return null;
+
+            Walk(parent);
+            return best;
         }
 
         /// <summary>

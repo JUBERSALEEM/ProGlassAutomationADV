@@ -147,14 +147,6 @@ namespace ProGlassAutomation.ViewModels
             set { if (_isSettingsOpen == value) return; _isSettingsOpen = value; OnPropertyChanged(); }
         }
 
-        private bool _isAboutOpen;
-        /// <summary>True while the About popup is open (non-blocking).</summary>
-        public bool IsAboutOpen
-        {
-            get => _isAboutOpen;
-            set { if (_isAboutOpen == value) return; _isAboutOpen = value; OnPropertyChanged(); }
-        }
-
         private bool _isNotificationsOpen;
         /// <summary>True while the notifications/activity popup is open (non-blocking).</summary>
         public bool IsNotificationsOpen
@@ -173,8 +165,6 @@ namespace ProGlassAutomation.ViewModels
 
         /// <summary>Toggles the quick-settings popup.</summary>
         public ICommand ToggleSettingsCommand { get; private set; }
-        /// <summary>Toggles the About popup.</summary>
-        public ICommand ToggleAboutCommand { get; private set; }
         /// <summary>Toggles the notifications/activity popup.</summary>
         public ICommand ToggleNotificationsCommand { get; private set; }
 
@@ -648,8 +638,6 @@ namespace ProGlassAutomation.ViewModels
             // to a full module, so they don't interfere with module content.
             ToggleSettingsCommand = new RelayCommand(_ =>
                 IsSettingsOpen = !IsSettingsOpen);
-            ToggleAboutCommand = new RelayCommand(_ =>
-                IsAboutOpen = !IsAboutOpen);
             ToggleNotificationsCommand = new RelayCommand(_ =>
                 IsNotificationsOpen = !IsNotificationsOpen);
 
