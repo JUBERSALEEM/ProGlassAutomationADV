@@ -46,13 +46,19 @@ namespace ProGlassAutomation.Services.Database
                 .IsUnique()
                 .HasDatabaseName("IX_GlassSheet_Unique");
 
+            // D-6: money columns must use TEXT affinity (exact decimal
+            // storage), matching the rest of the codebase. HasPrecision(18,2)
+            // on SQLite yields NUMERIC affinity -> REAL (binary float)
+            // storage, which loses precision under SQL-side SUM. The app
+            // uses EnsureCreated, so existing databases are untouched; only
+            // newly-created databases get the corrected TEXT columns.
             modelBuilder.Entity<GlassSheet>()
                 .Property(g => g.PurchasePricePerSqm)
-                .HasPrecision(18, 2);
+                .HasColumnType("TEXT");
 
             modelBuilder.Entity<GlassSheet>()
                 .Property(g => g.SellPricePerSqm)
-                .HasPrecision(18, 2);
+                .HasColumnType("TEXT");
 
             // SheetHistory indexes for fast lookup
             modelBuilder.Entity<SheetHistory>()
@@ -63,9 +69,10 @@ namespace ProGlassAutomation.Services.Database
                 .HasIndex(h => h.Timestamp)
                 .HasDatabaseName("IX_SheetHistory_Timestamp");
 
+            // D-6: TEXT affinity for exact decimal storage (see GlassSheet above).
             modelBuilder.Entity<SheetHistory>()
                 .Property(h => h.ValueChanged)
-                .HasPrecision(18, 2);
+                .HasColumnType("TEXT");
         }
     }
 }

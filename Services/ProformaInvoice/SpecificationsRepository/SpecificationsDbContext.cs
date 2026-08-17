@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.ProformaInvoice.Specifications;
 using System;
 using System.IO;
@@ -46,8 +46,13 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
                       .IsRequired()
                       .HasMaxLength(500);
 
+                // D-6: TEXT affinity for exact decimal storage (SQLite has no
+                // native decimal; "decimal(18,2)" gives NUMERIC -> REAL float
+                // storage, losing precision under SQL-side SUM). TEXT matches
+                // the rest of the codebase. EnsureCreated means existing
+                // databases are untouched; new ones get the corrected column.
                 entity.Property(s => s.PricePerSqm)
-                      .HasColumnType("decimal(18,2)");
+                      .HasColumnType("TEXT");
 
                 entity.Property(s => s.CreatedAt)
                       .IsRequired();
