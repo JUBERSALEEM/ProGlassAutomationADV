@@ -592,13 +592,12 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     return;
                 }
 
-                // Approving is gated: the customer must have signed the PI OR
-                // provided an LPO. On confirmation the invoice is approved and
-                // automatically converted to a Job Order.
+                // Approving always routes through Step 8 (upload signed PI/LPO);
+                // the confirmation pattern runs after the upload.
                 if (string.Equals(newStatus, "Approved", StringComparison.OrdinalIgnoreCase))
                 {
-                    await ApproveAsync(entity, item);
-                    return;   // ApproveAsync reloads the list
+                    await ApproveAsync(entity);
+                    return;   // ApproveAsync forwards to Step 8
                 }
 
                 entity.Status = newStatus;
@@ -616,59 +615,59 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         }
 
         /// <summary>
-        /// Approve gate, grounded in Step 8 ATTACHMENTS:
-        ///   • An invoice with NO attachments cannot be approved — the user
-        ///     must first attach the signed Proforma Invoice or the LPO
-        ///     document in Step 8. This is a real check, not a self-confirmation.
-        ///   • With attachments present, the user picks how it was confirmed:
-        ///     "Signed PI" (no LPO needed) or "LPO" (LPO number required and
-        ///     saved into the invoice snapshot for invoices / statement gen).
-        ///   • On confirmation the invoice is Approved and auto-converted to a
-        ///     Job Order.
+        /// Approve gate. Selecting "Approved" ALWAYS routes through Step 8
+        /// (Attachments) so the user can check/attach the signed Proforma
+        /// Invoice or LPO (jpg / pdf). This is deliberately NOT a
+        /// click-to-approve: the Signed-PI / LPO confirmation pattern runs only
+        /// AFTER an upload in Step 8 (via CompleteApprovalAsync).
         /// </summary>
-        private async Task ApproveAsync(
-            SavedProformaInvoice entity, SavedInvoiceListItem item)
+        private async Task ApproveAsync(SavedProformaInvoice entity)
         {
-            if (entity == null || App.Invoices == null) return;
+            if (entity == null) return;
 
-            // Step 8 gate — must have real attachments (signed PI or LPO).
-            // If none, ask whether the user is uploading a JPG or PDF, then
-            // take them to Step 8 with the matching uploader open.
+            // Always ask JPG or PDF and forward to Step 8 — even if the
+            // invoice already has attachments, so the user re-checks the
+            // confirmation document before it is approved.
+            var choice =
+                new ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
+                    .ApprovalUploadChoiceDialog
+                {
+                    Owner = Application.Current?.MainWindow
+                };
+            if (choice.ShowDialog() != true || !choice.Chosen)
+                return;   // cancelled — status unchanged
+
+            // Open Step 8 (Attachments) with the matching uploader.
+            OnInvoiceUploadRequested?.Invoke(entity.Id, choice.UploadPdf);
+        }
+
+        /// <summary>
+        /// Runs after the user uploads the signed PI / LPO in Step 8. Shows the
+        /// Signed-PI / LPO pattern, persists the LPO number if entered, marks
+        /// the invoice Approved and auto-converts it to a Job Order.
+        /// </summary>
+        public async Task CompleteApprovalAsync(int invoiceId)
+        {
+            if (App.Invoices == null) return;
+
+            var entity = await App.Invoices.GetByIdAsync(invoiceId);
+            if (entity == null) return;
+
             var attachments = await new ProformaAttachmentService()
                 .LoadManifestAsync(entity.ProformaId ?? "");
-            if (attachments == null || attachments.Count == 0)
-            {
-                var choice =
-                    new ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
-                        .ApprovalUploadChoiceDialog
-                    {
-                        Owner = Application.Current?.MainWindow
-                    };
-                if (choice.ShowDialog() != true || !choice.Chosen)
-                    return;   // cancelled — status unchanged
 
-                // Open Step 8 (Attachments) with the matching uploader:
-                // JPG/image uploader or PDF uploader, per the user's pick.
-                OnInvoiceUploadRequested?.Invoke(entity.Id, choice.UploadPdf);
-                return;
-            }
-
-            // 1. Customer-confirmation gate (signed PI OR LPO), grounded on the
-            //    attachments actually present.
+            // Customer-confirmation pattern (Signed PI / LPO + LPO number).
             var dlg =
                 new ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
-                    .InvoiceApprovalDialog(attachments.Count)
+                    .InvoiceApprovalDialog(attachments?.Count ?? 0)
                 {
                     Owner = Application.Current?.MainWindow
                 };
             if (dlg.ShowDialog() != true || !dlg.Approved)
                 return;   // cancelled — status unchanged
 
-            // 2. Persist the LPO number into the snapshot (Step 3
-            //    Project.LpoNumber) so invoices / statement generator carry it.
-            //    • LPO choice → the dialog already requires a number.
-            //    • Signed PI   → save the number only if the user entered one
-            //      (it is sometimes written on the signed PI).
+            // Persist the LPO number into the snapshot (Step 3 Project.LpoNumber)
+            // so invoices / statement generator carry it (optional for Signed PI).
             string lpoToSave = dlg.LpoNumber?.Trim() ?? "";
             if (!string.IsNullOrWhiteSpace(lpoToSave))
             {
@@ -678,7 +677,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     ProformaInvoiceMapper.SerializeSnapshot(snapshot);
             }
 
-            // 3. Approve + persist.
+            // Approve + persist.
             entity.Status = "Approved";
             entity.UpdatedAt = DateTime.Now;
             await App.Invoices.UpdateAsync(entity);
@@ -689,7 +688,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                 $"({(dlg.IsSignedPi ? "signed PI" : "LPO " + dlg.LpoNumber)})",
                 "PI", entity.ProformaId);
 
-            // 4. Auto-convert to a Job Order.
+            // Auto-convert to a Job Order.
             await ConvertToJobOrderAsync(entity);
 
             await LoadInvoicesAsync();

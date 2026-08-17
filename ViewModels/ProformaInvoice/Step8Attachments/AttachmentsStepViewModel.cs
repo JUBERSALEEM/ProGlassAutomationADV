@@ -127,6 +127,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step8Attachments
         public ICommand DeleteAttachmentCommand { get; }
         public ICommand RefreshCommand { get; }
 
+        /// <summary>
+        /// Raised after one or more files are successfully uploaded. The
+        /// wizard shell uses this to continue the approval flow (show the
+        /// Signed-PI / LPO confirmation) when the invoice was opened at Step 8
+        /// for approval.
+        /// </summary>
+        public event Action? AttachmentUploaded;
+
         // ══════════════════════════════════════════════════════════════
         //  LOAD
         // ══════════════════════════════════════════════════════════════
@@ -275,6 +283,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step8Attachments
                         "Attachment added",
                         $"{added} file(s) attached to {ProformaId}",
                         "PI", ProformaId);
+
+                    // Let the shell continue a pending approval flow.
+                    AttachmentUploaded?.Invoke();
                 }
             }
             catch (Exception ex)

@@ -182,6 +182,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
         // restarts so a fresh invoice does not inherit the previous one's
         // progress.
         private int _furthestStepReached = 1;
+
+        // Id of the invoice the user is approving. Set when the approval flow
+        // forwards to Step 8; cleared when the upload completes (and approval
+        // is finished) or when the wizard returns to the list. Used so the
+        // Step 8 "attachment uploaded" event knows to continue the approval.
+        private int? _pendingApprovalInvoiceId;
+
         public WizardStep CurrentStep
         {
             get => _currentStep;
@@ -396,10 +403,18 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             SavedInvoicesListVM.OnInvoiceLoadRequested = id =>
                 SafeFireAsync(() => LoadInvoiceIntoWizardAsync(id));
 
-            // Approval with no Step 8 attachments → open the invoice in the
-            // wizard AT Step 8 with the matching uploader open (jpg or pdf).
+            // Approval always forwards to Step 8 with the matching uploader
+            // (jpg or pdf). Mark this invoice as pending approval so that when
+            // the upload completes the Signed-PI / LPO pattern is shown.
             SavedInvoicesListVM.OnInvoiceUploadRequested = (id, uploadPdf) =>
+            {
+                _pendingApprovalInvoiceId = id;
                 SafeFireAsync(() => OpenInvoiceAtStepAndUploadAsync(id, uploadPdf));
+            };
+
+            // Continue a pending approval right after the user uploads the
+            // signed PI / LPO in Step 8.
+            Step8VM.AttachmentUploaded += OnStep8AttachmentUploaded;
 
             // v2 version history: open an old version's snapshot
             SavedInvoicesListVM.OnSnapshotRestoreRequested = json =>
@@ -569,6 +584,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             // Draft before showing the list (no-op when empty).
             await Step7VM.PrintableInvoice.SilentDraftSaveAsync();
 
+            // Leaving the wizard cancels any in-progress approval wait; the
+            // user can select Approved again to re-start the Step 8 flow.
+            _pendingApprovalInvoiceId = null;
+
             IsListView = true;
             await SavedInvoicesListVM.LoadInvoicesAsync();
         }
@@ -649,6 +668,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
                 if (uploadPdf) Step8VM.AddPdfCommand.Execute(null);
                 else Step8VM.AddImageCommand.Execute(null);
             }));
+        }
+
+        /// <summary>
+        /// Step 8 finished uploading a file. If we were waiting on an approval
+        /// for this invoice, run the Signed-PI / LPO confirmation and complete
+        /// the approval. If no approval is pending, do nothing (the upload was
+        /// just a normal attachment).
+        /// </summary>
+        private void OnStep8AttachmentUploaded()
+        {
+            int? id = _pendingApprovalInvoiceId;
+            if (id == null) return;
+
+            _pendingApprovalInvoiceId = null;
+            SafeFireAsync(() => SavedInvoicesListVM.CompleteApprovalAsync(id.Value));
         }
 
         /// <summary>
