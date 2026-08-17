@@ -347,6 +347,18 @@ namespace ProGlassAutomation
             tb.IsChecked = false;
         }
 
+        // Clicking a header only ever OPENS it — it can never toggle it closed.
+        // Close is driven purely by the pointer leaving the group (hover
+        // menu), so a stray click can't fight the hover and collapse it.
+        private void SidebarGroup_Click(object sender, RoutedEventArgs e)
+        {
+            e.Handled = true;
+            if (sender is not ToggleButton tb) return;
+            if (tb.Parent is StackPanel host)
+                CloseOtherSidebarGroups(host);
+            tb.IsChecked = true;
+        }
+
         /// <summary>Closes every sidebar group host except <paramref name="keep"/>.</summary>
         private void CloseOtherSidebarGroups(StackPanel keep)
         {
