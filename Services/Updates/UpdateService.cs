@@ -571,6 +571,32 @@ namespace ProGlassAutomation.Services.Updates
 
                 progress?.Invoke(100);
 
+                // ── COMPLETENESS GATE (mirrors the U-2 Whisper fix) ──
+                // If the connection dropped mid-transfer, the loop above
+                // ends with a truncated file and a 100% progress bar but
+                // nothing else notices. Compare the bytes actually written
+                // against Content-Length and discard a short file instead of
+                // handing a corrupt installer to the user.
+                if (total.HasValue && copied != total.Value)
+                {
+                    AppLogService.Warning(
+                        $"Update download was truncated: expected " +
+                        $"{total.Value} bytes, got {copied}. File discarded.",
+                        new LogContext { Module = "Updates", Operation = "Download" });
+
+                    AuditService.Log(AuditSections.Updates,
+                        "UPDATE_DOWNLOAD_TRUNCATED",
+                        $"{fileName}: expected {total.Value} bytes, got {copied}.");
+
+                    // Best-effort delete of the partial file.
+                    try { if (File.Exists(targetPath)) File.Delete(targetPath); }
+                    catch { /* partial file cleanup is best-effort */ }
+
+                    return (false, "",
+                        "The update download was incomplete and was discarded. " +
+                        "Please try again.");
+                }
+
                 AppLogService.Info(
                     $"Update downloaded to {targetPath}",
                     new LogContext { Module = "Updates", Operation = "Download" });
