@@ -85,10 +85,18 @@ upload anywhere. Outbound hosts are only: 3 AI providers (opt-in), `api.github.c
 
 | ID | Issue | Severity | Status |
 |----|-------|----------|--------|
-| S-1 | Secrets in source or git history — working tree + **581 history blobs** scanned | — | **CLEAN** |
-| S-2 | SQL injection — all 23 raw-SQL sites use hardcoded constants, no user input | — | **CLEAN** |
-| S-3 | TLS — no cert-validation bypass, no `http://`, all 5 callers HTTPS + timeouts | — | **CLEAN** |
-| S-4 | API keys at rest — DPAPI CurrentUser + app entropy, no home-rolled crypto | — | **CLEAN** |
+| S-1 | Secrets in source or git history — working tree + **581 history blobs** scanned. **Re-verified** with broader patterns (`api_key`/`secret`/`token`/`bearer`/`private_key` followed by a ≥16-char literal): the only hit is `AuditService.cs:116` `password: DefaultAdminPassword`, which is the deliberately public, documented default-credential constant from A-3 — a known default, not a leaked secret. | — | **CLEAN** |
+| S-2 | SQL injection — **re-verified exhaustively.** **12** raw-SQL statements (the earlier "23" double-counted: `CreateCommand` ×11 + `CommandText` ×11 + 2 `ExecuteSqlRaw*` are 23 *grep hits* for 12 *statements*). **2 do use `$"..."` interpolation** — `AuditDbMigrations.cs:113` and `MasterDataRepository.cs:94` — which the original "all hardcoded" wording implied did not exist. Both interpolate compile-time literals only: a hardcoded `(Name, Ddl)` array, and 3 literal call sites into a `private static` method with no external callers. DDL identifiers **cannot** be parameterised, so interpolation is the only option here, and no value is reachable from user input. | — | **CLEAN** (basis corrected) |
+| S-3 | TLS — **re-verified exhaustively.** All outbound network I/O is 5 files / 13 call sites; zero `http://`, zero `ServerCertificateCustomValidationCallback`, zero `SslProtocols` overrides. Non-`HttpClient` paths checked too: `NetworkInterface.GetIsNetworkAvailable()` (no traffic) and the LAN `UdpClient` presence broadcast (local subnet, no TLS applicable). | — | **CLEAN** |
+| S-4 | API keys at rest — DPAPI CurrentUser + app entropy, no home-rolled crypto. **Re-verified:** `ProtectedData.Protect/Unprotect` is the only at-rest path — **no plaintext fallback** when DPAPI throws (`TryRetrieve` returns `false` and logs; it does not degrade to storing or reading cleartext), and `ConfigService.Save` blanks all three keys before serialising `config.json`, so they exist only in `secrets.dat`. | — | **CLEAN** (one caveat below) |
+
+> **S-4 caveat, for accuracy rather than alarm.** The DPAPI entropy is a hardcoded
+> string (`"ProGlassAutomation.v2.vault"`). That is fine for its stated purpose —
+> stopping blobs from *other* apps being replayed into this vault — but it is not a
+> secret, so it adds no protection against an attacker who already has code
+> execution as the same Windows user. DPAPI `CurrentUser` scope is what actually
+> protects the keys, and that is the correct choice here. No change recommended;
+> recorded so the entropy is not mistaken for a second layer of defence.
 | S-5 | Path traversal in **exports** — `ExportFileNamer` whitelists `[A-Z0-9-]`; `..` and separators cannot survive | — | **CLEAN** (but see S-8 — this conclusion was over-generalised) |
 | S-6 | 24 multi-line silent `catch { }` blocks | MEDIUM | **CLOSED** — 5 converted, 19 reviewed and justified (§16a) |
 | S-7 | No registry writes; 27 `SpecialFolder.ApplicationData`, 2 `UserProfile` | — | CLEAN (Store-friendly) |
