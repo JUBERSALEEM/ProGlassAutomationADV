@@ -58,69 +58,8 @@
                            Foreground="{DynamicResource MutedForegroundBrush}"
                            TextWrapping="Wrap"/>
 
-                <!-- Screenshot capture -->
-                <Border Margin="0,14,0,0"
-                        Padding="12,10"
-                        CornerRadius="10"
-                        Background="{DynamicResource MenuHoverBrush}"
-                        BorderBrush="{DynamicResource BorderBrush}"
-                        BorderThickness="1"
-                        SnapsToDevicePixels="True">
-                    <StackPanel>
-                        <Grid>
-                            <TextBlock Text="Capture Screenshot"
-                                       FontSize="11" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                       VerticalAlignment="Center"/>
-                            <Button x:Name="CaptureToggle"
-                                          HorizontalAlignment="Right"
-                                          Style="{StaticResource PrimaryPillButton}"
-                                          MinWidth="110"
-                                          Click="CaptureToggle_Click">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="&#xEB9F;"
-                                               FontFamily="Segoe MDL2 Assets"
-                                               FontSize="11"
-                                               Foreground="White"
-                                               VerticalAlignment="Center"
-                                               Margin="0,0,6,0"/>
-                                    <TextBlock Text="Capture"
-                                               FontFamily="Segoe UI"
-                                               FontSize="10" FontWeight="SemiBold"
-                                               Foreground="White"
-                                               VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </Button>
-                        </Grid>
-
-                        <!-- Inline quality selector (revealed on click).
-                             Kept INSIDE this panel (no nested popup) so it
-                             cannot be dismissed by the shell's click-outside
-                             handling while the user picks a resolution. -->
-                        <StackPanel x:Name="QualityPanel"
-                                    Margin="0,8,0,0"
-                                    Visibility="Collapsed">
-                            <TextBlock Text="Choose resolution"
-                                       FontSize="10" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       Margin="0,0,0,6"/>
-                            <CheckBox x:Name="FullPageCheck"
-                                      Content="Full page (capture long lists entirely)"
-                                      FontSize="11"
-                                      Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                      Margin="0,0,0,8"
-                                      IsChecked="False"
-                                      ToolTip="Expands the active list to its full height so no rows are cut off"/>
-                            <StackPanel x:Name="QualityList"/>
-                        </StackPanel>
-
-                        <TextBlock x:Name="CaptureStatus"
-                                   FontSize="10"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                   Margin="0,6,0,0"
-                                   TextWrapping="Wrap"/>
-                    </StackPanel>
-                </Border>
+                <!-- Screenshot capture is handled by the dedicated top-bar
+                     camera button (Views/Shared/ScreenshotPanel) — not here. -->
             </StackPanel>
         </Grid>
     </Border>

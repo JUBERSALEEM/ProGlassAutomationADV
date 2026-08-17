@@ -59,6 +59,7 @@ namespace ProGlassAutomation
                     vm.IsAboutOpen = false;
                     vm.IsNotificationsOpen = false;
                     vm.IsUserSwitchOpen = false;
+                    vm.IsScreenshotOpen = false;
                 }
                 StopCloseTimer();
             };
@@ -85,6 +86,8 @@ namespace ProGlassAutomation
                     vm.IsAboutOpen = false;
                 if (vm.IsNotificationsOpen && !In(NotificationButton) && !In(ActivityPanelHost))
                     vm.IsNotificationsOpen = false;
+                if (vm.IsScreenshotOpen && !In(ScreenshotButton) && !In(ScreenshotPanelHost))
+                    vm.IsScreenshotOpen = false;
             };
         }
 
@@ -193,6 +196,7 @@ namespace ProGlassAutomation
             else if (ReferenceEquals(sender, AboutButton)) vm.IsAboutOpen = open;
             else if (ReferenceEquals(sender, NotificationButton)) vm.IsNotificationsOpen = open;
             else if (ReferenceEquals(sender, UserCardButton)) vm.IsUserSwitchOpen = open;
+            else if (ReferenceEquals(sender, ScreenshotButton)) vm.IsScreenshotOpen = open;
         }
 
         private void OpenDropdown(object sender)
@@ -206,6 +210,7 @@ namespace ProGlassAutomation
                 vm.IsAboutOpen = ReferenceEquals(sender, AboutButton);
                 vm.IsNotificationsOpen = ReferenceEquals(sender, NotificationButton);
                 vm.IsUserSwitchOpen = ReferenceEquals(sender, UserCardButton);
+                vm.IsScreenshotOpen = ReferenceEquals(sender, ScreenshotButton);
             }
         }
 
@@ -241,6 +246,7 @@ namespace ProGlassAutomation
                     vm.IsAboutOpen = false;
                     vm.IsNotificationsOpen = false;
                     vm.IsUserSwitchOpen = false;
+                    vm.IsScreenshotOpen = false;
                 }
             };
             _dropdownCloseTimer.Start();
@@ -269,7 +275,8 @@ namespace ProGlassAutomation
             bool isOpen = (ReferenceEquals(sender, SettingsButton) && vm.IsSettingsOpen)
                        || (ReferenceEquals(sender, AboutButton) && vm.IsAboutOpen)
                        || (ReferenceEquals(sender, NotificationButton) && vm.IsNotificationsOpen)
-                       || (ReferenceEquals(sender, UserCardButton) && vm.IsUserSwitchOpen);
+                       || (ReferenceEquals(sender, UserCardButton) && vm.IsUserSwitchOpen)
+                       || (ReferenceEquals(sender, ScreenshotButton) && vm.IsScreenshotOpen);
 
             if (isOpen)
             {
@@ -284,6 +291,7 @@ namespace ProGlassAutomation
                     m2.IsAboutOpen = ReferenceEquals(sender, AboutButton);
                     m2.IsNotificationsOpen = ReferenceEquals(sender, NotificationButton);
                     m2.IsUserSwitchOpen = ReferenceEquals(sender, UserCardButton);
+                    m2.IsScreenshotOpen = ReferenceEquals(sender, ScreenshotButton);
                 }
                 StopCloseTimer();
             }
@@ -430,6 +438,9 @@ namespace ProGlassAutomation
                 _ = ActivityPanelHost.LoadAsync();
         }
         private void NotificationsPopup_Closed(object sender, System.EventArgs e) { }
+
+        private void ScreenshotPopup_Opened(object sender, System.EventArgs e) { }
+        private void ScreenshotPopup_Closed(object sender, System.EventArgs e) { }
 
         /// <summary>
         /// Click on the dim overlay closes the menu drawer.

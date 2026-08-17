@@ -882,6 +882,16 @@
                             ToolTip="Settings"
                             Margin="0,0,10,0"/>
 
+                    <!-- SCREENSHOT — dedicated capture (separate from About) -->
+                    <Button x:Name="ScreenshotButton"
+                            Style="{StaticResource TopIconButton}"
+                            Content="&#xEB9F;"
+                            Click="DropdownButton_Click"
+                            MouseEnter="TopBarButton_MouseEnter"
+                            MouseLeave="TopBarButton_MouseLeave"
+                            ToolTip="Capture screenshot"
+                            Margin="0,0,10,0"/>
+
                     <!-- ABOUT — hover to peek, click to toggle -->
                     <Button x:Name="AboutButton"
                             Style="{StaticResource TopIconButton}"
@@ -1399,6 +1409,21 @@
                Closed="NotificationsPopup_Closed">
             <viewsShared:ActivityPanel x:Name="ActivityPanelHost"
                                         MouseEnter="PopupContent_MouseEnter" MouseLeave="PopupContent_MouseLeave"/>
+        </Popup>
+
+        <!-- Screenshot popup (dedicated, separate from About) -->
+        <Popup x:Name="ScreenshotPopup"
+               PlacementTarget="{Binding ElementName=ScreenshotButton}"
+               Placement="Bottom"
+               VerticalOffset="0"
+               AllowsTransparency="True"
+               StaysOpen="True"
+               PopupAnimation="Fade"
+               IsOpen="{Binding IsScreenshotOpen, Mode=TwoWay}"
+               Opened="ScreenshotPopup_Opened"
+               Closed="ScreenshotPopup_Closed">
+            <viewsShared:ScreenshotPanel x:Name="ScreenshotPanelHost"
+                                         MouseEnter="PopupContent_MouseEnter" MouseLeave="PopupContent_MouseLeave"/>
         </Popup>
 </Grid>
 </Window>

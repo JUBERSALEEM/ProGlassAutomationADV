@@ -163,6 +163,14 @@ namespace ProGlassAutomation.ViewModels
             set { if (_isNotificationsOpen == value) return; _isNotificationsOpen = value; OnPropertyChanged(); }
         }
 
+        private bool _isScreenshotOpen;
+        /// <summary>True while the dedicated screenshot popup is open.</summary>
+        public bool IsScreenshotOpen
+        {
+            get => _isScreenshotOpen;
+            set { if (_isScreenshotOpen == value) return; _isScreenshotOpen = value; OnPropertyChanged(); }
+        }
+
         /// <summary>Toggles the quick-settings popup.</summary>
         public ICommand ToggleSettingsCommand { get; private set; }
         /// <summary>Toggles the About popup.</summary>
