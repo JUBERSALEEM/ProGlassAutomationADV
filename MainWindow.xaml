@@ -109,8 +109,7 @@
 
         <DropShadowEffect x:Key="LogoGlow"
                           BlurRadius="10" ShadowDepth="3"
-                          Opacity="0.30" Color="{DynamicResource AccentColor}"
-                          po:Freeze="True"/>
+                          Opacity="0.30" Color="{DynamicResource AccentColor}"/>
 
         <DropShadowEffect x:Key="DrawerLeftShadow"
                           BlurRadius="30" ShadowDepth="6"
@@ -121,49 +120,49 @@
              follow the chosen accent + Light/Dark). -->
         <LinearGradientBrush x:Key="LogoBrandGradient"
                              StartPoint="0,0" EndPoint="1,1"
-                             po:Freeze="True">
+                             >
             <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
             <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
         </LinearGradientBrush>
 
         <LinearGradientBrush x:Key="AvatarGradient"
                              StartPoint="0,0" EndPoint="1,1"
-                             po:Freeze="True">
+                             >
             <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
             <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="1"/>
         </LinearGradientBrush>
 
         <LinearGradientBrush x:Key="DateTimeIconGradient"
                              StartPoint="0,0" EndPoint="1,1"
-                             po:Freeze="True">
+                             >
             <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
             <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
         </LinearGradientBrush>
 
         <LinearGradientBrush x:Key="AiPillGradient"
                              StartPoint="0,0" EndPoint="1,1"
-                             po:Freeze="True">
+                             >
             <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0"/>
             <GradientStop Color="{DynamicResource AccentColor}" Offset="1"/>
         </LinearGradientBrush>
 
         <LinearGradientBrush x:Key="StorageBarGradient"
                              StartPoint="0,0" EndPoint="1,0"
-                             po:Freeze="True">
+                             >
             <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
             <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
         </LinearGradientBrush>
 
         <LinearGradientBrush x:Key="StorageCardGradient"
                              StartPoint="0,0" EndPoint="1,1"
-                             po:Freeze="True">
+                             >
             <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0"/>
             <GradientStop Color="{DynamicResource AccentColor}" Offset="1"/>
         </LinearGradientBrush>
 
         <LinearGradientBrush x:Key="SidebarActiveGradient"
                              StartPoint="0,0" EndPoint="1,1"
-                             po:Freeze="True">
+                             >
             <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
             <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
         </LinearGradientBrush>
@@ -523,14 +522,14 @@
 
         <LinearGradientBrush x:Key="SliderTrackFillGradient"
                              StartPoint="0,0" EndPoint="0,1"
-                             po:Freeze="True">
+                             >
             <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
             <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
         </LinearGradientBrush>
 
         <LinearGradientBrush x:Key="SliderThumbInnerGradient"
                              StartPoint="0,0" EndPoint="1,1"
-                             po:Freeze="True">
+                             >
             <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
             <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
         </LinearGradientBrush>
