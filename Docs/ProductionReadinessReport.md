@@ -107,7 +107,7 @@ created. Calling them "16 leaks" would be inaccurate.
 | D-1 | All repositories | `using var ctx` per method | None — correct pattern, avoids EF threading bug | PASS |
 | D-2 | `.Result` after `await Task.WhenAll` | Tasks already completed — **not** a blocking wait | No deadlock. Grep false positive; verified by reading | PASS |
 | D-3 | Document numbering | **Unique index on all 5 doc types** (`ProformaId`, `JobOrderId`, `DeliveryNoteId`, `InvoiceNumber`, statements) | DB rejects duplicates — corruption impossible | PASS |
-| R-2 | Double-click on Generate Invoice | Async command, `CanExecute` can't update in time → fired twice | Symptom was a spurious error dialog (DB blocked the duplicate), not corruption | **FIXED** |
+| R-2 | Double-click on Generate Invoice | Async command, `CanExecute` cannot update in time → fired twice | Symptom was a spurious error dialog (DB blocked the duplicate), not corruption | **FIXED** (DN path; the wider async-command sweep is resolved in §16a) |
 | D-4 | 11 separate SQLite DBs | Cross-DB operations cannot be transactional | Inherent to design; PI→JO→DN→TI chain is not atomic | **OPEN (architectural)** |
 | D-5 | `while(true)` in JO numbering | Bounded at 99999 + GUID fallback | Safe | PASS |
 
@@ -242,6 +242,47 @@ security/reliability pass, and a schema change would have broken existing user d
 | **D-4** | Cross-DB failure logged only to `Debug.WriteLine` (absent in Release) | Logged **and** audited, with a message stating that re-saving repairs the link. Still non-fatal by design. **VISIBILITY FIXED**; the architectural limit remains. |
 | **PERF-1** | Believed a defect, then believed intentional | Both readings were incomplete. `SmoothScrollBehavior` now resolves its mode from `VirtualizingPanel.ScrollUnit`, so the 11 real list hosts run `CanContentScroll=True` + `ScrollUnit=Pixel` — **virtualization and smooth scrolling together**. **FIXED** |
 | **S-5** | 22 multi-line silent catches | 3 highest-impact converted to logged warnings (audit trail, AI-memory clear, backup pruning). 19 remain. **PARTIAL** |
+| **R-2** | Reported as "25 unguarded async mutating commands" | Re-enumerated properly: **81** async command sites, of which **3** are genuinely double-click-reachable. All 3 guarded. **FIXED** — see below. |
+
+### R-2 — why the number fell from 25 to 3
+
+The root cause is structural: `RelayCommand` exposes only
+`RelayCommand(Action<object>, Predicate<object>)`. There is no `Task`-returning
+overload, so every `async _ => await X()` is an **`async void`** lambda —
+`Execute` returns at the first `await`, and `CanExecute` therefore cannot observe
+work that is still in flight. That is real, and it applies to all 81 sites.
+
+It does **not** follow that all 81 are exploitable. Filtering by evidence:
+
+| Filter | Remaining |
+|--------|-----------|
+| Async command sites | 81 |
+| …minus those whose `canExecute` already tests a busy flag (or a busy-backed property such as `CanSend`) | 61 |
+| …minus read-only commands, where a repeat click costs a wasted refresh, not data damage | 21 |
+| …minus commands that open a **modal** (`ShowDialog` / `MessageBox.Show`) before their first `await` — the modal disables the owner window, so the second click is never delivered | 12 |
+| …minus commands with an in-body `if (IsX) return;` guard | **3** |
+
+Fixed: `AiChatViewModel.SendAsync`, `PricingEstimatorViewModel.ApplyRateAsync`,
+`SettingsViewModel.DownloadUpdateCommand`.
+
+Two things worth recording:
+
+- The `SendAsync` guard was placed on the **method**, not the command. `SendCommand`
+  already had `CanSend`, but `SuggestionCommand` and the fire-and-forget voice path
+  (`_ = SendAsync()`) bypassed it completely. A per-command guard would have missed
+  both.
+- Guarding `DownloadUpdateCommand` exposed a **pre-existing latent bug**: both
+  download paths set `IsDownloadingUpdate = true` with no `try/finally`, so a
+  throwing download left the flag set and the button dead for the rest of the
+  session. Adding the guard without the `finally` would have made that worse, not
+  better. Every new flag here is released in a `finally`.
+
+**Rejected fix:** adding a `Func<object, Task>` overload to `RelayCommand`. C#
+overload resolution prefers a `Task`-returning delegate over `Action`, so the
+overload would have silently rebound **all 81** async lambdas at once. With no
+compiler available in this environment that is an unverifiable global change, and
+it conflicts with the no-duplicate-infrastructure rule. The existing per-VM busy-flag
+pattern was used instead.
 
 **Test count added this round: 29** (`PasswordHasherTests`, `OperationGuardTests`),
 on top of the 30 URL-spoofing cases from round one.
