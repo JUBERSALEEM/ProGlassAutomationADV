@@ -128,4 +128,33 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.False(UpdateService.IsAllowedDownloadUrl(url));
         }
     }
+
+    /// <summary>
+    /// Pins the update download completeness gate (U-2 style). A dropped
+    /// connection must be detected as truncated and never reported as
+    /// success. Exposed as the pure predicate UpdateService.IsDownloadComplete
+    /// so it is testable without any network I/O.
+    /// </summary>
+    public class UpdateDownloadCompletenessTests
+    {
+        [Theory]
+        [InlineData(1000, 1000, true)]   // exact match = complete
+        [InlineData(1000, 0, false)]     // nothing copied
+        [InlineData(1000, 999, false)]   // one byte short = truncated
+        [InlineData(1000, 1001, false)]  // overshoot (server lied / chunk overlap)
+        [InlineData(null, 0, true)]      // no declared length = cannot verify
+        [InlineData(null, 12345, true)]
+        [InlineData(0, 0, true)]         // zero-length payload declared and received
+        public void IsDownloadComplete_reports_truncation(
+            long? total, long copied, bool expected)
+        {
+            Assert.Equal(expected, UpdateService.IsDownloadComplete(total, copied));
+        }
+
+        [Fact]
+        public void IsDownloadComplete_rejects_negative_copied()
+        {
+            Assert.False(UpdateService.IsDownloadComplete(1000, -1));
+        }
+    }
 }

@@ -389,6 +389,20 @@ namespace ProGlassAutomation.Services.Updates
             catch { /* OTA must never affect the running app */ }
         }
 
+        /// <summary>
+        /// True when the number of bytes copied matches the server's
+        /// declared Content-Length. A null/absent Content-Length cannot be
+        /// verified, so it is treated as complete (the gate is best-effort,
+        /// exactly like the U-2 Whisper completeness check). Exposed so the
+        /// test suite can pin the truncation decision without any network.
+        /// </summary>
+        public static bool IsDownloadComplete(long? total, long copied)
+        {
+            if (copied < 0) return false;
+            if (!total.HasValue) return true;   // no declared length — cannot verify
+            return copied == total.Value;
+        }
+
         private static string Shorten(string s) =>
             string.IsNullOrEmpty(s) ? "" :
             (s.Length <= 200 ? s : s[..200] + "…");
@@ -577,7 +591,7 @@ namespace ProGlassAutomation.Services.Updates
                 // nothing else notices. Compare the bytes actually written
                 // against Content-Length and discard a short file instead of
                 // handing a corrupt installer to the user.
-                if (total.HasValue && copied != total.Value)
+                if (!IsDownloadComplete(total, copied))
                 {
                     AppLogService.Warning(
                         $"Update download was truncated: expected " +
