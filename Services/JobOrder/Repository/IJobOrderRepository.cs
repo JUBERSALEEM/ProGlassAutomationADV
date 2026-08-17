@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
+using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -42,5 +42,13 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
         /// item, but the method returns a list for future flexibility.
         /// </summary>
         Task<List<SavedJobOrder>> GetBySourceProformaIdAsync(string proformaId);
+
+        /// <summary>
+        /// Lightweight analytics projection: JobOrderId, Status, DeliveryDate
+        /// only. Excludes FullSnapshotJson. Used by the AI context builder
+        /// and dashboards to avoid loading every snapshot blob for simple
+        /// counts and sums.
+        /// </summary>
+        Task<List<JobOrderAnalyticsRow>> GetAnalyticsRowsAsync();
     }
 }

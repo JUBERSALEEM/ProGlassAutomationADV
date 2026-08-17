@@ -403,6 +403,23 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
             return dict;
         }
 
+        // ── ANALYTICS PROJECTION ─────────────────────────────────────────
+
+        public async Task<List<TaxInvoiceAnalyticsRow>> GetAnalyticsRowsAsync()
+        {
+            using var ctx = new TaxInvoiceDbContext();
+            return await ctx.TaxInvoices
+                .AsNoTracking()
+                .Select(t => new TaxInvoiceAnalyticsRow
+                {
+                    InvoiceNumber = t.InvoiceNumber,
+                    Status = t.Status,
+                    DueDate = t.DueDate,
+                    GrandTotal = t.GrandTotal
+                })
+                .ToListAsync();
+        }
+
         // ── Private helpers ───────────────────────────────────────────────
 
         private static TaxInvoiceListItem ToListItem(SavedTaxInvoice e) =>

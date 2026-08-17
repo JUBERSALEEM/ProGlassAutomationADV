@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
+using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -188,6 +188,14 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
 
         Task<Dictionary<string, int>> GetAttachmentCountsAsync(
             IEnumerable<string> deliveryNoteIds);
+
+        /// <summary>
+        /// Lightweight analytics projection: DeliveryNoteId, Status,
+        /// DeliveryDate, HasTaxInvoice only. Excludes FullSnapshotJson.
+        /// Used by the AI context builder and dashboards to avoid loading
+        /// every snapshot blob for simple counts and sums.
+        /// </summary>
+        Task<List<DeliveryNoteAnalyticsRow>> GetAnalyticsRowsAsync();
     }
 
     // ── Supporting DTOs ──────────────────────────────────────────────────

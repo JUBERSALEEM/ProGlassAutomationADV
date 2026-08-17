@@ -188,7 +188,9 @@ namespace ProGlassAutomation.Services.AI.AIContext
             {
                 if (App.Jobs != null)
                 {
-                    var jobs = await App.Jobs.GetAllAsync();
+                    // PERF: analytics projection — avoids loading every
+                    // FullSnapshotJson blob just to count statuses.
+                    var jobs = await App.Jobs.GetAnalyticsRowsAsync();
 
                     if (jobs?.Count > 0)
                     {
@@ -251,8 +253,10 @@ namespace ProGlassAutomation.Services.AI.AIContext
             {
                 if (App.DeliveryNotes != null)
                 {
-                    // GetAllAsync excludes Master DNs (IsMasterDn=true)
-                    var dns = await App.DeliveryNotes.GetAllAsync();
+                    // PERF: analytics projection — avoids loading every
+                    // FullSnapshotJson blob just to count statuses. Excludes
+                    // Master DNs, matching the previous GetAllAsync behaviour.
+                    var dns = await App.DeliveryNotes.GetAnalyticsRowsAsync();
 
                     if (dns?.Count > 0)
                     {
@@ -332,7 +336,10 @@ namespace ProGlassAutomation.Services.AI.AIContext
             {
                 if (App.TaxInvoices != null)
                 {
-                    var tis = await App.TaxInvoices.GetAllAsync();
+                    // PERF: analytics projection — avoids loading every
+                    // FullSnapshotJson blob (incl. base64 attachments) just
+                    // to count statuses and sum totals.
+                    var tis = await App.TaxInvoices.GetAnalyticsRowsAsync();
 
                     if (tis?.Count > 0)
                     {
@@ -389,7 +396,9 @@ namespace ProGlassAutomation.Services.AI.AIContext
             {
                 if (App.Statements != null)
                 {
-                    var stmts = await App.Statements.GetAllAsync();
+                    // PERF: analytics projection — avoids loading every
+                    // FullSnapshotJson/FilterJson blob just to sum totals.
+                    var stmts = await App.Statements.GetAnalyticsRowsAsync();
 
                     if (stmts?.Count > 0)
                     {

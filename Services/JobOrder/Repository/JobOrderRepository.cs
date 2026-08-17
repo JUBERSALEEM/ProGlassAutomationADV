@@ -136,6 +136,22 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
             }
         }
 
+        // ── ANALYTICS PROJECTION ─────────────────────────────────────────
+
+        public async Task<List<JobOrderAnalyticsRow>> GetAnalyticsRowsAsync()
+        {
+            using var db = new JobOrdersDbContext();
+            return await db.JobOrders
+                .AsNoTracking()
+                .Select(j => new JobOrderAnalyticsRow
+                {
+                    JobOrderId = j.JobOrderId,
+                    Status = j.Status,
+                    DeliveryDate = j.DeliveryDate
+                })
+                .ToListAsync();
+        }
+
         // ── LOOKUP FROM PI ────────────────────────────────────────────────
 
         public async Task<List<SavedJobOrder>> GetBySourceProformaIdAsync(string proformaId)

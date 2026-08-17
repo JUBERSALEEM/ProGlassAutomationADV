@@ -318,5 +318,21 @@ namespace ProGlassAutomation.Services.Statement.Repository
             HasAttachments = s.HasAttachments,
             CreatedAt = s.CreatedAt
         };
+
+        // ── ANALYTICS PROJECTION ─────────────────────────────────────────
+
+        public async Task<List<StatementAnalyticsRow>> GetAnalyticsRowsAsync()
+        {
+            await using var ctx = new StatementDbContext();
+            return await ctx.Statements
+                .AsNoTracking()
+                .Select(s => new StatementAnalyticsRow
+                {
+                    TotalInvoiced = s.TotalInvoiced,
+                    TotalOutstanding = s.TotalOutstanding,
+                    OverdueAmount = s.OverdueAmount
+                })
+                .ToListAsync();
+        }
     }
 }

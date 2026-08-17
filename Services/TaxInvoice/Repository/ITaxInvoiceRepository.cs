@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Models.TaxInvoice.Attachment;
+using ProGlassAutomation.Models.TaxInvoice.Attachment;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Models.TaxInvoice.TaxInvoiceFamily;
 using System.Collections.Generic;
@@ -116,6 +116,14 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
 
         Task<Dictionary<string, int>> GetAttachmentCountsAsync(
             IEnumerable<string> invoiceNumbers);
+
+        /// <summary>
+        /// Lightweight analytics projection: InvoiceNumber, Status, DueDate,
+        /// GrandTotal only. Excludes FullSnapshotJson (which contains base64
+        /// attachments). Used by the AI context builder and dashboards to
+        /// avoid loading every snapshot blob for simple counts and sums.
+        /// </summary>
+        Task<List<TaxInvoiceAnalyticsRow>> GetAnalyticsRowsAsync();
     }
 
     // ════════════════════════════════════════════════════════════════════════

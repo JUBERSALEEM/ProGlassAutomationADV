@@ -794,6 +794,24 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
             return dict;
         }
 
+        // ── ANALYTICS PROJECTION ────────────────────────────────────────
+
+        public async Task<List<DeliveryNoteAnalyticsRow>> GetAnalyticsRowsAsync()
+        {
+            using var ctx = new DeliveryNotesDbContext();
+            return await ctx.DeliveryNotes
+                .Where(d => !d.IsMasterDn)
+                .AsNoTracking()
+                .Select(d => new DeliveryNoteAnalyticsRow
+                {
+                    DeliveryNoteId = d.DeliveryNoteId,
+                    Status = d.Status,
+                    DeliveryDate = d.DeliveryDate,
+                    HasTaxInvoice = d.HasTaxInvoice
+                })
+                .ToListAsync();
+        }
+
         // ── Private helpers ──────────────────────────────────────────────
 
         private static DeliveryNoteListItem ToListItem(SavedDeliveryNote e) =>

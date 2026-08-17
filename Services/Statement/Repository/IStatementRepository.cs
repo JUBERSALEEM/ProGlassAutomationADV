@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Statement/Repository/IStatementRepository.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Account Statement / Sales Report (Chat 16)
@@ -105,6 +105,14 @@ namespace ProGlassAutomation.Services.Statement.Repository
             int statementId,
             string pdfPath,
             bool hasAttachments);
+
+        /// <summary>
+        /// Lightweight analytics projection: TotalInvoiced, TotalOutstanding,
+        /// OverdueAmount only. Excludes FullSnapshotJson / FilterJson. Used by
+        /// the AI context builder and dashboards to avoid loading every
+        /// snapshot blob for simple sums.
+        /// </summary>
+        Task<List<StatementAnalyticsRow>> GetAnalyticsRowsAsync();
     }
 
     // ════════════════════════════════════════════════════════════════════
