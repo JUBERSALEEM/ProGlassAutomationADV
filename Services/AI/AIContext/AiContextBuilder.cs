@@ -150,12 +150,12 @@ namespace ProGlassAutomation.Services.AI.AIContext
             {
                 if (App.Invoices != null)
                 {
-                    // FIX BUG #4: GetAllAsync returns SavedProformaInvoice which
-                    // includes FullSnapshotJson. We only need indexed columns.
-                    // Until a lightweight GetSummaryAsync is added to the repo,
-                    // we load all but only access indexed properties — the JSON
-                    // blob is there but we never read it. Acceptable for < 500 PIs.
-                    var invoices = await App.Invoices.GetAllAsync();
+                    // PERF: use the lightweight analytics projection (Status,
+                    // GrandTotalVatInclusive, CreatedAt) instead of
+                    // GetAllAsync, which materialises FullSnapshotJson for
+                    // every invoice purely to count and sum. The blobs are
+                    // never read here, so loading them is pure waste.
+                    var invoices = await App.Invoices.GetAnalyticsRowsAsync();
 
                     if (invoices?.Count > 0)
                     {
