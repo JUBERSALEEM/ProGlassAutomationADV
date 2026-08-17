@@ -39,8 +39,7 @@
 
     <!-- Primary indigo→purple gradient (frozen once, reused everywhere) -->
     <LinearGradientBrush x:Key="PrimaryGradient"
-                         StartPoint="0,0" EndPoint="1,0"
-                         po:Freeze="True">
+                         StartPoint="0,0" EndPoint="1,0">
         <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
         <GradientStop Color="#8B5CF6" Offset="1"/>
     </LinearGradientBrush>
@@ -55,8 +54,7 @@
 
     <!-- Card header gradient (deep indigo→purple) -->
     <LinearGradientBrush x:Key="CardHeaderGradient"
-                         StartPoint="0,0" EndPoint="1,0"
-                         po:Freeze="True">
+                         StartPoint="0,0" EndPoint="1,0">
         <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="0"/>
         <GradientStop Color="{DynamicResource AccentColor}" Offset="0.5"/>
         <GradientStop Color="#7C3AED" Offset="1"/>
@@ -70,8 +68,7 @@
 
     <DropShadowEffect x:Key="PrimaryButtonShadow"
                       BlurRadius="8" ShadowDepth="2"
-                      Opacity="0.25" Color="{DynamicResource AccentColor}"
-                      po:Freeze="True"/>
+                      Opacity="0.25" Color="{DynamicResource AccentColor}"/>
 
     <DropShadowEffect x:Key="SuccessButtonShadow"
                       BlurRadius="8" ShadowDepth="2"

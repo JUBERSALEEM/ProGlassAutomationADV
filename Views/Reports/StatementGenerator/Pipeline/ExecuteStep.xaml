@@ -107,7 +107,7 @@
             <GradientStop Color="#F0F9FF" Offset="1"/>
         </LinearGradientBrush>
 
-        <LinearGradientBrush x:Key="ProgressGradient" StartPoint="0,0" EndPoint="1,0" po:Freeze="True">
+        <LinearGradientBrush x:Key="ProgressGradient" StartPoint="0,0" EndPoint="1,0">
             <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
             <GradientStop Color="#8B5CF6" Offset="0.5"/>
             <GradientStop Color="#EC4899" Offset="1"/>
