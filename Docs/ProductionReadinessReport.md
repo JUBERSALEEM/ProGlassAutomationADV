@@ -154,6 +154,21 @@ corruption the finding is about.
 **Could break existing functionality:** yes — that is why it is documented rather
 than changed.
 
+### Also examined this round and found clean
+
+Recording these so they are not silently re-audited later. Each was checked by
+reading the code, not by pattern-matching.
+
+| Area | Checked | Result |
+|------|---------|--------|
+| Division by zero | 6 division sites on user-supplied quantities/totals | **PASS.** All guarded — `TotalOrderedQty == 0` early return, `ProformaTotal > 0m`, `OrderedQty > 0`, and the two `rawRows.Count` divisions are only reachable from inside a loop over those same rows. Note `TaxInvoiceListRowViewModels.cs:350` divides **decimals**, where a zero divisor throws rather than yielding `Infinity` — it is correctly guarded. |
+| Malformed LLM JSON | `[0]` indexing and `GetProperty` on untrusted remote responses in the Gemini / Groq / Cohere services | **PASS.** All 6 raw indexers sit inside `try` blocks (including `GeminiAiService.ExtractChunkText`, which has its own). A hostile or truncated response returns a friendly error instead of crashing. |
+| Export IO failure | Target file locked by Excel, read-only folder, missing directory | **PASS.** The general `catch` in each engine returns `ExportResult.Fail(...)` and every caller surfaces it through `ShowExportResult`. An earlier concern that `Services/Export/` had "no `IOException` handlers" was a false alarm — the specific type is not needed because the failure is already reported rather than swallowed. |
+| Timer leaks | 9 timer allocations | **PASS.** The two local `DispatcherTimer`s in `DataGridViewModel` (row highlight, toast) both `Stop()` and unsubscribe their handler on tick. Long-lived timers belong to once-per-process singletons. |
+| `IDisposable` at shutdown | `UserPresenceService` (UDP sockets + 2 `System.Threading.Timer`s) | **PASS.** Implements `IDisposable` correctly **and** `App.OnExit` actually calls it, along with `SpeechToText` / `TextToSpeech`. A correct `Dispose` that nobody invokes would have been the real bug; it is invoked. |
+| Shared mutable statics | `AiContextBuilder` cache, `AppLogService` buffer | **PASS.** `SemaphoreSlim(1,1)` and `lock (_writeLock)` respectively. |
+| Money type | Every money-bearing property | **PASS.** `decimal` end-to-end; no `double` anywhere in a money path. Storage affinity is the separate D-6 finding above. |
+
 ---
 
 ## 8. Performance Findings
