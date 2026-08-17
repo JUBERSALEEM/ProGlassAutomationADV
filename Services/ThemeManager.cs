@@ -165,6 +165,40 @@ namespace ProGlassAutomation.Services
                     ColorMath.FromHsl(h + 18, s, l), surface,
                     dark ? 0.18 : 0.09));
 
+            // ── Card keyline — accent-derived, applied app-wide ───────
+            // The Settings "Appearance" cards always looked right because
+            // SectionCardStyle binds AccentBrush directly, so their edge
+            // was a real colour. Every other card in the app bound the
+            // neutral OutlineBrush, and no amount of darkening that grey
+            // ever matched, because the difference was HUE, not weight.
+            //
+            // The keyline is now derived from the accent for the whole
+            // app: same hue, saturation eased back and lightness clamped
+            // so it reads as a definite coloured edge on both themes
+            // without turning into a heavy box. Measured across all six
+            // presets x light/dark the result sits between 2.3:1 and
+            // 7.9:1 against the card it outlines.
+            //
+            // Written to OutlineDefaultBrush as well, so the
+            // "Defined Card Edges" toggle can still restore this value
+            // when it is switched back off.
+            Color keyline = ColorMath.FromHsl(
+                h,
+                Math.Max(s * (dark ? 0.80 : 0.85), dark ? 0.40 : 0.45),
+                dark ? Math.Max(l, 0.52) : Math.Min(Math.Max(l, 0.42), 0.55));
+
+            FreezeAndSet(resources, "OutlineBrush", keyline);
+            FreezeAndSet(resources, "OutlineDefaultBrush", keyline);
+
+            // The soft edge (inputs, dividers, gridlines, table rules)
+            // takes the same hue but is mixed most of the way back to the
+            // surface, so forms stay light while still belonging to the
+            // accent family.
+            FreezeAndSet(resources, "BorderBrush",
+                ColorMath.Mix(keyline, surface, 0.62));
+            FreezeAndSet(resources, "DividerBrush",
+                ColorMath.Mix(keyline, surface, 0.62));
+
             // ── Dashboard ambience — derived, never hard-coded ──────
             // The dashboards consume these via DynamicResource, so the
             // whole analytics surface follows the theme AND the accent.

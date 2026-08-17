@@ -67,19 +67,19 @@ namespace ProGlassAutomation.Services.Theme
             // flat. These families now derive it from their own palette
             // and it is removed again on Normal, exactly like the
             // surfaces above.
-            "OutlineBrush", "OutlineDefaultBrush",
 
-            // The soft edge used by inputs, dividers, gridlines and a
-            // large number of card borders written before OutlineBrush
-            // existed - 153 BorderBrush and 14 DividerBrush references
-            // across 89 views. They are DynamicResource, so they follow
-            // a Light/Dark swap, but they were NOT managed here and so
-            // stayed at the base theme grey while Monet and Professional
-            // recoloured everything around them. Managing the keys fixes
-            // every one of those views at once, without editing them and
-            // without darkening inputs the way pointing them all at
-            // OutlineBrush would.
-            "BorderBrush", "DividerBrush"
+            // NOTE: the four keyline keys - OutlineBrush,
+            // OutlineDefaultBrush, BorderBrush, DividerBrush - are
+            // deliberately NOT listed here.
+            //
+            // ThemeManager.ApplyAccent derives them from the accent hue
+            // and writes them into the same application-level dictionary.
+            // Listing them would make ClearOverrides delete the
+            // accent-derived values every time a visual family is applied
+            // - including on Normal, which is the family most users run -
+            // and the cards would drop back to the base theme grey. That
+            // is precisely the bug this whole sequence of changes was
+            // chasing. Leave them out.
         };
 
         /// <summary>Currently active family.</summary>
@@ -439,25 +439,23 @@ namespace ProGlassAutomation.Services.Theme
         private static void ApplyKeyline(
             ResourceDictionary resources, Color keyline)
         {
-            var brush = new SolidColorBrush(keyline);
-            brush.Freeze();
-            resources["OutlineBrush"] = brush;
-            resources["OutlineDefaultBrush"] = brush;
-
-            // The SOFT edge: same hue as the keyline so it belongs to the
-            // family, but mixed back toward the card surface so it stays
-            // roughly half the weight. This is what inputs, dividers,
-            // gridlines and the 153 legacy BorderBrush card borders use.
-            // Deriving it - rather than pointing those references at the
-            // full-strength keyline - is what keeps forms light while the
-            // cards still gain a visible edge.
-            Color surface = ThemeManager.GetThemeColor(
-                "ModuleBackgroundBrush", Colors.White);
-            var soft = new SolidColorBrush(
-                ColorMath.Mix(keyline, surface, 0.45));
-            soft.Freeze();
-            resources["BorderBrush"] = soft;
-            resources["DividerBrush"] = soft;
+            // Intentionally a no-op for the outline keys.
+            //
+            // Monet and Professional used to derive their own neutral
+            // keyline here. ThemeManager.ApplyAccent now owns all four
+            // keyline keys and derives them from the accent hue, which is
+            // what makes every card match the Settings "Appearance" cards.
+            // Both run on every theme change, and ApplyAccent runs LAST,
+            // so anything written here would simply be overwritten - and
+            // when it was not (module wallpaper re-layer, which calls the
+            // engine on its own) it produced a grey edge on one screen and
+            // an accent edge on the next.
+            //
+            // The parameter is kept so the two call sites still document
+            // which family they belong to, and so restoring a
+            // family-specific tweak later is a one-line change.
+            _ = resources;
+            _ = keyline;
         }
 
         /// <summary>

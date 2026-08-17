@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Settings/SettingsViewModel.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Settings (Chat 25 v1.1 — CS0272 fix)
@@ -947,10 +947,15 @@ namespace ProGlassAutomation.ViewModels.Settings
                     .LastRequestedModule,
                 appearance);
 
-            // The engine has just written this family's own keyline into
-            // OutlineDefaultBrush. Re-assert the user's Defined Card Edges
-            // choice on top of it, or switching visual theme would appear
-            // to turn that toggle off.
+            // The engine rewrites the surface brushes, and the keyline is
+            // derived FROM a surface, so re-derive the accent family
+            // against the new surfaces before restoring the user's
+            // Defined Card Edges choice on top. Order matters: accent
+            // first (writes OutlineDefaultBrush), toggle second (reads
+            // it).
+            ProGlassAutomation.Services.ThemeManager.ApplyAccent(
+                ProGlassAutomation.Services.ThemeManager.AccentColor,
+                raiseEvent: false);
             ProGlassAutomation.Services.ThemeManager
                 .ReapplyOutlinePreference();
         }
