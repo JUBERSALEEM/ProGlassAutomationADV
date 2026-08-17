@@ -354,7 +354,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
             <ItemsControl ItemsSource="{Binding ChargeRows}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border BorderThickness="0,0,0,1" BorderBrush="{DynamicResource BorderBrush}" Padding="12,12" Margin="0,0,0,2">
+                        <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderThickness="0,0,0,1" BorderBrush="{DynamicResource BorderBrush}" Padding="12,12" Margin="0,0,0,2">
                             <StackPanel>
                                 <Grid>
                                     <Grid.ColumnDefinitions>

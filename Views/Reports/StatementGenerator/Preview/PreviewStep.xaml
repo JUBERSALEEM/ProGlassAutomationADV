@@ -822,7 +822,7 @@
                                         </Grid>
 
                                         <!-- ══ Line-Item Detail Table ══ -->
-                                        <Border Grid.Row="1"
+                                        <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1"
                                                 Background="#FFFFFF88"
                                                 BorderThickness="0,1,0,0"
                                                 BorderBrush="{DynamicResource BorderBrush}"
@@ -895,7 +895,7 @@
                                                               ItemsSource="{Binding Rows}">
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
-                                                            <Border BorderThickness="0,1,0,0"
+                                                            <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderThickness="0,1,0,0"
                                                                     BorderBrush="{DynamicResource BorderBrush}"
                                                                     Padding="0,6,0,6">
                                                                 <Grid>

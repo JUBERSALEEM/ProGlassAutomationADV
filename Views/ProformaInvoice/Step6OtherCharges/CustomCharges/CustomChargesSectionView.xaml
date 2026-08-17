@@ -134,7 +134,7 @@
         <ItemsControl ItemsSource="{Binding AddedCharges}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Border BorderThickness="0,0,0,1"
+                    <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderThickness="0,0,0,1"
                             BorderBrush="{DynamicResource BorderBrush}"
                             Padding="0,10"
                             Margin="46,0,0,0">

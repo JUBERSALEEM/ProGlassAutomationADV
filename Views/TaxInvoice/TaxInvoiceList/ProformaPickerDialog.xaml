@@ -73,7 +73,7 @@
             </ScrollViewer>
 
             <!-- ── FOOTER ──────────────────────────────────────────────── -->
-            <Border Grid.Row="3"
+            <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="3"
                     Padding="20,12"
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="0,1,0,0">

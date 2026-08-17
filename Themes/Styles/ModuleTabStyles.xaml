@@ -98,7 +98,7 @@
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Border Grid.Column="0"
+                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Column="0"
                         Width="40" Height="40"
                         CornerRadius="12"
                         Background="{DynamicResource ModuleBackgroundBrush}"

@@ -554,7 +554,7 @@ PRESERVED EXACTLY:
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ListViewItem">
-                        <Border x:Name="RowBorder"
+                        <Border CornerRadius="{DynamicResource CardCornerRadius}" x:Name="RowBorder"
                                 BorderThickness="0,0,0,1"
                                 BorderBrush="{DynamicResource BorderBrush}"
                                 Padding="0,3"

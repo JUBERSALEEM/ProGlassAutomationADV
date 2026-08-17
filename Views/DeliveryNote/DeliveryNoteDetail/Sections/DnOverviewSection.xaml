@@ -386,7 +386,7 @@
                                                                     </Border>
 
                                                                     <!-- Column headers -->
-                                                                    <Border Background="{DynamicResource MenuHoverBrush}"
+                                                                    <Border CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource MenuHoverBrush}"
                                                                             BorderBrush="{DynamicResource BorderBrush}"
                                                                             BorderThickness="0,0,0,1">
                                                                         <Grid>
@@ -494,7 +494,7 @@
 
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border BorderBrush="{DynamicResource BorderBrush}"
+                                        <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource BorderBrush}"
                                                 BorderThickness="0,0,0,1"
                                                 Padding="0,2">
                                             <Border.Style>

@@ -212,7 +212,7 @@ CHAT 17 — UI POLISH
                             CornerRadius="16,16,0,0"/>
 
                     <!-- Card body -->
-                    <Border Grid.Row="1"
+                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1"
                             Background="{DynamicResource ModuleBackgroundBrush}"
                             Padding="24,20,24,24">
                         <StackPanel>

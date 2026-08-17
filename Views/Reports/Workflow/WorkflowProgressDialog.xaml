@@ -121,7 +121,7 @@
                                     </Grid.ColumnDefinitions>
 
                                     <!-- Step icon -->
-                                    <Border Grid.Column="0"
+                                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Column="0"
                                             Width="32" Height="32"
                                             CornerRadius="8"
                                             Background="{DynamicResource ModuleBackgroundBrush}"

@@ -116,7 +116,7 @@
         </Grid.RowDefinitions>
 
         <!-- ══ HEADER ══════════════════════════════════════════════════ -->
-        <Border Grid.Row="0"
+        <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0"
                 Padding="20,16"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource DividerBrush}"
@@ -258,7 +258,7 @@
         </ScrollViewer>
 
         <!-- ══ COMPOSER ════════════════════════════════════════════════ -->
-        <Border Grid.Row="2"
+        <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="2"
                 Padding="20,14"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource DividerBrush}"

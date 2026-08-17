@@ -25,7 +25,7 @@
                                      Grid.Row="0"/>
 
         <!-- Footer bar — fixed: SideMenuBackgroundBrush + BorderBrush separator -->
-        <Border Grid.Row="1"
+        <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
                 BorderThickness="0,1,0,0"
                 BorderBrush="{DynamicResource BorderBrush}"

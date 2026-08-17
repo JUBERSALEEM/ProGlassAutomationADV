@@ -24,7 +24,7 @@
                 Margin="24,16,24,0"
                 CornerRadius="14"
                 ClipToBounds="True">
-            <Border Background="{DynamicResource AccentBrush}" Padding="24,20">
+            <Border CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource AccentBrush}" Padding="24,20">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>
@@ -491,10 +491,10 @@
                                 <RowDefinition Height="*"/>
                                 <RowDefinition Height="*"/>
                             </Grid.RowDefinitions>
-                            <Border Grid.Row="0" Grid.Column="0" Background="{DynamicResource AccentBrush}"/>
-                            <Border Grid.Row="0" Grid.Column="1" Background="{DynamicResource SuccessBrush}"/>
-                            <Border Grid.Row="1" Grid.Column="0" Background="{DynamicResource WarningBrush}"/>
-                            <Border Grid.Row="1" Grid.Column="1" Background="{DynamicResource DangerBrush}"/>
+                            <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0" Grid.Column="0" Background="{DynamicResource AccentBrush}"/>
+                            <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0" Grid.Column="1" Background="{DynamicResource SuccessBrush}"/>
+                            <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1" Grid.Column="0" Background="{DynamicResource WarningBrush}"/>
+                            <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1" Grid.Column="1" Background="{DynamicResource DangerBrush}"/>
                         </Grid>
                     </Border>
 

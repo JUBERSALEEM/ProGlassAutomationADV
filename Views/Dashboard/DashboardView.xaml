@@ -304,7 +304,7 @@
             </StackPanel>
         </Grid>
 
-        <Border Grid.Row="1" Background="{DynamicResource BorderBrush}"/>
+        <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1" Background="{DynamicResource BorderBrush}"/>
 
         <!-- ═══════════════════════════════════════════════════════════
              ACTIVE MODULE — full window width

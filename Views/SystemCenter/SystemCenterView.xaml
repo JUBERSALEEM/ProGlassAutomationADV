@@ -374,7 +374,7 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <!-- Column heading strip (v2 table reference) -->
-                    <Border Grid.Row="0"
+                    <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0"
                             Background="{DynamicResource AccentBrush}"
                             Padding="16,8">
                         <Grid>
@@ -594,7 +594,7 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
                     <!-- Column heading strip (v2 table reference) -->
-                    <Border Grid.Row="0"
+                    <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0"
                             Background="{DynamicResource AccentBrush}"
                             Padding="16,8">
                         <Grid>
@@ -655,7 +655,7 @@
                             </ItemsControl.ItemsPanel>
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border Padding="16,10"
+                                    <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,10"
                                             BorderBrush="{DynamicResource DividerBrush}"
                                             BorderThickness="0,0,0,1"
                                             ToolTip="{Binding RowTooltip}">

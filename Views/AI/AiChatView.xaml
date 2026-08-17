@@ -205,7 +205,7 @@
             hidden"). The messages row (*) absorbs the shrink; the
             mic/speaker/status rows always stay visible.
         -->
-        <Border Width="420" Height="600"
+        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Width="420" Height="600"
                 MaxHeight="{Binding ActualHeight,
                             RelativeSource={RelativeSource AncestorType=Window},
                             Converter={StaticResource WindowInsetConverter},
@@ -674,7 +674,7 @@
                 </Border>
 
                 <!-- Input area -->
-                <Border Grid.Row="3"
+                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Row="3"
                         Background="{DynamicResource SideMenuBackgroundBrush}"
                         CornerRadius="0,0,20,20"
                         Padding="12"

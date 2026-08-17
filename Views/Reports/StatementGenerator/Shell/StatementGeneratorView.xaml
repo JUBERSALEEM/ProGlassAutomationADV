@@ -110,7 +110,7 @@
         <!-- ═══════════════════════════════════════════════════════════
              ROW 0 — STEPPER BAR (clickable badges)
         ═══════════════════════════════════════════════════════════ -->
-        <Border Grid.Row="0"
+        <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderThickness="0,0,0,1"
                 BorderBrush="{DynamicResource BorderBrush}">
@@ -555,7 +555,7 @@
         <!-- ═══════════════════════════════════════════════════════════
              ROW 2 — FOOTER NAVIGATION
         ═══════════════════════════════════════════════════════════ -->
-        <Border Grid.Row="2"
+        <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="2"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderThickness="0,1,0,0"
                 BorderBrush="{DynamicResource BorderBrush}">

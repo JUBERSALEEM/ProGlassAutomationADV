@@ -918,7 +918,7 @@
     <DataTemplate x:Key="SoftKpiTileTemplate">
         <Border Style="{StaticResource SoftTileStyle}" Margin="5,0,5,0">
             <Grid>
-                <Border Background="{DynamicResource AccentBrush}">
+                <Border CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource AccentBrush}">
                     <Border.Style>
                         <Style TargetType="Border" BasedOn="{StaticResource SoftCardCapStyle}">
                             <Style.Triggers>

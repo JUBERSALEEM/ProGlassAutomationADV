@@ -551,7 +551,7 @@
             </Border>
 
             <!-- Accept bar -->
-            <Border Grid.Row="2"
+            <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="2"
                     Background="#1AFFFFFF"
                     BorderBrush="#26FFFFFF"
                     BorderThickness="0,1,0,0"

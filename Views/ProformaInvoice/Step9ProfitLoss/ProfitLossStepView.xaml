@@ -366,7 +366,7 @@
                                         <ItemsControl ItemsSource="{Binding Rows}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Border BorderBrush="{DynamicResource DividerBrush}"
+                                                    <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource DividerBrush}"
                                                             BorderThickness="0,0,0,1"
                                                             Padding="0,6">
                                                         <Grid>

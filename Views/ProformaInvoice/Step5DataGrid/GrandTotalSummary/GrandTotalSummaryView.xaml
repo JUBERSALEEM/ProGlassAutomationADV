@@ -214,7 +214,7 @@ PRESERVED EXACTLY:
             <ItemsControl ItemsSource="{Binding SummaryRows}">
                 <ItemsControl.ItemTemplate>
                     <DataTemplate>
-                        <Border Padding="0,10"
+                        <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="0,10"
                                 BorderThickness="0,0,0,1"
                                 BorderBrush="{DynamicResource BorderBrush}"
                                 Margin="0,0,0,2">

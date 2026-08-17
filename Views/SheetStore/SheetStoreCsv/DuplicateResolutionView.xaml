@@ -124,7 +124,7 @@
                                Foreground="{DynamicResource MutedForegroundBrush}"
                                HorizontalAlignment="Center"/>
                 </Border>
-                <Border Grid.Row="0" Grid.Column="1" Background="{DynamicResource AccentBrush}" Padding="10,10">
+                <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0" Grid.Column="1" Background="{DynamicResource AccentBrush}" Padding="10,10">
                     <TextBlock Text="EXISTING (IN DB)" Style="{StaticResource ColumnHeader}"/>
                 </Border>
                 <Border Grid.Row="0" Grid.Column="2" Background="{DynamicResource WarningBrush}" Padding="10,10"

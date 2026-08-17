@@ -232,7 +232,7 @@
                                            Foreground="{DynamicResource SuccessBrush}"/>
                             </Grid>
 
-                            <Border BorderBrush="{DynamicResource BorderBrush}"
+                            <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource BorderBrush}"
                                     BorderThickness="0,1,0,0"
                                     Padding="0,6,0,0">
                                 <Grid>

@@ -524,7 +524,7 @@
         <!-- ══════════════════════════════════════════════════════
              TOP BAR
         ══════════════════════════════════════════════════════ -->
-        <Border Grid.Row="0"
+        <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
                 BorderThickness="0,0,0,1"
                 BorderBrush="{DynamicResource BorderBrush}"
@@ -695,7 +695,7 @@
                             Height="40"
                             Margin="0,0,10,0"
                             VerticalAlignment="Center"
-                            BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderBrush="#59000000"
                             BorderThickness="1"
                             SnapsToDevicePixels="True"
                             ToolTip="Internet connection state — AI and updates need internet">
@@ -776,7 +776,7 @@
                  so the effect rasterizes one empty rounded rectangle
                  instead of the entire live module tree. Non-hit-testable so
                  it can never intercept a click meant for the module. -->
-            <Border Margin="12"
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Margin="12"
                     CornerRadius="16"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     Effect="{StaticResource CardShadow}"
@@ -798,7 +798,7 @@
                     ClipToBounds="True"
                     SnapsToDevicePixels="True">
                 <Grid>
-                    <Border Background="{DynamicResource ModuleWallpaperBrush}"
+                    <Border CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource ModuleWallpaperBrush}"
                             IsHitTestVisible="False"/>
                     <ContentControl Content="{Binding CurrentViewModel}"/>
                 </Grid>
@@ -822,7 +822,7 @@
             </Rectangle>
 
             <!-- LEFT DRAWER — NAVIGATION MENU -->
-            <Border Width="290"
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Width="290"
                     HorizontalAlignment="Left"
                     Background="{DynamicResource SideMenuBackgroundBrush}"
                     CornerRadius="0,16,16,0"

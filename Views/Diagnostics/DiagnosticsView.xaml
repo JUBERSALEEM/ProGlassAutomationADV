@@ -74,7 +74,7 @@
                         </Grid.RowDefinitions>
 
                         <!-- v2: column headers with tooltips -->
-                        <Border Grid.Row="0"
+                        <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0"
                                 Background="{DynamicResource AccentBrush}"
                                 BorderBrush="{DynamicResource AccentBrush}"
                                 BorderThickness="0,0,0,1"
@@ -146,7 +146,7 @@
                                 </ItemsControl.ItemsPanel>
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border Padding="14,8"
+                                        <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,8"
                                                 BorderBrush="{DynamicResource DividerBrush}"
                                                 BorderThickness="0,0,0,1"
                                                 ToolTip="{Binding RowTooltip}">
