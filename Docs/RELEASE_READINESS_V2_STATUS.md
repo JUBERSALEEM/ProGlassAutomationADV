@@ -86,6 +86,37 @@ No change needed.
 `RelayCommand`, `Tuple`) confirmed to exist with matching signatures. Not
 compiled — no SDK.
 
+### FIXED — AI real-data egress is now opt-in, with a consent gate (privacy/Store)
+
+**Severity:** HIGH (Microsoft Store privacy-policy blocker, previously open).
+
+**Location:** `Services/AI/AIService/AiSettings.cs`,
+`ViewModels/Settings/SettingsViewModel.cs`.
+
+**The issue.** `AiSettings.UseRealData` defaulted to `true`, so with a
+configured AI key the assistant sent a live summary containing real customer
+names, project names and AED totals to a third-party LLM (Gemini / Groq /
+Cohere) **by default**. The disclosure text was already honest, but the
+behaviour was opt-out with no consent moment.
+
+**The fix.**
+1. `UseRealData` now defaults to **`false`** — real-data egress is opt-in.
+2. Enabling it in Settings now requires an **explicit consent confirmation**
+   dialog that names the recipients, what is sent, and that it leaves the
+   machine; the toggle stays off unless the user confirms.
+3. When disabled the assistant still works (learning/memory context only) —
+   no customer PII or financial totals leave the device.
+4. Existing users who already enabled it keep their explicit choice (the
+   saved `config.json` value wins); only fresh installs / configs without the
+   field default to off.
+
+This removes the Store privacy blocker. Per-request consent or full alignment
+with the `Agent/` LocalOnly-by-default model remains optional future work.
+
+**Verification:** static gate passes; only `UseRealData` readers/writers are
+the chat gate (`AiChatViewModel`, correct) and the settings toggle. Not
+compiled — no SDK.
+
 ---
 
 ## 2. Remaining blockers before a commercial V2.0 publish
@@ -112,14 +143,17 @@ partially-linked chain. There is a close-during-write guard and the failure is
 logged + audited, but the architectural limit remains. **Consolidation is a
 planned, separate project** — do not attempt during a patch round.
 
-### C. AI egress is on by default (owner decision — Store blocker)
-`AiSettings.UseRealData` defaults to `true`, so with a configured key the app
-sends customer names, project names and AED totals to a third-party LLM. The
-boundary is documented and disclosed, but it is **opt-out, not opt-in**, with
-no consent prompt or redaction pass. **This is a Microsoft Store
-privacy-policy blocker.** Decision required: default `false`, add a consent
-prompt, and/or align chat with the `Agent/` subsystem's LocalOnly-by-default +
-explicit-cloud-consent model.
+### C. AI egress (Store blocker) — **RESOLVED** (see §1)
+`AiSettings.UseRealData` now defaults to **`false` (opt-in)** instead of `true`,
+and the Settings screen requires an **explicit consent confirmation** before
+the user can enable real-data access. When disabled, the assistant still works
+but only receives learning/memory context (no customer PII or AED totals leave
+the machine). Existing users who already opted in keep their choice; only fresh
+installs / configs without the field default to off. The disclosure text
+naming the recipients (Gemini / Groq / Cohere) and what is sent was already in
+place. This resolves the Microsoft Store privacy-policy blocker. A per-request
+consent or a full alignment with the `Agent/` LocalOnly-by-default model
+remains an optional future refinement, not a release blocker.
 
 ### D. `UpdateService` origin ≠ authenticity
 The updater restricts the download to a GitHub HTTPS allowlist but does not
@@ -179,7 +213,7 @@ business-significant ones opportunistically, but do not block the release on it.
 | # | Priority | Item | Owner | When |
 |---|----------|------|-------|------|
 | 1 | BLOCKER | Release build + runtime matrix on Windows | dev + QA | before any publish |
-| 2 | BLOCKER (Store) | AI egress decision (default off / consent / align with Agent model) | product owner | before packaging |
+| 2 | ~~BLOCKER (Store)~~ **DONE** | AI egress: default-off + consent prompt implemented (§6) | product owner | ✅ resolved |
 | 3 | HIGH | Signature-verified or Velopack updater; disable self-update when packaged | dev | before Store |
 | 4 | MEDIUM | D-6 decimal affinity migration (with backup + round-trip test) | dev | scheduled |
 | 5 | MEDIUM | D-4 DB consolidation project | architecture | planned |
@@ -195,10 +229,11 @@ until items 1–3 are resolved.
 
 **CONDITIONALLY READY — blocked by verification, not by known code defects.**
 No known critical crash, security hole, or data-loss path was found in this
-round's audit. The single correctness defect found (Job Order status/priority
-divergence) is fixed. What separates this from "ready" is that **no Release
-build and no runtime pass has ever been executed in any environment this
-project has been audited in**, plus the owner decisions in §2C/D.
+round's audit. The correctness defect (Job Order status/priority divergence)
+and the Store privacy blocker (AI real-data egress) are both fixed. What
+separates this from "ready" is that **no Release build and no runtime pass has
+ever been executed in any environment this project has been audited in**, plus
+the remaining owner decisions in §2B/D.
 
 The correct next step is a Windows Release build and the runtime matrix — not
 more static analysis, and not packaging.

@@ -93,7 +93,13 @@ namespace ProGlassAutomation.Services.AI.AIService
 
         // ── RAG toggle ─────────────────────────────────────────────────
 
-        public bool UseRealData { get; set; } = true;
+        // OPT-IN, not opt-out. When ON, a real-time summary containing real
+        // customer names, project names and AED totals is sent over the
+        // internet to the configured AI provider (Gemini / Groq / Cohere).
+        // Because that data leaves the device, it must never be ON by default
+        // (Microsoft Store privacy policy). The Settings screen requires an
+        // explicit consent confirmation before enabling it.
+        public bool UseRealData { get; set; } = false;
 
         // ── v3 JARVIS pass toggles ─────────────────────────────────────
 

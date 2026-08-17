@@ -42,9 +42,10 @@
 //   That already includes real customer names, project names and AED
 //   totals. It is NOT anonymised and NOT redacted.
 //
-//   Gated by AiSettings.UseRealData, which defaults to TRUE — so this is
-//   opt-OUT, not opt-in. The Settings toggle now states plainly that the
-//   data leaves the machine and names the recipients.
+//   Gated by AiSettings.UseRealData, which now defaults to FALSE (opt-in)
+//   and requires an explicit consent confirmation in Settings before it
+//   can be enabled. The Settings toggle states plainly that the data
+//   leaves the machine and names the recipients.
 //
 //   Adding a field here is a privacy decision, not a feature decision.
 //   Never add: TRN / tax registration numbers, bank or IBAN details,

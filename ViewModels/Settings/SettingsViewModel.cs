@@ -586,15 +586,44 @@ namespace ProGlassAutomation.ViewModels.Settings
 
         public bool UseRealData
         {
-            get => App.Config?.Ai?.UseRealData ?? true;
+            get => App.Config?.Ai?.UseRealData ?? false;
             set
             {
-                if (App.Config?.Ai != null)
+                if (App.Config?.Ai == null) return;
+
+                // Consent gate — P-1. Enabling real-data access is a privacy
+                // decision: a real-time summary containing real customer names,
+                // project names and AED totals will leave the machine to the
+                // configured AI provider (Gemini / Groq / Cohere). It is opt-in,
+                // so turning it ON must require an explicit confirmation. The
+                // toggle stays off unless the user confirms.
+                if (value && !App.Config.Ai.UseRealData)
                 {
-                    App.Config.Ai.UseRealData = value;
-                    SaveConfig();
-                    OnPropertyChanged();
+                    var confirm = System.Windows.MessageBox.Show(
+                        "Turning on \"Use Real Business Data\" sends a live summary " +
+                        "of your invoices, job orders, deliveries, tax invoices and " +
+                        "balances — including real customer names, project names and " +
+                        "AED totals — over the internet to your AI provider " +
+                        "(Gemini, Groq or Cohere) as part of every chat message.\n\n" +
+                        "Those companies process the data under their own privacy " +
+                        "terms. Turn it off to keep the assistant to general " +
+                        "questions only.\n\nDo you want to allow this?",
+                        "Allow AI to access your business data?",
+                        System.Windows.MessageBoxButton.YesNo,
+                        System.Windows.MessageBoxImage.Warning,
+                        System.Windows.MessageBoxResult.No);
+
+                    if (confirm != System.Windows.MessageBoxResult.Yes)
+                    {
+                        // User declined — keep it off and reflect that on the toggle.
+                        OnPropertyChanged(nameof(UseRealData));
+                        return;
+                    }
                 }
+
+                App.Config.Ai.UseRealData = value;
+                SaveConfig();
+                OnPropertyChanged();
             }
         }
 
