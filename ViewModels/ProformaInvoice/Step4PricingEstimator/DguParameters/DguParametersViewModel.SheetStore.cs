@@ -26,10 +26,10 @@
 //     wrapped so a Sheet Store failure can never surface as a crash.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.ProformaInvoice;
 using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -241,7 +241,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[DguParametersViewModel] LoadSheetStoreAsync: {ex.Message}");
+                AppLogService.Error(
+                    "[DguParametersViewModel] Sheet-store load failed", ex);
             }
         }
 
@@ -259,8 +260,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Dg
             }
             catch (Exception ex)
             {
-                // Pricing hints must never surface as a crash dialog.
-                Debug.WriteLine($"[DguParametersViewModel] refresh failed: {ex.Message}");
+                // Pricing hints must never surface as a crash dialog — but the
+                // failure must still be recorded so it is diagnosable in Release.
+                AppLogService.Error(
+                    "[DguParametersViewModel] sheet-store refresh failed", ex);
             }
         }
 

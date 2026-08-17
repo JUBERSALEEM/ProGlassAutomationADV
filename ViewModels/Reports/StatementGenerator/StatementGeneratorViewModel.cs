@@ -43,6 +43,7 @@ using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.Statement;
 using ProGlassAutomation.Models.Statement.Workflow;
 using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Statement.Aggregation;
 using ProGlassAutomation.Services.Statement.Pdf;
 using ProGlassAutomation.Services.Statement.Repository;
@@ -1085,7 +1086,8 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[StatementGenerator] Master data load failed: {ex.Message}");
+                AppLogService.Error(
+                    "[StatementGenerator] Master data load failed", ex);
             }
         }
 

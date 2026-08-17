@@ -24,6 +24,7 @@ using PdfSharp.Pdf;
 using PdfSharp.Pdf.IO;
 using ProGlassAutomation.Models.Statement;
 using ProGlassAutomation.Models.Statement.Workflow;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.TaxInvoice.Mapper;
 using ProGlassAutomation.Services.TaxInvoice.Pdf;
 using QuestPDF.Fluent;
@@ -689,7 +690,8 @@ namespace ProGlassAutomation.Services.Statement.Pdf
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[Exporter] OpenPdf failed: {ex.Message}");
+                AppLogService.Error(
+                    "[StatementPdfExporter] Failed to open generated PDF", ex);
             }
         }
 

@@ -17,6 +17,7 @@ using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Csv;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Export.Excel;
 using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.ProformaInvoice.Export;
@@ -444,7 +445,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[PI] Save artifacts failed: {ex.Message}");
+                AppLogService.Error(
+                    "[PI] Save version-history artifact failed", ex);
             }
         }
 

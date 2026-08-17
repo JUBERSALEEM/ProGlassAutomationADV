@@ -20,10 +20,10 @@
 // only writes when the glass selection or the sheet size changes.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.ProformaInvoice;
 using System;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -162,7 +162,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[SguParametersViewModel] LoadSheetStoreAsync: {ex.Message}");
+                AppLogService.Error(
+                    "[SguParametersViewModel] Sheet-store load failed", ex);
             }
         }
 
@@ -177,7 +178,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[SguParametersViewModel] refresh failed: {ex.Message}");
+                AppLogService.Error(
+                    "[SguParametersViewModel] sheet-store refresh failed", ex);
             }
         }
 
