@@ -13,6 +13,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border Margin="12,4,12,4"
                                 Background="Transparent"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter/>
                         </Border>
