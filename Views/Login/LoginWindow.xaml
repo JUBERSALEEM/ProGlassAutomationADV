@@ -227,8 +227,6 @@
         <Rectangle Fill="{StaticResource LoginGlow}" Opacity="0.35" IsHitTestVisible="False"/>
 
         <Border Width="420"
-                MaxWidth="94%"
-                MaxHeight="96%"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
                 CornerRadius="22"
@@ -243,7 +241,8 @@
                           PanningMode="VerticalOnly"
                           Focusable="False"
                           FocusVisualStyle="{x:Null}">
-                <StackPanel Padding="38,34,38,30">
+                <Border Padding="38,34,38,30">
+                <StackPanel>
 
                     <!-- App mark + name -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
@@ -372,6 +371,7 @@
                         <Run Text="{x:Static updates:AppInfo.Version}"/>
                     </TextBlock>
                 </StackPanel>
+                </Border>
             </ScrollViewer>
         </Border>
     </Grid>
