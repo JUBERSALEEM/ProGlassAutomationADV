@@ -61,6 +61,14 @@ namespace ProGlassAutomation.Services.Statement.Pdf
             PropertyNameCaseInsensitive = true
         };
 
+        // QuestPDF requires the licence to be set before any document is
+        // generated; the Community tier covers this business (< USD 1M annual
+        // gross revenue). Setting it is idempotent, so call it defensively at
+        // every generation point rather than relying on one call-site.
+        private static void EnsureLicense()
+            => QuestPDF.Infrastructure.QuestPDF.Settings.License =
+                QuestPDF.Infrastructure.LicenseType.Community;
+
         // ═════════════════════════════════════════════════════════════════
         //  NEW ENTRY POINT — WORKFLOW-BASED EXPORT
         // ═════════════════════════════════════════════════════════════════
@@ -573,6 +581,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
 
         private static byte[] WrapImageInPdf(byte[] imageBytes, string fileName)
         {
+            EnsureLicense();
             return Document.Create(container =>
             {
                 container.Page(page =>
@@ -599,6 +608,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
         private static byte[] GenerateInvoicePlaceholderPdf(
             string invoiceNumber, string errorMessage)
         {
+            EnsureLicense();
             return Document.Create(container =>
             {
                 container.Page(page =>
@@ -627,6 +637,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
 
         private static byte[] GenerateStatementBytes(StatementSnapshot snapshot)
         {
+            EnsureLicense();
             var doc = new StatementPdfDocument(snapshot);
             return doc.GeneratePdf();
         }
