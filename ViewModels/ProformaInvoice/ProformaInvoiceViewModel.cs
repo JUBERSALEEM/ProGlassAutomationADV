@@ -396,6 +396,11 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             SavedInvoicesListVM.OnInvoiceLoadRequested = id =>
                 SafeFireAsync(() => LoadInvoiceIntoWizardAsync(id));
 
+            // Approval with no Step 8 attachments → open the invoice in the
+            // wizard AT Step 8 so the user can upload the signed PI / LPO.
+            SavedInvoicesListVM.OnInvoiceUploadRequested = id =>
+                SafeFireAsync(() => OpenInvoiceAtStepAsync(id, 8));
+
             // v2 version history: open an old version's snapshot
             SavedInvoicesListVM.OnSnapshotRestoreRequested = json =>
                 SafeFireAsync(() => RestoreSnapshotIntoWizardAsync(json));
@@ -625,6 +630,17 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice
             foreach (var ws in WizardSteps)
                 ws.IsCompleted = false;
             IsListView = false;
+        }
+
+        /// <summary>
+        /// Loads an invoice into the wizard and jumps straight to a specific
+        /// step — used by the approval flow to drop the user onto Step 8
+        /// (Attachments) so they can upload the signed PI / LPO (jpg/pdf).
+        /// </summary>
+        private async Task OpenInvoiceAtStepAsync(int invoiceId, int stepNumber)
+        {
+            await LoadInvoiceIntoWizardAsync(invoiceId);
+            GoToStep(stepNumber);
         }
 
         /// <summary>

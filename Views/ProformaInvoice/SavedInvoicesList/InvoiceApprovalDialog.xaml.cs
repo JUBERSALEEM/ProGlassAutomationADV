@@ -47,8 +47,18 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
             if (LpoRadio == null || LpoPanel == null || ValidationBorder == null) return;
 
             bool lpoSelected = LpoRadio.IsChecked == true;
-            LpoPanel.Visibility = lpoSelected ? Visibility.Visible : Visibility.Collapsed;
             ValidationBorder.Visibility = Visibility.Collapsed;
+
+            // The LPO number field is shown for BOTH options:
+            //   • LPO       → required (an LPO always carries a number).
+            //   • Signed PI → optional (sometimes the number is written on it,
+            //                 sometimes the signed PI has no LPO at all).
+            if (LpoLabel != null)
+            {
+                LpoLabel.Text = lpoSelected
+                    ? "LPO / PO NUMBER (REQUIRED)"
+                    : "LPO / PO NUMBER (OPTIONAL — only if shown on the signed PI)";
+            }
 
             if (lpoSelected)
             {
@@ -69,23 +79,22 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
         private void OnApproveClick(object sender, RoutedEventArgs e)
         {
             bool lpoSelected = LpoRadio.IsChecked == true;
+            string lpo = LpoBox.Text?.Trim() ?? "";
 
-            if (lpoSelected)
+            // LPO → the number is REQUIRED (an LPO always carries one).
+            if (lpoSelected && string.IsNullOrWhiteSpace(lpo))
             {
-                string lpo = LpoBox.Text?.Trim() ?? "";
-                if (string.IsNullOrWhiteSpace(lpo))
-                {
-                    ValidationText.Text =
-                        "Enter the LPO / purchase order number to approve " +
-                        "this invoice — it is required for invoices and the " +
-                        "statement generator.";
-                    ValidationBorder.Visibility = Visibility.Visible;
-                    LpoBox.Focus();
-                    return;
-                }
-                LpoNumber = lpo;
+                ValidationText.Text =
+                    "An LPO always carries an LPO / purchase order number. " +
+                    "Enter it to approve this invoice.";
+                ValidationBorder.Visibility = Visibility.Visible;
+                LpoBox.Focus();
+                return;
             }
 
+            // Signed PI → the LPO number is OPTIONAL: save it only if the user
+            // entered one (sometimes it is written on the signed PI).
+            LpoNumber = lpo;
             IsSignedPi = !lpoSelected;
             Approved = true;
             DialogResult = true;

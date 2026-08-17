@@ -126,11 +126,12 @@
                              Content="Customer provided an LPO / Purchase Order"/>
             </StackPanel>
 
-            <!-- LPO number (visible only when LPO selected) -->
+            <!-- LPO number — shown for both options (optional for a signed PI,
+                 required for an LPO). The label changes to say which. -->
             <StackPanel x:Name="LpoPanel" Grid.Row="2"
-                        Margin="38,16,24,0"
-                        Visibility="Collapsed">
-                <TextBlock Text="LPO / PO NUMBER" Style="{StaticResource ApprovalFieldLabel}"/>
+                        Margin="38,16,24,0">
+                <TextBlock x:Name="LpoLabel" Text="LPO / PO NUMBER"
+                           Style="{StaticResource ApprovalFieldLabel}"/>
                 <TextBox x:Name="LpoBox" Height="40"
                          Style="{StaticResource ApprovalTextBox}"
                          KeyDown="OnLpoKeyDown"/>

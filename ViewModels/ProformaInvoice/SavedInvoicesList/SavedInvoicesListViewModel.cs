@@ -38,6 +38,14 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
         public Action<int> OnInvoiceLoadRequested { get; set; }
 
+        /// <summary>
+        /// Fired when approving and the invoice has no Step 8 attachments:
+        /// the shell opens that invoice in the wizard AT Step 8 (Attachments)
+        /// so the user can upload the signed PI or LPO (jpg/pdf) before the
+        /// approval is allowed.
+        /// </summary>
+        public Action<int> OnInvoiceUploadRequested { get; set; }
+
         private List<SavedInvoiceListItem> _allItems = new();
         public ObservableCollection<SavedInvoiceListItem> FilteredItems { get; } = new();
 
@@ -607,19 +615,29 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         {
             if (entity == null || App.Invoices == null) return;
 
-            // Step 8 gate — must have real attachments (evidence).
+            // Step 8 gate — must have real attachments (signed PI or LPO).
+            // If none, take the user to Step 8 to upload instead of approving.
             var attachments = await new ProformaAttachmentService()
                 .LoadManifestAsync(entity.ProformaId ?? "");
             if (attachments == null || attachments.Count == 0)
             {
-                MessageBox.Show(
+                var go = MessageBox.Show(
                     $"Invoice '{entity.ProformaId}' has no Step 8 attachments.\n\n" +
-                    "Attach the signed Proforma Invoice or the LPO document " +
-                    "in Step 8 (Attachments) before you can approve it.",
-                    "Cannot Approve — No Attachments",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Warning);
-                return;   // status unchanged
+                    "To approve it you must upload the signed Proforma Invoice " +
+                    "or the LPO document (jpg / pdf) in Step 8.\n\n" +
+                    "Go to Step 8 (Attachments) now?",
+                    "Approval Needs Attachments",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Question,
+                    MessageBoxResult.Yes);
+
+                if (go == MessageBoxResult.Yes)
+                {
+                    // Load this invoice into the wizard and jump to Step 8 so
+                    // the user can upload right away.
+                    OnInvoiceUploadRequested?.Invoke(entity.Id);
+                }
+                return;   // status unchanged until the upload is done
             }
 
             // 1. Customer-confirmation gate (signed PI OR LPO), grounded on the
@@ -633,25 +651,16 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             if (dlg.ShowDialog() != true || !dlg.Approved)
                 return;   // cancelled — status unchanged
 
-            // 2. "Received LPO" → persist the LPO number into the snapshot
-            //    (Step 3 Project.LpoNumber) so invoices / statement generator
-            //    always carry it. "Received Signed PI" needs no LPO.
-            if (!dlg.IsSignedPi)
+            // 2. Persist the LPO number into the snapshot (Step 3
+            //    Project.LpoNumber) so invoices / statement generator carry it.
+            //    • LPO choice → the dialog already requires a number.
+            //    • Signed PI   → save the number only if the user entered one
+            //      (it is sometimes written on the signed PI).
+            string lpoToSave = dlg.LpoNumber?.Trim() ?? "";
+            if (!string.IsNullOrWhiteSpace(lpoToSave))
             {
-                string lpo = dlg.LpoNumber?.Trim() ?? "";
-                if (string.IsNullOrWhiteSpace(lpo))
-                {
-                    MessageBox.Show(
-                        "Enter the LPO / purchase order number to approve " +
-                        "this invoice.",
-                        "LPO Required",
-                        MessageBoxButton.OK,
-                        MessageBoxImage.Warning);
-                    return;
-                }
-
                 var snapshot = ProformaInvoiceMapper.DeserializeSnapshot(entity);
-                snapshot.Project.LpoNumber = lpo;
+                snapshot.Project.LpoNumber = lpoToSave;
                 entity.FullSnapshotJson =
                     ProformaInvoiceMapper.SerializeSnapshot(snapshot);
             }
