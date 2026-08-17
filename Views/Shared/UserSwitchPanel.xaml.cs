@@ -1,11 +1,13 @@
 // ═══════════════════════════════════════════════════════════════════════
-// FILE: Views/Shared/UserSwitchDialog.xaml.cs
+// FILE: Views/Shared/UserSwitchPanel.xaml.cs
 // PROJECT: ProGlassAutomation
-// MODULE: Shared — secure user switch
+// MODULE: Shared — secure user switch (popup panel)
 //
-// A password-gated user switcher for the top-bar user card. It lists the
-// active users and switches the signed-in identity ONLY after the selected
-// user's password is verified.
+// A password-gated user switcher hosted in a WPF Popup so it is
+// NON-BLOCKING: it floats over the shell without taking focus from (or
+// blocking interaction with) the module content behind it. The popup is
+// opened from the top-bar user card and dismissed by clicking elsewhere
+// (or a second click).
 //
 // SECURITY MODEL
 //   Every switch goes through AuditService.SwitchUserAsync, which verifies
@@ -13,14 +15,11 @@
 //   migration). There is deliberately NO password-less path here: a user
 //   whose password was set by someone else cannot be entered without that
 //   password. The audit trail records each switch with the acting user.
-//
-//   Like the sign-in screen, this is a LOCAL identity gate. It makes the
-//   audit trail truthful and the role guards meaningful; it is not a
-//   boundary against an attacker who already has the machine's files.
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.Audit;
 using ProGlassAutomation.Services.Audit;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -32,42 +31,47 @@ using System.Windows.Media;
 namespace ProGlassAutomation.Views.Shared
 {
     /// <summary>
-    /// Password-gated user switcher. Reuses AuditService.SwitchUserAsync so
-    /// there is exactly one authentication path in the app.
+    /// Password-gated user switcher shown in a Popup (non-blocking).
+    /// Reuses AuditService.SwitchUserAsync — the single auth path.
     /// </summary>
-    public partial class UserSwitchDialog : Window
+    public partial class UserSwitchPanel : UserControl
     {
         private readonly List<AppUser> _users = new();
 
         /// <summary>The user currently selected for switch (by Id).</summary>
         private AppUser? _selected;
 
-        private UserSwitchDialog()
+        public UserSwitchPanel()
         {
             InitializeComponent();
-            Owner = Application.Current.MainWindow;
             Loaded += OnLoaded;
-            PreviewKeyDown += (_, e) =>
-            {
-                if (e.Key == Key.Escape) DialogResult = false;
-            };
         }
 
-        /// <summary>Opens the dialog. Returns once it closes.</summary>
-        public static void Show(Window? owner)
-        {
-            var dialog = new UserSwitchDialog();
-            if (owner != null) dialog.Owner = owner;
-            dialog.ShowDialog();
-        }
-
-        private async void OnLoaded(object sender, RoutedEventArgs e)
+        /// <summary>Reloads the active-user list when the panel opens.</summary>
+        public async void RefreshAsync()
         {
             _users.Clear();
             _users.AddRange((await AuditService.GetUsersAsync())
                 .Where(u => u.IsActive)
                 .OrderBy(u => u.Username));
 
+            RenderList();
+            // Reset selection so re-opening starts fresh.
+            _selected = null;
+            PasswordBox.Clear();
+            ErrorText.Visibility = Visibility.Collapsed;
+            SwitchButton.IsEnabled = false;
+        }
+
+        private async void OnLoaded(object sender, RoutedEventArgs e)
+            => await RefreshCoreAsync();
+
+        private async Task RefreshCoreAsync()
+        {
+            _users.Clear();
+            _users.AddRange((await AuditService.GetUsersAsync())
+                .Where(u => u.IsActive)
+                .OrderBy(u => u.Username));
             RenderList();
         }
 
@@ -83,12 +87,12 @@ namespace ProGlassAutomation.Views.Shared
         private Border BuildCard(AppUser user, string currentUsername)
         {
             bool isCurrent = string.Equals(
-                user.Username, currentUsername, System.StringComparison.OrdinalIgnoreCase);
+                user.Username, currentUsername, StringComparison.OrdinalIgnoreCase);
 
             var card = new Border
             {
                 CornerRadius = new CornerRadius(10),
-                Padding = new Thickness(14, 11, 14, 11),
+                Padding = new Thickness(14, 10, 14, 10),
                 Margin = new Thickness(0, 0, 0, 8),
                 BorderThickness = new Thickness(isCurrent ? 1.5 : 1),
                 Cursor = Cursors.Hand,
@@ -118,12 +122,11 @@ namespace ProGlassAutomation.Views.Shared
             grid.ColumnDefinitions.Add(new ColumnDefinition
             { Width = GridLength.Auto });
 
-            // ── left: name + role + username ──
             var left = new StackPanel();
             var nameLine = new TextBlock
             {
                 Text = user.DisplayName,
-                FontSize = 13,
+                FontSize = 12,
                 FontWeight = FontWeights.SemiBold,
                 Margin = new Thickness(0, 0, 0, 2)
             };
@@ -133,7 +136,7 @@ namespace ProGlassAutomation.Views.Shared
             var meta = new TextBlock
             {
                 Text = $"{PrettyRole(user.Role)}  ·  {user.Username}",
-                FontSize = 11
+                FontSize = 10
             };
             meta.SetResourceReference(TextBlock.ForegroundProperty,
                 "SecondaryForegroundBrush");
@@ -142,12 +145,11 @@ namespace ProGlassAutomation.Views.Shared
             left.Children.Add(meta);
             Grid.SetColumn(left, 0);
 
-            // ── right: current-user badge / chevron ──
             var right = new TextBlock
             {
                 Text = isCurrent ? "\uE73E" : "\uE76C",   // checkmark / chevron
                 FontFamily = new FontFamily("Segoe MDL2 Assets"),
-                FontSize = 14,
+                FontSize = 13,
                 VerticalAlignment = VerticalAlignment.Center
             };
             right.SetResourceReference(TextBlock.ForegroundProperty,
@@ -165,7 +167,7 @@ namespace ProGlassAutomation.Views.Shared
             _selected = user;
             bool isCurrent = string.Equals(
                 user.Username, AuditService.CurrentUsername,
-                System.StringComparison.OrdinalIgnoreCase);
+                StringComparison.OrdinalIgnoreCase);
 
             PasswordLabel.Text = isCurrent
                 ? $"You are already signed in as {user.DisplayName}"
@@ -208,7 +210,8 @@ namespace ProGlassAutomation.Views.Shared
                 if (ok)
                 {
                     PasswordBox.Clear();
-                    DialogResult = true;
+                    // Let the shell refresh the user pill.
+                    // The popup stays open; caller dismisses on demand.
                     return;
                 }
 
@@ -217,7 +220,7 @@ namespace ProGlassAutomation.Views.Shared
                 PasswordBox.Clear();
                 PasswordBox.Focus();
             }
-            catch (System.Exception ex)
+            catch (Exception ex)
             {
                 ShowError("Switch failed. See the log for details.");
                 Services.Logging.AppLogService.Error(
@@ -225,7 +228,7 @@ namespace ProGlassAutomation.Views.Shared
                     new Services.Logging.LogContext
                     {
                         Module = "Security",
-                        Class = nameof(UserSwitchDialog),
+                        Class = nameof(UserSwitchPanel),
                         Operation = "SwitchUser"
                     });
             }
@@ -234,8 +237,8 @@ namespace ProGlassAutomation.Views.Shared
                 SwitchButton.IsEnabled = _selected != null
                     && !string.Equals(_selected.Username,
                         AuditService.CurrentUsername,
-                        System.StringComparison.OrdinalIgnoreCase);
-                SwitchButton.Content = "SWITCH USER";
+                        StringComparison.OrdinalIgnoreCase);
+                SwitchButton.Content = "SWITCH";
             }
         }
 
@@ -244,9 +247,6 @@ namespace ProGlassAutomation.Views.Shared
             ErrorText.Text = message;
             ErrorText.Visibility = Visibility.Visible;
         }
-
-        private void OnCancelClick(object sender, RoutedEventArgs e)
-            => DialogResult = false;
 
         private static string PrettyRole(string? role) => role switch
         {

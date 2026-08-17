@@ -119,6 +119,40 @@ namespace ProGlassAutomation
             }
         }
 
+        // ── top-bar user card → non-blocking user-switch popup ──────────
+        // Single click opens the popup; double-click closes it. The popup
+        // is non-modal (StaysOpen=False), so it never blocks the module
+        // content behind it.
+
+        private void UserCardButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (DataContext is MainViewModel vm)
+                vm.IsUserSwitchOpen = !vm.IsUserSwitchOpen;
+        }
+
+        private void UserCardButton_PreviewMouseLeftButtonDown(
+            object sender, MouseButtonEventArgs e)
+        {
+            if (e.ClickCount >= 2 && DataContext is MainViewModel vm)
+            {
+                vm.IsUserSwitchOpen = false;
+                e.Handled = true;
+            }
+        }
+
+        private void UserSwitchPopup_Opened(object sender, System.EventArgs e)
+        {
+            if (UserSwitchPanelHost != null)
+                UserSwitchPanelHost.RefreshAsync();
+        }
+
+        private void UserSwitchPopup_Closed(object sender, System.EventArgs e)
+        {
+            // If the user switched identities, refresh the top-bar pill.
+            if (DataContext is MainViewModel vm)
+                vm.RefreshCurrentUserPublic();
+        }
+
         /// <summary>
         /// Click on the dim overlay closes the menu drawer.
         /// (Settings drawer no longer exists — Settings is a module.)

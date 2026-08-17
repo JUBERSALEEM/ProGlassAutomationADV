@@ -123,6 +123,22 @@ namespace ProGlassAutomation.ViewModels
             }
         }
 
+        private bool _isUserSwitchOpen;
+        /// <summary>
+        /// True while the user-switch popup is open. Bound to a WPF Popup so
+        /// it floats over the shell without blocking module interaction.
+        /// </summary>
+        public bool IsUserSwitchOpen
+        {
+            get => _isUserSwitchOpen;
+            set
+            {
+                if (_isUserSwitchOpen == value) return;
+                _isUserSwitchOpen = value;
+                OnPropertyChanged();
+            }
+        }
+
         /// <summary>Opens/closes the agent chat panel.</summary>
         public ICommand ToggleAgentChatCommand { get; private set; }
 
@@ -380,7 +396,9 @@ namespace ProGlassAutomation.ViewModels
             CurrentTimeText = now.ToString("HH:mm:ss");
         }
 
-        /// <summary>Reads the signed-in user for the top-bar pill.</summary>
+        /// <summary>Public refresh of the top-bar user pill after a switch.</summary>
+        public void RefreshCurrentUserPublic() => RefreshCurrentUser();
+
         private void RefreshCurrentUser()
         {
             var user = Services.Audit.AuditService.CurrentUser;
@@ -461,11 +479,11 @@ namespace ProGlassAutomation.ViewModels
         public ICommand ShowSettingsCommand { get; }
 
         /// <summary>
-        /// Opens the secure user-switch dialog. Lists the active users and
+        /// Toggles the secure user-switch popup. Lists the active users and
         /// switches the signed-in identity only after the selected user's
         /// password is verified (reuses AuditService.SwitchUserAsync, so a
         /// user whose password was set by someone else cannot be entered
-        /// without that password).
+        /// without that password). Non-blocking Popup.
         /// </summary>
         public ICommand ShowUserSwitchCommand { get; }
 
@@ -564,14 +582,11 @@ namespace ProGlassAutomation.ViewModels
                 IsMenuOpen = false;
             });
 
-            // Opens the user-switch dialog (secure — password verified).
+            // Toggles the user-switch popup (non-blocking). The popup's
+            // Opened event refreshes the user list and the pill refresh is
+            // handled after it closes, so switching reflects immediately.
             ShowUserSwitchCommand = new RelayCommand(_ =>
-            {
-                System.Windows.Application.Current?.Dispatcher.Invoke(
-                    () => ProGlassAutomation.Views.Shared.UserSwitchDialog.Show(
-                        System.Windows.Application.Current.MainWindow));
-                RefreshCurrentUser();
-            });
+                IsUserSwitchOpen = !IsUserSwitchOpen);
 
             // ── connectivity pill: follow the shared ConnectivityService ──
             if (App.Connectivity != null)

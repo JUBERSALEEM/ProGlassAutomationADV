@@ -65,6 +65,7 @@
         xmlns:viewsTaxInvoice="clr-namespace:ProGlassAutomation.Views.TaxInvoice"
         xmlns:viewsReports="clr-namespace:ProGlassAutomation.Views.Reports"
         xmlns:viewsAi="clr-namespace:ProGlassAutomation.Views.AI"
+        xmlns:viewsShared="clr-namespace:ProGlassAutomation.Views.Shared"
         xmlns:agentUi="clr-namespace:ProGlassAutomation.Agent.UI"
         xmlns:viewsSystem="clr-namespace:ProGlassAutomation.Views.SystemCenter"
         xmlns:viewsCompany="clr-namespace:ProGlassAutomation.Views.CompanyCenter"
@@ -880,16 +881,18 @@
                             ToolTip="About"
                             Margin="0,0,10,0"/>
 
-                    <!-- USER CARD — opens the secure user-switch dropdown.
-                         Shows the signed-in user + role; clicking lists the
-                         active users and requires the selected user's
-                         password to switch (SwitchUserAsync). -->
-                    <Button Command="{Binding ShowUserSwitchCommand}"
+                    <!-- USER CARD — opens a NON-BLOCKING user-switch popup.
+                         Single click opens; double-click (or clicking another
+                         module) closes. The popup floats over the shell and
+                         never blocks the module content behind it. -->
+                    <Button x:Name="UserCardButton"
                             Background="Transparent"
                             BorderThickness="0"
                             Cursor="Hand"
                             FocusVisualStyle="{x:Null}"
-                            ToolTip="Switch user — pick a user and enter their password">
+                            Click="UserCardButton_Click"
+                            PreviewMouseLeftButtonDown="UserCardButton_PreviewMouseLeftButtonDown"
+                            ToolTip="Switch user — click to open, double-click to close">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="Bg"
@@ -1296,4 +1299,21 @@
 
         </Grid>
     </Grid>
+
+    <!-- NON-BLOCKING USER-SWITCH POPUP.
+         Floats over the shell; StaysOpen=False so clicking any module (or
+         clicking the user card again) dismisses it. Hosted at the window
+         root so it is not clipped by the top-bar StackPanel. -->
+    <Popup x:Name="UserSwitchPopup"
+           PlacementTarget="{Binding ElementName=UserCardButton}"
+           Placement="Bottom"
+           VerticalOffset="10"
+           AllowsTransparency="True"
+           StaysOpen="False"
+           PopupAnimation="Fade"
+           IsOpen="{Binding IsUserSwitchOpen, Mode=TwoWay}"
+           Opened="UserSwitchPopup_Opened"
+           Closed="UserSwitchPopup_Closed">
+        <viewsShared:UserSwitchPanel x:Name="UserSwitchPanelHost" Width="360"/>
+    </Popup>
 </Window>
