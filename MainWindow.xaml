@@ -1298,22 +1298,21 @@
             </Border>
 
         </Grid>
-    </Grid>
-
-    <!-- NON-BLOCKING USER-SWITCH POPUP.
-         Floats over the shell; StaysOpen=False so clicking any module (or
-         clicking the user card again) dismisses it. Hosted at the window
-         root so it is not clipped by the top-bar StackPanel. -->
-    <Popup x:Name="UserSwitchPopup"
-           PlacementTarget="{Binding ElementName=UserCardButton}"
-           Placement="Bottom"
-           VerticalOffset="10"
-           AllowsTransparency="True"
-           StaysOpen="False"
-           PopupAnimation="Fade"
-           IsOpen="{Binding IsUserSwitchOpen, Mode=TwoWay}"
-           Opened="UserSwitchPopup_Opened"
-           Closed="UserSwitchPopup_Closed">
-        <viewsShared:UserSwitchPanel x:Name="UserSwitchPanelHost" Width="360"/>
-    </Popup>
+    
+        <!-- NON-BLOCKING USER-SWITCH POPUP. Floats over the shell; it is a
+             single Popup inside the root Grid (not a second Window child),
+             so StaysOpen=False lets clicking any module dismiss it. -->
+        <Popup x:Name="UserSwitchPopup"
+               PlacementTarget="{Binding ElementName=UserCardButton}"
+               Placement="Bottom"
+               VerticalOffset="10"
+               AllowsTransparency="True"
+               StaysOpen="False"
+               PopupAnimation="Fade"
+               IsOpen="{Binding IsUserSwitchOpen, Mode=TwoWay}"
+               Opened="UserSwitchPopup_Opened"
+               Closed="UserSwitchPopup_Closed">
+            <viewsShared:UserSwitchPanel x:Name="UserSwitchPanelHost" Width="360"/>
+        </Popup>
+</Grid>
 </Window>
