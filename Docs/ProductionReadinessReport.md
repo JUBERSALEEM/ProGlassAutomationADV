@@ -331,7 +331,7 @@ reading the code, not by pattern-matching.
 
 | Package | Version | Licence / Risk | Recommendation |
 |---------|---------|----------------|----------------|
-| QuestPDF | 2024.12.2 | **Community MIT only below USD 1M revenue.** Code sets `LicenseType.Community` in 2 places. | **Confirm eligibility before commercial sale** |
+| QuestPDF | 2024.12.2 | Community licence v3.0: free for businesses under **USD 1M** annual gross revenue, commercial use permitted. Code sets `LicenseType.Community` in 2 places. | **ELIGIBLE — no action.** Re-check only if revenue crosses USD 1M (90-day grace) or the company becomes publicly traded/public-sector. |
 | ClosedXML | 0.105.0 | MIT | Keep |
 | CsvHelper | 33.1.0 | MS-PL / Apache-2.0 | Keep |
 | EFCore.Sqlite +Design +Tools | 8.0.10 | MIT, matches net8.0 | Keep |
@@ -353,7 +353,8 @@ package knowledge, not a vulnerability feed.
 ### MUST FIX BEFORE PACKAGING
 1. **Disable `UpdateService` when packaged.** The Store owns updates; an app that downloads
    and launches its own installer fails certification (Policy 10.1.1 / 10.2).
-2. **QuestPDF licence tier** — confirm.
+2. ~~**QuestPDF licence tier**~~ — **confirmed eligible.** Community licence is
+   already set in code and valid below USD 1M revenue. No action.
 3. ~~**A-1 service-layer authorization**~~ — **DONE.** All mutating repository and
    service methods now go through `OperationGuard`. Note the caveat under
    Remaining Risks #1: with no sign-in screen the guards still run against an
@@ -435,15 +436,17 @@ security/reliability pass, and a schema change would have broken existing user d
 list (A-1, A-2, X-6, virtualization, silent catches) are now fixed and are
 recorded in §16a; what follows is what is genuinely still open.*
 
-1. **No authentication boundary.** This is now the highest open item, and it is
-   a **design gap, not a bug**. The app has no sign-in screen: it starts as the
-   lowest-`Id` active user, which on a fresh install is an administrator. A-3
-   added password rotation and a default-credential warning, but a warning is
-   not authentication. Until a sign-in screen exists, the A-1 permission guards
-   describe what the current user *may* do without ever establishing *who they
-   are*, and anyone with physical access to the machine has full rights.
-   Reasonable for a single-operator offline install; **not** acceptable if the
-   workstation is shared.
+1. ~~**No authentication boundary.**~~ **RESOLVED (AUTH-1).** A sign-in window now
+   runs before `MainWindow` is created; the app can no longer start as an
+   unverified administrator. It reuses `AuditService.SwitchUserAsync`, so there is
+   exactly one authentication path. Uniform error text prevents username
+   enumeration; lockout is 3 attempts then 15s, in-memory only (a persisted
+   lockout on an offline app can strand a user in their own data).
+   **Residual, stated plainly:** this is a *local identity gate* — it makes the
+   audit trail truthful and the A-1 role guards meaningful. It is **not**
+   protection against someone who already has the machine, because the SQLite
+   files are unencrypted. Database encryption is the separate control for that
+   threat and is not implemented.
 2. **D-4** — no cross-database transaction for the PI→JO→DN→TI chain. Eleven
    separate SQLite files cannot be committed atomically. The X-6 tracker warns
    on shutdown mid-write and the failure is now logged and audited, but a
@@ -455,14 +458,23 @@ recorded in §16a; what follows is what is genuinely still open.*
    disclosure is now honest and the boundary is documented, but no consent
    prompt or redaction pass exists. **This is a Store privacy-policy blocker,
    not just an internal risk.**
-4. **QuestPDF licence** — Community tier is only valid below USD 1M revenue.
-4. **`UpdateService` origin checking is not authenticity checking.** The
+4. ~~**QuestPDF licence**~~ **RESOLVED — no action needed.**
+   `QuestPDF.Settings.License = LicenseType.Community` is already set at both PDF
+   entry points (`PdfExportEngine.cs:57`, `SheetStorePdfService.cs:21`). The
+   Community licence (v3.0) explicitly covers *"qualifying small businesses below
+   the stated revenue threshold"* of **USD 1,000,000 annual gross revenue** and
+   permits commercial use, so a startup below that threshold is eligible with no
+   payment and no code change. Two conditions worth knowing, neither a blocker
+   today: public-sector bodies and publicly traded companies are excluded
+   regardless of revenue, and if revenue later crosses USD 1M there is a **90-day**
+   window to purchase a licence.
+5. **`UpdateService` origin checking is not authenticity checking.** The
    download URL is restricted to an exact GitHub host allowlist over HTTPS, but
    the payload itself is **not signature-verified**. A compromised release asset
    would still install.
-5. **Everything in §12** that could not be tested — no .NET SDK, no Windows, no
-   profiler in this environment. **The three security test files have still
-   never been executed.**
+6. **Everything in §12** that could not be tested — no .NET SDK, no Windows, no
+   profiler in this environment. **The 19 test files, including the 3 security
+   suites written during this audit, have still never been executed.**
 
 ## 16a. Second remediation round — what changed
 
@@ -476,6 +488,9 @@ recorded in §16a; what follows is what is genuinely still open.*
 | **S-5** | 24 multi-line silent catches | Reviewed individually. **5 converted** across both rounds (audit trail, AI-memory clear, backup pruning, config save, JO snapshot parse); the other 19 are deliberately silent — logger internals, last-chance handlers, the audit-of-denial path, and viewer-launch/temp-cleanup best-effort catches — and converting them would risk recursion or false alarms. **CLOSED** |
 | **A-3** | Default `admin`/`admin`, "never forced to rotate" | Understated. There was **no change-password path at all**, and no sign-in screen, so a fresh install runs as full administrator unprompted. Rotation added + default-credential banner. **FIXED, with the authentication gap recorded as a remaining risk.** |
 | **A-1 remainder** | 3 mutating service methods still unguarded | `SpecificationsRepository.SaveOrUpdateAsync` (`ProformaEdit`) and `.DeleteAsync` (`ProformaDelete`); `ProformaAttachmentService.DeleteAsync` / `.RenameAsync` (`ProformaEdit`). `MarkAsUsedAsync` left unguarded on purpose — it only bumps a usage counter, and guarding it would make an Operator's normal use of an existing spec fail. **CLOSED** |
+| **AUTH-1** | No sign-in screen at all; app started as an unverified administrator | Sign-in window before `MainWindow`, reusing `AuditService.SwitchUserAsync` (one auth path). Uniform error text blocks username enumeration; 3-attempt / 15s in-memory lockout. **FIXED** — residual: local identity gate, not at-rest protection (DBs unencrypted). |
+| **PERF-2** | Dashboards read `FullSnapshotJson` blobs just to sum totals | `GetAnalyticsRowsAsync`: `AsNoTracking` + 5-column projection, so blob columns are never read. Added alongside `GetAllAsync` (23 callers) rather than changing it. **FIXED for PI dashboard**; 4 dashboards still on `GetAllAsync`. |
+| **UX-1** | Whisper download showed only a bare % and kept saying "DOWNLOAD MODEL" | Speed (smoothed MB/s), `x of y MB`, ETA; progress throttled to ~4/sec; `InvokeAsync` so the UI cannot throttle the transfer; button reads "DOWNLOADING…" and disables. **FIXED** |
 | **P-1** | Customer names + AED totals sent to a third-party LLM, undisclosed | Disclosure fixed and boundary documented; **the egress itself is unchanged and still opt-out**. See below. |
 
 ### P-1 — what was fixed, and what was not
