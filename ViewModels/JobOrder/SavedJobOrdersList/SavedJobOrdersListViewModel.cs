@@ -454,6 +454,10 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                     AuditSections.JobOrder, "Job order deleted",
                     row.JobOrderId, "JO", row.JobOrderId);
 
+                // A deleted Job Order means its source quote is no longer
+                // approved — cascade the source Proforma Invoice to Rejected.
+                await MarkSourceProformaRejectedAsync(row.SourceProformaId);
+
                 await LoadJobOrdersAsync();
             }
             catch (Exception ex)
@@ -612,6 +616,11 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                     AuditSections.JobOrder, "Job order status changed",
                     $"{entity.JobOrderId} → {newStatus}", "JO", entity.JobOrderId);
 
+                // Marking a Job Order rejected revokes its source quote's
+                // approval — cascade the source Proforma Invoice to Rejected.
+                if (string.Equals(newStatus, "Rejected", StringComparison.OrdinalIgnoreCase))
+                    await MarkSourceProformaRejectedAsync(row.SourceProformaId);
+
                 await LoadJobOrdersAsync();
             }
             catch (Exception ex)
@@ -664,9 +673,53 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         }
 
         // ═════════════════════════════════════════════════════════════════
-        //  EXPORT (Phase 9.5a-r3 — called from right-click menu)
+        //  CASCADE — delete/reject a Job Order revokes the source quote
         // ═════════════════════════════════════════════════════════════════
 
+        /// <summary>
+        /// When a Job Order is deleted or marked Rejected, its source Proforma
+        /// Invoice can no longer be considered approved. If that invoice is
+        /// currently "Approved", this marks it "Rejected" — a valid status in
+        /// the Proforma Invoice list. Failures are swallowed so the delete /
+        /// reject action itself is never blocked by the cascade.
+        /// </summary>
+        private async Task MarkSourceProformaRejectedAsync(string? sourceProformaId)
+        {
+            if (string.IsNullOrWhiteSpace(sourceProformaId) || App.Invoices == null) return;
+
+            try
+            {
+                var pi = await App.Invoices.GetByProformaIdAsync(sourceProformaId);
+                if (pi == null) return;
+
+                if (string.Equals(pi.Status, "Approved", StringComparison.OrdinalIgnoreCase))
+                {
+                    pi.Status = "Rejected";
+                    pi.UpdatedAt = DateTime.Now;
+                    await App.Invoices.UpdateAsync(pi);
+
+                    AuditService.Log(
+                        AuditSections.Proforma, "Invoice auto-rejected",
+                        $"{sourceProformaId} ← job order deleted/rejected",
+                        "PI", sourceProformaId);
+                }
+            }
+            catch (Exception ex)
+            {
+                ProGlassAutomation.Services.Logging.AppLogService.Error(
+                    "Source Proforma auto-reject cascade failed.", ex,
+                    new ProGlassAutomation.Services.Logging.LogContext
+                    {
+                        Module = "Job Order",
+                        Class = nameof(SavedJobOrdersListViewModel),
+                        Operation = "MarkSourceProformaRejected"
+                    });
+            }
+        }
+
+        // ═════════════════════════════════════════════════════════════════
+        //  EXPORT (Phase 9.5a-r3 — called from right-click menu)
+        // ═════════════════════════════════════════════════════════════════
         /// <summary>
         /// Loads the full entity + snapshot for the given row and exports
         /// a PDF via the shared export engine. Wired to the "Export PDF"

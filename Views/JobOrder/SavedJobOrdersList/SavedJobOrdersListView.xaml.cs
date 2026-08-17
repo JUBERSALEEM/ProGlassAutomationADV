@@ -111,7 +111,7 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
             // sync (the detail view and production sheet read the snapshot),
             // and so the error handling + audit trail live in one place.
             // Same Tuple parameter convention as the Proforma Invoice list.
-            foreach (var status in new[] { "Draft", "Released", "InProduction", "Completed", "Delivered" })
+            foreach (var status in new[] { "Draft", "Released", "InProduction", "Completed", "Delivered", "Rejected" })
             {
                 string label = status switch
                 {
