@@ -179,10 +179,67 @@ namespace ProGlassAutomation.Services.AI.AIVoice
             CancellationToken cancellationToken = default) =>
             DownloadModelAsync(SelectedModelKey, progress, cancellationToken);
 
+        /// <summary>
+        /// Rich progress for a model download: percentage plus the numbers
+        /// needed to show speed and a remaining-time estimate.
+        /// </summary>
+        public sealed class DownloadProgressInfo
+        {
+            public int Percent { get; init; }
+            public long BytesReceived { get; init; }
+            public long TotalBytes { get; init; }
+
+            /// <summary>Bytes per second, smoothed. 0 until measurable.</summary>
+            public double BytesPerSecond { get; init; }
+
+            /// <summary>Null when the server sent no Content-Length.</summary>
+            public TimeSpan? Remaining { get; init; }
+
+            public string SpeedText => BytesPerSecond <= 0
+                ? "--"
+                : BytesPerSecond >= 1024d * 1024d
+                    ? $"{BytesPerSecond / (1024d * 1024d):F1} MB/s"
+                    : $"{BytesPerSecond / 1024d:F0} KB/s";
+
+            public string SizeText => TotalBytes > 0
+                ? $"{BytesReceived / (1024d * 1024d):F0} of "
+                  + $"{TotalBytes / (1024d * 1024d):F0} MB"
+                : $"{BytesReceived / (1024d * 1024d):F0} MB";
+
+            public string RemainingText
+            {
+                get
+                {
+                    if (Remaining is not { } r) return "";
+                    if (r.TotalHours >= 1)
+                        return $"{(int)r.TotalHours}h {r.Minutes}m left";
+                    if (r.TotalMinutes >= 1)
+                        return $"{r.Minutes}m {r.Seconds}s left";
+                    return $"{r.Seconds}s left";
+                }
+            }
+        }
+
         /// <summary>Downloads a specific model by key.</summary>
         public static async Task<bool> DownloadModelAsync(
             string modelKey,
             Action<int> progress = null,
+            CancellationToken cancellationToken = default)
+            => await DownloadModelAsync(
+                modelKey,
+                progress == null
+                    ? null
+                    : new Action<DownloadProgressInfo>(p => progress(p.Percent)),
+                cancellationToken);
+
+        /// <summary>
+        /// Download with rich progress (percent + speed + ETA). The
+        /// Action&lt;int&gt; overload above forwards to this one so existing
+        /// callers keep working unchanged.
+        /// </summary>
+        public static async Task<bool> DownloadModelAsync(
+            string modelKey,
+            Action<DownloadProgressInfo> progress,
             CancellationToken cancellationToken = default)
         {
             var modelInfo = GetModelInfo(modelKey);
@@ -217,6 +274,16 @@ namespace ProGlassAutomation.Services.AI.AIVoice
                 var buffer = new byte[81920];
                 int bytesRead;
 
+                // Speed / ETA state. Progress is reported at most ~4x per
+                // second: a 3 GB download completes millions of read loops,
+                // and marshalling every one onto the UI thread would make
+                // the download itself the cause of the UI stutter.
+                var started = System.Diagnostics.Stopwatch.StartNew();
+                var lastReport = TimeSpan.Zero;
+                long lastReportBytes = 0;
+                double smoothedBps = 0;
+                const double ReportIntervalMs = 250;
+
                 while ((bytesRead = await contentStream.ReadAsync(
                            buffer, 0, buffer.Length, cancellationToken)) > 0)
                 {
@@ -225,9 +292,52 @@ namespace ProGlassAutomation.Services.AI.AIVoice
 
                     downloadedBytes += bytesRead;
 
-                    if (totalBytes > 0)
-                        progress?.Invoke(
-                            (int)(downloadedBytes * 100 / totalBytes));
+                    if (progress == null) continue;
+
+                    var now = started.Elapsed;
+                    double sinceMs = (now - lastReport).TotalMilliseconds;
+                    bool finished = totalBytes > 0 && downloadedBytes >= totalBytes;
+
+                    if (sinceMs < ReportIntervalMs && !finished) continue;
+
+                    if (sinceMs > 0)
+                    {
+                        double instantBps =
+                            (downloadedBytes - lastReportBytes) / (sinceMs / 1000d);
+
+                        // Exponential smoothing: raw per-interval speed on a
+                        // real connection swings wildly and makes the readout
+                        // unreadable.
+                        smoothedBps = smoothedBps <= 0
+                            ? instantBps
+                            : (smoothedBps * 0.7) + (instantBps * 0.3);
+                    }
+
+                    TimeSpan? eta = null;
+                    if (totalBytes > 0 && smoothedBps > 0)
+                    {
+                        double secondsLeft =
+                            (totalBytes - downloadedBytes) / smoothedBps;
+
+                        // Cap the display: an absurd ETA from a momentary
+                        // stall is worse than showing nothing.
+                        if (secondsLeft >= 0 && secondsLeft < 60 * 60 * 24)
+                            eta = TimeSpan.FromSeconds(secondsLeft);
+                    }
+
+                    progress.Invoke(new DownloadProgressInfo
+                    {
+                        Percent = totalBytes > 0
+                            ? (int)(downloadedBytes * 100 / totalBytes)
+                            : 0,
+                        BytesReceived  = downloadedBytes,
+                        TotalBytes     = totalBytes,
+                        BytesPerSecond = smoothedBps,
+                        Remaining      = eta
+                    });
+
+                    lastReport = now;
+                    lastReportBytes = downloadedBytes;
                 }
 
                 await fileStream.FlushAsync(cancellationToken);
@@ -266,7 +376,14 @@ namespace ProGlassAutomation.Services.AI.AIVoice
                 if (File.Exists(targetPath)) File.Delete(targetPath);
                 File.Move(tempPath, targetPath);
 
-                progress?.Invoke(100);
+                progress?.Invoke(new DownloadProgressInfo
+                {
+                    Percent = 100,
+                    BytesReceived = downloadedBytes,
+                    TotalBytes = totalBytes > 0 ? totalBytes : downloadedBytes,
+                    BytesPerSecond = 0,
+                    Remaining = TimeSpan.Zero
+                });
                 return true;
             }
             catch (OperationCanceledException)

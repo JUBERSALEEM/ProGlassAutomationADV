@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Dashboard/PiDashboardViewModel.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Proforma Invoice Dashboard (Chat 23 v2.2)
@@ -96,7 +96,12 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         // ═════════════════════════════════════════════════════════════════
         protected override async Task LoadCoreAsync()
         {
-            var invoices = await App.Invoices.GetAllAsync();
+            // PERF-2: was GetAllAsync(), which materialised every column
+            // including the FullSnapshotJson blob for every invoice, just
+            // to count rows and sum totals. GetAnalyticsRowsAsync projects
+            // only the 5 scalar columns used below, AsNoTracking. Property
+            // names are identical, so the aggregation code is unchanged.
+            var invoices = await App.Invoices.GetAnalyticsRowsAsync();
 
             int total = invoices.Count;
             decimal totalVal = invoices.Sum(i => i.GrandTotalVatInclusive);

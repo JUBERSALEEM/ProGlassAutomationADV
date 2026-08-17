@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -51,6 +51,22 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         /// BUG-12: Optional cancellation token for long-running loads.
         /// </summary>
         Task<List<SavedProformaInvoice>> GetAllAsync(
+            CancellationToken cancellationToken = default);
+
+        /// <summary>
+        /// PERF-2: analytics-only projection for dashboards.
+        ///
+        /// GetAllAsync materialises every column of every row, including
+        /// FullSnapshotJson — a complete invoice snapshot blob — and the
+        /// dashboards were reading all of it just to count rows and sum
+        /// totals. This reads only the 5 scalar columns they actually use,
+        /// with AsNoTracking, so the blob column is never touched.
+        ///
+        /// Deliberately a NEW method: GetAllAsync has 23 callers and some
+        /// of them genuinely need the snapshot, so changing it in place
+        /// would have been unsafe.
+        /// </summary>
+        Task<List<ProformaAnalyticsRow>> GetAnalyticsRowsAsync(
             CancellationToken cancellationToken = default);
 
         Task DeleteAsync(int id);

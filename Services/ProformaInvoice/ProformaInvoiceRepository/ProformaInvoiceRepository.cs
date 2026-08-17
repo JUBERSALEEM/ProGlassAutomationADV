@@ -259,6 +259,32 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
                 .ToListAsync(cancellationToken);
         }
 
+        /// <summary>
+        /// PERF-2: see IProformaInvoiceRepository for why this exists
+        /// alongside GetAllAsync rather than replacing it.
+        /// </summary>
+        public async Task<List<ProformaAnalyticsRow>> GetAnalyticsRowsAsync(
+            CancellationToken cancellationToken = default)
+        {
+            using var db = new ProformaInvoicesDbContext();
+
+            // AsNoTracking: these rows are read-only analytics input, so
+            // there is no reason to build change-tracking entries for them.
+            // The Select is what keeps FullSnapshotJson off the wire.
+            return await db.ProformaInvoices
+                .AsNoTracking()
+                .OrderByDescending(x => x.CreatedAt)
+                .Select(x => new ProformaAnalyticsRow
+                {
+                    Status                 = x.Status,
+                    CustomerName           = x.CustomerName,
+                    GrandTotalVatInclusive = x.GrandTotalVatInclusive,
+                    CreatedAt              = x.CreatedAt,
+                    IssueDate              = x.IssueDate
+                })
+                .ToListAsync(cancellationToken);
+        }
+
         public async Task DeleteAsync(int id)
         {
             // A-1: service-layer authorization. The UI also checks,

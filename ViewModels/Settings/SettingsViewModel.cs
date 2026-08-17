@@ -1,4 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════════
+﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Settings/SettingsViewModel.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Settings (Chat 25 v1.1 — CS0272 fix)
@@ -169,17 +169,36 @@ namespace ProGlassAutomation.ViewModels.Settings
 
                 var success = await WhisperModelManager.DownloadModelAsync(
                     modelKey,
-                    progress =>
+                    (WhisperModelManager.DownloadProgressInfo info) =>
                     {
-                        System.Windows.Application.Current?.Dispatcher.Invoke(() =>
+                        // InvokeAsync, not Invoke: Invoke blocks the download
+                        // thread until the UI thread is free, so a busy UI
+                        // throttled the transfer itself.
+                        System.Windows.Application.Current?.Dispatcher.InvokeAsync(() =>
                         {
-                            DownloadProgress = progress;
-                            VoiceStatus = $"Downloading… {progress}%";
+                            DownloadProgress  = info.Percent;
+                            DownloadSpeedText = info.SpeedText;
+                            DownloadSizeText  = info.SizeText;
+                            DownloadEtaText   = info.RemainingText;
+
+                            VoiceStatus =
+                                $"Downloading {modelInfo.DisplayName} — "
+                                + $"{info.Percent}%  ·  {info.SizeText}"
+                                + (info.BytesPerSecond > 0
+                                    ? $"  ·  {info.SpeedText}" : "")
+                                + (string.IsNullOrEmpty(info.RemainingText)
+                                    ? "" : $"  ·  {info.RemainingText}");
                         });
                     },
                     _downloadCts.Token);
 
                 IsDownloadingModel = false;
+
+                // Clear the transient readouts so a finished or cancelled
+                // download does not leave a stale speed on screen.
+                DownloadSpeedText = "";
+                DownloadSizeText  = "";
+                DownloadEtaText   = "";
 
                 if (success)
                 {
@@ -636,6 +655,46 @@ namespace ProGlassAutomation.ViewModels.Settings
             {
                 if (_downloadProgress == value) return;
                 _downloadProgress = value;
+                OnPropertyChanged();
+            }
+        }
+
+        // ── Whisper download detail (speed / size / ETA) ─────────────
+        private string _downloadSpeedText = "";
+        /// <summary>e.g. "4.2 MB/s" — empty when not downloading.</summary>
+        public string DownloadSpeedText
+        {
+            get => _downloadSpeedText;
+            set
+            {
+                if (_downloadSpeedText == value) return;
+                _downloadSpeedText = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _downloadSizeText = "";
+        /// <summary>e.g. "63 of 142 MB".</summary>
+        public string DownloadSizeText
+        {
+            get => _downloadSizeText;
+            set
+            {
+                if (_downloadSizeText == value) return;
+                _downloadSizeText = value;
+                OnPropertyChanged();
+            }
+        }
+
+        private string _downloadEtaText = "";
+        /// <summary>e.g. "1m 12s left". Empty when not estimable.</summary>
+        public string DownloadEtaText
+        {
+            get => _downloadEtaText;
+            set
+            {
+                if (_downloadEtaText == value) return;
+                _downloadEtaText = value;
                 OnPropertyChanged();
             }
         }

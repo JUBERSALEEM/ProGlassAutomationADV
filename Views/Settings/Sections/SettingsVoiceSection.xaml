@@ -252,25 +252,67 @@
                                                  Style="{StaticResource DownloadProgressBarStyle}"
                                                  Width="300"
                                                  HorizontalAlignment="Left"/>
-                                    <TextBlock Text="{Binding VoiceStatus}"
-                                               FontSize="10" FontWeight="Bold"
-                                               Foreground="{DynamicResource AccentBrush}"
-                                               Margin="0,4,0,0"
-                                               IsHitTestVisible="False"/>
+
+                                    <!-- Percent · size · speed · ETA.
+                                         Separators live in their own Runs so
+                                         they can hide with their value. -->
+                                    <StackPanel Orientation="Horizontal"
+                                                Margin="0,6,0,0">
+                                        <TextBlock FontSize="11" FontWeight="Bold"
+                                                   Foreground="{DynamicResource AccentBrush}"
+                                                   IsHitTestVisible="False">
+                                            <Run Text="{Binding DownloadProgress, Mode=OneWay}"/><Run Text="%"/>
+                                        </TextBlock>
+
+                                        <TextBlock Text="{Binding DownloadSizeText}"
+                                                   FontSize="11"
+                                                   Margin="10,0,0,0"
+                                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                                   IsHitTestVisible="False"/>
+
+                                        <TextBlock Text="{Binding DownloadSpeedText}"
+                                                   FontSize="11" FontWeight="Bold"
+                                                   Margin="10,0,0,0"
+                                                   Foreground="{DynamicResource SuccessBrush}"
+                                                   IsHitTestVisible="False"/>
+
+                                        <TextBlock Text="{Binding DownloadEtaText}"
+                                                   FontSize="11"
+                                                   Margin="10,0,0,0"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                   IsHitTestVisible="False"/>
+                                    </StackPanel>
                                 </StackPanel>
 
                                 <!-- Action buttons -->
                                 <StackPanel Orientation="Horizontal"
                                             Margin="0,10,0,0">
-                                    <Button Style="{StaticResource PrimaryPillButton}"
-                                            Tag="&#xE896;" Content="DOWNLOAD MODEL"
+                                    <!-- Reads DOWNLOADING… while in flight and
+                                         disables itself, instead of still
+                                         inviting a click that does nothing. -->
+                                    <Button Tag="&#xE896;"
                                             Command="{Binding DownloadWhisperModelCommand}"
                                             Margin="0,0,8,0"
                                             Visibility="{Binding IsWhisperModelReady,
                                                     Converter={StaticResource InverseBoolToVisibilityConverter}}"
                                             MinWidth="180"
                                             Height="34"
-                                            FontSize="11"/>
+                                            FontSize="11">
+                                        <Button.Style>
+                                            <Style TargetType="Button"
+                                                   BasedOn="{StaticResource PrimaryPillButton}">
+                                                <Setter Property="Content" Value="DOWNLOAD MODEL"/>
+                                                <Setter Property="IsEnabled" Value="True"/>
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsDownloadingModel}"
+                                                                 Value="True">
+                                                        <Setter Property="Content" Value="DOWNLOADING…"/>
+                                                        <Setter Property="IsEnabled" Value="False"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Button.Style>
+                                    </Button>
                                     <Button Style="{StaticResource OutlinedPillButton}"
                                             Tag="&#xE711;" Content="CANCEL"
                                             Command="{Binding CancelDownloadCommand}"
