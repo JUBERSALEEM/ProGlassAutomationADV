@@ -35,9 +35,18 @@ namespace ProGlassAutomation.Views.Shared
             };
         }
 
-        /// <summary>Opens the screenshot quality popup.</summary>
-        private void CaptureMenuButton_Click(object sender, RoutedEventArgs e)
-            => ScreenshotQualityPopup.IsOpen = !ScreenshotQualityPopup.IsOpen;
+        /// <summary>Reveals/hides the inline quality selector.</summary>
+        private void CaptureToggle_Click(object sender, RoutedEventArgs e)
+        {
+            if (CaptureToggle.IsChecked == true)
+            {
+                QualityPanel.Visibility = Visibility.Visible;
+            }
+            else
+            {
+                QualityPanel.Visibility = Visibility.Collapsed;
+            }
+        }
 
         /// <summary>Builds the reference-style quality rows.</summary>
         private void BuildQualityList()
@@ -128,7 +137,8 @@ namespace ProGlassAutomation.Views.Shared
             button.Content = grid;
             button.Click += (_, _) =>
             {
-                ScreenshotQualityPopup.IsOpen = false;
+                QualityPanel.Visibility = Visibility.Collapsed;
+                CaptureToggle.IsChecked = false;
                 Capture(quality);
             };
             return button;

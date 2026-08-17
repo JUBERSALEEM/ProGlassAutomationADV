@@ -72,11 +72,11 @@
                                        FontSize="11" FontWeight="SemiBold"
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"
                                        VerticalAlignment="Center"/>
-                            <Button x:Name="CaptureMenuButton"
-                                    HorizontalAlignment="Right"
-                                    Style="{StaticResource PrimaryPillButton}"
-                                    MinWidth="110"
-                                    Click="CaptureMenuButton_Click">
+                            <ToggleButton x:Name="CaptureToggle"
+                                          HorizontalAlignment="Right"
+                                          Style="{StaticResource PrimaryPillButton}"
+                                          MinWidth="110"
+                                          Click="CaptureToggle_Click">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xEB9F;"
                                                FontFamily="Segoe MDL2 Assets"
@@ -90,8 +90,23 @@
                                                Foreground="White"
                                                VerticalAlignment="Center"/>
                                 </StackPanel>
-                            </Button>
+                            </ToggleButton>
                         </Grid>
+
+                        <!-- Inline quality selector (revealed on click).
+                             Kept INSIDE this panel (no nested popup) so it
+                             cannot be dismissed by the shell's click-outside
+                             handling while the user picks a resolution. -->
+                        <StackPanel x:Name="QualityPanel"
+                                    Margin="0,8,0,0"
+                                    Visibility="Collapsed">
+                            <TextBlock Text="Choose resolution"
+                                       FontSize="10" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                       Margin="0,0,0,6"/>
+                            <StackPanel x:Name="QualityList"/>
+                        </StackPanel>
+
                         <TextBlock x:Name="CaptureStatus"
                                    FontSize="10"
                                    Foreground="{DynamicResource MutedForegroundBrush}"
@@ -99,37 +114,6 @@
                                    TextWrapping="Wrap"/>
                     </StackPanel>
                 </Border>
-
-                <!-- Screenshot quality popup (reference UI) -->
-                <Popup x:Name="ScreenshotQualityPopup"
-                       PlacementTarget="{Binding ElementName=CaptureMenuButton}"
-                       Placement="Bottom"
-                       VerticalOffset="6"
-                       AllowsTransparency="True"
-                       StaysOpen="False"
-                       PopupAnimation="Fade">
-                    <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                            BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="1.5"
-                            CornerRadius="12"
-                            MinWidth="300"
-                            Padding="0">
-                        <Border.Effect>
-                            <DropShadowEffect BlurRadius="24" ShadowDepth="3"
-                                              Opacity="0.18" Color="#000000" Direction="270"/>
-                        </Border.Effect>
-                        <StackPanel>
-                            <Border Background="{DynamicResource AccentBrush}"
-                                    CornerRadius="12,12,0,0"
-                                    Padding="16,12">
-                                <TextBlock Text="📷  Screenshot Quality"
-                                           FontSize="13" FontWeight="Bold"
-                                           Foreground="White"/>
-                            </Border>
-                            <StackPanel x:Name="QualityList" Margin="8,10,8,10"/>
-                        </StackPanel>
-                    </Border>
-                </Popup>
             </StackPanel>
         </Grid>
     </Border>

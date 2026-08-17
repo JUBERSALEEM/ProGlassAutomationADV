@@ -49,25 +49,27 @@ namespace ProGlassAutomation
             // X-6: refuse to close while a multi-step write is running.
             Closing += MainWindow_Closing;
 
-            // Close any open top-bar popup when the user clicks anywhere
-            // that is not its trigger button. Keeps each popup's StaysOpen
-            // reliable while letting a click on a module dismiss it.
+            // Close any open top-bar popup when the user clicks anywhere that
+            // is NOT its trigger button AND NOT inside the popup's own content.
+            // (Clicking inside an open popup must not dismiss it.) Keeps each
+            // popup's StaysOpen reliable while letting a click on a module
+            // dismiss it.
             PreviewMouseLeftButtonDown += (_, e) =>
             {
                 if (DataContext is not MainViewModel vm) return;
 
                 var source = e.OriginalSource as DependencyObject;
 
-                bool In(DependencyObject button) =>
-                    source != null && IsDescendantOf(source, button);
+                bool In(DependencyObject root) =>
+                    source != null && IsDescendantOf(source, root);
 
-                if (vm.IsUserSwitchOpen && !In(UserCardButton))
+                if (vm.IsUserSwitchOpen && !In(UserCardButton) && !In(UserSwitchPanelHost))
                     vm.IsUserSwitchOpen = false;
-                if (vm.IsSettingsOpen && !In(SettingsButton))
+                if (vm.IsSettingsOpen && !In(SettingsButton) && !In(SettingsPanelHost))
                     vm.IsSettingsOpen = false;
-                if (vm.IsAboutOpen && !In(AboutButton))
+                if (vm.IsAboutOpen && !In(AboutButton) && !In(AboutPanelHost))
                     vm.IsAboutOpen = false;
-                if (vm.IsNotificationsOpen && !In(NotificationButton))
+                if (vm.IsNotificationsOpen && !In(NotificationButton) && !In(ActivityPanelHost))
                     vm.IsNotificationsOpen = false;
             };
         }
