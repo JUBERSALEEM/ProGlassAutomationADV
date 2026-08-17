@@ -231,16 +231,37 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                     await DeleteJobOrderAsync(row);
             });
 
+            // Mirrors the Proforma Invoice module's BUG-72 fix: the list's
+            // code-behind context menu passes Tuple.Create(row, status) as the
+            // command parameter, so accept both Tuple and ValueTuple shapes.
             ChangeStatusCommand = new RelayCommand(async param =>
             {
-                if (param is (JobOrderRowViewModel row, string newStatus))
-                    await ChangeStatusAsync(row, newStatus);
+                switch (param)
+                {
+                    case Tuple<JobOrderRowViewModel, string> tuple
+                        when tuple.Item1 != null && !string.IsNullOrWhiteSpace(tuple.Item2):
+                        await ChangeStatusAsync(tuple.Item1, tuple.Item2);
+                        break;
+                    case ValueTuple<JobOrderRowViewModel, string> vtuple
+                        when vtuple.Item1 != null && !string.IsNullOrWhiteSpace(vtuple.Item2):
+                        await ChangeStatusAsync(vtuple.Item1, vtuple.Item2);
+                        break;
+                }
             });
 
             ChangePriorityCommand = new RelayCommand(async param =>
             {
-                if (param is (JobOrderRowViewModel row, string newPriority))
-                    await ChangePriorityAsync(row, newPriority);
+                switch (param)
+                {
+                    case Tuple<JobOrderRowViewModel, string> tuple
+                        when tuple.Item1 != null && !string.IsNullOrWhiteSpace(tuple.Item2):
+                        await ChangePriorityAsync(tuple.Item1, tuple.Item2);
+                        break;
+                    case ValueTuple<JobOrderRowViewModel, string> vtuple
+                        when vtuple.Item1 != null && !string.IsNullOrWhiteSpace(vtuple.Item2):
+                        await ChangePriorityAsync(vtuple.Item1, vtuple.Item2);
+                        break;
+                }
             });
 
             RefreshCommand = new RelayCommand(async _ => await LoadJobOrdersAsync());
@@ -570,7 +591,26 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 
                 entity.Status = newStatus;
                 entity.UpdatedAt = DateTime.Now;
+
+                // Keep the embedded snapshot's Production.Status in sync.
+                // The detail view, its save path and the PDF/Excel production
+                // sheet all read the status from the snapshot, so a list-side
+                // change must be reflected there too — otherwise reopening
+                // (and saving) the order would silently revert this change.
+                var snapshot = JobOrderMapper.DeserializeSnapshot(entity);
+                if (snapshot?.Production != null)
+                {
+                    snapshot.Production.Status = newStatus;
+                    snapshot.Production.LastEditedAt = DateTime.Now;
+                    snapshot.Production.LastEditedBy = Environment.UserName;
+                    entity.FullSnapshotJson = JobOrderMapper.SerializeSnapshot(snapshot);
+                }
+
                 await App.Jobs.UpdateAsync(entity);
+
+                AuditService.Log(
+                    AuditSections.JobOrder, "Job order status changed",
+                    $"{entity.JobOrderId} → {newStatus}", "JO", entity.JobOrderId);
 
                 await LoadJobOrdersAsync();
             }
@@ -593,7 +633,23 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 
                 entity.Priority = newPriority;
                 entity.UpdatedAt = DateTime.Now;
+
+                // Same consistency requirement as status: the production
+                // sheet and detail view read priority from the snapshot.
+                var snapshot = JobOrderMapper.DeserializeSnapshot(entity);
+                if (snapshot?.Production != null)
+                {
+                    snapshot.Production.Priority = newPriority;
+                    snapshot.Production.LastEditedAt = DateTime.Now;
+                    snapshot.Production.LastEditedBy = Environment.UserName;
+                    entity.FullSnapshotJson = JobOrderMapper.SerializeSnapshot(snapshot);
+                }
+
                 await App.Jobs.UpdateAsync(entity);
+
+                AuditService.Log(
+                    AuditSections.JobOrder, "Job order priority changed",
+                    $"{entity.JobOrderId} → {newPriority}", "JO", entity.JobOrderId);
 
                 await LoadJobOrdersAsync();
             }

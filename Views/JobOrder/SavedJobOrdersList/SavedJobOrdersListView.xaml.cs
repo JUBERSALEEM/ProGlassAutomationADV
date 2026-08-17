@@ -106,6 +106,11 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
                 Header = "📊  Change Status",
                 Padding = new Thickness(4, 6, 20, 6)
             };
+            // Status and priority go through the ViewModel commands so the
+            // update keeps the indexed column AND the embedded snapshot in
+            // sync (the detail view and production sheet read the snapshot),
+            // and so the error handling + audit trail live in one place.
+            // Same Tuple parameter convention as the Proforma Invoice list.
             foreach (var status in new[] { "Draft", "Released", "InProduction", "Completed", "Delivered" })
             {
                 string label = status switch
@@ -113,31 +118,14 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
                     "InProduction" => "In Production",
                     _ => status
                 };
-                var statusItem = new MenuItem
+                statusMenu.Items.Add(new MenuItem
                 {
                     Header = label,
                     IsChecked = string.Equals(row.StatusRaw, status, StringComparison.OrdinalIgnoreCase),
-                    Padding = new Thickness(4, 4, 16, 4)
-                };
-                string captured = status;
-                statusItem.Click += async (_, __) =>
-                {
-                    try
-                    {
-                        var entity = await App.Jobs.GetByIdAsync(row.Id);
-                        if (entity == null) return;
-                        entity.Status = captured;
-                        entity.UpdatedAt = DateTime.Now;
-                        await App.Jobs.UpdateAsync(entity);
-                        await vm.LoadJobOrdersAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Failed:\n{ex.Message}", "Error",
-                            MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                };
-                statusMenu.Items.Add(statusItem);
+                    Padding = new Thickness(4, 4, 16, 4),
+                    Command = vm.ChangeStatusCommand,
+                    CommandParameter = Tuple.Create(row, status)
+                });
             }
             menu.Items.Add(statusMenu);
 
@@ -149,31 +137,14 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
             };
             foreach (var priority in new[] { "High", "Medium", "Low" })
             {
-                var priorityItem = new MenuItem
+                priorityMenu.Items.Add(new MenuItem
                 {
                     Header = priority,
                     IsChecked = string.Equals(row.PriorityRaw, priority, StringComparison.OrdinalIgnoreCase),
-                    Padding = new Thickness(4, 4, 16, 4)
-                };
-                string captured = priority;
-                priorityItem.Click += async (_, __) =>
-                {
-                    try
-                    {
-                        var entity = await App.Jobs.GetByIdAsync(row.Id);
-                        if (entity == null) return;
-                        entity.Priority = captured;
-                        entity.UpdatedAt = DateTime.Now;
-                        await App.Jobs.UpdateAsync(entity);
-                        await vm.LoadJobOrdersAsync();
-                    }
-                    catch (Exception ex)
-                    {
-                        MessageBox.Show($"Failed:\n{ex.Message}", "Error",
-                            MessageBoxButton.OK, MessageBoxImage.Error);
-                    }
-                };
-                priorityMenu.Items.Add(priorityItem);
+                    Padding = new Thickness(4, 4, 16, 4),
+                    Command = vm.ChangePriorityCommand,
+                    CommandParameter = Tuple.Create(row, priority)
+                });
             }
             menu.Items.Add(priorityMenu);
 
