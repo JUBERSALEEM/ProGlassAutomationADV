@@ -1,4 +1,4 @@
-﻿<!--
+<!--
 ═══════════════════════════════════════════════════════════════════════
 FILE: Views/ProformaInvoice/Step6OtherCharges/OtherChargesView.xaml
 ═══════════════════════════════════════════════════════════════════════
@@ -474,7 +474,13 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                                                                           Color="Black"
                                                                           Opacity="0.18"/>
                                                     </Border.Effect>
-                                                    <ScrollViewer VerticalScrollBarVisibility="Auto">
+                                                    <!-- Horizontal must be Disabled so the wrapping
+                                                         spec-name TextBlock below is measured at the
+                                                         popup width, not infinite width — otherwise
+                                                         TextWrapping is inert and long names run
+                                                         off-screen instead of wrapping. -->
+                                                    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                                                                  HorizontalScrollBarVisibility="Disabled">
                                                         <StackPanel DataContext="{Binding TargetSelection}">
 
                                                             <!-- SELECT SPECS section -->
