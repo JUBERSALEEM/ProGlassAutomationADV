@@ -426,6 +426,12 @@ namespace ProGlassAutomation.ViewModels
         /// <summary>Toggles the left navigation drawer.</summary>
         public ICommand ToggleMenuCommand { get; }
 
+        /// <summary>
+        /// Opens a fresh Proforma Invoice in the wizard. Wired to the
+        /// sidebar's "New Invoice" sub-item (real action, not a placeholder).
+        /// </summary>
+        public ICommand NewProformaInvoiceCommand { get; }
+
         /// <summary>Navigates to a module by string key.</summary>
         public ICommand NavigateCommand { get; }
 
@@ -509,6 +515,13 @@ namespace ProGlassAutomation.ViewModels
             });
 
             NavigateCommand = new RelayCommand(Navigate);
+
+            NewProformaInvoiceCommand = new RelayCommand(_ =>
+            {
+                Navigate("ProformaInvoice");
+                try { ProformaInvoiceVM.TriggerNewInvoice(); }
+                catch { /* never let the shell fail on a new-invoice shortcut */ }
+            });
 
             ShowAboutCommand = new RelayCommand(_ =>
             {

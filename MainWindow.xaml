@@ -459,6 +459,83 @@
             <Setter Property="Height" Value="38"/>
         </Style>
 
+        <!-- Expandable group header (reference style) — a ToggleButton with
+             icon + label + chevron. The chevron rotates 90° when open. -->
+        <Style x:Key="SidebarGroupToggleStyle" TargetType="ToggleButton">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ToggleButton">
+                        <Border x:Name="Bg"
+                                Background="{TemplateBinding Background}"
+                                CornerRadius="10"
+                                Padding="8,8"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background"
+                                        Value="{DynamicResource MenuHoverBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- Sub-menu panel that expands/collapses under a group header. -->
+        <Style x:Key="SidebarSubMenuStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="12"/>
+            <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="6,2,6,6"/>
+            <Setter Property="Padding" Value="4,4"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <!-- Dot sub-item inside an expandable group. -->
+        <Style x:Key="SidebarSubItemStyle" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Margin" Value="0,1"/>
+            <Setter Property="Height" Value="34"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg" Background="Transparent"
+                                CornerRadius="8" Padding="10,0"
+                                SnapsToDevicePixels="True">
+                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                <Ellipse x:Name="Dot" Width="5" Height="5"
+                                         Fill="{DynamicResource MutedForegroundBrush}"
+                                         Margin="0,0,10,0" VerticalAlignment="Center"/>
+                                <TextBlock Text="{TemplateBinding Content}"
+                                           FontSize="12" FontWeight="Medium"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background"
+                                        Value="{DynamicResource ModuleBackgroundBrush}"/>
+                                <Setter TargetName="Dot" Property="Fill"
+                                        Value="{DynamicResource AccentBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <!-- ═══════════════════════════════════════════════════════════════
              GLASSY VERTICAL SLIDER
         ═══════════════════════════════════════════════════════════════ -->
@@ -946,47 +1023,154 @@
                                   behaviors:SmoothScrollBehavior.IsEnabled="True"
                                   ScrollChanged="MenuScrollViewer_ScrollChanged">
                         <StackPanel Margin="0,16,0,16">
-                        <TextBlock Text="MAIN"
-                                   Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                        <Border Style="{StaticResource SidebarGroupCardStyle}">
-                            <StackPanel>
+
+                            <TextBlock Text="OVERVIEW"
+                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                            <Border Style="{StaticResource SidebarGroupCardStyle}">
+                                <StackPanel>
                                     <Button Style="{StaticResource SidebarCardItemStyle}"
                                             Content="Dashboard" Tag="&#xE80F;"
                                             Command="{Binding NavigateCommand}"
                                             CommandParameter="Dashboard"/>
-                            </StackPanel>
-                        </Border>
+                                </StackPanel>
+                            </Border>
 
-                        <TextBlock Text="INVENTORY"
-                                   Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                        <Border Style="{StaticResource SidebarGroupCardStyle}">
-                            <StackPanel>
+                            <TextBlock Text="INVENTORY"
+                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                            <Border Style="{StaticResource SidebarGroupCardStyle}">
+                                <StackPanel>
                                     <Button Style="{StaticResource SidebarCardItemStyle}"
                                             Content="Sheet Store" Tag="&#xE7B8;"
                                             Command="{Binding NavigateCommand}"
                                             CommandParameter="SheetStore"/>
-                            </StackPanel>
-                        </Border>
+                                </StackPanel>
+                            </Border>
 
-                        <TextBlock Text="SALES"
-                                   Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                        <Border Style="{StaticResource SidebarGroupCardStyle}">
-                            <StackPanel>
-                                    <Button Style="{StaticResource SidebarCardItemStyle}"
-                                            Content="Proforma Invoice" Tag="&#xE8A5;"
-                                            Command="{Binding NavigateCommand}"
-                                            CommandParameter="ProformaInvoice"/>
-                                    <Button Style="{StaticResource SidebarCardItemStyle}"
-                                            Content="Job Order" Tag="&#xE8C8;"
-                                            Command="{Binding NavigateCommand}"
-                                            CommandParameter="JobOrder"/>
-                            </StackPanel>
-                        </Border>
+                            <TextBlock Text="SALES"
+                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
 
-                        <TextBlock Text="PRODUCTION"
-                                   Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                        <Border Style="{StaticResource SidebarGroupCardStyle}">
+                            <!-- Proforma Invoice — expandable group -->
                             <StackPanel>
+                                <ToggleButton x:Name="ProformaGroup"
+                                              Style="{StaticResource SidebarGroupToggleStyle}"
+                                              IsChecked="True">
+                                    <Grid>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="&#xE8A5;"
+                                                       FontFamily="Segoe MDL2 Assets"
+                                                       FontSize="14"
+                                                       Foreground="{DynamicResource AccentBrush}"
+                                                       Width="20"
+                                                       Margin="0,0,12,0"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="Proforma Invoice"
+                                                       FontSize="13" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Text="&#xE76C;"
+                                                   FontFamily="Segoe MDL2 Assets"
+                                                   FontSize="10"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                   HorizontalAlignment="Right"
+                                                   VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="RenderTransform">
+                                                        <Setter.Value>
+                                                            <RotateTransform Angle="0"/>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsChecked, ElementName=ProformaGroup}" Value="True">
+                                                            <Setter Property="RenderTransform">
+                                                                <Setter.Value>
+                                                                    <RotateTransform Angle="90"/>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                </ToggleButton>
+                                <Border Style="{StaticResource SidebarSubMenuStyle}"
+                                        Visibility="{Binding IsChecked, ElementName=ProformaGroup,
+                                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <Button Style="{StaticResource SidebarSubItemStyle}"
+                                                Content="New Invoice"
+                                                Command="{Binding NewProformaInvoiceCommand}"/>
+                                        <Button Style="{StaticResource SidebarSubItemStyle}"
+                                                Content="Saved Invoices"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="ProformaInvoice"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <!-- Job Orders — expandable group -->
+                            <StackPanel>
+                                <ToggleButton x:Name="JobsGroup"
+                                              Style="{StaticResource SidebarGroupToggleStyle}">
+                                    <Grid>
+                                        <StackPanel Orientation="Horizontal">
+                                            <TextBlock Text="&#xE7B8;"
+                                                       FontFamily="Segoe MDL2 Assets"
+                                                       FontSize="14"
+                                                       Foreground="{DynamicResource AccentBrush}"
+                                                       Width="20"
+                                                       Margin="0,0,12,0"
+                                                       VerticalAlignment="Center"/>
+                                            <TextBlock Text="Job Orders"
+                                                       FontSize="13" FontWeight="SemiBold"
+                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                       VerticalAlignment="Center"/>
+                                        </StackPanel>
+                                        <TextBlock Text="&#xE76C;"
+                                                   FontFamily="Segoe MDL2 Assets"
+                                                   FontSize="10"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                   HorizontalAlignment="Right"
+                                                   VerticalAlignment="Center">
+                                            <TextBlock.Style>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="RenderTransform">
+                                                        <Setter.Value>
+                                                            <RotateTransform Angle="0"/>
+                                                        </Setter.Value>
+                                                    </Setter>
+                                                    <Style.Triggers>
+                                                        <DataTrigger Binding="{Binding IsChecked, ElementName=JobsGroup}" Value="True">
+                                                            <Setter Property="RenderTransform">
+                                                                <Setter.Value>
+                                                                    <RotateTransform Angle="90"/>
+                                                                </Setter.Value>
+                                                            </Setter>
+                                                        </DataTrigger>
+                                                    </Style.Triggers>
+                                                </Style>
+                                            </TextBlock.Style>
+                                        </TextBlock>
+                                    </Grid>
+                                </ToggleButton>
+                                <Border Style="{StaticResource SidebarSubMenuStyle}"
+                                        Visibility="{Binding IsChecked, ElementName=JobsGroup,
+                                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <Button Style="{StaticResource SidebarSubItemStyle}"
+                                                Content="All Job Orders"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="JobOrder"/>
+                                    </StackPanel>
+                                </Border>
+                            </StackPanel>
+
+                            <TextBlock Text="PRODUCTION"
+                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                            <Border Style="{StaticResource SidebarGroupCardStyle}">
+                                <StackPanel>
                                     <Button Style="{StaticResource SidebarCardItemStyle}"
                                             Content="Optimization" Tag="&#xE713;"
                                             Command="{Binding NavigateCommand}"
@@ -1023,13 +1207,13 @@
                                             Content="Doubling / Lamination" Tag="&#xE81C;"
                                             Command="{Binding NavigateCommand}"
                                             CommandParameter="DoublingLamination"/>
-                            </StackPanel>
-                        </Border>
+                                </StackPanel>
+                            </Border>
 
-                        <TextBlock Text="DISPATCH"
-                                   Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                        <Border Style="{StaticResource SidebarGroupCardStyle}">
-                            <StackPanel>
+                            <TextBlock Text="DISPATCH"
+                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                            <Border Style="{StaticResource SidebarGroupCardStyle}">
+                                <StackPanel>
                                     <Button Style="{StaticResource SidebarCardItemStyle}"
                                             Content="Delivery Note" Tag="&#xE7F4;"
                                             Command="{Binding NavigateCommand}"
@@ -1038,13 +1222,13 @@
                                             Content="Tax Invoice" Tag="&#xE7BF;"
                                             Command="{Binding NavigateCommand}"
                                             CommandParameter="TaxInvoice"/>
-                            </StackPanel>
-                        </Border>
+                                </StackPanel>
+                            </Border>
 
-                        <TextBlock Text="REPORTS"
-                                   Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                        <Border Style="{StaticResource SidebarGroupCardStyle}">
-                            <StackPanel>
+                            <TextBlock Text="REPORTS"
+                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                            <Border Style="{StaticResource SidebarGroupCardStyle}">
+                                <StackPanel>
                                     <Button Style="{StaticResource SidebarCardItemStyle}"
                                             Content="Sales Report" Tag="&#xE9F9;"
                                             Command="{Binding NavigateCommand}"
@@ -1053,13 +1237,13 @@
                                             Content="Job Profitability" Tag="&#xE7BF;"
                                             Command="{Binding NavigateCommand}"
                                             CommandParameter="JobProfitability"/>
-                            </StackPanel>
-                        </Border>
+                                </StackPanel>
+                            </Border>
 
-                        <TextBlock Text="MASTER DATA"
-                                   Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                        <Border Style="{StaticResource SidebarGroupCardStyle}">
-                            <StackPanel>
+                            <TextBlock Text="MASTER DATA"
+                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                            <Border Style="{StaticResource SidebarGroupCardStyle}">
+                                <StackPanel>
                                     <Button Style="{StaticResource SidebarCardItemStyle}"
                                             Content="Company Center" Tag="&#xE822;"
                                             Command="{Binding NavigateCommand}"
@@ -1068,13 +1252,13 @@
                                             Content="User Center" Tag="&#xE716;"
                                             Command="{Binding NavigateCommand}"
                                             CommandParameter="UserCenter"/>
-                            </StackPanel>
-                        </Border>
+                                </StackPanel>
+                            </Border>
 
-                        <TextBlock Text="SYSTEM"
-                                   Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                        <Border Style="{StaticResource SidebarGroupCardStyle}">
-                            <StackPanel>
+                            <TextBlock Text="SYSTEM"
+                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                            <Border Style="{StaticResource SidebarGroupCardStyle}">
+                                <StackPanel>
                                     <Button Style="{StaticResource SidebarCardItemStyle}"
                                             Content="System Center" Tag="&#xE713;"
                                             Command="{Binding NavigateCommand}"
@@ -1083,8 +1267,8 @@
                                             Content="Logs &amp; Activity" Tag="&#xE81C;"
                                             Command="{Binding NavigateCommand}"
                                             CommandParameter="Diagnostics"/>
-                            </StackPanel>
-                        </Border>
+                                </StackPanel>
+                            </Border>
 
                         </StackPanel>
                     </ScrollViewer>
