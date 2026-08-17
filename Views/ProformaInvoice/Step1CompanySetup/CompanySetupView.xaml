@@ -66,7 +66,7 @@ CHAT 17 — UI POLISH
                     <Setter Property="BorderBrush" Value="#6366F1"/>
                 </Trigger>
                 <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                    <Setter Property="BorderBrush"     Value="#4338CA"/>
+                    <Setter Property="BorderBrush"     Value="{DynamicResource AccentBrush}"/>
                     <Setter Property="BorderThickness" Value="2"/>
                 </Trigger>
             </Style.Triggers>
@@ -86,7 +86,7 @@ CHAT 17 — UI POLISH
                     <Setter Property="BorderBrush" Value="#6366F1"/>
                 </Trigger>
                 <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                    <Setter Property="BorderBrush"     Value="#4338CA"/>
+                    <Setter Property="BorderBrush"     Value="{DynamicResource AccentBrush}"/>
                     <Setter Property="BorderThickness" Value="2"/>
                 </Trigger>
             </Style.Triggers>
@@ -102,7 +102,7 @@ CHAT 17 — UI POLISH
             <Setter Property="Cursor"          Value="Hand"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="#4338CA"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                     <Setter Property="Background"  Value="#EEF2FF"/>
                 </Trigger>
             </Style.Triggers>
@@ -304,7 +304,7 @@ CHAT 17 — UI POLISH
                                         Height="18"
                                         CornerRadius="9"
                                         BorderThickness="2"
-                                        BorderBrush="#4338CA"
+                                        BorderBrush="{DynamicResource AccentBrush}"
                                         Margin="0,0,10,0"
                                         VerticalAlignment="Center">
                                     <Border.RenderTransform>

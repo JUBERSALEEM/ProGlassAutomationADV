@@ -65,7 +65,7 @@ CHAT 17 — UI POLISH + BUG FIXES
             <Setter Property="Cursor"          Value="Hand"/>
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="BorderBrush" Value="#4338CA"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                     <Setter Property="Background"  Value="#EEF2FF"/>
                 </Trigger>
             </Style.Triggers>
@@ -169,7 +169,7 @@ CHAT 17 — UI POLISH + BUG FIXES
                     Padding="14,10"
                     Margin="0,0,0,16"
                     Background="{DynamicResource TintIndigoBrush}"
-                    BorderBrush="#4338CA"
+                    BorderBrush="{DynamicResource AccentBrush}"
                     BorderThickness="1">
                 <Border.Style>
                     <Style TargetType="Border">
@@ -352,7 +352,7 @@ CHAT 17 — UI POLISH + BUG FIXES
                                         Height="18"
                                         CornerRadius="9"
                                         BorderThickness="2"
-                                        BorderBrush="#4338CA"
+                                        BorderBrush="{DynamicResource AccentBrush}"
                                         Margin="0,0,10,0"
                                         VerticalAlignment="Center">
                                     <Border.RenderTransform>
