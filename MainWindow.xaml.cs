@@ -46,6 +46,22 @@ namespace ProGlassAutomation
 
             // X-6: refuse to close while a multi-step write is running.
             Closing += MainWindow_Closing;
+
+            // Close the user-switch popup when the user clicks anywhere that
+            // is not the user card button. This works with StaysOpen=True
+            // (which keeps the button toggle reliable) while still letting a
+            // click on any module dismiss the popup.
+            PreviewMouseLeftButtonDown += (_, e) =>
+            {
+                if (DataContext is MainViewModel vm && vm.IsUserSwitchOpen)
+                {
+                    var source = e.OriginalSource as DependencyObject;
+                    bool insideButton = source != null &&
+                        IsDescendantOf(source, UserCardButton);
+                    if (!insideButton)
+                        vm.IsUserSwitchOpen = false;
+                }
+            };
         }
 
         // ══════════════════════════════════════════════════════════════
@@ -120,9 +136,10 @@ namespace ProGlassAutomation
         }
 
         // ── top-bar user card → non-blocking user-switch popup ──────────
-        // Single click opens the popup; double-click closes it. The popup
-        // is non-modal (StaysOpen=False), so it never blocks the module
-        // content behind it.
+        // Single click toggles the popup open/closed (matching the agent's
+        // toggle pattern). With StaysOpen=True the toggle is the only thing
+        // that closes it on the button; clicking elsewhere closes it too via
+        // the window's PreviewMouseLeftButtonDown below.
 
         private void UserCardButton_Click(object sender, RoutedEventArgs e)
         {
@@ -130,14 +147,16 @@ namespace ProGlassAutomation
                 vm.IsUserSwitchOpen = !vm.IsUserSwitchOpen;
         }
 
-        private void UserCardButton_PreviewMouseLeftButtonDown(
-            object sender, MouseButtonEventArgs e)
+        /// <summary>True when <paramref name="element"/> is a descendant of <paramref name="root"/> in the visual tree.</summary>
+        private static bool IsDescendantOf(DependencyObject element, DependencyObject root)
         {
-            if (e.ClickCount >= 2 && DataContext is MainViewModel vm)
+            DependencyObject? current = element;
+            while (current != null)
             {
-                vm.IsUserSwitchOpen = false;
-                e.Handled = true;
+                if (ReferenceEquals(current, root)) return true;
+                current = System.Windows.Media.VisualTreeHelper.GetParent(current);
             }
+            return false;
         }
 
         private void UserSwitchPopup_Opened(object sender, System.EventArgs e)

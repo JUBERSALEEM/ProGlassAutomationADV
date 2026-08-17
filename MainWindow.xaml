@@ -891,8 +891,7 @@
                             Cursor="Hand"
                             FocusVisualStyle="{x:Null}"
                             Click="UserCardButton_Click"
-                            PreviewMouseLeftButtonDown="UserCardButton_PreviewMouseLeftButtonDown"
-                            ToolTip="Switch user — click to open, double-click to close">
+                            ToolTip="Switch user — click to open, click again to close">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="Bg"
@@ -1307,7 +1306,7 @@
                Placement="Bottom"
                VerticalOffset="10"
                AllowsTransparency="True"
-               StaysOpen="False"
+               StaysOpen="True"
                PopupAnimation="Fade"
                IsOpen="{Binding IsUserSwitchOpen, Mode=TwoWay}"
                Opened="UserSwitchPopup_Opened"
