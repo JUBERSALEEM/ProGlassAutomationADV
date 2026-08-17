@@ -170,18 +170,13 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.Sg
         /// <summary>Setter hook — thickness/colour changed.</summary>
         private void OnGlassChanged() => FireAndForget(RefreshFromStoreAsync);
 
-        private static async void FireAndForget(Func<Task> work)
-        {
-            try
-            {
-                await work().ConfigureAwait(true);
-            }
-            catch (Exception ex)
-            {
-                AppLogService.Error(
-                    "[SguParametersViewModel] sheet-store refresh failed", ex);
-            }
-        }
+        // Thin wrapper over the shared AsyncUtility.SafeFireAndForget so the
+        // per-file log prefix stays here while the try/catch + logging logic
+        // lives in one place. Pricing hints must never surface as a crash
+        // dialog, but a failure must still be recorded in Release.
+        private static void FireAndForget(Func<Task> work)
+            => Utilities.AsyncUtility.SafeFireAndForget(
+                work, "[SguParametersViewModel] sheet-store refresh failed");
 
         /// <summary>
         /// Colour or thickness changed: reload the size list, snap W/H to
