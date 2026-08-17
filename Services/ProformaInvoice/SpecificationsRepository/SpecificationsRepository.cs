@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.ProformaInvoice.Specifications;
+using ProGlassAutomation.Services.Audit;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -38,6 +39,14 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
 
         public async Task<SavedSpecification> SaveOrUpdateAsync(string glassType, string specName, decimal pricePerSqm)
         {
+            // A-1: service-layer authorization. A saved spec sets the rate
+            // that Step 5 and the P&L then price against, so writing one is
+            // a pricing decision, not a preference. ProformaEdit matches the
+            // MasterData client/project writes, which are the same kind of
+            // shared reference data.
+            OperationGuard.Demand(
+                AppPermissions.ProformaEdit, "save a pricing specification");
+
             if (string.IsNullOrWhiteSpace(glassType))
                 throw new ArgumentException("Glass type is required", nameof(glassType));
             if (string.IsNullOrWhiteSpace(specName))
@@ -89,6 +98,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
 
         public async Task DeleteAsync(int specId)
         {
+            // A-1: no caller today, but this is public repository API and
+            // guarding it now stops it becoming an unguarded entry point.
+            OperationGuard.Demand(
+                AppPermissions.ProformaDelete, "delete a pricing specification");
+
             using var db = new SpecificationsDbContext();
             var spec = await db.Specifications.FindAsync(specId);
             if (spec != null)

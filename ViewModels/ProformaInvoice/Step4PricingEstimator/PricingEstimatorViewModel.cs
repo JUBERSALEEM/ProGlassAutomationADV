@@ -392,6 +392,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator
                     ? $"✓  Saved '{specName}' — AED {rate:N2}/sqm. Now available in Step 5."
                     : $"✓  Updated '{specName}' — AED {rate:N2}/sqm  (used {savedSpec.UsageCount}×).";
             }
+            catch (Services.Audit.PermissionDeniedException denied)
+            {
+                // A-1: SaveOrUpdateAsync is now guarded at the service
+                // layer. Without this branch the denial would fall into the
+                // catch below and be reported as a "Database Error", which
+                // is wrong and would send the user chasing a fault that
+                // does not exist.
+                MessageBox.Show(
+                    denied.UserMessage, "Permission Denied",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+
+                ApplyStatusMessage = "⚠  " + denied.UserMessage;
+            }
             catch (Exception ex)
             {
                 // Errors still use MessageBox — must interrupt the user

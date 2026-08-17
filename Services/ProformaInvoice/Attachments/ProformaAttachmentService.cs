@@ -1,4 +1,4 @@
-// ═══════════════════════════════════════════════════════════════════════
+﻿// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/ProformaInvoice/Attachments/ProformaAttachmentService.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Proforma Invoice — Step 8 Attachments
@@ -21,6 +21,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.ProformaInvoice.Attachments;
+using ProGlassAutomation.Services.Audit;
 using ProGlassAutomation.Services.DeliveryNote.Attachments;
 using System;
 using System.Collections.Generic;
@@ -161,6 +162,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Attachments
         public async Task<bool> DeleteAsync(
             string proformaId, string recordId)
         {
+            // A-1: deleting an attachment destroys a document that may be
+            // the only copy of a signed drawing or approval. Neither the
+            // UI nor this service checked anything before now.
+            OperationGuard.Demand(
+                AppPermissions.ProformaEdit, "delete a proforma attachment");
+
             var manifest = await LoadManifestAsync(proformaId);
             var record = manifest.FirstOrDefault(r => r.Id == recordId);
             if (record == null) return false;
@@ -174,6 +181,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Attachments
         public async Task<bool> RenameAsync(
             string proformaId, string recordId, string newName)
         {
+            // A-1: renaming moves the file on disk, so a failure or a
+            // hostile name change is a mutation, not a display tweak.
+            OperationGuard.Demand(
+                AppPermissions.ProformaEdit, "rename a proforma attachment");
+
             var manifest = await LoadManifestAsync(proformaId);
             var record = manifest.FirstOrDefault(r => r.Id == recordId);
             if (record == null) return false;

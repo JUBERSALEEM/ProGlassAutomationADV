@@ -385,6 +385,19 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step8Attachments
             {
                 await action();
             }
+            catch (Services.Audit.PermissionDeniedException denied)
+            {
+                // A-1: this is the security boundary working as designed,
+                // not a fault. SafeFire is an async void handler, so the
+                // throw never reaches App.DispatcherUnhandledException and
+                // would otherwise have shown only a vague inline message.
+                // Match the dialog the rest of the app uses for denials.
+                StatusMessage = "⚠ " + denied.UserMessage;
+
+                MessageBox.Show(
+                    denied.UserMessage, "Permission Denied",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
             catch (Exception ex)
             {
                 StatusMessage = $"⚠ {ex.Message}";
