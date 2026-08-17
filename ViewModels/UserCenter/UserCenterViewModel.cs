@@ -96,6 +96,24 @@ namespace ProGlassAutomation.ViewModels.UserCenter
             set { _reasonNote = value ?? ""; OnPropertyChanged(); }
         }
 
+        // ── A-3: default-credential warning ──────────────────────────
+        private bool _isDefaultPasswordInUse;
+        /// <summary>
+        /// True while the seeded admin account still uses its default
+        /// password. Drives a visible banner — this build has no sign-in
+        /// screen, so warning is the honest option; blocking startup would
+        /// lock the user out of their own offline data.
+        /// </summary>
+        public bool IsDefaultPasswordInUse
+        {
+            get => _isDefaultPasswordInUse;
+            private set
+            {
+                _isDefaultPasswordInUse = value;
+                OnPropertyChanged();
+            }
+        }
+
         public ICommand RefreshCommand { get; }
         public ICommand SelectUserCommand { get; }
         public ICommand ToggleActiveCommand { get; private set; }
@@ -163,6 +181,11 @@ namespace ProGlassAutomation.ViewModels.UserCenter
             {
                 Status = "Load failed: " + ex.Message;
             }
+
+            // A-3: re-evaluate on every load so the banner disappears as
+            // soon as the password is rotated.
+            IsDefaultPasswordInUse =
+                await AuditService.IsUsingDefaultPasswordAsync();
         }
 
         /// <summary>
@@ -224,6 +247,49 @@ namespace ProGlassAutomation.ViewModels.UserCenter
                 ? "Signed in as " + card.DisplayName +
                   " — new invoices will show this name as preparer."
                 : error;
+        }
+
+        /// <summary>
+        /// A-3: rotate the selected user's password. Called from the
+        /// view's code-behind with raw PasswordBox values, matching the
+        /// existing convention that passwords never live in VM properties.
+        /// </summary>
+        public async System.Threading.Tasks.Task ChangePasswordAsync(
+            string currentPassword, string newPassword, string confirm)
+        {
+            var card = _users.FirstOrDefault(u => u.Id == _selectedUserId);
+            if (card == null)
+            {
+                Status = "Select a user card first.";
+                return;
+            }
+
+            if (newPassword.Length < 4)
+            {
+                Status = "New password must be at least 4 characters.";
+                return;
+            }
+
+            if (newPassword != confirm)
+            {
+                Status = "New passwords do not match.";
+                return;
+            }
+
+            var (ok, error) = await AuditService.ChangePasswordAsync(
+                card.Username, currentPassword, newPassword,
+                ReasonNote.Trim());
+
+            Status = ok
+                ? "Password changed for " + card.DisplayName + " ✔"
+                : error;
+
+            if (ok)
+            {
+                ReasonNote = "";
+                // Clears the default-credential banner once admin rotates.
+                await LoadAsync();
+            }
         }
     }
 }

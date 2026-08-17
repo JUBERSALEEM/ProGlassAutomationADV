@@ -106,11 +106,14 @@ namespace ProGlassAutomation.Services.Audit
                 bool hasUsers = await db.Users.AnyAsync();
                 if (!hasUsers)
                 {
+                    // A-3: seeded from the same constants the
+                    // default-password detector uses, so the two can never
+                    // drift apart.
                     var admin = BuildUser(
-                        username: "admin",
+                        username: DefaultAdminUsername,
                         displayName: "Administrator",
                         role: AppRoles.Administrator,
-                        password: "admin");
+                        password: DefaultAdminPassword);
 
                     admin.CreatedAtUtc = DateTime.UtcNow;
                     db.Users.Add(admin);
@@ -476,9 +479,115 @@ namespace ProGlassAutomation.Services.Audit
             }
         }
 
+        /// <summary>
+        /// A-3: changes a user's password after proving the current one.
+        ///
+        /// Before this existed there was NO way to rotate any password in
+        /// the entire application, so the seeded admin/admin credential was
+        /// permanent. Verification uses the same dual-scheme path as
+        /// sign-in, so a legacy SHA-256 hash can still be used to
+        /// authenticate the change; the new hash is always PBKDF2.
+        /// </summary>
+        public static async Task<(bool Success, string Error)>
+            ChangePasswordAsync(
+                string username,
+                string currentPassword,
+                string newPassword,
+                string reason = "")
+        {
+            try
+            {
+                username = (username ?? "").Trim();
+
+                if ((newPassword ?? "").Length < 4)
+                    return (false,
+                        "New password must be at least 4 characters.");
+
+                if (currentPassword == newPassword)
+                    return (false,
+                        "New password must differ from the current one.");
+
+                using var db = new AuditDbContext();
+                var user = await db.Users
+                    .FirstOrDefaultAsync(u => u.Username == username);
+
+                if (user == null)
+                    return (false, "Unknown username.");
+
+                if (!user.IsActive)
+                    return (false, "This user is deactivated.");
+
+                // Proving the current password is what stops a walk-up
+                // user silently taking over someone else's account.
+                if (!VerifyPassword(user, currentPassword ?? ""))
+                    return (false, "Current password is incorrect.");
+
+                user.PasswordHash =
+                    Security.PasswordHasher.Hash(newPassword ?? "");
+                await db.SaveChangesAsync();
+
+                // The password itself is never logged — only the fact of
+                // the change, so the audit trail stays useful without
+                // becoming a credential store.
+                Log(AuditSections.Users, "Password changed",
+                    $"Password rotated for {user.DisplayName} ({user.Username})",
+                    "USER", user.Username, reason);
+
+                // Keep the in-memory copy consistent when the active user
+                // rotates their own password.
+                if (_currentUser != null && _currentUser.Id == user.Id)
+                    _currentUser.PasswordHash = user.PasswordHash;
+
+                return (true, "");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Could not change password: {ex.Message}");
+            }
+        }
+
+        /// <summary>
+        /// A-3: true when <paramref name="username"/> still authenticates
+        /// with the seeded default password. Used to warn the operator.
+        ///
+        /// This is deliberately a check, not an enforcement: this build has
+        /// no sign-in screen, so refusing to start would lock the user out
+        /// of their own offline data with no recovery path.
+        /// </summary>
+        public static async Task<bool> IsUsingDefaultPasswordAsync(
+            string username = DefaultAdminUsername)
+        {
+            try
+            {
+                using var db = new AuditDbContext();
+                var user = await db.Users
+                    .FirstOrDefaultAsync(u => u.Username == username);
+
+                if (user == null || !user.IsActive) return false;
+
+                return VerifyPassword(user, DefaultAdminPassword);
+            }
+            catch
+            {
+                // A failed check must never be reported as "safe", but it
+                // also must not break the caller: treat as "unknown / no
+                // warning" and let the log record the failure elsewhere.
+                return false;
+            }
+        }
+
         // ══════════════════════════════════════════════════════════════
         //  PASSWORD HASHING
         // ══════════════════════════════════════════════════════════════
+
+        /// <summary>Seeded first-run administrator account name.</summary>
+        public const string DefaultAdminUsername = "admin";
+
+        /// <summary>
+        /// Seeded first-run password. Public so the UI can detect that it
+        /// is still in force; it is a well-known default, not a secret.
+        /// </summary>
+        public const string DefaultAdminPassword = "admin";
 
         private static AppUser BuildUser(
             string username, string displayName,

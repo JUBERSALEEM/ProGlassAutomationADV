@@ -53,6 +53,31 @@
                   Background="Transparent">
         <StackPanel Margin="32,26,32,32">
 
+            <!-- A-3 — DEFAULT CREDENTIAL WARNING -->
+            <Border Margin="0,0,0,16" Padding="16,12" CornerRadius="10"
+                    Background="{DynamicResource ModuleBackgroundBrush}"
+                    BorderBrush="{DynamicResource WarningBrush}"
+                    BorderThickness="1"
+                    Visibility="{Binding IsDefaultPasswordInUse,
+                                 Converter={StaticResource BoolToVisibilityConverter}}">
+                <StackPanel Orientation="Horizontal">
+                    <TextBlock Text="&#xE7BA;"
+                               FontFamily="Segoe MDL2 Assets"
+                               FontSize="18" VerticalAlignment="Center"
+                               Margin="0,0,12,0"
+                               Foreground="{DynamicResource WarningBrush}"/>
+                    <StackPanel>
+                        <TextBlock Text="Default administrator password is still in use"
+                                   FontSize="13" FontWeight="Bold"
+                                   Foreground="{DynamicResource WarningBrush}"/>
+                        <TextBlock Text="The seeded 'admin' account still uses its default password. Anyone who opens this app has full administrator rights. Change it below."
+                                   FontSize="11.5" Margin="0,3,0,0"
+                                   TextWrapping="Wrap"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                    </StackPanel>
+                </StackPanel>
+            </Border>
+
             <!-- HEADER -->
             <DockPanel Margin="0,0,0,18">
                 <StackPanel>
@@ -264,6 +289,46 @@
                                     Tag="&#xE895;" Content="SIGN IN AS SELECTED"
                                     Click="SwitchUser_Click"
                                     Margin="12,0,0,0"/>
+                        </StackPanel>
+
+                        <Border Height="1" Margin="0,20,0,20"
+                                Background="{DynamicResource DividerBrush}"/>
+
+                        <!-- A-3 — CHANGE PASSWORD -->
+                        <TextBlock Text="CHANGE PASSWORD"
+                                   FontSize="12" FontWeight="Bold"
+                                   Foreground="{DynamicResource AccentBrush}"
+                                   Margin="0,0,0,6"/>
+                        <TextBlock Text="Select a user card, prove their current password, then set a new one. This is the only way to rotate a password, including the seeded admin account."
+                                   Style="{StaticResource UcFieldLabel}"
+                                   TextWrapping="Wrap" Margin="0,0,0,10"/>
+
+                        <StackPanel Orientation="Horizontal">
+                            <StackPanel Margin="0,0,12,0">
+                                <TextBlock Text="CURRENT PASSWORD"
+                                           Style="{StaticResource UcFieldLabel}"/>
+                                <PasswordBox x:Name="CurrentPasswordBox"
+                                             Width="200"
+                                             Style="{StaticResource UcPasswordBox}"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,12,0">
+                                <TextBlock Text="NEW PASSWORD"
+                                           Style="{StaticResource UcFieldLabel}"/>
+                                <PasswordBox x:Name="ChangeNewPasswordBox"
+                                             Width="200"
+                                             Style="{StaticResource UcPasswordBox}"/>
+                            </StackPanel>
+                            <StackPanel Margin="0,0,12,0">
+                                <TextBlock Text="CONFIRM NEW"
+                                           Style="{StaticResource UcFieldLabel}"/>
+                                <PasswordBox x:Name="ChangeConfirmPasswordBox"
+                                             Width="200"
+                                             Style="{StaticResource UcPasswordBox}"/>
+                            </StackPanel>
+                            <Button Style="{StaticResource PrimaryPillButton}"
+                                    Tag="&#xE72E;" Content="CHANGE PASSWORD"
+                                    Click="ChangePassword_Click"
+                                    VerticalAlignment="Bottom"/>
                         </StackPanel>
 
                         <TextBlock Text="{Binding Status}"
