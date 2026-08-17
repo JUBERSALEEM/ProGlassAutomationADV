@@ -133,7 +133,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                             Padding="10,0"
                                             Height="38"
                                             BorderThickness="1"
-                                            BorderBrush="{DynamicResource BorderBrush}"
+                                            BorderBrush="{DynamicResource OutlineBrush}"
                                             SnapsToDevicePixels="True">
                                         <StackPanel Orientation="Horizontal"
                                                     VerticalAlignment="Center">
@@ -278,7 +278,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                     Padding="10"
                     Margin="0,6,0,0"
                     BorderThickness="1"
-                    BorderBrush="{DynamicResource BorderBrush}">
+                    BorderBrush="{DynamicResource OutlineBrush}">
                 <StackPanel>
 
                     <Grid Margin="0,0,0,14">

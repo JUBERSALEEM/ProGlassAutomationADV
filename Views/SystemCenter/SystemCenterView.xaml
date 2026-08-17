@@ -171,7 +171,7 @@
             <StackPanel Grid.Column="0" Margin="0,0,20,0">
 
                 <Border Background="{DynamicResource ElevatedSurfaceBrush}"
-                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="1"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="18">
@@ -231,7 +231,7 @@
                 </Border>
 
                 <Border Background="{DynamicResource ElevatedSurfaceBrush}"
-                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="1"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="18"
@@ -285,7 +285,7 @@
 
                 <!-- Same-network presence -->
                 <Border Background="{DynamicResource ElevatedSurfaceBrush}"
-                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="1"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="18"
@@ -364,7 +364,7 @@
             <!-- RIGHT: user table -->
             <Border Grid.Column="1"
                     Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="1"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     ClipToBounds="True">
@@ -408,7 +408,7 @@
                             <DataTemplate>
                                 <Border Padding="14,10" Margin="0,4"
                                         Background="{DynamicResource ElevatedSurfaceBrush}"
-                                        BorderBrush="{DynamicResource BorderBrush}"
+                                        BorderBrush="{DynamicResource OutlineBrush}"
                                         BorderThickness="1"
                                         CornerRadius="{DynamicResource ControlCornerRadius}">
                                     <Grid>
@@ -584,7 +584,7 @@
 
             <Border Grid.Row="1"
                     Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="1"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     ClipToBounds="True">
@@ -656,7 +656,7 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,10"
-                                            BorderBrush="{DynamicResource DividerBrush}"
+                                            BorderBrush="{DynamicResource OutlineBrush}"
                                             BorderThickness="0,0,0,1"
                                             ToolTip="{Binding RowTooltip}">
                                         <Grid>

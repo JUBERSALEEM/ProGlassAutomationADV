@@ -127,7 +127,7 @@ CHAT 17 — LAYOUT FIX
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Root"
                                 Background="{DynamicResource ModuleBackgroundBrush}"
-                                BorderBrush="{DynamicResource BorderBrush}"
+                                BorderBrush="{DynamicResource OutlineBrush}"
                                 BorderThickness="1.5"
                                 CornerRadius="22"
                                 Padding="22,0"
@@ -314,7 +314,7 @@ CHAT 17 — LAYOUT FIX
             <Border Grid.Row="0"
                     Background="{DynamicResource SideMenuBackgroundBrush}"
                     CornerRadius="10"
-                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="1"
                     Padding="8,6"
                     Margin="20,0,20,8">
@@ -337,7 +337,7 @@ CHAT 17 — LAYOUT FIX
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="BackBorder"
                                         Background="{DynamicResource ModuleBackgroundBrush}"
-                                        BorderBrush="{DynamicResource BorderBrush}"
+                                        BorderBrush="{DynamicResource OutlineBrush}"
                                         BorderThickness="1"
                                         CornerRadius="8"
                                         Height="34"
@@ -388,7 +388,7 @@ CHAT 17 — LAYOUT FIX
                                         <ControlTemplate TargetType="Button">
                                             <Border x:Name="StepBorder"
                                                     Background="{DynamicResource ModuleBackgroundBrush}"
-                                                    BorderBrush="{DynamicResource BorderBrush}"
+                                                    BorderBrush="{DynamicResource OutlineBrush}"
                                                     BorderThickness="1"
                                                     CornerRadius="8"
                                                     Height="34"
@@ -471,7 +471,7 @@ CHAT 17 — LAYOUT FIX
                     <Border Grid.Row="0"
                             Background="{DynamicResource ModuleBackgroundBrush}"
                             CornerRadius="20"
-                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="1"
                             SnapsToDevicePixels="True">
                         <Grid>
@@ -682,7 +682,7 @@ CHAT 17 — LAYOUT FIX
                     <Border Grid.Row="1"
                             Background="{DynamicResource ModuleBackgroundBrush}"
                             CornerRadius="20"
-                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="1"
                             Margin="0,16,0,0"
                             Padding="20,14"

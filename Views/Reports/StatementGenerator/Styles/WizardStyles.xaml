@@ -208,7 +208,7 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="bd"
                             Background="{DynamicResource ModuleBackgroundBrush}"
-                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="1"
                             CornerRadius="10"
                             Padding="{TemplateBinding Padding}"
@@ -248,7 +248,7 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="bd"
                             Background="Transparent"
-                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="1"
                             CornerRadius="10"
                             Padding="{TemplateBinding Padding}"

@@ -28,7 +28,7 @@
         <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
                 BorderThickness="0,1,0,0"
-                BorderBrush="{DynamicResource BorderBrush}"
+                BorderBrush="{DynamicResource OutlineBrush}"
                 Padding="20,12">
             <Grid>
                 <Grid.ColumnDefinitions>

@@ -249,7 +249,7 @@
         <Border Grid.Row="2"
                 Margin="24,14,24,0"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
-                BorderBrush="{DynamicResource BorderBrush}"
+                BorderBrush="{DynamicResource OutlineBrush}"
                 BorderThickness="1"
                 CornerRadius="12"
                 Padding="12,10">
@@ -262,7 +262,7 @@
 
                 <Border Grid.Column="0"
                         Background="{DynamicResource ModuleBackgroundBrush}"
-                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="1"
                         CornerRadius="10"
                         Height="38">
@@ -386,7 +386,7 @@
         <Border Grid.Row="3"
                 Margin="24,10,24,0"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
-                BorderBrush="{DynamicResource BorderBrush}"
+                BorderBrush="{DynamicResource OutlineBrush}"
                 BorderThickness="1"
                 CornerRadius="10"
                 Padding="16,8"
@@ -467,7 +467,7 @@
             </Border>
 
             <Border Background="{DynamicResource SideMenuBackgroundBrush}"
-                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="1"
                     CornerRadius="14"
                     Visibility="{Binding IsEmpty,
@@ -580,7 +580,7 @@
                 <ListView.ItemTemplate>
                     <DataTemplate>
                         <Border Background="{DynamicResource SideMenuBackgroundBrush}"
-                                BorderBrush="{DynamicResource BorderBrush}"
+                                BorderBrush="{DynamicResource OutlineBrush}"
                                 BorderThickness="1"
                                 CornerRadius="12"
                                 ClipToBounds="True">

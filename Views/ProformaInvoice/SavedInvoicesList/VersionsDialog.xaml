@@ -43,7 +43,7 @@
         </StackPanel>
 
         <Border Grid.Row="1"
-                BorderBrush="{DynamicResource BorderBrush}"
+                BorderBrush="{DynamicResource OutlineBrush}"
                 BorderThickness="1"
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                 ClipToBounds="True">
@@ -63,7 +63,7 @@
                     <ItemsControl x:Name="VersionsList">
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
-                                <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource DividerBrush}"
+                                <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource OutlineBrush}"
                                         BorderThickness="0,0,0,1"
                                         Padding="14,10">
                                     <Grid>
@@ -133,7 +133,7 @@
             <Button.Template>
                 <ControlTemplate TargetType="Button">
                     <Border Background="{DynamicResource MenuHoverBrush}"
-                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="1"
                             CornerRadius="{DynamicResource PillCornerRadius}"
                             Padding="{TemplateBinding Padding}">

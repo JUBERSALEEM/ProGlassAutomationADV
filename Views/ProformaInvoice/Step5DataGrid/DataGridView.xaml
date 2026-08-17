@@ -556,7 +556,7 @@ PRESERVED EXACTLY:
                     <ControlTemplate TargetType="ListViewItem">
                         <Border CornerRadius="{DynamicResource CardCornerRadius}" x:Name="RowBorder"
                                 BorderThickness="0,0,0,1"
-                                BorderBrush="{DynamicResource BorderBrush}"
+                                BorderBrush="{DynamicResource OutlineBrush}"
                                 Padding="0,3"
                                 Margin="0,0,0,1"
                                 Background="Transparent">
@@ -709,7 +709,7 @@ PRESERVED EXACTLY:
                  EMPTY STATE — no spec groups
             ══════════════════════════════════════════════════════════ -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="1"
                     CornerRadius="12"
                     Padding="40,32"
@@ -777,7 +777,7 @@ PRESERVED EXACTLY:
                             Padding="20"
                             Margin="0,0,0,16"
                             BorderThickness="1"
-                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderBrush="{DynamicResource OutlineBrush}"
                             SnapsToDevicePixels="True">
                             <Border.InputBindings>
                                 <KeyBinding Modifiers="Control" Key="N"
@@ -926,7 +926,7 @@ PRESERVED EXACTLY:
 
                                     <!-- SURCHARGE RATE — live green badge -->
                                     <Border Background="{DynamicResource TintGreenBrush}"
-                                            BorderBrush="{DynamicResource BorderBrush}"
+                                            BorderBrush="{DynamicResource OutlineBrush}"
                                             BorderThickness="1"
                                             CornerRadius="8"
                                             Padding="12,7">
@@ -974,7 +974,7 @@ PRESERVED EXACTLY:
                                          Hidden entirely when none is set.
                                     ══════════════════════════════════ -->
                                     <Border Background="{DynamicResource TintIndigoBrush}"
-                                            BorderBrush="{DynamicResource BorderBrush}"
+                                            BorderBrush="{DynamicResource OutlineBrush}"
                                             BorderThickness="1"
                                             CornerRadius="8"
                                             Padding="12,7">
@@ -1085,7 +1085,7 @@ PRESERVED EXACTLY:
                                     CornerRadius="10"
                                     Padding="12"
                                     BorderThickness="1"
-                                    BorderBrush="{DynamicResource BorderBrush}"
+                                    BorderBrush="{DynamicResource OutlineBrush}"
                                     SnapsToDevicePixels="True">
                                     <Border.ContextMenu>
                                         <ContextMenu>

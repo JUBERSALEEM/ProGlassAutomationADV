@@ -371,7 +371,7 @@
             <Grid>
                 <Border x:Name="border"
                         Background="Transparent"
-                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="1"
                         CornerRadius="14"
                         Padding="10,0"
@@ -527,7 +527,7 @@
         <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
                 BorderThickness="0,0,0,1"
-                BorderBrush="{DynamicResource BorderBrush}"
+                BorderBrush="{DynamicResource OutlineBrush}"
                 Panel.ZIndex="50"
                 Effect="{StaticResource TopBarShadow}"
                 SnapsToDevicePixels="True">

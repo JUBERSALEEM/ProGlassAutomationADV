@@ -52,7 +52,7 @@
              LEFT — NAVIGATION RAIL
         ══════════════════════════════════════════════════════════════ -->
         <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Column="0"
-                BorderBrush="{DynamicResource DividerBrush}"
+                BorderBrush="{DynamicResource OutlineBrush}"
                 BorderThickness="0,0,1,0">
             <DockPanel Margin="0,26,0,20">
 

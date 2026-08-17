@@ -24,7 +24,7 @@
         <!-- ══ JO GROUP ROW TEMPLATE ══ -->
         <DataTemplate x:Key="JoGroupRowTemplate">
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="1"
                     CornerRadius="10"
                     Padding="14,12"
@@ -696,7 +696,7 @@
 
             <!-- FILTER BAR — hidden on Tab 3 (Pending) only -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="1" CornerRadius="10"
                     Padding="12,10" Margin="0,0,0,12"
                     SnapsToDevicePixels="True">

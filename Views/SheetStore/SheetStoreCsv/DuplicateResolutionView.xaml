@@ -85,7 +85,7 @@
         <!-- Sheet identity -->
         <Border Grid.Row="1"
                 Background="{DynamicResource MenuHoverBrush}"
-                BorderBrush="{DynamicResource BorderBrush}"
+                BorderBrush="{DynamicResource OutlineBrush}"
                 BorderThickness="1"
                 CornerRadius="10" Padding="14,10" Margin="0,0,0,16"
                 SnapsToDevicePixels="True">
@@ -97,7 +97,7 @@
         <!-- Comparison grid -->
         <Border Grid.Row="2"
                 Background="{DynamicResource ModuleBackgroundBrush}"
-                BorderBrush="{DynamicResource BorderBrush}"
+                BorderBrush="{DynamicResource OutlineBrush}"
                 BorderThickness="1"
                 CornerRadius="12" Padding="0"
                 SnapsToDevicePixels="True">

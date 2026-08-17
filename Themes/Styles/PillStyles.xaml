@@ -75,7 +75,7 @@
     <Style x:Key="OutlinePillStyle" TargetType="Border"
            BasedOn="{StaticResource StatusPillBaseStyle}">
         <Setter Property="Background"      Value="Transparent"/>
-        <Setter Property="BorderBrush"     Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderBrush"     Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness" Value="1"/>
     </Style>
 
@@ -84,7 +84,7 @@
         <Setter Property="CornerRadius"        Value="12"/>
         <Setter Property="Padding"             Value="10,3"/>
         <Setter Property="Background"          Value="{DynamicResource TintGrayBrush}"/>
-        <Setter Property="BorderBrush"         Value="{DynamicResource BorderBrush}"/>
+        <Setter Property="BorderBrush"         Value="{DynamicResource OutlineBrush}"/>
         <Setter Property="BorderThickness"     Value="1"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
         <Setter Property="VerticalAlignment"   Value="Center"/>

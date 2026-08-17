@@ -63,7 +63,7 @@
 
                 <Border Grid.Row="1"
                         Background="{DynamicResource ModuleBackgroundBrush}"
-                        BorderBrush="{DynamicResource BorderBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="1"
                         CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                         ClipToBounds="True">
@@ -147,7 +147,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,8"
-                                                BorderBrush="{DynamicResource DividerBrush}"
+                                                BorderBrush="{DynamicResource OutlineBrush}"
                                                 BorderThickness="0,0,0,1"
                                                 ToolTip="{Binding RowTooltip}">
                                             <Grid>

@@ -37,7 +37,7 @@
                 <Setter Property="Background"
                         Value="{DynamicResource ElevatedSurfaceBrush}"/>
                 <Setter Property="BorderBrush"
-                        Value="{DynamicResource BorderBrush}"/>
+                        Value="{DynamicResource OutlineBrush}"/>
                 <Setter Property="BorderThickness" Value="1.5"/>
                 <Setter Property="Visibility" Value="Visible"/>
                 <Style.Triggers>

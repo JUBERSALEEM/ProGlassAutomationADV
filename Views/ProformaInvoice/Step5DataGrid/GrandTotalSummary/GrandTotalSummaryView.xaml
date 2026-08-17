@@ -216,7 +216,7 @@ PRESERVED EXACTLY:
                     <DataTemplate>
                         <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="0,10"
                                 BorderThickness="0,0,0,1"
-                                BorderBrush="{DynamicResource BorderBrush}"
+                                BorderBrush="{DynamicResource OutlineBrush}"
                                 Margin="0,0,0,2">
                             <Grid>
                                 <Grid.ColumnDefinitions>

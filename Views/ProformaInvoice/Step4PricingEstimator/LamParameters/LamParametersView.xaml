@@ -32,12 +32,12 @@
             Padding="10"
             Margin="0,6,0,0"
             BorderThickness="1"
-            BorderBrush="{DynamicResource BorderBrush}">
+            BorderBrush="{DynamicResource OutlineBrush}">
         <StackPanel>
 
             <!-- ── Live spec preview ── -->
             <Border Background="{DynamicResource TintGreenBrush}"
-                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="1"
                     CornerRadius="6"
                     Padding="8,5"

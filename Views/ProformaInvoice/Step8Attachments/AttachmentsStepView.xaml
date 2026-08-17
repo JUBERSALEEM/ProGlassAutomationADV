@@ -180,7 +180,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                                    BorderBrush="{DynamicResource BorderBrush}"
+                                    BorderBrush="{DynamicResource OutlineBrush}"
                                     BorderThickness="1"
                                     CornerRadius="{DynamicResource CardCornerRadius}"
                                     Padding="14,10"

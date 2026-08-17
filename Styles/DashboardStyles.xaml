@@ -318,7 +318,7 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Chrome"
                             Background="{DynamicResource ElevatedSurfaceBrush}"
-                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="1"
                             CornerRadius="8"
                             Height="30"

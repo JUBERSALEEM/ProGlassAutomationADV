@@ -231,7 +231,7 @@
                             <ItemsControl ItemsSource="{Binding UpdateHistory}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource DividerBrush}"
+                                        <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource OutlineBrush}"
                                                 BorderThickness="0,0,0,1"
                                                 Padding="2,7">
                                             <Grid>

@@ -210,7 +210,7 @@
 
             <!-- ── FILTER BAR ─────────────────────────────────────────── -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="1"
                     CornerRadius="12"
                     Padding="16,12"
@@ -287,7 +287,7 @@
                  list is empty, so users know what each column means) ── -->
             <Border Grid.Row="0"
                     Background="{DynamicResource MenuHoverBrush}"
-                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="1,1,1,0"
                     CornerRadius="10,10,0,0"
                     Padding="18,9"
@@ -386,7 +386,7 @@
                                     <StackPanel Orientation="Horizontal" Margin="0,8,0,0">
                                         <!-- Project tag -->
                                         <Border Background="{DynamicResource TintGrayBrush}"
-                                                BorderBrush="{DynamicResource BorderBrush}"
+                                                BorderBrush="{DynamicResource OutlineBrush}"
                                                 BorderThickness="1"
                                                 CornerRadius="12"
                                                 Padding="10,3"
@@ -398,7 +398,7 @@
 
                                         <!-- Source PI tag -->
                                         <Border Background="{DynamicResource TintBlueBrush}"
-                                                BorderBrush="{DynamicResource BorderBrush}"
+                                                BorderBrush="{DynamicResource OutlineBrush}"
                                                 BorderThickness="1"
                                                 CornerRadius="12"
                                                 Padding="10,3"

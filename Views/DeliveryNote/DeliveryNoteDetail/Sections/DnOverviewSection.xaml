@@ -24,7 +24,7 @@
              card below both defaulted to row 0 and rendered stacked. -->
         <Border Grid.Row="0"
                     Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="1" CornerRadius="12"
                     SnapsToDevicePixels="True">
                 <StackPanel>
@@ -177,7 +177,7 @@
              fills the height remaining under the stats card. -->
         <Border Grid.Row="1" Margin="0,12,0,0"
                     Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="1" CornerRadius="12"
                     SnapsToDevicePixels="True">
                 <Grid>
@@ -387,7 +387,7 @@
 
                                                                     <!-- Column headers -->
                                                                     <Border CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource MenuHoverBrush}"
-                                                                            BorderBrush="{DynamicResource BorderBrush}"
+                                                                            BorderBrush="{DynamicResource OutlineBrush}"
                                                                             BorderThickness="0,0,0,1">
                                                                         <Grid>
                                                                             <Grid.ColumnDefinitions>
@@ -462,7 +462,7 @@
                                                                     <ItemsPresenter/>
 
                                                                     <Border Background="{DynamicResource TintIndigoBrush}"
-                                                                            BorderBrush="{DynamicResource BorderBrush}"
+                                                                            BorderBrush="{DynamicResource OutlineBrush}"
                                                                             BorderThickness="0,1,0,0"
                                                                             Padding="16,10"
                                                                             CornerRadius="0,0,12,12">
@@ -494,7 +494,7 @@
 
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource BorderBrush}"
+                                        <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource OutlineBrush}"
                                                 BorderThickness="0,0,0,1"
                                                 Padding="0,2">
                                             <Border.Style>

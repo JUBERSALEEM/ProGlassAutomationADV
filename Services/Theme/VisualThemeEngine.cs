@@ -67,7 +67,19 @@ namespace ProGlassAutomation.Services.Theme
             // flat. These families now derive it from their own palette
             // and it is removed again on Normal, exactly like the
             // surfaces above.
-            "OutlineBrush", "OutlineDefaultBrush"
+            "OutlineBrush", "OutlineDefaultBrush",
+
+            // The soft edge used by inputs, dividers, gridlines and a
+            // large number of card borders written before OutlineBrush
+            // existed - 153 BorderBrush and 14 DividerBrush references
+            // across 89 views. They are DynamicResource, so they follow
+            // a Light/Dark swap, but they were NOT managed here and so
+            // stayed at the base theme grey while Monet and Professional
+            // recoloured everything around them. Managing the keys fixes
+            // every one of those views at once, without editing them and
+            // without darkening inputs the way pointing them all at
+            // OutlineBrush would.
+            "BorderBrush", "DividerBrush"
         };
 
         /// <summary>Currently active family.</summary>
@@ -431,6 +443,21 @@ namespace ProGlassAutomation.Services.Theme
             brush.Freeze();
             resources["OutlineBrush"] = brush;
             resources["OutlineDefaultBrush"] = brush;
+
+            // The SOFT edge: same hue as the keyline so it belongs to the
+            // family, but mixed back toward the card surface so it stays
+            // roughly half the weight. This is what inputs, dividers,
+            // gridlines and the 153 legacy BorderBrush card borders use.
+            // Deriving it - rather than pointing those references at the
+            // full-strength keyline - is what keeps forms light while the
+            // cards still gain a visible edge.
+            Color surface = ThemeManager.GetThemeColor(
+                "ModuleBackgroundBrush", Colors.White);
+            var soft = new SolidColorBrush(
+                ColorMath.Mix(keyline, surface, 0.45));
+            soft.Freeze();
+            resources["BorderBrush"] = soft;
+            resources["DividerBrush"] = soft;
         }
 
         /// <summary>

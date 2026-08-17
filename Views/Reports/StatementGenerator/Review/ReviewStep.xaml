@@ -357,7 +357,7 @@
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="bd"
                                             Background="{DynamicResource ModuleBackgroundBrush}"
-                                            BorderBrush="{DynamicResource BorderBrush}"
+                                            BorderBrush="{DynamicResource OutlineBrush}"
                                             BorderThickness="1"
                                             CornerRadius="10">
                                         <StackPanel Orientation="Horizontal"
@@ -422,7 +422,7 @@
                         <!-- Tabs -->
                         <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1"
                                 BorderThickness="0,0,0,1"
-                                BorderBrush="{DynamicResource BorderBrush}"
+                                BorderBrush="{DynamicResource OutlineBrush}"
                                 Padding="16,10">
                             <StackPanel Orientation="Horizontal">
 
@@ -665,7 +665,7 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                                                    BorderBrush="{DynamicResource BorderBrush}"
+                                                    BorderBrush="{DynamicResource OutlineBrush}"
                                                     BorderThickness="1"
                                                     CornerRadius="10"
                                                     Padding="14,12"
@@ -720,7 +720,7 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                                                    BorderBrush="{DynamicResource BorderBrush}"
+                                                    BorderBrush="{DynamicResource OutlineBrush}"
                                                     BorderThickness="1"
                                                     CornerRadius="10"
                                                     Padding="14,12"
@@ -775,7 +775,7 @@
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
                                             <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                                                    BorderBrush="{DynamicResource BorderBrush}"
+                                                    BorderBrush="{DynamicResource OutlineBrush}"
                                                     BorderThickness="1"
                                                     CornerRadius="10"
                                                     Padding="14,12"
@@ -831,7 +831,7 @@
             <!-- ═══ STATISTICS FOOTER ═══ -->
             <Border Grid.Row="5"
                     Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="1"
                     CornerRadius="12"
                     Padding="20,14">

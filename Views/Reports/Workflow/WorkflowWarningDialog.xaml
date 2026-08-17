@@ -20,7 +20,7 @@
     SnapsToDevicePixels="True">
 
     <Border Background="{DynamicResource ModuleBackgroundBrush}"
-            BorderBrush="{DynamicResource BorderBrush}"
+            BorderBrush="{DynamicResource OutlineBrush}"
             BorderThickness="1"
             CornerRadius="12">
         <Grid>
@@ -129,7 +129,7 @@
                     CornerRadius="10"
                     Background="{DynamicResource SideMenuBackgroundBrush}"
                     BorderThickness="1"
-                    BorderBrush="{DynamicResource BorderBrush}">
+                    BorderBrush="{DynamicResource OutlineBrush}">
                 <StackPanel>
                     <TextBlock Text="UNINVOICED DELIVERY NOTES"
                                FontSize="10" FontWeight="Bold"
@@ -144,7 +144,7 @@
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
                                     <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                                            BorderBrush="{DynamicResource BorderBrush}"
+                                            BorderBrush="{DynamicResource OutlineBrush}"
                                             BorderThickness="1"
                                             CornerRadius="8"
                                             Padding="12,10"
@@ -217,7 +217,7 @@
             <Border Grid.Row="4"
                     Background="{DynamicResource SideMenuBackgroundBrush}"
                     BorderThickness="0,1,0,0"
-                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
                     CornerRadius="0,0,12,12"
                     Padding="20,14">
                 <Grid>

@@ -105,7 +105,7 @@
         <Border Grid.Row="2"
                 Margin="0,4,0,0"
                 CornerRadius="{DynamicResource CardCornerRadiusLarge}"
-                BorderBrush="{DynamicResource BorderBrush}"
+                BorderBrush="{DynamicResource OutlineBrush}"
                 BorderThickness="1"
                 ClipToBounds="True">
                 <Grid>

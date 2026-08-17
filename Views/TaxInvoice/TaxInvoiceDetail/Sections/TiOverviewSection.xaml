@@ -245,7 +245,7 @@
                     <!-- HEADER FIELDS FORM (compact — includes customer + bank) -->
                     <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1"
                             Padding="18,14"
-                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="0,0,0,1">
                         <StackPanel>
                             <!-- Row 1: PI ref, DN ref, PO, Status -->
@@ -693,7 +693,7 @@
                                                 </Border>
 
                                                 <Border CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource MenuHoverBrush}"
-                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderBrush="{DynamicResource OutlineBrush}"
                                                         BorderThickness="0,0,0,1">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
@@ -765,7 +765,7 @@
                                                 <ItemsControl ItemsSource="{Binding Rows}">
                                                     <ItemsControl.ItemTemplate>
                                                         <DataTemplate>
-                                                            <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource BorderBrush}"
+                                                            <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource OutlineBrush}"
                                                                     BorderThickness="0,0,0,1"
                                                                     Padding="0,2">
                                                                 <Grid>
@@ -912,7 +912,7 @@
                                                 </ItemsControl>
 
                                                 <Border Background="{DynamicResource TintIndigoBrush}"
-                                                        BorderBrush="{DynamicResource BorderBrush}"
+                                                        BorderBrush="{DynamicResource OutlineBrush}"
                                                         BorderThickness="0,1,0,0"
                                                         Padding="16,10"
                                                         CornerRadius="0,0,12,12">

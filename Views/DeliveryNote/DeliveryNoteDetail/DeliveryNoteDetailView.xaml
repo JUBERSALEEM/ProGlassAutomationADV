@@ -406,7 +406,7 @@
         <!-- ═══ ROW 0 — ACTION BAR ═══ -->
         <Border Grid.Row="0"
                 Background="{DynamicResource ModuleBackgroundBrush}"
-                BorderBrush="{DynamicResource BorderBrush}"
+                BorderBrush="{DynamicResource OutlineBrush}"
                 BorderThickness="1" CornerRadius="12"
                 Padding="14,12" Margin="0,0,0,12"
                 SnapsToDevicePixels="True">

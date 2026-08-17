@@ -21,7 +21,7 @@
     Loaded="OnLoaded">
 
     <Border Background="{DynamicResource ModuleBackgroundBrush}"
-            BorderBrush="{DynamicResource BorderBrush}"
+            BorderBrush="{DynamicResource OutlineBrush}"
             BorderThickness="1"
             CornerRadius="12">
         <Grid>
@@ -109,7 +109,7 @@
                                     CornerRadius="10"
                                     BorderThickness="1"
                                     Background="{DynamicResource SideMenuBackgroundBrush}"
-                                    BorderBrush="{DynamicResource BorderBrush}">
+                                    BorderBrush="{DynamicResource OutlineBrush}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="40"/>
@@ -277,7 +277,7 @@
             <Border Grid.Row="4"
                     Background="{DynamicResource SideMenuBackgroundBrush}"
                     BorderThickness="0,1,0,0"
-                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
                     CornerRadius="0,0,12,12"
                     Padding="24,14">
                 <Grid>

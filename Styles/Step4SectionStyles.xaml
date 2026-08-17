@@ -142,7 +142,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Expander">
                     <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="1"
                             CornerRadius="8"
                             SnapsToDevicePixels="True">

@@ -113,7 +113,7 @@
         <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderThickness="0,0,0,1"
-                BorderBrush="{DynamicResource BorderBrush}">
+                BorderBrush="{DynamicResource OutlineBrush}">
             <Grid Margin="20,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="38"/>
@@ -558,7 +558,7 @@
         <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="2"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderThickness="0,1,0,0"
-                BorderBrush="{DynamicResource BorderBrush}">
+                BorderBrush="{DynamicResource OutlineBrush}">
             <Grid Margin="20,0">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>

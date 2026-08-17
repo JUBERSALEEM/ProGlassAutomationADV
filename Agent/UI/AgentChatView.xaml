@@ -41,7 +41,7 @@
 
         <Style x:Key="AgentReplyBubble" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="14,14,14,4"/>
             <Setter Property="Padding" Value="14,10"/>
@@ -119,7 +119,7 @@
         <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0"
                 Padding="20,16"
                 Background="{DynamicResource ModuleBackgroundBrush}"
-                BorderBrush="{DynamicResource DividerBrush}"
+                BorderBrush="{DynamicResource OutlineBrush}"
                 BorderThickness="0,0,0,1">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -261,7 +261,7 @@
         <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="2"
                 Padding="20,14"
                 Background="{DynamicResource ModuleBackgroundBrush}"
-                BorderBrush="{DynamicResource DividerBrush}"
+                BorderBrush="{DynamicResource OutlineBrush}"
                 BorderThickness="0,1,0,0">
             <StackPanel>
                 <Grid>
@@ -291,7 +291,7 @@
                     ══════════════════════════════════════════════ -->
                     <Border Grid.Column="0"
                             Background="White"
-                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="1"
                             CornerRadius="20"
                             Padding="14,0"

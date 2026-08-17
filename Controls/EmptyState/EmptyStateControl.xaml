@@ -33,7 +33,7 @@
 
     <Border CornerRadius="20"
             Background="{DynamicResource ModuleBackgroundBrush}"
-            BorderBrush="{DynamicResource BorderBrush}"
+            BorderBrush="{DynamicResource OutlineBrush}"
             BorderThickness="1"
             Padding="34,30"
             MaxWidth="460"

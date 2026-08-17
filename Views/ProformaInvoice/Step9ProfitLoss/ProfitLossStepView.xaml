@@ -92,7 +92,7 @@
                     CornerRadius="16"
                     Padding="20"
                     BorderThickness="1"
-                    BorderBrush="{DynamicResource BorderBrush}">
+                    BorderBrush="{DynamicResource OutlineBrush}">
                 <StackPanel>
 
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
@@ -291,7 +291,7 @@
                     Padding="0"
                     Margin="0,16,0,0"
                     BorderThickness="1"
-                    BorderBrush="{DynamicResource BorderBrush}">
+                    BorderBrush="{DynamicResource OutlineBrush}">
                 <StackPanel>
 
                     <!-- Accent table header -->
@@ -366,7 +366,7 @@
                                         <ItemsControl ItemsSource="{Binding Rows}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource DividerBrush}"
+                                                    <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderBrush="{DynamicResource OutlineBrush}"
                                                             BorderThickness="0,0,0,1"
                                                             Padding="0,6">
                                                         <Grid>
@@ -418,7 +418,7 @@
 
                                         <!-- ── RATE CHECK ────────────────── -->
                                         <Border Background="{DynamicResource TintPurpleBrush}"
-                                                BorderBrush="{DynamicResource BorderBrush}"
+                                                BorderBrush="{DynamicResource OutlineBrush}"
                                                 BorderThickness="1"
                                                 CornerRadius="6"
                                                 Padding="10,7"

@@ -188,7 +188,7 @@ CHAT 17 — UI POLISH
             -->
             <Border Margin="0,0,0,24"
                     BorderThickness="1"
-                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderBrush="{DynamicResource OutlineBrush}"
                     CornerRadius="16"
                     ClipToBounds="True">
                 <Grid>
@@ -362,7 +362,7 @@ CHAT 17 — UI POLISH
                                     Padding="24,20"
                                     Margin="0,0,0,8"
                                     Background="{DynamicResource WindowBackgroundBrush}"
-                                    BorderBrush="{DynamicResource BorderBrush}"
+                                    BorderBrush="{DynamicResource OutlineBrush}"
                                     BorderThickness="1">
                                 <Border.Style>
                                     <Style TargetType="Border">
