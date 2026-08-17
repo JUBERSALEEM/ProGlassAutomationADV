@@ -246,8 +246,8 @@
         ═══════════════════════════════════════════════════════════════ -->
 
         <Style x:Key="TopIconButton" TargetType="Button">
-            <Setter Property="Width" Value="40"/>
-            <Setter Property="Height" Value="40"/>
+            <Setter Property="Width" Value="36"/>
+            <Setter Property="Height" Value="36"/>
             <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
             <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
@@ -605,7 +605,7 @@
 
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="64"/>
+            <RowDefinition Height="56"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
@@ -638,11 +638,15 @@
                         Margin="0,0,12,0"
                         VerticalAlignment="Center"/>
 
-                <!-- LOGO -->
-                <StackPanel Grid.Column="1"
+                <!-- LOGO — click to open the About panel -->
+                <StackPanel x:Name="LogoPanel"
+                            Grid.Column="1"
                             Orientation="Horizontal"
                             VerticalAlignment="Center"
-                            Margin="0,0,20,0">
+                            Margin="0,0,20,0"
+                            Cursor="Hand"
+                            MouseLeftButtonDown="Logo_MouseLeftButtonDown"
+                            ToolTip="About ProGlass Automation">
                     <Border Width="38" Height="38"
                             CornerRadius="10"
                             Effect="{StaticResource LogoGlow}"
@@ -666,9 +670,9 @@
 
                 <!-- MODULE BADGE -->
                 <Border Grid.Column="2"
-                        Height="40"
-                        CornerRadius="20"
-                        Padding="18,0"
+                        Height="36"
+                        CornerRadius="18"
+                        Padding="16,0"
                         VerticalAlignment="Center"
                         Margin="0,0,20,0"
                         Background="{StaticResource SidebarActiveGradient}"
@@ -696,7 +700,7 @@
 
                 <!-- SEARCH — hosts the GlobalSearchBar -->
                 <Border Grid.Column="3"
-                        MaxWidth="480"
+                        MaxWidth="360"
                         HorizontalAlignment="Stretch"
                         VerticalAlignment="Center">
                     <globalSearch:GlobalSearchBar DataContext="{Binding GlobalSearchVM}"/>
@@ -714,9 +718,9 @@
                             Margin="0,0,16,0"/>
 
                     <!-- AI AGENT PULSE PILL (theme-based accent) -->
-                    <Border Height="40"
-                            CornerRadius="20"
-                            Padding="14,0"
+                    <Border Height="36"
+                            CornerRadius="18"
+                            Padding="12,0"
                             Margin="0,0,10,0"
                             Background="{DynamicResource TintBlueBrush}"
                             BorderBrush="{DynamicResource AccentBrush}"
@@ -776,11 +780,11 @@
                     </Border>
 
                     <!-- DATE/TIME PILL -->
-                    <Border Height="40"
+                    <Border Height="36"
                             Background="{DynamicResource MenuHoverBrush}"
                             BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="1"
-                            CornerRadius="10"
+                            CornerRadius="9"
                             Padding="10,0"
                             Margin="0,0,10,0"
                             SnapsToDevicePixels="True"
@@ -812,9 +816,9 @@
                     </Border>
 
                     <!-- CONNECTIVITY PILL -->
-                    <Border Height="40"
-                            CornerRadius="20"
-                            Padding="14,0"
+                    <Border Height="36"
+                            CornerRadius="18"
+                            Padding="12,0"
                             Margin="0,0,10,0"
                             BorderBrush="#4DFFFFFF"
                             BorderThickness="1"
@@ -855,7 +859,7 @@
                     </Border>
 
                     <!-- NOTIFICATION BELL — hover to peek, click to toggle -->
-                    <Grid x:Name="NotificationButton" Width="40" Height="40" Margin="0,0,10,0" VerticalAlignment="Center">
+                    <Grid x:Name="NotificationButton" Width="36" Height="36" Margin="0,0,10,0" VerticalAlignment="Center">
                         <Button Style="{StaticResource TopIconButton}"
                                 Content="&#xEA8F;"
                                 Click="DropdownButton_Click"
@@ -892,16 +896,6 @@
                             ToolTip="Capture screenshot"
                             Margin="0,0,10,0"/>
 
-                    <!-- ABOUT — hover to peek, click to toggle -->
-                    <Button x:Name="AboutButton"
-                            Style="{StaticResource TopIconButton}"
-                            Content="&#xE946;"
-                            Click="DropdownButton_Click"
-                            MouseEnter="TopBarButton_MouseEnter"
-                            MouseLeave="TopBarButton_MouseLeave"
-                            ToolTip="About"
-                            Margin="0,0,10,0"/>
-
                     <!-- USER CARD — opens a NON-BLOCKING user-switch popup.
                          Single click opens; double-click (or clicking another
                          module) closes. The popup floats over the shell and
@@ -916,7 +910,7 @@
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="Bg"
-                                        Height="40"
+                                        Height="36"
                                         Background="{DynamicResource MenuHoverBrush}"
                                         BorderBrush="{DynamicResource BorderBrush}"
                                         BorderThickness="1"
@@ -1089,8 +1083,7 @@
                                 <TextBlock Text="SALES"
                                            Style="{StaticResource SidebarGroupLabel}"/>
                                 <StackPanel x:Name="SalesGroupHost"
-                                           MouseEnter="SidebarGroup_MouseEnter"
-                                           MouseLeave="SidebarGroup_MouseLeave">
+                                           MouseEnter="SidebarGroup_MouseEnter">
                                 <ToggleButton x:Name="SalesGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Sales &amp; Orders"
@@ -1116,8 +1109,7 @@
                                 <TextBlock Text="PRODUCTION"
                                            Style="{StaticResource SidebarGroupLabel}"/>
                                 <StackPanel x:Name="ProductionGroupHost"
-                                           MouseEnter="SidebarGroup_MouseEnter"
-                                           MouseLeave="SidebarGroup_MouseLeave">
+                                           MouseEnter="SidebarGroup_MouseEnter">
                                 <ToggleButton x:Name="ProductionGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Production"
@@ -1171,8 +1163,7 @@
                                 <TextBlock Text="DISPATCH"
                                            Style="{StaticResource SidebarGroupLabel}"/>
                                 <StackPanel x:Name="DispatchGroupHost"
-                                           MouseEnter="SidebarGroup_MouseEnter"
-                                           MouseLeave="SidebarGroup_MouseLeave">
+                                           MouseEnter="SidebarGroup_MouseEnter">
                                 <ToggleButton x:Name="DispatchGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Dispatch"
@@ -1198,8 +1189,7 @@
                                 <TextBlock Text="REPORTS"
                                            Style="{StaticResource SidebarGroupLabel}"/>
                                 <StackPanel x:Name="ReportsGroupHost"
-                                           MouseEnter="SidebarGroup_MouseEnter"
-                                           MouseLeave="SidebarGroup_MouseLeave">
+                                           MouseEnter="SidebarGroup_MouseEnter">
                                 <ToggleButton x:Name="ReportsGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Reports"
@@ -1225,8 +1215,7 @@
                                 <TextBlock Text="MASTER DATA"
                                            Style="{StaticResource SidebarGroupLabel}"/>
                                 <StackPanel x:Name="MasterDataGroupHost"
-                                           MouseEnter="SidebarGroup_MouseEnter"
-                                           MouseLeave="SidebarGroup_MouseLeave">
+                                           MouseEnter="SidebarGroup_MouseEnter">
                                 <ToggleButton x:Name="MasterDataGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="Master Data"
@@ -1252,8 +1241,7 @@
                                 <TextBlock Text="SYSTEM"
                                            Style="{StaticResource SidebarGroupLabel}"/>
                                 <StackPanel x:Name="SystemGroupHost"
-                                           MouseEnter="SidebarGroup_MouseEnter"
-                                           MouseLeave="SidebarGroup_MouseLeave">
+                                           MouseEnter="SidebarGroup_MouseEnter">
                                 <ToggleButton x:Name="SystemGroup"
                                               Style="{StaticResource SidebarGroupToggle}"
                                               Content="System"
@@ -1383,7 +1371,7 @@
 
         <!-- About popup (non-blocking) -->
         <Popup x:Name="AboutPopup"
-               PlacementTarget="{Binding ElementName=AboutButton}"
+               PlacementTarget="{Binding ElementName=LogoPanel}"
                Placement="Bottom"
                VerticalOffset="0"
                AllowsTransparency="True"

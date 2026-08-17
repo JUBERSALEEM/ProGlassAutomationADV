@@ -82,7 +82,7 @@ namespace ProGlassAutomation
                     vm.IsUserSwitchOpen = false;
                 if (vm.IsSettingsOpen && !In(SettingsButton) && !In(SettingsPanelHost))
                     vm.IsSettingsOpen = false;
-                if (vm.IsAboutOpen && !In(AboutButton) && !In(AboutPanelHost))
+                if (vm.IsAboutOpen && !In(LogoPanel) && !In(AboutPanelHost))
                     vm.IsAboutOpen = false;
                 if (vm.IsNotificationsOpen && !In(NotificationButton) && !In(ActivityPanelHost))
                     vm.IsNotificationsOpen = false;
@@ -193,7 +193,6 @@ namespace ProGlassAutomation
         {
             if (DataContext is not MainViewModel vm) return;
             if (ReferenceEquals(sender, SettingsButton)) vm.IsSettingsOpen = open;
-            else if (ReferenceEquals(sender, AboutButton)) vm.IsAboutOpen = open;
             else if (ReferenceEquals(sender, NotificationButton)) vm.IsNotificationsOpen = open;
             else if (ReferenceEquals(sender, UserCardButton)) vm.IsUserSwitchOpen = open;
             else if (ReferenceEquals(sender, ScreenshotButton)) vm.IsScreenshotOpen = open;
@@ -207,7 +206,6 @@ namespace ProGlassAutomation
             if (DataContext is MainViewModel vm)
             {
                 vm.IsSettingsOpen = ReferenceEquals(sender, SettingsButton);
-                vm.IsAboutOpen = ReferenceEquals(sender, AboutButton);
                 vm.IsNotificationsOpen = ReferenceEquals(sender, NotificationButton);
                 vm.IsUserSwitchOpen = ReferenceEquals(sender, UserCardButton);
                 vm.IsScreenshotOpen = ReferenceEquals(sender, ScreenshotButton);
@@ -273,7 +271,6 @@ namespace ProGlassAutomation
             if (DataContext is not MainViewModel vm) return;
 
             bool isOpen = (ReferenceEquals(sender, SettingsButton) && vm.IsSettingsOpen)
-                       || (ReferenceEquals(sender, AboutButton) && vm.IsAboutOpen)
                        || (ReferenceEquals(sender, NotificationButton) && vm.IsNotificationsOpen)
                        || (ReferenceEquals(sender, UserCardButton) && vm.IsUserSwitchOpen)
                        || (ReferenceEquals(sender, ScreenshotButton) && vm.IsScreenshotOpen);
@@ -288,7 +285,6 @@ namespace ProGlassAutomation
                 if (DataContext is MainViewModel m2)
                 {
                     m2.IsSettingsOpen = ReferenceEquals(sender, SettingsButton);
-                    m2.IsAboutOpen = ReferenceEquals(sender, AboutButton);
                     m2.IsNotificationsOpen = ReferenceEquals(sender, NotificationButton);
                     m2.IsUserSwitchOpen = ReferenceEquals(sender, UserCardButton);
                     m2.IsScreenshotOpen = ReferenceEquals(sender, ScreenshotButton);
@@ -311,66 +307,38 @@ namespace ProGlassAutomation
             StartCloseTimer();
         }
 
-        // ── sidebar groups: hover-open + click-pin ────────────────────────
-        // Hover opens a group and closes the others (only one open at a time).
-        // Moving away closes it after a short delay so the pointer can travel
-        // into the sub-menu. Clicking the header pins it open so sub-items
-        // stay reachable; a second click closes it. A single shared timer
-        // avoids the per-group timers that raced and left groups half-open.
+        /// <summary>Clicking the app logo opens the About panel.</summary>
+        private void Logo_MouseLeftButtonDown(object sender, MouseButtonEventArgs e)
+        {
+            if (DataContext is MainViewModel vm)
+            {
+                // Only the About popup opens (close the other top-bar popups).
+                vm.IsAboutOpen = true;
+                vm.IsSettingsOpen = false;
+                vm.IsNotificationsOpen = false;
+                vm.IsScreenshotOpen = false;
+                vm.IsUserSwitchOpen = false;
+                StopCloseTimer();
+            }
+        }
+
+        // ── sidebar groups: open and STAY open (reference Expander model) ─
+        // Hover or click opens a group; it STAYS open so the user can read
+        // and click its sub-items. Opening another group closes the previous
+        // one (only one open at a time). Clicking the same header closes it.
+        // There is deliberately NO hover auto-close: auto-closing on mouse
+        // leave is what made groups collapse while the user was reading them.
 
         private readonly System.Collections.Generic.HashSet<object> _sidebarPinned = new();
-        private DispatcherTimer? _sidebarCloseTimer;
-        private StackPanel? _sidebarHoverHost;
 
         private void SidebarGroup_MouseEnter(object sender, MouseEventArgs e)
         {
             if (sender is not StackPanel host || host.Children.Count == 0) return;
             if (host.Children[0] is not ToggleButton tb) return;
 
-            _sidebarHoverHost = host;
-            StopSidebarCloseTimer();
-
             // Open this group, close every other (only one open at a time).
             tb.IsChecked = true;
             CloseOtherSidebarGroups(host);
-        }
-
-        private void SidebarGroup_MouseLeave(object sender, MouseEventArgs e)
-        {
-            if (sender is not StackPanel host) return;
-            if (_sidebarPinned.Contains(host)) return;   // pinned stays open
-            StartSidebarCloseTimer();
-        }
-
-        private void StartSidebarCloseTimer()
-        {
-            StopSidebarCloseTimer();
-            _sidebarCloseTimer = new DispatcherTimer
-            {
-                Interval = TimeSpan.FromMilliseconds(400)
-            };
-            _sidebarCloseTimer.Tick += (_, _) =>
-            {
-                _sidebarCloseTimer!.Stop();
-                _sidebarCloseTimer = null;
-                if (_sidebarHoverHost == null) return;
-                // Re-enter the sub-menu cancels; otherwise close the hovered host.
-                if (_sidebarPinned.Contains(_sidebarHoverHost)) return;
-                if (_sidebarHoverHost.Children.Count > 0
-                    && _sidebarHoverHost.Children[0] is ToggleButton tb
-                    && !IsPointerOver(_sidebarHoverHost))
-                {
-                    tb.IsChecked = false;
-                }
-            };
-            _sidebarCloseTimer.Start();
-        }
-
-        private void StopSidebarCloseTimer()
-        {
-            if (_sidebarCloseTimer == null) return;
-            _sidebarCloseTimer.Stop();
-            _sidebarCloseTimer = null;
         }
 
         /// <summary>Closes every sidebar group host except <paramref name="keep"/>.</summary>
@@ -393,21 +361,20 @@ namespace ProGlassAutomation
             }
         }
 
-        /// <summary>True when the pointer is over the element or its sub-menu.</summary>
-        private static bool IsPointerOver(StackPanel host)
-        {
-            var point = Mouse.GetPosition(host);
-            return point.X >= 0 && point.Y >= 0
-                && point.X <= host.ActualWidth && point.Y <= host.ActualHeight;
-        }
-
-        // Pin/unpin on click so the hover-close cannot collapse a chosen group.
+        // Clicking a group header toggles it (open/stays, or close).
         private void SidebarGroup_Click(object sender, RoutedEventArgs e)
         {
             if (sender is not ToggleButton tb) return;
             if (tb.Parent is not StackPanel host) return;
-            if (tb.IsChecked == true) _sidebarPinned.Add(host);
-            else _sidebarPinned.Remove(host);
+            if (tb.IsChecked == true)
+            {
+                _sidebarPinned.Add(host);
+                CloseOtherSidebarGroups(host);
+            }
+            else
+            {
+                _sidebarPinned.Remove(host);
+            }
         }
 
         private void UserSwitchPopup_Opened(object sender, System.EventArgs e)

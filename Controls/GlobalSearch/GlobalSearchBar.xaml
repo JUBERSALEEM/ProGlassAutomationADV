@@ -59,8 +59,8 @@
              SEARCH PILL — module filter · query · clear
         ══════════════════════════════════════════════════════════════ -->
         <Border x:Name="SearchPill"
-                CornerRadius="20"
-                Height="40"
+                CornerRadius="18"
+                Height="36"
                 Padding="14,0,8,0"
                 VerticalAlignment="Center"
                 Background="{DynamicResource ModuleBackgroundBrush}"
