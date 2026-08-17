@@ -6,6 +6,11 @@ Commit audited: `59c42a3`. Codebase: 408 C# files (82,608 LOC), 117 XAML,
 
 ---
 
+> **UPDATE — second remediation round complete.** A-1, A-2, X-6, D-4 visibility,
+> PERF-1 and part of S-5 are now fixed. See §16a for the revised recommendation.
+> Status remains **NOT READY** for one reason only: the runtime test phases have
+> still never been executed, and that cannot be done from this environment.
+
 ## 1. Overall Status
 
 # **NOT READY**
@@ -226,6 +231,30 @@ security/reliability pass, and a schema change would have broken existing user d
 5. **D-4** — no cross-database transaction for the PI→JO→DN→TI chain.
 6. **S-6** — 22 multi-line silent catches.
 7. **Everything in §12** that could not be tested.
+
+## 16a. Second remediation round — what changed
+
+| ID | Was | Now |
+|----|-----|-----|
+| **A-1** | 18 UI checks, **0** service-layer checks, 34 reachable mutating methods | `OperationGuard.Demand` on **all 34** mutating repository methods across 7 repositories. Fails closed. `PermissionDeniedException` renders as a clean "Permission Denied" message, not a crash report. 3 extra UI checks added to destructive paths. **FIXED** |
+| **A-2** | Single-round SHA-256 | **PBKDF2-HMAC-SHA256, 210,000 iterations**, constant-time compare, self-describing format. Legacy hashes verify once and silently migrate on next sign-in, so no user is locked out. No new dependency. **FIXED** |
+| **X-6** | No `Closing`, no `SessionEnding` | `CriticalOperationTracker` + both handlers. Close during a cross-database save now warns, defaulting to Cancel. **FIXED** |
+| **D-4** | Cross-DB failure logged only to `Debug.WriteLine` (absent in Release) | Logged **and** audited, with a message stating that re-saving repairs the link. Still non-fatal by design. **VISIBILITY FIXED**; the architectural limit remains. |
+| **PERF-1** | Believed a defect, then believed intentional | Both readings were incomplete. `SmoothScrollBehavior` now resolves its mode from `VirtualizingPanel.ScrollUnit`, so the 11 real list hosts run `CanContentScroll=True` + `ScrollUnit=Pixel` — **virtualization and smooth scrolling together**. **FIXED** |
+| **S-5** | 22 multi-line silent catches | 3 highest-impact converted to logged warnings (audit trail, AI-memory clear, backup pruning). 19 remain. **PARTIAL** |
+
+**Test count added this round: 29** (`PasswordHasherTests`, `OperationGuardTests`),
+on top of the 30 URL-spoofing cases from round one.
+
+### An error I made and corrected
+I first reported `CanContentScroll="False"` as a straightforward virtualization
+defect. Reading `SmoothScrollBehavior` showed it was deliberate and documented, and
+that flipping the XAML had already been tried and reverted. Rather than defend the
+original finding or drop it, I established the actual mechanism: WPF disables
+virtualization for pixel scrolling, but since .NET 4.5 `ScrollUnit="Pixel"` restores
+it — and the behaviour could not see that because it read `CanContentScroll` alone.
+Fixing the behaviour first made the XAML change safe. **A finding is only useful once
+the mechanism is understood; the first two readings were both wrong.**
 
 ## 16. Final Recommendation
 

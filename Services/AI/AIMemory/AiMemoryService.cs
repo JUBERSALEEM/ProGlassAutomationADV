@@ -19,6 +19,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ProGlassAutomation.Services.Logging;
 
 namespace ProGlassAutomation.Services.AI.AIMemory
 {
@@ -135,7 +136,18 @@ namespace ProGlassAutomation.Services.AI.AIMemory
                     AuditSections.Ai, "AI memory cleared",
                     "All assistant memories deleted");
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // S-5: was a silent catch. A swallowed failure here
+                // meant the user was told their AI memory was cleared when it was not — a privacy problem.
+                AppLogService.Warning(
+                    $"ClearMemory failed: {ex.Message}",
+                    new LogContext
+                    {
+                        Module = "AI",
+                        Operation = "ClearMemory"
+                    });
+            }
         }
 
         private static async Task TrimAsync(AiMemoryDbContext db)

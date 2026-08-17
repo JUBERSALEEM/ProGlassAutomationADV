@@ -347,7 +347,18 @@ namespace ProGlassAutomation.Services.Database.DatabaseBackup
                         new LogContext { Module = "Backup", Operation = "Prune" });
                 }
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // S-5: was a silent catch. A swallowed failure here
+                // meant old backup sets accumulated forever and filled the disk unnoticed.
+                AppLogService.Warning(
+                    $"PruneOldBackups failed: {ex.Message}",
+                    new LogContext
+                    {
+                        Module = "Backup",
+                        Operation = "PruneOldBackups"
+                    });
+            }
         }
     }
 }

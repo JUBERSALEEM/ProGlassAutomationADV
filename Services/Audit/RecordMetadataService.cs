@@ -18,6 +18,7 @@
 using Microsoft.Data.Sqlite;
 using System;
 using System.Threading.Tasks;
+using ProGlassAutomation.Services.Logging;
 
 namespace ProGlassAutomation.Services.Audit
 {
@@ -98,7 +99,18 @@ namespace ProGlassAutomation.Services.Audit
 
                 await command.ExecuteNonQueryAsync();
             }
-            catch { }
+            catch (Exception ex)
+            {
+                // S-5: was a silent catch. A swallowed failure here
+                // meant the created/updated-by trail silently stopped recording.
+                AppLogService.Warning(
+                    $"StampUpdated failed: {ex.Message}",
+                    new LogContext
+                    {
+                        Module = "Audit",
+                        Operation = "StampUpdated"
+                    });
+            }
         }
 
         /// <summary>Reads metadata for one record (null when absent).</summary>
