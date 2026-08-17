@@ -139,6 +139,37 @@ namespace ProGlassAutomation.ViewModels
             }
         }
 
+        private bool _isSettingsOpen;
+        /// <summary>True while the quick-settings popup is open (non-blocking).</summary>
+        public bool IsSettingsOpen
+        {
+            get => _isSettingsOpen;
+            set { if (_isSettingsOpen == value) return; _isSettingsOpen = value; OnPropertyChanged(); }
+        }
+
+        private bool _isAboutOpen;
+        /// <summary>True while the About popup is open (non-blocking).</summary>
+        public bool IsAboutOpen
+        {
+            get => _isAboutOpen;
+            set { if (_isAboutOpen == value) return; _isAboutOpen = value; OnPropertyChanged(); }
+        }
+
+        private bool _isNotificationsOpen;
+        /// <summary>True while the notifications/activity popup is open (non-blocking).</summary>
+        public bool IsNotificationsOpen
+        {
+            get => _isNotificationsOpen;
+            set { if (_isNotificationsOpen == value) return; _isNotificationsOpen = value; OnPropertyChanged(); }
+        }
+
+        /// <summary>Toggles the quick-settings popup.</summary>
+        public ICommand ToggleSettingsCommand { get; private set; }
+        /// <summary>Toggles the About popup.</summary>
+        public ICommand ToggleAboutCommand { get; private set; }
+        /// <summary>Toggles the notifications/activity popup.</summary>
+        public ICommand ToggleNotificationsCommand { get; private set; }
+
         /// <summary>Opens/closes the agent chat panel.</summary>
         public ICommand ToggleAgentChatCommand { get; private set; }
 
@@ -399,6 +430,21 @@ namespace ProGlassAutomation.ViewModels
         /// <summary>Public refresh of the top-bar user pill after a switch.</summary>
         public void RefreshCurrentUserPublic() => RefreshCurrentUser();
 
+        /// <summary>
+        /// Opens the Settings module on a specific section (Appearance / AI /
+        /// Agent / Voice / Data / Updates / About). Used by the quick-settings
+        /// popup so a row navigates to that section without the popup blocking.
+        /// </summary>
+        public void OpenSettingsPage(string page)
+        {
+            CurrentViewModel = SettingsVM;
+            // Route through the public command (the SettingsPage setter is
+            // private and validates the key).
+            SettingsVM.SwitchSettingsPageCommand.Execute(page ?? "Appearance");
+            IsSettingsOpen = false;
+            IsMenuOpen = false;
+        }
+
         private void RefreshCurrentUser()
         {
             var user = Services.Audit.AuditService.CurrentUser;
@@ -588,8 +634,20 @@ namespace ProGlassAutomation.ViewModels
             ShowUserSwitchCommand = new RelayCommand(_ =>
                 IsUserSwitchOpen = !IsUserSwitchOpen);
 
+            // Top-bar icon buttons open non-blocking popups (consistent with
+            // the user card and agent): single click opens, click again closes,
+            // and clicking a module dismisses them. They never navigate away
+            // to a full module, so they don't interfere with module content.
+            ToggleSettingsCommand = new RelayCommand(_ =>
+                IsSettingsOpen = !IsSettingsOpen);
+            ToggleAboutCommand = new RelayCommand(_ =>
+                IsAboutOpen = !IsAboutOpen);
+            ToggleNotificationsCommand = new RelayCommand(_ =>
+                IsNotificationsOpen = !IsNotificationsOpen);
+
             // ── connectivity pill: follow the shared ConnectivityService ──
             if (App.Connectivity != null)
+
             {
                 _isOnline = App.Connectivity.IsOnline;
                 App.Connectivity.ConnectivityChanged += (_, online) =>

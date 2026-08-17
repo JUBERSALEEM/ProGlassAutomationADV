@@ -850,13 +850,12 @@
                         </StackPanel>
                     </Border>
 
-                    <!-- NOTIFICATION BELL (routes to Logs & Activity) -->
-                    <Grid Margin="0,0,10,0">
+                    <!-- NOTIFICATION BELL — opens a non-blocking activity popup -->
+                    <Grid x:Name="NotificationButton" Margin="0,0,10,0">
                         <Button Style="{StaticResource TopIconButton}"
                                 Content="&#xEA8F;"
-                                Command="{Binding NavigateCommand}"
-                                CommandParameter="Diagnostics"
-                                ToolTip="Logs &amp; Activity"/>
+                                Command="{Binding ToggleNotificationsCommand}"
+                                ToolTip="Recent activity"/>
                         <Ellipse Width="10" Height="10"
                                  Fill="{DynamicResource DangerBrush}"
                                  Stroke="White"
@@ -867,17 +866,19 @@
                                  IsHitTestVisible="False"/>
                     </Grid>
 
-                    <!-- SETTINGS -->
-                    <Button Style="{StaticResource TopIconButton}"
+                    <!-- SETTINGS — opens a non-blocking quick-settings popup -->
+                    <Button x:Name="SettingsButton"
+                            Style="{StaticResource TopIconButton}"
                             Content="&#xE713;"
-                            Command="{Binding ShowSettingsCommand}"
+                            Command="{Binding ToggleSettingsCommand}"
                             ToolTip="Settings"
                             Margin="0,0,10,0"/>
 
-                    <!-- ABOUT / HELP -->
-                    <Button Style="{StaticResource TopIconButton}"
+                    <!-- ABOUT — opens a non-blocking About popup -->
+                    <Button x:Name="AboutButton"
+                            Style="{StaticResource TopIconButton}"
                             Content="&#xE946;"
-                            Command="{Binding ShowAboutCommand}"
+                            Command="{Binding ToggleAboutCommand}"
                             ToolTip="About"
                             Margin="0,0,10,0"/>
 
@@ -1300,7 +1301,8 @@
     
         <!-- NON-BLOCKING USER-SWITCH POPUP. Floats over the shell; it is a
              single Popup inside the root Grid (not a second Window child),
-             so StaysOpen=False lets clicking any module dismiss it. -->
+             StaysOpen=True + the shell's click-outside handler lets clicking
+             any module dismiss it. -->
         <Popup x:Name="UserSwitchPopup"
                PlacementTarget="{Binding ElementName=UserCardButton}"
                Placement="Bottom"
@@ -1312,6 +1314,48 @@
                Opened="UserSwitchPopup_Opened"
                Closed="UserSwitchPopup_Closed">
             <viewsShared:UserSwitchPanel x:Name="UserSwitchPanelHost" Width="360"/>
+        </Popup>
+
+        <!-- Quick-settings popup (non-blocking, same pattern as user card) -->
+        <Popup x:Name="SettingsPopup"
+               PlacementTarget="{Binding ElementName=SettingsButton}"
+               Placement="Bottom"
+               VerticalOffset="10"
+               AllowsTransparency="True"
+               StaysOpen="True"
+               PopupAnimation="Fade"
+               IsOpen="{Binding IsSettingsOpen, Mode=TwoWay}"
+               Opened="SettingsPopup_Opened"
+               Closed="SettingsPopup_Closed">
+            <viewsShared:QuickSettingsPanel x:Name="SettingsPanelHost" Width="280"/>
+        </Popup>
+
+        <!-- About popup (non-blocking) -->
+        <Popup x:Name="AboutPopup"
+               PlacementTarget="{Binding ElementName=AboutButton}"
+               Placement="Bottom"
+               VerticalOffset="10"
+               AllowsTransparency="True"
+               StaysOpen="True"
+               PopupAnimation="Fade"
+               IsOpen="{Binding IsAboutOpen, Mode=TwoWay}"
+               Opened="AboutPopup_Opened"
+               Closed="AboutPopup_Closed">
+            <viewsShared:AboutPanel x:Name="AboutPanelHost"/>
+        </Popup>
+
+        <!-- Notifications / activity popup (non-blocking) -->
+        <Popup x:Name="NotificationsPopup"
+               PlacementTarget="{Binding ElementName=NotificationButton}"
+               Placement="Bottom"
+               VerticalOffset="10"
+               AllowsTransparency="True"
+               StaysOpen="True"
+               PopupAnimation="Fade"
+               IsOpen="{Binding IsNotificationsOpen, Mode=TwoWay}"
+               Opened="NotificationsPopup_Opened"
+               Closed="NotificationsPopup_Closed">
+            <viewsShared:ActivityPanel x:Name="ActivityPanelHost"/>
         </Popup>
 </Grid>
 </Window>

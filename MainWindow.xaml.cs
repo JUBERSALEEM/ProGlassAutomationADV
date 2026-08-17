@@ -47,20 +47,27 @@ namespace ProGlassAutomation
             // X-6: refuse to close while a multi-step write is running.
             Closing += MainWindow_Closing;
 
-            // Close the user-switch popup when the user clicks anywhere that
-            // is not the user card button. This works with StaysOpen=True
-            // (which keeps the button toggle reliable) while still letting a
-            // click on any module dismiss the popup.
+            // Close any open top-bar popup when the user clicks anywhere
+            // that is not its trigger button. Works with StaysOpen=True
+            // (which keeps the button toggle reliable) while still letting
+            // a click on any module dismiss the popup.
             PreviewMouseLeftButtonDown += (_, e) =>
             {
-                if (DataContext is MainViewModel vm && vm.IsUserSwitchOpen)
-                {
-                    var source = e.OriginalSource as DependencyObject;
-                    bool insideButton = source != null &&
-                        IsDescendantOf(source, UserCardButton);
-                    if (!insideButton)
-                        vm.IsUserSwitchOpen = false;
-                }
+                if (DataContext is not MainViewModel vm) return;
+
+                var source = e.OriginalSource as DependencyObject;
+
+                bool In(DependencyObject button) =>
+                    source != null && IsDescendantOf(source, button);
+
+                if (vm.IsUserSwitchOpen && !In(UserCardButton))
+                    vm.IsUserSwitchOpen = false;
+                if (vm.IsSettingsOpen && !In(SettingsButton))
+                    vm.IsSettingsOpen = false;
+                if (vm.IsAboutOpen && !In(AboutButton))
+                    vm.IsAboutOpen = false;
+                if (vm.IsNotificationsOpen && !In(NotificationButton))
+                    vm.IsNotificationsOpen = false;
             };
         }
 
@@ -171,6 +178,22 @@ namespace ProGlassAutomation
             if (DataContext is MainViewModel vm)
                 vm.RefreshCurrentUserPublic();
         }
+
+        private void SettingsPopup_Opened(object sender, System.EventArgs e)
+        {
+            // Nothing to preload — quick-settings rows navigate on demand.
+        }
+        private void SettingsPopup_Closed(object sender, System.EventArgs e) { }
+
+        private void AboutPopup_Opened(object sender, System.EventArgs e) { }
+        private void AboutPopup_Closed(object sender, System.EventArgs e) { }
+
+        private void NotificationsPopup_Opened(object sender, System.EventArgs e)
+        {
+            if (ActivityPanelHost != null)
+                _ = ActivityPanelHost.LoadAsync();
+        }
+        private void NotificationsPopup_Closed(object sender, System.EventArgs e) { }
 
         /// <summary>
         /// Click on the dim overlay closes the menu drawer.
