@@ -54,6 +54,7 @@ using ProGlassAutomation.ViewModels.Diagnostics;
 using ProGlassAutomation.ViewModels.SheetStore;
 using ProGlassAutomation.ViewModels.SystemCenter;
 using ProGlassAutomation.ViewModels.TaxInvoice;
+using System.IO;
 using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels
@@ -275,6 +276,56 @@ namespace ProGlassAutomation.ViewModels
 
         public string ConnectivityLabel => IsOnline ? "Online" : "Offline";
 
+        // ── signed-in user (top-bar pill) ──────────────────────────────
+        // Mirrors the mockup's user pill, but bound to the REAL signed-in
+        // identity (AuditService.CurrentUser) instead of a hardcoded name.
+
+        private string _currentUserDisplayName = "";
+        public string CurrentUserDisplayName
+        {
+            get => _currentUserDisplayName;
+            private set
+            {
+                if (_currentUserDisplayName == value) return;
+                _currentUserDisplayName = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(CurrentUserInitials));
+            }
+        }
+
+        /// <summary>Two-letter initials derived from the display name.</summary>
+        public string CurrentUserInitials
+        {
+            get
+            {
+                var name = _currentUserDisplayName?.Trim() ?? "";
+                if (name.Length == 0) return "?";
+                var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                return parts.Length switch
+                {
+                    0 => "?",
+                    1 => parts[0].Substring(0, 1).ToUpperInvariant(),
+                    _ => (parts[0].Substring(0, 1) + parts[^1].Substring(0, 1))
+                        .ToUpperInvariant()
+                };
+            }
+        }
+
+        // ── storage footer (sidebar) ───────────────────────────────────
+        private string _storageDisplay = "";
+        public string StorageDisplay
+        {
+            get => _storageDisplay;
+            private set { if (_storageDisplay == value) return; _storageDisplay = value; OnPropertyChanged(); }
+        }
+
+        private string _storageSubtitle = "";
+        public string StorageSubtitle
+        {
+            get => _storageSubtitle;
+            private set { if (_storageSubtitle == value) return; _storageSubtitle = value; OnPropertyChanged(); }
+        }
+
         // ── live clock (top bar) — auto-updating date & time ─────────
         private string _currentDateText = "";
         public string CurrentDateText
@@ -319,6 +370,55 @@ namespace ProGlassAutomation.ViewModels
             var now = DateTime.Now;
             CurrentDateText = now.ToString("ddd, dd MMM yyyy");
             CurrentTimeText = now.ToString("HH:mm:ss");
+        }
+
+        /// <summary>Reads the signed-in user for the top-bar pill.</summary>
+        private void RefreshCurrentUser()
+        {
+            var user = Services.Audit.AuditService.CurrentUser;
+            CurrentUserDisplayName =
+                string.IsNullOrWhiteSpace(user?.DisplayName)
+                    ? Services.Audit.AuditService.CurrentUsername
+                    : user!.DisplayName!;
+        }
+
+        /// <summary>
+        /// Computes the app's data-folder size for the sidebar storage
+        /// footer. Never throws — the footer is cosmetic and must not break
+        /// the shell if the folder is missing or locked.
+        /// </summary>
+        private void RefreshStorage()
+        {
+            try
+            {
+                string folder = Path.Combine(
+                    Environment.GetFolderPath(
+                        Environment.SpecialFolder.ApplicationData),
+                    "ProGlassAutomation");
+
+                long bytes = 0;
+                if (Directory.Exists(folder))
+                {
+                    foreach (var f in Directory.EnumerateFiles(
+                        folder, "*", SearchOption.AllDirectories))
+                    {
+                        try { bytes += new FileInfo(f).Length; }
+                        catch { /* skip locked/in-use files */ }
+                    }
+                }
+
+                double mb = bytes / (1024d * 1024d);
+                StorageDisplay = mb >= 1024
+                    ? $"{mb / 1024:N2} GB"
+                    : $"{mb:N0} MB";
+                StorageSubtitle =
+                    $"Stored locally · {StorageDisplay} on disk";
+            }
+            catch
+            {
+                StorageDisplay = "—";
+                StorageSubtitle = "Storage unavailable";
+            }
         }
 
         // ── commands ──────────────────────────────────────────────────────
@@ -446,6 +546,12 @@ namespace ProGlassAutomation.ViewModels
 
             // Live clock on the top bar.
             StartClock();
+
+            // Signed-in user pill + storage footer.
+            RefreshCurrentUser();
+            RefreshStorage();
+            Services.Audit.AuditService.CurrentUserChanged += (_, __) =>
+                System.Windows.Application.Current?.Dispatcher.InvokeAsync(RefreshCurrentUser);
 
             // ── PHASE K: hand the agent its two shell capabilities ────────
             //
