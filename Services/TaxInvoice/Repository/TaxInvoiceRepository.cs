@@ -64,10 +64,42 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
         public async Task<List<TaxInvoiceListItem>> GetAllAsync()
         {
             using var ctx = new TaxInvoiceDbContext();
-            var entities = await ctx.TaxInvoices
+            // PERF: project straight to the list item at the SQL level so the
+            // FullSnapshotJson blob column (which carries base64 attachments)
+            // is never read. Behaviourally identical to materialising the
+            // entity then calling ToListItem.
+            return await ctx.TaxInvoices
+                .AsNoTracking()
                 .OrderByDescending(x => x.CreatedAt)
+                .Select(x => new TaxInvoiceListItem
+                {
+                    Id = x.Id,
+                    InvoiceNumber = x.InvoiceNumber,
+                    ProformaId = x.ProformaId,
+                    DeliveryNoteReference = x.DeliveryNoteReference,
+                    JobOrderId = x.JobOrderId,
+                    PurchaseOrderNumber = x.PurchaseOrderNumber,
+                    InvoiceType = x.InvoiceType,
+                    SequenceLetter = x.SequenceLetter,
+                    SequenceNumber = x.SequenceNumber,
+                    Status = x.Status,
+                    CustomerName = x.CustomerName,
+                    ProjectName = x.ProjectName,
+                    CompanyName = x.CompanyName,
+                    PaymentTerms = x.PaymentTerms,
+                    IssueDate = x.IssueDate,
+                    DueDate = x.DueDate,
+                    Subtotal = x.Subtotal,
+                    DiscountAmount = x.DiscountAmount,
+                    AfterDiscount = x.AfterDiscount,
+                    VatAmount = x.VatAmount,
+                    GrandTotal = x.GrandTotal,
+                    TotalQty = x.TotalQty,
+                    TotalSqm = x.TotalSqm,
+                    CreatedAt = x.CreatedAt,
+                    UpdatedAt = x.UpdatedAt
+                })
                 .ToListAsync();
-            return entities.Select(ToListItem).ToList();
         }
 
         public async Task<List<TaxInvoiceListItem>> GetByProformaIdAsync(

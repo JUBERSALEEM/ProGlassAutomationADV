@@ -300,11 +300,41 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         public async Task<List<DeliveryNoteListItem>> GetAllAsync()
         {
             using var ctx = new DeliveryNotesDbContext();
-            var entities = await ctx.DeliveryNotes
+            // PERF: project straight to the list item at the SQL level so the
+            // FullSnapshotJson blob column is never read. Behaviourally
+            // identical to materialising the entity then calling ToListItem,
+            // but the blobs never cross the wire.
+            return await ctx.DeliveryNotes
                 .Where(x => !x.IsMasterDn)
+                .AsNoTracking()
                 .OrderByDescending(x => x.CreatedAt)
+                .Select(x => new DeliveryNoteListItem
+                {
+                    Id = x.Id,
+                    DeliveryNoteId = x.DeliveryNoteId,
+                    JobOrderId = x.JobOrderId,
+                    ProformaId = x.ProformaId,
+                    CustomerName = x.CustomerName,
+                    ProjectName = x.ProjectName,
+                    Status = x.Status,
+                    DeliveryType = x.DeliveryType,
+                    IsFoc = x.IsFoc,
+                    IsMasterDn = x.IsMasterDn,
+                    DriverName = x.DriverName,
+                    VehicleNumber = x.VehicleNumber,
+                    TotalOrderedQty = x.TotalOrderedQty,
+                    TotalDeliveredQty = x.TotalDeliveredQty,
+                    TotalBalanceQty = x.TotalBalanceQty,
+                    TotalPreviouslyDeliveredQty = x.TotalPreviouslyDeliveredQty,
+                    SequenceNumber = x.SequenceNumber,
+                    DeliveryDate = x.DeliveryDate,
+                    DeliveryTime = x.DeliveryTime,
+                    CreatedAt = x.CreatedAt,
+                    UpdatedAt = x.UpdatedAt,
+                    TaxInvoiceId = x.TaxInvoiceId,
+                    HasTaxInvoice = x.HasTaxInvoice
+                })
                 .ToListAsync();
-            return entities.Select(ToListItem).ToList();
         }
 
         public async Task<List<DeliveryNoteListItem>> GetByJobOrderIdAsync(

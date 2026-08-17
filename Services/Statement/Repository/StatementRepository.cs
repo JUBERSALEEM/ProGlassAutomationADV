@@ -81,12 +81,32 @@ namespace ProGlassAutomation.Services.Statement.Repository
             CancellationToken cancellationToken = default)
         {
             await using var ctx = new StatementDbContext();
-            var entities = await ctx.Statements
+            // PERF: project straight to the list item at the SQL level so the
+            // FullSnapshotJson / FilterJson blob columns are never read.
+            // Behaviourally identical to materialising then calling ToListItem.
+            return await ctx.Statements
                 .AsNoTracking()
                 .OrderByDescending(s => s.CreatedAt)
+                .Select(s => new StatementListItem
+                {
+                    Id = s.Id,
+                    StatementNumber = s.StatementNumber,
+                    Title = s.Title,
+                    FilterCustomer = s.FilterCustomer,
+                    FilterCompany = s.FilterCompany,
+                    FilterProject = s.FilterProject,
+                    FilterSalesman = s.FilterSalesman,
+                    FilterDateFrom = s.FilterDateFrom,
+                    FilterDateTo = s.FilterDateTo,
+                    InvoiceCount = s.InvoiceCount,
+                    TotalInvoiced = s.TotalInvoiced,
+                    TotalOutstanding = s.TotalOutstanding,
+                    OverdueAmount = s.OverdueAmount,
+                    PdfPath = s.PdfPath,
+                    HasAttachments = s.HasAttachments,
+                    CreatedAt = s.CreatedAt
+                })
                 .ToListAsync(cancellationToken);
-
-            return entities.Select(ToListItem).ToList();
         }
 
         public async Task<List<StatementListItem>> GetByCustomerAsync(
