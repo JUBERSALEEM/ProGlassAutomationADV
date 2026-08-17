@@ -38,12 +38,12 @@
 
             <StackPanel Grid.Row="1" Margin="12,12,12,14">
                 <CheckBox x:Name="FullPageCheck"
-                          Content="Full page (capture long lists entirely)"
+                          Content="Full module (capture the entire scrollable page)"
                           FontSize="11"
                           Foreground="{DynamicResource PrimaryForegroundBrush}"
                           Margin="0,0,0,10"
                           IsChecked="False"
-                          ToolTip="Expands the active list to its full height so no rows are cut off"/>
+                          ToolTip="Scrolls the active module top-to-bottom and stitches every section into one continuous screenshot so no rows are cut off"/>
                 <StackPanel x:Name="QualityList"/>
                 <TextBlock x:Name="CaptureStatus"
                            FontSize="10"

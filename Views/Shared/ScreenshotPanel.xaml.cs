@@ -107,7 +107,7 @@ namespace ProGlassAutomation.Views.Shared
         {
             bool fullPage = FullPageCheck?.IsChecked == true;
             CaptureStatus.Text =
-                $"Capturing {(fullPage ? "full page · " : "")}{ScreenshotService.GetLabel(quality)}…";
+                $"Capturing {(fullPage ? "full module · " : "")}{ScreenshotService.GetLabel(quality)}…";
 
             Dispatcher.BeginInvoke(new Action(() =>
             {

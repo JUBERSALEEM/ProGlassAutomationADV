@@ -3,23 +3,19 @@
 // PROJECT: ProGlassAutomation
 // MODULE: Export — high-clarity window / UI capture
 //
-// Faithful implementation of the reference screenshot pipeline.
+// Faithful implementation of the reference screenshot pipeline, with two
+// capture paths:
 //
-// CAPTURE METHOD (as in the reference):
-//   - The requested output resolution is the QUALITY preset target.
-//   - scale = max(targetWidth / ActualWidth, targetHeight / ActualHeight)
-//   - if scale < 4.0  ->  scale = 4.0   (supersample floor for sharpness)
-//   - width  = ActualWidth  * scale
-//   - height = ActualHeight * scale
-//   - dpi    = (int)(96 * scale)
-//   - The LIVE window is rendered directly with RenderTargetBitmap at that
-//     pixel size + DPI, then frozen (GPU-friendly). No upscaling of a
-//     low-resolution bitmap — vector/text is re-rasterized at scale.
+//   NORMAL  — renders the LIVE window at the reference scale+DPI formula.
+//   FULL    — scrolls the active module's main ScrollViewer top-to-bottom,
+//             captures each viewport at the chosen quality, and stitches the
+//             sections into ONE continuous long portrait (via SkiaSharp, so
+//             the result is not limited by WPF's ~16k texture cap and can be
+//             a large, sharp, 10 MB+ PNG).
 //
 // SAVE:
-//   The user picks the location/format via a SaveFileDialog
-//   (PNG / BMP / JPEG). The default filename embeds the module name, the
-//   quality label and a date/time stamp:
+//   The user picks the location/format via a SaveFileDialog. The default
+//   filename embeds the module name, the quality label and a date/time stamp:
 //     <Module>_<Quality>_yyyyMMdd_HHmmss.png
 //
 // PRIVACY: everything stays local. No uploads, no AI upscaling, no
@@ -32,6 +28,7 @@ using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Threading;
+using SkiaSharp;
 
 namespace ProGlassAutomation.Services.Export
 {
@@ -80,7 +77,8 @@ namespace ProGlassAutomation.Services.Export
 
         /// <summary>
         /// Renders the main window using the reference's scale + DPI formula
-        /// and returns the frozen bitmap (or null on failure).
+        /// and returns the frozen bitmap (or null on failure). This is the
+        /// NORMAL capture path and is unchanged.
         /// </summary>
         public static BitmapSource? CaptureMainWindow(ScreenshotQuality quality)
         {
@@ -134,113 +132,138 @@ namespace ProGlassAutomation.Services.Export
         }
 
         /// <summary>
-        /// Captures the FULL content of the active view's main scroll region
-        /// (long lists) as a long portrait — not just the visible viewport.
+        /// Captures the FULL scrollable module as one continuous long portrait
+        /// by scrolling the main ScrollViewer top-to-bottom, capturing each
+        /// viewport at the chosen quality, and stitching the sections together
+        /// in order (no duplication, no skips, no seams).
         ///
-        /// WHY THIS IS HARD: rendering a ScrollViewer only ever captures its
-        /// viewport, and its ActualHeight is clamped by the shell's fixed-size
-        /// content card, so "set a big Height and render the viewer" produced
-        /// only the visible page. Virtualized lists (ListBox/DataGrid) add a
-        /// second trap: they only REALIZE the items currently in view, so
-        /// rendering their content alone leaves rows below the fold blank.
+        /// WHY STITCH (NOT "EXPAND + RENDER ONCE"): a ScrollViewer's height is
+        /// clamped by the shell's fixed content card, and a virtualized list
+        /// (ListBox/DataGrid) only REALIZES the rows currently in view — so a
+        /// single render cannot capture rows below the fold. Scrolling through
+        /// the page lets a virtualized list realize every row as it is passed,
+        /// and stitching preserves exact order. Each section after the first
+        /// strips a small overlap so adjacent sections never drop or repeat
+        /// content (they touch edge-to-edge exactly).
         ///
-        /// FIX: find the module's main vertical ScrollViewer, then EXPAND it to
-        /// its full content extent by measuring/arranging the viewer directly
-        /// at that size (which defeats ancestor clamping and makes a
-        /// virtualizing list realize EVERY item), then render the expanded
-        /// viewer. Everything is restored in a finally block, and any failure
-        /// degrades to a normal window capture rather than breaking the action.
+        /// Returns a SkiaSharp SKBitmap so the result is NOT limited by WPF's
+        /// ~16k texture cap — a long portrait can be arbitrarily tall and still
+        /// save as a large (10 MB+) PNG. Returns null when there is nothing to
+        /// scroll (caller falls back to a normal window capture).
         /// </summary>
-        public static BitmapSource? CaptureFullPage(ScreenshotQuality quality)
+        private static SKBitmap? StitchFullPage(ScreenshotQuality quality)
         {
             var window = Application.Current?.MainWindow;
             if (window == null) return null;
 
             System.Windows.Controls.ScrollViewer? sv = null;
-            double savedHeight = double.NaN;
-            double savedOffset = 0;
-            var savedScrollBar = System.Windows.Controls.ScrollBarVisibility.Auto;
+            if (window.Content is System.Windows.DependencyObject root)
+                sv = FindMainVerticalScrollViewer(root);
 
+            if (sv == null || sv.ScrollableHeight <= 0)
+                return null;   // nothing scrolls — caller falls back
+
+            var savedScrollBar = sv.VerticalScrollBarVisibility;
+            double savedOffset = sv.VerticalOffset;
             try
             {
-                // The window's ROOT is a <Grid>, not a Border, so walk from
-                // the window's content root down through the whole shell and
-                // the active module view. (The earlier guard
-                // "window.Content is Border" was never true, so this method
-                // silently fell back to a window capture and never produced a
-                // long portrait — the bug the user reported.)
-                if (window.Content is System.Windows.DependencyObject root)
-                    sv = FindMainVerticalScrollViewer(root);
-
-                if (sv == null || sv.ScrollableHeight <= 0)
-                {
-                    // Nothing actually scrolls — a window capture is equivalent.
-                    return CaptureMainWindow(quality);
-                }
-
-                double fullW = Math.Max(1, sv.ExtentWidth);
-                double fullH = Math.Max(1, sv.ExtentHeight);
-                double viewportW = Math.Max(1, sv.ViewportWidth);
-
-                // Remember state so we can restore it in finally.
-                savedHeight = sv.Height;
-                savedOffset = sv.VerticalOffset;
-                savedScrollBar = sv.VerticalScrollBarVisibility;
-
-                // Start the portrait at the top of the content.
-                sv.ScrollToVerticalOffset(0);
-                sv.ScrollToHorizontalOffset(0);
-
-                // EXPAND: make the viewer's viewport equal the whole page. A
-                // virtualizing list therefore realizes every row, and nothing
-                // is clipped. We Measure/Arrange the viewer directly at the
-                // full size so a bounded ancestor cannot clamp it back to the
-                // window; rendering the viewer uses its OWN arranged size
-                // (ancestor clipping only matters when rendering the ancestor).
+                // Hide the vertical scrollbar so it never appears in the
+                // portrait and the viewport is identical across every section.
                 sv.VerticalScrollBarVisibility =
                     System.Windows.Controls.ScrollBarVisibility.Hidden;
-                sv.Height = fullH + 2;
-                sv.Measure(new Size(viewportW, fullH + 2));
-                sv.Arrange(new Rect(0, 0, viewportW, fullH + 2));
-                // NOTE: no forced window.UpdateLayout() here — a relayout from
-                // the ancestor would re-clamp the viewer to the window size.
+                window.UpdateLayout();
 
-                var frame = new DispatcherFrame();
-                window.Dispatcher.BeginInvoke(
-                    DispatcherPriority.Render,
-                    new Action(() => frame.Continue = false));
-                Dispatcher.PushFrame(frame);
+                double viewportW = Math.Max(1, sv.ViewportWidth);
+                double viewportH = Math.Max(1, sv.ViewportHeight);
+                double contentW = Math.Max(viewportW, Math.Max(1, sv.ExtentWidth));
+                double contentH = Math.Max(1, sv.ExtentHeight);   // full scrollable height
+                double scrollMax = Math.Max(0, sv.ScrollableHeight);
 
-                var (targetWidth, targetHeight) = GetTargetSize(quality);
-                var (width, height, dpi) =
-                    ComputeRaster(fullW, fullH, targetWidth, targetHeight);
+                var (targetWidth, _) = GetTargetSize(quality);
 
-                var rtb = new RenderTargetBitmap(width, height, dpi, dpi, PixelFormats.Pbgra32);
-                rtb.Render(sv);   // render the EXPANDED viewer → long portrait
-                rtb.Freeze();
-                return rtb;
+                // Render the page width at roughly the quality preset's width.
+                double scale = targetWidth / viewportW;
+                scale = Math.Max(1.0, Math.Min(4.0, scale));
+                double finalW = contentW * scale;
+                double finalH = contentH * scale;
+
+                // Memory guard: cap total pixels (~150 MP). Normal modules are
+                // unaffected and can still save 10 MB+ PNGs; only an extreme
+                // page gets a proportionally smaller (still tall) render rather
+                // than exhausting RAM.
+                const long maxPixels = 150_000_000L;
+                long pixels = (long)(finalW * finalH);
+                if (pixels > maxPixels)
+                {
+                    double r = Math.Sqrt((double)maxPixels / pixels);
+                    scale *= r;
+                    finalW = contentW * scale;
+                    finalH = contentH * scale;
+                }
+
+                int W = Math.Max(1, (int)Math.Round(finalW));
+                int H = Math.Max(1, (int)Math.Round(finalH));
+                int dpi = Math.Max(96, (int)(96 * scale));
+
+                // Small overlap prevents hairline seams; each section after the
+                // first strips this overlap when placed, so no content is lost
+                // or duplicated.
+                double overlap = Math.Min(48, viewportH * 0.05);
+                double stepH = Math.Max(1, viewportH - overlap);
+                int sections = Math.Max(1, (int)Math.Ceiling(contentH / stepH));
+
+                var info = new SKImageInfo(W, H, SKColorType.Bgra8888, SKAlphaType.Premul);
+                var result = new SKBitmap(info);
+                using (var canvas = new SKCanvas(result))
+                {
+                    canvas.Clear(SKColors.White);
+                    for (int i = 0; i < sections; i++)
+                    {
+                        double yTop = Math.Min(i * stepH, scrollMax);
+                        sv.ScrollToVerticalOffset(yTop);
+                        WaitForRender(window);
+
+                        using var section = CaptureViewport(sv, viewportW, viewportH, scale, dpi);
+                        if (section == null) continue;
+
+                        int secW = section.PixelWidth;
+                        int secH = section.PixelHeight;
+                        int yTopPx = (int)Math.Round(yTop * scale);
+                        int srcY0Px = (i > 0) ? (int)Math.Round(overlap * scale) : 0;
+                        int dstY = yTopPx + srcY0Px;
+                        if (dstY >= H) break;
+                        int srcHpx = Math.Min(secH - srcY0Px, H - dstY);
+                        if (srcHpx <= 0) break;
+
+                        using var skSection = ToSkBitmap(section);
+                        // 1:1 blit (src and dst are both at `scale`) so edges
+                        // stay crisp — no stretch, no blur.
+                        canvas.DrawBitmap(
+                            skSection,
+                            new SKRect(0, srcY0Px, secW, srcY0Px + srcHpx),
+                            new SKRect(0, dstY, secW, dstY + srcHpx));
+                    }
+                }
+                return result;
             }
             catch (Exception ex)
             {
                 Services.Logging.AppLogService.Error(
-                    "Full-page screenshot render failed.", ex,
+                    "Full-page stitch failed.", ex,
                     new Services.Logging.LogContext
                     {
                         Module = "Export",
                         Class = nameof(ScreenshotService),
                         Operation = "CaptureFullPage"
                     });
-                // Never fail the action — give the user at least a window shot.
-                return CaptureMainWindow(quality);
+                return null;
             }
             finally
             {
-                // Always restore the layout so the app is never left broken.
                 if (sv != null)
                 {
                     try
                     {
-                        sv.Height = savedHeight;
                         sv.VerticalScrollBarVisibility = savedScrollBar;
                         sv.InvalidateMeasure();
                         sv.InvalidateArrange();
@@ -252,41 +275,50 @@ namespace ProGlassAutomation.Services.Export
             }
         }
 
-        /// <summary>
-        /// Computes the raster dimensions/DPI for a content box using the
-        /// reference scale formula (target ÷ actual, with a 4× supersample
-        /// floor), then clamps so neither output dimension exceeds WPF's
-        /// practical texture limit (16384). Without the clamp a very long
-        /// page could be requested at tens of thousands of pixels tall, which
-        /// WPF cannot rasterise (it throws or renders blank).
-        /// </summary>
-        private static (int Width, int Height, int Dpi) ComputeRaster(
-            double contentW, double contentH, double targetW, double targetH)
+        /// <summary>Renders the ScrollViewer's current viewport at `scale`.</summary>
+        private static BitmapSource? CaptureViewport(
+            System.Windows.Controls.ScrollViewer sv,
+            double viewportW, double viewportH, double scale, int dpi)
         {
-            double scale = Math.Max(targetW / contentW, targetH / contentH);
-            if (scale < 4.0) scale = 4.0;   // reference supersample floor
+            int w = Math.Max(1, (int)Math.Round(viewportW * scale));
+            int h = Math.Max(1, (int)Math.Round(viewportH * scale));
+            var rtb = new RenderTargetBitmap(w, h, dpi, dpi, PixelFormats.Pbgra32);
+            rtb.Render(sv);
+            rtb.Freeze();
+            return rtb;
+        }
 
-            // Cap to the WPF texture limit, scaling the supersample down only
-            // when the page is exceptionally tall/wide.
-            const double maxDim = 16384.0;
-            double scaleX = maxDim / (contentW * scale);
-            double scaleY = maxDim / (contentH * scale);
-            double cap = Math.Min(scaleX, scaleY);
-            if (cap < 1.0) scale *= cap;
+        /// <summary>
+        /// Forces layout then pumps the dispatcher to Render priority so the
+        /// scroll is realized and drawn before the viewport is captured.
+        /// </summary>
+        private static void WaitForRender(System.Windows.Window window)
+        {
+            window.UpdateLayout();
+            var frame = new DispatcherFrame();
+            window.Dispatcher.BeginInvoke(
+                DispatcherPriority.Render,
+                new Action(() => frame.Continue = false));
+            Dispatcher.PushFrame(frame);
+        }
 
-            int width = Math.Max(1, (int)(contentW * scale));
-            int height = Math.Max(1, (int)(contentH * scale));
-            int dpi = Math.Max(1, (int)(96 * scale));
-            return (width, height, dpi);
+        /// <summary>Converts a Pbgra32 BitmapSource into a SkiaSharp bitmap.</summary>
+        private static SKBitmap ToSkBitmap(BitmapSource source)
+        {
+            int w = source.PixelWidth;
+            int h = source.PixelHeight;
+            var bmp = new SKBitmap(
+                new SKImageInfo(w, h, SKColorType.Bgra8888, SKAlphaType.Premul));
+            source.CopyPixels(
+                new Int32Rect(0, 0, w, h), bmp.GetPixels(), w * 4 * h, w * 4);
+            return bmp;
         }
 
         /// <summary>
         /// Depth-first search for the module's main vertical scroll region —
         /// the ScrollViewer that can actually scroll vertically and has the
         /// largest ExtentHeight (so a virtualized ListBox/DataGrid list wins
-        /// over a short wrapper). No content filter: for lists the scroll host
-        /// is the control's internal ScrollViewer, and we expand+render that
-        /// viewer directly.
+        /// over a short wrapper).
         /// </summary>
         private static System.Windows.Controls.ScrollViewer? FindMainVerticalScrollViewer(
             System.Windows.DependencyObject parent)
@@ -321,11 +353,26 @@ namespace ProGlassAutomation.Services.Export
             => SaveBitmap(CaptureMainWindow(quality), GetLabel(quality));
 
         /// <summary>
-        /// Captures the full scrollable page (long lists) then prompts for a
-        /// save location. Returns true when a file was saved.
+        /// Captures the full scrollable page (long lists) via scroll + stitch,
+        /// then prompts for a save location. Returns true when a file was
+        /// saved. Falls back to a normal window capture if the module does not
+        /// scroll.
         /// </summary>
         public static bool CaptureFullPageAndSave(ScreenshotQuality quality)
-            => SaveBitmap(CaptureFullPage(quality), GetLabel(quality) + "_FullPage");
+        {
+            var stitched = StitchFullPage(quality);
+            if (stitched == null)
+                return SaveBitmap(CaptureMainWindow(quality), GetLabel(quality) + "_FullPage");
+
+            try
+            {
+                return SaveSkBitmap(stitched, GetLabel(quality) + "_FullPage");
+            }
+            finally
+            {
+                stitched.Dispose();
+            }
+        }
 
         private static bool SaveBitmap(BitmapSource? bitmap, string label)
         {
@@ -392,6 +439,75 @@ namespace ProGlassAutomation.Services.Export
                         Module = "Export",
                         Class = nameof(ScreenshotService),
                         Operation = "Save"
+                    });
+                System.Windows.MessageBox.Show(
+                    $"Error saving screenshot:\n\n{ex.Message}",
+                    "Screenshot Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Saves a stitched SkiaSharp bitmap (the full-page portrait) via
+        /// SkiaSharp, which handles very large images that exceed WPF's
+        /// texture cap. The caller disposes <paramref name="bitmap"/>.
+        /// </summary>
+        private static bool SaveSkBitmap(SKBitmap bitmap, string label)
+        {
+            var sfd = new Microsoft.Win32.SaveFileDialog
+            {
+                Filter = "PNG Image|*.png|JPEG Image|*.jpg",
+                FileName = $"{SafeModuleName()}_{label}_{DateTime.Now:yyyyMMdd_HHmmss}.png",
+                Title = "Save Screenshot",
+                DefaultExt = ".png",
+                AddExtension = true
+            };
+
+            if (sfd.ShowDialog() != true) return false;
+
+            try
+            {
+                string filePath = sfd.FileName;
+                string extension = Path.GetExtension(filePath).ToLowerInvariant();
+                var directory = Path.GetDirectoryName(filePath);
+                if (!string.IsNullOrEmpty(directory) && !Directory.Exists(directory))
+                    Directory.CreateDirectory(directory);
+
+                using var image = SKImage.FromBitmap(bitmap);
+                var format = extension switch
+                {
+                    ".jpg" or ".jpeg" => SKEncodedImageFormat.Jpeg,
+                    _ => SKEncodedImageFormat.Png   // default lossless PNG
+                };
+                using var data = image.Encode(format, 100);
+                using (var fs = File.Create(filePath))
+                    data.SaveTo(fs);
+
+                var info = new FileInfo(filePath);
+                string size = info.Length >= 1024 * 1024
+                    ? $"{info.Length / (1024.0 * 1024.0):F2} MB"
+                    : $"{info.Length / 1024.0:F1} KB";
+
+                System.Windows.MessageBox.Show(
+                    $"Screenshot saved!\n\nFile: {filePath}\n" +
+                    $"Resolution: {bitmap.Width} × {bitmap.Height}\n" +
+                    $"Size: {size}",
+                    "Screenshot",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Information);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Services.Logging.AppLogService.Error(
+                    "Full-page screenshot save failed.", ex,
+                    new Services.Logging.LogContext
+                    {
+                        Module = "Export",
+                        Class = nameof(ScreenshotService),
+                        Operation = "SaveFullPage"
                     });
                 System.Windows.MessageBox.Show(
                     $"Error saving screenshot:\n\n{ex.Message}",
