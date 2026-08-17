@@ -6,6 +6,7 @@ using ProGlassAutomation.Services.Export.Csv;
 using ProGlassAutomation.Services.Export.Excel;
 using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.JobOrder.Mapper;
+using ProGlassAutomation.Services.ProformaInvoice.Attachments;
 using ProGlassAutomation.Services.ProformaInvoice.Export;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
 using ProGlassAutomation.ViewModels;
@@ -591,19 +592,41 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
         }
 
         /// <summary>
-        /// Approve gate: asks how the customer confirmed the quote (Signed PI
-        /// or LPO), persists the LPO into the invoice snapshot when chosen,
-        /// marks the invoice Approved, and auto-converts it to a Job Order.
+        /// Approve gate, grounded in Step 8 ATTACHMENTS:
+        ///   • An invoice with NO attachments cannot be approved — the user
+        ///     must first attach the signed Proforma Invoice or the LPO
+        ///     document in Step 8. This is a real check, not a self-confirmation.
+        ///   • With attachments present, the user picks how it was confirmed:
+        ///     "Signed PI" (no LPO needed) or "LPO" (LPO number required and
+        ///     saved into the invoice snapshot for invoices / statement gen).
+        ///   • On confirmation the invoice is Approved and auto-converted to a
+        ///     Job Order.
         /// </summary>
         private async Task ApproveAsync(
             SavedProformaInvoice entity, SavedInvoiceListItem item)
         {
             if (entity == null || App.Invoices == null) return;
 
-            // 1. Customer-confirmation gate (signed PI OR LPO).
+            // Step 8 gate — must have real attachments (evidence).
+            var attachments = await new ProformaAttachmentService()
+                .LoadManifestAsync(entity.ProformaId ?? "");
+            if (attachments == null || attachments.Count == 0)
+            {
+                MessageBox.Show(
+                    $"Invoice '{entity.ProformaId}' has no Step 8 attachments.\n\n" +
+                    "Attach the signed Proforma Invoice or the LPO document " +
+                    "in Step 8 (Attachments) before you can approve it.",
+                    "Cannot Approve — No Attachments",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Warning);
+                return;   // status unchanged
+            }
+
+            // 1. Customer-confirmation gate (signed PI OR LPO), grounded on the
+            //    attachments actually present.
             var dlg =
                 new ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
-                    .InvoiceApprovalDialog
+                    .InvoiceApprovalDialog(attachments.Count)
                 {
                     Owner = Application.Current?.MainWindow
                 };

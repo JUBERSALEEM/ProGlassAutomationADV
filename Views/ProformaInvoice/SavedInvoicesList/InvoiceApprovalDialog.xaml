@@ -96,6 +96,11 @@
                                    FontSize="11"
                                    Margin="0,2,0,0"
                                    Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                        <TextBlock x:Name="AttachmentNote"
+                                   FontSize="10.5"
+                                   FontWeight="SemiBold"
+                                   Margin="0,6,0,0"
+                                   Foreground="{DynamicResource AccentBrush}"/>
                     </StackPanel>
                 </StackPanel>
             </StackPanel>

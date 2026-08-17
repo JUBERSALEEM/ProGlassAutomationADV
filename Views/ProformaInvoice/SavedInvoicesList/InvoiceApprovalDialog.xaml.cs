@@ -27,9 +27,16 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
         /// <summary>The LPO / PO number the user entered (empty if Signed PI).</summary>
         public string LpoNumber { get; private set; } = "";
 
-        public InvoiceApprovalDialog()
+        public InvoiceApprovalDialog(int attachmentCount = 0)
         {
             InitializeComponent();
+
+            // Show that the confirmation is grounded on the real Step 8
+            // attachments already attached to this invoice.
+            AttachmentNote.Text =
+                $"Grounded on the {attachmentCount} document(s) attached " +
+                "in Step 8 (Attachments).";
+
             OnModeChanged(this, null);
         }
 
