@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Commands;
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Services.DeliveryNote.Repository;
@@ -536,7 +536,47 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
         //  TAX INVOICE REQUEST
         // ══════════════════════════════════════════════════════════════════
 
+        // ══════════════════════════════════════════════════════════════
+        //  AUDIT R-2 (Phase 11 — command re-entry / duplicate documents)
+        //
+        //  GenerateInvoiceCommand and GenerateMasterInvoiceCommand are
+        //  async. Their CanExecute depends on row state that does not
+        //  change until the async work finishes, and WPF re-queries
+        //  CanExecute only on the CommandManager cycle. A double-click —
+        //  ordinary behaviour for many users — therefore fired the tax
+        //  invoice request TWICE before the first pass completed.
+        //
+        //  The database saves this app from silent corruption: every
+        //  document table has a unique index (TaxInvoices.InvoiceNumber
+        //  IsUnique), so the second write fails rather than duplicating.
+        //  But the user gets an unexplained error dialog on a legitimate
+        //  action, which looks like a broken app.
+        //
+        //  This flag makes the second click a no-op instead. It is a
+        //  plain bool, not a lock: WPF commands execute on the UI thread,
+        //  so there is no race to protect against, and a lock here would
+        //  imply a concurrency model this code does not have.
+        // ══════════════════════════════════════════════════════════════
+        private bool _invoiceRequestInFlight;
+
         private async Task FireTaxInvoiceRequestAsync(
+            string? proformaId, string sourceRef)
+        {
+            if (_invoiceRequestInFlight) return;
+            _invoiceRequestInFlight = true;
+            try
+            {
+                await FireTaxInvoiceRequestCoreAsync(proformaId, sourceRef);
+            }
+            finally
+            {
+                // Always clear, including on an exception path, or the
+                // button would stay dead for the rest of the session.
+                _invoiceRequestInFlight = false;
+            }
+        }
+
+        private async Task FireTaxInvoiceRequestCoreAsync(
             string? proformaId, string sourceRef)
         {
             if (string.IsNullOrWhiteSpace(proformaId))

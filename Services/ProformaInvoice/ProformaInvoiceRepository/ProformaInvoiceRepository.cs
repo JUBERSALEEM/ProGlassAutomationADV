@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using System;
 using System.Collections.Generic;
@@ -99,7 +99,23 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
             {
                 prefix = match.Groups["prefix"].Value;
                 var numText = match.Groups["num"].Value;
-                currentNumber = int.Parse(numText);
+
+                // AUDIT V-1 (Phase 13 — input validation).
+                // _idPattern uses \d+ which is UNBOUNDED, so a document
+                // id such as "PI-99999999999" (11 digits, easily typed or
+                // pasted, and legal in the ProformaId column) produced an
+                // OverflowException here. int.Parse throws, SuggestNextIdAsync
+                // has no try/catch, and the caller is an async command whose
+                // exception was swallowed by RelayCommand — so the user saw
+                // "nothing happens" and could not create an invoice at all.
+                //
+                // TryParse degrades instead: an out-of-range or malformed
+                // run of digits restarts numbering from that prefix rather
+                // than crashing. The duplicate-avoidance loop below then
+                // finds the next free id, so correctness is preserved.
+                if (!int.TryParse(numText, out currentNumber))
+                    currentNumber = 0;
+
                 padWidth = numText.Length;
             }
             else

@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Commands/RelayCommand.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Commands (Chat 25 v1.0 — async-safe)
@@ -65,7 +65,46 @@ namespace ProGlassAutomation.Commands
             }
             catch (Exception ex)
             {
-                // Surface async void exceptions that would otherwise vanish
+                // ══════════════════════════════════════════════════════
+                //  AUDIT R-1 (CRITICAL for diagnosability)
+                //
+                //  This catch previously reported ONLY through
+                //  Debug.WriteLine. System.Diagnostics.Debug is annotated
+                //  [Conditional("DEBUG")], so in a RELEASE build the call
+                //  is removed by the compiler and the catch block becomes
+                //  literally empty:
+                //
+                //      catch (Exception) { }
+                //
+                //  Every command failure in the shipped product — a failed
+                //  save, a failed PDF export, a failed status change — was
+                //  therefore silently discarded. The user sees the button
+                //  click do nothing, and there is no log line anywhere to
+                //  explain it. This single block is the most likely reason
+                //  a production issue in this app is impossible to
+                //  diagnose remotely.
+                //
+                //  Now routed to AppLogService, which writes to the rolling
+                //  log file in every configuration and returns an ErrorId
+                //  the user can quote to support. DEBUG still rethrows so
+                //  developers keep the immediate break.
+                // ══════════════════════════════════════════════════════
+                try
+                {
+                    Services.Logging.AppLogService.Error(
+                        "Command execution failed", ex,
+                        new Services.Logging.LogContext
+                        {
+                            Module = "Commands",
+                            Class = nameof(RelayCommand),
+                            Operation = "Execute"
+                        });
+                }
+                catch
+                {
+                    // Logging must never mask the original failure.
+                }
+
                 System.Diagnostics.Debug.WriteLine(
                     $"[RelayCommand] Execute failed: {ex.GetType().Name}: {ex.Message}");
 #if DEBUG
