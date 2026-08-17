@@ -667,7 +667,7 @@
                              Margin="4,4,4,8"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
-                             ScrollViewer.CanContentScroll="False"
+                             ScrollViewer.CanContentScroll="True"
                              ScrollViewer.IsDeferredScrollingEnabled="False"
                              ScrollViewer.PanningMode="None"
                              VirtualizingStackPanel.IsVirtualizing="True"

@@ -1372,6 +1372,15 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
             if (!ValidateBeforeSave()) return;
 
+            // X-6 / D-4: this save spans TWO databases — it writes
+            // taxinvoices.db and then updates deliverynotes.db. No
+            // transaction can cover both, so being killed between them
+            // leaves the books inconsistent. Registering the operation
+            // makes the window's Closing handler warn the user instead of
+            // terminating mid-sequence.
+            using var _critical = ProGlassAutomation.Services.Safety
+                .CriticalOperationTracker.Begin("Saving tax invoice");
+
             try
             {
                 IsSaving = true;
@@ -1535,11 +1544,53 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
             }
             catch (Exception ex)
             {
-                // Non-fatal — TI is already saved successfully
-                // DN invoiced state will be corrected on next save
-                System.Diagnostics.Debug.WriteLine(
-                    $"[TaxInvoiceDetailVM] MarkDnsAsInvoicedAsync failed " +
-                    $"(non-fatal): {ex.Message}");
+                // ══════════════════════════════════════════════════════
+                //  AUDIT D-4 / R-1 — this is the cross-database seam.
+                //
+                //  The tax invoice is already committed to taxinvoices.db.
+                //  This second write targets deliverynotes.db, a DIFFERENT
+                //  database file, so no transaction can span the two. If
+                //  it fails, the books disagree: an invoice exists while
+                //  its delivery notes still look un-invoiced, so the same
+                //  DNs can be invoiced again.
+                //
+                //  It was reported ONLY through Debug.WriteLine, which is
+                //  [Conditional("DEBUG")] and therefore absent from the
+                //  Release build — the inconsistency was completely
+                //  invisible in production. It now reaches the log file
+                //  and the audit trail so it can be found and corrected.
+                //
+                //  Still deliberately non-fatal: failing the whole save
+                //  here would be worse, because the invoice IS saved and
+                //  telling the user otherwise would be a lie. Re-saving
+                //  the invoice re-runs this and repairs the link, since
+                //  MarkMultipleAsInvoicedAsync is idempotent.
+                // ══════════════════════════════════════════════════════
+                ProGlassAutomation.Services.Logging.AppLogService.Error(
+                    "Tax invoice saved but its delivery notes could not be " +
+                    "marked as invoiced. Re-save the invoice to repair the " +
+                    $"link. TI='{taxInvoiceId}', DNs='{DeliveryNoteReference}'.",
+                    ex,
+                    new ProGlassAutomation.Services.Logging.LogContext
+                    {
+                        Module = "TaxInvoice",
+                        Class = nameof(TaxInvoiceDetailViewModel),
+                        Operation = "MarkDnsAsInvoiced"
+                    });
+
+                try
+                {
+                    AuditService.Log(
+                        AuditSections.TaxInvoice,
+                        "DN invoiced-link FAILED",
+                        $"TI {taxInvoiceId} saved, but delivery notes " +
+                        $"'{DeliveryNoteReference}' were not marked invoiced. " +
+                        "Re-save to repair.");
+                }
+                catch
+                {
+                    // Audit failure must not mask the original problem.
+                }
             }
         }
 

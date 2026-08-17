@@ -303,6 +303,52 @@ namespace ProGlassAutomation
                 }
             };
 
+            // ── Windows shutdown / logoff (audit finding X-6) ───────────
+            // MainWindow.Closing does NOT run for a Windows shutdown or
+            // sign-out; the session ends through this event instead. Same
+            // protection, but the wording differs because refusing a
+            // Windows shutdown is far more intrusive than refusing a
+            // window close — so this only warns and never blocks by
+            // default, letting the user decide.
+            SessionEnding += (_, args) =>
+            {
+                try
+                {
+                    if (!Services.Safety.CriticalOperationTracker.IsBusy)
+                        return;
+
+                    var running = string.Join(
+                        "\n   • ",
+                        Services.Safety.CriticalOperationTracker
+                            .ActiveOperations);
+
+                    AppLogService.Warning(
+                        $"Session ending ({args.ReasonSessionEnding}) " +
+                        $"during: {running}",
+                        new LogContext
+                        {
+                            Module = "Safety",
+                            Operation = "SessionEnding"
+                        });
+
+                    var answer = MessageBox.Show(
+                        "ProGlass is still finishing work that must not " +
+                        "be interrupted:\n\n   • " + running + "\n\n" +
+                        "Postpone shutdown so it can finish?",
+                        "ProGlass — Operation In Progress",
+                        MessageBoxButton.YesNo,
+                        MessageBoxImage.Warning,
+                        MessageBoxResult.Yes);
+
+                    if (answer == MessageBoxResult.Yes)
+                        args.Cancel = true;
+                }
+                catch
+                {
+                    // Never trap a Windows shutdown.
+                }
+            };
+
             // ── Faulted tasks nobody awaited (audit finding X-2) ────────
             // A Task that faults and is never awaited raises this when it
             // is finalised. Left unobserved these are invisible: a failed

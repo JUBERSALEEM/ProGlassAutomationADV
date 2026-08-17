@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Behaviors/SmoothScrollBehavior.cs
 // PROJECT: ProGlassAutomation
 // PURPOSE: Buttery-smooth 60fps scroll behavior for ScrollViewer.
@@ -161,7 +161,7 @@ namespace ProGlassAutomation.Behaviors
                 TargetOffset = sv.VerticalOffset,
                 LastScrolledOffset = sv.VerticalOffset,
                 IsAnimating = false,
-                IsItemMode = sv.CanContentScroll
+                IsItemMode = ResolveItemMode(sv)
             };
 
             _states.Add(sv, state);
@@ -213,6 +213,63 @@ namespace ProGlassAutomation.Behaviors
         //  MOUSE WHEEL HANDLER
         // ═══════════════════════════════════════════════════════════════
 
+
+        // ═══════════════════════════════════════════════════════════════
+        //  SCROLL MODE RESOLUTION — audit finding PERF-1
+        //
+        //  Originally this behaviour decided its mode purely from
+        //  ScrollViewer.CanContentScroll:
+        //
+        //      IsItemMode = sv.CanContentScroll
+        //
+        //  That forced an unhappy trade-off on every list screen. To get
+        //  smooth pixel scrolling the views set CanContentScroll="False",
+        //  and WPF responds by DISABLING UI VIRTUALIZATION entirely —
+        //  virtualization tracks logical items, and pixel scrolling has no
+        //  concept of an item. Every row of every list was therefore
+        //  realised up front. With 10,000 delivery notes that is 10,000
+        //  containers built before the screen can paint.
+        //
+        //  Since .NET 4.5 there is a third option that the original code
+        //  did not account for:
+        //
+        //      ScrollViewer.CanContentScroll   = True    (keeps virtualization)
+        //      VirtualizingPanel.ScrollUnit    = Pixel   (keeps smooth scroll)
+        //
+        //  In that configuration the ScrollViewer reports CanContentScroll
+        //  as True — so the old line selected ITEM mode and scrolled a
+        //  whole row per wheel notch — but the panel is actually scrolling
+        //  by pixel. The two disagreed, which is why simply flipping the
+        //  XAML in an earlier attempt made scrolling feel wrong and was
+        //  reverted.
+        //
+        //  ResolveItemMode asks the panel what unit is really in effect,
+        //  so a list can now have BOTH virtualization and smooth pixel
+        //  scrolling. Views that still use CanContentScroll="False" keep
+        //  behaving exactly as before.
+        // ═══════════════════════════════════════════════════════════════
+        private static bool ResolveItemMode(ScrollViewer sv)
+        {
+            // Pixel-based physical scrolling: never item mode.
+            if (!sv.CanContentScroll) return false;
+
+            // Logical scrolling is on. If the items panel has been told to
+            // scroll by pixel (the .NET 4.5 combination), honour that and
+            // stay in pixel mode.
+            try
+            {
+                if (VirtualizingPanel.GetScrollUnit(sv) == ScrollUnit.Pixel)
+                    return false;
+            }
+            catch
+            {
+                // Attached property unavailable on this element — fall
+                // back to the classic interpretation.
+            }
+
+            return true;
+        }
+
         private static void OnPreviewMouseWheel(
             object sender, MouseWheelEventArgs e)
         {
@@ -224,7 +281,7 @@ namespace ProGlassAutomation.Behaviors
 
             e.Handled = true;
 
-            state.IsItemMode = sv.CanContentScroll;
+            state.IsItemMode = ResolveItemMode(sv);
 
             double notchSize = state.IsItemMode
                 ? WheelNotchItems
@@ -270,7 +327,7 @@ namespace ProGlassAutomation.Behaviors
             if (sender is not ScrollViewer sv) return;
             if (!_states.TryGetValue(sv, out var state)) return;
 
-            state.IsItemMode = sv.CanContentScroll;
+            state.IsItemMode = ResolveItemMode(sv);
 
             double unitSize = state.IsItemMode ? 1.0 : WheelNotchPixels;
             double pageSize = state.IsItemMode

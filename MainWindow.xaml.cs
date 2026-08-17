@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: MainWindow.xaml.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Main Shell (Chat 23 v3.1)
@@ -43,6 +43,80 @@ namespace ProGlassAutomation
         public MainWindow()
         {
             InitializeComponent();
+
+            // X-6: refuse to close while a multi-step write is running.
+            Closing += MainWindow_Closing;
+        }
+
+        // ══════════════════════════════════════════════════════════════
+        //  SHUTDOWN SAFETY — audit finding X-6
+        //
+        //  There was no Closing handler at all. Clicking X during a save,
+        //  export or backup killed the process mid-write.
+        //
+        //  Each SQLite file is individually safe — a killed transaction
+        //  rolls back. The real exposure is a MULTI-DATABASE business
+        //  operation: creating a tax invoice writes taxinvoices.db and
+        //  then updates deliverynotes.db, and no transaction can span two
+        //  database files (audit finding D-4). Dying between those two
+        //  writes leaves a delivery note flagged as invoiced with no
+        //  invoice behind it.
+        //
+        //  This asks the user rather than deciding for them: their data
+        //  is their business, and silently blocking a close is as rude as
+        //  silently corrupting it. Cancel is the DEFAULT so an accidental
+        //  Enter keypress keeps the data safe.
+        // ══════════════════════════════════════════════════════════════
+        private void MainWindow_Closing(
+            object? sender, System.ComponentModel.CancelEventArgs e)
+        {
+            try
+            {
+                if (!Services.Safety.CriticalOperationTracker.IsBusy)
+                    return;
+
+                var running = string.Join(
+                    "\n   • ",
+                    Services.Safety.CriticalOperationTracker.ActiveOperations);
+
+                var answer = MessageBox.Show(
+                    "ProGlass is still finishing work that must not be " +
+                    "interrupted:\n\n   • " + running + "\n\n" +
+                    "Closing now could leave a document half-written.\n\n" +
+                    "Close anyway?",
+                    "Operation In Progress",
+                    MessageBoxButton.YesNo,
+                    MessageBoxImage.Warning,
+                    MessageBoxResult.No);   // safe default
+
+                if (answer != MessageBoxResult.Yes)
+                {
+                    e.Cancel = true;
+
+                    Services.Logging.AppLogService.Info(
+                        "Close cancelled — critical operation in progress.",
+                        new Services.Logging.LogContext
+                        {
+                            Module = "Safety",
+                            Operation = "Shutdown"
+                        });
+                }
+                else
+                {
+                    Services.Logging.AppLogService.Warning(
+                        "User forced close during: " + running,
+                        new Services.Logging.LogContext
+                        {
+                            Module = "Safety",
+                            Operation = "Shutdown"
+                        });
+                }
+            }
+            catch
+            {
+                // A fault in the shutdown guard must never trap the user
+                // inside the application. Allow the close.
+            }
         }
 
         /// <summary>
