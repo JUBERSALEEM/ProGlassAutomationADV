@@ -150,6 +150,8 @@ namespace ProGlassAutomation.Services
                 ColorMath.Lighten(core, dark ? 0.08 : 0.06);
             resources["AccentDarkColor"] =
                 ColorMath.FromHsl(h, Math.Min(1, s + 0.05), Math.Max(0.16, l - 0.18));
+            resources["AccentLightColor"] =
+                ColorMath.Lighten(core, dark ? 0.12 : 0.12);
             FreezeAndSet(resources, "AccentDarkBrush",
                 ColorMath.FromHsl(h, Math.Min(1, s + 0.05), Math.Max(0.16, l - 0.18)));
             FreezeAndSet(resources, "AccentLightBrush",

@@ -1,59 +1,34 @@
 <!-- ═══════════════════════════════════════════════════════════════════
      FILE: MainWindow.xaml
      PROJECT: ProGlassAutomation
-     MODULE: Main Shell (Chat 23 v3.1)
-     VERSION: Chat 23 v3.1 — Settings extracted + sidebar pill hover
+     MODULE: Main Shell (Chat 24 v4.0 — theme-based redesign)
 
-     CHANGES vs v3.0:
-       ✓ REMOVED right settings drawer entirely (~200 lines of XAML)
-       ✓ REMOVED settings-related styles that were only used in the
-         drawer (ModernToggleSwitch, SettingsSectionHeaderStyle,
-         SettingsSecondaryButtonStyle, SettingsPrimaryButtonStyle)
-         — now live inside SettingsView.xaml as local resources
-       ✓ Settings gear button on top bar now navigates to Settings
-         MODULE (like About) instead of toggling a drawer
-       ✓ Added DataTemplate mapping SettingsViewModel → SettingsView
-       ✓ Sidebar items redesigned with PILL hover (per user request):
-           • 4px left accent bar appears on hover
-           • Background switches to tinted blue
-           • CornerRadius 8 → 12 for softer pill feel
-             (now 14 — see CARD SHAPE PASS below)
+     VERSION: Chat 24 v4.0 — Full visual redesign matching the reference
+     shell, adapted to the app's theme system (no hardcoded indigo).
 
-     CARD SHAPE PASS (professional rounded cards):
-       ✓ One radius scale across the whole shell, instead of the previous
-         mix of 9 / 12 / 16 that made the window look assembled rather
-         than designed:
-             20  pills (top bar)
-             16  cards  — module content card, agent overlay, drawer edge
-             14  sidebar item card
-             10  small badges (logo, sidebar icon)
-       ✓ Module content card was CornerRadius 12 with a hairline border
-         and NO elevation, so it read as a boxed-in panel. Now 16 to match
-         the CardStyle the dashboard views already use, plus a soft
-         CardShadow.
-       ✓ The shadow is carried by an EMPTY caster Border behind the card,
-         never by the Border holding live module content — see the
-         performance note on the CardShadow resource.
-       ✓ Dim overlay still triggers on IsMenuOpen (settings no longer
-         uses drawer, so IsSettingsOpen data trigger removed from overlay)
+     CHANGES vs v3.1:
+       ✓ Top bar RESTRUCTURED to the modern SaaS pattern:
+         Hamburger → Logo → Module Badge → Search →
+         AI Agent pill → DateTime → Connectivity → Notifications →
+         Settings → About → User card
+       ✓ Sidebar sub-groups EXPAND/COLLAPSE with a rotating chevron and
+         nested rounded card containers (Sales, Production, Dispatch,
+         Reports, Master Data, System)
+       ✓ Consistent 16px card radius + 1px border line across the shell
+       ✓ Theme-based brushes (AccentBrush / tints / foregrounds) so every
+         surface follows Light/Dark and the Monet/Professional families
+       ✓ User card navigates to the USERS module (was Settings)
 
      PRESERVED (zero regression):
-       • All 17 DataTemplate module mappings (+ new SettingsView)
-       • Top bar layout (hamburger + logo + MODULE badge + settings/about icons)
-       • Left drawer navigation menu (all 17 sidebar items)
-       • Menu scroll ↔ slider sync (MenuScrollViewer + ScrollSlider names)
-       • Glassy slider + thumb styles
-       • Module frame border (from v3.0)
-       • Ambient blue palette + frozen shadows/gradients
-       • AI chat view floats above everything (Panel.ZIndex=200)
-       • All code-behind handler names + signatures (except ApiKey handler
-         which moves to SettingsView with same name)
-
-     REGRESSION RISK: LOW
-       Right drawer removal is clean — nothing else referenced it.
-       Settings gear button re-wired to NavigateCommand("Settings").
-       ApiKeyBox moved to SettingsView with its own handler.
-═══════════════════════════════════════════════════════════════════════ -->
+       ✓ All 23 DataTemplate module mappings (verbatim)
+       ✓ All bindings, commands and property paths on MainViewModel
+       ✓ All 3 code-behind handlers (names/signatures unchanged)
+       ✓ Drawer model (hamburger toggles IsMenuOpen)
+       ✓ Elevation caster pattern (empty Border for the shadow)
+       ✓ Menu scroll ↔ slider sync (MenuScrollViewer + ScrollSlider names)
+       ✓ AI Chat overlay + Agent Chat overlay
+       ✓ Glassy vertical slider + thumb
+═══════════════════════════════════════════════════════════════════ -->
 
 <Window x:Class="ProGlassAutomation.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
@@ -74,9 +49,9 @@
         xmlns:vmTaxInvoice="clr-namespace:ProGlassAutomation.ViewModels.TaxInvoice"
         xmlns:vmReports="clr-namespace:ProGlassAutomation.ViewModels.Reports"
         xmlns:vmSystem="clr-namespace:ProGlassAutomation.ViewModels.SystemCenter"
-             xmlns:vmCompany="clr-namespace:ProGlassAutomation.ViewModels.CompanyCenter"
-             xmlns:vmUsers="clr-namespace:ProGlassAutomation.ViewModels.UserCenter"
-             xmlns:vmJobProfit="clr-namespace:ProGlassAutomation.ViewModels.JobProfitability"
+        xmlns:vmCompany="clr-namespace:ProGlassAutomation.ViewModels.CompanyCenter"
+        xmlns:vmUsers="clr-namespace:ProGlassAutomation.ViewModels.UserCenter"
+        xmlns:vmJobProfit="clr-namespace:ProGlassAutomation.ViewModels.JobProfitability"
         xmlns:vmDiagnostics="clr-namespace:ProGlassAutomation.ViewModels.Diagnostics"
         xmlns:viewsDashboard="clr-namespace:ProGlassAutomation.Views.Dashboard"
         xmlns:viewsProforma="clr-namespace:ProGlassAutomation.Views.ProformaInvoice"
@@ -90,15 +65,15 @@
         xmlns:viewsTaxInvoice="clr-namespace:ProGlassAutomation.Views.TaxInvoice"
         xmlns:viewsReports="clr-namespace:ProGlassAutomation.Views.Reports"
         xmlns:viewsAi="clr-namespace:ProGlassAutomation.Views.AI"
-             xmlns:agentUi="clr-namespace:ProGlassAutomation.Agent.UI"
+        xmlns:agentUi="clr-namespace:ProGlassAutomation.Agent.UI"
         xmlns:viewsSystem="clr-namespace:ProGlassAutomation.Views.SystemCenter"
-             xmlns:viewsCompany="clr-namespace:ProGlassAutomation.Views.CompanyCenter"
-             xmlns:viewsUsers="clr-namespace:ProGlassAutomation.Views.UserCenter"
-             xmlns:viewsJobProfit="clr-namespace:ProGlassAutomation.Views.JobProfitability"
+        xmlns:viewsCompany="clr-namespace:ProGlassAutomation.Views.CompanyCenter"
+        xmlns:viewsUsers="clr-namespace:ProGlassAutomation.Views.UserCenter"
+        xmlns:viewsJobProfit="clr-namespace:ProGlassAutomation.Views.JobProfitability"
         xmlns:viewsDiagnostics="clr-namespace:ProGlassAutomation.Views.Diagnostics"
         Title="ProGlass Automation"
-        Height="720" Width="1280"
-        MinHeight="600" MinWidth="900"
+        Height="820" Width="1400"
+        MinHeight="600" MinWidth="1000"
         WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
         FontFamily="Segoe UI"
@@ -118,79 +93,82 @@
     <Window.Resources>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             INDUSTRIAL BLUE PALETTE (frozen once)
+             FROZEN SHADOWS &amp; GRADIENTS (theme-based accent)
         ═══════════════════════════════════════════════════════════════ -->
 
-        <SolidColorBrush x:Key="Navy"     Color="#1E3A8A" po:Freeze="True"/>
-        <SolidColorBrush x:Key="Royal"    Color="#1D4ED8" po:Freeze="True"/>
-        <SolidColorBrush x:Key="Sapphire" Color="#3B82F6" po:Freeze="True"/>
-        <SolidColorBrush x:Key="Ice"      Color="#DBEAFE" po:Freeze="True"/>
-        <SolidColorBrush x:Key="Frost"    Color="#BFDBFE" po:Freeze="True"/>
-        <SolidColorBrush x:Key="ModuleFrameBorder"
-                         Color="#C4D6ED" po:Freeze="True"/>
-
-        <LinearGradientBrush x:Key="LogoBrandGradient"
-                             StartPoint="0,0" EndPoint="1,1"
-                             po:Freeze="True">
-            <GradientStop Color="#1E3A8A" Offset="0"/>
-            <GradientStop Color="#1D4ED8" Offset="1"/>
-        </LinearGradientBrush>
-
-        <LinearGradientBrush x:Key="SliderTrackFillGradient"
-                             StartPoint="0,0" EndPoint="0,1"
-                             po:Freeze="True">
-            <GradientStop Color="#1D4ED8" Offset="0"/>
-            <GradientStop Color="#3B82F6" Offset="1"/>
-        </LinearGradientBrush>
-
-        <LinearGradientBrush x:Key="SliderThumbInnerGradient"
-                             StartPoint="0,0" EndPoint="1,1"
-                             po:Freeze="True">
-            <GradientStop Color="#1D4ED8" Offset="0"/>
-            <GradientStop Color="#3B82F6" Offset="1"/>
-        </LinearGradientBrush>
-
-        <!-- ═══════════════════════════════════════════════════════════════
-             SHARED FROZEN SHADOWS
-        ═══════════════════════════════════════════════════════════════ -->
+        <DropShadowEffect x:Key="CardShadow"
+                          BlurRadius="18" ShadowDepth="3"
+                          Opacity="0.08" Color="#0F172A" Direction="270"
+                          po:Freeze="True"/>
 
         <DropShadowEffect x:Key="TopBarShadow"
-                          BlurRadius="8" ShadowDepth="2"
-                          Opacity="0.15" Color="Black" Direction="270"
+                          BlurRadius="12" ShadowDepth="2"
+                          Opacity="0.06" Color="Black" Direction="270"
                           po:Freeze="True"/>
 
         <DropShadowEffect x:Key="LogoGlow"
-                          BlurRadius="8" ShadowDepth="0"
-                          Opacity="0.35" Color="#1D4ED8"
-                          po:Freeze="True"/>
-
-        <DropShadowEffect x:Key="StatusDotGlow"
-                          BlurRadius="4" ShadowDepth="0"
-                          Opacity="0.9" Color="#3B82F6"
+                          BlurRadius="10" ShadowDepth="3"
+                          Opacity="0.30" Color="{DynamicResource AccentColor}"
                           po:Freeze="True"/>
 
         <DropShadowEffect x:Key="DrawerLeftShadow"
-                          BlurRadius="24" ShadowDepth="4"
-                          Opacity="0.2" Color="Black" Direction="0"
+                          BlurRadius="30" ShadowDepth="6"
+                          Opacity="0.15" Color="Black" Direction="0"
                           po:Freeze="True"/>
 
-        <!-- Card elevation. Soft and low-contrast: a card should read as
-             lifted off the background, not as a box with a dark outline.
-             Direction 270 = light from above, matching TopBarShadow so the
-             whole window agrees on where the light comes from.
+        <!-- Theme-based accent gradients (use AccentColor resources so they
+             follow the chosen accent + Light/Dark). -->
+        <LinearGradientBrush x:Key="LogoBrandGradient"
+                             StartPoint="0,0" EndPoint="1,1"
+                             po:Freeze="True">
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
+        </LinearGradientBrush>
 
-             PERFORMANCE NOTE — this is applied to an EMPTY caster Border,
-             never to the Border that holds live module content. A
-             DropShadowEffect forces its entire visual subtree through a
-             bitmap render pass on every change, which would hit the
-             DataGrid-heavy modules on every scroll and edit. -->
-        <DropShadowEffect x:Key="CardShadow"
-                          BlurRadius="18" ShadowDepth="3"
-                          Opacity="0.13" Color="#0F172A" Direction="270"
-                          po:Freeze="True"/>
+        <LinearGradientBrush x:Key="AvatarGradient"
+                             StartPoint="0,0" EndPoint="1,1"
+                             po:Freeze="True">
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="DateTimeIconGradient"
+                             StartPoint="0,0" EndPoint="1,1"
+                             po:Freeze="True">
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="AiPillGradient"
+                             StartPoint="0,0" EndPoint="1,1"
+                             po:Freeze="True">
+            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="StorageBarGradient"
+                             StartPoint="0,0" EndPoint="1,0"
+                             po:Freeze="True">
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="StorageCardGradient"
+                             StartPoint="0,0" EndPoint="1,1"
+                             po:Freeze="True">
+            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="SidebarActiveGradient"
+                             StartPoint="0,0" EndPoint="1,1"
+                             po:Freeze="True">
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
+        </LinearGradientBrush>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             ViewModel → View mappings (17 modules + About + Settings)
+             ViewModel → View mappings (23 modules — preserved verbatim)
         ═══════════════════════════════════════════════════════════════ -->
 
         <DataTemplate DataType="{x:Type vmDashboard:DashboardViewModel}">
@@ -202,12 +180,9 @@
         <DataTemplate DataType="{x:Type vmAbout:AboutViewModel}">
             <viewsAbout:AboutView/>
         </DataTemplate>
-
-        <!-- NEW v3.1: Settings module mapping -->
         <DataTemplate DataType="{x:Type vmSettings:SettingsViewModel}">
             <viewsSettings:SettingsView/>
         </DataTemplate>
-
         <DataTemplate DataType="{x:Type vmSheetStore:SheetStoreViewModel}">
             <viewsSheetStore:SheetStoreView/>
         </DataTemplate>
@@ -250,8 +225,6 @@
         <DataTemplate DataType="{x:Type vmReports:SalesReportViewModel}">
             <viewsReports:SalesReportView/>
         </DataTemplate>
-
-        <!-- NEW: System Center — user management + audit trail -->
         <DataTemplate DataType="{x:Type vmSystem:SystemCenterViewModel}">
             <viewsSystem:SystemCenterView/>
         </DataTemplate>
@@ -261,61 +234,34 @@
         <DataTemplate DataType="{x:Type vmUsers:UserCenterViewModel}">
             <viewsUsers:UserCenterView/>
         </DataTemplate>
-
-        <!-- PHASE C: Job Profitability — per-invoice profit portfolio -->
         <DataTemplate DataType="{x:Type vmJobProfit:JobProfitabilityViewModel}">
             <viewsJobProfit:JobProfitabilityView/>
         </DataTemplate>
-
-        <!-- NEW: Logs & Activity — technical log + per-module activity -->
         <DataTemplate DataType="{x:Type vmDiagnostics:DiagnosticsViewModel}">
             <viewsDiagnostics:DiagnosticsView/>
         </DataTemplate>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             TOP BAR ICON BUTTON
+             TOP-BAR ICON BUTTON (40×40 rounded, theme-based)
         ═══════════════════════════════════════════════════════════════ -->
 
-        <!-- ═══════════════════════════════════════════════════════════
-             TOP-BAR PILL BUTTONS  (spec supplied by the user)
-
-             CornerRadius 20 · Height 40 · MinWidth 130 · Padding 22,0
-             BorderBrush #4DFFFFFF @1 on solid pills
-             Segoe MDL2 icons only - never emoji
-             UPPERCASE text, FontSize 12, Bold, icon 13px, margin 0,0,10,0
-             All four state triggers: hover / pressed / focus / disabled
-
-             ICON-ONLY VARIANT: the top bar's settings, about and agent
-             buttons carry a glyph and no label. They use the same shape
-             and triggers with MinWidth 44 and symmetric padding, so they
-             read as the same family rather than as leftover round
-             buttons.
-        ═══════════════════════════════════════════════════════════════ -->
-
-        <!-- TopBarPillPrimary (labelled variant) intentionally NOT defined
-             here: the top bar currently has no labelled buttons, and an
-             unused style is dead code. The full labelled/Success/Outlined/
-             Danger variants live in Styles/ButtonStyles.xaml where the rest
-             of the app consumes them. -->
-
-        <!-- Icon-only member of the same family (no label). -->
-        <Style x:Key="TopBarPillIcon" TargetType="Button">
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
+        <Style x:Key="TopIconButton" TargetType="Button">
+            <Setter Property="Width" Value="40"/>
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg"
-                                Background="{DynamicResource MenuHoverBrush}"
-                                BorderBrush="{DynamicResource OutlineBrush}"
-                                BorderThickness="1"
-                                CornerRadius="20"
-                                Padding="0"
-                                Height="40"
-                                MinWidth="44"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 SnapsToDevicePixels="True">
                             <TextBlock Text="{TemplateBinding Content}"
                                        FontFamily="Segoe MDL2 Assets"
@@ -326,20 +272,16 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentBrush}"/>
-                                <Setter TargetName="Bg" Property="BorderBrush" Value="#80FFFFFF"/>
-                                <Setter Property="Foreground" Value="White"/>
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bg" Property="Background" Value="#3730A3"/>
-                                <Setter Property="Foreground" Value="White"/>
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
                             </Trigger>
                             <Trigger Property="IsKeyboardFocused" Value="True">
-                                <Setter TargetName="Bg" Property="BorderBrush" Value="White"/>
+                                <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="Bg" Property="BorderThickness" Value="2"/>
-                            </Trigger>
-                            <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="Bg" Property="Opacity" Value="0.5"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -347,139 +289,162 @@
             </Setter>
         </Style>
 
-        <!-- Legacy TopBarIconButtonStyle removed: every top-bar button
-             now uses TopBarPillPrimary / TopBarPillIcon. Rule 7 of the
-             pill spec - do not keep legacy toolbar/tab button styles. -->
-
         <!-- ═══════════════════════════════════════════════════════════════
-             SIDEBAR ITEM — v3.1 PILL HOVER (per user request)
-             Left accent bar (4px) appears on hover + tinted bg + rounded 12
+             SIDEBAR GROUP LABEL (MAIN / SALES / etc.)
         ═══════════════════════════════════════════════════════════════ -->
 
-        <Style x:Key="SidebarGroupHeaderStyle" TargetType="TextBlock">
+        <Style x:Key="SidebarGroupLabel" TargetType="TextBlock">
             <Setter Property="FontSize" Value="10"/>
             <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Foreground"
-                    Value="{DynamicResource MutedForegroundBrush}"/>
-            <Setter Property="Margin" Value="20,14,0,8"/>
+            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+            <Setter Property="Margin" Value="20,16,20,8"/>
             <Setter Property="IsHitTestVisible" Value="False"/>
         </Style>
 
-        <!-- v2: professional sidebar item — icon in a tinted badge inside a
-             subtle card; hover lifts the card and shows the accent bar. -->
-        <ControlTemplate x:Key="SidebarItemTemplate" TargetType="Button">
-            <Grid>
-                <Border x:Name="border"
-                        Background="Transparent"
-                        BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="1.5"
-                        CornerRadius="14"
-                        Padding="10,0"
-                        SnapsToDevicePixels="True">
-                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                        <!-- Icon badge (tinted rounded square) -->
-                        <!-- Badge radius tracks the card radius: an 8px
-                             badge inside a 14px card reads as mismatched.
-                             10px keeps the corners visually concentric. -->
-                        <Border x:Name="iconBadge"
-                                Width="28" Height="28"
-                                CornerRadius="10"
-                                Background="{DynamicResource TintIndigoBrush}"
-                                VerticalAlignment="Center"
-                                SnapsToDevicePixels="True">
-                            <TextBlock Text="{TemplateBinding Tag}"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="14"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       Foreground="{DynamicResource AccentBrush}"/>
-                        </Border>
-                        <TextBlock Text="{TemplateBinding Content}"
-                                   Margin="12,0,0,0"
-                                   FontSize="13" FontWeight="SemiBold"
-                                   VerticalAlignment="Center"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                            </StackPanel>
-                </Border>
+        <!-- ═══════════════════════════════════════════════════════════════
+             SIDEBAR NAV ITEM (single, no children) — Button-based
+        ═══════════════════════════════════════════════════════════════ -->
 
-                <!-- 4px left accent bar (visible on hover only) -->
-                <Border x:Name="accentBar"
-                        Width="4"
-                        HorizontalAlignment="Left"
-                        VerticalAlignment="Stretch"
-                        Margin="0,8,0,8"
-                        CornerRadius="2"
-                        Background="{DynamicResource AccentBrush}"
-                        Opacity="0"
-                        IsHitTestVisible="False"
-                        SnapsToDevicePixels="True"/>
-            </Grid>
-            <ControlTemplate.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter TargetName="border" Property="Background"
-                            Value="{DynamicResource MenuHoverBrush}"/>
-                    <Setter TargetName="accentBar" Property="Opacity" Value="1"/>
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                    <Setter TargetName="border" Property="Opacity" Value="0.8"/>
-                </Trigger>
-            </ControlTemplate.Triggers>
-        </ControlTemplate>
-
-        <Style x:Key="SidebarItemStyle" TargetType="Button">
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Margin" Value="10,3,10,3"/>
-            <Setter Property="Height" Value="42"/>
+        <Style x:Key="SidebarNavItem" TargetType="Button">
             <Setter Property="Background" Value="Transparent"/>
             <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
-            <Setter Property="Template"
-                    Value="{StaticResource SidebarItemTemplate}"/>
-        </Style>
-
-        <!-- Sidebar group card — each related set of options sits inside a
-             rounded card so the menu reads as grouped modules rather than a
-             flat list. The card carries the group's background + border and
-             the items keep their pill-hover look inside it. -->
-        <Style x:Key="SidebarGroupCardStyle" TargetType="Border">
-            <Setter Property="CornerRadius" Value="14"/>
-            <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Margin" Value="10,0,10,6"/>
-            <Setter Property="Padding" Value="4,6"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-        </Style>
-
-        <!-- Sidebar item inside a group card — tighter spacing than the
-             standalone item so the card groups them visually. -->
-        <Style x:Key="SidebarCardItemStyle" TargetType="Button"
-               BasedOn="{StaticResource SidebarItemStyle}">
-            <Setter Property="Margin" Value="6,2,6,2"/>
-            <Setter Property="Height" Value="38"/>
-        </Style>
-
-        <!-- Expandable group header (reference style) — a ToggleButton with
-             icon + label + chevron. The chevron rotates 90° when open. -->
-        <Style x:Key="SidebarGroupToggleStyle" TargetType="ToggleButton">
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="Margin" Value="0,2"/>
+            <Setter Property="Margin" Value="12,2,12,2"/>
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Grid>
+                            <Border x:Name="Accent"
+                                    Width="3"
+                                    HorizontalAlignment="Left"
+                                    VerticalAlignment="Stretch"
+                                    Margin="0,8,0,8"
+                                    CornerRadius="2"
+                                    Background="{DynamicResource AccentBrush}"
+                                    Opacity="0"
+                                    IsHitTestVisible="False"/>
+                            <Border x:Name="Bg"
+                                    Background="Transparent"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Padding="12,0"
+                                    SnapsToDevicePixels="True">
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock x:Name="Icon"
+                                               Text="{TemplateBinding Tag}"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="14"
+                                               Width="20"
+                                               TextAlignment="Center"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,12,0"/>
+                                    <TextBlock x:Name="Label"
+                                               Text="{TemplateBinding Content}"
+                                               FontSize="13"
+                                               FontWeight="Medium"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </Border>
+                        </Grid>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                                <Setter TargetName="Accent" Property="Opacity" Value="1"/>
+                                <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- ═══════════════════════════════════════════════════════════════
+             SIDEBAR GROUP TOGGLE HEADER (expandable, rotating chevron)
+        ═══════════════════════════════════════════════════════════════ -->
+
+        <Style x:Key="SidebarGroupToggle" TargetType="ToggleButton">
             <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Margin" Value="12,2,12,2"/>
+            <Setter Property="Height" Value="42"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="ToggleButton">
                         <Border x:Name="Bg"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="10"
-                                Padding="8,8"
+                                Background="Transparent"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Padding="12,0"
                                 SnapsToDevicePixels="True">
-                            <ContentPresenter VerticalAlignment="Center"/>
+                            <Grid>
+                                <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                    <TextBlock x:Name="Icon"
+                                               Text="{TemplateBinding Tag}"
+                                               FontFamily="Segoe MDL2 Assets"
+                                               FontSize="14"
+                                               Width="20"
+                                               TextAlignment="Center"
+                                               Foreground="{DynamicResource MutedForegroundBrush}"
+                                               VerticalAlignment="Center"
+                                               Margin="0,0,12,0"/>
+                                    <TextBlock x:Name="Label"
+                                               Text="{TemplateBinding Content}"
+                                               FontSize="13"
+                                               FontWeight="Medium"
+                                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                               VerticalAlignment="Center"/>
+                                </StackPanel>
+                                <TextBlock x:Name="Chevron"
+                                           Text="&#xE76C;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="10"
+                                           Foreground="{DynamicResource MutedForegroundBrush}"
+                                           HorizontalAlignment="Right"
+                                           VerticalAlignment="Center"
+                                           RenderTransformOrigin="0.5,0.5">
+                                    <TextBlock.RenderTransform>
+                                        <RotateTransform x:Name="ChevronRotate" Angle="0"/>
+                                    </TextBlock.RenderTransform>
+                                </TextBlock>
+                            </Grid>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background"
-                                        Value="{DynamicResource MenuHoverBrush}"/>
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="Icon" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Label" Property="FontWeight" Value="SemiBold"/>
+                                <Setter TargetName="Chevron" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                <Trigger.EnterActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="ChevronRotate"
+                                                             Storyboard.TargetProperty="Angle"
+                                                             To="90" Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.EnterActions>
+                                <Trigger.ExitActions>
+                                    <BeginStoryboard>
+                                        <Storyboard>
+                                            <DoubleAnimation Storyboard.TargetName="ChevronRotate"
+                                                             Storyboard.TargetProperty="Angle"
+                                                             To="0" Duration="0:0:0.2"/>
+                                        </Storyboard>
+                                    </BeginStoryboard>
+                                </Trigger.ExitActions>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -487,48 +452,63 @@
             </Setter>
         </Style>
 
-        <!-- Sub-menu panel that expands/collapses under a group header. -->
-        <Style x:Key="SidebarSubMenuStyle" TargetType="Border">
-            <Setter Property="CornerRadius" Value="12"/>
+        <!-- ═══════════════════════════════════════════════════════════════
+             SIDEBAR SUB-MENU CONTAINER (nested rounded card)
+        ═══════════════════════════════════════════════════════════════ -->
+
+        <Style x:Key="SidebarSubMenuCard" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
             <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Margin" Value="6,2,6,6"/>
-            <Setter Property="Padding" Value="4,4"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+            <Setter Property="Margin" Value="20,4,20,6"/>
+            <Setter Property="Padding" Value="6"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
         </Style>
 
-        <!-- Dot sub-item inside an expandable group. -->
-        <Style x:Key="SidebarSubItemStyle" TargetType="Button">
+        <!-- ═══════════════════════════════════════════════════════════════
+             SIDEBAR SUB-ITEM (bullet dot + text)
+        ═══════════════════════════════════════════════════════════════ -->
+
+        <Style x:Key="SidebarSubItem" TargetType="Button">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
             <Setter Property="Margin" Value="0,1"/>
             <Setter Property="Height" Value="34"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg" Background="Transparent"
-                                CornerRadius="8" Padding="10,0"
+                        <Border x:Name="Bg"
+                                Background="Transparent"
+                                CornerRadius="8"
+                                Padding="12,0"
                                 SnapsToDevicePixels="True">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <Ellipse x:Name="Dot" Width="5" Height="5"
+                                <Ellipse x:Name="Dot"
+                                         Width="5" Height="5"
                                          Fill="{DynamicResource MutedForegroundBrush}"
-                                         Margin="0,0,10,0" VerticalAlignment="Center"/>
-                                <TextBlock Text="{TemplateBinding Content}"
-                                           FontSize="12" FontWeight="Medium"
+                                         Margin="0,0,12,0"
+                                         VerticalAlignment="Center"/>
+                                <TextBlock x:Name="Label"
+                                           Text="{TemplateBinding Content}"
+                                           FontSize="12"
+                                           FontWeight="Medium"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"
                                            VerticalAlignment="Center"/>
                             </StackPanel>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background"
-                                        Value="{DynamicResource ModuleBackgroundBrush}"/>
-                                <Setter TargetName="Dot" Property="Fill"
-                                        Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+                                <Setter TargetName="Dot" Property="Fill" Value="{DynamicResource AccentBrush}"/>
+                                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
+                                <Setter TargetName="Label" Property="Foreground" Value="{DynamicResource AccentBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -537,8 +517,22 @@
         </Style>
 
         <!-- ═══════════════════════════════════════════════════════════════
-             GLASSY VERTICAL SLIDER
+             GLASSY VERTICAL SLIDER (preserved, theme-based track)
         ═══════════════════════════════════════════════════════════════ -->
+
+        <LinearGradientBrush x:Key="SliderTrackFillGradient"
+                             StartPoint="0,0" EndPoint="0,1"
+                             po:Freeze="True">
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
+        </LinearGradientBrush>
+
+        <LinearGradientBrush x:Key="SliderThumbInnerGradient"
+                             StartPoint="0,0" EndPoint="1,1"
+                             po:Freeze="True">
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
+        </LinearGradientBrush>
 
         <Style x:Key="GlassySliderThumbStyle" TargetType="Thumb">
             <Setter Property="Cursor" Value="Hand"/>
@@ -546,7 +540,14 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Thumb">
                         <Grid>
-                            <Ellipse Width="22" Height="22" Fill="White"/>
+                            <Ellipse Width="20" Height="20" Fill="{DynamicResource ModuleBackgroundBrush}">
+                                <Ellipse.Effect>
+                                    <DropShadowEffect BlurRadius="6"
+                                                      ShadowDepth="1"
+                                                      Opacity="0.2"
+                                                      Color="Black"/>
+                                </Ellipse.Effect>
+                            </Ellipse>
                             <Ellipse Width="8" Height="8"
                                      Fill="{StaticResource SliderThumbInnerGradient}"/>
                         </Grid>
@@ -576,34 +577,18 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Slider">
                         <Grid HorizontalAlignment="Center">
-                            <Border Width="14" CornerRadius="7"
-                                    Background="{DynamicResource MenuHoverBrush}"
-                                    Opacity="0.6"/>
-                            <Grid>
-                                <Grid.RowDefinitions>
-                                    <RowDefinition Height="Auto"/>
-                                    <RowDefinition Height="*"/>
-                                </Grid.RowDefinitions>
-                                <Border Grid.Row="0" Width="14"
-                                        CornerRadius="7,7,0,0"
-                                        Background="{StaticResource SliderTrackFillGradient}"
-                                        Height="{Binding ElementName=PART_Track,
-                                            Path=Thumb.ActualHeight,
-                                            FallbackValue=22}"/>
-                            </Grid>
+                            <Border Width="6" CornerRadius="3" Background="{DynamicResource BorderBrush}"/>
                             <Track x:Name="PART_Track" IsDirectionReversed="True">
                                 <Track.DecreaseRepeatButton>
-                                    <RepeatButton
-                                        Style="{StaticResource InvisibleRepeatButton}"
-                                        Command="Slider.DecreaseLarge"/>
+                                    <RepeatButton Style="{StaticResource InvisibleRepeatButton}"
+                                                  Command="Slider.DecreaseLarge"/>
                                 </Track.DecreaseRepeatButton>
                                 <Track.Thumb>
                                     <Thumb Style="{StaticResource GlassySliderThumbStyle}"/>
                                 </Track.Thumb>
                                 <Track.IncreaseRepeatButton>
-                                    <RepeatButton
-                                        Style="{StaticResource InvisibleRepeatButton}"
-                                        Command="Slider.IncreaseLarge"/>
+                                    <RepeatButton Style="{StaticResource InvisibleRepeatButton}"
+                                                  Command="Slider.IncreaseLarge"/>
                                 </Track.IncreaseRepeatButton>
                             </Track>
                         </Grid>
@@ -614,58 +599,54 @@
 
     </Window.Resources>
 
+    <!-- ═══════════════════════════════════════════════════════════════
+         ROOT LAYOUT
+    ═══════════════════════════════════════════════════════════════ -->
+
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="56"/>
+            <RowDefinition Height="64"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ══════════════════════════════════════════════════════
-             TOP BAR
-        ══════════════════════════════════════════════════════ -->
-        <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="0"
+        <!-- ═══════════════════════════════════════════════════════════
+             TOP BAR — RESTRUCTURED
+        ═══════════════════════════════════════════════════════════════ -->
+        <Border Grid.Row="0"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
+                BorderBrush="{DynamicResource BorderBrush}"
                 BorderThickness="0,0,0,1"
-                BorderBrush="{DynamicResource OutlineBrush}"
                 Panel.ZIndex="50"
                 Effect="{StaticResource TopBarShadow}"
                 SnapsToDevicePixels="True">
 
-            <Grid>
+            <Grid Margin="16,0">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="Auto"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/><!-- Hamburger -->
+                    <ColumnDefinition Width="Auto"/><!-- Logo -->
+                    <ColumnDefinition Width="Auto"/><!-- Module Badge -->
+                    <ColumnDefinition Width="*"/><!-- Search -->
+                    <ColumnDefinition Width="Auto"/><!-- Right cluster -->
                 </Grid.ColumnDefinitions>
 
-                <!-- Hamburger -->
-                <!-- Rule 3: MDL2 hamburger (E700), not the U+9776 text glyph. -->
+                <!-- HAMBURGER -->
                 <Button Grid.Column="0"
-                        Style="{StaticResource TopBarPillIcon}"
+                        Style="{StaticResource TopIconButton}"
                         Content="&#xE700;"
                         Command="{Binding ToggleMenuCommand}"
-                        ToolTip="Menu"
-                        Margin="12,0,4,0"/>
+                        ToolTip="Toggle menu"
+                        Margin="0,0,12,0"
+                        VerticalAlignment="Center"/>
 
-                <!-- Logo + Brand -->
+                <!-- LOGO -->
                 <StackPanel Grid.Column="1"
                             Orientation="Horizontal"
                             VerticalAlignment="Center"
-                            Margin="8,0,0,0">
-                    <!-- Real application icon. Replaces the hand-drawn Path
-                         diamond that used to stand in for the brand mark.
-                         Resources/proglass_icon_256.png is already declared
-                         as a <Resource> in the csproj, so the pack URI
-                         resolves without any build change. Clipped to a
-                         rounded square so it matches the pill language of
-                         the rest of the top bar. -->
-                    <Border Width="36" Height="36"
+                            Margin="0,0,20,0">
+                    <Border Width="38" Height="38"
                             CornerRadius="10"
-                            VerticalAlignment="Center"
-                            SnapsToDevicePixels="True"
-                            Effect="{StaticResource LogoGlow}">
+                            Effect="{StaticResource LogoGlow}"
+                            SnapsToDevicePixels="True">
                         <Border.Background>
                             <ImageBrush ImageSource="pack://application:,,,/Resources/proglass_icon_256.png"
                                         Stretch="UniformToFill"
@@ -673,45 +654,35 @@
                         </Border.Background>
                     </Border>
                     <StackPanel VerticalAlignment="Center" Margin="10,0,0,0">
-                        <TextBlock Text="PROGLASS"
+                        <TextBlock Text="ProGlass"
                                    FontSize="15" FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   IsHitTestVisible="False"/>
-                        <TextBlock Text="AUTOMATION"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                        <TextBlock Text="AUTOMATION SUITE"
                                    FontSize="9" FontWeight="SemiBold"
-                                   Foreground="{DynamicResource AccentBrush}"
-                                   Margin="0,-2,0,0"
-                                   IsHitTestVisible="False"/>
-                            </StackPanel>
+                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   Margin="0,2,0,0"/>
+                    </StackPanel>
                 </StackPanel>
 
-                <!-- MODULE badge -->
-                <!-- Active-module pill — Primary solid variant.
-                     Spec geometry: CornerRadius 20, Height 40, Padding 22,0,
-                     BorderBrush #4DFFFFFF at 1, MDL2 glyph 13px + 10px gap,
-                     UPPERCASE bold 12px label. Shows the CURRENT module
-                     rather than the static word "MODULE". -->
+                <!-- MODULE BADGE -->
                 <Border Grid.Column="2"
-                        CornerRadius="20"
-                        Padding="22,0"
                         Height="40"
+                        CornerRadius="20"
+                        Padding="18,0"
                         VerticalAlignment="Center"
-                        Margin="20,0,0,0"
-                        Background="{DynamicResource AccentBrush}"
-                        BorderBrush="{DynamicResource OutlineBrush}"
+                        Margin="0,0,20,0"
+                        Background="{StaticResource SidebarActiveGradient}"
+                        BorderBrush="#4DFFFFFF"
                         BorderThickness="1"
                         SnapsToDevicePixels="True"
                         ToolTip="Active module">
-                    <StackPanel Orientation="Horizontal"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center">
-                        <TextBlock Text="&#xE700;"
+                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                        <TextBlock Text="&#xE8A9;"
                                    FontFamily="Segoe MDL2 Assets"
                                    FontSize="13"
                                    Foreground="White"
                                    VerticalAlignment="Center"
-                                   Margin="0,0,10,0"
-                                   IsHitTestVisible="False"/>
+                                   Margin="0,0,10,0"/>
                         <TextBlock Text="{Binding CurrentModuleTitle,
                                        FallbackValue=MODULE,
                                        TargetNullValue=MODULE}"
@@ -719,108 +690,149 @@
                                    Foreground="White"
                                    VerticalAlignment="Center"
                                    TextTrimming="CharacterEllipsis"
-                                   MaxWidth="200"
-                                   IsHitTestVisible="False"/>
-                            </StackPanel>
+                                   MaxWidth="200"/>
+                    </StackPanel>
                 </Border>
 
-                <!-- Right: connectivity pill + Settings + About
-                     v3.1: Settings button now navigates to Settings module
-                     via ShowSettingsCommand (like ShowAboutCommand) -->
+                <!-- SEARCH — hosts the GlobalSearchBar -->
+                <Border Grid.Column="3"
+                        MaxWidth="480"
+                        HorizontalAlignment="Stretch"
+                        VerticalAlignment="Center">
+                    <globalSearch:GlobalSearchBar DataContext="{Binding GlobalSearchVM}"/>
+                </Border>
+
+                <!-- RIGHT CLUSTER -->
                 <StackPanel Grid.Column="4"
                             Orientation="Horizontal"
                             VerticalAlignment="Center"
-                            Margin="0,0,8,0">
+                            Margin="16,0,0,0">
 
-                    <!-- PHASE E: cross-module global search -->
-                    <globalSearch:GlobalSearchBar DataContext="{Binding GlobalSearchVM}"
-                                                  VerticalAlignment="Center"
-                                                  Margin="0,0,12,0"/>
-
-                    <!-- Live date/time — Outlined pill variant.
-                         Was a flat Border with Padding 12,4 (roughly 24px
-                         tall) and no border, which read as a grey blob next
-                         to the 40px buttons. Now matches the spec geometry:
-                         CornerRadius 20, Height 40, Padding 22,0,
-                         BorderThickness 1.5, MDL2 icon at 13px with a 10px
-                         gap, UPPERCASE bold label. -->
-                    <Border CornerRadius="20"
-                            Padding="22,0"
-                            Height="40"
+                    <!-- AI AGENT PULSE PILL (theme-based accent) -->
+                    <Border Height="40"
+                            CornerRadius="20"
+                            Padding="14,0"
                             Margin="0,0,10,0"
-                            VerticalAlignment="Center"
-                            Background="White"
+                            Background="{DynamicResource TintBlueBrush}"
                             BorderBrush="{DynamicResource AccentBrush}"
-                            BorderThickness="1.5"
+                            BorderThickness="1"
+                            Cursor="Hand"
                             SnapsToDevicePixels="True"
-                            ToolTip="Current date and time">
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center">
-                            <TextBlock Text="&#xE787;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="13"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       VerticalAlignment="Center"
-                                       Margin="0,0,10,0"
-                                       IsHitTestVisible="False"/>
-                            <TextBlock Text="{Binding CurrentDateText}"
-                                       FontSize="12" FontWeight="Bold"
-                                       Foreground="#1F2937"
-                                       VerticalAlignment="Center"
-                                       IsHitTestVisible="False"/>
-                            <TextBlock Text="  ·  "
-                                       FontSize="12" FontWeight="Bold"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       VerticalAlignment="Center"
-                                       IsHitTestVisible="False"/>
-                            <TextBlock Text="{Binding CurrentTimeText}"
-                                       FontSize="12" FontWeight="Bold"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       VerticalAlignment="Center"
-                                       IsHitTestVisible="False"/>
+                            ToolTip="ProGlass Agent — local assistant you can teach">
+                        <Border.InputBindings>
+                            <MouseBinding MouseAction="LeftClick"
+                                          Command="{Binding ToggleAgentChatCommand}"/>
+                        </Border.InputBindings>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Grid Width="12" Height="12" Margin="0,0,10,0">
+                                <Ellipse Fill="{DynamicResource SuccessBrush}" Opacity="0.4">
+                                    <Ellipse.RenderTransform>
+                                        <ScaleTransform x:Name="AiPulseScale"
+                                                        ScaleX="1" ScaleY="1"
+                                                        CenterX="6" CenterY="6"/>
+                                    </Ellipse.RenderTransform>
+                                    <Ellipse.Triggers>
+                                        <EventTrigger RoutedEvent="Loaded">
+                                            <BeginStoryboard>
+                                                <Storyboard RepeatBehavior="Forever">
+                                                    <DoubleAnimation
+                                                        Storyboard.TargetName="AiPulseScale"
+                                                        Storyboard.TargetProperty="ScaleX"
+                                                        From="1" To="2.5" Duration="0:0:2"/>
+                                                    <DoubleAnimation
+                                                        Storyboard.TargetName="AiPulseScale"
+                                                        Storyboard.TargetProperty="ScaleY"
+                                                        From="1" To="2.5" Duration="0:0:2"/>
+                                                    <DoubleAnimation
+                                                        Storyboard.TargetProperty="Opacity"
+                                                        From="0.5" To="0" Duration="0:0:2"/>
+                                                </Storyboard>
+                                            </BeginStoryboard>
+                                        </EventTrigger>
+                                    </Ellipse.Triggers>
+                                </Ellipse>
+                                <Ellipse Width="10" Height="10"
+                                         Fill="{DynamicResource SuccessBrush}"
+                                         HorizontalAlignment="Center"
+                                         VerticalAlignment="Center"/>
+                            </Grid>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="AI AGENT"
+                                           FontSize="9"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource AccentBrush}"/>
+                                <TextBlock Text="Assistant"
+                                           FontSize="11"
+                                           FontWeight="SemiBold"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           Margin="0,1,0,0"/>
                             </StackPanel>
+                        </StackPanel>
                     </Border>
 
-                    <!-- Internet connectivity — solid pill.
-                         Success green when online, danger red when offline.
-                         Spec geometry: CornerRadius 20, Height 40,
-                         Padding 22,0, BorderBrush #4DFFFFFF at 1,
-                         MDL2 glyph 13px + 10px gap, UPPERCASE bold label.
-                         The old version was a 4px-padded Border with a
-                         7px dot and a 10px label. -->
-                    <Border CornerRadius="20"
-                            Padding="22,0"
-                            Height="40"
+                    <!-- DATE/TIME PILL -->
+                    <Border Height="40"
+                            Background="{DynamicResource MenuHoverBrush}"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1"
+                            CornerRadius="10"
+                            Padding="10,0"
                             Margin="0,0,10,0"
-                            VerticalAlignment="Center"
-                            BorderBrush="#59000000"
+                            SnapsToDevicePixels="True"
+                            ToolTip="Current date and time">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Width="28" Height="28"
+                                    CornerRadius="7"
+                                    Background="{StaticResource DateTimeIconGradient}"
+                                    Margin="0,0,10,0">
+                                <TextBlock Text="&#xE787;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="13"
+                                           Foreground="White"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel VerticalAlignment="Center">
+                                <TextBlock Text="{Binding CurrentDateText}"
+                                           FontSize="11"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           FontWeight="Medium"/>
+                                <TextBlock Text="{Binding CurrentTimeText}"
+                                           FontSize="12"
+                                           FontWeight="Bold"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                           Margin="0,1,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Border>
+
+                    <!-- CONNECTIVITY PILL -->
+                    <Border Height="40"
+                            CornerRadius="20"
+                            Padding="14,0"
+                            Margin="0,0,10,0"
+                            BorderBrush="#4DFFFFFF"
                             BorderThickness="1"
                             SnapsToDevicePixels="True"
-                            ToolTip="Internet connection state — AI and updates need internet">
+                            ToolTip="Internet connection state">
                         <Border.Style>
                             <Style TargetType="Border">
-                                <Setter Property="Background"
-                                        Value="{DynamicResource SuccessBrush}"/>
+                                <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
                                 <Style.Triggers>
                                     <DataTrigger Binding="{Binding IsOnline}" Value="False">
-                                        <Setter Property="Background" Value="#B91C1C"/>
+                                        <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
                                     </DataTrigger>
                                 </Style.Triggers>
                             </Style>
                         </Border.Style>
-                        <StackPanel Orientation="Horizontal"
-                                    HorizontalAlignment="Center"
-                                    VerticalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <TextBlock FontFamily="Segoe MDL2 Assets"
                                        FontSize="13"
                                        Foreground="White"
                                        VerticalAlignment="Center"
-                                       Margin="0,0,10,0"
-                                       IsHitTestVisible="False">
+                                       Margin="0,0,8,0">
                                 <TextBlock.Style>
                                     <Style TargetType="TextBlock">
-                                        <!-- E701 connected / E8CD disconnected -->
                                         <Setter Property="Text" Value="&#xE701;"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsOnline}" Value="False">
@@ -831,148 +843,140 @@
                                 </TextBlock.Style>
                             </TextBlock>
                             <TextBlock Text="{Binding ConnectivityLabel}"
-                                       FontSize="12" FontWeight="Bold"
+                                       FontSize="11" FontWeight="Bold"
                                        Foreground="White"
-                                       VerticalAlignment="Center"
-                                       IsHitTestVisible="False"/>
-                            </StackPanel>
+                                       VerticalAlignment="Center"/>
+                        </StackPanel>
                     </Border>
 
-                    <!-- Notification bell — opens the real Logs & Activity
-                         (Diagnostics) module, the closest real analogue to a
-                         notification inbox. -->
-                    <Button Style="{StaticResource TopBarPillIcon}"
-                            Content="&#xEA8F;"
-                            Command="{Binding NavigateCommand}"
-                            CommandParameter="Diagnostics"
-                            ToolTip="Logs &amp; Activity"
-                            Margin="0,0,8,0"/>
+                    <!-- NOTIFICATION BELL (routes to Logs & Activity) -->
+                    <Grid Margin="0,0,10,0">
+                        <Button Style="{StaticResource TopIconButton}"
+                                Content="&#xEA8F;"
+                                Command="{Binding NavigateCommand}"
+                                CommandParameter="Diagnostics"
+                                ToolTip="Logs &amp; Activity"/>
+                        <Ellipse Width="10" Height="10"
+                                 Fill="{DynamicResource DangerBrush}"
+                                 Stroke="White"
+                                 StrokeThickness="2"
+                                 HorizontalAlignment="Right"
+                                 VerticalAlignment="Top"
+                                 Margin="0,6,6,0"
+                                 IsHitTestVisible="False"/>
+                    </Grid>
 
-                    <!-- PHASE L: ProGlass Agent chat -->
-                    <Button Style="{StaticResource TopBarPillIcon}"
-                            Content="&#xE99A;"
-                            Command="{Binding ToggleAgentChatCommand}"
-                            ToolTip="ProGlass Agent — local assistant you can teach"
-                            Margin="0,0,8,0"/>
-
-                    <Button Style="{StaticResource TopBarPillIcon}"
+                    <!-- SETTINGS -->
+                    <Button Style="{StaticResource TopIconButton}"
                             Content="&#xE713;"
                             Command="{Binding ShowSettingsCommand}"
                             ToolTip="Settings"
-                            Margin="0,0,8,0"/>
+                            Margin="0,0,10,0"/>
 
-                    <Button Style="{StaticResource TopBarPillIcon}"
+                    <!-- ABOUT / HELP -->
+                    <Button Style="{StaticResource TopIconButton}"
                             Content="&#xE946;"
                             Command="{Binding ShowAboutCommand}"
                             ToolTip="About"
-                            Margin="0,0,8,0"/>
+                            Margin="0,0,10,0"/>
 
-                    <!-- Signed-in user pill — initials avatar + display name.
-                         Bound to the REAL AuditService current user, not a
-                         hardcoded name. Its template uses a ContentPresenter
-                         (not the MDL2-glyph TopBarPillIcon) so the StackPanel
-                         content renders. -->
-                    <Button Command="{Binding ShowSettingsCommand}"
-                            ToolTip="Signed in as the active user"
-                            Margin="0,0,0,0"
+                    <!-- USER CARD — navigates to the USERS module (not settings) -->
+                    <Button Command="{Binding NavigateCommand}"
+                            CommandParameter="UserCenter"
+                            Background="Transparent"
+                            BorderThickness="0"
                             Cursor="Hand"
                             FocusVisualStyle="{x:Null}"
-                            Background="Transparent"
-                            BorderThickness="0">
+                            ToolTip="Signed in — open the Users module">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
-                                <ContentPresenter/>
+                                <Border x:Name="Bg"
+                                        Height="40"
+                                        Background="{DynamicResource MenuHoverBrush}"
+                                        BorderBrush="{DynamicResource BorderBrush}"
+                                        BorderThickness="1"
+                                        CornerRadius="20"
+                                        Padding="6,0,14,0"
+                                        SnapsToDevicePixels="True">
+                                    <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
+                                        <Border Width="30" Height="30"
+                                                CornerRadius="15"
+                                                Background="{StaticResource AvatarGradient}"
+                                                Margin="0,0,10,0">
+                                            <TextBlock Text="{Binding CurrentUserInitials, FallbackValue=&apos;?&apos;}"
+                                                       Foreground="White"
+                                                       FontSize="11"
+                                                       FontWeight="Bold"
+                                                       HorizontalAlignment="Center"
+                                                       VerticalAlignment="Center"/>
+                                        </Border>
+                                        <TextBlock Text="{Binding CurrentUserDisplayName, FallbackValue=&apos;User&apos;}"
+                                                   FontSize="12"
+                                                   FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   VerticalAlignment="Center"
+                                                   TextTrimming="CharacterEllipsis"
+                                                   MaxWidth="120"
+                                                   Margin="0,0,8,0"/>
+                                        <TextBlock Text="&#xE70D;"
+                                                   FontFamily="Segoe MDL2 Assets"
+                                                   FontSize="10"
+                                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                                   VerticalAlignment="Center"/>
+                                    </StackPanel>
+                                </Border>
+                                <ControlTemplate.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+                                        <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                    </Trigger>
+                                </ControlTemplate.Triggers>
                             </ControlTemplate>
                         </Button.Template>
-                        <Border Height="40"
-                                CornerRadius="20"
-                                Padding="6,0,14,0"
-                                Background="{DynamicResource MenuHoverBrush}"
-                                BorderBrush="{DynamicResource OutlineBrush}"
-                                BorderThickness="1"
-                                VerticalAlignment="Center"
-                                SnapsToDevicePixels="True">
-                            <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                                <Border Width="30" Height="30"
-                                        CornerRadius="15"
-                                        Background="{DynamicResource AccentBrush}"
-                                        VerticalAlignment="Center"
-                                        SnapsToDevicePixels="True">
-                                    <TextBlock Text="{Binding CurrentUserInitials, FallbackValue=&apos;?&apos;}"
-                                               FontFamily="Segoe UI"
-                                               FontSize="11" FontWeight="Bold"
-                                               Foreground="White"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Text="{Binding CurrentUserDisplayName, FallbackValue=User}"
-                                           FontFamily="Segoe UI"
-                                           FontSize="12" FontWeight="SemiBold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                           VerticalAlignment="Center"
-                                           Margin="8,0,0,0"
-                                           TextTrimming="CharacterEllipsis"
-                                           MaxWidth="120"/>
-                            </StackPanel>
-                        </Border>
                     </Button>
-                            </StackPanel>
+
+                </StackPanel>
             </Grid>
         </Border>
 
-        <!-- ══════════════════════════════════════════════════════
+        <!-- ═══════════════════════════════════════════════════════════
              MAIN CONTENT AREA
-        ══════════════════════════════════════════════════════ -->
+        ═══════════════════════════════════════════════════════════════ -->
+
         <Grid Grid.Row="1">
 
-            <!-- Framed module container (v3.0 preserved).
-                 v2 §9: ModuleWallpaperBrush sits BEHIND the module —
-                 set per module by VisualThemeEngine, Transparent when
-                 the active module has no wallpaper. -->
-            <!-- ELEVATION CASTER.
-                 Sits directly behind the content card with identical
-                 geometry and carries the shadow ALONE. It has no children,
-                 so the effect rasterizes one empty rounded rectangle
-                 instead of the entire live module tree. Non-hit-testable so
-                 it can never intercept a click meant for the module. -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Margin="12"
+            <!-- ELEVATION CASTER (empty shadow-only Border) -->
+            <Border Margin="16"
                     CornerRadius="16"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     Effect="{StaticResource CardShadow}"
                     IsHitTestVisible="False"
                     SnapsToDevicePixels="True"/>
 
-            <!-- CONTENT CARD.
-                 CornerRadius 16 matches the CardStyle used by the dashboard
-                 views and the agent overlay, so the shell and the modules
-                 now speak one radius language (was 12, which read as a
-                 slightly-softened box rather than a card).
-                 ClipToBounds keeps module content inside the rounded
-                 corners — without it, square content paints over them. -->
+            <!-- CONTENT CARD -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="1.5"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="1"
                     CornerRadius="16"
-                    Margin="12"
+                    Margin="16"
                     ClipToBounds="True"
                     SnapsToDevicePixels="True">
                 <Grid>
-                    <Border CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource ModuleWallpaperBrush}"
+                    <Border CornerRadius="16"
+                            Background="{DynamicResource ModuleWallpaperBrush}"
                             IsHitTestVisible="False"/>
                     <ContentControl Content="{Binding CurrentViewModel}"/>
                 </Grid>
             </Border>
 
-            <!-- Dim overlay — only triggers on IsMenuOpen now
-                 (settings is a module, not a drawer, so no IsSettingsOpen trigger) -->
-            <Rectangle Fill="Black" Opacity="0.45"
+            <!-- DIM OVERLAY (only when the drawer is open) -->
+            <Rectangle Fill="Black" Opacity="0.35"
                        MouseLeftButtonDown="DimOverlay_MouseLeftButtonDown">
                 <Rectangle.Style>
                     <Style TargetType="Rectangle">
                         <Setter Property="Visibility" Value="Collapsed"/>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsMenuOpen}"
-                                         Value="True">
+                            <DataTrigger Binding="{Binding IsMenuOpen}" Value="True">
                                 <Setter Property="Visibility" Value="Visible"/>
                             </DataTrigger>
                         </Style.Triggers>
@@ -980,10 +984,15 @@
                 </Rectangle.Style>
             </Rectangle>
 
-            <!-- LEFT DRAWER — NAVIGATION MENU -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1.5" Width="290"
+            <!-- ═══════════════════════════════════════════════════════
+                 LEFT DRAWER — REDESIGNED SIDEBAR (all groups expandable)
+            ═══════════════════════════════════════════════════════════ -->
+
+            <Border Width="300"
                     HorizontalAlignment="Left"
                     Background="{DynamicResource SideMenuBackgroundBrush}"
+                    BorderBrush="{DynamicResource BorderBrush}"
+                    BorderThickness="0,0,1,0"
                     CornerRadius="0,16,16,0"
                     Panel.ZIndex="10"
                     Effect="{StaticResource DrawerLeftShadow}"
@@ -992,8 +1001,7 @@
                     <Style TargetType="Border">
                         <Setter Property="Visibility" Value="Collapsed"/>
                         <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsMenuOpen}"
-                                         Value="True">
+                            <DataTrigger Binding="{Binding IsMenuOpen}" Value="True">
                                 <Setter Property="Visibility" Value="Visible"/>
                             </DataTrigger>
                         </Style.Triggers>
@@ -1005,327 +1013,260 @@
                         <RowDefinition Height="*"/>
                         <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
+
                     <Grid Grid.Row="0">
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
 
-                    <ScrollViewer x:Name="MenuScrollViewer"
-                                  Grid.Column="0"
-                                  VerticalScrollBarVisibility="Hidden"
-                                  HorizontalScrollBarVisibility="Disabled"
-                                  CanContentScroll="False"
-                                  IsDeferredScrollingEnabled="False"
-                                  PanningMode="VerticalOnly"
-                                  Focusable="False"
-                                  FocusVisualStyle="{x:Null}"
-                                  behaviors:SmoothScrollBehavior.IsEnabled="True"
-                                  ScrollChanged="MenuScrollViewer_ScrollChanged">
-                        <StackPanel Margin="0,16,0,16">
+                        <ScrollViewer x:Name="MenuScrollViewer"
+                                      Grid.Column="0"
+                                      VerticalScrollBarVisibility="Hidden"
+                                      HorizontalScrollBarVisibility="Disabled"
+                                      CanContentScroll="False"
+                                      IsDeferredScrollingEnabled="False"
+                                      PanningMode="VerticalOnly"
+                                      Focusable="False"
+                                      FocusVisualStyle="{x:Null}"
+                                      behaviors:SmoothScrollBehavior.IsEnabled="True"
+                                      ScrollChanged="MenuScrollViewer_ScrollChanged">
+                            <StackPanel Margin="0,12,0,16">
 
-                            <TextBlock Text="OVERVIEW"
-                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                            <Border Style="{StaticResource SidebarGroupCardStyle}">
-                                <StackPanel>
-                                    <Button Style="{StaticResource SidebarCardItemStyle}"
-                                            Content="Dashboard" Tag="&#xE80F;"
-                                            Command="{Binding NavigateCommand}"
-                                            CommandParameter="Dashboard"/>
-                                </StackPanel>
-                            </Border>
+                                <!-- MAIN -->
+                                <TextBlock Text="MAIN"
+                                           Style="{StaticResource SidebarGroupLabel}"/>
+                                <Button Style="{StaticResource SidebarNavItem}"
+                                        Content="Dashboard"
+                                        Tag="&#xE80F;"
+                                        Command="{Binding NavigateCommand}"
+                                        CommandParameter="Dashboard"/>
 
-                            <TextBlock Text="INVENTORY"
-                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                            <Border Style="{StaticResource SidebarGroupCardStyle}">
-                                <StackPanel>
-                                    <Button Style="{StaticResource SidebarCardItemStyle}"
-                                            Content="Sheet Store" Tag="&#xE7B8;"
-                                            Command="{Binding NavigateCommand}"
-                                            CommandParameter="SheetStore"/>
-                                </StackPanel>
-                            </Border>
+                                <!-- INVENTORY -->
+                                <TextBlock Text="INVENTORY"
+                                           Style="{StaticResource SidebarGroupLabel}"/>
+                                <Button Style="{StaticResource SidebarNavItem}"
+                                        Content="Sheet Store"
+                                        Tag="&#xE7B8;"
+                                        Command="{Binding NavigateCommand}"
+                                        CommandParameter="SheetStore"/>
 
-                            <TextBlock Text="SALES"
-                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
-
-                            <!-- Proforma Invoice — expandable group -->
-                            <StackPanel>
-                                <ToggleButton x:Name="ProformaGroup"
-                                              Style="{StaticResource SidebarGroupToggleStyle}"
-                                              IsChecked="True">
-                                    <Grid>
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="&#xE8A5;"
-                                                       FontFamily="Segoe MDL2 Assets"
-                                                       FontSize="14"
-                                                       Foreground="{DynamicResource AccentBrush}"
-                                                       Width="20"
-                                                       Margin="0,0,12,0"
-                                                       VerticalAlignment="Center"/>
-                                            <TextBlock Text="Proforma Invoice"
-                                                       FontSize="13" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                       VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                        <TextBlock Text="&#xE76C;"
-                                                   FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="10"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                                   HorizontalAlignment="Right"
-                                                   VerticalAlignment="Center">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="RenderTransform">
-                                                        <Setter.Value>
-                                                            <RotateTransform Angle="0"/>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsChecked, ElementName=ProformaGroup}" Value="True">
-                                                            <Setter Property="RenderTransform">
-                                                                <Setter.Value>
-                                                                    <RotateTransform Angle="90"/>
-                                                                </Setter.Value>
-                                                            </Setter>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                    </Grid>
-                                </ToggleButton>
-                                <Border Style="{StaticResource SidebarSubMenuStyle}"
-                                        Visibility="{Binding IsChecked, ElementName=ProformaGroup,
+                                <!-- SALES (expandable) -->
+                                <TextBlock Text="SALES"
+                                           Style="{StaticResource SidebarGroupLabel}"/>
+                                <ToggleButton x:Name="SalesGroup"
+                                              Style="{StaticResource SidebarGroupToggle}"
+                                              Content="Sales &amp; Orders"
+                                              Tag="&#xE8A5;"
+                                              IsChecked="True"/>
+                                <Border Style="{StaticResource SidebarSubMenuCard}"
+                                        Visibility="{Binding IsChecked, ElementName=SalesGroup,
                                                      Converter={StaticResource BoolToVisibilityConverter}}">
                                     <StackPanel>
-                                        <Button Style="{StaticResource SidebarSubItemStyle}"
-                                                Content="New Invoice"
-                                                Command="{Binding NewProformaInvoiceCommand}"/>
-                                        <Button Style="{StaticResource SidebarSubItemStyle}"
-                                                Content="Saved Invoices"
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="Proforma Invoice"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="ProformaInvoice"/>
-                                    </StackPanel>
-                                </Border>
-                            </StackPanel>
-
-                            <!-- Job Orders — expandable group -->
-                            <StackPanel>
-                                <ToggleButton x:Name="JobsGroup"
-                                              Style="{StaticResource SidebarGroupToggleStyle}">
-                                    <Grid>
-                                        <StackPanel Orientation="Horizontal">
-                                            <TextBlock Text="&#xE7B8;"
-                                                       FontFamily="Segoe MDL2 Assets"
-                                                       FontSize="14"
-                                                       Foreground="{DynamicResource AccentBrush}"
-                                                       Width="20"
-                                                       Margin="0,0,12,0"
-                                                       VerticalAlignment="Center"/>
-                                            <TextBlock Text="Job Orders"
-                                                       FontSize="13" FontWeight="SemiBold"
-                                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                       VerticalAlignment="Center"/>
-                                        </StackPanel>
-                                        <TextBlock Text="&#xE76C;"
-                                                   FontFamily="Segoe MDL2 Assets"
-                                                   FontSize="10"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                                   HorizontalAlignment="Right"
-                                                   VerticalAlignment="Center">
-                                            <TextBlock.Style>
-                                                <Style TargetType="TextBlock">
-                                                    <Setter Property="RenderTransform">
-                                                        <Setter.Value>
-                                                            <RotateTransform Angle="0"/>
-                                                        </Setter.Value>
-                                                    </Setter>
-                                                    <Style.Triggers>
-                                                        <DataTrigger Binding="{Binding IsChecked, ElementName=JobsGroup}" Value="True">
-                                                            <Setter Property="RenderTransform">
-                                                                <Setter.Value>
-                                                                    <RotateTransform Angle="90"/>
-                                                                </Setter.Value>
-                                                            </Setter>
-                                                        </DataTrigger>
-                                                    </Style.Triggers>
-                                                </Style>
-                                            </TextBlock.Style>
-                                        </TextBlock>
-                                    </Grid>
-                                </ToggleButton>
-                                <Border Style="{StaticResource SidebarSubMenuStyle}"
-                                        Visibility="{Binding IsChecked, ElementName=JobsGroup,
-                                                     Converter={StaticResource BoolToVisibilityConverter}}">
-                                    <StackPanel>
-                                        <Button Style="{StaticResource SidebarSubItemStyle}"
-                                                Content="All Job Orders"
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="Job Order"
                                                 Command="{Binding NavigateCommand}"
                                                 CommandParameter="JobOrder"/>
                                     </StackPanel>
                                 </Border>
+
+                                <!-- PRODUCTION (expandable) -->
+                                <TextBlock Text="PRODUCTION"
+                                           Style="{StaticResource SidebarGroupLabel}"/>
+                                <ToggleButton x:Name="ProductionGroup"
+                                              Style="{StaticResource SidebarGroupToggle}"
+                                              Content="Production"
+                                              Tag="&#xE7B8;"/>
+                                <Border Style="{StaticResource SidebarSubMenuCard}"
+                                        Visibility="{Binding IsChecked, ElementName=ProductionGroup,
+                                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="Optimization"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="Optimization"/>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="Cutting"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="Cutting"/>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="Holes &amp; Cutouts"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="HolesCutouts"/>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="Polish"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="Polish"/>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="Edge Deletion"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="EdgeDeletion"/>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="Mitring"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="Mitring"/>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="Tempering"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="Tempering"/>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="Pairing"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="Pairing"/>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="Doubling / Lamination"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="DoublingLamination"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- DISPATCH (expandable) -->
+                                <TextBlock Text="DISPATCH"
+                                           Style="{StaticResource SidebarGroupLabel}"/>
+                                <ToggleButton x:Name="DispatchGroup"
+                                              Style="{StaticResource SidebarGroupToggle}"
+                                              Content="Dispatch"
+                                              Tag="&#xE7F4;"/>
+                                <Border Style="{StaticResource SidebarSubMenuCard}"
+                                        Visibility="{Binding IsChecked, ElementName=DispatchGroup,
+                                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="Delivery Note"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="DeliveryNote"/>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="Tax Invoice"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="TaxInvoice"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- REPORTS (expandable) -->
+                                <TextBlock Text="REPORTS"
+                                           Style="{StaticResource SidebarGroupLabel}"/>
+                                <ToggleButton x:Name="ReportsGroup"
+                                              Style="{StaticResource SidebarGroupToggle}"
+                                              Content="Reports"
+                                              Tag="&#xE9F9;"/>
+                                <Border Style="{StaticResource SidebarSubMenuCard}"
+                                        Visibility="{Binding IsChecked, ElementName=ReportsGroup,
+                                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="Sales Report"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="SalesReport"/>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="Job Profitability"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="JobProfitability"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- MASTER DATA (expandable) -->
+                                <TextBlock Text="MASTER DATA"
+                                           Style="{StaticResource SidebarGroupLabel}"/>
+                                <ToggleButton x:Name="MasterDataGroup"
+                                              Style="{StaticResource SidebarGroupToggle}"
+                                              Content="Master Data"
+                                              Tag="&#xE822;"/>
+                                <Border Style="{StaticResource SidebarSubMenuCard}"
+                                        Visibility="{Binding IsChecked, ElementName=MasterDataGroup,
+                                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="Company Center"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="CompanyCenter"/>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="User Center"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="UserCenter"/>
+                                    </StackPanel>
+                                </Border>
+
+                                <!-- SYSTEM (expandable) -->
+                                <TextBlock Text="SYSTEM"
+                                           Style="{StaticResource SidebarGroupLabel}"/>
+                                <ToggleButton x:Name="SystemGroup"
+                                              Style="{StaticResource SidebarGroupToggle}"
+                                              Content="System"
+                                              Tag="&#xE713;"/>
+                                <Border Style="{StaticResource SidebarSubMenuCard}"
+                                        Visibility="{Binding IsChecked, ElementName=SystemGroup,
+                                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                                    <StackPanel>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="System Center"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="SystemCenter"/>
+                                        <Button Style="{StaticResource SidebarSubItem}"
+                                                Content="Logs &amp; Activity"
+                                                Command="{Binding NavigateCommand}"
+                                                CommandParameter="Diagnostics"/>
+                                    </StackPanel>
+                                </Border>
+
                             </StackPanel>
+                        </ScrollViewer>
 
-                            <TextBlock Text="PRODUCTION"
-                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                            <Border Style="{StaticResource SidebarGroupCardStyle}">
-                                <StackPanel>
-                                    <Button Style="{StaticResource SidebarCardItemStyle}"
-                                            Content="Optimization" Tag="&#xE713;"
-                                            Command="{Binding NavigateCommand}"
-                                            CommandParameter="Optimization"/>
-                                    <Button Style="{StaticResource SidebarCardItemStyle}"
-                                            Content="Cutting" Tag="&#xE8C6;"
-                                            Command="{Binding NavigateCommand}"
-                                            CommandParameter="Cutting"/>
-                                    <Button Style="{StaticResource SidebarCardItemStyle}"
-                                            Content="Holes &amp; Cutouts" Tag="&#xE71D;"
-                                            Command="{Binding NavigateCommand}"
-                                            CommandParameter="HolesCutouts"/>
-                                    <Button Style="{StaticResource SidebarCardItemStyle}"
-                                            Content="Polish" Tag="&#xE895;"
-                                            Command="{Binding NavigateCommand}"
-                                            CommandParameter="Polish"/>
-                                    <Button Style="{StaticResource SidebarCardItemStyle}"
-                                            Content="Edge Deletion" Tag="&#xE774;"
-                                            Command="{Binding NavigateCommand}"
-                                            CommandParameter="EdgeDeletion"/>
-                                    <Button Style="{StaticResource SidebarCardItemStyle}"
-                                            Content="Mitring" Tag="&#xE7E8;"
-                                            Command="{Binding NavigateCommand}"
-                                            CommandParameter="Mitring"/>
-                                    <Button Style="{StaticResource SidebarCardItemStyle}"
-                                            Content="Tempering" Tag="&#xE728;"
-                                            Command="{Binding NavigateCommand}"
-                                            CommandParameter="Tempering"/>
-                                    <Button Style="{StaticResource SidebarCardItemStyle}"
-                                            Content="Pairing" Tag="&#xE71B;"
-                                            Command="{Binding NavigateCommand}"
-                                            CommandParameter="Pairing"/>
-                                    <Button Style="{StaticResource SidebarCardItemStyle}"
-                                            Content="Doubling / Lamination" Tag="&#xE81C;"
-                                            Command="{Binding NavigateCommand}"
-                                            CommandParameter="DoublingLamination"/>
-                                </StackPanel>
-                            </Border>
-
-                            <TextBlock Text="DISPATCH"
-                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                            <Border Style="{StaticResource SidebarGroupCardStyle}">
-                                <StackPanel>
-                                    <Button Style="{StaticResource SidebarCardItemStyle}"
-                                            Content="Delivery Note" Tag="&#xE7F4;"
-                                            Command="{Binding NavigateCommand}"
-                                            CommandParameter="DeliveryNote"/>
-                                    <Button Style="{StaticResource SidebarCardItemStyle}"
-                                            Content="Tax Invoice" Tag="&#xE7BF;"
-                                            Command="{Binding NavigateCommand}"
-                                            CommandParameter="TaxInvoice"/>
-                                </StackPanel>
-                            </Border>
-
-                            <TextBlock Text="REPORTS"
-                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                            <Border Style="{StaticResource SidebarGroupCardStyle}">
-                                <StackPanel>
-                                    <Button Style="{StaticResource SidebarCardItemStyle}"
-                                            Content="Sales Report" Tag="&#xE9F9;"
-                                            Command="{Binding NavigateCommand}"
-                                            CommandParameter="SalesReport"/>
-                                    <Button Style="{StaticResource SidebarCardItemStyle}"
-                                            Content="Job Profitability" Tag="&#xE7BF;"
-                                            Command="{Binding NavigateCommand}"
-                                            CommandParameter="JobProfitability"/>
-                                </StackPanel>
-                            </Border>
-
-                            <TextBlock Text="MASTER DATA"
-                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                            <Border Style="{StaticResource SidebarGroupCardStyle}">
-                                <StackPanel>
-                                    <Button Style="{StaticResource SidebarCardItemStyle}"
-                                            Content="Company Center" Tag="&#xE822;"
-                                            Command="{Binding NavigateCommand}"
-                                            CommandParameter="CompanyCenter"/>
-                                    <Button Style="{StaticResource SidebarCardItemStyle}"
-                                            Content="User Center" Tag="&#xE716;"
-                                            Command="{Binding NavigateCommand}"
-                                            CommandParameter="UserCenter"/>
-                                </StackPanel>
-                            </Border>
-
-                            <TextBlock Text="SYSTEM"
-                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                            <Border Style="{StaticResource SidebarGroupCardStyle}">
-                                <StackPanel>
-                                    <Button Style="{StaticResource SidebarCardItemStyle}"
-                                            Content="System Center" Tag="&#xE713;"
-                                            Command="{Binding NavigateCommand}"
-                                            CommandParameter="SystemCenter"/>
-                                    <Button Style="{StaticResource SidebarCardItemStyle}"
-                                            Content="Logs &amp; Activity" Tag="&#xE81C;"
-                                            Command="{Binding NavigateCommand}"
-                                            CommandParameter="Diagnostics"/>
-                                </StackPanel>
-                            </Border>
-
-                        </StackPanel>
-                    </ScrollViewer>
-
-                    <Slider x:Name="ScrollSlider"
-                            Grid.Column="1"
-                            Style="{StaticResource GlassyVerticalSliderStyle}"
-                            Margin="4,20,10,20"
-                            Minimum="0" Maximum="1"
-                            SmallChange="0.05" LargeChange="0.15"
-                            ValueChanged="ScrollSlider_ValueChanged"/>
+                        <!-- Vertical scroll slider (preserved) -->
+                        <Slider x:Name="ScrollSlider"
+                                Grid.Column="1"
+                                Style="{StaticResource GlassyVerticalSliderStyle}"
+                                Margin="2,20,10,20"
+                                Minimum="0" Maximum="1"
+                                SmallChange="0.05" LargeChange="0.15"
+                                ValueChanged="ScrollSlider_ValueChanged"/>
                     </Grid>
 
-                <!-- Storage footer — real data-folder size, not a mockup value. -->
-                <Border Grid.Row="1" Margin="12,0,12,14"
-                        Padding="12,10"
-                        CornerRadius="12"
-                        Background="{DynamicResource MenuHoverBrush}"
-                        BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="1"
-                        SnapsToDevicePixels="True"
-                        HorizontalAlignment="Stretch"
-                        VerticalAlignment="Bottom">
-                    <StackPanel>
-                        <Grid Margin="0,0,0,6">
-                            <TextBlock Text="STORAGE"
-                                       FontSize="9" FontWeight="Bold"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
-                            <TextBlock Text="{Binding StorageDisplay, FallbackValue=--}"
-                                       HorizontalAlignment="Right"
-                                       FontSize="10" FontWeight="Bold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                        </Grid>
-                        <TextBlock Text="{Binding StorageSubtitle, FallbackValue=Storage unavailable}"
-                                   FontSize="9"
-                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                   TextWrapping="Wrap"/>
-                    </StackPanel>
+                    <!-- STORAGE FOOTER -->
+                    <Border Grid.Row="1"
+                            Margin="12,0,12,14"
+                            Padding="14,12"
+                            CornerRadius="12"
+                            Background="{StaticResource StorageCardGradient}"
+                            BorderBrush="{DynamicResource BorderBrush}"
+                            BorderThickness="1"
+                            SnapsToDevicePixels="True">
+                        <StackPanel>
+                            <Grid Margin="0,0,0,6">
+                                <TextBlock Text="STORAGE"
+                                           FontSize="9" FontWeight="Bold"
+                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
+                                <TextBlock Text="{Binding StorageDisplay, FallbackValue=&apos;--&apos;}"
+                                           HorizontalAlignment="Right"
+                                           FontSize="10" FontWeight="Bold"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                            </Grid>
+                            <Border Height="6"
+                                    Background="{DynamicResource BorderBrush}"
+                                    CornerRadius="3">
+                                <Border Width="180"
+                                        HorizontalAlignment="Left"
+                                        CornerRadius="3"
+                                        Background="{StaticResource StorageBarGradient}"/>
+                            </Border>
+                            <TextBlock Text="{Binding StorageSubtitle, FallbackValue=&apos;Storage unavailable&apos;}"
+                                       FontSize="10"
+                                       Foreground="{DynamicResource MutedForegroundBrush}"
+                                       Margin="0,6,0,0"
+                                       TextWrapping="Wrap"/>
+                        </StackPanel>
                     </Border>
                 </Grid>
             </Border>
 
-            <!-- v3.1: RIGHT DRAWER (SETTINGS) REMOVED
-                 Settings is now a full-screen module. Gear button in top bar
-                 navigates to it via ShowSettingsCommand. -->
-
-            <!-- AI CHAT -->
+            <!-- AI CHAT OVERLAY (preserved) -->
             <viewsAi:AiChatView DataContext="{Binding AiChatVM}"
                                 Panel.ZIndex="200"/>
 
-            <!-- ══════════════════════════════════════════════════════════
-                 PHASE L — PROGLASS AGENT CHAT
-                 A separate surface from the AI assistant above: this one
-                 talks to the LOCAL agent, which reads ERP data through
-                 permission-gated tools and can be taught new phrases.
-                 Collapsed until the user opens it, so it costs nothing.
-            ══════════════════════════════════════════════════════════ -->
+            <!-- AGENT CHAT OVERLAY (preserved) -->
             <Border Panel.ZIndex="210"
                     Width="520"
                     Margin="0,0,24,24"
@@ -1341,6 +1282,7 @@
                         Converter={StaticResource BoolToVisibilityConverter}}">
                 <agentUi:AgentChatView DataContext="{Binding AgentChatVM}"/>
             </Border>
+
         </Grid>
     </Grid>
 </Window>

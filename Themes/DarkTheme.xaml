@@ -69,6 +69,7 @@
     <Color x:Key="AccentColor">#3B82F6</Color>
     <Color x:Key="AccentHoverColor">#60A5FA</Color>
     <Color x:Key="AccentDarkColor">#1E3A8A</Color>
+    <Color x:Key="AccentLightColor">#60A5FA</Color>
     <SolidColorBrush x:Key="AccentDarkBrush"
                      Color="#1E3A8A"
                      po:Freeze="True"/>
