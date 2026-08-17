@@ -59,19 +59,31 @@
              SEARCH PILL — module filter · query · clear
         ══════════════════════════════════════════════════════════════ -->
         <Border x:Name="SearchPill"
-                CornerRadius="999"
-                Padding="10,3"
-                Background="{DynamicResource MenuHoverBrush}"
-                BorderBrush="{DynamicResource OutlineBrush}"
+                CornerRadius="20"
+                Height="40"
+                Padding="14,0,8,0"
+                VerticalAlignment="Center"
+                Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderThickness="1.5"
-                VerticalAlignment="Center">
+                SnapsToDevicePixels="True">
+            <Border.Style>
+                <Style TargetType="Border">
+                    <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+                    <Style.Triggers>
+                        <Trigger Property="IsMouseOver" Value="True">
+                            <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                        </Trigger>
+                    </Style.Triggers>
+                </Style>
+            </Border.Style>
             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
 
+                <!-- Search glyph -->
                 <TextBlock Text="&#xE721;"
                            FontFamily="Segoe MDL2 Assets"
-                           FontSize="12"
+                           FontSize="13"
                            VerticalAlignment="Center"
-                           Margin="2,0,8,0"
+                           Margin="2,0,10,0"
                            Foreground="{DynamicResource AccentBrush}"/>
 
                 <ComboBox ItemsSource="{Binding ModuleOptions}"
@@ -79,13 +91,38 @@
                           Style="{StaticResource GsModuleComboStyle}"/>
 
                 <Border Width="1"
-                        Margin="8,4"
+                        Margin="8,8"
                         Background="{DynamicResource DividerBrush}"/>
 
-                <TextBox x:Name="QueryBox"
-                         Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=250}"
-                         Style="{StaticResource GsInputStyle}"
-                         ToolTip="Search documents, companies and clients across every module"/>
+                <!-- Query box with a placeholder watermark so the field never
+                     reads as an empty shape - it shows "Search anything..." only
+                     while the query is blank. -->
+                <Grid>
+                    <TextBlock Text="Search anything..."
+                               FontSize="12"
+                               VerticalAlignment="Center"
+                               Margin="2,0,0,0"
+                               IsHitTestVisible="False"
+                               Foreground="{DynamicResource MutedForegroundBrush}">
+                        <TextBlock.Style>
+                            <Style TargetType="TextBlock">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding Text, ElementName=QueryBox}" Value="">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding Text, ElementName=QueryBox}" Value="{x:Null}">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </TextBlock.Style>
+                    </TextBlock>
+                    <TextBox x:Name="QueryBox"
+                             Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged, Delay=250}"
+                             Style="{StaticResource GsInputStyle}"
+                             ToolTip="Search documents, companies and clients across every module"/>
+                </Grid>
 
                 <Button Command="{Binding ClearCommand}"
                         Content="&#xE711;"

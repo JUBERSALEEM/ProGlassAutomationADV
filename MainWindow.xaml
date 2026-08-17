@@ -361,7 +361,7 @@
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Foreground"
                     Value="{DynamicResource MutedForegroundBrush}"/>
-            <Setter Property="Margin" Value="22,20,0,8"/>
+            <Setter Property="Margin" Value="20,14,0,8"/>
             <Setter Property="IsHitTestVisible" Value="False"/>
         </Style>
 
@@ -399,7 +399,7 @@
                                    FontSize="13" FontWeight="SemiBold"
                                    VerticalAlignment="Center"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    </StackPanel>
+                            </StackPanel>
                 </Border>
 
                 <!-- 4px left accent bar (visible on hover only) -->
@@ -435,6 +435,28 @@
             <Setter Property="HorizontalContentAlignment" Value="Left"/>
             <Setter Property="Template"
                     Value="{StaticResource SidebarItemTemplate}"/>
+        </Style>
+
+        <!-- Sidebar group card — each related set of options sits inside a
+             rounded card so the menu reads as grouped modules rather than a
+             flat list. The card carries the group's background + border and
+             the items keep their pill-hover look inside it. -->
+        <Style x:Key="SidebarGroupCardStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Margin" Value="10,0,10,6"/>
+            <Setter Property="Padding" Value="4,6"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <!-- Sidebar item inside a group card — tighter spacing than the
+             standalone item so the card groups them visually. -->
+        <Style x:Key="SidebarCardItemStyle" TargetType="Button"
+               BasedOn="{StaticResource SidebarItemStyle}">
+            <Setter Property="Margin" Value="6,2,6,2"/>
+            <Setter Property="Height" Value="38"/>
         </Style>
 
         <!-- ═══════════════════════════════════════════════════════════════
@@ -583,7 +605,7 @@
                                    Foreground="{DynamicResource AccentBrush}"
                                    Margin="0,-2,0,0"
                                    IsHitTestVisible="False"/>
-                    </StackPanel>
+                            </StackPanel>
                 </StackPanel>
 
                 <!-- MODULE badge -->
@@ -622,7 +644,7 @@
                                    TextTrimming="CharacterEllipsis"
                                    MaxWidth="200"
                                    IsHitTestVisible="False"/>
-                    </StackPanel>
+                            </StackPanel>
                 </Border>
 
                 <!-- Right: connectivity pill + Settings + About
@@ -680,7 +702,7 @@
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
                                        IsHitTestVisible="False"/>
-                        </StackPanel>
+                            </StackPanel>
                     </Border>
 
                     <!-- Internet connectivity — solid pill.
@@ -736,7 +758,7 @@
                                        Foreground="White"
                                        VerticalAlignment="Center"
                                        IsHitTestVisible="False"/>
-                        </StackPanel>
+                            </StackPanel>
                     </Border>
 
                     <!-- PHASE L: ProGlass Agent chat -->
@@ -757,7 +779,7 @@
                             Command="{Binding ShowAboutCommand}"
                             ToolTip="About"
                             Margin="0,0,0,0"/>
-                </StackPanel>
+                            </StackPanel>
             </Grid>
         </Border>
 
@@ -849,7 +871,7 @@
 
                     <ScrollViewer x:Name="MenuScrollViewer"
                                   Grid.Column="0"
-                                  VerticalScrollBarVisibility="Auto"
+                                  VerticalScrollBarVisibility="Hidden"
                                   HorizontalScrollBarVisibility="Disabled"
                                   CanContentScroll="False"
                                   IsDeferredScrollingEnabled="False"
@@ -858,115 +880,146 @@
                                   FocusVisualStyle="{x:Null}"
                                   behaviors:SmoothScrollBehavior.IsEnabled="True"
                                   ScrollChanged="MenuScrollViewer_ScrollChanged">
-                        <StackPanel Margin="0,20,0,20">
+                        <StackPanel Margin="0,16,0,16">
+                        <TextBlock Text="MAIN"
+                                   Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                        <Border Style="{StaticResource SidebarGroupCardStyle}">
+                            <StackPanel>
+                                    <Button Style="{StaticResource SidebarCardItemStyle}"
+                                            Content="Dashboard" Tag="&#xE80F;"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="Dashboard"/>
+                            </StackPanel>
+                        </Border>
 
-                            <TextBlock Text="MAIN"
-                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                            <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Dashboard" Tag="&#xE80F;"
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="Dashboard"/>
+                        <TextBlock Text="INVENTORY"
+                                   Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                        <Border Style="{StaticResource SidebarGroupCardStyle}">
+                            <StackPanel>
+                                    <Button Style="{StaticResource SidebarCardItemStyle}"
+                                            Content="Sheet Store" Tag="&#xE7B8;"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="SheetStore"/>
+                            </StackPanel>
+                        </Border>
 
-                            <TextBlock Text="INVENTORY"
-                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                            <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Sheet Store" Tag="&#xE7B8;"
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="SheetStore"/>
+                        <TextBlock Text="SALES"
+                                   Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                        <Border Style="{StaticResource SidebarGroupCardStyle}">
+                            <StackPanel>
+                                    <Button Style="{StaticResource SidebarCardItemStyle}"
+                                            Content="Proforma Invoice" Tag="&#xE8A5;"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="ProformaInvoice"/>
+                                    <Button Style="{StaticResource SidebarCardItemStyle}"
+                                            Content="Job Order" Tag="&#xE8C8;"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="JobOrder"/>
+                            </StackPanel>
+                        </Border>
 
-                            <TextBlock Text="SALES"
-                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                            <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Proforma Invoice" Tag="&#xE8A5;"
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="ProformaInvoice"/>
-                            <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Job Order" Tag="&#xE8C8;"
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="JobOrder"/>
+                        <TextBlock Text="PRODUCTION"
+                                   Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                        <Border Style="{StaticResource SidebarGroupCardStyle}">
+                            <StackPanel>
+                                    <Button Style="{StaticResource SidebarCardItemStyle}"
+                                            Content="Optimization" Tag="&#xE713;"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="Optimization"/>
+                                    <Button Style="{StaticResource SidebarCardItemStyle}"
+                                            Content="Cutting" Tag="&#xE8C6;"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="Cutting"/>
+                                    <Button Style="{StaticResource SidebarCardItemStyle}"
+                                            Content="Holes &amp; Cutouts" Tag="&#xE71D;"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="HolesCutouts"/>
+                                    <Button Style="{StaticResource SidebarCardItemStyle}"
+                                            Content="Polish" Tag="&#xE895;"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="Polish"/>
+                                    <Button Style="{StaticResource SidebarCardItemStyle}"
+                                            Content="Edge Deletion" Tag="&#xE774;"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="EdgeDeletion"/>
+                                    <Button Style="{StaticResource SidebarCardItemStyle}"
+                                            Content="Mitring" Tag="&#xE7E8;"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="Mitring"/>
+                                    <Button Style="{StaticResource SidebarCardItemStyle}"
+                                            Content="Tempering" Tag="&#xE728;"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="Tempering"/>
+                                    <Button Style="{StaticResource SidebarCardItemStyle}"
+                                            Content="Pairing" Tag="&#xE71B;"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="Pairing"/>
+                                    <Button Style="{StaticResource SidebarCardItemStyle}"
+                                            Content="Doubling / Lamination" Tag="&#xE81C;"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="DoublingLamination"/>
+                            </StackPanel>
+                        </Border>
 
-                            <TextBlock Text="PRODUCTION"
-                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                            <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Optimization" Tag="&#xE713;"
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="Optimization"/>
-                            <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Cutting" Tag="&#xE8C6;"
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="Cutting"/>
-                            <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Holes &amp; Cutouts" Tag="&#xE71D;"
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="HolesCutouts"/>
-                            <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Polish" Tag="&#xE895;"
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="Polish"/>
-                            <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Edge Deletion" Tag="&#xE774;"
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="EdgeDeletion"/>
-                            <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Mitring" Tag="&#xE7E8;"
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="Mitring"/>
-                            <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Tempering" Tag="&#xE728;"
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="Tempering"/>
-                            <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Pairing" Tag="&#xE71B;"
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="Pairing"/>
-                            <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Doubling / Lamination" Tag="&#xE81C;"
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="DoublingLamination"/>
+                        <TextBlock Text="DISPATCH"
+                                   Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                        <Border Style="{StaticResource SidebarGroupCardStyle}">
+                            <StackPanel>
+                                    <Button Style="{StaticResource SidebarCardItemStyle}"
+                                            Content="Delivery Note" Tag="&#xE7F4;"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="DeliveryNote"/>
+                                    <Button Style="{StaticResource SidebarCardItemStyle}"
+                                            Content="Tax Invoice" Tag="&#xE7BF;"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="TaxInvoice"/>
+                            </StackPanel>
+                        </Border>
 
-                            <TextBlock Text="DISPATCH"
-                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                            <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Delivery Note" Tag="&#xE7F4;"
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="DeliveryNote"/>
-                            <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Tax Invoice" Tag="&#xE7BF;"
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="TaxInvoice"/>
+                        <TextBlock Text="REPORTS"
+                                   Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                        <Border Style="{StaticResource SidebarGroupCardStyle}">
+                            <StackPanel>
+                                    <Button Style="{StaticResource SidebarCardItemStyle}"
+                                            Content="Sales Report" Tag="&#xE9F9;"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="SalesReport"/>
+                                    <Button Style="{StaticResource SidebarCardItemStyle}"
+                                            Content="Job Profitability" Tag="&#xE7BF;"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="JobProfitability"/>
+                            </StackPanel>
+                        </Border>
 
-                            <TextBlock Text="REPORTS"
-                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                            <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Sales Report" Tag="&#xE9F9;"
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="SalesReport"/>
+                        <TextBlock Text="MASTER DATA"
+                                   Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                        <Border Style="{StaticResource SidebarGroupCardStyle}">
+                            <StackPanel>
+                                    <Button Style="{StaticResource SidebarCardItemStyle}"
+                                            Content="Company Center" Tag="&#xE822;"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="CompanyCenter"/>
+                                    <Button Style="{StaticResource SidebarCardItemStyle}"
+                                            Content="User Center" Tag="&#xE716;"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="UserCenter"/>
+                            </StackPanel>
+                        </Border>
 
-                            <TextBlock Text="MASTER DATA"
-                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                            <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Company Center" Tag="&#xE822;"
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="CompanyCenter"/>
-                            <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="User Center" Tag="&#xE716;"
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="UserCenter"/>
-                            <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Job Profitability" Tag="&#xE7BF;"
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="JobProfitability"/>
-
-                            <TextBlock Text="SYSTEM"
-                                       Style="{StaticResource SidebarGroupHeaderStyle}"/>
-                            <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="System Center" Tag="&#xE713;"
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="SystemCenter"/>
-                            <Button Style="{StaticResource SidebarItemStyle}"
-                                    Content="Logs &amp; Activity" Tag="&#xE81C;"
-                                    Command="{Binding NavigateCommand}"
-                                    CommandParameter="Diagnostics"/>
+                        <TextBlock Text="SYSTEM"
+                                   Style="{StaticResource SidebarGroupHeaderStyle}"/>
+                        <Border Style="{StaticResource SidebarGroupCardStyle}">
+                            <StackPanel>
+                                    <Button Style="{StaticResource SidebarCardItemStyle}"
+                                            Content="System Center" Tag="&#xE713;"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="SystemCenter"/>
+                                    <Button Style="{StaticResource SidebarCardItemStyle}"
+                                            Content="Logs &amp; Activity" Tag="&#xE81C;"
+                                            Command="{Binding NavigateCommand}"
+                                            CommandParameter="Diagnostics"/>
+                            </StackPanel>
+                        </Border>
 
                         </StackPanel>
                     </ScrollViewer>
