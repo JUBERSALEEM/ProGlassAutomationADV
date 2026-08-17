@@ -367,6 +367,32 @@ and testable.
 
 ---
 
+## Fastest wins / execution progress
+
+### Phase 0 — accent identity fix: **COMPLETE** ✅
+
+Implemented in commits `2192e4b` → `cc2b0b6`. The entire hardcoded indigo
+accent family (`#4338CA` accent, `#6366F1` hover, `#3730A3` dark) has been
+removed from **all executable XAML across the whole app** (29+ document-module
+views; only harmless doc comments remain):
+
+- **Brush** properties (`Background`/`BorderBrush`/`Foreground`/`SelectionBrush`/`Fill`)
+  now use `{DynamicResource AccentBrush}` / `AccentHoverBrush` / `AccentDarkBrush`.
+- **Color**-typed properties (gradient stops, `GradientStartColor`,
+  `DropShadowEffect.Color`) now use the new theme `Color` resources
+  `AccentColor` / `AccentHoverColor` / `AccentDarkColor`, added to Light+Dark
+  themes and published by `ThemeManager.ApplyAccent` so they follow the
+  effective accent (custom + Monet) and light/dark swaps.
+
+Result: the document modules now render with the theme's blue accent and flip
+correctly across Light/Dark and the Monet/Professional families.
+
+**Not migrated (deliberate):** Splash + Login are an intentional dark-brand
+surface using the blue family (not the indigo family) — left as designed.
+Runtime visual verification on Windows across all themes is still required.
+
+---
+
 ## Part 6 — Fastest wins (smallest change, biggest visual payoff)
 
 1. **Fix the accent token** (Phase 0) — single central change that makes
