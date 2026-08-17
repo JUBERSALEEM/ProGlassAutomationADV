@@ -287,9 +287,50 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Attachments
         /// <summary>Shared file-name sanitizer (same rule as DN service).</summary>
         private static string SanitizeName(string name)
         {
+            // S-8: hardened against path traversal.
+            //
+            // The previous rule replaced Path.GetInvalidFileNameChars() only.
+            // '.' is NOT in that set, so ".." passed through untouched. This
+            // matters because the value is used as a PATH SEGMENT
+            // (Path.Combine(_rootFolder, SanitizeName(proformaId))), and
+            // Path.Combine happily resolves "..", so a Proforma ID of ".."
+            // or "..\..\x" walked out of the attachments folder. The only
+            // validation on Proforma ID is a non-empty check, so the value
+            // is effectively free text from the Step 1 TextBox.
+            //
+            // Rules, in order:
+            //   1. null/blank -> a safe constant, never an empty segment.
+            //   2. strip directory separators and invalid chars.
+            //   3. reject a segment that is entirely dots ("." / ".." / ...).
+            //   4. cap length so a long name cannot break MAX_PATH.
+            if (string.IsNullOrWhiteSpace(name))
+                return "_";
+
             var invalid = Path.GetInvalidFileNameChars();
-            var chars = name.Select(c => invalid.Contains(c) ? '_' : c).ToArray();
-            return new string(chars);
+            var chars = name
+                .Select(c => invalid.Contains(c)
+                             || c == Path.DirectorySeparatorChar
+                             || c == Path.AltDirectorySeparatorChar
+                    ? '_'
+                    : c)
+                .ToArray();
+
+            string safe = new string(chars).Trim();
+
+            // "." and ".." are valid filenames to the char filter but are
+            // directory navigation to Path.Combine. Anything that is only
+            // dots is replaced outright rather than trimmed, so "..." cannot
+            // degrade into "." either.
+            if (safe.Length == 0 || safe.All(c => c == '.'))
+                return "_";
+
+            // Trailing dots and spaces are silently dropped by Windows,
+            // which would make two distinct IDs collide on one folder.
+            safe = safe.TrimEnd('.', ' ');
+            if (safe.Length == 0) return "_";
+
+            const int MaxSegment = 120;
+            return safe.Length <= MaxSegment ? safe : safe[..MaxSegment];
         }
 
         /// <summary>Collision-safe path with a fast GUID fallback.</summary>
