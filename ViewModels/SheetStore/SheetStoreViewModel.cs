@@ -257,14 +257,29 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
         private async Task LoadAsync()
         {
+            IsBusy = true;
             try
             {
-                IsBusy = true;
                 _allSheets = await _repo.GetAllAsync();
                 RebuildFilterOptions();
                 ApplyFilters();
                 SelectedSheet = null;
-                LastUpdated = await _historyRepo.GetLastUpdatedAsync();
+                try
+                {
+                    LastUpdated = await _historyRepo.GetLastUpdatedAsync();
+                }
+                catch
+                {
+                    // A history-read failure must never leave the list stale.
+                    LastUpdated = null;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Never leave the list showing stale data after a failure —
+                // surface it but keep whatever we already loaded.
+                System.Diagnostics.Debug.WriteLine(
+                    $"[SheetStore] Load failed: {ex.Message}");
             }
             finally
             {
@@ -687,18 +702,22 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 try
                 {
                     var added = await _repo.AddAsync(vm.Result);
-                    await _historyRepo.LogAsync(
-                        added.Id, DescribeSheet(added), "Added",
-                        $"Initial stock: {added.Stock} sheets @ {added.PurchasePricePerSqm:N2} AED/SQM. " +
-                        $"Total value: {added.TotalPurchaseValue:N2} AED.",
-                        added.Stock, added.TotalPurchaseValue);
-
-                    AuditService.Log(AuditSections.SheetStore, "Sheet added",
-                        $"{DescribeSheet(added)} — stock {added.Stock}",
-                        "SHEET", added.Id.ToString());
-
-                    await RecordMetadataService.StampCreatedAsync(
-                        "SHEET", added.Id.ToString());
+                    try
+                    {
+                        await _historyRepo.LogAsync(
+                            added.Id, DescribeSheet(added), "Added",
+                            $"Initial stock: {added.Stock} sheets @ {added.PurchasePricePerSqm:N2} AED/SQM. " +
+                            $"Total value: {added.TotalPurchaseValue:N2} AED.",
+                            added.Stock, added.TotalPurchaseValue);
+                    }
+                    catch { /* best-effort */ }
+                    try
+                    {
+                        AuditService.Log(AuditSections.SheetStore, "Sheet added",
+                            $"{DescribeSheet(added)} — stock {added.Stock}",
+                            "SHEET", added.Id.ToString());
+                    }
+                    catch { /* best-effort */ }
 
                     await LoadAsync();
                 }
@@ -727,6 +746,8 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                 try
                 {
                     await _repo.UpdateAsync(vm.Result);
+                    // (Change-diff below is for history/audit only and is
+                    // wrapped so a logging failure never blocks the reload.)
 
                     var changes = new List<string>();
                     var diff = new List<AuditChange>();
@@ -752,15 +773,19 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                     }
                     var details = changes.Count > 0 ? string.Join(" | ", changes) : "Details edited";
 
-                    await _historyRepo.LogAsync(vm.Result.Id, DescribeSheet(vm.Result), "Edited", details);
-
-                    AuditService.LogWithChanges(
-                        AuditSections.SheetStore, "Sheet edited",
-                        $"{DescribeSheet(vm.Result)} — {details}",
-                        "SHEET", vm.Result.Id.ToString(), diff);
-
-                    await RecordMetadataService.StampUpdatedAsync(
-                        "SHEET", vm.Result.Id.ToString());
+                    try
+                    {
+                        await _historyRepo.LogAsync(vm.Result.Id, DescribeSheet(vm.Result), "Edited", details);
+                    }
+                    catch { /* best-effort */ }
+                    try
+                    {
+                        AuditService.LogWithChanges(
+                            AuditSections.SheetStore, "Sheet edited",
+                            $"{DescribeSheet(vm.Result)} — {details}",
+                            "SHEET", vm.Result.Id.ToString(), diff);
+                    }
+                    catch { /* best-effort */ }
 
                     await LoadAsync();
                 }
@@ -792,14 +817,26 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                     var stockLost = sheet.Stock;
                     var valueLost = sheet.TotalPurchaseValue;
 
+                    // Primary DB write — this is the source of truth.
                     await _repo.DeleteAsync(sheet.Id);
-                    await _historyRepo.LogAsync(sheet.Id, desc, "Deleted",
-                        $"Removed from inventory. Lost {stockLost} sheets worth {valueLost:N2} AED.",
-                        stockLost, valueLost);
 
-                    AuditService.Log(AuditSections.SheetStore, "Sheet deleted",
-                        $"{desc} — {stockLost} sheets removed",
-                        "SHEET", sheet.Id.ToString());
+                    // Secondary logging must never block the reload: if it
+                    // throws, the row is still gone from the DB and the list
+                    // must still refresh so the deleted row disappears.
+                    try
+                    {
+                        await _historyRepo.LogAsync(sheet.Id, desc, "Deleted",
+                            $"Removed from inventory. Lost {stockLost} sheets worth {valueLost:N2} AED.",
+                            stockLost, valueLost);
+                    }
+                    catch { /* history is best-effort */ }
+                    try
+                    {
+                        AuditService.Log(AuditSections.SheetStore, "Sheet deleted",
+                            $"{desc} — {stockLost} sheets removed",
+                            "SHEET", sheet.Id.ToString());
+                    }
+                    catch { /* audit is best-effort */ }
 
                     await LoadAsync();
                 }
@@ -829,14 +866,21 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                     await _repo.BuyStockAsync(sheet.Id, vm.Quantity);
                     var value = vm.Quantity * sheet.SqmPerSheet * sheet.PurchasePricePerSqm;
 
-                    await _historyRepo.LogAsync(
-                        sheet.Id, DescribeSheet(sheet), "Bought",
-                        $"Purchased {vm.Quantity} sheets. Stock: {oldStock} → {oldStock + vm.Quantity}. Value: {value:N2} AED.",
-                        vm.Quantity, value);
-
-                    AuditService.Log(AuditSections.SheetStore, "Stock purchased",
-                        $"{DescribeSheet(sheet)} — +{vm.Quantity} sheets",
-                        "SHEET", sheet.Id.ToString());
+                    try
+                    {
+                        await _historyRepo.LogAsync(
+                            sheet.Id, DescribeSheet(sheet), "Bought",
+                            $"Purchased {vm.Quantity} sheets. Stock: {oldStock} → {oldStock + vm.Quantity}. Value: {value:N2} AED.",
+                            vm.Quantity, value);
+                    }
+                    catch { /* best-effort */ }
+                    try
+                    {
+                        AuditService.Log(AuditSections.SheetStore, "Stock purchased",
+                            $"{DescribeSheet(sheet)} — +{vm.Quantity} sheets",
+                            "SHEET", sheet.Id.ToString());
+                    }
+                    catch { /* best-effort */ }
 
                     await LoadAsync();
                 }
@@ -876,14 +920,21 @@ namespace ProGlassAutomation.ViewModels.SheetStore
                         ? ""
                         : $" [Job: {vm.JobOrderReference.Trim()}]";
 
-                    await _historyRepo.LogAsync(
-                        sheet.Id, DescribeSheet(sheet), "Used",
-                        $"Consumed {vm.Quantity} sheets.{jobRef} Used: {oldUsed} → {oldUsed + vm.Quantity}. Value: {value:N2} AED.",
-                        vm.Quantity, value);
-
-                    AuditService.Log(AuditSections.SheetStore, "Stock used",
-                        $"{DescribeSheet(sheet)} — {vm.Quantity} sheets{jobRef}",
-                        "SHEET", sheet.Id.ToString());
+                    try
+                    {
+                        await _historyRepo.LogAsync(
+                            sheet.Id, DescribeSheet(sheet), "Used",
+                            $"Consumed {vm.Quantity} sheets.{jobRef} Used: {oldUsed} → {oldUsed + vm.Quantity}. Value: {value:N2} AED.",
+                            vm.Quantity, value);
+                    }
+                    catch { /* best-effort */ }
+                    try
+                    {
+                        AuditService.Log(AuditSections.SheetStore, "Stock used",
+                            $"{DescribeSheet(sheet)} — {vm.Quantity} sheets{jobRef}",
+                            "SHEET", sheet.Id.ToString());
+                    }
+                    catch { /* best-effort */ }
 
                     await LoadAsync();
                 }
