@@ -90,6 +90,15 @@ namespace ProGlassAutomation.Views.Login
             Close();
         }
 
+        private void ForgotPassword_Click(object sender, RoutedEventArgs e)
+        {
+            var reset = new ResetPasswordWindow { Owner = this };
+            reset.ShowDialog();
+            // After a successful reset the user can sign in with the new
+            // password — the sign-in fields are left intact for them.
+            PasswordBox.Focus();
+        }
+
         private async Task TrySignInAsync()
         {
             string username = UsernameBox.Text?.Trim() ?? "";

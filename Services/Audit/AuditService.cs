@@ -579,6 +579,82 @@ namespace ProGlassAutomation.Services.Audit
         }
 
         /// <summary>
+        /// PHASE 13 / forgot-password: an active Administrator resets another
+        /// user's (or their own) password after proving the administrator's
+        /// password. Used by the login screen's "Forgot password?" flow.
+        ///
+        /// This is the honest recovery path for a local, offline app: there is
+        /// no email to mail a reset link to, so the gate is the local
+        /// administrator's live credential. The reset also clears any
+        /// persisted lockout state on the target account.
+        /// </summary>
+        public static async Task<(bool Success, string Error)>
+            AdminResetPasswordAsync(
+                string adminUsername,
+                string adminPassword,
+                string targetUsername,
+                string newPassword,
+                string reason = "")
+        {
+            try
+            {
+                adminUsername = (adminUsername ?? "").Trim();
+                targetUsername = (targetUsername ?? "").Trim();
+
+                if ((newPassword ?? "").Length <
+                    ProGlassAutomation.Services.Security.PasswordHasher.MinLength)
+                    return (false,
+                        $"Password must be at least " +
+                        $"{ProGlassAutomation.Services.Security.PasswordHasher.MinLength} characters.");
+
+                using var db = new AuditDbContext();
+
+                var admin = await db.Users
+                    .FirstOrDefaultAsync(u => u.Username == adminUsername);
+                if (admin == null || !admin.IsActive)
+                    return (false, "Administrator account not found or inactive.");
+
+                // Accept both role spellings ("Administrator" seeded default
+                // and "Admin" used by the user-management UI).
+                if (admin.Role != AppRoles.Administrator &&
+                    admin.Role != "Admin")
+                    return (false, "Only an Administrator can reset a password.");
+
+                if (!VerifyPassword(admin, adminPassword ?? ""))
+                    return (false, "Administrator password is incorrect.");
+
+                var target = await db.Users
+                    .FirstOrDefaultAsync(u => u.Username == targetUsername);
+                if (target == null)
+                    return (false, $"User '{targetUsername}' not found.");
+                if (!target.IsActive)
+                    return (false, "That user is deactivated.");
+
+                target.PasswordHash =
+                    Security.PasswordHasher.Hash(newPassword ?? "");
+                target.FailedAttemptCount = 0;
+                target.LockedUntilUtc = null;
+                await db.SaveChangesAsync();
+
+                Log(AuditSections.Users, "Password reset",
+                    $"Password reset for {target.DisplayName} " +
+                    $"({target.Username}) by {admin.DisplayName}",
+                    "USER", target.Username, reason);
+
+                // Keep the in-memory copy consistent when the active user's
+                // own password is reset by another admin.
+                if (_currentUser != null && _currentUser.Id == target.Id)
+                    _currentUser.PasswordHash = target.PasswordHash;
+
+                return (true, "");
+            }
+            catch (Exception ex)
+            {
+                return (false, $"Could not reset password: {ex.Message}");
+            }
+        }
+
+        /// <summary>
         /// A-3: true when <paramref name="username"/> still authenticates
         /// with the seeded default password. Used to warn the operator.
         ///

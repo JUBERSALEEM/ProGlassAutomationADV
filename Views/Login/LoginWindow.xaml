@@ -17,28 +17,46 @@
 
     <Window.Resources>
 
-        <!-- ── Full-bleed brand background, THEME-DRIVEN ──────────────────
-             Built from the accent colour resources that ThemeManager swaps,
-             so it follows Light/Dark and the Monet/Professional families
-             instead of hardcoding a single blue. -->
-        <LinearGradientBrush x:Key="LoginBrandGradient" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="0.0"/>
-            <GradientStop Color="{DynamicResource AccentColor}" Offset="0.62"/>
-            <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1.0"/>
+        <!-- ── Full-bleed brand background: stylish BLURRED BLUE (deliberate
+             design override from the theme-driven gradient to a smooth,
+             fluid blue backdrop). Decorative orbs are blurred in markup so
+             the stage feels soft and premium regardless of theme. -->
+        <LinearGradientBrush x:Key="LoginBlueBase" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#081426" Offset="0.0"/>
+            <GradientStop Color="#0C2A6B" Offset="0.34"/>
+            <GradientStop Color="#1D4ED8" Offset="0.70"/>
+            <GradientStop Color="#3B82F6" Offset="1.0"/>
         </LinearGradientBrush>
 
-        <!-- Soft glow behind the card for depth (accent-driven, faint). -->
-        <RadialGradientBrush x:Key="LoginGlow"
-                             GradientOrigin="0.5,0.42" Center="0.5,0.42"
-                             RadiusX="0.55" RadiusY="0.55">
-            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0.0"/>
-            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0.6" />
-            <GradientStop Color="{DynamicResource AccentColor}" Offset="1.0"/>
+        <!-- Soft blurred "orb" used for the floating glow shapes behind the
+             card. Fades to transparent so blurring is smooth and fluid. -->
+        <RadialGradientBrush x:Key="LoginOrb"
+                             Center="0.5,0.5" RadiusX="0.5" RadiusY="0.5">
+            <GradientStop Color="#9CC4FF" Offset="0.0"/>
+            <GradientStop Color="#6699FF" Offset="0.55"/>
+            <GradientStop Color="#006699FF" Offset="1.0"/>
         </RadialGradientBrush>
 
         <DropShadowEffect x:Key="LoginCardShadow" po:Freeze="True"
-                          BlurRadius="36" ShadowDepth="10"
-                          Direction="270" Opacity="0.30" Color="#050A14"/>
+                          BlurRadius="42" ShadowDepth="14"
+                          Direction="270" Opacity="0.38" Color="#020A1C"/>
+
+        <!-- Phase 9/UI — the login card is a light frosted-glass surface on
+             the blue stage. These window-scope overrides pin its text and
+             input chrome to a fixed dark-on-light scheme so it stays
+             readable in BOTH the Light and Dark app themes. -->
+        <SolidColorBrush x:Key="PrimaryForegroundBrush" Color="#14213D"/>
+        <SolidColorBrush x:Key="SecondaryForegroundBrush" Color="#33415C"/>
+        <SolidColorBrush x:Key="MutedForegroundBrush" Color="#5B6B86"/>
+        <SolidColorBrush x:Key="OnAccentForegroundBrush" Color="#FFFFFF"/>
+        <SolidColorBrush x:Key="WindowBackgroundBrush" Color="#EAF2FB"/>
+        <SolidColorBrush x:Key="OutlineBrush" Color="#263B82"/>
+        <SolidColorBrush x:Key="MenuHoverBrush" Color="#0A1D4ED8"/>
+        <SolidColorBrush x:Key="AccentBrush" Color="#1D4ED8"/>
+        <SolidColorBrush x:Key="AccentHoverBrush" Color="#2563EB"/>
+        <SolidColorBrush x:Key="AccentDarkBrush" Color="#1E40AF"/>
+        <SolidColorBrush x:Key="DangerBrush" Color="#DC2626"/>
+        <SolidColorBrush x:Key="WarningBrush" Color="#D97706"/>
 
         <!-- ── Form field label ─────────────────────────────────────────── -->
         <Style x:Key="FieldLabel" TargetType="TextBlock">
@@ -220,19 +238,44 @@
     <!-- Full-bleed branded stage with ONE centered floating card. Everything
          lives inside the card (vertical StackPanel), so nothing can overlap;
          the card scrolls on very short windows instead of clipping. -->
-    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+    <Grid Background="{StaticResource LoginBlueBase}">
 
-        <!-- Full-bleed theme-driven brand background -->
-        <Rectangle Fill="{StaticResource LoginBrandGradient}"/>
-        <Rectangle Fill="{StaticResource LoginGlow}" Opacity="0.35" IsHitTestVisible="False"/>
+        <!-- Full-bleed blurred-blue stage: a few large soft orbs floating
+             behind the card give depth without hard edges. -->
+        <Ellipse Width="640" Height="640"
+                 Fill="{StaticResource LoginOrb}"
+                 HorizontalAlignment="Left" VerticalAlignment="Top"
+                 Margin="-190,-190,0,0">
+            <Ellipse.Effect>
+                <BlurEffect Radius="95"/>
+            </Ellipse.Effect>
+        </Ellipse>
 
-        <Border Width="420"
+        <Ellipse Width="760" Height="760"
+                 Fill="{StaticResource LoginOrb}"
+                 HorizontalAlignment="Right" VerticalAlignment="Bottom"
+                 Margin="0,0,-240,-240" Opacity="0.85">
+            <Ellipse.Effect>
+                <BlurEffect Radius="120"/>
+            </Ellipse.Effect>
+        </Ellipse>
+
+        <Ellipse Width="460" Height="460"
+                 Fill="{StaticResource LoginOrb}"
+                 HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                 Margin="0,0,0,-170" Opacity="0.5">
+            <Ellipse.Effect>
+                <BlurEffect Radius="85"/>
+            </Ellipse.Effect>
+        </Ellipse>
+
+        <Border Width="430"
                 HorizontalAlignment="Center"
                 VerticalAlignment="Center"
-                CornerRadius="22"
-                Background="{DynamicResource ModuleBackgroundBrush}"
-                BorderBrush="{DynamicResource OutlineBrush}"
-                BorderThickness="{DynamicResource CardBorderThickness}"
+                CornerRadius="24"
+                Background="#EDF7FFFF"
+                BorderBrush="#4DFFFFFF"
+                BorderThickness="1"
                 Effect="{StaticResource LoginCardShadow}"
                 SnapsToDevicePixels="True">
 
@@ -347,6 +390,36 @@
                             Margin="0,22,0,0"
                             Style="{StaticResource SignInButtonStyle}"
                             Click="SignIn_Click"/>
+
+                    <!-- Forgot / reset password (admin-mediated reset). -->
+                    <Button x:Name="ForgotPasswordButton"
+                            Content="Forgot password?"
+                            Height="30"
+                            Margin="0,6,0,0"
+                            HorizontalAlignment="Center"
+                            Click="ForgotPassword_Click">
+                        <Button.Style>
+                            <Style TargetType="Button">
+                                <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Setter Property="BorderThickness" Value="0"/>
+                                <Setter Property="Cursor" Value="Hand"/>
+                                <Setter Property="FontSize" Value="11.5"/>
+                                <Setter Property="Template">
+                                    <Setter.Value>
+                                        <ControlTemplate TargetType="Button">
+                                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                        </ControlTemplate>
+                                    </Setter.Value>
+                                </Setter>
+                                <Style.Triggers>
+                                    <Trigger Property="IsMouseOver" Value="True">
+                                        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                    </Trigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Button.Style>
+                    </Button>
 
                     <Button x:Name="ExitButton"
                             Content="Exit"
