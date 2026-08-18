@@ -45,6 +45,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Commands;
+using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.ProformaInvoice;
 using ProGlassAutomation.ViewModels.ProformaInvoice.Step4PricingEstimator.DguLamParameters;
@@ -1252,7 +1253,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
                         if (spacerPrice > 0m)
                         {
-                            int spacerMm = ParseInt(spacerMatch.Groups["mm"].Value);
+                            int spacerMm = TextParsing.ParseInt(spacerMatch.Groups["mm"].Value);
                             decimal spacerAmount = Math.Round(cutSqm * spacerPrice, 2);
 
                             spacerInsertAt = AddLayerRow(new ProfitLossRow
@@ -1348,7 +1349,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                         if (spacerPrice > 0m && cutSqm > 0m)
                         {
                             int spacerMm = spacerDetected
-                                ? ParseInt(spacerMatch.Groups["mm"].Value)
+                                ? TextParsing.ParseInt(spacerMatch.Groups["mm"].Value)
                                 : 0;
 
                             decimal amount = Math.Round(cutSqm * spacerPrice, 2);
@@ -1755,7 +1756,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         {
             int specNumber = group.GroupNumber;
 
-            int thicknessMm = ParseInt(glassMatch.Groups["thk"].Value);
+            int thicknessMm = TextParsing.ParseInt(glassMatch.Groups["thk"].Value);
             string color = (glassMatch.Groups["color"].Value ?? "").Trim();
 
             if (thicknessMm <= 0 || color.Length == 0) return null;
@@ -1888,14 +1889,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             };
         }
 
-        private static int ParseInt(string? text) =>
-            int.TryParse(
-                (text ?? "").Trim(),
-                NumberStyles.Integer,
-                CultureInfo.InvariantCulture,
-                out int value)
-                ? value
-                : 0;
 
         // ══════════════════════════════════════════════════════════════
         //  PERSISTENCE

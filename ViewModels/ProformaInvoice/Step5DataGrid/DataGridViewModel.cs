@@ -416,34 +416,34 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                         break;
 
                     case GridColumnIndex.W1:
-                        if (int.TryParse(CleanNum(kv.Value), out int w1))
+                        if (int.TryParse(TextParsing.CleanNum(kv.Value), out int w1))
                             _w1 = w1;
                         break;
 
                     case GridColumnIndex.H1:
-                        if (int.TryParse(CleanNum(kv.Value), out int h1))
+                        if (int.TryParse(TextParsing.CleanNum(kv.Value), out int h1))
                             _h1 = h1;
                         break;
 
                     case GridColumnIndex.W2:
-                        if (int.TryParse(CleanNum(kv.Value), out int w2))
+                        if (int.TryParse(TextParsing.CleanNum(kv.Value), out int w2))
                             _w2 = w2;
                         break;
 
                     case GridColumnIndex.H2:
-                        if (int.TryParse(CleanNum(kv.Value), out int h2))
+                        if (int.TryParse(TextParsing.CleanNum(kv.Value), out int h2))
                             _h2 = h2;
                         break;
 
                     case GridColumnIndex.Qty:
-                        if (int.TryParse(CleanNum(kv.Value), out int qty)
+                        if (int.TryParse(TextParsing.CleanNum(kv.Value), out int qty)
                             && qty > 0)
                             _qty = qty;
                         break;
 
                     case GridColumnIndex.Rate:
                         if (decimal.TryParse(
-                                CleanNum(kv.Value),
+                                TextParsing.CleanNum(kv.Value),
                                 System.Globalization.NumberStyles.Any,
                                 System.Globalization.CultureInfo.InvariantCulture,
                                 out decimal rate)
@@ -512,10 +512,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             OnPropertyChanged(nameof(Value));
         }
 
-        // ── Private helpers ───────────────────────────────────────────────
-
-        private static string CleanNum(string s) =>
-            s?.Trim().Replace(",", "").Replace(" ", "") ?? "0";
     }
 
     // ════════════════════════════════════════════════════════════════════════
@@ -1872,7 +1868,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             List<string[]> rawRows;
             try
             {
-                rawRows = await Task.Run(() => SplitClipboardRows(clipboardText));
+                rawRows = await Task.Run(() => TextParsing.SplitClipboardRows(clipboardText));
             }
             catch (Exception ex)
             {
@@ -1926,8 +1922,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                          i < ItemRows.Count && parsedIdx < rawRows.Count;
                          i++, parsedIdx++)
                     {
-                        var columnValues = BuildColumnValues(
-                            rawRows[parsedIdx], startColumnIndex);
+                        var columnValues = TextParsing.BuildColumnValues(
+                            rawRows[parsedIdx], startColumnIndex, GridColumnIndex.Rate);
 
                         ItemRows[i].ApplyColumnValues(
                             columnValues, factor, SurchargeRate, BaseRate);
@@ -1952,8 +1948,8 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
                         PerimeterFactor = factor
                     };
 
-                    var columnValues = BuildColumnValues(
-                        rawRows[parsedIdx], startColumnIndex);
+                    var columnValues = TextParsing.BuildColumnValues(
+                        rawRows[parsedIdx], startColumnIndex, GridColumnIndex.Rate);
 
                     row.ApplyColumnValues(
                         columnValues, factor, SurchargeRate, BaseRate);
@@ -2008,55 +2004,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid
             }
 
             await ShowToastAsync($"✓  Pasted {rawRows.Count} row(s) successfully.");
-        }
-
-        // ══════════════════════════════════════════════════════════════════
-        //  CLIPBOARD PARSING
-        // ══════════════════════════════════════════════════════════════════
-
-        private static List<string[]> SplitClipboardRows(string clipboardText)
-        {
-            var lines = clipboardText.Split(
-                new[] { "\r\n", "\r", "\n" },
-                StringSplitOptions.RemoveEmptyEntries);
-
-            var result = new List<string[]>(lines.Length);
-
-            foreach (var line in lines)
-            {
-                var parts = line.Split('\t');
-
-                bool hasContent = false;
-                foreach (var p in parts)
-                {
-                    if (!string.IsNullOrWhiteSpace(p))
-                    {
-                        hasContent = true;
-                        break;
-                    }
-                }
-
-                if (hasContent)
-                    result.Add(parts);
-            }
-
-            return result;
-        }
-
-        private static Dictionary<int, string> BuildColumnValues(
-            string[] clipboardRow,
-            int startColumnIndex)
-        {
-            var result = new Dictionary<int, string>();
-
-            for (int clipCol = 0; clipCol < clipboardRow.Length; clipCol++)
-            {
-                int gridCol = startColumnIndex + clipCol;
-                if (gridCol > GridColumnIndex.Rate) break;
-                result[gridCol] = clipboardRow[clipCol]?.Trim() ?? "";
-            }
-
-            return result;
         }
 
         // ══════════════════════════════════════════════════════════════════

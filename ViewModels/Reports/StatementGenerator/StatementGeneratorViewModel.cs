@@ -47,6 +47,7 @@ using ProGlassAutomation.Services.Statement.Aggregation;
 using ProGlassAutomation.Services.Statement.Pdf;
 using ProGlassAutomation.Services.Statement.Repository;
 using ProGlassAutomation.Services.Statement.Workflow;
+using ProGlassAutomation.Utilities;
 using ProGlassAutomation.Views.Reports.Workflow;
 using System;
 using System.Collections.Generic;
@@ -1973,10 +1974,10 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
 
         private StatementFilter BuildFilter() => new()
         {
-            CompanyName = NullIfEmpty(_filterCompany),
-            CustomerName = NullIfEmpty(_filterCustomer),
-            ProjectName = NullIfEmpty(_filterProject),
-            SalesmanName = NullIfEmpty(_filterSalesman),
+            CompanyName = TextParsing.NullIfEmpty(_filterCompany),
+            CustomerName = TextParsing.NullIfEmpty(_filterCustomer),
+            ProjectName = TextParsing.NullIfEmpty(_filterProject),
+            SalesmanName = TextParsing.NullIfEmpty(_filterSalesman),
             DateFrom = _dateFrom,
             DateTo = _dateTo,
             Statuses = StatusItems.Where(s => s.IsChecked).Select(s => s.Status).ToList(),
@@ -2012,8 +2013,6 @@ namespace ProGlassAutomation.ViewModels.Reports.StatementGenerator
             StatusMessage = "Filters cleared.";
         }
 
-        private static string? NullIfEmpty(string s) =>
-            string.IsNullOrWhiteSpace(s) ? null : s.Trim();
 
         private static string FormatFileSize(long bytes)
         {
