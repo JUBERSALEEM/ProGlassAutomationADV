@@ -21,9 +21,18 @@
 | 8 — Design system (P2) | Added shared `InputStyles.xaml` (TextBox/PasswordBox/ComboBox), registered globally | `b5c0302` | ✅ |
 | 14 — Orphan protection | Added `DependencyGuard` (cross-DB delete guards for PI/JO/DN), wired into delete flows | `8216476` | ✅ (build pending) |
 | 15 — Testing | Added `SqmCalculatorTests`, `StatusTransitionsTests`, `TaxInvoiceDnReconcilerTests` | `4d617ee`, `ee0bdf9`, `…` | ✅ (run pending) |
-| 10 (additive) | Added SQL-side filtered/sorted/paged `SheetStoreRepository.SearchAsync` (no behavior change to existing flows) | `…` | ✅ (build verified) |
+| 10 (additive) | Added SQL-side filtered/sorted/paged `SheetStoreRepository.SearchAsync` (no behavior change to existing flows) | `5d913af` | ✅ (build verified) |
+| 5/11 (calc) | Centralized physical panel area in Step 9 P&L via `SqmCalculator.CalculatePhysicalPanelArea` + tests | `6698abe` | ✅ (build verified) |
+| 8/9 (design) | Added shared `DialogStyles.xaml` (dialog card/footer/title primitives) | `e7c656b` | ✅ (build verified) |
 
 **Build status (2026-08-18):** user confirmed `dotnet build` succeeds with no errors on Windows.
+
+**Remaining (requires Windows build + business sign-off):**
+- Phase 9 remainder — rewiring the ~30 views to the design system (module-specific input chrome like Login's glyph-prefixed fields is intentionally kept per the prompt).
+- Phase 10 remainder — adopting `SearchAsync` in the Sheet Store VM (behavior change; the import duplicate-detection relies on the full `_allSheets`, so it needs careful build-tested rework).
+- Phase 11/12 remainder — splitting the large God ViewModels (DataGrid 2225, DeliveryNoteDetail 2134, etc.) incrementally.
+- Phase 13 remainder — force-first-run-password-change + persisted login lockout (behavior-changing; needs migration strategy + sign-off).
+- Phases 16–20 — final QA/re-audit + Release verdict (needs `dotnet test` + runtime verification on Windows).
 
 ---
 
