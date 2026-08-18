@@ -1,9 +1,11 @@
-﻿using ProGlassAutomation.Models.SheetStore;
+using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.ViewModels.SheetStore;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
+using System.Windows.Media.Animation;
 
 namespace ProGlassAutomation.Views.SheetStore
 {
@@ -14,6 +16,54 @@ namespace ProGlassAutomation.Views.SheetStore
         public SheetStoreView()
         {
             InitializeComponent();
+            DataContextChanged += (_, _) => SubscribeToVm();
+        }
+
+        private SheetStoreViewModel? _vm;
+
+        private void SubscribeToVm()
+        {
+            if (_vm != null)
+                _vm.PropertyChanged -= OnVmPropertyChanged;
+
+            _vm = DataContext as SheetStoreViewModel;
+            if (_vm != null)
+                _vm.PropertyChanged += OnVmPropertyChanged;
+        }
+
+        private void OnVmPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName != nameof(SheetStoreViewModel.IsRowSelected)) return;
+            if (DetailPanel == null) return;
+
+            if (_vm?.IsRowSelected == true)
+            {
+                DetailPanel.Visibility = Visibility.Visible;
+                PanelSlide.BeginAnimation(
+                    TranslateTransform.XProperty,
+                    new DoubleAnimation(360, 0, TimeSpan.FromMilliseconds(220))
+                    {
+                        EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
+                    });
+            }
+            else
+            {
+                PanelSlide.BeginAnimation(
+                    TranslateTransform.XProperty,
+                    new DoubleAnimation(360, TimeSpan.FromMilliseconds(180)));
+                // Delay collapse until the slide-out finishes.
+                var timer = new System.Windows.Threading.DispatcherTimer
+                {
+                    Interval = TimeSpan.FromMilliseconds(200)
+                };
+                timer.Tick += (_, _) =>
+                {
+                    timer.Stop();
+                    if (_vm?.IsRowSelected != true)
+                        DetailPanel.Visibility = Visibility.Collapsed;
+                };
+                timer.Start();
+            }
         }
 
         private void Row_Click(object sender, MouseButtonEventArgs e)

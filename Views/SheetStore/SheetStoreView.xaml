@@ -435,33 +435,10 @@
             </Grid>
 
             <!-- ══ RIGHT SLIDE-IN DETAIL / STATS PANEL ══ -->
-            <Grid Grid.Column="1" Margin="16,0,0,0">
+            <Grid x:Name="DetailPanel" Grid.Column="1" Margin="16,0,0,0">
                 <Grid.RenderTransform>
                     <TranslateTransform x:Name="PanelSlide" X="360"/>
                 </Grid.RenderTransform>
-                <Grid.Style>
-                    <Style TargetType="Grid">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding IsRowSelected}" Value="True">
-                                <Setter Property="Visibility" Value="Visible"/>
-                                <DataTrigger.EnterActions>
-                                    <BeginStoryboard>
-                                        <Storyboard>
-                                            <DoubleAnimation Storyboard.TargetName="PanelSlide"
-                                                             Storyboard.TargetProperty="X"
-                                                             From="360" To="0" Duration="0:0:0.22">
-                                                <DoubleAnimation.EasingFunction>
-                                                    <CubicEase EasingMode="EaseOut"/>
-                                                </DoubleAnimation.EasingFunction>
-                                            </DoubleAnimation>
-                                        </Storyboard>
-                                    </BeginStoryboard>
-                                </DataTrigger.EnterActions>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Grid.Style>
 
                 <Border Width="340"
                         Background="{DynamicResource ModuleBackgroundBrush}"
