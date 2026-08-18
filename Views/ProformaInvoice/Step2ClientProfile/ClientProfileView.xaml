@@ -174,7 +174,7 @@ CHAT 17 — UI POLISH
             <Border Margin="0,0,0,24"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    CornerRadius="16"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     ClipToBounds="True">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -209,7 +209,7 @@ CHAT 17 — UI POLISH
                                     <Border Background="{DynamicResource AccentBrush}"
                                             Width="28"
                                             Height="28"
-                                            CornerRadius="8"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
                                             VerticalAlignment="Center"
                                             Margin="0,0,10,0">
                                         <TextBlock Text="&#xE77B;"
@@ -242,7 +242,7 @@ CHAT 17 — UI POLISH
                                         <ControlTemplate TargetType="Button">
                                             <Border x:Name="RefreshBg"
                                                     Background="Transparent"
-                                                    CornerRadius="8"
+                                                    CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="8,6">
                                                 <TextBlock Text="&#xE72C;"
                                                            FontFamily="Segoe MDL2 Assets"
@@ -341,7 +341,7 @@ CHAT 17 — UI POLISH
                             </Border>
 
                             <!-- EMPTY STATE -->
-                            <Border CornerRadius="12"
+                            <Border CornerRadius="{DynamicResource CardCornerRadius}"
                                     Padding="24,20"
                                     Margin="0,0,0,8"
                                     Background="{DynamicResource WindowBackgroundBrush}"

@@ -466,7 +466,7 @@
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="bd"
                                     Background="Transparent"
-                                    CornerRadius="8"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Width="32" Height="32"
                                     SnapsToDevicePixels="True">
                                 <TextBlock x:Name="ic"

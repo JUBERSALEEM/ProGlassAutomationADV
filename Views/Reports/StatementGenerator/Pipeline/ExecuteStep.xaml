@@ -63,47 +63,47 @@
         <SolidColorBrush x:Key="GlassCardBg" Color="#FFFFFF" Opacity="0.72" po:Freeze="True"/>
         <SolidColorBrush x:Key="GlassCardBorder" Color="#FFFFFF" Opacity="0.8" po:Freeze="True"/>
 
-        <SolidColorBrush x:Key="IndigoPrimary" Color="#4F46E5" po:Freeze="True"/>
+        <SolidColorBrush x:Key="IndigoPrimary" Color="{DynamicResource AccentColor}" po:Freeze="True"/>
         <SolidColorBrush x:Key="VioletAccent" Color="#8B5CF6" po:Freeze="True"/>
-        <SolidColorBrush x:Key="EmeraldAccent" Color="#3B82F6" po:Freeze="True"/>
-        <SolidColorBrush x:Key="AmberAccent" Color="#F59E0B" po:Freeze="True"/>
-        <SolidColorBrush x:Key="RedAccent" Color="#EF4444" po:Freeze="True"/>
+        <SolidColorBrush x:Key="EmeraldAccent" Color="{DynamicResource AccentLightColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="AmberAccent" Color="{DynamicResource WarningColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="RedAccent" Color="{DynamicResource DangerColor}" po:Freeze="True"/>
 
-        <SolidColorBrush x:Key="TextPrimary" Color="#0F172A" po:Freeze="True"/>
-        <SolidColorBrush x:Key="TextSecondary" Color="#475569" po:Freeze="True"/>
-        <SolidColorBrush x:Key="TextMuted" Color="#94A3B8" po:Freeze="True"/>
-        <SolidColorBrush x:Key="BorderSubtle" Color="#E2E8F0" po:Freeze="True"/>
-        <SolidColorBrush x:Key="ProgressTrack" Color="#E5E7EB" po:Freeze="True"/>
+        <SolidColorBrush x:Key="TextPrimary" Color="{DynamicResource PrimaryForegroundColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="TextSecondary" Color="{DynamicResource SecondaryForegroundColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="TextMuted" Color="{DynamicResource MutedForegroundColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="BorderSubtle" Color="{DynamicResource BorderColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="ProgressTrack" Color="{DynamicResource BorderColor}" po:Freeze="True"/>
 
         <!-- Terminal palette (stays dark) -->
-        <SolidColorBrush x:Key="TerminalBg" Color="#0F172A" po:Freeze="True"/>
-        <SolidColorBrush x:Key="TerminalTitle" Color="#64748B" po:Freeze="True"/>
+        <SolidColorBrush x:Key="TerminalBg" Color="{DynamicResource PrimaryForegroundColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="TerminalTitle" Color="{DynamicResource MutedForegroundColor}" po:Freeze="True"/>
 
         <!-- Step status backgrounds -->
-        <SolidColorBrush x:Key="StepIdleBg" Color="#F8FAFC" po:Freeze="True"/>
-        <SolidColorBrush x:Key="StepSuccessBg" Color="#F0FDF4" po:Freeze="True"/>
+        <SolidColorBrush x:Key="StepIdleBg" Color="{DynamicResource TintGrayColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="StepSuccessBg" Color="{DynamicResource TintGreenColor}" po:Freeze="True"/>
         <SolidColorBrush x:Key="StepSuccessBorder" Color="#BBF7D0" po:Freeze="True"/>
-        <SolidColorBrush x:Key="StepWarningBg" Color="#FFFBEB" po:Freeze="True"/>
+        <SolidColorBrush x:Key="StepWarningBg" Color="{DynamicResource TintAmberColor}" po:Freeze="True"/>
         <SolidColorBrush x:Key="StepWarningBorder" Color="#FDE68A" po:Freeze="True"/>
-        <SolidColorBrush x:Key="StepBlockedBg" Color="#FEF2F2" po:Freeze="True"/>
+        <SolidColorBrush x:Key="StepBlockedBg" Color="{DynamicResource TintRedColor}" po:Freeze="True"/>
         <SolidColorBrush x:Key="StepBlockedBorder" Color="#FECACA" po:Freeze="True"/>
-        <SolidColorBrush x:Key="StepRunningBg" Color="#F5F3FF" po:Freeze="True"/>
-        <SolidColorBrush x:Key="StepBadgeIdle" Color="#94A3B8" po:Freeze="True"/>
+        <SolidColorBrush x:Key="StepRunningBg" Color="{DynamicResource TintPurpleColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="StepBadgeIdle" Color="{DynamicResource MutedForegroundColor}" po:Freeze="True"/>
 
         <!-- Metric accents -->
         <SolidColorBrush x:Key="MetricOrdered" Color="{DynamicResource AccentColor}"/>
-        <SolidColorBrush x:Key="MetricDelivered" Color="#1D4ED8" po:Freeze="True"/>
-        <SolidColorBrush x:Key="MetricBalance" Color="#B91C1C" po:Freeze="True"/>
-        <SolidColorBrush x:Key="MetricRate" Color="#B45309" po:Freeze="True"/>
+        <SolidColorBrush x:Key="MetricDelivered" Color="{DynamicResource AccentColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="MetricBalance" Color="{DynamicResource DangerColor}" po:Freeze="True"/>
+        <SolidColorBrush x:Key="MetricRate" Color="{DynamicResource WarningColor}" po:Freeze="True"/>
 
-        <SolidColorBrush x:Key="WarnBadgeBg" Color="#B45309" po:Freeze="True"/>
+        <SolidColorBrush x:Key="WarnBadgeBg" Color="{DynamicResource WarningColor}" po:Freeze="True"/>
 
         <!-- ══════════════════════════════════════════════════════════
              FROZEN GRADIENTS
         ══════════════════════════════════════════════════════════ -->
         <LinearGradientBrush x:Key="AmbientBg" StartPoint="0,0" EndPoint="1,1" po:Freeze="True">
-            <GradientStop Color="#F8FAFC" Offset="0"/>
-            <GradientStop Color="#EEF2FF" Offset="0.5"/>
+            <GradientStop Color="{DynamicResource TintGrayColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource TintIndigoColor}" Offset="0.5"/>
             <GradientStop Color="#F0F9FF" Offset="1"/>
         </LinearGradientBrush>
 
@@ -125,7 +125,7 @@
 
         <RadialGradientBrush x:Key="GreenLed" po:Freeze="True">
             <GradientStop Color="#34D399" Offset="0"/>
-            <GradientStop Color="#3B82F6" Offset="1"/>
+            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
         </RadialGradientBrush>
 
         <!-- ══════════════════════════════════════════════════════════
@@ -138,12 +138,12 @@
 
         <DropShadowEffect x:Key="ProgressCardShadow"
                           BlurRadius="24" ShadowDepth="4"
-                          Opacity="0.08" Color="#4F46E5"
+                          Opacity="0.08" Color="{DynamicResource AccentColor}"
                           po:Freeze="True"/>
 
         <DropShadowEffect x:Key="GreenLedGlow"
                           BlurRadius="8" ShadowDepth="0"
-                          Opacity="0.6" Color="#3B82F6"
+                          Opacity="0.6" Color="{DynamicResource AccentLightColor}"
                           po:Freeze="True"/>
 
         <DropShadowEffect x:Key="RunningStepGlow"
@@ -288,7 +288,7 @@
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="16"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="24,20"
                     Effect="{StaticResource ProgressCardShadow}"
                     SnapsToDevicePixels="True">
@@ -308,7 +308,7 @@
                                 Orientation="Horizontal"
                                 VerticalAlignment="Center">
                         <Border Width="12" Height="12"
-                                CornerRadius="6"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Background="{StaticResource GreenLed}"
                                 Effect="{StaticResource GreenLedGlow}"
                                 VerticalAlignment="Center"
@@ -363,7 +363,7 @@
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="16"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="20"
                         Effect="{StaticResource CardShadow}"
                         SnapsToDevicePixels="True">
@@ -451,7 +451,7 @@
                     <!-- Terminal — DARK aesthetic preserved, NOT cached (content streams) -->
                     <Border Grid.Row="0"
                             Background="{StaticResource TerminalBg}"
-                            CornerRadius="16"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="22,18"
                             MinHeight="360"
                             Effect="{StaticResource CardShadow}"
@@ -465,11 +465,11 @@
                             <StackPanel Grid.Row="0"
                                         Orientation="Horizontal"
                                         Margin="0,0,0,12">
-                                <Ellipse Width="9" Height="9" Fill="#EF4444"
+                                <Ellipse Width="9" Height="9" Fill="{DynamicResource DangerBrush}"
                                          VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                <Ellipse Width="9" Height="9" Fill="#F59E0B"
+                                <Ellipse Width="9" Height="9" Fill="{DynamicResource WarningBrush}"
                                          VerticalAlignment="Center" Margin="0,0,6,0"/>
-                                <Ellipse Width="9" Height="9" Fill="#10B981"
+                                <Ellipse Width="9" Height="9" Fill="{DynamicResource SuccessBrush}"
                                          VerticalAlignment="Center" Margin="0,0,14,0"/>
                                 <TextBlock Text="PROCESSING LOG"
                                            FontSize="10" FontWeight="Bold"
@@ -593,7 +593,7 @@
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="16"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="20"
                         Effect="{StaticResource CardShadow}"
                         SnapsToDevicePixels="True">
@@ -640,7 +640,7 @@
                             <ItemsControl ItemsSource="{Binding WorkflowWarnings}">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
-                                        <Border CornerRadius="12"
+                                        <Border CornerRadius="{DynamicResource CardCornerRadius}"
                                                 Padding="14,12"
                                                 Margin="0,0,0,10"
                                                 BorderThickness="1"
@@ -683,7 +683,7 @@
                                                                    Foreground="{Binding AmountColorHex,
                                                                        Converter={StaticResource ColorStringConverter}}"/>
                                                         <Border Background="White"
-                                                                CornerRadius="6"
+                                                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                                                 Padding="8,3"
                                                                 VerticalAlignment="Center"
                                                                 BorderThickness="1"

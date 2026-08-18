@@ -119,7 +119,7 @@
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                     <!-- Icon pill -->
                     <Border Width="44" Height="44"
-                            CornerRadius="12"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Margin="0,0,14,0">
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -178,7 +178,7 @@
                     x:Name="ValidationBorder"
                     Margin="28,4,28,0"
                     Padding="12,8"
-                    CornerRadius="8"
+                    CornerRadius="{DynamicResource ControlCornerRadius}"
                     Background="{DynamicResource TintRedBrush}"
                     VerticalAlignment="Top"
                     Visibility="Collapsed">

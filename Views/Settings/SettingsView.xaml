@@ -51,7 +51,7 @@
         <!-- ══════════════════════════════════════════════════════════
              LEFT — NAVIGATION RAIL (rounded floating card, clearly visible)
         ══════════════════════════════════════════════════════════════ -->
-        <Border CornerRadius="16" Grid.Column="0"
+        <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Column="0"
                 Margin="14,14,6,14"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"

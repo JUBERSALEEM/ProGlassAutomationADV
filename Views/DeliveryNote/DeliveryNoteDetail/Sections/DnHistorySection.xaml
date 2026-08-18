@@ -19,7 +19,7 @@
             <Border Grid.Column="2"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="12"
+                    BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}"
                     SnapsToDevicePixels="True">
                 <Grid>
                     <Grid.RowDefinitions>
@@ -49,7 +49,7 @@
                                            TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                             <Border Grid.Column="1"
-                                    CornerRadius="8" Padding="8,3"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
                                     Background="#22FFFFFF"
                                     VerticalAlignment="Center">
                                 <TextBlock FontSize="10" FontWeight="Bold"
@@ -187,7 +187,7 @@
                                                             <Run Text="{Binding DeliveredQty, Mode=OneWay}"/>
                                                             <Run Text=" pcs"/>
                                                         </TextBlock>
-                                                        <Border CornerRadius="6" Padding="7,3"
+                                                        <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,3"
                                                                 Margin="0,4,0,0"
                                                                 HorizontalAlignment="Right"
                                                                 Background="{Binding StatusBrushKey,
@@ -210,12 +210,12 @@
                                                                 <Style TargetType="Button"
                BasedOn="{StaticResource TaxInvoiceRowButtonStyle}">
                                                                     <Setter Property="Content" Value="TAX INVOICE"/>
-                                                                    <Setter Property="Background" Value="#1E40AF"/>
+                                                                    <Setter Property="Background" Value="{DynamicResource AccentDarkBrush}"/>
                                                                     <Style.Triggers>
                                                                         <!-- Already invoiced: show green Invoiced state -->
                                                                         <DataTrigger Binding="{Binding IsInvoiced}" Value="True">
                                                                             <Setter Property="Content" Value="INVOICED"/>
-                                                                            <Setter Property="Background" Value="#047857"/>
+                                                                            <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
                                                                             <Setter Property="Cursor" Value="Arrow"/>
                                                                         </DataTrigger>
                                                                     </Style.Triggers>
@@ -226,7 +226,7 @@
                                                 </Grid>
 
                                                 <!-- Cumulative timeline -->
-                                                <Border Margin="0,8,0,0" CornerRadius="8"
+                                                <Border Margin="0,8,0,0" CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Background="{DynamicResource ModuleBackgroundBrush}"
                                                         BorderBrush="{DynamicResource OutlineBrush}"
                                                         BorderThickness="{DynamicResource CardBorderThickness}"

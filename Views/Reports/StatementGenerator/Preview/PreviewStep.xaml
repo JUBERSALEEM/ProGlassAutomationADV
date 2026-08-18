@@ -89,7 +89,7 @@
                                Margin="0,0,0,0">
                         <Run Text="{Binding PreviewVM.SelectionSummaryDisplay, Mode=OneWay}"
                              FontWeight="Bold"
-                             Foreground="#8B5CF6"/>
+                             Foreground="{DynamicResource AccentHoverBrush}"/>
                         <Run Text=" — Uncheck any invoice you want to exclude from the statement."/>
                     </TextBlock>
                 </StackPanel>
@@ -103,7 +103,7 @@
                             Margin="0,0,8,0">
                         <Button.Template>
                             <ControlTemplate TargetType="Button">
-                                <Border x:Name="bd" CornerRadius="8"
+                                <Border x:Name="bd" CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="{TemplateBinding Padding}">
                                     <Border.Background>
                                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
@@ -136,7 +136,7 @@
                                         Background="{DynamicResource ModuleBackgroundBrush}"
                                         BorderBrush="{DynamicResource OutlineBrush}"
                                         BorderThickness="{DynamicResource CardBorderThickness}"
-                                        CornerRadius="8"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="{TemplateBinding Padding}">
                                     <StackPanel Orientation="Horizontal">
                                         <TextBlock Text="✕ " FontSize="12" FontWeight="Bold"
@@ -177,28 +177,28 @@
 
                 <Border Grid.Column="0"
                         Background="{DynamicResource TintIndigoBrush}"
-                        BorderBrush="#C7D2FE"
+                        BorderBrush="{DynamicResource TintIndigoBrush}"
                         BorderThickness="1"
-                        CornerRadius="12" Padding="14,12"
+                        CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12"
                         MinHeight="76">
                     <StackPanel>
                         <TextBlock Text="INVOICED" FontSize="9" FontWeight="Bold"
                                    Foreground="{DynamicResource AccentBrush}"/>
                         <TextBlock Text="{Binding PreviewVM.TotalInvoicedDisplay}"
                                    FontSize="15" FontWeight="Bold"
-                                   Foreground="#1E1B4B"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
                                    Margin="0,4,0,0"/>
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="2"
-                        Background="#F5F3FF"
-                        BorderBrush="#DDD6FE"
+                        Background="{DynamicResource TintPurpleBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="1"
-                        CornerRadius="12" Padding="14,12"
+                        CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12"
                         MinHeight="76">
                     <StackPanel>
                         <TextBlock Text="VAT" FontSize="9" FontWeight="Bold"
-                                   Foreground="#6D28D9"/>
+                                   Foreground="{DynamicResource AccentDarkBrush}"/>
                         <TextBlock Text="{Binding PreviewVM.TotalVatDisplay}"
                                    FontSize="15" FontWeight="Bold"
                                    Foreground="#3B0764"
@@ -206,10 +206,10 @@
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="4"
-                        Background="#F0FDF4"
-                        BorderBrush="#BBF7D0"
+                        Background="{DynamicResource TintGreenBrush}"
+                        BorderBrush="{DynamicResource SuccessBrush}"
                         BorderThickness="1"
-                        CornerRadius="12" Padding="14,12"
+                        CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12"
                         MinHeight="76">
                     <StackPanel>
                         <TextBlock Text="PAID" FontSize="9" FontWeight="Bold"
@@ -221,10 +221,10 @@
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="6"
-                        Background="#FFFBEB"
-                        BorderBrush="#FDE68A"
+                        Background="{DynamicResource TintAmberBrush}"
+                        BorderBrush="{DynamicResource WarningBrush}"
                         BorderThickness="1"
-                        CornerRadius="12" Padding="14,12"
+                        CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12"
                         MinHeight="76">
                     <StackPanel>
                         <TextBlock Text="OUTSTANDING" FontSize="9" FontWeight="Bold"
@@ -236,10 +236,10 @@
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="8"
-                        Background="#FEF2F2"
-                        BorderBrush="#FECACA"
+                        Background="{DynamicResource TintRedBrush}"
+                        BorderBrush="{DynamicResource DangerBrush}"
                         BorderThickness="1"
-                        CornerRadius="12" Padding="14,12"
+                        CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12"
                         MinHeight="76">
                     <StackPanel>
                         <TextBlock Text="OVERDUE" FontSize="9" FontWeight="Bold"
@@ -251,10 +251,10 @@
                     </StackPanel>
                 </Border>
                 <Border Grid.Column="10"
-                        Background="#EFF6FF"
-                        BorderBrush="#BFDBFE"
+                        Background="{DynamicResource TintBlueBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="1"
-                        CornerRadius="12" Padding="14,12"
+                        CornerRadius="{DynamicResource CardCornerRadius}" Padding="14,12"
                         MinHeight="76">
                     <StackPanel>
                         <TextBlock Text="ATTACHMENTS" FontSize="9" FontWeight="Bold"
@@ -262,7 +262,7 @@
                         <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
                             <TextBlock Text="{Binding PreviewVM.SelectedAttachmentCount}"
                                        FontSize="15" FontWeight="Bold"
-                                       Foreground="#1E1B4B"/>
+                                       Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                             <TextBlock Text=" files" FontSize="11"
                                        Foreground="{DynamicResource AccentBrush}"
                                        VerticalAlignment="Center"
@@ -379,11 +379,11 @@
                                                 </DataTrigger>
                                                 <!-- CHAT 22 v3: OVER-INVOICED alert border -->
                                                 <DataTrigger Binding="{Binding IsOverInvoiced}" Value="True">
-                                                    <Setter Property="BorderBrush" Value="#B91C1C"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
                                                     <Setter Property="BorderThickness" Value="2"/>
                                                 </DataTrigger>
                                                 <Trigger Property="IsMouseOver" Value="True">
-                                                    <Setter Property="BorderBrush" Value="#8B5CF6"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
                                                     <Setter Property="Opacity" Value="1.0"/>
                                                 </Trigger>
                                             </Style.Triggers>
@@ -425,7 +425,7 @@
                                         </StackPanel>
 
                                         <Border Grid.Column="2"
-                                                CornerRadius="6"
+                                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Padding="10,4"
                                                 Margin="12,0"
                                                 VerticalAlignment="Center"
@@ -551,7 +551,7 @@
 
                     <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="4"
                             Background="{DynamicResource MenuHoverBrush}"
-                            CornerRadius="8"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="14,10">
                         <StackPanel Orientation="Horizontal">
                             <TextBlock FontSize="12"
@@ -571,7 +571,7 @@
                                        VerticalAlignment="Center"/>
                             <TextBlock Text="{Binding PreviewVM.SelectionSummaryDisplay}"
                                        FontSize="12" FontWeight="Bold"
-                                       Foreground="#8B5CF6"
+                                       Foreground="{DynamicResource AccentHoverBrush}"
                                        VerticalAlignment="Center"/>
                         </StackPanel>
                     </Border>
@@ -660,16 +660,16 @@
                                             <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
                                             <Style.Triggers>
                                                 <DataTrigger Binding="{Binding HasOverInvoicing}" Value="True">
-                                                    <Setter Property="Background" Value="#FEF2F2"/>
-                                                    <Setter Property="BorderBrush" Value="#B91C1C"/>
+                                                    <Setter Property="Background" Value="{DynamicResource TintRedBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding HasUnderInvoicing}" Value="True">
-                                                    <Setter Property="Background" Value="#EFF6FF"/>
-                                                    <Setter Property="BorderBrush" Value="#1D4ED8"/>
+                                                    <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                                 </DataTrigger>
                                                 <DataTrigger Binding="{Binding AllMatched}" Value="True">
-                                                    <Setter Property="Background" Value="#F0FDF4"/>
-                                                    <Setter Property="BorderBrush" Value="#047857"/>
+                                                    <Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/>
+                                                    <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
                                                 </DataTrigger>
                                             </Style.Triggers>
                                         </Style>
@@ -716,9 +716,9 @@
                                                         VerticalAlignment="Center">
 
                                                 <Border Background="{DynamicResource TintIndigoBrush}"
-                                                        BorderBrush="#C7D2FE"
+                                                        BorderBrush="{DynamicResource TintIndigoBrush}"
                                                         BorderThickness="1"
-                                                        CornerRadius="8"
+                                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="10,6"
                                                         Margin="0,0,6,0"
                                                         ToolTip="Total ordered on Proforma Invoice">
@@ -728,15 +728,15 @@
                                                                    Foreground="{DynamicResource AccentBrush}"/>
                                                         <TextBlock Text="{Binding TotalOrderedQty}"
                                                                    FontSize="13" FontWeight="Bold"
-                                                                   Foreground="#1E1B4B"
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                                    HorizontalAlignment="Center"/>
                                                     </StackPanel>
                                                 </Border>
 
-                                                <Border Background="#F0FDF4"
-                                                        BorderBrush="#BBF7D0"
+                                                <Border Background="{DynamicResource TintGreenBrush}"
+                                                        BorderBrush="{DynamicResource SuccessBrush}"
                                                         BorderThickness="1"
-                                                        CornerRadius="8"
+                                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="10,6"
                                                         Margin="0,0,6,0"
                                                         ToolTip="Total delivered across all Delivery Notes">
@@ -751,10 +751,10 @@
                                                     </StackPanel>
                                                 </Border>
 
-                                                <Border Background="#FFFBEB"
-                                                        BorderBrush="#FDE68A"
+                                                <Border Background="{DynamicResource TintAmberBrush}"
+                                                        BorderBrush="{DynamicResource WarningBrush}"
                                                         BorderThickness="1"
-                                                        CornerRadius="8"
+                                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="10,6"
                                                         Margin="0,0,6,0"
                                                         ToolTip="Balance pending delivery">
@@ -769,17 +769,17 @@
                                                     </StackPanel>
                                                 </Border>
 
-                                                <Border Background="#F5F3FF"
-                                                        BorderBrush="#DDD6FE"
+                                                <Border Background="{DynamicResource TintPurpleBrush}"
+                                                        BorderBrush="{DynamicResource OutlineBrush}"
                                                         BorderThickness="1"
-                                                        CornerRadius="8"
+                                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="10,6"
                                                         Margin="0,0,6,0"
                                                         ToolTip="Total invoiced across all Tax Invoices">
                                                     <StackPanel>
                                                         <TextBlock Text="INVOICED"
                                                                    FontSize="8" FontWeight="Bold"
-                                                                   Foreground="#6D28D9"/>
+                                                                   Foreground="{DynamicResource AccentDarkBrush}"/>
                                                         <TextBlock Text="{Binding TotalInvoicedQty}"
                                                                    FontSize="13" FontWeight="Bold"
                                                                    Foreground="#3B0764"
@@ -789,21 +789,21 @@
 
                                                 <!-- Diff pill (red if positive = over-invoiced) -->
                                                 <Border BorderThickness="1"
-                                                        CornerRadius="8"
+                                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="10,6"
                                                         ToolTip="Invoiced minus Delivered (positive = over-invoiced)">
                                                     <Border.Style>
                                                         <Style TargetType="Border">
-                                                            <Setter Property="Background" Value="#F9FAFB"/>
+                                                            <Setter Property="Background" Value="{DynamicResource TintGrayBrush}"/>
                                                             <Setter Property="BorderBrush" Value="#D1D5DB"/>
                                                             <Style.Triggers>
                                                                 <DataTrigger Binding="{Binding HasOverInvoicing}" Value="True">
-                                                                    <Setter Property="Background" Value="#FEE2E2"/>
-                                                                    <Setter Property="BorderBrush" Value="#B91C1C"/>
+                                                                    <Setter Property="Background" Value="{DynamicResource TintRedBrush}"/>
+                                                                    <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
                                                                 </DataTrigger>
                                                                 <DataTrigger Binding="{Binding HasUnderInvoicing}" Value="True">
-                                                                    <Setter Property="Background" Value="#DBEAFE"/>
-                                                                    <Setter Property="BorderBrush" Value="#1D4ED8"/>
+                                                                    <Setter Property="Background" Value="{DynamicResource TintBlueBrush}"/>
+                                                                    <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                                                                 </DataTrigger>
                                                             </Style.Triggers>
                                                         </Style>
@@ -811,7 +811,7 @@
                                                     <StackPanel>
                                                         <TextBlock Text="DIFF"
                                                                    FontSize="8" FontWeight="Bold"
-                                                                   Foreground="#374151"/>
+                                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                                         <TextBlock Text="{Binding TotalInvoiceVsDeliveryDiff}"
                                                                    FontSize="13" FontWeight="Bold"
                                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
@@ -878,7 +878,7 @@
                                                                HorizontalAlignment="Center"/>
                                                     <TextBlock Grid.Column="7" Text="INVOICED"
                                                                FontSize="9" FontWeight="Bold"
-                                                               Foreground="#6D28D9"
+                                                               Foreground="{DynamicResource AccentDarkBrush}"
                                                                HorizontalAlignment="Center"/>
                                                     <TextBlock Grid.Column="8" Text="DIFF"
                                                                FontSize="9" FontWeight="Bold"
@@ -955,7 +955,7 @@
                                                                     <TextBlock Grid.Column="7"
                                                                                Text="{Binding InvoicedQty}"
                                                                                FontSize="12" FontWeight="Bold"
-                                                                               Foreground="#6D28D9"
+                                                                               Foreground="{DynamicResource AccentDarkBrush}"
                                                                                HorizontalAlignment="Center"
                                                                                VerticalAlignment="Center"/>
                                                                     <TextBlock Grid.Column="8"

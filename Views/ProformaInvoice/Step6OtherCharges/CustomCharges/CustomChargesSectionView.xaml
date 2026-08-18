@@ -35,7 +35,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 SnapsToDevicePixels="True">
                             <ScrollViewer x:Name="PART_ContentHost"
                                           Focusable="False"
@@ -166,8 +166,8 @@
 
                             <!-- Qty + unit — Deep Royal Blue tint pill -->
                             <Border Grid.Column="2"
-                                    Background="#DBEAFE"
-                                    CornerRadius="8"
+                                    Background="{DynamicResource TintBlueBrush}"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Padding="10,5"
                                     HorizontalAlignment="Left"
                                     VerticalAlignment="Center">
@@ -215,7 +215,7 @@
                                     <ControlTemplate TargetType="Button">
                                         <Border x:Name="DB"
                                                 Background="Transparent"
-                                                CornerRadius="6"
+                                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Padding="8,6">
                                             <TextBlock Text="&#xE711;"
                                                        FontFamily="Segoe MDL2 Assets"
@@ -225,7 +225,7 @@
                                         </Border>
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter TargetName="DB" Property="Background" Value="#FEE2E2"/>
+                                                <Setter TargetName="DB" Property="Background" Value="{DynamicResource TintRedBrush}"/>
                                             </Trigger>
                                         </ControlTemplate.Triggers>
                                     </ControlTemplate>
@@ -248,11 +248,11 @@
                • NO StringFormat on InputQty/InputRate bindings
         ══════════════════════════════════════════════════════════════ -->
         <Border Background="{DynamicResource TintIndigoBrush}"
-                CornerRadius="12"
+                CornerRadius="{DynamicResource CardCornerRadius}"
                 Padding="18"
                 Margin="0,18,0,0"
                 BorderThickness="1"
-                BorderBrush="#C7D2FE">
+                BorderBrush="{DynamicResource TintIndigoBrush}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="3*"/>
@@ -342,7 +342,7 @@
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="B"
                                     Background="{DynamicResource AccentBrush}"
-                                    CornerRadius="8"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Padding="20,0"
                                     Height="34"
                                     SnapsToDevicePixels="True">

@@ -70,7 +70,7 @@
             <Style.Triggers>
                 <DataTrigger Binding="{Binding IsCurrentInvoice}" Value="True">
                     <Setter Property="FontSize" Value="14"/>
-                    <Setter Property="Foreground" Value="#047857"/>
+                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -116,7 +116,7 @@
                 <DataTrigger Binding="{Binding IsCurrentInvoice}" Value="True">
                     <Setter Property="BorderThickness" Value="4,2,2,2"/>
                     <Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/>
-                    <Setter Property="BorderBrush" Value="#047857"/>
+                    <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>

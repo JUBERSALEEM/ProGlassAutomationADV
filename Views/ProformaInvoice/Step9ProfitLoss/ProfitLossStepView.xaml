@@ -89,7 +89,7 @@
                  HEADER + CONTROLS
             ══════════════════════════════════════════════════════════ -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    CornerRadius="16"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="20"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     BorderBrush="{DynamicResource OutlineBrush}">
@@ -98,7 +98,7 @@
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                         <Border Background="{DynamicResource TintIndigoBrush}"
                                 Width="26" Height="26"
-                                CornerRadius="8"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 VerticalAlignment="Center"
                                 Margin="0,0,10,0">
                             <TextBlock Text="&#xE9F9;"
@@ -287,7 +287,7 @@
                  COST BREAKDOWN
             ══════════════════════════════════════════════════════════ -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    CornerRadius="16"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="0"
                     Margin="0,16,0,0"
                     BorderThickness="{DynamicResource CardBorderThickness}"
@@ -296,7 +296,7 @@
 
                     <!-- Accent table header -->
                     <Border Background="{DynamicResource AccentBrush}"
-                            CornerRadius="8"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="16,8"
                             Margin="0,0,0,6">
                         <Grid>
@@ -420,7 +420,7 @@
                                         <Border Background="{DynamicResource TintPurpleBrush}"
                                                 BorderBrush="{DynamicResource OutlineBrush}"
                                                 BorderThickness="{DynamicResource CardBorderThickness}"
-                                                CornerRadius="6"
+                                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Padding="10,7"
                                                 Margin="0,8,0,0">
                                             <Grid>

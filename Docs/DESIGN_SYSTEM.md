@@ -73,9 +73,15 @@ Light/Dark themes and the Normal/Monet/Professional families.
     `ModulePageTitleStyle` + `ModuleWizardStepIconStyle`.
   - Global TextBox focus ring and Step 4 inputs no longer hardcode indigo
     (`#4338CA` / `#6366F1`) — they follow `AccentBrush`.
-- 🔲 Remaining chrome (Statement wizard Filter/Preview/Execute hex,
-  PrintableInvoice print surface, DN/TI list row semantic hex, PDF
-  exporters) — migrate incrementally; each is a small, reviewable change.
+- ✅ Views chrome pass (2026-08-18): 70+ view files now bind
+  Foreground/Background/BorderBrush/CornerRadius/card 1.5 borders to
+  theme tokens. Statement wizard local palette (IndigoPrimary,
+  TextPrimary, ChipCheckedBg, …) follows AccentColor / tint Color
+  keys so Light/Dark + the Appearance border slider actually reach
+  those screens. Printable invoice, Splash/Login brand surfaces, and
+  Settings accent swatches left as designed.
+- 🔲 Remaining: print-surface hex, Splash/Login art, a few decorative
+  white-alpha overlays, Production/Optimization ComingSoon modules.
 
 ## Why pilot-first
 A global find-and-replace across 89 XAML files is how you break a working

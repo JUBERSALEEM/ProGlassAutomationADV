@@ -10,7 +10,7 @@
         Background="Transparent"
         FontFamily="Segoe UI">
 
-    <Border CornerRadius="16"
+    <Border CornerRadius="{DynamicResource CardCornerRadius}"
             Background="{DynamicResource ModuleBackgroundBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
             BorderThickness="{DynamicResource CardBorderThickness}">

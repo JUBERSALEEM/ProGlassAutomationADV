@@ -43,7 +43,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
         <Style x:Key="RateInputStyle" TargetType="TextBox">
             <Setter Property="beh:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
             <Setter Property="Background"                Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground"                Value="#047857"/>
+            <Setter Property="Foreground"                Value="{DynamicResource SuccessBrush}"/>
             <Setter Property="BorderThickness"           Value="1"/>
             <Setter Property="BorderBrush"               Value="{DynamicResource BorderBrush}"/>
             <Setter Property="FontSize"                  Value="12"/>
@@ -56,7 +56,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="B" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" SnapsToDevicePixels="True">
+                        <Border x:Name="B" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" SnapsToDevicePixels="True">
                             <ScrollViewer x:Name="PART_ContentHost" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" Margin="{TemplateBinding Padding}" VerticalAlignment="Center" Background="Transparent"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -90,7 +90,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="B" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="6" SnapsToDevicePixels="True">
+                        <Border x:Name="B" Background="{TemplateBinding Background}" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" SnapsToDevicePixels="True">
                             <ScrollViewer x:Name="PART_ContentHost" Focusable="False" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Hidden" Margin="{TemplateBinding Padding}" VerticalAlignment="Center" Background="Transparent"/>
                         </Border>
                         <ControlTemplate.Triggers>
@@ -136,7 +136,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="{TemplateBinding Padding}"
                                 SnapsToDevicePixels="True">
                             <Grid>
@@ -197,7 +197,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
             <Border Background="{DynamicResource ModuleBackgroundBrush}" CornerRadius="{DynamicResource CardCornerRadius}" Padding="18" BorderThickness="1" BorderBrush="{DynamicResource AccentBrush}" Margin="0,0,0,18">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
-                        <Border Background="{DynamicResource AccentBrush}" Width="28" Height="28" CornerRadius="8" VerticalAlignment="Center" Margin="0,0,10,0">
+                        <Border Background="{DynamicResource AccentBrush}" Width="28" Height="28" CornerRadius="{DynamicResource ControlCornerRadius}" VerticalAlignment="Center" Margin="0,0,10,0">
                             <TextBlock Text="&#xE9D2;" FontFamily="Segoe MDL2 Assets" FontSize="13" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <StackPanel VerticalAlignment="Center">
@@ -300,7 +300,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                                     </ItemsControl.ItemsPanel>
                                     <ItemsControl.ItemTemplate>
                                         <DataTemplate>
-                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintIndigoBrush}" CornerRadius="6" Padding="10,4" Margin="0,0,4,4" ToolTip="{Binding}">
+                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintIndigoBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4" Margin="0,0,4,4" ToolTip="{Binding}">
                                                 <TextBlock Text="{Binding}" FontSize="11" FontWeight="SemiBold" Foreground="{DynamicResource AccentBrush}"/>
                                             </Border>
                                         </DataTemplate>
@@ -331,7 +331,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
             </Grid>
 
             <!-- TABLE HEADER (UI-02: CHARGE BASIS) -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource MenuHoverBrush}" CornerRadius="8" Padding="12,10" Margin="0,0,0,4">
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource MenuHoverBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,10" Margin="0,0,0,4">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="60"/>
@@ -609,7 +609,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                                     </Grid>
 
                                     <!-- Metric qty badge -->
-                                    <Border Grid.Column="3" Background="#DBEAFE" CornerRadius="8" Padding="10,5" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                    <Border Grid.Column="3" Background="{DynamicResource TintBlueBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,5" HorizontalAlignment="Center" VerticalAlignment="Center">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="{Binding MetricQty, StringFormat={}{0:0.###}}" FontSize="12" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}"/>
                                             <TextBlock Text=" "/>
@@ -636,7 +636,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                                                Margin="10,0,0,0">
                                         <TextBlock.Style>
                                             <Style TargetType="TextBlock">
-                                                <Setter Property="Foreground" Value="#047857"/>
+                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
                                                 <Setter Property="FontWeight" Value="Bold"/>
                                                 <Style.Triggers>
                                                     <DataTrigger Binding="{Binding IsActive}" Value="False">
@@ -650,7 +650,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
                                 </Grid>
 
                                 <!-- Custom Polish inline editor -->
-                                <Border Background="{DynamicResource TintIndigoBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,12" Margin="60,10,0,0" BorderThickness="1" BorderBrush="#C7D2FE">
+                                <Border Background="{DynamicResource TintIndigoBrush}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,12" Margin="60,10,0,0" BorderThickness="1" BorderBrush="{DynamicResource TintIndigoBrush}">
                                     <Border.Style>
                                         <Style TargetType="Border">
                                             <Setter Property="Visibility" Value="Collapsed"/>
@@ -688,7 +688,7 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
             <wastages:WastagesSectionView DataContext="{Binding WastagesSection}"/>
             <custom:CustomChargesSectionView DataContext="{Binding CustomChargesSection}"/>
 
-            <Border Background="{DynamicResource TintIndigoBrush}" BorderBrush="#C7D2FE" BorderThickness="1" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,10" Margin="0,30,0,20" HorizontalAlignment="Left">
+            <Border Background="{DynamicResource TintIndigoBrush}" BorderBrush="{DynamicResource TintIndigoBrush}" BorderThickness="1" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,10" Margin="0,30,0,20" HorizontalAlignment="Left">
                 <StackPanel Orientation="Horizontal">
                     <TextBlock Text="&#xE930;" FontFamily="Segoe MDL2 Assets" FontSize="14" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,10,0"/>
                     <TextBlock FontSize="11" Foreground="{DynamicResource AccentBrush}" TextWrapping="Wrap" VerticalAlignment="Center">

@@ -88,15 +88,15 @@
                         <Setter Property="Background">
                             <Setter.Value>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                    <GradientStop Color="#1D4ED8" Offset="0"/>
-                                    <GradientStop Color="#3B82F6" Offset="1"/>
+                                    <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                                    <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
                                 </LinearGradientBrush>
                             </Setter.Value>
                         </Setter>
                         <Setter Property="Effect">
                             <Setter.Value>
                                 <DropShadowEffect BlurRadius="20" ShadowDepth="4"
-                                                  Opacity="0.15" Color="#1D4ED8"/>
+                                                  Opacity="0.15" Color="{DynamicResource AccentColor}"/>
                             </Setter.Value>
                         </Setter>
                         <Style.Triggers>
@@ -105,15 +105,15 @@
                                 <Setter Property="Background">
                                     <Setter.Value>
                                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                            <GradientStop Color="#B45309" Offset="0"/>
-                                            <GradientStop Color="#F59E0B" Offset="1"/>
+                                            <GradientStop Color="{DynamicResource WarningColor}" Offset="0"/>
+                                            <GradientStop Color="{DynamicResource WarningColor}" Offset="1"/>
                                         </LinearGradientBrush>
                                     </Setter.Value>
                                 </Setter>
                                 <Setter Property="Effect">
                                     <Setter.Value>
                                         <DropShadowEffect BlurRadius="20" ShadowDepth="4"
-                                                          Opacity="0.15" Color="#B45309"/>
+                                                          Opacity="0.15" Color="{DynamicResource WarningColor}"/>
                                     </Setter.Value>
                                 </Setter>
                             </DataTrigger>
@@ -133,7 +133,7 @@
                     <Border Grid.Column="0"
                             Width="64" Height="64"
                             Background="#FFFFFF33"
-                            CornerRadius="16"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             VerticalAlignment="Center">
                         <TextBlock FontSize="32" FontWeight="Bold"
                                    Foreground="White"
@@ -210,8 +210,8 @@
                                 Padding="24,20">
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#1D4ED8" Offset="0"/>
-                                    <GradientStop Color="#3B82F6" Offset="1"/>
+                                    <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                                    <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
                             <StackPanel Orientation="Horizontal">
@@ -241,18 +241,18 @@
                                     Margin="24,32,24,24"
                                     HorizontalAlignment="Center">
                             <Border Width="96" Height="120"
-                                    CornerRadius="12"
+                                    CornerRadius="{DynamicResource CardCornerRadius}"
                                     HorizontalAlignment="Center"
                                     Margin="0,0,0,20">
                                 <Border.Background>
                                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                        <GradientStop Color="#DC2626" Offset="0"/>
-                                        <GradientStop Color="#B91C1C" Offset="1"/>
+                                        <GradientStop Color="{DynamicResource DangerColor}" Offset="0"/>
+                                        <GradientStop Color="{DynamicResource DangerColor}" Offset="1"/>
                                     </LinearGradientBrush>
                                 </Border.Background>
                                 <Border.Effect>
                                     <DropShadowEffect BlurRadius="14" ShadowDepth="4"
-                                                      Opacity="0.25" Color="#B91C1C"/>
+                                                      Opacity="0.25" Color="{DynamicResource DangerColor}"/>
                                 </Border.Effect>
                                 <Grid>
                                     <TextBlock Text="PDF"
@@ -284,23 +284,23 @@
                                         HorizontalAlignment="Center"
                                         Margin="0,10,0,0">
                                 <Border Background="{DynamicResource TintIndigoBrush}"
-                                        BorderBrush="#C7D2FE"
+                                        BorderBrush="{DynamicResource TintIndigoBrush}"
                                         BorderThickness="1"
-                                        CornerRadius="6"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="8,4"
                                         Margin="0,0,6,0">
                                     <TextBlock Text="{Binding LastPdfPageInfo}"
                                                FontSize="11" FontWeight="SemiBold"
                                                Foreground="{DynamicResource AccentBrush}"/>
                                 </Border>
-                                <Border Background="#F5F3FF"
-                                        BorderBrush="#DDD6FE"
+                                <Border Background="{DynamicResource TintPurpleBrush}"
+                                        BorderBrush="{DynamicResource OutlineBrush}"
                                         BorderThickness="1"
-                                        CornerRadius="6"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="8,4">
                                     <TextBlock Text="{Binding LastPdfSize}"
                                                FontSize="11" FontWeight="SemiBold"
-                                               Foreground="#6D28D9"/>
+                                               Foreground="{DynamicResource AccentDarkBrush}"/>
                                 </Border>
                             </StackPanel>
                         </StackPanel>
@@ -312,16 +312,16 @@
                                 Cursor="Hand" BorderThickness="0">
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
-                                    <Border x:Name="bd" CornerRadius="12">
+                                    <Border x:Name="bd" CornerRadius="{DynamicResource CardCornerRadius}">
                                         <Border.Background>
                                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                <GradientStop Color="#1D4ED8" Offset="0"/>
-                                                <GradientStop Color="#3B82F6" Offset="1"/>
+                                                <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                                                <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
                                             </LinearGradientBrush>
                                         </Border.Background>
                                         <Border.Effect>
                                             <DropShadowEffect BlurRadius="10" ShadowDepth="3"
-                                                              Opacity="0.3" Color="#1D4ED8"/>
+                                                              Opacity="0.3" Color="{DynamicResource AccentColor}"/>
                                         </Border.Effect>
                                         <StackPanel Orientation="Horizontal"
                                                     HorizontalAlignment="Center"
@@ -413,7 +413,7 @@
                                                Foreground="White"/>
                                     <TextBlock Text="Browse what's inside your merged report"
                                                FontSize="11"
-                                               Foreground="#C7D2FE"
+                                               Foreground="{DynamicResource TintIndigoBrush}"
                                                Margin="0,2,0,0"/>
                                 </StackPanel>
                             </StackPanel>
@@ -432,7 +432,7 @@
                                         Cursor="Hand" BorderThickness="0">
                                     <Button.Template>
                                         <ControlTemplate TargetType="Button">
-                                            <Border x:Name="bd" CornerRadius="8"
+                                            <Border x:Name="bd" CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="{TemplateBinding Padding}">
                                                 <Border.Style>
                                                     <Style TargetType="Border">
@@ -442,8 +442,8 @@
                                                                 <Setter Property="Background">
                                                                     <Setter.Value>
                                                                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                                            <GradientStop Color="#1D4ED8" Offset="0"/>
-                                                                            <GradientStop Color="#3B82F6" Offset="1"/>
+                                                                            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                                                                            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
                                                                         </LinearGradientBrush>
                                                                     </Setter.Value>
                                                                 </Setter>
@@ -466,7 +466,7 @@
                                                             </Style>
                                                         </TextBlock.Style>
                                                     </TextBlock>
-                                                    <Border CornerRadius="8" Padding="6,1"
+                                                    <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="6,1"
                                                             VerticalAlignment="Center">
                                                         <Border.Style>
                                                             <Style TargetType="Border">
@@ -506,7 +506,7 @@
                                         Cursor="Hand" BorderThickness="0">
                                     <Button.Template>
                                         <ControlTemplate TargetType="Button">
-                                            <Border x:Name="bd" CornerRadius="8"
+                                            <Border x:Name="bd" CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="{TemplateBinding Padding}">
                                                 <Border.Style>
                                                     <Style TargetType="Border">
@@ -516,8 +516,8 @@
                                                                 <Setter Property="Background">
                                                                     <Setter.Value>
                                                                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                                            <GradientStop Color="#1D4ED8" Offset="0"/>
-                                                                            <GradientStop Color="#3B82F6" Offset="1"/>
+                                                                            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
+                                                                            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="1"/>
                                                                         </LinearGradientBrush>
                                                                     </Setter.Value>
                                                                 </Setter>
@@ -540,7 +540,7 @@
                                                             </Style>
                                                         </TextBlock.Style>
                                                     </TextBlock>
-                                                    <Border CornerRadius="8" Padding="6,1"
+                                                    <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="6,1"
                                                             VerticalAlignment="Center">
                                                         <Border.Style>
                                                             <Style TargetType="Border">
@@ -580,7 +580,7 @@
                                         Cursor="Hand" BorderThickness="0">
                                     <Button.Template>
                                         <ControlTemplate TargetType="Button">
-                                            <Border x:Name="bd" CornerRadius="8"
+                                            <Border x:Name="bd" CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="{TemplateBinding Padding}">
                                                 <Border.Style>
                                                     <Style TargetType="Border">
@@ -590,8 +590,8 @@
                                                                 <Setter Property="Background">
                                                                     <Setter.Value>
                                                                         <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                                            <GradientStop Color="#B45309" Offset="0"/>
-                                                                            <GradientStop Color="#F59E0B" Offset="1"/>
+                                                                            <GradientStop Color="{DynamicResource WarningColor}" Offset="0"/>
+                                                                            <GradientStop Color="{DynamicResource WarningColor}" Offset="1"/>
                                                                         </LinearGradientBrush>
                                                                     </Setter.Value>
                                                                 </Setter>
@@ -614,7 +614,7 @@
                                                             </Style>
                                                         </TextBlock.Style>
                                                     </TextBlock>
-                                                    <Border CornerRadius="8" Padding="6,1"
+                                                    <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="6,1"
                                                             VerticalAlignment="Center">
                                                         <Border.Style>
                                                             <Style TargetType="Border">
@@ -678,7 +678,7 @@
                                                     </Grid.ColumnDefinitions>
                                                     <Border Grid.Column="0"
                                                             Width="34" Height="34"
-                                                            CornerRadius="8"
+                                                            CornerRadius="{DynamicResource ControlCornerRadius}"
                                                             Margin="0,0,12,0"
                                                             VerticalAlignment="Center"
                                                             Background="{Binding IconColorHex,
@@ -697,7 +697,7 @@
                                                                    Margin="0,2,0,0"/>
                                                     </StackPanel>
                                                     <Border Grid.Column="2"
-                                                            CornerRadius="6" Padding="8,3"
+                                                            CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
                                                             VerticalAlignment="Center"
                                                             Visibility="{Binding HasStatus,
                                                                 Converter={StaticResource BoolToVisibilityConverter}}"
@@ -733,7 +733,7 @@
                                                     </Grid.ColumnDefinitions>
                                                     <Border Grid.Column="0"
                                                             Width="34" Height="34"
-                                                            CornerRadius="8"
+                                                            CornerRadius="{DynamicResource ControlCornerRadius}"
                                                             Margin="0,0,12,0"
                                                             VerticalAlignment="Center"
                                                             Background="{Binding IconColorHex,
@@ -752,7 +752,7 @@
                                                                    Margin="0,2,0,0"/>
                                                     </StackPanel>
                                                     <Border Grid.Column="2"
-                                                            CornerRadius="6" Padding="8,3"
+                                                            CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
                                                             VerticalAlignment="Center"
                                                             Visibility="{Binding HasStatus,
                                                                 Converter={StaticResource BoolToVisibilityConverter}}"
@@ -788,7 +788,7 @@
                                                     </Grid.ColumnDefinitions>
                                                     <Border Grid.Column="0"
                                                             Width="34" Height="34"
-                                                            CornerRadius="8"
+                                                            CornerRadius="{DynamicResource ControlCornerRadius}"
                                                             Margin="0,0,12,0"
                                                             VerticalAlignment="Center"
                                                             Background="{Binding IconColorHex,
@@ -807,7 +807,7 @@
                                                                    Margin="0,2,0,0"/>
                                                     </StackPanel>
                                                     <Border Grid.Column="2"
-                                                            CornerRadius="6" Padding="8,3"
+                                                            CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
                                                             VerticalAlignment="Center"
                                                             Visibility="{Binding HasStatus,
                                                                 Converter={StaticResource BoolToVisibilityConverter}}"
@@ -833,7 +833,7 @@
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="12"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="20,14">
                 <Grid>
                     <Grid.ColumnDefinitions>

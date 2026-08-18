@@ -32,7 +32,7 @@
     ═══════════════════════════════════════════════════════════════ -->
     <SolidColorBrush x:Key="PillBorderLightBrush" Color="#93C5FD" po:Freeze="True"/>
     <SolidColorBrush x:Key="ProviderDotBlue"      Color="#4285F4" po:Freeze="True"/>
-    <SolidColorBrush x:Key="ProviderDotAmber"     Color="#F59E0B" po:Freeze="True"/>
+    <SolidColorBrush x:Key="ProviderDotAmber"     Color="{DynamicResource WarningColor}" po:Freeze="True"/>
     <SolidColorBrush x:Key="ProviderDotViolet"    Color="#8B5CF6" po:Freeze="True"/>
 
     <!-- ═══════════════════════════════════════════════════════════════
@@ -299,7 +299,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="12"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             SnapsToDevicePixels="True"
                             UseLayoutRounding="True">
                         <ScrollViewer x:Name="PART_ContentHost"
@@ -576,7 +576,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="RepeatButton">
                     <Border Background="{DynamicResource MenuHoverBrush}"
-                            CornerRadius="12"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             SnapsToDevicePixels="True"/>
                 </ControlTemplate>
             </Setter.Value>
@@ -590,7 +590,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="RepeatButton">
                     <Border Background="{DynamicResource AccentBrush}"
-                            CornerRadius="12"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             SnapsToDevicePixels="True"/>
                 </ControlTemplate>
             </Setter.Value>
@@ -636,7 +636,7 @@
                 <ControlTemplate TargetType="Slider">
                     <Grid VerticalAlignment="Center">
                         <!-- Base rounded bar -->
-                        <Border Height="40" CornerRadius="12"
+                        <Border Height="40" CornerRadius="{DynamicResource CardCornerRadius}"
                                 Background="{DynamicResource MenuHoverBrush}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
                                 BorderThickness="1"

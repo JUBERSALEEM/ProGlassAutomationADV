@@ -232,7 +232,7 @@ PRESERVED EXACTLY:
                                 <Border Grid.Column="0"
                                         Background="{DynamicResource TintIndigoBrush}"
                                         Width="28" Height="28"
-                                        CornerRadius="8"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                         HorizontalAlignment="Left"
                                         VerticalAlignment="Center">
                                     <TextBlock Text="{Binding GroupNumber}"
@@ -271,7 +271,7 @@ PRESERVED EXACTLY:
                                                StringFormat={}{0:0.00} lm}"
                                            Style="{StaticResource RowCellStyle}"
                                            HorizontalAlignment="Right"
-                                           Foreground="#7C3AED"/>
+                                           Foreground="{DynamicResource AccentHoverBrush}"/>
 
                                 <!-- VALUE — Deep Forest Green -->
                                 <TextBlock Grid.Column="5"

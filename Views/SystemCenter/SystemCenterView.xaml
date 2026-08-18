@@ -440,7 +440,7 @@
                                                            FontSize="13" FontWeight="Bold"
                                                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                                 <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintGreenBrush}"
-                                                        CornerRadius="8"
+                                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="6,1"
                                                         Margin="8,0,0,0"
                                                         VerticalAlignment="Center">

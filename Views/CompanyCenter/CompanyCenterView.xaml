@@ -77,7 +77,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border Margin="0,0,0,10" Padding="14,12"
-                                    CornerRadius="12" Cursor="Hand"
+                                    CornerRadius="{DynamicResource CardCornerRadius}" Cursor="Hand"
                                     BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}"
                                     Background="{DynamicResource ModuleBackgroundBrush}"
                                     SnapsToDevicePixels="True">
@@ -101,7 +101,7 @@
                                     </Grid.ColumnDefinitions>
 
                                     <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Width="46" Height="46"
-                                            CornerRadius="12"
+                                            CornerRadius="{DynamicResource CardCornerRadius}"
                                             VerticalAlignment="Center"
                                             Background="{DynamicResource TintIndigoBrush}">
                                         <TextBlock Text="&#xE822;"
@@ -131,7 +131,7 @@
                                     <StackPanel Grid.Column="2"
                                                 VerticalAlignment="Center">
                                         <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintIndigoBrush}"
-                                                CornerRadius="8" Padding="8,3"
+                                                CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
                                                 Visibility="Collapsed">
                                             <Border.Style>
                                                 <Style TargetType="Border">

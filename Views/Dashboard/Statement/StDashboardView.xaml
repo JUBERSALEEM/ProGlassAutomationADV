@@ -66,7 +66,7 @@
         <DataTemplate x:Key="StStatementRowTemplate">
             <Border Margin="0,0,0,8"
                     Padding="12,10"
-                    CornerRadius="12"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     SnapsToDevicePixels="True"
                     Background="{DynamicResource TintGrayBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
@@ -116,7 +116,7 @@
                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
 
                             <Border Margin="10,0,0,0"
-                                    CornerRadius="6"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Padding="6,2"
                                     VerticalAlignment="Center"
                                     SnapsToDevicePixels="True"

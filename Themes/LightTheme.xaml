@@ -55,6 +55,19 @@
                      po:Freeze="True"/>
 
     <!-- ── Text ─────────────────────────────────────────────────────── -->
+    <Color x:Key="PrimaryForegroundColor">#0F172A</Color>
+    <Color x:Key="SecondaryForegroundColor">#6B7280</Color>
+    <Color x:Key="MutedForegroundColor">#9CA3AF</Color>
+    <Color x:Key="SuccessColor">#10B981</Color>
+    <Color x:Key="WarningColor">#F59E0B</Color>
+    <Color x:Key="DangerColor">#EF4444</Color>
+    <Color x:Key="TintIndigoColor">#EEF2FF</Color>
+    <Color x:Key="TintRedColor">#FEF2F2</Color>
+    <Color x:Key="TintGreenColor">#EFF6FF</Color>
+    <Color x:Key="TintAmberColor">#FFFBEB</Color>
+    <Color x:Key="TintPurpleColor">#F5F3FF</Color>
+    <Color x:Key="TintGrayColor">#F9FAFB</Color>
+    <Color x:Key="BorderColor">#E5E7EB</Color>
     <SolidColorBrush x:Key="PrimaryForegroundBrush"
                      Color="#0F172A"
                      po:Freeze="True"/>

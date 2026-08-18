@@ -125,7 +125,7 @@
 
             <Border Grid.Column="0"
                     Background="{DynamicResource AccentBrush}"
-                    CornerRadius="12"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="16,14">
                 <StackPanel>
                     <TextBlock Text="STATEMENTS"
@@ -145,7 +145,7 @@
 
             <Border Grid.Column="2"
                     Background="{DynamicResource SuccessBrush}"
-                    CornerRadius="12"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="16,14">
                 <StackPanel>
                     <TextBlock Text="TOTAL INVOICED"
@@ -165,7 +165,7 @@
 
             <Border Grid.Column="4"
                     Background="{DynamicResource WarningBrush}"
-                    CornerRadius="12"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="16,14">
                 <StackPanel>
                     <TextBlock Text="OUTSTANDING"
@@ -183,7 +183,7 @@
                 </StackPanel>
             </Border>
 
-            <Border Grid.Column="6" CornerRadius="12" Padding="16,14">
+            <Border Grid.Column="6" CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,14">
                 <Border.Style>
                     <Style TargetType="Border">
                         <Setter Property="Background"
@@ -251,7 +251,7 @@
                 Background="{DynamicResource SideMenuBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
-                CornerRadius="12"
+                CornerRadius="{DynamicResource CardCornerRadius}"
                 Padding="12,10">
             <Grid>
                 <Grid.ColumnDefinitions>
@@ -319,7 +319,7 @@
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="bd"
                                             Background="{TemplateBinding Background}"
-                                            CornerRadius="6">
+                                            CornerRadius="{DynamicResource ControlCornerRadius}">
                                         <ContentPresenter HorizontalAlignment="Center"
                                                           VerticalAlignment="Center"/>
                                     </Border>
@@ -582,7 +582,7 @@
                         <Border Background="{DynamicResource SideMenuBackgroundBrush}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
-                                CornerRadius="12"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
                                 ClipToBounds="True">
                             <Border.Style>
                                 <Style TargetType="Border">
@@ -639,7 +639,7 @@
                                         <StackPanel Orientation="Horizontal">
                                             <!-- FIX: Invoice count badge Runs need Mode=OneWay -->
                                             <Border Background="{DynamicResource AccentBrush}"
-                                                    CornerRadius="6"
+                                                    CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="8,3"
                                                     Margin="0,0,8,0">
                                                 <TextBlock FontSize="10"
@@ -657,7 +657,7 @@
                                                        Margin="0,0,8,0"/>
 
                                             <Border Background="{DynamicResource SuccessBrush}"
-                                                    CornerRadius="6"
+                                                    CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="8,3"
                                                     Visibility="{Binding HasAttachments,
                                                         Converter={StaticResource BoolToVisibilityConverter}}">
@@ -722,7 +722,7 @@
                                 <Border Grid.Column="4"
                                         VerticalAlignment="Center"
                                         HorizontalAlignment="Left"
-                                        CornerRadius="8"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="12,6">
                                     <Border.Style>
                                         <Style TargetType="Border">
@@ -773,7 +773,7 @@
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="bd"
                                                             Background="{DynamicResource AccentBrush}"
-                                                            CornerRadius="8"
+                                                            CornerRadius="{DynamicResource ControlCornerRadius}"
                                                             Padding="{TemplateBinding Padding}">
                                                         <TextBlock Text="PDF"
                                                                    FontSize="12"
@@ -812,7 +812,7 @@
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="bd"
                                                             Background="{DynamicResource WarningBrush}"
-                                                            CornerRadius="8"
+                                                            CornerRadius="{DynamicResource ControlCornerRadius}"
                                                             Padding="{TemplateBinding Padding}">
                                                         <TextBlock Text="Edit"
                                                                    FontSize="12"
@@ -845,7 +845,7 @@
                                                 <ControlTemplate TargetType="Button">
                                                     <Border x:Name="bd"
                                                             Background="{DynamicResource DangerBrush}"
-                                                            CornerRadius="8">
+                                                            CornerRadius="{DynamicResource ControlCornerRadius}">
                                                         <TextBlock Text="✕"
                                                                    FontSize="13"
                                                                    FontWeight="Bold"

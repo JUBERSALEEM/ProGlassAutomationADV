@@ -97,7 +97,7 @@
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
-                CornerRadius="16"
+                CornerRadius="{DynamicResource CardCornerRadius}"
                 Margin="20,20,20,0"
                 Padding="20">
             <StackPanel>
@@ -105,7 +105,7 @@
                 <StackPanel Orientation="Horizontal" Margin="0,0,0,6">
                     <Border Background="{DynamicResource TintIndigoBrush}"
                             Width="28" Height="28"
-                            CornerRadius="8"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
                             VerticalAlignment="Center"
                             Margin="0,0,10,0">
                         <TextBlock Text="&#xE7BF;"
@@ -255,7 +255,7 @@
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
-                CornerRadius="16"
+                CornerRadius="{DynamicResource CardCornerRadius}"
                 Margin="20,16,20,0">
             <Grid>
                 <Grid.RowDefinitions>

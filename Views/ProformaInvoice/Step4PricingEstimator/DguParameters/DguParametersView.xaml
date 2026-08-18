@@ -27,7 +27,7 @@
     -->
 
     <Border Background="{DynamicResource ModuleBackgroundBrush}"
-            CornerRadius="12"
+            CornerRadius="{DynamicResource CardCornerRadius}"
             Padding="10"
             Margin="0,6,0,0"
             BorderThickness="{DynamicResource CardBorderThickness}"
@@ -38,7 +38,7 @@
             <Border Background="{DynamicResource TintPurpleBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="6"
+                    CornerRadius="{DynamicResource ControlCornerRadius}"
                     Padding="8,5"
                     Margin="0,0,0,6">
                 <StackPanel Orientation="Horizontal">

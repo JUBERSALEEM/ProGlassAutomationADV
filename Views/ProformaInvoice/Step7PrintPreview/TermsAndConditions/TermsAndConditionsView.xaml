@@ -36,7 +36,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 SnapsToDevicePixels="True">
                             <ScrollViewer x:Name="PART_ContentHost"
                                           Focusable="False"
@@ -107,7 +107,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg"
                                 Background="Transparent"
-                                CornerRadius="6"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
@@ -131,7 +131,7 @@
          TERMS & CONDITIONS CARD
     ══════════════════════════════════════════════════════════════════ -->
     <Border Background="{DynamicResource ModuleBackgroundBrush}"
-            CornerRadius="16"
+            CornerRadius="{DynamicResource CardCornerRadius}"
             Padding="20"
             BorderThickness="1"
             BorderBrush="{DynamicResource BorderBrush}">
@@ -186,7 +186,7 @@
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="B"
                                         Background="{DynamicResource AccentBrush}"
-                                        CornerRadius="8"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="14,8"
                                         SnapsToDevicePixels="True">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -228,7 +228,7 @@
                                         Background="{DynamicResource ModuleBackgroundBrush}"
                                         BorderBrush="{DynamicResource BorderBrush}"
                                         BorderThickness="{DynamicResource CardBorderThickness}"
-                                        CornerRadius="8"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="14,8"
                                         SnapsToDevicePixels="True">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -248,7 +248,7 @@
                                 <ControlTemplate.Triggers>
                                     <Trigger Property="IsMouseOver" Value="True">
                                         <Setter TargetName="B" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                                        <Setter TargetName="B" Property="Background"  Value="#EEF2FF"/>
+                                        <Setter TargetName="B" Property="Background"  Value="{DynamicResource TintIndigoBrush}"/>
                                     </Trigger>
                                 </ControlTemplate.Triggers>
                             </ControlTemplate>
@@ -269,7 +269,7 @@
                 <ItemsControl.ItemTemplate>
                     <DataTemplate DataType="{x:Type models:TermClause}">
                         <Border Background="{DynamicResource WindowBackgroundBrush}"
-                                CornerRadius="12"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="16"
                                 Margin="0,0,0,12"
                                 BorderThickness="1"
@@ -289,7 +289,7 @@
                                     <Border Grid.Column="0"
                                             Background="{DynamicResource AccentBrush}"
                                             Width="28" Height="28"
-                                            CornerRadius="8"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
                                             VerticalAlignment="Center">
                                         <TextBlock Text="{Binding Order}"
                                                    FontSize="12"
@@ -421,7 +421,7 @@
                                                             Background="Transparent"
                                                             BorderBrush="{DynamicResource AccentBrush}"
                                                             BorderThickness="1"
-                                                            CornerRadius="6"
+                                                            CornerRadius="{DynamicResource ControlCornerRadius}"
                                                             Padding="8,3">
                                                         <StackPanel Orientation="Horizontal">
                                                             <TextBlock Text="+"
@@ -437,7 +437,7 @@
                                                     </Border>
                                                     <ControlTemplate.Triggers>
                                                         <Trigger Property="IsMouseOver" Value="True">
-                                                            <Setter TargetName="B" Property="Background" Value="#EEF2FF"/>
+                                                            <Setter TargetName="B" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
                                                         </Trigger>
                                                         <Trigger Property="IsPressed" Value="True">
                                                             <Setter TargetName="B" Property="Background" Value="{DynamicResource AccentBrush}"/>

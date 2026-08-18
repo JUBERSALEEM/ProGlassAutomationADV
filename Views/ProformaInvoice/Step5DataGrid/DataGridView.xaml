@@ -94,7 +94,7 @@ PRESERVED EXACTLY:
                     <ControlTemplate TargetType="TextBox">
                         <Border x:Name="InputBorder"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="6"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 SnapsToDevicePixels="True">
@@ -148,7 +148,7 @@ PRESERVED EXACTLY:
                     <ControlTemplate TargetType="TextBox">
                         <Border x:Name="InputBorder"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="6"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 SnapsToDevicePixels="True">
@@ -200,7 +200,7 @@ PRESERVED EXACTLY:
                     <ControlTemplate TargetType="TextBox">
                         <Border x:Name="InputBorder"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="6"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 SnapsToDevicePixels="True">
@@ -267,7 +267,7 @@ PRESERVED EXACTLY:
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsFocused" Value="True">
                                 <Setter TargetName="GenBorder"
-                                        Property="Background" Value="#EEF2FF"/>
+                                        Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -311,7 +311,7 @@ PRESERVED EXACTLY:
                     <ControlTemplate TargetType="ComboBoxItem">
                         <Border x:Name="ItemBorder"
                                 Background="Transparent"
-                                CornerRadius="6"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="{TemplateBinding Padding}"
                                 Margin="2,1">
                             <ContentPresenter/>
@@ -355,7 +355,7 @@ PRESERVED EXACTLY:
                                     Background="{TemplateBinding Background}"
                                     BorderBrush="{TemplateBinding BorderBrush}"
                                     BorderThickness="{TemplateBinding BorderThickness}"
-                                    CornerRadius="8">
+                                    CornerRadius="{DynamicResource ControlCornerRadius}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -397,7 +397,7 @@ PRESERVED EXACTLY:
                                     Background="{DynamicResource ModuleBackgroundBrush}"
                                     BorderBrush="{DynamicResource AccentBrush}"
                                     BorderThickness="{DynamicResource CardBorderThickness}"
-                                    CornerRadius="8"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Margin="0,4,0,0">
                                     <Border.Effect>
                                         <DropShadowEffect BlurRadius="12"
@@ -457,7 +457,7 @@ PRESERVED EXACTLY:
                                     Background="{TemplateBinding Background}"
                                     BorderBrush="{TemplateBinding BorderBrush}"
                                     BorderThickness="{TemplateBinding BorderThickness}"
-                                    CornerRadius="8">
+                                    CornerRadius="{DynamicResource ControlCornerRadius}">
                                 <Grid>
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="*"/>
@@ -505,7 +505,7 @@ PRESERVED EXACTLY:
                                     Background="{DynamicResource ModuleBackgroundBrush}"
                                     BorderBrush="{DynamicResource AccentBrush}"
                                     BorderThickness="{DynamicResource CardBorderThickness}"
-                                    CornerRadius="8"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Margin="0,4,0,0">
                                     <Border.Effect>
                                         <DropShadowEffect BlurRadius="12"
@@ -704,7 +704,7 @@ PRESERVED EXACTLY:
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="12"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="40,32"
                     Margin="0,0,0,16"
                     HorizontalAlignment="Stretch"
@@ -766,7 +766,7 @@ PRESERVED EXACTLY:
                     <DataTemplate>
                         <Border
                             Background="{DynamicResource ModuleBackgroundBrush}"
-                            CornerRadius="12"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="20"
                             Margin="0,0,0,16"
                             BorderThickness="{DynamicResource CardBorderThickness}"
@@ -791,7 +791,7 @@ PRESERVED EXACTLY:
                                     <Border Grid.Column="0"
                                             Background="{DynamicResource AccentBrush}"
                                             Width="32" Height="32"
-                                            CornerRadius="8"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
                                             VerticalAlignment="Center">
                                         <TextBlock Text="{Binding GroupNumber}"
                                                    FontSize="14"
@@ -848,7 +848,7 @@ PRESERVED EXACTLY:
                                             <ControlTemplate TargetType="Button">
                                                 <Border x:Name="RB"
                                                         Background="Transparent"
-                                                        CornerRadius="8"
+                                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="8,6">
                                                     <TextBlock Text="&#xE74D;"
                                                                FontFamily="Segoe MDL2 Assets"
@@ -859,7 +859,7 @@ PRESERVED EXACTLY:
                                                     <Trigger Property="IsMouseOver" Value="True">
                                                         <Setter TargetName="RB"
                                                                 Property="Background"
-                                                                Value="#FEE2E2"/>
+                                                                Value="{DynamicResource TintRedBrush}"/>
                                                     </Trigger>
                                                     <Trigger Property="IsEnabled" Value="False">
                                                         <Setter TargetName="RB"
@@ -877,9 +877,9 @@ PRESERVED EXACTLY:
 
                                     <!-- IMPORTED PRICE — fixed indigo badge -->
                                     <Border Background="{DynamicResource TintIndigoBrush}"
-                                            BorderBrush="#C7D2FE"
+                                            BorderBrush="{DynamicResource TintIndigoBrush}"
                                             BorderThickness="1"
-                                            CornerRadius="8"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Padding="12,7"
                                             Margin="0,0,10,0">
                                         <StackPanel Orientation="Horizontal">
@@ -921,7 +921,7 @@ PRESERVED EXACTLY:
                                     <Border Background="{DynamicResource TintGreenBrush}"
                                             BorderBrush="{DynamicResource OutlineBrush}"
                                             BorderThickness="{DynamicResource CardBorderThickness}"
-                                            CornerRadius="8"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Padding="12,7">
                                         <StackPanel Orientation="Horizontal">
                                             <TextBlock Text="&#xE9D9;"
@@ -969,7 +969,7 @@ PRESERVED EXACTLY:
                                     <Border Background="{DynamicResource TintIndigoBrush}"
                                             BorderBrush="{DynamicResource OutlineBrush}"
                                             BorderThickness="{DynamicResource CardBorderThickness}"
-                                            CornerRadius="8"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Padding="12,7">
                                         <Border.Style>
                                             <Style TargetType="Border">
@@ -1121,7 +1121,7 @@ PRESERVED EXACTLY:
                                                            Foreground="{DynamicResource MutedForegroundBrush}"
                                                            VerticalAlignment="Center"/>
                                                 <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintIndigoBrush}"
-                                                        CornerRadius="6"
+                                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="10,3"
                                                         MinWidth="34">
                                                     <TextBlock Text="{Binding TotalRows}"
@@ -1135,7 +1135,7 @@ PRESERVED EXACTLY:
 
                                         <!-- Column headers -->
                                         <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource MenuHoverBrush}"
-                                                CornerRadius="6"
+                                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Padding="4,7">
                                             <Border.Style>
                                                 <Style TargetType="Border">
@@ -1346,7 +1346,7 @@ PRESERVED EXACTLY:
                                                                 <ControlTemplate TargetType="Button">
                                                                     <Border x:Name="DB"
                                                                             Background="Transparent"
-                                                                            CornerRadius="6"
+                                                                            CornerRadius="{DynamicResource ControlCornerRadius}"
                                                                             Padding="5,3">
                                                                         <TextBlock Text="&#xE711;"
                                                                             FontFamily="Segoe MDL2 Assets"
@@ -1359,7 +1359,7 @@ PRESERVED EXACTLY:
                                                                                  Value="True">
                                                                             <Setter TargetName="DB"
                                                                                 Property="Background"
-                                                                                Value="#FEE2E2"/>
+                                                                                Value="{DynamicResource TintRedBrush}"/>
                                                                         </Trigger>
                                                                     </ControlTemplate.Triggers>
                                                                 </ControlTemplate>
@@ -1373,7 +1373,7 @@ PRESERVED EXACTLY:
 
                                         <!-- FOOTER TOTALS -->
                                         <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource MenuHoverBrush}"
-                                                CornerRadius="6"
+                                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Padding="4,8"
                                                 Margin="0,6,0,0">
                                             <Border.Style>
@@ -1506,7 +1506,7 @@ PRESERVED EXACTLY:
                                             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                                                     BorderBrush="{DynamicResource AccentBrush}"
                                                     BorderThickness="{DynamicResource CardBorderThickness}"
-                                                    CornerRadius="8"
+                                                    CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Margin="0,0,10,0"
                                                     VerticalAlignment="Center">
                                                 <StackPanel Orientation="Horizontal">
@@ -1557,7 +1557,7 @@ PRESERVED EXACTLY:
                                                                         CornerRadius="0,6,6,0"
                                                                         Padding="10,8"
                                                                         BorderThickness="1,0,0,0"
-                                                                        BorderBrush="#C7D2FE">
+                                                                        BorderBrush="{DynamicResource TintIndigoBrush}">
                                                                     <StackPanel Orientation="Horizontal">
                                                                         <TextBlock Text="&#xE710;"
                                                                             FontFamily="Segoe MDL2 Assets"
@@ -1577,7 +1577,7 @@ PRESERVED EXACTLY:
                                                                              Value="True">
                                                                         <Setter TargetName="GB"
                                                                             Property="Background"
-                                                                            Value="#EEF2FF"/>
+                                                                            Value="{DynamicResource TintIndigoBrush}"/>
                                                                     </Trigger>
                                                                     <Trigger Property="IsPressed"
                                                                              Value="True">
@@ -1604,7 +1604,7 @@ PRESERVED EXACTLY:
                                                     <ControlTemplate TargetType="Button">
                                                         <Border x:Name="AB"
                                                                 Background="{DynamicResource ModuleBackgroundBrush}"
-                                                                CornerRadius="8"
+                                                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                                                 Padding="14,10"
                                                                 BorderThickness="{DynamicResource CardBorderThickness}"
                                                                 BorderBrush="{DynamicResource AccentBrush}">
@@ -1625,7 +1625,7 @@ PRESERVED EXACTLY:
                                                                      Value="True">
                                                                 <Setter TargetName="AB"
                                                                     Property="Background"
-                                                                    Value="#EEF2FF"/>
+                                                                    Value="{DynamicResource TintIndigoBrush}"/>
                                                             </Trigger>
                                                             <Trigger Property="IsPressed"
                                                                      Value="True">
@@ -1661,7 +1661,7 @@ PRESERVED EXACTLY:
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="AGB"
                                 Background="{DynamicResource AccentBrush}"
-                                CornerRadius="8"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="16,10">
                             <StackPanel Orientation="Horizontal">
                                 <TextBlock Text="+"

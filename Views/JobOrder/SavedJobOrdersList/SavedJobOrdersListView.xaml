@@ -120,7 +120,7 @@
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="12"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="16,12"
                     Margin="8,0,8,12"
                     SnapsToDevicePixels="True">
@@ -212,7 +212,7 @@
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="12"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="16,12"
                     Margin="8,0,8,16">
                 <Grid>
@@ -388,7 +388,7 @@
                                         <Border Background="{DynamicResource TintGrayBrush}"
                                                 BorderBrush="{DynamicResource OutlineBrush}"
                                                 BorderThickness="{DynamicResource CardBorderThickness}"
-                                                CornerRadius="12"
+                                                CornerRadius="{DynamicResource CardCornerRadius}"
                                                 Padding="10,3"
                                                 Margin="0,0,6,0">
                                             <TextBlock Text="{Binding ProjectName}"
@@ -400,7 +400,7 @@
                                         <Border Background="{DynamicResource TintBlueBrush}"
                                                 BorderBrush="{DynamicResource OutlineBrush}"
                                                 BorderThickness="{DynamicResource CardBorderThickness}"
-                                                CornerRadius="12"
+                                                CornerRadius="{DynamicResource CardCornerRadius}"
                                                 Padding="10,3"
                                                 Margin="0,0,6,0">
                                             <TextBlock FontSize="10" FontWeight="SemiBold"
@@ -411,13 +411,13 @@
                                         </Border>
 
                                         <!-- Overdue warning (only visible when overdue) -->
-                                        <Border CornerRadius="12"
+                                        <Border CornerRadius="{DynamicResource CardCornerRadius}"
                                                 Padding="10,3"
                                                 Margin="0,0,6,0">
                                             <Border.Style>
                                                 <Style TargetType="Border">
                                                     <Setter Property="Visibility" Value="Collapsed"/>
-                                                    <Setter Property="Background" Value="#B91C1C"/>
+                                                    <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding IsOverdue}" Value="True">
                                                             <Setter Property="Visibility" Value="Visible"/>

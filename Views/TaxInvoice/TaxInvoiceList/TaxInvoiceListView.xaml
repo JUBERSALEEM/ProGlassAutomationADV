@@ -115,8 +115,8 @@
                             </Border.BorderBrush>
                             <Border.Background>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="#EEF2FF" Offset="0"/>
-                                    <GradientStop Color="#E0E7FF" Offset="1"/>
+                                    <GradientStop Color="{DynamicResource TintIndigoColor}" Offset="0"/>
+                                    <GradientStop Color="{DynamicResource TintIndigoColor}" Offset="1"/>
                                 </LinearGradientBrush>
                             </Border.Background>
                             <StackPanel Orientation="Horizontal"
@@ -164,7 +164,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="8"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
@@ -213,11 +213,11 @@
                                 <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding IsFullyPaid}" Value="True">
-                                <Setter Property="BorderBrush" Value="#047857"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
                                 <Setter Property="BorderThickness" Value="1.5"/>
                             </DataTrigger>
                             <DataTrigger Binding="{Binding AnyOverdue}" Value="True">
-                                <Setter Property="BorderBrush" Value="#B91C1C"/>
+                                <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
@@ -242,7 +242,7 @@
                                        VerticalAlignment="Center"/>
 
                             <!-- Invoice count badge -->
-                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="6" Padding="7,2"
+                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2"
                                     Margin="10,0,0,0" VerticalAlignment="Center"
                                     Background="{DynamicResource TintIndigoBrush}">
                                 <TextBlock FontSize="9" FontWeight="Bold"
@@ -254,7 +254,7 @@
                             </Border>
 
                             <!-- Family status badge -->
-                            <Border CornerRadius="6" Padding="7,2"
+                            <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2"
                                     Margin="6,0,0,0" VerticalAlignment="Center">
                                 <Border.Background>
                                     <Binding Path="FamilyStatusBrushKey"
@@ -266,7 +266,7 @@
                             </Border>
 
                             <!-- Overdue warning -->
-                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="6" Padding="7,2"
+                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2"
                                     Margin="6,0,0,0" VerticalAlignment="Center"
                                     Background="{DynamicResource TintRedBrush}"
                                     Visibility="{Binding AnyOverdue,
@@ -341,11 +341,11 @@
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding IsFullyPaid}"
                                                          Value="True">
-                                                <Setter Property="Background" Value="#047857"/>
+                                                <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
                                             </DataTrigger>
                                             <DataTrigger Binding="{Binding AnyOverdue}"
                                                          Value="True">
-                                                <Setter Property="Background" Value="#B91C1C"/>
+                                                <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
                                     </Style>
@@ -462,7 +462,7 @@
                 <hero:GradientHeroCard Grid.Column="0"
                     Icon="&#xE7BF;" Value="{Binding HeroCard1Value}"
                     Label="{Binding HeroCard1Label}"
-                    GradientStartColor="#1E40AF" GradientEndColor="#3B82F6"
+                    GradientStartColor="{DynamicResource AccentDarkColor}" GradientEndColor="{DynamicResource AccentLightColor}"
                     Margin="4" MinHeight="92"/>
 
                 <hero:GradientHeroCard Grid.Column="1"
@@ -474,19 +474,19 @@
                 <hero:GradientHeroCard Grid.Column="2"
                     Icon="&#xE72D;" Value="{Binding HeroCard3Value}"
                     Label="{Binding HeroCard3Label}"
-                    GradientStartColor="#B45309" GradientEndColor="#F59E0B"
+                    GradientStartColor="{DynamicResource WarningColor}" GradientEndColor="{DynamicResource WarningColor}"
                     Margin="4" MinHeight="92"/>
 
                 <hero:GradientHeroCard Grid.Column="3"
                     Icon="&#xE73E;" Value="{Binding HeroCard4Value}"
                     Label="{Binding HeroCard4Label}"
-                    GradientStartColor="#1D4ED8" GradientEndColor="#60A5FA"
+                    GradientStartColor="{DynamicResource AccentColor}" GradientEndColor="{DynamicResource AccentLightColor}"
                     Margin="4" MinHeight="92"/>
 
                 <hero:GradientHeroCard Grid.Column="4"
                     Icon="&#xE7BA;" Value="{Binding HeroCard5Value}"
                     Label="{Binding HeroCard5Label}"
-                    GradientStartColor="#B91C1C" GradientEndColor="#EF4444"
+                    GradientStartColor="{DynamicResource DangerColor}" GradientEndColor="{DynamicResource DangerColor}"
                     Margin="4" MinHeight="92"/>
             </Grid>
 

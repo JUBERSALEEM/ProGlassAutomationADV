@@ -145,22 +145,22 @@
             <Setter Property="Padding"             Value="12,5"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
             <Setter Property="MinWidth"            Value="76"/>
-            <Setter Property="Background"          Value="#64748B"/>
+            <Setter Property="Background"          Value="{DynamicResource SecondaryForegroundBrush}"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Status}" Value="Draft">
-                    <Setter Property="Background" Value="#64748B"/>
+                    <Setter Property="Background" Value="{DynamicResource SecondaryForegroundBrush}"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Status}" Value="Sent">
-                    <Setter Property="Background" Value="#1E40AF"/>
+                    <Setter Property="Background" Value="{DynamicResource AccentDarkBrush}"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Status}" Value="Approved">
-                    <Setter Property="Background" Value="#047857"/>
+                    <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Status}" Value="Rejected">
-                    <Setter Property="Background" Value="#B91C1C"/>
+                    <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
                 </DataTrigger>
                 <DataTrigger Binding="{Binding Status}" Value="Expired">
-                    <Setter Property="Background" Value="#B45309"/>
+                    <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
                 </DataTrigger>
             </Style.Triggers>
         </Style>
@@ -269,7 +269,7 @@
 
                 <!-- Card 2 — SHOWING — solid blue -->
                 <Border Style="{StaticResource StatCardStyle}"
-                        Background="#1E40AF"
+                        Background="{DynamicResource AccentDarkBrush}"
                         ClipToBounds="True">
                     <Grid>
                         <Grid.RowDefinitions>
@@ -277,7 +277,7 @@
                             <RowDefinition Height="*"/>
                         </Grid.RowDefinitions>
                         <Border Grid.Row="0"
-                                Background="#1E3A8A"
+                                Background="{DynamicResource AccentDarkBrush}"
                                 CornerRadius="12,12,0,0"/>
                         <Border Grid.Row="1" Padding="20,14">
                             <StackPanel>
@@ -351,7 +351,7 @@
 
             <!-- ── SEARCH & FILTER SECTION ──────────────────────────── -->
             <Border Background="{DynamicResource SideMenuBackgroundBrush}"
-                    CornerRadius="12"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     Margin="0,0,0,16"
@@ -505,7 +505,7 @@
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
                 BorderBrush="{DynamicResource OutlineBrush}"
-                CornerRadius="12"
+                CornerRadius="{DynamicResource CardCornerRadius}"
                 Margin="24,0,24,16"
                 SnapsToDevicePixels="True">
             <Grid>
@@ -712,37 +712,37 @@
                                             <Border.Style>
                                                 <Style TargetType="Border">
                                                     <Setter Property="Background"
-                                                            Value="#64748B"/>
+                                                            Value="{DynamicResource SecondaryForegroundBrush}"/>
                                                     <Style.Triggers>
                                                         <DataTrigger
                                                             Binding="{Binding Status}"
                                                             Value="Draft">
                                                             <Setter Property="Background"
-                                                                    Value="#64748B"/>
+                                                                    Value="{DynamicResource SecondaryForegroundBrush}"/>
                                                         </DataTrigger>
                                                         <DataTrigger
                                                             Binding="{Binding Status}"
                                                             Value="Sent">
                                                             <Setter Property="Background"
-                                                                    Value="#1E40AF"/>
+                                                                    Value="{DynamicResource AccentDarkBrush}"/>
                                                         </DataTrigger>
                                                         <DataTrigger
                                                             Binding="{Binding Status}"
                                                             Value="Approved">
                                                             <Setter Property="Background"
-                                                                    Value="#047857"/>
+                                                                    Value="{DynamicResource SuccessBrush}"/>
                                                         </DataTrigger>
                                                         <DataTrigger
                                                             Binding="{Binding Status}"
                                                             Value="Rejected">
                                                             <Setter Property="Background"
-                                                                    Value="#B91C1C"/>
+                                                                    Value="{DynamicResource DangerBrush}"/>
                                                         </DataTrigger>
                                                         <DataTrigger
                                                             Binding="{Binding Status}"
                                                             Value="Expired">
                                                             <Setter Property="Background"
-                                                                    Value="#B45309"/>
+                                                                    Value="{DynamicResource WarningBrush}"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>

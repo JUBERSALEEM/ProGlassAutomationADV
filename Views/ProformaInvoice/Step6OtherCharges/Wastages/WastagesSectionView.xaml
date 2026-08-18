@@ -35,7 +35,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 SnapsToDevicePixels="True">
                             <ScrollViewer x:Name="PART_ContentHost"
                                           Focusable="False"
@@ -61,7 +61,7 @@
 
         <!-- Rate input — money green -->
         <Style x:Key="RateInputStyle" TargetType="TextBox" BasedOn="{StaticResource RowInputStyle}">
-            <Setter Property="Foreground"                 Value="#047857"/>
+            <Setter Property="Foreground"                 Value="{DynamicResource SuccessBrush}"/>
             <Setter Property="FontWeight"                 Value="Bold"/>
             <Setter Property="Height"                     Value="30"/>
             <Setter Property="MinWidth"                   Value="64"/>
@@ -90,7 +90,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="6"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="{TemplateBinding Padding}"
                                 SnapsToDevicePixels="True">
                             <Grid>
@@ -177,7 +177,7 @@
                                 Background="{DynamicResource ModuleBackgroundBrush}"
                                 BorderBrush="{DynamicResource AccentBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
-                                CornerRadius="8"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="14,8"
                                 SnapsToDevicePixels="True">
                             <StackPanel Orientation="Horizontal">
@@ -194,7 +194,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="AB" Property="Background" Value="#EEF2FF"/>
+                                <Setter TargetName="AB" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
                             </Trigger>
                             <Trigger Property="IsPressed" Value="True">
                                 <Setter TargetName="AB" Property="Background" Value="{DynamicResource AccentBrush}"/>
@@ -316,8 +316,8 @@
 
                             <!-- Total SQM badge — Deep Royal Blue tint -->
                             <Border Grid.Column="3"
-                                    Background="#DBEAFE"
-                                    CornerRadius="8"
+                                    Background="{DynamicResource TintBlueBrush}"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Padding="10,5"
                                     HorizontalAlignment="Center"
                                     VerticalAlignment="Center">
@@ -356,7 +356,7 @@
                                     <ControlTemplate TargetType="Button">
                                         <Border x:Name="DB"
                                                 Background="Transparent"
-                                                CornerRadius="6"
+                                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Padding="8,6">
                                             <TextBlock Text="&#xE711;"
                                                        FontFamily="Segoe MDL2 Assets"
@@ -366,7 +366,7 @@
                                         </Border>
                                         <ControlTemplate.Triggers>
                                             <Trigger Property="IsMouseOver" Value="True">
-                                                <Setter TargetName="DB" Property="Background" Value="#FEE2E2"/>
+                                                <Setter TargetName="DB" Property="Background" Value="{DynamicResource TintRedBrush}"/>
                                             </Trigger>
                                         </ControlTemplate.Triggers>
                                     </ControlTemplate>

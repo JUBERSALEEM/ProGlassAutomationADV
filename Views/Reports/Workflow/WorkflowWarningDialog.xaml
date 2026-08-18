@@ -22,7 +22,7 @@
     <Border Background="{DynamicResource ModuleBackgroundBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
             BorderThickness="{DynamicResource CardBorderThickness}"
-            CornerRadius="12">
+            CornerRadius="{DynamicResource CardCornerRadius}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -146,7 +146,7 @@
                                     <Border Background="{DynamicResource ModuleBackgroundBrush}"
                                             BorderBrush="{DynamicResource OutlineBrush}"
                                             BorderThickness="{DynamicResource CardBorderThickness}"
-                                            CornerRadius="8"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Padding="12,10"
                                             Margin="0,0,0,6">
                                         <Grid>
@@ -184,7 +184,7 @@
                                             <!-- Middle: Delivered qty -->
                                             <Border Grid.Column="1"
                                                     Background="{DynamicResource DangerBrush}"
-                                                    CornerRadius="6"
+                                                    CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="10,4"
                                                     Margin="8,0,0,0"
                                                     VerticalAlignment="Center">

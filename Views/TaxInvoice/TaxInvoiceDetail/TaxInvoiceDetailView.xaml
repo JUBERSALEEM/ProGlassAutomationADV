@@ -37,7 +37,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="8"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="{TemplateBinding Padding}"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
@@ -72,7 +72,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="8"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="{TemplateBinding Padding}"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
@@ -113,7 +113,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg" Background="#22FFFFFF"
-                                CornerRadius="6"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="{TemplateBinding Padding}"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
@@ -183,7 +183,7 @@
                     <TextBlock Text="{Binding PageTitle}"
                                Style="{StaticResource ModuleDetailTitleStyle}"/>
 
-                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="8" Padding="10,3"
+                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,3"
                             Margin="10,0,0,0" VerticalAlignment="Center"
                             Background="{DynamicResource TintIndigoBrush}">
                         <TextBlock Text="{Binding Status}"
@@ -191,7 +191,7 @@
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     </Border>
 
-                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="8" Padding="10,3"
+                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,3"
                             Margin="6,0,0,0" VerticalAlignment="Center"
                             Background="{DynamicResource TintRedBrush}">
                         <Border.Style>
@@ -209,7 +209,7 @@
                                    Foreground="{DynamicResource DangerBrush}"/>
                     </Border>
 
-                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="8" Padding="10,3"
+                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,3"
                             Margin="6,0,0,0" VerticalAlignment="Center"
                             Background="{DynamicResource TintAmberBrush}"
                             Visibility="{Binding IsSaving,

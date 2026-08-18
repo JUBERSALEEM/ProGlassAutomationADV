@@ -110,7 +110,7 @@
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
                             <Border Margin="0,0,0,10" Padding="14,12"
-                                    CornerRadius="12" Cursor="Hand"
+                                    CornerRadius="{DynamicResource CardCornerRadius}" Cursor="Hand"
                                     BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}"
                                     Background="{DynamicResource ModuleBackgroundBrush}"
                                     MouseLeftButtonDown="UserCard_Click"
@@ -163,7 +163,7 @@
 
                                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
                                         <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintIndigoBrush}"
-                                                CornerRadius="8" Padding="8,3">
+                                                CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3">
                                             <Border.Style>
                                                 <Style TargetType="Border">
                                                     <Setter Property="Visibility" Value="Collapsed"/>

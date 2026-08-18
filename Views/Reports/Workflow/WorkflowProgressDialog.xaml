@@ -23,7 +23,7 @@
     <Border Background="{DynamicResource ModuleBackgroundBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
             BorderThickness="{DynamicResource CardBorderThickness}"
-            CornerRadius="12">
+            CornerRadius="{DynamicResource CardCornerRadius}">
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
@@ -123,7 +123,7 @@
                                     <!-- Step icon -->
                                     <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Column="0"
                                             Width="32" Height="32"
-                                            CornerRadius="8"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Background="{DynamicResource ModuleBackgroundBrush}"
                                             HorizontalAlignment="Center"
                                             VerticalAlignment="Top">
@@ -200,7 +200,7 @@
                                     <!-- Status icon (large, colored) -->
                                     <Border Grid.Column="2"
                                             Width="32" Height="32"
-                                            CornerRadius="16"
+                                            CornerRadius="{DynamicResource CardCornerRadius}"
                                             VerticalAlignment="Top"
                                             HorizontalAlignment="Center">
                                         <Border.Background>

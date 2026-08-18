@@ -70,7 +70,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                 <Border Background="{DynamicResource AccentBrush}"
                         Width="30"
                         Height="30"
-                        CornerRadius="8"
+                        CornerRadius="{DynamicResource ControlCornerRadius}"
                         VerticalAlignment="Center">
                     <TextBlock Text="&#xE8EF;"
                                FontFamily="Segoe MDL2 Assets"
@@ -129,7 +129,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="CardBorder"
                                             Background="{DynamicResource ModuleBackgroundBrush}"
-                                            CornerRadius="8"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Padding="10,0"
                                             Height="38"
                                             BorderThickness="1"
@@ -148,13 +148,13 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                                         <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
                                                         <Style.Triggers>
                                                             <DataTrigger Binding="{Binding Code}" Value="DGU">
-                                                                <Setter Property="Background" Value="#7C3AED"/>
+                                                                <Setter Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
                                                             </DataTrigger>
                                                             <DataTrigger Binding="{Binding Code}" Value="LAM">
-                                                                <Setter Property="Background" Value="#047857"/>
+                                                                <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
                                                             </DataTrigger>
                                                             <DataTrigger Binding="{Binding Code}" Value="DGU+LAM">
-                                                                <Setter Property="Background" Value="#B45309"/>
+                                                                <Setter Property="Background" Value="{DynamicResource WarningBrush}"/>
                                                             </DataTrigger>
                                                         </Style.Triggers>
                                                     </Style>
@@ -292,7 +292,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                             <Border Background="{DynamicResource AccentBrush}"
                                     Width="26"
                                     Height="26"
-                                    CornerRadius="8"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
                                     VerticalAlignment="Center"
                                     Margin="0,0,10,0">
                                 <TextBlock Text="&#xE762;"
@@ -424,7 +424,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                                     </MultiDataTrigger.Conditions>
                                                     <Setter TargetName="PillBorder"
                                                             Property="Background"
-                                                            Value="#EEF2FF"/>
+                                                            Value="{DynamicResource TintIndigoBrush}"/>
                                                     <Setter TargetName="PillBorder"
                                                             Property="BorderBrush"
                                                             Value="{DynamicResource AccentBrush}"/>

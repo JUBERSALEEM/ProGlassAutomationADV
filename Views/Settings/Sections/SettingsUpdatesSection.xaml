@@ -248,7 +248,7 @@
                                                                 StringFormat='dd MMM yyyy HH:mm'}"/>
                                                 </TextBlock>
                                                 <Border Grid.Column="1"
-                                                        CornerRadius="8"
+                                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="8,2"
                                                         HorizontalAlignment="Left"
                                                         VerticalAlignment="Center">

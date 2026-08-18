@@ -66,7 +66,7 @@
 
             <!-- Job Order Reference -->
             <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource ModuleBackgroundBrush}"
-                    CornerRadius="12" Padding="20,16" Margin="0,0,0,16">
+                    CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16">
                 <StackPanel>
                     <TextBlock Text="JOB ORDER REFERENCE (optional)" FontSize="10" FontWeight="Bold"
                                Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,6"/>
@@ -86,7 +86,7 @@
 
             <!-- Quantity selector -->
             <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource ModuleBackgroundBrush}"
-                    CornerRadius="12" Padding="20,16" Margin="0,0,0,16">
+                    CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16">
                 <StackPanel>
                     <TextBlock Text="QUANTITY TO USE (sheets)" FontSize="10" FontWeight="Bold"
                                Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,8"/>
@@ -117,7 +117,7 @@
 
             <!-- Preview -->
             <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource ModuleBackgroundBrush}"
-                    CornerRadius="12" Padding="20,16" Margin="0,0,0,16">
+                    CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16" Margin="0,0,0,16">
                 <StackPanel>
                     <TextBlock Text="USAGE PREVIEW" FontSize="10" FontWeight="Bold"
                                Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,0,0,10"/>
@@ -148,7 +148,7 @@
             </Border>
 
             <!-- Error -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintRedBrush}" CornerRadius="8"
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintRedBrush}" CornerRadius="{DynamicResource ControlCornerRadius}"
                     Padding="12,8" Margin="0,0,0,10"
                     Visibility="{Binding HasError, Converter={StaticResource BoolToVisibilityConverter}}">
                 <TextBlock Text="{Binding ErrorMessage}" Foreground="{DynamicResource DangerBrush}" FontSize="12"/>

@@ -99,7 +99,7 @@
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
-                CornerRadius="12" Padding="0"
+                CornerRadius="{DynamicResource CardCornerRadius}" Padding="0"
                 SnapsToDevicePixels="True">
             <Grid>
                 <Grid.RowDefinitions>

@@ -108,7 +108,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="8"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="{TemplateBinding Padding}"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
@@ -149,7 +149,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="8"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="{TemplateBinding Padding}"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
@@ -224,7 +224,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                  UI-01: Icon badge → solid #4338CA / White.
             ══════════════════════════════════════════════════════════ -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    CornerRadius="12"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="20"
                     Margin="0,0,0,16"
                     BorderThickness="1"
@@ -364,7 +364,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                 <TextBlock Text="EMAIL" VerticalAlignment="Center"/>
                                 <!-- BUG-92: hardcoded SOON badge — replace when Phase 7.20 ships -->
                                 <Border Background="{DynamicResource TintAmberBrush}"
-                                        CornerRadius="8"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="6,2"
                                         Margin="8,0,0,0"
                                         VerticalAlignment="Center">
@@ -395,8 +395,8 @@ CHAT 17 — PERFORMANCE + UI POLISH
                  BUG-91: DropShadowEffect removed for scroll perf
                  NEW-P8: Padding reduced from 40,32 → 24 for narrow screens
             ══════════════════════════════════════════════════════════ -->
-            <Border Background="#374151"
-                    CornerRadius="12"
+            <Border Background="{DynamicResource PrimaryForegroundBrush}"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="24"
                     Margin="0,16,0,0">
                 <StackPanel>
@@ -408,7 +408,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                         <Border Background="#4B5563"
                                 Width="30"
                                 Height="30"
-                                CornerRadius="8"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 VerticalAlignment="Center"
                                 Margin="0,0,10,0">
                             <TextBlock Text="&#xE8A5;"
@@ -432,7 +432,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                             <TextBlock Text="LIVE FROM ALL WIZARD STEPS"
                                        FontSize="9"
                                        FontWeight="Bold"
-                                       Foreground="#E5E7EB"/>
+                                       Foreground="{DynamicResource BorderBrush}"/>
                         </Border>
                     </StackPanel>
 

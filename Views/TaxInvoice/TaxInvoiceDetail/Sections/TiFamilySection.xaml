@@ -53,7 +53,7 @@
                                            TextTrimming="CharacterEllipsis"/>
                             </StackPanel>
                             <Border Grid.Column="1"
-                                    CornerRadius="8" Padding="8,3"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
                                     Background="#22FFFFFF"
                                     VerticalAlignment="Center">
                                 <TextBlock FontSize="10" FontWeight="Bold" Foreground="White">
@@ -126,7 +126,7 @@
 
                                                     <!-- Status pill -->
                                                     <Border Grid.Column="1"
-                                                            CornerRadius="6" Padding="7,2"
+                                                            CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2"
                                                             VerticalAlignment="Center">
                                                         <Border.Background>
                                                             <Binding Path="StatusBrushKey"
@@ -179,7 +179,7 @@
                                                                     <Style.Triggers>
                                                                         <DataTrigger Binding="{Binding IsOverdue}"
                                                                                      Value="True">
-                                                                            <Setter Property="Foreground" Value="#B91C1C"/>
+                                                                            <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
                                                                         </DataTrigger>
                                                                     </Style.Triggers>
                                                                 </Style>

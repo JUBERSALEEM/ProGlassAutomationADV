@@ -25,7 +25,7 @@
         <Border Grid.Row="0"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="12"
+                    BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}"
                     SnapsToDevicePixels="True">
                 <StackPanel>
                     <Border Style="{StaticResource SectionHeaderStyle}">
@@ -129,7 +129,7 @@
                     </Grid>
 
                     <!-- Progress bar -->
-                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Margin="12,0,12,12" CornerRadius="8"
+                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Margin="12,0,12,12" CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="12,8"
                             Background="{DynamicResource MenuHoverBrush}">
                         <StackPanel>
@@ -178,7 +178,7 @@
         <Border Grid.Row="1" Margin="0,12,0,0"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="12"
+                    BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}"
                     SnapsToDevicePixels="True">
                 <Grid>
                     <Grid.RowDefinitions>

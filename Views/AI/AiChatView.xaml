@@ -28,8 +28,8 @@
         <LinearGradientBrush x:Key="ChatBrand"
                              StartPoint="0,0" EndPoint="1,1"
                              po:Freeze="True">
-            <GradientStop Color="#1E3A8A" Offset="0"/>
-            <GradientStop Color="#1D4ED8" Offset="1"/>
+            <GradientStop Color="{DynamicResource AccentDarkColor}" Offset="0"/>
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="1"/>
         </LinearGradientBrush>
 
         <DropShadowEffect x:Key="PanelShadow"
@@ -39,7 +39,7 @@
 
         <DropShadowEffect x:Key="BtnShadow"
                           BlurRadius="20" ShadowDepth="4"
-                          Color="#1D4ED8" Opacity="0.5"
+                          Color="{DynamicResource AccentColor}" Opacity="0.5"
                           po:Freeze="True"/>
 
         <Style x:Key="ChatIconBtn" TargetType="Button">
@@ -56,7 +56,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="bd"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="16"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
@@ -152,7 +152,7 @@
             <Setter Property="CornerRadius"        Value="16,16,16,4"/>
             <Setter Property="Padding"             Value="14,10"/>
             <Setter Property="Margin"              Value="0,4,60,4"/>
-            <Setter Property="Background"          Value="#FEE2E2"/>
+            <Setter Property="Background"          Value="{DynamicResource TintRedBrush}"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="UseLayoutRounding"   Value="True"/>
             <Setter Property="Visibility"          Value="Collapsed"/>
@@ -778,7 +778,7 @@
                                      HorizontalAlignment="Center"
                                      VerticalAlignment="Center"
                                      StrokeThickness="2.5"
-                                     Stroke="#EF4444"
+                                     Stroke="{DynamicResource DangerBrush}"
                                      Fill="Transparent"
                                      RenderTransformOrigin="0.5,0.5"
                                      IsHitTestVisible="False">
@@ -844,12 +844,12 @@
                                                         <DataTrigger Binding="{Binding IsListening}"
                                                                      Value="True">
                                                             <Setter Property="Background"
-                                                                    Value="#EF4444"/>
+                                                                    Value="{DynamicResource DangerBrush}"/>
                                                         </DataTrigger>
                                                         <DataTrigger Binding="{Binding IsProcessingVoice}"
                                                                      Value="True">
                                                             <Setter Property="Background"
-                                                                    Value="#F59E0B"/>
+                                                                    Value="{DynamicResource WarningBrush}"/>
                                                         </DataTrigger>
                                                     </Style.Triggers>
                                                 </Style>

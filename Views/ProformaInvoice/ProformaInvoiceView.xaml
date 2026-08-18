@@ -335,7 +335,7 @@ CHAT 17 — LAYOUT FIX
                                         Background="{DynamicResource ModuleBackgroundBrush}"
                                         BorderBrush="{DynamicResource OutlineBrush}"
                                         BorderThickness="1"
-                                        CornerRadius="8"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Height="34"
                                         Padding="10,0">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -386,7 +386,7 @@ CHAT 17 — LAYOUT FIX
                                                     Background="{DynamicResource ModuleBackgroundBrush}"
                                                     BorderBrush="{DynamicResource OutlineBrush}"
                                                     BorderThickness="1"
-                                                    CornerRadius="8"
+                                                    CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Height="34"
                                                     Padding="6,0"
                                                     SnapsToDevicePixels="True">

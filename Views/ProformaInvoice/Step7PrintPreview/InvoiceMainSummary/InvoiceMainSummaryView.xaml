@@ -42,7 +42,7 @@
     </UserControl.Resources>
 
     <Border Background="{DynamicResource ModuleBackgroundBrush}"
-            CornerRadius="12"
+            CornerRadius="{DynamicResource CardCornerRadius}"
             Padding="24"
             BorderThickness="1"
             BorderBrush="{DynamicResource BorderBrush}">
@@ -51,7 +51,7 @@
             <!-- ═══ HEADER ═══ -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,16">
                 <Border Background="{DynamicResource AccentBrush}"
-                        Width="40" Height="40" CornerRadius="8"
+                        Width="40" Height="40" CornerRadius="{DynamicResource ControlCornerRadius}"
                         VerticalAlignment="Center">
                     <TextBlock Text="&#128176;"
                                FontSize="18" Foreground="White"
@@ -139,7 +139,7 @@
             <!-- ═══ DISCOUNT INPUT ═══ -->
 
             <Border Background="{DynamicResource MenuHoverBrush}"
-                    CornerRadius="8"
+                    CornerRadius="{DynamicResource ControlCornerRadius}"
                     Padding="14,10"
                     Margin="0,0,0,12"
                     BorderThickness="1"
@@ -208,7 +208,7 @@
             <!-- ═══ VAT INPUT ═══ -->
 
             <Border Background="{DynamicResource MenuHoverBrush}"
-                    CornerRadius="8"
+                    CornerRadius="{DynamicResource ControlCornerRadius}"
                     Padding="14,10"
                     Margin="0,0,0,12"
                     BorderThickness="1"
@@ -261,7 +261,7 @@
             <!-- ═══ GRAND TOTAL BAND ═══ -->
 
             <Border Background="{DynamicResource AccentBrush}"
-                    CornerRadius="12"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="20,16"
                     Margin="0,12,0,0">
                 <Grid>

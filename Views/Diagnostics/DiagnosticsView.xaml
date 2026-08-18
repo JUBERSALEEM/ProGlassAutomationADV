@@ -166,7 +166,7 @@
                                                            Foreground="{DynamicResource MutedForegroundBrush}"/>
 
                                                 <Border Grid.Column="1"
-                                                        CornerRadius="8"
+                                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                                         Padding="7,2"
                                                         HorizontalAlignment="Left"
                                                         VerticalAlignment="Center">
