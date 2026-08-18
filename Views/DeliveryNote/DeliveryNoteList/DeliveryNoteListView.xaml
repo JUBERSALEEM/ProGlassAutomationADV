@@ -362,8 +362,16 @@
                              Converter="{StaticResource BrushKeyConverter}"/>
                 </Border.BorderBrush>
                 <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
                     <TextBlock Text="{Binding DeliveryNoteId}"
                                FontSize="12" FontWeight="Bold"/>
+                    <TextBlock Grid.Column="1" Text="{Binding DisplayStatus}"
+                               FontSize="10" FontWeight="SemiBold"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               VerticalAlignment="Center"/>
                 </Grid>
             </Border>
         </DataTemplate>

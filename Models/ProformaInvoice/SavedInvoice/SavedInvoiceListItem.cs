@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.ViewModels;
+using ProGlassAutomation.ViewModels;
 using System;
 
 namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
@@ -67,5 +67,26 @@ namespace ProGlassAutomation.Models.ProformaInvoice.SavedInvoice
             get => _updatedAt;
             set { if (_updatedAt == value) return; _updatedAt = value; OnPropertyChanged(); }
         }
+
+        // ── computed list status (business lifecycle) ─────────────────────
+        // Populated by SavedInvoicesListViewModel from downstream data
+        // (Job Orders, Delivery Notes, Tax Invoices). The stored Status is
+        // kept intact; DisplayStatus is what the list pill/filter shows.
+        //
+        //   PI created        — not yet confirmed (Draft).
+        //   PI confirmed      — the stored "Approved" state.
+        //   Full job created  — a Job Order exists for this proforma.
+        //   Partially / Fully delivered — derived from Delivery Notes.
+        //   Fully invoiced    — a Tax Invoice exists for this proforma.
+        //   Cancelled         — stored Cancelled/Rejected.
+
+        private string _displayStatus = "";
+        public string DisplayStatus
+        {
+            get => _displayStatus;
+            set { if (_displayStatus == value) return; _displayStatus = value; OnPropertyChanged(); }
+        }
+
+        public string DisplayStatusBrushKey { get; set; } = "NeutralBrush";
     }
 }

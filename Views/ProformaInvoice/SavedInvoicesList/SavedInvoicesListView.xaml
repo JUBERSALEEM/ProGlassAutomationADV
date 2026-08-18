@@ -788,15 +788,21 @@
                                                    VerticalAlignment="Center"
                                                    ToolTip="{Binding ProjectName}"/>
 
-                                        <!-- STATUS pill -->
+                                        <!-- STATUS pill (computed business status) -->
                                         <Border Grid.Column="5"
-                                                Style="{StaticResource StatusPillStyle}"
-                                                VerticalAlignment="Center">
-                                            <TextBlock Text="{Binding Status}"
+                                                CornerRadius="10"
+                                                Padding="12,5"
+                                                MinWidth="110"
+                                                HorizontalAlignment="Center"
+                                                VerticalAlignment="Center"
+                                                Background="{Binding DisplayStatusBrushKey,
+                                                                     Converter={StaticResource BrushKeyConverter}}">
+                                            <TextBlock Text="{Binding DisplayStatus}"
                                                        FontSize="10"
                                                        FontWeight="Bold"
                                                        Foreground="White"
-                                                       HorizontalAlignment="Center"/>
+                                                       HorizontalAlignment="Center"
+                                                       TextTrimming="CharacterEllipsis"/>
                                         </Border>
 
                                         <!-- GRAND TOTAL -->

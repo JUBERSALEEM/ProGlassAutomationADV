@@ -450,9 +450,9 @@
                                         Padding="10,4"
                                         VerticalAlignment="Center"
                                         Margin="0,0,8,0"
-                                        Background="{Binding StatusBrushKey,
+                                        Background="{Binding DisplayStatusBrushKey,
                                                      Converter={StaticResource BrushKeyConverter}}">
-                                    <TextBlock Text="{Binding StatusLabel}"
+                                    <TextBlock Text="{Binding DisplayStatus}"
                                                FontSize="10" FontWeight="Bold"
                                                Foreground="White"/>
                                 </Border>

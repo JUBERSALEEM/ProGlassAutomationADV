@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Models.DeliveryNote.Common.DeliveryNoteStatus;
+using ProGlassAutomation.Models.DeliveryNote.Common.DeliveryNoteStatus;
 using ProGlassAutomation.Models.DeliveryNote.Common.DeliveryType;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Services.DeliveryNote.Repository;
@@ -86,6 +86,15 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 : "";
 
         // ── Computed display properties ───────────────────────────────────
+
+        /// <summary>
+        /// List-level display status per the business requirement:
+        ///   "Invoiced"   — the DN has been converted to a Tax Invoice.
+        ///   "Dn created" — otherwise (created, dispatched, delivered, etc).
+        /// The stored Status string is kept intact for the detail/production
+        /// flows; this is the user-facing list status.
+        /// </summary>
+        public string DisplayStatus => IsInvoiced ? "Invoiced" : "Dn created";
 
         public string StatusLabel { get; }
         public string StatusBrushKey { get; }

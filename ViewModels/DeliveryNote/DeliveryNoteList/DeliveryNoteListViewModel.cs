@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Commands;
+using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Services.DeliveryNote.Repository;
@@ -427,8 +427,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
         public List<string> StatusFilterOptions { get; } = new()
         {
-            "All Statuses", "Draft", "Dispatched",
-            "Delivered", "Signed", "Received"
+            "All Statuses", "Dn created", "Invoiced"
         };
 
         // CHAT 19: Dummy removed — Master DN is internal, not in any list
@@ -904,7 +903,7 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
 
             if (_selectedStatusFilter != "All Statuses")
                 query = query.Where(x => string.Equals(
-                    x.Status, _selectedStatusFilter,
+                    x.DisplayStatus, _selectedStatusFilter,
                     StringComparison.OrdinalIgnoreCase));
 
             if (_selectedTypeFilter != "All Types")

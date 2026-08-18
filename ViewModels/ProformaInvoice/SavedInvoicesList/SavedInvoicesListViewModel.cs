@@ -51,7 +51,9 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
         public List<string> StatusFilterOptions { get; } = new()
         {
-            "All Statuses", "Draft", "Sent", "Approved", "Rejected", "Expired"
+            "All Statuses",
+            "PI created", "PI confirmed", "Full job created",
+            "Partially delivered", "Fully delivered", "Fully invoiced", "Cancelled"
         };
 
         public List<string> SortPresetOptions { get; } = new()
@@ -368,17 +370,29 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             {
                 var entities = await App.Invoices.GetAllAsync();
 
-                _allItems = entities.Select(e => new SavedInvoiceListItem
+                // Load downstream lifecycle data once so the list can derive the
+                // business status (full job created / delivered / invoiced).
+                var lifecycle = await LoadLifecycleStateAsync();
+
+                _allItems = entities.Select(e =>
                 {
-                    Id = e.Id,
-                    ProformaId = e.ProformaId,
-                    CompanyName = e.CompanyName,
-                    CustomerName = e.CustomerName,
-                    ProjectName = e.ProjectName,
-                    Status = e.Status,
-                    GrandTotal = e.GrandTotalVatInclusive,
-                    CreatedAt = e.CreatedAt,
-                    UpdatedAt = e.UpdatedAt
+                    var item = new SavedInvoiceListItem
+                    {
+                        Id = e.Id,
+                        ProformaId = e.ProformaId,
+                        CompanyName = e.CompanyName,
+                        CustomerName = e.CustomerName,
+                        ProjectName = e.ProjectName,
+                        Status = e.Status,
+                        GrandTotal = e.GrandTotalVatInclusive,
+                        CreatedAt = e.CreatedAt,
+                        UpdatedAt = e.UpdatedAt
+                    };
+
+                    var ls = lifecycle.Compute(e.ProformaId ?? "", e.Status ?? "Draft");
+                    item.DisplayStatus = ls.Status;
+                    item.DisplayStatusBrushKey = ls.BrushKey;
+                    return item;
                 }).ToList();
 
                 TotalCount = _allItems.Count;
@@ -395,6 +409,118 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             finally
             {
                 IsLoading = false;
+            }
+        }
+
+        // ══════════════════════════════════════════════════════════════════
+        //  LIFECYCLE STATUS (computed list status)
+        // ══════════════════════════════════════════════════════════════════
+
+        /// <summary>
+        /// Loads downstream data (Job Orders, Delivery Notes, Tax Invoices) once
+        /// and returns a helper that derives each invoice's business status.
+        /// Never throws — any unavailable database just leaves derived states
+        /// empty so the list still works.
+        /// </summary>
+        private async Task<LifecycleState> LoadLifecycleStateAsync()
+        {
+            var state = new LifecycleState();
+            try
+            {
+                // Job Orders by source proforma.
+                if (App.Jobs != null)
+                {
+                    var jobs = await App.Jobs.GetAllAsync();
+                    foreach (var j in jobs ?? new())
+                    {
+                        if (!string.IsNullOrWhiteSpace(j.SourceProformaId))
+                            state.JobOrderByProforma[j.SourceProformaId] = true;
+                    }
+                }
+            }
+            catch { }
+
+            try
+            {
+                // Delivery Notes by proforma (delivered/ordered qty).
+                if (App.DeliveryNotes != null)
+                {
+                    var dns = await App.DeliveryNotes.GetAllAsync();
+                    foreach (var d in dns ?? new())
+                    {
+                        if (string.IsNullOrWhiteSpace(d.ProformaId)) continue;
+                        if (!state.DeliveryByProforma.TryGetValue(d.ProformaId, out var agg))
+                        {
+                            agg = (0, 0);
+                            state.DeliveryByProforma[d.ProformaId] = agg;
+                        }
+                        agg.Item1 += Math.Max(0, d.TotalDeliveredQty);
+                        agg.Item2 += Math.Max(0, d.TotalOrderedQty);
+                        state.DeliveryByProforma[d.ProformaId] = agg;
+                    }
+                }
+            }
+            catch { }
+
+            try
+            {
+                // Tax Invoices by proforma.
+                if (App.TaxInvoices != null)
+                {
+                    var tis = await App.TaxInvoices.GetAllAsync();
+                    foreach (var t in tis ?? new())
+                    {
+                        if (!string.IsNullOrWhiteSpace(t.ProformaId))
+                            state.InvoicedByProforma[t.ProformaId] = true;
+                    }
+                }
+            }
+            catch { }
+
+            return state;
+        }
+
+        /// <summary>
+        /// Cached downstream data used to derive the list status.
+        /// </summary>
+        private sealed class LifecycleState
+        {
+            public Dictionary<string, bool> JobOrderByProforma { get; } = new(StringComparer.OrdinalIgnoreCase);
+            public Dictionary<string, (int Delivered, int Ordered)> DeliveryByProforma { get; } = new(StringComparer.OrdinalIgnoreCase);
+            public Dictionary<string, bool> InvoicedByProforma { get; } = new(StringComparer.OrdinalIgnoreCase);
+
+            public (string Status, string BrushKey) Compute(string proformaId, string storedStatus)
+            {
+                // Cancelled (stored Cancelled/Rejected)
+                if (string.Equals(storedStatus, "Cancelled", StringComparison.OrdinalIgnoreCase)
+                    || string.Equals(storedStatus, "Rejected", StringComparison.OrdinalIgnoreCase))
+                    return ("Cancelled", "DangerBrush");
+
+                // Fully invoiced
+                if (InvoicedByProforma.ContainsKey(proformaId))
+                    return ("Fully invoiced", "SuccessBrush");
+
+                // Delivered states (derived from delivery notes)
+                if (DeliveryByProforma.TryGetValue(proformaId, out var dq))
+                {
+                    bool fullyDelivered = dq.Ordered > 0 && dq.Delivered >= dq.Ordered;
+                    bool anyDelivered = dq.Delivered > 0;
+                    if (fullyDelivered)
+                        return ("Fully delivered", "SuccessBrush");
+                    if (anyDelivered)
+                        return ("Partially delivered", "WarningBrush");
+                }
+
+                // Full job created
+                if (JobOrderByProforma.ContainsKey(proformaId))
+                    return ("Full job created", "InfoBrush");
+
+                // PI confirmed = stored Approved
+                if (string.Equals(storedStatus, "Approved", StringComparison.OrdinalIgnoreCase))
+                    return ("PI confirmed", "AccentBrush");
+
+                // PI created (default)
+                return ("PI created", "NeutralBrush");
             }
         }
 
@@ -421,7 +547,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
             if (!string.IsNullOrWhiteSpace(_selectedStatusFilter)
                 && _selectedStatusFilter != "All Statuses")
                 query = query.Where(x => string.Equals(
-                    x.Status, _selectedStatusFilter,
+                    x.DisplayStatus, _selectedStatusFilter,
                     StringComparison.OrdinalIgnoreCase));
 
             if (_fromDate.HasValue)

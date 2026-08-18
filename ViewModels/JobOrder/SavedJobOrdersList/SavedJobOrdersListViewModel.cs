@@ -132,7 +132,7 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 
         public List<string> StatusFilterOptions { get; } = new()
         {
-            "All Statuses", "Draft", "Released", "In Production", "Completed", "Delivered"
+            "All Statuses", "Not delivered", "Partially delivered", "Fully delivered"
         };
 
         private string _selectedStatusFilter = "All Statuses";
@@ -307,8 +307,18 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 
                 var entities = await App.Jobs.GetAllAsync();
 
+                // Load per-job-order delivery qty from the Delivery Notes
+                // repository so the list can show the delivery-derived status.
+                var deliveryMap = await LoadDeliveryQtyMapAsync();
+
                 _allJobs = entities
-                    .Select(e => new JobOrderRowViewModel(e))
+                    .Select(e =>
+                    {
+                        deliveryMap.TryGetValue(
+                            e.JobOrderId ?? "", out var dq);
+                        return new JobOrderRowViewModel(
+                            e, dq.Ordered, dq.Delivered);
+                    })
                     .ToList();
 
                 RecalculateKpis();
@@ -360,8 +370,10 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 
             if (_selectedStatusFilter != "All Statuses")
             {
-                string statusKey = _selectedStatusFilter.Replace(" ", "");
-                query = query.Where(j => Eq(j.StatusRaw, statusKey));
+                string sel = _selectedStatusFilter;
+                query = query.Where(j =>
+                    string.Equals(j.DisplayStatus, sel,
+                        StringComparison.OrdinalIgnoreCase));
             }
 
             if (_selectedPriorityFilter != "All Priorities")
@@ -822,6 +834,36 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         //  HELPERS
         // ═════════════════════════════════════════════════════════════════
 
+        /// <summary>
+        /// Builds a { JobOrderId → (ordered, delivered) } map from the Delivery
+        /// Notes repository. Never throws — if DN data is unavailable the rows
+        /// simply show "Not delivered".
+        /// </summary>
+        private async Task<Dictionary<string, (int Ordered, int Delivered)>>
+            LoadDeliveryQtyMapAsync()
+        {
+            var map = new Dictionary<string, (int, int)>(
+                StringComparer.OrdinalIgnoreCase);
+            try
+            {
+                if (App.DeliveryNotes == null) return map;
+
+                var summaries = await App.DeliveryNotes.GetPendingQtyJobsAsync();
+                if (summaries == null) return map;
+
+                foreach (var s in summaries)
+                {
+                    if (string.IsNullOrWhiteSpace(s.JobOrderId)) continue;
+                    map[s.JobOrderId] = (s.TotalOrdered, s.TotalDelivered);
+                }
+            }
+            catch
+            {
+                // DN unavailable — rows show "Not delivered".
+            }
+            return map;
+        }
+
         private static bool Eq(string? a, string b) =>
             string.Equals(a, b, StringComparison.OrdinalIgnoreCase);
 
@@ -869,9 +911,44 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
         public bool IsOverdue { get; }
         public string OverdueDisplay { get; }
 
-        public JobOrderRowViewModel(SavedJobOrder entity)
+        // ── delivery-derived list status ────────────────────────────────
+        // Populated from the Delivery Notes repository so the list shows the
+        // business status (Not delivered / Partially delivered / Fully
+        // delivered) instead of the internal production status.
+
+        public int TotalOrderedQty { get; }
+        public int TotalDeliveredQty { get; }
+
+        /// <summary>
+        /// List-level display status per the business requirement:
+        ///   "Fully delivered"      — delivered qty >= ordered qty (>0).
+        ///   "Partially delivered"  — some but not all delivered.
+        ///   "Not delivered"        — nothing delivered yet.
+        /// </summary>
+        public string DisplayStatus
+        {
+            get
+            {
+                if (TotalOrderedQty > 0 && TotalDeliveredQty >= TotalOrderedQty)
+                    return "Fully delivered";
+                if (TotalDeliveredQty > 0)
+                    return "Partially delivered";
+                return "Not delivered";
+            }
+        }
+
+        public string DisplayStatusBrushKey => DisplayStatus switch
+        {
+            "Fully delivered" => "SuccessBrush",
+            "Partially delivered" => "WarningBrush",
+            _ => "NeutralBrush"
+        };
+
+        public JobOrderRowViewModel(SavedJobOrder entity, int totalOrderedQty = 0, int totalDeliveredQty = 0)
         {
             Id = entity.Id;
+            TotalOrderedQty = totalOrderedQty;
+            TotalDeliveredQty = totalDeliveredQty;
             JobOrderId = entity.JobOrderId ?? string.Empty;
             SourceProformaId = entity.SourceProformaId ?? string.Empty;
             CustomerName = string.IsNullOrWhiteSpace(entity.CustomerName)
