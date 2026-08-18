@@ -934,9 +934,20 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 ReceiverName = _entity.ReceiverName;
                 Notes = _entity.Notes;
 
-                // Heal PREV only for real DNs
-                if (!_entity.IsMasterDn)
-                    await HealItemPrevQtyAsync(_entity);
+                // Heal PREV from confirmed sibling DNs. Master DN used to
+                // skip this, so fully delivered rows still had Prev=0 and
+                // looked pending. Same map excludes this DN id (master
+                // itself has no delivered qty).
+                await HealItemPrevQtyAsync(_entity);
+                if (_entity.IsMasterDn)
+                {
+                    foreach (var item in _entity.Items)
+                    {
+                        item.DeliveredQty = 0;
+                        item.BalanceQty = Math.Max(0,
+                            item.OrderedQty - item.PreviouslyDeliveredQty);
+                    }
+                }
 
                 // BUG-42: unsubscribe from old rows
                 foreach (var oldRow in _itemRows)
@@ -1877,6 +1888,37 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 AuditService.Log(
                     AuditSections.DeliveryNote, "Attachment deleted",
                     $"'{row.FileName}' removed from {_deliveryNoteId}",
+                    "DN", _deliveryNoteId);
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(
+                    $"Failed to delete attachment:\n\n{ex.Message}",
+                    "Delete Failed",
+                    MessageBoxButton.OK,
+                    MessageBoxImage.Error);
+            }
+        }
+
+        // ─────────────────────────────────────────────────────────────────
+
+        private void OnItemDeliveredQtyChanged()
+        {
+            RecalculateTotals();
+            MarkDirty();   // v2 §28: user changed a delivered quantity
+        }
+
+        private void RecalculateTotals()
+        {
+            TotalOrderedQty = ItemRows.Sum(r => r.OrderedQty);
+            TotalPreviouslyDeliveredQty =
+                ItemRows.Sum(r => r.PreviouslyDeliveredQty);
+            TotalDeliveredQty = ItemRows.Sum(r => r.DeliveredQty);
+            TotalBalanceQty = ItemRows.Sum(r => r.BalanceQty);
+        }
+    }
+}
+d}",
                     "DN", _deliveryNoteId);
             }
             catch (Exception ex)
