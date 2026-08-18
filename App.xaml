@@ -31,10 +31,12 @@
                 <!-- Module tab strip + God View styles (DN/JO/TI tabs) -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ModuleTabStyles.xaml"/>
 
-                <!-- Phase 8: shared theme-adaptive input styles (TextBox /
+                <!-- Phase 8/9: shared theme-adaptive input styles (TextBox /
                      PasswordBox / ComboBox). Adopted incrementally by views
                      instead of each view declaring its own input chrome. -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/InputStyles.xaml"/>
+                <!-- Phase 8/9: shared dialog card/footer/title chrome. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/DialogStyles.xaml"/>
 
                 <!-- Modern rounded context-menu styles for every module's
                      right-click menu (Proforma / Job Order / Delivery Note /

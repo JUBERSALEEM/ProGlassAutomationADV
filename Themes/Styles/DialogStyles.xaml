@@ -1,0 +1,53 @@
+<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:po="http://schemas.microsoft.com/winfx/2006/xaml/presentation/options">
+
+    <!-- ═══════════════════════════════════════════════════════════════════
+         SHARED DIALOG CHROME (Phase 8/9 — design-system consolidation)
+
+         A single theme-adaptive dialog card primitive composed from the
+         design tokens (CardCornerRadiusLarge) and the global
+         CardBorderThickness. Modal windows / popups should compose from
+         these instead of each dialog re-declaring its own radius, border and
+         shadow, so dialogs stay consistent and follow Light/Dark + accent.
+
+         Adoption is incremental (see Docs/DESIGN_SYSTEM.md) — this
+         dictionary makes the shared definition available.
+    ═══════════════════════════════════════════════════════════════════ -->
+
+    <!-- Floating dialog card with soft shadow. -->
+    <Style x:Key="DialogCardStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
+        <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadiusLarge}"/>
+        <Setter Property="Padding" Value="20"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+        <Setter Property="UseLayoutRounding" Value="True"/>
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="28" ShadowDepth="4"
+                                  Direction="270" Opacity="0.25"
+                                  Color="#000000"/>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <!-- Rounded dialog footer strip (buttons row). -->
+    <Style x:Key="DialogFooterStyle" TargetType="Border">
+        <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+        <Setter Property="BorderThickness" Value="0,1,0,0"/>
+        <Setter Property="CornerRadius" Value="0,0,20,20"/>
+        <Setter Property="Padding" Value="18,14"/>
+        <Setter Property="SnapsToDevicePixels" Value="True"/>
+    </Style>
+
+    <!-- Dialog title (module-independent). -->
+    <Style x:Key="DialogTitleStyle" TargetType="TextBlock">
+        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Foreground" Value="{DynamicResource PrimaryForegroundBrush}"/>
+    </Style>
+
+</ResourceDictionary>
