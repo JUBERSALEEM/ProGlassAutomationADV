@@ -420,6 +420,16 @@ namespace ProGlassAutomation
                 // 9c-1) AI learning memory (aimemory.db)
                 AiMemoryService.InitializeAsync());
 
+            // 9c-2) Cross-database integrity sweep (Phase 2):
+            //       reconcile Tax Invoice → Delivery Note invoiced links on
+            //       startup, so any link left broken by a crash / failed write
+            //       is automatically healed. Runs in the background and never
+            //       blocks startup; failures are logged, never fatal.
+            ProGlassAutomation.Utilities.AsyncUtility.SafeFireAndForget(
+                () => ProGlassAutomation.Services.TaxInvoice.Repository
+                    .TaxInvoiceDnReconciler.ReconcileAsync(),
+                "Tax-invoice → delivery-note reconciliation sweep failed");
+
             // 9c-2) Same-network user presence (Users page).
             try
             {
