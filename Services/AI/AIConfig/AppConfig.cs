@@ -44,6 +44,14 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// </summary>
         public double CardCornerRadius { get; set; } = 12;
 
+        /// <summary>
+        /// Display density: "Compact" | "Normal" | "Comfortable".
+        /// One setting shrinks inputs, buttons, titles and card padding
+        /// app-wide so laptop screens can see the data grid.
+        /// Default Compact — factory laptops are typically 1366×768.
+        /// </summary>
+        public string DisplayDensity { get; set; } = "Compact";
+
         /// <summary>Global wallpaper image path (empty = none).</summary>
         public string WallpaperPath { get; set; } = "";
 

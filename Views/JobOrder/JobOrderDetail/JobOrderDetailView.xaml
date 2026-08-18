@@ -44,7 +44,7 @@
                   FocusVisualStyle="{x:Null}"
                   Background="Transparent"
                   behaviors:SmoothScrollBehavior.IsEnabled="True">
-        <StackPanel Margin="24,16,24,24">
+        <StackPanel Margin="{DynamicResource DensityPageMargin}">
 
             <!-- ── BACK TO LIST ────────────────────────────────────── -->
             <Button Content="Back to List"

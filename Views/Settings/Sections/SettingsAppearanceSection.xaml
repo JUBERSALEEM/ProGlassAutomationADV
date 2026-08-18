@@ -167,6 +167,34 @@
                                    Margin="0,10,0,0"
                                    TextWrapping="Wrap"
                                    Text="How round every card AND button is. Default 12 px. 0 is a sharp rectangle. One slider restyles the whole app — cards, inputs and buttons together."/>
+
+                        <Border Height="1" Margin="0,18,0,16"
+                                Background="{DynamicResource DividerBrush}"/>
+
+                        <DockPanel>
+                            <StackPanel Orientation="Horizontal"
+                                        VerticalAlignment="Center">
+                                <TextBlock Text="&#xE740;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="16"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,10,0"
+                                           IsHitTestVisible="False"/>
+                                <TextBlock Text="Display Density"
+                                           Style="{StaticResource RowTitleStyle}"/>
+                            </StackPanel>
+                            <ComboBox HorizontalAlignment="Right"
+                                      MinWidth="180"
+                                      Padding="10,7"
+                                      FontSize="13"
+                                      ItemsSource="{Binding DisplayDensityOptions}"
+                                      SelectedItem="{Binding DisplayDensity}"/>
+                        </DockPanel>
+                        <TextBlock Style="{StaticResource HintTextStyle}"
+                                   Margin="0,10,0,0"
+                                   TextWrapping="Wrap"
+                                   Text="Compact fits more of the glass grid on a laptop. Normal is the desktop default. Comfortable is larger touch targets. One switch — inputs, buttons, titles and card padding all follow it."/>
                     </StackPanel>
                 </Border>
 

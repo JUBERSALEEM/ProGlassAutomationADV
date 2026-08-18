@@ -510,6 +510,66 @@ namespace ProGlassAutomation.Services
         public static void ReapplyCardCornerRadius()
             => ApplyCardCornerRadius(_cardCornerRadius);
 
+        private static string _displayDensity = "Compact";
+
+        public static string DisplayDensity => _displayDensity;
+
+        /// <summary>
+        /// One switch restyles shared chrome for laptop vs desktop:
+        /// input/button height, title size, KPI size, card padding.
+        /// Views bind these tokens — do not edit each screen.
+        /// </summary>
+        public static void ApplyDisplayDensity(string density)
+        {
+            string key = (density ?? "Compact").Trim();
+            if (key is not ("Compact" or "Normal" or "Comfortable"))
+                key = "Compact";
+            _displayDensity = key;
+
+            var resources = Application.Current?.Resources;
+            if (resources == null) return;
+
+            double inputH, buttonH, rowH, title, kpi;
+            Thickness cardPad, stripPad, pageMargin;
+
+            switch (key)
+            {
+                case "Comfortable":
+                    inputH = 40; buttonH = 42; rowH = 36;
+                    title = 24; kpi = 22;
+                    cardPad = new Thickness(18, 14, 18, 14);
+                    stripPad = new Thickness(20, 14, 20, 14);
+                    pageMargin = new Thickness(20, 14, 20, 14);
+                    break;
+                case "Normal":
+                    inputH = 36; buttonH = 38; rowH = 32;
+                    title = 22; kpi = 20;
+                    cardPad = new Thickness(14, 10, 14, 10);
+                    stripPad = new Thickness(16, 10, 16, 10);
+                    pageMargin = new Thickness(16, 10, 16, 10);
+                    break;
+                default: // Compact
+                    inputH = 30; buttonH = 32; rowH = 28;
+                    title = 18; kpi = 16;
+                    cardPad = new Thickness(10, 8, 10, 8);
+                    stripPad = new Thickness(12, 8, 12, 8);
+                    pageMargin = new Thickness(12, 8, 12, 8);
+                    break;
+            }
+
+            resources["DensityInputHeight"] = inputH;
+            resources["DensityButtonHeight"] = buttonH;
+            resources["DensityRowHeight"] = rowH;
+            resources["DensityTitleFontSize"] = title;
+            resources["DensityKpiValueFontSize"] = kpi;
+            resources["DensityCardPadding"] = cardPad;
+            resources["DensityStripPadding"] = stripPad;
+            resources["DensityPageMargin"] = pageMargin;
+        }
+
+        public static void ReapplyDisplayDensity()
+            => ApplyDisplayDensity(_displayDensity);
+
         private static void FreezeAndSet(
             ResourceDictionary resources, string key, Color color)
         {

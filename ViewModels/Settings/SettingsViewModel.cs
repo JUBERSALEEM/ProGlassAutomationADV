@@ -347,6 +347,36 @@ namespace ProGlassAutomation.ViewModels.Settings
         /// restyles every card through CardCornerRadius (and the derived
         /// Control / Large tokens). Persisted across restarts.
         /// </summary>
+        public List<string> DisplayDensityOptions { get; } = new()
+        {
+            "Compact", "Normal", "Comfortable"
+        };
+
+        /// <summary>
+        /// Compact / Normal / Comfortable. One setting shrinks shared
+        /// chrome so laptop screens can see the data grid.
+        /// </summary>
+        public string DisplayDensity
+        {
+            get => App.Config?.Appearance?.DisplayDensity ?? "Compact";
+            set
+            {
+                if (App.Config?.Appearance == null) return;
+                string v = string.IsNullOrWhiteSpace(value) ? "Compact" : value.Trim();
+                if (App.Config.Appearance.DisplayDensity == v) return;
+
+                App.Config.Appearance.DisplayDensity = v;
+                ThemeManager.ApplyDisplayDensity(v);
+                Services.AI.AIConfig.ConfigService.Save(App.Config);
+
+                ProGlassAutomation.Services.Audit.AuditService.Log(
+                    ProGlassAutomation.Services.Audit.AuditSections.Settings,
+                    "Display density changed", v);
+
+                OnPropertyChanged();
+            }
+        }
+
         public double CardCornerRadius
         {
             get => App.Config?.Appearance?.CardCornerRadius ?? 12;

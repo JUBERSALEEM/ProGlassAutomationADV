@@ -14,16 +14,16 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <!-- STATS CARD
-             LAYOUT FIX: Grid.Row="0" was missing. This card and the items
-             card below both defaulted to row 0 and rendered stacked. -->
-        <Border Grid.Row="0"
-                    Background="{DynamicResource ModuleBackgroundBrush}"
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  CanContentScroll="False"
+                  PanningMode="VerticalOnly"
+                  Focusable="False"
+                  FocusVisualStyle="{x:Null}">
+        <StackPanel>
+        <!-- STATS + ITEMS scroll together so the glass grid is never
+             clipped to 0 height on a laptop (star-row leftover). -->
+        <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}"
                     SnapsToDevicePixels="True">
@@ -175,7 +175,7 @@
         <!-- ITEMS CARD
              LAYOUT FIX: now explicitly row 1 (the star-sized row) so it
              fills the height remaining under the stats card. -->
-        <Border Grid.Row="1" Margin="0,12,0,0"
+        <Border Margin="0,12,0,0"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}"
@@ -184,7 +184,7 @@
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <!-- Hero strip -->
@@ -313,15 +313,8 @@
                         </Grid>
                     </Border>
 
-                    <!-- ITEMS TABLE -->
-                    <ScrollViewer Grid.Row="2"
-                                  VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Auto"
-                                  CanContentScroll="False"
-                                  Focusable="True"
-                                  FocusVisualStyle="{x:Null}"
-                                  behaviors:SmoothScrollBehavior.IsEnabled="True">
-                        <StackPanel Margin="14,12,14,14">
+                    <!-- ITEMS TABLE — grows with content; page scroll is outer -->
+                    <StackPanel Grid.Row="2" Margin="14,12,14,14">
 
                             <!-- Items header + action buttons -->
                             <Grid Margin="4,0,4,10">
@@ -612,9 +605,9 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                        </StackPanel>
-                    </ScrollViewer>
+                    </StackPanel>
                 </Grid>
             </Border>
-    </Grid>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

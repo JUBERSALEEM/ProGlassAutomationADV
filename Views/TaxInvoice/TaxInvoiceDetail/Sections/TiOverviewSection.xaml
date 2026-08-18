@@ -14,16 +14,16 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <!-- ── FINANCIAL STATS CARD ──
-             LAYOUT FIX: Grid.Row="0" was missing. Both this card and the
-             invoice-content card below defaulted to row 0 and rendered
-             stacked on top of each other. -->
-        <Border Grid.Row="0" Style="{StaticResource CardStyle}">
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  CanContentScroll="False"
+                  PanningMode="VerticalOnly"
+                  Focusable="False"
+                  FocusVisualStyle="{x:Null}">
+        <StackPanel>
+        <!-- Stats + form + glass grid scroll as one page so the
+             items table is never squeezed to 0 height on a laptop. -->
+        <Border Style="{StaticResource CardStyle}">
                 <StackPanel>
                     <Border Style="{StaticResource SectionHeaderStyle}"
                         Background="{DynamicResource AccentBrush}">
@@ -124,12 +124,12 @@
              LAYOUT FIX: now explicitly row 1 (the star-sized row), so it
              fills the remaining height beneath the stats card.
         ══════════════════════════════════════════════════════════ -->
-        <Border Grid.Row="1" Margin="0,12,0,0" Style="{StaticResource CardStyle}">
+        <Border Margin="0,12,0,0" Style="{StaticResource CardStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
+                        <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
                     <!-- HERO STRIP -->
@@ -522,14 +522,7 @@
                     </Border>
 
                     <!-- SPEC GROUPS + GLASS ITEM ROWS (internal scroll) -->
-                    <ScrollViewer Grid.Row="2"
-                                  VerticalScrollBarVisibility="Auto"
-                                  HorizontalScrollBarVisibility="Auto"
-                                  CanContentScroll="False"
-                                  IsDeferredScrollingEnabled="False"
-                                  PanningMode="None"
-                                  behaviors:SmoothScrollBehavior.IsEnabled="True">
-                        <StackPanel Margin="14,12,14,14">
+                    <StackPanel Grid.Row="2" Margin="14,12,14,14">
 
                             <Grid Margin="4,0,4,10">
                                 <Grid.ColumnDefinitions>
@@ -916,9 +909,9 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                        </StackPanel>
-                    </ScrollViewer>
+                    </StackPanel>
                 </Grid>
             </Border>
-    </Grid>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

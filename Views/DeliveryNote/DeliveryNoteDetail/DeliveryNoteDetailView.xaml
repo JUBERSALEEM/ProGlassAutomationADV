@@ -394,7 +394,7 @@
          Row 3: Stats + Attachments
          Row 4: Items + History
     -->
-    <Grid Margin="24,16,24,16"
+    <Grid Margin="{DynamicResource DensityPageMargin}"
           Background="{DynamicResource ModuleBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

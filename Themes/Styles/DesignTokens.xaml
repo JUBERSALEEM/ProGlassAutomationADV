@@ -34,7 +34,7 @@
     <!-- ══ PAGE HEADER ════════════════════════════════════════════════ -->
 
     <Style x:Key="ModulePageTitleStyle" TargetType="TextBlock">
-        <Setter Property="FontSize" Value="24"/>
+        <Setter Property="FontSize" Value="{DynamicResource DensityTitleFontSize}"/>
         <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Foreground"
                 Value="{DynamicResource PrimaryForegroundBrush}"/>
@@ -57,7 +57,7 @@
         <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="CornerRadius"
                 Value="{DynamicResource CardCornerRadius}"/>
-        <Setter Property="Padding" Value="20,16"/>
+        <Setter Property="Padding" Value="{DynamicResource DensityCardPadding}"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>
 
@@ -158,7 +158,7 @@
                 Value="{DynamicResource CardBorderThickness}"/>
         <Setter Property="CornerRadius"
                 Value="{DynamicResource CardCornerRadius}"/>
-        <Setter Property="Padding" Value="14,12"/>
+        <Setter Property="Padding" Value="{DynamicResource DensityCardPadding}"/>
         <Setter Property="Margin" Value="0,0,0,12"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
     </Style>

@@ -151,7 +151,7 @@
         Row 2: Stats + Attach    (Auto)
         Row 3: Main content + Family sidebar (* fills)
     -->
-    <Grid Margin="24,16,24,16"
+    <Grid Margin="{DynamicResource DensityPageMargin}"
           Background="{DynamicResource ModuleBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

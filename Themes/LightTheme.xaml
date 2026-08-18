@@ -288,6 +288,16 @@
          reference this via {DynamicResource CardBorderThickness}. -->
     <Thickness x:Key="CardBorderThickness">1.5</Thickness>
 
+    <!-- Display density — Compact defaults (laptop). ThemeManager overwrites. -->
+    <sys:Double x:Key="DensityInputHeight">30</sys:Double>
+    <sys:Double x:Key="DensityButtonHeight">32</sys:Double>
+    <sys:Double x:Key="DensityRowHeight">28</sys:Double>
+    <sys:Double x:Key="DensityTitleFontSize">18</sys:Double>
+    <sys:Double x:Key="DensityKpiValueFontSize">16</sys:Double>
+    <Thickness x:Key="DensityCardPadding">10,8</Thickness>
+    <Thickness x:Key="DensityStripPadding">12,8</Thickness>
+    <Thickness x:Key="DensityPageMargin">12,8</Thickness>
+
     <!-- Motion defaults (pre-profile values; tuned at startup). -->
     <sys:Double x:Key="MotionSpeedRatio">1.0</sys:Double>
     <Duration x:Key="MotionDurationFast">0:0:0.12</Duration>

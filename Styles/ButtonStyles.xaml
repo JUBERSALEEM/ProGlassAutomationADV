@@ -42,7 +42,7 @@
     <!-- VARIANT 1 — PrimaryPillButton -->
     <Style x:Key="PrimaryPillButton" TargetType="Button"
            BasedOn="{StaticResource PillButtonBase}">
-        <Setter Property="Height" Value="40"/>
+        <Setter Property="Height" Value="{DynamicResource DensityButtonHeight}"/>
         <Setter Property="Padding" Value="22,0"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -108,7 +108,7 @@
     <!-- VARIANT 2 — SuccessPillButton -->
     <Style x:Key="SuccessPillButton" TargetType="Button"
            BasedOn="{StaticResource PillButtonBase}">
-        <Setter Property="Height" Value="40"/>
+        <Setter Property="Height" Value="{DynamicResource DensityButtonHeight}"/>
         <Setter Property="Padding" Value="22,0"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -173,7 +173,7 @@
     <!-- VARIANT 3 — OutlinedPillButton -->
     <Style x:Key="OutlinedPillButton" TargetType="Button"
            BasedOn="{StaticResource PillButtonBase}">
-        <Setter Property="Height" Value="40"/>
+        <Setter Property="Height" Value="{DynamicResource DensityButtonHeight}"/>
         <Setter Property="Padding" Value="20,0"/>
         <Setter Property="Template">
             <Setter.Value>

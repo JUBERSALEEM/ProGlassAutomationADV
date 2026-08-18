@@ -487,6 +487,9 @@ namespace ProGlassAutomation
             ProGlassAutomation.Services.ThemeManager.ApplyCardCornerRadius(
                 Config.Appearance?.CardCornerRadius ?? 12);
 
+            ProGlassAutomation.Services.ThemeManager.ApplyDisplayDensity(
+                Config.Appearance?.DisplayDensity ?? "Compact");
+
             AuditService.Log(
                 AuditSections.App, "App started",
                 $"Motion tier {PerformanceProfileService.TargetFps} fps");
