@@ -1,5 +1,6 @@
 using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.ViewModels.SheetStore;
+using System;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -12,6 +13,9 @@ namespace ProGlassAutomation.Views.SheetStore
     public partial class SheetStoreView : UserControl
     {
         private Border? _lastSelectedRow;
+
+        // Reserved width of the slide-in panel column (360 panel + 16 margin).
+        private const double PanelOpenWidth = 376;
 
         public SheetStoreView()
         {
@@ -39,30 +43,33 @@ namespace ProGlassAutomation.Views.SheetStore
             if (_vm?.IsRowSelected == true)
             {
                 DetailPanel.Visibility = Visibility.Visible;
-                PanelSlide.BeginAnimation(
-                    TranslateTransform.XProperty,
-                    new DoubleAnimation(400, 0, TimeSpan.FromMilliseconds(220))
+                // Smoothly grow the panel column so the list reflows live —
+                // no translate/timer jump, and the close is not laggy.
+                DetailColumn.BeginAnimation(
+                    ColumnDefinition.WidthProperty,
+                    new GridLengthAnimation
                     {
+                        From = DetailColumn.Width,
+                        To = new GridLength(PanelOpenWidth),
+                        Duration = new Duration(TimeSpan.FromMilliseconds(220)),
                         EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
                     });
             }
             else
             {
-                PanelSlide.BeginAnimation(
-                    TranslateTransform.XProperty,
-                    new DoubleAnimation(400, TimeSpan.FromMilliseconds(180)));
-                // Delay collapse until the slide-out finishes.
-                var timer = new System.Windows.Threading.DispatcherTimer
+                var close = new GridLengthAnimation
                 {
-                    Interval = TimeSpan.FromMilliseconds(200)
+                    From = DetailColumn.Width,
+                    To = new GridLength(0),
+                    Duration = new Duration(TimeSpan.FromMilliseconds(200)),
+                    EasingFunction = new CubicEase { EasingMode = EasingMode.EaseOut }
                 };
-                timer.Tick += (_, _) =>
+                close.Completed += (_, _) =>
                 {
-                    timer.Stop();
                     if (_vm?.IsRowSelected != true)
                         DetailPanel.Visibility = Visibility.Collapsed;
                 };
-                timer.Start();
+                DetailColumn.BeginAnimation(ColumnDefinition.WidthProperty, close);
             }
         }
 
@@ -97,6 +104,61 @@ namespace ProGlassAutomation.Views.SheetStore
                     _lastSelectedRow = row;
                 }
             }
+        }
+
+        private void ActionsMenuButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (ActionsMenu == null) return;
+            ActionsMenu.PlacementTarget = ActionsMenuButton;
+            ActionsMenu.IsOpen = true;
+            e.Handled = true;
+        }
+    }
+
+    /// <summary>
+    /// Animates a ColumnDefinition.Width between two GridLength values.
+    /// WPF has no built-in GridLength animation; DoubleAnimation cannot
+    /// animate GridLength, so this lightweight AnimationTimeline is used for
+    /// the sheet-store slide panel (smooth open/close of the column width).
+    /// </summary>
+    internal sealed class GridLengthAnimation : AnimationTimeline
+    {
+        public override Type TargetPropertyType => typeof(GridLength);
+
+        public static readonly DependencyProperty FromProperty =
+            DependencyProperty.Register(nameof(From), typeof(GridLength), typeof(GridLengthAnimation));
+
+        public static readonly DependencyProperty ToProperty =
+            DependencyProperty.Register(nameof(To), typeof(GridLength), typeof(GridLengthAnimation));
+
+        public GridLength From
+        {
+            get => (GridLength)GetValue(FromProperty);
+            set => SetValue(FromProperty, value);
+        }
+
+        public GridLength To
+        {
+            get => (GridLength)GetValue(ToProperty);
+            set => SetValue(ToProperty, value);
+        }
+
+        protected override Freezable CreateInstanceCore() => new GridLengthAnimation();
+
+        public override object GetCurrentValue(
+            object defaultOriginValue,
+            object defaultDestinationValue,
+            AnimationClock animationClock)
+        {
+            if (animationClock.CurrentProgress == null) return From;
+
+            double progress = animationClock.CurrentProgress.Value;
+            if (EasingFunction != null)
+                progress = EasingFunction.Ease(progress);
+
+            double from = From.Value;
+            double to = To.Value;
+            return new GridLength(from + (to - from) * progress, GridUnitType.Pixel);
         }
     }
 }

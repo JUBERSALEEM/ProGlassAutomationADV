@@ -109,34 +109,52 @@
                                Margin="0,4,0,0"/>
                 </StackPanel>
                 <StackPanel DockPanel.Dock="Right" Orientation="Horizontal" HorizontalAlignment="Right">
-                    <Button Style="{StaticResource OutlinedPillButton}"
-                            Tag="&#xE72C;" Content="REFRESH"
-                            ToolTip="Reload sheet data from the database"
-                            Command="{Binding RefreshCommand}"/>
-                    <Button Style="{StaticResource PrimaryPillButton}"
-                            Tag="&#xE896;" Content="IMPORT"
-                            ToolTip="Import sheets from CSV file"
-                            Command="{Binding ImportCsvCommand}"/>
-                    <Button Style="{StaticResource SuccessPillButton}"
-                            Tag="&#xE72D;" Content="CSV"
-                            ToolTip="Export current view to CSV"
-                            Command="{Binding ExportCsvCommand}"/>
-                    <Button Style="{StaticResource SuccessPillButton}"
-                            Tag="&#xE9F9;" Content="EXCEL"
-                            ToolTip="Export current view to formatted Excel (.xlsx)"
-                            Command="{Binding ExportExcelCommand}"/>
-                    <Button Style="{StaticResource SuccessPillButton}"
-                            Tag="&#xE8A5;" Content="PDF"
-                            ToolTip="Generate PDF inventory report"
-                            Command="{Binding ExportPdfCommand}"/>
-                    <Button Style="{StaticResource OutlinedPillButton}"
-                            Tag="&#xE81C;" Content="HISTORY"
-                            ToolTip="Show sheet history"
-                            Command="{Binding ShowHistoryCommand}"/>
+
+                    <!-- ACTION MENU — a single button that opens a dropdown of
+                         the 6 secondary actions (Refresh/Import/CSV/Excel/PDF/
+                         History). ADD NEW stays outside as a primary button. -->
+                    <Button x:Name="ActionsMenuButton"
+                            Style="{StaticResource OutlinedPillButton}"
+                            Tag="&#xE712;" Content="ACTIONS"
+                            ToolTip="More actions"
+                            Click="ActionsMenuButton_Click"/>
                     <Button Style="{StaticResource PrimaryPillButton}"
                             Tag="&#xE710;" Content="ADD NEW"
                             ToolTip="Add a new glass sheet"
                             Command="{Binding AddCommand}"/>
+
+                    <!-- Dropdown menu for the grouped actions -->
+                    <ContextMenu x:Name="ActionsMenu"
+                                 Placement="Bottom"
+                                 PlacementTarget="{Binding ElementName=ActionsMenuButton}"
+                                 Style="{StaticResource ModernContextMenuStyle}">
+                        <MenuItem Header="Refresh Data"
+                                  Tag="&#xE72C;"
+                                  Style="{StaticResource ModernMenuItemStyle}"
+                                  Command="{Binding RefreshCommand}"/>
+                        <MenuItem Header="Import from CSV"
+                                  Tag="&#xE896;"
+                                  Style="{StaticResource ModernMenuItemStyle}"
+                                  Command="{Binding ImportCsvCommand}"/>
+                        <Separator Style="{StaticResource ModernMenuSeparatorStyle}"/>
+                        <MenuItem Header="Export CSV"
+                                  Tag="&#xE72D;"
+                                  Style="{StaticResource ModernMenuItemStyle}"
+                                  Command="{Binding ExportCsvCommand}"/>
+                        <MenuItem Header="Export Excel"
+                                  Tag="&#xE9F9;"
+                                  Style="{StaticResource ModernMenuItemStyle}"
+                                  Command="{Binding ExportExcelCommand}"/>
+                        <MenuItem Header="Export PDF Report"
+                                  Tag="&#xE8A5;"
+                                  Style="{StaticResource ModernMenuItemStyle}"
+                                  Command="{Binding ExportPdfCommand}"/>
+                        <Separator Style="{StaticResource ModernMenuSeparatorStyle}"/>
+                        <MenuItem Header="Show History"
+                                  Tag="&#xE81C;"
+                                  Style="{StaticResource ModernMenuItemStyle}"
+                                  Command="{Binding ShowHistoryCommand}"/>
+                    </ContextMenu>
                 </StackPanel>
             </DockPanel>
 
@@ -285,7 +303,9 @@
         <Grid Grid.Row="1" Margin="24,0,24,16">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="Auto"/>
+                <!-- Animated panel column: width 0 when closed, expands to
+                     376 (360 panel + 16 margin) when a row is selected. -->
+                <ColumnDefinition x:Name="DetailColumn" Width="0"/>
             </Grid.ColumnDefinitions>
 
             <!-- ══ MAIN LIST (DataGrid) ══ -->
@@ -461,7 +481,7 @@
             <Grid x:Name="DetailPanel" Grid.Column="1" Margin="14,0,0,0"
                   Visibility="Collapsed">
                 <Grid.RenderTransform>
-                    <TranslateTransform x:Name="PanelSlide" X="400"/>
+                    <TranslateTransform x:Name="PanelSlide" X="0"/>
                 </Grid.RenderTransform>
 
                 <Border Width="360"
@@ -509,67 +529,57 @@
 
                             <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,16,0,16"/>
 
-                            <!-- TOTAL PURCHASE / SELLING / PROFIT (pill style) -->
+                            <!-- TOTAL PURCHASE / SELLING / PROFIT — clean cards
+                                 matching the top-panel pill-button shape (radius
+                                 20) instead of oversized pills. -->
                             <TextBlock Text="TOTAL INVENTORY"
                                        FontSize="10" FontWeight="Bold"
                                        Foreground="{DynamicResource MutedForegroundBrush}"
                                        Margin="4,0,0,8"/>
-                            <Border CornerRadius="999" Padding="16,12"
+                            <Border CornerRadius="20" Padding="16,12"
                                     Margin="0,0,0,10"
                                     Background="{DynamicResource TintRedBrush}"
                                     BorderBrush="{DynamicResource DangerBrush}"
                                     BorderThickness="1"
                                     SnapsToDevicePixels="True">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE7BF;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{DynamicResource DangerBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <StackPanel>
                                         <TextBlock Text="TOTAL PURCHASE" Style="{StaticResource StatLabel}" Foreground="{DynamicResource DangerBrush}"/>
                                         <TextBlock Text="{Binding TotalBuyingValue, StringFormat={}{0:N0} AED}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}" Margin="0,2,0,0"/>
                                     </StackPanel>
-                                    <TextBlock Grid.Column="1" Text="&#xE7BF;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{DynamicResource DangerBrush}" VerticalAlignment="Center"/>
-                                </Grid>
+                                </StackPanel>
                             </Border>
-                            <Border CornerRadius="999" Padding="16,12"
+                            <Border CornerRadius="20" Padding="16,12"
                                     Margin="0,0,0,10"
                                     Background="{DynamicResource TintGreenBrush}"
                                     BorderBrush="{DynamicResource SuccessBrush}"
                                     BorderThickness="1"
                                     SnapsToDevicePixels="True">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE7BF;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <StackPanel>
                                         <TextBlock Text="TOTAL SELLING" Style="{StaticResource StatLabel}" Foreground="{DynamicResource SuccessBrush}"/>
                                         <TextBlock Text="{Binding TotalSellingValue, StringFormat={}{0:N0} AED}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" Margin="0,2,0,0"/>
                                     </StackPanel>
-                                    <TextBlock Grid.Column="1" Text="&#xE7BF;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center"/>
-                                </Grid>
+                                </StackPanel>
                             </Border>
-                            <Border CornerRadius="999" Padding="16,12"
+                            <Border CornerRadius="20" Padding="16,12"
                                     Margin="0,0,0,16"
                                     Background="{DynamicResource TintBlueBrush}"
                                     BorderBrush="{DynamicResource AccentBrush}"
                                     BorderThickness="1"
                                     SnapsToDevicePixels="True">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE9F9;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
+                                    <StackPanel>
                                         <TextBlock Text="EXPECTED PROFIT" Style="{StaticResource StatLabel}" Foreground="{DynamicResource AccentBrush}"/>
                                         <TextBlock Text="{Binding TotalProfit, StringFormat={}{0:N0} AED}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,2,0,0"/>
                                     </StackPanel>
-                                    <TextBlock Grid.Column="1" Text="&#xE9F9;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center"/>
-                                </Grid>
+                                </StackPanel>
                             </Border>
 
-                            <!-- Selected row stock pills -->
+                            <!-- Selected row stock cards (radius 20, matching pills) -->
                             <TextBlock Text="SELECTED ROW"
                                        FontSize="10" FontWeight="Bold"
                                        Foreground="{DynamicResource MutedForegroundBrush}"
@@ -579,7 +589,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Border CornerRadius="999" Padding="12,10"
+                                <Border CornerRadius="20" Padding="12,10"
                                         Margin="0,0,4,10"
                                         Background="{DynamicResource TintGreenBrush}"
                                         BorderBrush="{DynamicResource SuccessBrush}"
@@ -589,7 +599,7 @@
                                         <TextBlock Text="{Binding DisplayStock}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Border>
-                                <Border Grid.Column="1" CornerRadius="999" Padding="12,10"
+                                <Border Grid.Column="1" CornerRadius="20" Padding="12,10"
                                         Margin="4,0,0,10"
                                         Background="{DynamicResource TintAmberBrush}"
                                         BorderBrush="{DynamicResource WarningBrush}"

@@ -564,12 +564,10 @@
     </Style>
 
     <!-- ═══════════════════════════════════════════════════════════════
-         MODERN SLIDER — sleek horizontal slider with an accent-coloured
-         fill that shows the current level. A styled DecreaseRepeatButton
-         paints the filled portion in the accent colour; the thumb is a
-         rounded accent disc with a soft ring. Replaces the default OS
-         slider look for settings controls (border thickness, wallpaper
-         visibility, etc.).
+         MODERN SLIDER — iPhone-style pill slider: a tall rounded pill
+         track with an accent-coloured fill that shows the current level,
+         and a round accent thumb. Replaces the default OS slider look for
+         settings controls (border thickness, wallpaper visibility, etc.).
     ═══════════════════════════════════════════════════════════════ -->
     <Style x:Key="ModernSliderTrackRepeatStyle" TargetType="RepeatButton">
         <Setter Property="Focusable" Value="False"/>
@@ -578,7 +576,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="RepeatButton">
                     <Border Background="{DynamicResource MenuHoverBrush}"
-                            CornerRadius="4"
+                            CornerRadius="6"
                             SnapsToDevicePixels="True"/>
                 </ControlTemplate>
             </Setter.Value>
@@ -592,7 +590,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="RepeatButton">
                     <Border Background="{DynamicResource AccentBrush}"
-                            CornerRadius="4"
+                            CornerRadius="6"
                             SnapsToDevicePixels="True"/>
                 </ControlTemplate>
             </Setter.Value>
@@ -600,17 +598,17 @@
     </Style>
 
     <Style x:Key="ModernSliderThumbStyle" TargetType="Thumb">
-        <Setter Property="Width" Value="16"/>
-        <Setter Property="Height" Value="16"/>
+        <Setter Property="Width" Value="18"/>
+        <Setter Property="Height" Value="18"/>
         <Setter Property="Cursor" Value="Hand"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Thumb">
                     <Grid>
-                        <Ellipse Width="20" Height="20"
+                        <Ellipse Width="24" Height="24"
                                  Fill="{DynamicResource AccentBrush}"
-                                 Opacity="0.22"/>
-                        <Ellipse Width="12" Height="12"
+                                 Opacity="0.20"/>
+                        <Ellipse Width="16" Height="16"
                                  Fill="{DynamicResource AccentBrush}">
                             <Ellipse.Effect>
                                 <DropShadowEffect BlurRadius="6"
@@ -625,25 +623,23 @@
         </Setter>
     </Style>
 
+    <!-- iPhone-style pill slider: a tall rounded pill track with an accent
+         fill and a round accent thumb. -->
     <Style x:Key="ModernSliderStyle" TargetType="Slider">
-        <Setter Property="Height" Value="22"/>
+        <Setter Property="Height" Value="26"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Slider">
                     <Grid VerticalAlignment="Center">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <Border Height="6" CornerRadius="3"
+                        <Border Height="10" CornerRadius="5"
                                 Background="{DynamicResource MenuHoverBrush}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
                                 BorderThickness="1"
                                 SnapsToDevicePixels="True"/>
                         <Track x:Name="PART_Track"
-                               Grid.Row="0"
-                               Height="6">
+                               Height="10">
                             <Track.DecreaseRepeatButton>
                                 <RepeatButton Style="{StaticResource ModernSliderFillRepeatStyle}"
                                               Command="Slider.DecreaseLarge"/>
