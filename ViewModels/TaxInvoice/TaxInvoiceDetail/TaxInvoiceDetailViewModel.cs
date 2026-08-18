@@ -1144,6 +1144,13 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                     dnReferenceLabel: dnRefs,
                     importLabel: $"Master ({refList.Count} DN{(refList.Count > 1 ? "s" : "")})");
 
+                var firstJo = allDns.FirstOrDefault(d =>
+                    string.Equals(d.ProformaId, proformaId,
+                        StringComparison.OrdinalIgnoreCase)
+                    && !string.IsNullOrWhiteSpace(d.JobOrderId));
+                if (firstJo != null)
+                    JobOrderId = firstJo.JobOrderId;
+
                 // Chat 16: load family sidebar
                 await LoadFamilyAsync(proformaId);
             }
@@ -1216,6 +1223,11 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
                 CompanyName = piSnapshot.Company.CompanyName;
                 CompanyTrn = piSnapshot.Company.CompanyTrn;
                 CompanyLocation = piSnapshot.Company.CompanyLocation;
+                CompanyEmail = piSnapshot.Company.CompanyEmail;
+                if (string.IsNullOrWhiteSpace(CompanyAddress))
+                    CompanyAddress = piSnapshot.Company.CompanyLocation;
+                BankName = piSnapshot.Company.BankName;
+                BankAccountNumber = piSnapshot.Company.AccountNumber;
             }
 
             if (piSnapshot.Client != null)

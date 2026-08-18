@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
+using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.TaxInvoice.Mapper;
 using ProGlassAutomation.Utilities;
@@ -240,6 +240,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
 
                 AddLabelValue(col, "Company:", _ctx.CompanyName);
                 AddLabelValue(col, "TRN:", _ctx.CompanyTrn);
+                AddLabelValue(col, "Address:", _ctx.CompanyAddress);
                 AddLabelValue(col, "Location:", _ctx.CompanyLocation);
                 AddLabelValue(col, "Phone:", _ctx.CompanyPhone);
                 AddLabelValue(col, "Email:", _ctx.CompanyEmail);
@@ -400,16 +401,19 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
 
                     table.Header(header =>
                     {
-                        foreach (var h in new[]
+                        string[] heads =
                         {
                             "#", "GLASS REF", "W1", "H1", "W2", "H2",
                             "QTY", "SQM", "T.SQM", "RATE", "VALUE"
-                        })
+                        };
+                        for (int i = 0; i < heads.Length; i++)
                         {
-                            header.Cell()
+                            bool center = i == 0 || (i >= 2 && i <= 8);
+                            var cell = header.Cell()
                                 .Background(TABLE_HDR)
-                                .PaddingHorizontal(4).PaddingVertical(4)
-                                .Text(h).FontSize(8).Bold()
+                                .PaddingHorizontal(4).PaddingVertical(4);
+                            var aligned = center ? cell.AlignCenter() : i >= 9 ? cell.AlignRight() : cell;
+                            aligned.Text(heads[i]).FontSize(8).Bold()
                                 .FontColor(Colors.White);
                         }
                     });
@@ -431,11 +435,11 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                             row.H2 > 0 ? row.H2.ToString() : "—", rowBg);
                         AddTableCellRight(table, row.Qty.ToString(), rowBg,
                             bold: true);
-                        AddTableCellRight(table,
-                            row.Sqm.ToString("0.000"), rowBg);
-                        AddTableCellRight(table,
+                        AddTableCell(table,
+                            row.Sqm.ToString("0.000"), rowBg, center: true);
+                        AddTableCell(table,
                             row.TotalSqm.ToString("0.000"), rowBg,
-                            bold: true);
+                            center: true, bold: true);
                         AddTableCellRight(table,
                             $"AED {row.Rate:N2}", rowBg);
                         AddTableCellRight(table,
@@ -802,6 +806,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
 
                 CompanyName = snap.Company?.CompanyName ?? "",
                 CompanyTrn = snap.Company?.CompanyTrn ?? "",
+                CompanyAddress = snap.Company?.CompanyAddress ?? "",
                 CompanyLocation = snap.Company?.CompanyLocation ?? "",
                 CompanyPhone = snap.Company?.CompanyPhone ?? "",
                 CompanyEmail = snap.Company?.CompanyEmail ?? "",
@@ -992,6 +997,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
 
             public string CompanyName { get; set; } = "";
             public string CompanyTrn { get; set; } = "";
+            public string CompanyAddress { get; set; } = "";
             public string CompanyLocation { get; set; } = "";
             public string CompanyPhone { get; set; } = "";
             public string CompanyEmail { get; set; } = "";

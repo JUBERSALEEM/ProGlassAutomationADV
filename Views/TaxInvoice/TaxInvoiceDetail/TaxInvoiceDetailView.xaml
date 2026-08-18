@@ -24,6 +24,48 @@
 
 
 
+        <Style x:Key="TiMenuActionItem" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,9"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg" Background="Transparent"
+                                CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,9"
+                                SnapsToDevicePixels="True">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{TemplateBinding Tag}"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="14"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,10,0"/>
+                                <TextBlock Text="{TemplateBinding Content}"
+                                           FontSize="13" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.40"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="ActionButtonStyle" TargetType="Button">
             <Setter Property="Padding" Value="16,8"/>
             <Setter Property="FontSize" Value="12"/>
@@ -224,47 +266,64 @@
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
 
-                    <!-- v2 §24: version history -->
-                    <Button Style="{StaticResource RowOutlinedButton}"
-                            Tag="&#xE81C;" Content="HISTORY"
-                            Command="{Binding ShowVersionsCommand}"
-                            Margin="0,0,6,0"
-                            ToolTip="Version history — view or restore an earlier save"/>
+                    <Button x:Name="ActionsMenuButton"
+                            Style="{StaticResource OutlinedPillButton}"
+                            Tag="&#xE712;" Content="ACTIONS"
+                            ToolTip="Save, issue, mark paid, export and more"
+                            Click="ActionsMenuButton_Click"/>
 
-                    <Button Style="{StaticResource PrimaryPillButton}"
-                            Tag="&#xE74E;" Content="SAVE"
-                            Command="{Binding SaveCommand}"
-                            Margin="0,0,6,0"
-                            ToolTip="Save invoice (Ctrl+S)"/>
-
-                    <Button Style="{StaticResource PrimaryPillButton}"
-                            Tag="&#xE72D;" Content="ISSUE"
-                            Command="{Binding IssueCommand}"
-                            Margin="0,0,6,0"
-                            ToolTip="Mark invoice as Issued"/>
-
-                    <Button Style="{StaticResource SuccessPillButton}"
-                            Tag="&#xE73E;" Content="MARK PAID"
-                            Command="{Binding MarkPaidCommand}"
-                            Margin="0,0,12,0"
-                            ToolTip="Mark invoice as Paid"/>
-
-                    <Border Width="1" Margin="0,4,12,4"
-                            Background="{DynamicResource BorderBrush}"/>
-
-                    <Button Style="{StaticResource SuccessPillButton}"
-                            Tag="&#xE8A5;" Content="PDF"
-                            Command="{Binding ExportPdfCommand}"
-                            Margin="0,0,6,0"
-                            ToolTip="Export as PDF"/>
-
-                    <Border Width="1" Margin="0,4,12,4"
-                            Background="{DynamicResource BorderBrush}"/>
-
-                    <Button Style="{StaticResource DangerButton}"
-                            Tag="&#xE74D;" Content="DELETE"
-                            Command="{Binding DeleteCommand}"
-                            ToolTip="Delete this invoice"/>
+                    <Popup x:Name="ActionsMenuPopup"
+                           PlacementTarget="{Binding ElementName=ActionsMenuButton}"
+                           Placement="Bottom"
+                           HorizontalAlignment="Right"
+                           VerticalOffset="4"
+                           AllowsTransparency="True"
+                           StaysOpen="True"
+                           PopupAnimation="Fade">
+                        <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                                BorderBrush="{DynamicResource OutlineBrush}"
+                                BorderThickness="1"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                Padding="6"
+                                MinWidth="228"
+                                SnapsToDevicePixels="True">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="20" ShadowDepth="4"
+                                                  Direction="270" Opacity="0.25"
+                                                  Color="#000000"/>
+                            </Border.Effect>
+                            <StackPanel>
+                                <Button Style="{StaticResource TiMenuActionItem}"
+                                        Tag="&#xE74E;" Content="Save  (Ctrl+S)"
+                                        Command="{Binding SaveCommand}"
+                                        Click="MenuActionClicked"/>
+                                <Button Style="{StaticResource TiMenuActionItem}"
+                                        Tag="&#xE72D;" Content="Issue invoice"
+                                        Command="{Binding IssueCommand}"
+                                        Click="MenuActionClicked"/>
+                                <Button Style="{StaticResource TiMenuActionItem}"
+                                        Tag="&#xE73E;" Content="Mark as paid"
+                                        Command="{Binding MarkPaidCommand}"
+                                        Click="MenuActionClicked"/>
+                                <Button Style="{StaticResource TiMenuActionItem}"
+                                        Tag="&#xE81C;" Content="Version history"
+                                        Command="{Binding ShowVersionsCommand}"
+                                        Click="MenuActionClicked"/>
+                                <Border Height="1" Margin="10,4"
+                                        Background="{DynamicResource OutlineBrush}"/>
+                                <Button Style="{StaticResource TiMenuActionItem}"
+                                        Tag="&#xE8A5;" Content="Export PDF"
+                                        Command="{Binding ExportPdfCommand}"
+                                        Click="MenuActionClicked"/>
+                                <Border Height="1" Margin="10,4"
+                                        Background="{DynamicResource OutlineBrush}"/>
+                                <Button Style="{StaticResource TiMenuActionItem}"
+                                        Tag="&#xE74D;" Content="Delete invoice"
+                                        Command="{Binding DeleteCommand}"
+                                        Click="MenuActionClicked"/>
+                            </StackPanel>
+                        </Border>
+                    </Popup>
                 </StackPanel>
             </Grid>
         </Border>
@@ -289,7 +348,7 @@
 
         <!-- ══ ROW 2 — FINANCIAL STATS + ATTACHMENTS ═════════════════ -->
         <!-- ══ DETAIL TABS — Overview / Attachments / Family ═════════ -->
-        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,0,0,12">
+        <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,4,0,14">
             <Button Content="OVERVIEW" Tag="&#xE8A5;" Margin="0,0,8,0"
                     ToolTip="Invoice content and financials"
                     Command="{Binding SwitchDetailTabCommand}" CommandParameter="Overview">
