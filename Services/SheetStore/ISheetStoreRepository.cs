@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Models.SheetStore;
+using ProGlassAutomation.Models.SheetStore;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -17,6 +17,21 @@ namespace ProGlassAutomation.Services.SheetStore
         Task<GlassSheet> AddAsync(GlassSheet sheet);
         Task UpdateAsync(GlassSheet sheet);
         Task DeleteAsync(int id);
+
+        /// <summary>
+        /// SQL-side filtered + sorted + paged read (Phase 10 - performance).
+        /// Returns only the requested page of matching sheets. Passing null/
+        /// empty for a filter means "no restriction" for that field.
+        /// </summary>
+        Task<List<GlassSheet>> SearchAsync(
+            string? category = null,
+            string? color = null,
+            string? supplier = null,
+            int? thicknessMm = null,
+            string? search = null,
+            string? sortKey = null,
+            int skip = 0,
+            int take = 200);
 
         // ============ BUSINESS OPERATIONS ============
         Task BuyStockAsync(int sheetId, int quantity, decimal? newPurchasePrice = null);

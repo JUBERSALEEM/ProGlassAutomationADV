@@ -21,6 +21,9 @@
 | 8 — Design system (P2) | Added shared `InputStyles.xaml` (TextBox/PasswordBox/ComboBox), registered globally | `b5c0302` | ✅ |
 | 14 — Orphan protection | Added `DependencyGuard` (cross-DB delete guards for PI/JO/DN), wired into delete flows | `8216476` | ✅ (build pending) |
 | 15 — Testing | Added `SqmCalculatorTests`, `StatusTransitionsTests`, `TaxInvoiceDnReconcilerTests` | `4d617ee`, `ee0bdf9`, `…` | ✅ (run pending) |
+| 10 (additive) | Added SQL-side filtered/sorted/paged `SheetStoreRepository.SearchAsync` (no behavior change to existing flows) | `…` | ✅ (build verified) |
+
+**Build status (2026-08-18):** user confirmed `dotnet build` succeeds with no errors on Windows.
 
 ---
 

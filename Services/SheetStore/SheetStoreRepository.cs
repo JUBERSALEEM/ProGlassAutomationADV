@@ -32,6 +32,63 @@ namespace ProGlassAutomation.Services.SheetStore
             return await db.GlassSheets.FindAsync(id);
         }
 
+        public async Task<List<GlassSheet>> SearchAsync(
+            string? category = null,
+            string? color = null,
+            string? supplier = null,
+            int? thicknessMm = null,
+            string? search = null,
+            string? sortKey = null,
+            int skip = 0,
+            int take = 200)
+        {
+            if (skip < 0) skip = 0;
+            if (take <= 0) take = 200;
+
+            using var db = new AppDbContext();
+
+            IQueryable<GlassSheet> query = db.GlassSheets.AsNoTracking();
+
+            if (!string.IsNullOrWhiteSpace(category))
+                query = query.Where(g => g.Category == category);
+            if (!string.IsNullOrWhiteSpace(color))
+                query = query.Where(g => g.Color == color);
+            if (!string.IsNullOrWhiteSpace(supplier))
+                query = query.Where(g => g.Supplier == supplier);
+            if (thicknessMm.HasValue && thicknessMm.Value > 0)
+                query = query.Where(g => g.ThicknessMm == thicknessMm.Value);
+
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                string s = search.Trim().ToLower();
+                // NOTE: no ThicknessDisplay here - it is a computed property
+                // (not a DB column) so EF cannot translate it to SQL. Thickness
+                // is searchable via the exact thicknessMm filter above.
+                query = query.Where(g =>
+                    g.Category.ToLower().Contains(s) ||
+                    g.Color.ToLower().Contains(s) ||
+                    g.Supplier.ToLower().Contains(s));
+            }
+
+            query = (sortKey ?? "").ToLowerInvariant() switch
+            {
+                "newest" => query.OrderByDescending(g => g.CreatedAt),
+                "oldest" => query.OrderBy(g => g.CreatedAt),
+                "stockasc" => query.OrderBy(g => g.Stock),
+                "stockdesc" => query.OrderByDescending(g => g.Stock),
+                "valueasc" => query.OrderBy(g => g.TotalPurchaseValue),
+                "valuedesc" => query.OrderByDescending(g => g.TotalPurchaseValue),
+                _ => query.OrderBy(g => g.Category)
+                          .ThenBy(g => g.Color)
+                          .ThenBy(g => g.ThicknessMm)
+            };
+
+            return await query
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync();
+        }
+
         public async Task<GlassSheet> AddAsync(GlassSheet sheet)
         {
             // A-1: service-layer authorization. The UI also checks,
