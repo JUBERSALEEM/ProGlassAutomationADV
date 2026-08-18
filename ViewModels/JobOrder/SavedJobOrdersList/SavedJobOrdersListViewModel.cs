@@ -448,6 +448,20 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 ProGlassAutomation.Services.Audit.AppPermissions.JobOrderDelete, "delete a job order"))
                 return;
 
+            // Phase 14: orphan protection — refuse to delete a Job Order
+            // that has dependent Delivery Notes.
+            var guard = await ProGlassAutomation.Services.Database
+                .DependencyGuard.CheckAsync(
+                    ProGlassAutomation.Services.Database.DependencyGuard
+                        .Kind.JobOrder,
+                    row.JobOrderId);
+            if (guard.HasDependents)
+            {
+                MessageBox.Show(guard.Message, "Cannot Delete",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var result = MessageBox.Show(
                 $"Delete job order '{row.JobOrderId}'?\n\n" +
                 $"Customer: {row.CustomerName}\n" +

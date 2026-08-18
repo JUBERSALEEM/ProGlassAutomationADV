@@ -952,6 +952,20 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 return;
             }
 
+            // Phase 14: orphan protection — refuse to delete a DN that has
+            // been invoiced.
+            var guard = await ProGlassAutomation.Services.Database
+                .DependencyGuard.CheckAsync(
+                    ProGlassAutomation.Services.Database.DependencyGuard
+                        .Kind.DeliveryNote,
+                    row.DeliveryNoteId);
+            if (guard.HasDependents)
+            {
+                MessageBox.Show(guard.Message, "Cannot Delete",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var result = MessageBox.Show(
                 $"Delete delivery note '{row.DeliveryNoteId}'?\n\n" +
                 $"Customer: {row.CustomerName}\n" +

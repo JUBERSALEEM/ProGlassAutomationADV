@@ -670,6 +670,20 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
 
             if (item == null || App.Invoices == null) return;
 
+            // Phase 14: orphan protection — refuse to delete a PI that has
+            // dependent Job Orders / Tax Invoices.
+            var guard = await ProGlassAutomation.Services.Database
+                .DependencyGuard.CheckAsync(
+                    ProGlassAutomation.Services.Database.DependencyGuard
+                        .Kind.ProformaInvoice,
+                    item.ProformaId ?? "");
+            if (guard.HasDependents)
+            {
+                MessageBox.Show(guard.Message, "Cannot Delete",
+                    MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
             var confirm = MessageBox.Show(
                 $"Delete invoice '{item.ProformaId}' permanently?\n\n" +
                 "This cannot be undone.",
