@@ -3,6 +3,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:sections="clr-namespace:ProGlassAutomation.Views.DeliveryNote.DeliveryNoteDetail.Sections"
+             xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -578,13 +579,11 @@
 
         <!-- ═══ ROW 2 — LOADING / ERROR ═══ -->
         <StackPanel Grid.Row="2">
-            <Border Visibility="{Binding IsLoading,
+            <loading:LoadingStateControl
+                    Visibility="{Binding IsLoading,
                                  Converter={StaticResource BoolToVisibilityConverter}}"
-                    Padding="20">
-                <TextBlock Text="⏳  Loading delivery note…"
-                           FontSize="14" HorizontalAlignment="Center"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-            </Border>
+                    Message="Loading delivery note…"
+                    Margin="0,8,0,12"/>
             <Border Visibility="{Binding HasError,
                                  Converter={StaticResource BoolToVisibilityConverter}}"
                     Style="{StaticResource ModuleErrorBannerStyle}">

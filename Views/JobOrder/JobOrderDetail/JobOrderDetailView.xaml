@@ -4,6 +4,7 @@
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:sections="clr-namespace:ProGlassAutomation.Views.JobOrder.JobOrderDetail.Sections"
              xmlns:hero="clr-namespace:ProGlassAutomation.Controls.GradientHeroCard"
+             xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -56,13 +57,11 @@
                     ToolTip="Return to the saved job orders list"/>
 
             <!-- ── LOADING / ERROR ────────────────────────────────── -->
-            <Border Visibility="{Binding IsLoading,
+            <loading:LoadingStateControl
+                    Visibility="{Binding IsLoading,
                                  Converter={StaticResource BoolToVisibilityConverter}}"
-                    Padding="12" Margin="8,0,8,12">
-                <TextBlock Text="⏳  Loading job order…" FontSize="12"
-                           HorizontalAlignment="Center"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-            </Border>
+                    Message="Loading job order…"
+                    Margin="8,0,8,12"/>
 
             <Border Visibility="{Binding HasError,
                                  Converter={StaticResource BoolToVisibilityConverter}}"

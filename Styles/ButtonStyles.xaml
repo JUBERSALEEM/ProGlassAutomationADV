@@ -51,7 +51,7 @@
                             Background="{DynamicResource AccentBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
-                            CornerRadius="20"
+                            CornerRadius="{DynamicResource PillCornerRadius}"
                             Padding="{TemplateBinding Padding}"
                             Height="{TemplateBinding Height}"
                             SnapsToDevicePixels="True">
@@ -62,7 +62,7 @@
                                        Text="{TemplateBinding Tag}"
                                        FontFamily="Segoe MDL2 Assets"
                                        FontSize="13"
-                                       Foreground="White"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,10,0">
                                 <TextBlock.Style>
@@ -81,19 +81,19 @@
                             <ContentPresenter VerticalAlignment="Center"
                                               TextElement.FontSize="12"
                                               TextElement.FontWeight="Bold"
-                                              TextElement.Foreground="White"/>
+                                              TextElement.Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         </StackPanel>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="#6366F1"/>
-                            <Setter TargetName="Bg" Property="BorderBrush" Value="#80FFFFFF"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentHoverBrush}"/>
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource OnAccentForegroundBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="#3730A3"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource AccentDarkBrush}"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Bg" Property="BorderBrush" Value="White"/>
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource OnAccentForegroundBrush}"/>
                             <Setter TargetName="Bg" Property="BorderThickness" Value="2"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
@@ -117,7 +117,7 @@
                             Background="{DynamicResource SuccessBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
-                            CornerRadius="20"
+                            CornerRadius="{DynamicResource PillCornerRadius}"
                             Padding="{TemplateBinding Padding}"
                             Height="{TemplateBinding Height}"
                             SnapsToDevicePixels="True">
@@ -128,7 +128,7 @@
                                        Text="{TemplateBinding Tag}"
                                        FontFamily="Segoe MDL2 Assets"
                                        FontSize="13"
-                                       Foreground="White"
+                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,10,0">
                                 <TextBlock.Style>
@@ -147,19 +147,18 @@
                             <ContentPresenter VerticalAlignment="Center"
                                               TextElement.FontSize="12"
                                               TextElement.FontWeight="Bold"
-                                              TextElement.Foreground="White"/>
+                                              TextElement.Foreground="{DynamicResource OnAccentForegroundBrush}"/>
                         </StackPanel>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="#10B981"/>
-                            <Setter TargetName="Bg" Property="BorderBrush" Value="#80FFFFFF"/>
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.88"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="#047857"/>
+                            <Setter TargetName="Bg" Property="Opacity" Value="0.75"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
-                            <Setter TargetName="Bg" Property="BorderBrush" Value="White"/>
+                            <Setter TargetName="Bg" Property="BorderBrush" Value="{DynamicResource OnAccentForegroundBrush}"/>
                             <Setter TargetName="Bg" Property="BorderThickness" Value="2"/>
                         </Trigger>
                         <Trigger Property="IsEnabled" Value="False">
@@ -180,10 +179,10 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Bg"
-                            Background="White"
+                            Background="{DynamicResource ModuleBackgroundBrush}"
                             BorderBrush="{DynamicResource AccentBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
-                            CornerRadius="20"
+                            CornerRadius="{DynamicResource PillCornerRadius}"
                             Padding="{TemplateBinding Padding}"
                             Height="{TemplateBinding Height}"
                             SnapsToDevicePixels="True">
@@ -213,15 +212,15 @@
                             <ContentPresenter VerticalAlignment="Center"
                                               TextElement.FontSize="12"
                                               TextElement.FontWeight="Bold"
-                                              TextElement.Foreground="#1F2937"/>
+                                              TextElement.Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                         </StackPanel>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="#EEF2FF"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="#E0E7FF"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="Bg" Property="BorderThickness" Value="2"/>
@@ -246,9 +245,9 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Bg"
                             Background="Transparent"
-                            BorderBrush="#B91C1C"
+                            BorderBrush="{DynamicResource DangerBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
-                            CornerRadius="8"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="{TemplateBinding Padding}"
                             Height="{TemplateBinding Height}"
                             SnapsToDevicePixels="True">
@@ -259,7 +258,7 @@
                                        Text="{TemplateBinding Tag}"
                                        FontFamily="Segoe MDL2 Assets"
                                        FontSize="11"
-                                       Foreground="#B91C1C"
+                                       Foreground="{DynamicResource DangerBrush}"
                                        VerticalAlignment="Center"
                                        Margin="0,0,8,0">
                                 <TextBlock.Style>
@@ -278,15 +277,15 @@
                             <ContentPresenter VerticalAlignment="Center"
                                               TextElement.FontSize="11"
                                               TextElement.FontWeight="Bold"
-                                              TextElement.Foreground="#B91C1C"/>
+                                              TextElement.Foreground="{DynamicResource DangerBrush}"/>
                         </StackPanel>
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="#FEE2E2"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintRedBrush}"/>
                         </Trigger>
                         <Trigger Property="IsPressed" Value="True">
-                            <Setter TargetName="Bg" Property="Background" Value="#FCA5A5"/>
+                            <Setter TargetName="Bg" Property="Background" Value="{DynamicResource TintRedBrush}"/>
                         </Trigger>
                         <Trigger Property="IsKeyboardFocused" Value="True">
                             <Setter TargetName="Bg" Property="BorderThickness" Value="2"/>
@@ -404,8 +403,8 @@
         <Setter Property="Padding" Value="8,0"/>
         <Setter Property="MinWidth" Value="44"/>
         <Setter Property="Background" Value="Transparent"/>
-        <Setter Property="Foreground" Value="#B91C1C"/>
-        <Setter Property="BorderBrush" Value="#B91C1C"/>
+        <Setter Property="Foreground" Value="{DynamicResource DangerBrush}"/>
+        <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
         <Setter Property="BorderThickness" Value="1.5"/>
         <Setter Property="Template" Value="{StaticResource RowButtonTemplate}"/>
     </Style>

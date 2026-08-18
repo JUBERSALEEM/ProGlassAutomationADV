@@ -12,6 +12,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
+             xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -90,13 +91,11 @@
             </StackPanel>
 
             <!-- ── LOADING / ERROR ────────────────────────────────────── -->
-            <Border Visibility="{Binding IsLoading,
+            <loading:LoadingStateControl
+                    Visibility="{Binding IsLoading,
                                  Converter={StaticResource BoolToVisibilityConverter}}"
-                    Padding="12" Margin="8,0,8,12">
-                <TextBlock Text="⏳  Loading job orders…" FontSize="12"
-                           HorizontalAlignment="Center"
-                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-            </Border>
+                    Message="Loading job orders…"
+                    Margin="8,0,8,12"/>
 
             <Border Visibility="{Binding HasError,
                                  Converter={StaticResource BoolToVisibilityConverter}}"
