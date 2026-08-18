@@ -40,13 +40,6 @@ using System.Threading.Tasks;
 
 namespace ProGlassAutomation.Services.Statement.Workflow
 {
-    public enum UserWarningDecision
-    {
-        CreateInvoice = 0,
-        SkipAndContinue = 1,
-        Abort = 2
-    }
-
     public delegate Task<UserWarningDecision> ResolveMissingInvoicesCallback(
         WorkflowResult partialResult);
 
