@@ -31,6 +31,11 @@
                 <!-- Module tab strip + God View styles (DN/JO/TI tabs) -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ModuleTabStyles.xaml"/>
 
+                <!-- Phase 8: shared theme-adaptive input styles (TextBox /
+                     PasswordBox / ComboBox). Adopted incrementally by views
+                     instead of each view declaring its own input chrome. -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/InputStyles.xaml"/>
+
                 <!-- Modern rounded context-menu styles for every module's
                      right-click menu (Proforma / Job Order / Delivery Note /
                      Tax Invoice). -->
