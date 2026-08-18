@@ -72,6 +72,10 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
         private List<GlassSheet> _allSheets = new();
 
+        /// <summary>Phase 10: monotonic guard so a stale async filter
+        /// response cannot overwrite a newer one.</summary>
+        private int _filterGeneration;
+
         public ObservableCollection<GlassSheet> Sheets { get; } = new();
 
         // ============ FILTER DROPDOWN OPTIONS ============
@@ -82,6 +86,11 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
         // ============ SORT OPTIONS ============
         private const string DEFAULT_SORT = "Category → Color → Thickness";
+
+        /// <summary>Phase 10: SQL page size for the filter query. The
+        /// grid shows the full (non-paged) matching set, so this is a
+        /// generous ceiling, not a UI pager.</summary>
+        private const int SearchPageSize = 100000;
 
         public ObservableCollection<string> SortOptions { get; } = new()
         {
@@ -101,7 +110,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public string SelectedSort
         {
             get => _selectedSort;
-            set { if (_selectedSort == value) return; _selectedSort = value; OnPropertyChanged(); ApplyFilters(); }
+            set { if (_selectedSort == value) return; _selectedSort = value; OnPropertyChanged(); _ = ApplyFiltersAsync(); }
         }
 
         // ============ FILTER SELECTIONS ============
@@ -111,28 +120,28 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public string SelectedCategory
         {
             get => _selectedCategory;
-            set { if (_selectedCategory == value) return; _selectedCategory = value; OnPropertyChanged(); ApplyFilters(); }
+            set { if (_selectedCategory == value) return; _selectedCategory = value; OnPropertyChanged(); _ = ApplyFiltersAsync(); }
         }
 
         private string _selectedThickness = ALL;
         public string SelectedThickness
         {
             get => _selectedThickness;
-            set { if (_selectedThickness == value) return; _selectedThickness = value; OnPropertyChanged(); ApplyFilters(); }
+            set { if (_selectedThickness == value) return; _selectedThickness = value; OnPropertyChanged(); _ = ApplyFiltersAsync(); }
         }
 
         private string _selectedColor = ALL;
         public string SelectedColor
         {
             get => _selectedColor;
-            set { if (_selectedColor == value) return; _selectedColor = value; OnPropertyChanged(); ApplyFilters(); }
+            set { if (_selectedColor == value) return; _selectedColor = value; OnPropertyChanged(); _ = ApplyFiltersAsync(); }
         }
 
         private string _selectedSupplier = ALL;
         public string SelectedSupplier
         {
             get => _selectedSupplier;
-            set { if (_selectedSupplier == value) return; _selectedSupplier = value; OnPropertyChanged(); ApplyFilters(); }
+            set { if (_selectedSupplier == value) return; _selectedSupplier = value; OnPropertyChanged(); _ = ApplyFiltersAsync(); }
         }
 
         public bool HasActiveFilters =>
@@ -203,7 +212,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
         public string SearchText
         {
             get => _searchText;
-            set { if (_searchText == value) return; _searchText = value; OnPropertyChanged(); ApplyFilters(); }
+            set { if (_searchText == value) return; _searchText = value; OnPropertyChanged(); _ = ApplyFiltersAsync(); }
         }
 
         private bool _isBusy;
@@ -262,7 +271,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             {
                 _allSheets = await _repo.GetAllAsync();
                 RebuildFilterOptions();
-                ApplyFilters();
+                await ApplyFiltersAsync();
                 SelectedSheet = null;
                 try
                 {
@@ -327,18 +336,49 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             OnPropertyChanged(nameof(SelectedSupplier));
         }
 
-        private void ApplyFilters()
+        // PHASE 10 — SQL-side filtering. The categorical dropdown filters
+        // (category/color/supplier/thickness) are pushed into
+        // SheetStoreRepository.SearchAsync so the DB applies the WHERE clause
+        // before rows reach the client. Free-text search and sorting stay
+        // in-memory on the returned page because several keys are computed
+        // properties (ThicknessDisplay, Balance, TotalPurchaseValue) that EF
+        // cannot translate to SQL.
+        private async Task ApplyFiltersAsync()
         {
-            IEnumerable<GlassSheet> filtered = _allSheets;
+            int generation = ++_filterGeneration;
 
-            if (SelectedCategory != ALL)
-                filtered = filtered.Where(s => s.Category == SelectedCategory);
-            if (SelectedThickness != ALL)
-                filtered = filtered.Where(s => s.ThicknessDisplay == SelectedThickness);
-            if (SelectedColor != ALL)
-                filtered = filtered.Where(s => s.Color == SelectedColor);
-            if (SelectedSupplier != ALL)
-                filtered = filtered.Where(s => s.Supplier == SelectedSupplier);
+            int? thicknessMm = null;
+            if (SelectedThickness != ALL &&
+                int.TryParse(
+                    SelectedThickness.Replace("mm", "").Trim(), out int t) &&
+                t > 0)
+            {
+                thicknessMm = t;
+            }
+
+            List<GlassSheet> result;
+            try
+            {
+                result = await _repo.SearchAsync(
+                    category: SelectedCategory == ALL ? null : SelectedCategory,
+                    color: SelectedColor == ALL ? null : SelectedColor,
+                    supplier: SelectedSupplier == ALL ? null : SelectedSupplier,
+                    thicknessMm: thicknessMm,
+                    search: null,
+                    sortKey: null,
+                    skip: 0,
+                    take: SearchPageSize);
+            }
+            catch
+            {
+                // Never leave the list stale if the SQL search fails — fall
+                // back to the already-loaded in-memory set.
+                result = _allSheets;
+            }
+
+            if (generation != _filterGeneration) return; // stale response
+
+            IEnumerable<GlassSheet> filtered = result;
 
             if (!string.IsNullOrWhiteSpace(SearchText))
             {
@@ -352,8 +392,11 @@ namespace ProGlassAutomation.ViewModels.SheetStore
 
             filtered = ApplySort(filtered);
 
+            var final = filtered.ToList();
+            if (generation != _filterGeneration) return;
+
             Sheets.Clear();
-            foreach (var s in filtered) Sheets.Add(s);
+            foreach (var s in final) Sheets.Add(s);
 
             RaiseStatsChanged();
             OnPropertyChanged(nameof(HasActiveFilters));
@@ -392,7 +435,7 @@ namespace ProGlassAutomation.ViewModels.SheetStore
             OnPropertyChanged(nameof(SelectedSort));
             OnPropertyChanged(nameof(SearchText));
 
-            ApplyFilters();
+            _ = ApplyFiltersAsync();
         }
 
         // ============ STATS ============
