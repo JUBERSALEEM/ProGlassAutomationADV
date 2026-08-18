@@ -1,18 +1,10 @@
-<!-- MIGRATION LOG — Button Standardization (rebuilt cleanly 2026-08-15)
-     Previous migration regex overran and deleted the loading/error
-     overlays, KPI hero cards, meta bar and filter bar. File rebuilt
-     from the pre-migration baseline with ALL intended conversions:
-     toolbar/filter/row buttons -> centralized pills; tab/filter Tags
-     emoji->MDL2 + MDL2 font on template icons; hero/empty icons->MDL2.
-     No other content changed. Commands/bindings/code-behind intact.
-═══════════════════════════════════════════════════════════════ -->
+<!-- Delivery Note list — industrial table chrome. Tab names, click handlers, group/row commands unchanged. -->
 <UserControl x:Class="ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList.DeliveryNoteListView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
              xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
-             xmlns:hero="clr-namespace:ProGlassAutomation.Controls.GradientHeroCard"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -22,218 +14,83 @@
 
     <UserControl.Resources>
 
-        <!-- ══ JO GROUP ROW TEMPLATE ══ -->
+        <Style x:Key="TabCardInactiveStyle" TargetType="Button"
+               BasedOn="{StaticResource ModuleListTabInactiveStyle}"/>
+        <Style x:Key="TabCardActiveStyle" TargetType="Button"
+               BasedOn="{StaticResource ModuleListTabActiveStyle}"/>
+
+        <Style x:Key="DnListBoxItemStyle" TargetType="ListBoxItem"
+               BasedOn="{StaticResource ModuleListBoxItemStyle}"/>
+
+        <Style x:Key="PendingRowCardStyle" TargetType="Border"
+               BasedOn="{StaticResource ModuleListRowStyle}">
+            <Setter Property="MinHeight" Value="56"/>
+            <Setter Property="Padding" Value="14,10"/>
+        </Style>
+
         <DataTemplate x:Key="JoGroupRowTemplate">
-            <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="{DynamicResource ControlCornerRadius}"
-                    Padding="14,12"
-                    Margin="0,0,0,8"
+            <Border Style="{StaticResource ModuleListRowStyle}"
                     Cursor="Hand"
-                    SnapsToDevicePixels="True"
+                    MinHeight="64"
                     MouseLeftButtonUp="OnGroupRowLeftClick"
                     MouseRightButtonUp="OnGroupRowRightClick">
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Style.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background"
-                                        Value="{DynamicResource MenuHoverBrush}"/>
-                                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                            </Trigger>
-                            <DataTrigger Binding="{Binding AllDelivered}" Value="True">
-                                <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
-                                <Setter Property="BorderThickness" Value="1.5"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="280"/>
-                        <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="3"/>
+                        <ColumnDefinition Width="1.5*"/>
+                        <ColumnDefinition Width="1.4*"/>
+                        <ColumnDefinition Width="130"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="170"/>
+                        <ColumnDefinition Width="130"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- LEFT: JO info + badges -->
-                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <Border Grid.Column="0">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding AllDelivered}" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                    </Border>
 
-                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
-                            <TextBlock Text="&#xE8C8;" FontFamily="Segoe MDL2 Assets" FontSize="14"
-                                       VerticalAlignment="Center" Opacity="0.7"/>
-                            <TextBlock Text="{Binding JobOrderId}"
-                                       FontSize="15" FontWeight="Bold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                       VerticalAlignment="Center"/>
-
-                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2"
-                                    Margin="10,0,0,0" VerticalAlignment="Center"
-                                    Background="{DynamicResource TintIndigoBrush}">
-                                <TextBlock FontSize="9" FontWeight="Bold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                    <Run Text="{Binding DnCount, Mode=OneWay}"/>
-                                    <Run Text=" DNs"/>
-                                </TextBlock>
-                            </Border>
-
-                            <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2"
-                                    Margin="6,0,0,0" VerticalAlignment="Center">
-                                <Border.Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="Background"
-                                                Value="{DynamicResource TintAmberBrush}"/>
-                                        <Style.Triggers>
-                                            <DataTrigger Binding="{Binding AllDelivered}" Value="True">
-                                                <Setter Property="Background"
-                                                        Value="{DynamicResource TintGreenBrush}"/>
-                                            </DataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                                <TextBlock Text="{Binding StatusLabel}"
-                                           FontSize="9" FontWeight="Bold">
-                                    <TextBlock.Style>
-                                        <Style TargetType="TextBlock">
-                                            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
-                                            <Style.Triggers>
-                                                <DataTrigger Binding="{Binding AllDelivered}" Value="True">
-                                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
-                                                </DataTrigger>
-                                            </Style.Triggers>
-                                        </Style>
-                                    </TextBlock.Style>
-                                </TextBlock>
-                            </Border>
-
-                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2"
-                                    Margin="6,0,0,0" VerticalAlignment="Center"
-                                    Background="{DynamicResource TintAmberBrush}"
-                                    Visibility="{Binding HasFoc,
-                                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Text="FOC" FontSize="9" FontWeight="Bold"
-                                           Foreground="{DynamicResource WarningBrush}"/>
-                            </Border>
-
-                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2"
-                                    Margin="6,0,0,0" VerticalAlignment="Center"
-                                    Background="{DynamicResource TintAmberBrush}"
-                                    Visibility="{Binding HasRework,
-                                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                                <StackPanel Orientation="Horizontal"><TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="9" FontWeight="Bold" VerticalAlignment="Center" Margin="0,0,4,0"/><TextBlock Text="REWORK" FontSize="9" FontWeight="Bold"
-                                           Foreground="{DynamicResource WarningBrush}"/></StackPanel>
-                            </Border>
-
-                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2"
-        Margin="6,0,0,0" VerticalAlignment="Center"
-        Background="{DynamicResource TintRedBrush}"
-        Visibility="{Binding HasReturn,
-                     Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Text="↩ RETURN" FontSize="9" FontWeight="Bold"
-               Foreground="{DynamicResource DangerBrush}"/>
-                            </Border>
-
-                            <!-- CHAT 19 INVOICED: Fully Invoiced badge — green -->
-                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2"
-        Margin="6,0,0,0" VerticalAlignment="Center"
-        Background="{DynamicResource TintGreenBrush}"
-        Visibility="{Binding IsFullyInvoiced,
-                     Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Text="{Binding InvoicedBadgeText}"
-               FontSize="9" FontWeight="Bold"
-               Foreground="{DynamicResource SuccessBrush}"/>
-                            </Border>
-
-                            <!-- CHAT 19 INVOICED: Partial Invoice badge — indigo
-     Shown only when HasAnyInvoiced=true AND IsFullyInvoiced=false -->
-                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2"
-        Margin="6,0,0,0" VerticalAlignment="Center"
-        Background="{DynamicResource TintIndigoBrush}">
-                                <Border.Style>
-                                    <Style TargetType="Border">
-                                        <Setter Property="Visibility" Value="Collapsed"/>
-                                        <Style.Triggers>
-                                            <MultiDataTrigger>
-                                                <MultiDataTrigger.Conditions>
-                                                    <Condition Binding="{Binding HasAnyInvoiced}" Value="True"/>
-                                                    <Condition Binding="{Binding IsFullyInvoiced}" Value="False"/>
-                                                </MultiDataTrigger.Conditions>
-                                                <Setter Property="Visibility" Value="Visible"/>
-                                            </MultiDataTrigger>
-                                        </Style.Triggers>
-                                    </Style>
-                                </Border.Style>
-                                <TextBlock Text="{Binding InvoicedBadgeText}"
-               FontSize="9" FontWeight="Bold"
-               Foreground="{DynamicResource AccentBrush}"/>
-                            </Border>
-                        </StackPanel>
-
-                        <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                            <TextBlock Text="{Binding CustomerName}"
-                                       FontSize="12" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       VerticalAlignment="Center"
-                                       TextTrimming="CharacterEllipsis"
-                                       MaxWidth="240"/>
-                            <TextBlock Text=" · " FontSize="12"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"
-                                       VerticalAlignment="Center" Margin="4,0"/>
-                            <TextBlock Text="{Binding ProjectName}"
-                                       FontSize="12"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       VerticalAlignment="Center"
-                                       TextTrimming="CharacterEllipsis"
-                                       MaxWidth="280"/>
-                        </StackPanel>
-
-                        <StackPanel Orientation="Horizontal" Margin="0,6,0,0">
-                            <TextBlock FontSize="10"
-                                       VerticalAlignment="Center" Opacity="0.7"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"><Run Text="&#xE787;" FontFamily="Segoe MDL2 Assets"/><Run Text=" Latest: "/></TextBlock>
-                            <TextBlock Text="{Binding LatestDeliveryDateDisplay}"
-                                       FontSize="10" FontWeight="SemiBold"
-                                       VerticalAlignment="Center"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            <TextBlock FontSize="10"
-                                       VerticalAlignment="Center"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"
-                                       Margin="6,0,0,0"><Run Text=" · "/><Run Text="&#xE7F4;" FontFamily="Segoe MDL2 Assets"/><Run Text=" "/></TextBlock>
-                            <TextBlock Text="{Binding LatestDriverName}"
-                                       FontSize="10" FontWeight="SemiBold"
-                                       VerticalAlignment="Center"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       TextTrimming="CharacterEllipsis"
-                                       MaxWidth="140"/>
-                            <TextBlock Text=" · Latest DN: " FontSize="10"
-                                       VerticalAlignment="Center"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"
-                                       Margin="6,0,0,0"/>
-                            <TextBlock Text="{Binding LatestDnId}"
-                                       FontSize="10" FontWeight="SemiBold"
-                                       VerticalAlignment="Center"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       TextTrimming="CharacterEllipsis"
-                                       MaxWidth="200"/>
-                        </StackPanel>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,8,8,8">
+                        <TextBlock Text="{Binding JobOrderId}"
+                                   FontSize="13" FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                        <TextBlock FontSize="10" Margin="0,3,0,0"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   TextTrimming="CharacterEllipsis">
+                            <Run Text="Latest: "/><Run Text="{Binding LatestDeliveryDateDisplay, Mode=OneWay}"/>
+                            <Run Text="  ·  "/><Run Text="{Binding LatestDriverName, Mode=OneWay}"/>
+                            <Run Text="  ·  "/><Run Text="{Binding LatestDnId, Mode=OneWay}"/>
+                        </TextBlock>
                     </StackPanel>
 
-                    <!-- MIDDLE: progress + qty + SQM -->
-                    <StackPanel Grid.Column="1"
-                                VerticalAlignment="Center"
-                                Margin="16,0,16,0">
-                        <TextBlock HorizontalAlignment="Right"
-                                   FontSize="11" FontWeight="Bold"
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="8,8">
+                        <TextBlock Text="{Binding CustomerName}"
+                                   FontSize="12" FontWeight="SemiBold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   Margin="0,0,0,4">
-                            <Run Text="{Binding ProgressPercent,
-                                        Mode=OneWay,
-                                        StringFormat={}{0:0.#}}"/>
+                                   TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding ProjectName}"
+                                   FontSize="11" Margin="0,2,0,0"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="3" VerticalAlignment="Center" Margin="8,0">
+                        <TextBlock HorizontalAlignment="Left" FontSize="11" FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}" Margin="0,0,0,4">
+                            <Run Text="{Binding ProgressPercent, Mode=OneWay, StringFormat={}{0:0.#}}"/>
                             <Run Text="%"/>
                         </TextBlock>
                         <Border x:Name="ProgressTrack"
-                                CornerRadius="4" Height="8"
+                                CornerRadius="4" Height="6"
                                 Background="{DynamicResource BorderBrush}">
                             <Border CornerRadius="4" HorizontalAlignment="Left">
                                 <Border.Style>
@@ -249,54 +106,127 @@
                                 <Border.Width>
                                     <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
                                         <Binding Path="ProgressPercent"/>
-                                        <Binding Path="ActualWidth"
-                                                 ElementName="ProgressTrack"/>
+                                        <Binding Path="ActualWidth" ElementName="ProgressTrack"/>
                                     </MultiBinding>
                                 </Border.Width>
                             </Border>
                         </Border>
+                    </StackPanel>
 
-                        <TextBlock HorizontalAlignment="Right"
-                                   FontSize="10" Margin="0,5,0,0"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}">
-                            <Run Text="QTY: " FontWeight="Bold"
-                                 Foreground="{DynamicResource MutedForegroundBrush}"/>
-                            <Run Text="{Binding TotalOrdered, Mode=OneWay}"
-                                 FontWeight="SemiBold"/>
-                            <Run Text=" ord · "/>
-                            <Run Text="{Binding TotalDelivered, Mode=OneWay}"
-                                 FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}"/>
-                            <Run Text=" del · "/>
-                            <Run Text="{Binding TotalBalance, Mode=OneWay}"
-                                 FontWeight="SemiBold" Foreground="{DynamicResource WarningBrush}"/>
-                            <Run Text=" bal"/>
-                        </TextBlock>
+                    <TextBlock Grid.Column="4" VerticalAlignment="Center" Margin="8,0"
+                               FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}">
+                        <Run Text="{Binding TotalOrdered, Mode=OneWay}" FontWeight="SemiBold"/>
+                        <Run Text=" / "/>
+                        <Run Text="{Binding TotalDelivered, Mode=OneWay}" FontWeight="SemiBold"
+                             Foreground="{DynamicResource SuccessBrush}"/>
+                        <Run Text=" / "/>
+                        <Run Text="{Binding TotalBalance, Mode=OneWay}" FontWeight="SemiBold"
+                             Foreground="{DynamicResource WarningBrush}"/>
+                    </TextBlock>
 
-                        <TextBlock HorizontalAlignment="Right"
-           FontSize="10" Margin="0,3,0,0"
-           Foreground="{DynamicResource SecondaryForegroundBrush}">
-    <Run Text="SQM: " FontWeight="Bold"
-         Foreground="{DynamicResource MutedForegroundBrush}"/>
-    <Run Text="{Binding TotalOrderedSqm, Mode=OneWay,
-                StringFormat={}{0:0.000}}"
-         FontWeight="SemiBold"/>
-    <Run Text=" ord · "/>
-    <Run Text="{Binding TotalDeliveredSqm, Mode=OneWay,
-                StringFormat={}{0:0.000}}"
-         FontWeight="SemiBold" Foreground="{DynamicResource SuccessBrush}"/>
-    <Run Text=" del · "/>
-    <Run Text="{Binding TotalBalanceSqm, Mode=OneWay,
-                StringFormat={}{0:0.000}}"
-         FontWeight="SemiBold" Foreground="{DynamicResource WarningBrush}"/>
-    <Run Text=" bal"/>
-                        </TextBlock>
+                    <TextBlock Grid.Column="5" VerticalAlignment="Center" Margin="8,0"
+                               FontSize="11" Foreground="{DynamicResource SecondaryForegroundBrush}">
+                        <Run Text="{Binding TotalOrderedSqm, Mode=OneWay, StringFormat={}{0:0.000}}" FontWeight="SemiBold"/>
+                        <Run Text=" / "/>
+                        <Run Text="{Binding TotalDeliveredSqm, Mode=OneWay, StringFormat={}{0:0.000}}" FontWeight="SemiBold"
+                             Foreground="{DynamicResource SuccessBrush}"/>
+                        <Run Text=" / "/>
+                        <Run Text="{Binding TotalBalanceSqm, Mode=OneWay, StringFormat={}{0:0.000}}" FontWeight="SemiBold"
+                             Foreground="{DynamicResource WarningBrush}"/>
+                    </TextBlock>
 
-                        <!-- CHAT 19 INVOICED: invoice count line
-     Shows "2 of 3 invoiced" when at least one DN is invoiced.
-     Hidden when no invoices exist (InvoicedCountDisplay = ""). -->
-                        <TextBlock HorizontalAlignment="Right"
-           FontSize="10" Margin="0,3,0,0"
-           FontWeight="Bold">
+                    <StackPanel Grid.Column="6" VerticalAlignment="Center" Margin="8,6">
+                        <StackPanel Orientation="Horizontal">
+                            <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2" Margin="0,0,4,0">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Background" Value="{DynamicResource TintAmberBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding AllDelivered}" Value="True">
+                                                <Setter Property="Background" Value="{DynamicResource TintGreenBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock Text="{Binding StatusLabel}" FontSize="9" FontWeight="Bold">
+                                    <TextBlock.Style>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="Foreground" Value="{DynamicResource WarningBrush}"/>
+                                            <Style.Triggers>
+                                                <DataTrigger Binding="{Binding AllDelivered}" Value="True">
+                                                    <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                                </DataTrigger>
+                                            </Style.Triggers>
+                                        </Style>
+                                    </TextBlock.Style>
+                                </TextBlock>
+                            </Border>
+                            <Border Background="{DynamicResource TintIndigoBrush}"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Padding="7,2">
+                                <TextBlock FontSize="9" FontWeight="Bold"
+                                           Foreground="{DynamicResource AccentBrush}">
+                                    <Run Text="{Binding DnCount, Mode=OneWay}"/><Run Text=" DNs"/>
+                                </TextBlock>
+                            </Border>
+                        </StackPanel>
+                        <WrapPanel Margin="0,4,0,0">
+                            <Border Background="{DynamicResource TintAmberBrush}"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Padding="7,2" Margin="0,0,4,2"
+                                    Visibility="{Binding HasFoc,
+                                                 Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Text="FOC" FontSize="9" FontWeight="Bold"
+                                           Foreground="{DynamicResource WarningBrush}"/>
+                            </Border>
+                            <Border Background="{DynamicResource TintAmberBrush}"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Padding="7,2" Margin="0,0,4,2"
+                                    Visibility="{Binding HasRework,
+                                                 Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Text="REWORK" FontSize="9" FontWeight="Bold"
+                                           Foreground="{DynamicResource WarningBrush}"/>
+                            </Border>
+                            <Border Background="{DynamicResource TintRedBrush}"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Padding="7,2" Margin="0,0,4,2"
+                                    Visibility="{Binding HasReturn,
+                                                 Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Text="RETURN" FontSize="9" FontWeight="Bold"
+                                           Foreground="{DynamicResource DangerBrush}"/>
+                            </Border>
+                            <Border Background="{DynamicResource TintGreenBrush}"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Padding="7,2" Margin="0,0,4,2"
+                                    Visibility="{Binding IsFullyInvoiced,
+                                                 Converter={StaticResource BoolToVisibilityConverter}}">
+                                <TextBlock Text="{Binding InvoicedBadgeText}"
+                                           FontSize="9" FontWeight="Bold"
+                                           Foreground="{DynamicResource SuccessBrush}"/>
+                            </Border>
+                            <Border Background="{DynamicResource TintIndigoBrush}"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
+                                    Padding="7,2" Margin="0,0,4,2">
+                                <Border.Style>
+                                    <Style TargetType="Border">
+                                        <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Style.Triggers>
+                                            <MultiDataTrigger>
+                                                <MultiDataTrigger.Conditions>
+                                                    <Condition Binding="{Binding HasAnyInvoiced}" Value="True"/>
+                                                    <Condition Binding="{Binding IsFullyInvoiced}" Value="False"/>
+                                                </MultiDataTrigger.Conditions>
+                                                <Setter Property="Visibility" Value="Visible"/>
+                                            </MultiDataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Border.Style>
+                                <TextBlock Text="{Binding InvoicedBadgeText}"
+                                           FontSize="9" FontWeight="Bold"
+                                           Foreground="{DynamicResource AccentBrush}"/>
+                            </Border>
+                        </WrapPanel>
+                        <TextBlock FontSize="10" Margin="0,2,0,0" FontWeight="Bold">
                             <TextBlock.Style>
                                 <Style TargetType="TextBlock">
                                     <Setter Property="Visibility" Value="Collapsed"/>
@@ -307,37 +237,33 @@
                                     </Style.Triggers>
                                 </Style>
                             </TextBlock.Style>
-    <Run Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" Foreground="{DynamicResource MutedForegroundBrush}"/><Run Text=" " Foreground="{DynamicResource MutedForegroundBrush}"/>
-    <Run Text="{Binding InvoicedCountDisplay, Mode=OneWay}">
-        <Run.Style>
-            <Style TargetType="Run">
-                <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
-                <Style.Triggers>
-                    <DataTrigger Binding="{Binding IsFullyInvoiced}" Value="True">
-                        <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
-                    </DataTrigger>
-                </Style.Triggers>
-            </Style>
-        </Run.Style>
-    </Run>
+                            <Run Text="{Binding InvoicedCountDisplay, Mode=OneWay}">
+                                <Run.Style>
+                                    <Style TargetType="Run">
+                                        <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
+                                        <Style.Triggers>
+                                            <DataTrigger Binding="{Binding IsFullyInvoiced}" Value="True">
+                                                <Setter Property="Foreground" Value="{DynamicResource SuccessBrush}"/>
+                                            </DataTrigger>
+                                        </Style.Triggers>
+                                    </Style>
+                                </Run.Style>
+                            </Run>
                         </TextBlock>
                     </StackPanel>
 
-                    <!-- RIGHT: action buttons -->
-                    <StackPanel Grid.Column="2"
-                                Orientation="Vertical"
+                    <StackPanel Grid.Column="7"
                                 VerticalAlignment="Center"
-                                Width="150">
-
+                                Margin="8,6,10,6">
                         <Button Style="{StaticResource RowPrimaryButton}"
                                 Tag="&#xE8B7;" Content="OPEN"
                                 ToolTip="Open this delivery note group"
                                 Command="{Binding DataContext.OpenGroupCommand,
                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
                                 CommandParameter="{Binding}"/>
-
                         <Button Style="{StaticResource RowSuccessButton}"
                                 Tag="&#xE8A5;" Content="MASTER INVOICE"
+                                Margin="0,6,0,0"
                                 ToolTip="Generate Master Tax Invoice for this order."
                                 Command="{Binding DataContext.GenerateMasterInvoiceCommand,
                                           RelativeSource={RelativeSource AncestorType=UserControl}}"
@@ -347,20 +273,15 @@
             </Border>
         </DataTemplate>
 
-        <!-- ══ LEGACY DN ROW TEMPLATE ══ -->
         <DataTemplate x:Key="DnRowTemplate">
-            <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderThickness="3,1,1,1"
-                    CornerRadius="{DynamicResource ControlCornerRadius}"
+            <Border Style="{StaticResource ModuleListRowStyle}"
+                    BorderThickness="3,0,0,1"
                     Padding="14,10"
-                    Margin="0,0,0,6"
                     Cursor="Hand"
-                    SnapsToDevicePixels="True"
                     MouseLeftButtonUp="OnRowLeftClick"
                     MouseRightButtonUp="OnRowRightClick">
                 <Border.BorderBrush>
-                    <Binding Path="TypeBrushKey"
-                             Converter="{StaticResource BrushKeyConverter}"/>
+                    <Binding Path="TypeBrushKey" Converter="{StaticResource BrushKeyConverter}"/>
                 </Border.BorderBrush>
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -368,7 +289,8 @@
                         <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <TextBlock Text="{Binding DeliveryNoteId}"
-                               FontSize="12" FontWeight="Bold"/>
+                               FontSize="12" FontWeight="Bold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                     <TextBlock Grid.Column="1" Text="{Binding DisplayStatus}"
                                FontSize="10" FontWeight="SemiBold"
                                Foreground="{DynamicResource SecondaryForegroundBrush}"
@@ -377,163 +299,30 @@
             </Border>
         </DataTemplate>
 
-        <Style x:Key="PendingRowCardStyle" TargetType="Border">
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource TintAmberBrush}"/>
-            <Setter Property="BorderThickness" Value="3,1,1,1"/>
-            <Setter Property="CornerRadius" Value="10"/>
-            <Setter Property="Padding" Value="14,12"/>
-            <Setter Property="Margin" Value="0,0,0,6"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-        </Style>
-
-        <Style x:Key="DnListBoxItemStyle" TargetType="ListBoxItem">
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="Margin" Value="0"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-            <Setter Property="Focusable" Value="False"/>
-            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ListBoxItem">
-                        <ContentPresenter/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="TabCardInactiveStyle" TargetType="Button">
-            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush" Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Height" Value="44"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Card"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,0"
-                                SnapsToDevicePixels="True">
-                            <StackPanel Orientation="Horizontal"
-                                        VerticalAlignment="Center"
-                                        HorizontalAlignment="Center">
-                                <TextBlock Text="{TemplateBinding Tag}" FontFamily="Segoe MDL2 Assets"
-                                           FontSize="15" VerticalAlignment="Center"
-                                           Opacity="0.7" Margin="0,0,8,0"/>
-                                <TextBlock Text="{TemplateBinding Content}"
-                                           FontSize="11" FontWeight="Bold"
-                                           VerticalAlignment="Center"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2"
-                                        Margin="8,0,0,0" VerticalAlignment="Center"
-                                        Background="{DynamicResource MenuHoverBrush}">
-                                    <TextBlock Text="{TemplateBinding CommandParameter}"
-                                               FontSize="10" FontWeight="Bold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                </Border>
-                            </StackPanel>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Card" Property="Background"
-                                        Value="{DynamicResource MenuHoverBrush}"/>
-                                <Setter TargetName="Card" Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="TabCardActiveStyle" TargetType="Button">
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Height" Value="44"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Card"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,0"
-                                SnapsToDevicePixels="True">
-                            <Border.BorderBrush>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
-                                    <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.BorderBrush>
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="{DynamicResource TintIndigoColor}" Offset="0"/>
-                                    <GradientStop Color="{DynamicResource TintIndigoColor}" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                            <StackPanel Orientation="Horizontal"
-                                        VerticalAlignment="Center"
-                                        HorizontalAlignment="Center">
-                                <TextBlock Text="{TemplateBinding Tag}" FontFamily="Segoe MDL2 Assets"
-                                           FontSize="15" VerticalAlignment="Center"
-                                           Margin="0,0,8,0"/>
-                                <TextBlock Text="{TemplateBinding Content}"
-                                           FontSize="11" FontWeight="Bold"
-                                           VerticalAlignment="Center">
-                                    <TextBlock.Foreground>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
-                                            <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
-                                        </LinearGradientBrush>
-                                    </TextBlock.Foreground>
-                                </TextBlock>
-                                <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2"
-                                        Margin="8,0,0,0" VerticalAlignment="Center"
-                                        Background="{DynamicResource AccentBrush}">
-                                    <TextBlock Text="{TemplateBinding CommandParameter}"
-                                               FontSize="10" FontWeight="Bold"
-                                               Foreground="White"/>
-                                </Border>
-                            </StackPanel>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-
     </UserControl.Resources>
 
-    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+    <Grid Background="{DynamicResource WindowBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ═══ STICKY HEADER ═══ -->
-        <StackPanel Grid.Row="0" Margin="24,16,24,0">
-
-            <Grid Margin="4,0,4,14">
+        <StackPanel Grid.Row="0" Margin="4,4,4,12">
+            <Grid Margin="4,0,4,12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Delivery Notes"
-                               Style="{StaticResource ModulePageTitleStyle}"/>
-                    <TextBlock Text="One row per Job Order. Click to open the latest split."
-                               Style="{StaticResource ModulePageSubtitleStyle}"
-                               Margin="0,3,0,0"/>
+                    <TextBlock Text="Delivery Notes" Style="{StaticResource ModulePageTitleStyle}"/>
+                    <TextBlock Text="One row per job order — open the latest split"
+                               Style="{StaticResource ModulePageSubtitleStyle}"/>
                 </StackPanel>
                 <Button Grid.Column="1"
                         Style="{StaticResource PrimaryPillButton}"
                         Tag="&#xE7F4;" Content="CREATE DN"
                         Command="{Binding CreateDnCommand}"
                         VerticalAlignment="Center"
-                        Margin="16,0,0,0"
                         ToolTip="Pick a Job Order and create a Draft Delivery Note"/>
             </Grid>
 
@@ -551,651 +340,582 @@
                            Foreground="{DynamicResource DangerBrush}"
                            FontSize="12" TextWrapping="Wrap"/>
             </Border>
-
-            <!-- KPI HERO CARDS -->
-            <Grid Margin="0,0,0,10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <hero:GradientHeroCard Grid.Column="0" Icon="&#xE7B8;"
-                           Value="{Binding HeroCard1Value}"
-                           Label="{Binding HeroCard1Label}"
-                           GradientStartColor="{DynamicResource AccentColor}"
-                           GradientEndColor="{DynamicResource AccentHoverColor}"
-                           Margin="4" MinHeight="92"/>
-
-                <hero:GradientHeroCard Grid.Column="1" Icon="&#xE81C;"
-                           Value="{Binding HeroCard2Value}"
-                           Label="{Binding HeroCard2Label}"
-                           GradientStartColor="{DynamicResource WarningColor}"
-                           GradientEndColor="{DynamicResource WarningColor}"
-                           Margin="4" MinHeight="92"/>
-
-                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="2"
-                        Background="{DynamicResource TintAmberBrush}"
-                        CornerRadius="{DynamicResource CardCornerRadius}" Padding="14" Margin="4"
-                        MinHeight="92" SnapsToDevicePixels="True">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Width="36" Height="36"
-                                CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource WarningBrush}"
-                                VerticalAlignment="Center">
-                            <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="17"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Grid.Column="1" Margin="10,0,0,0"
-                                    VerticalAlignment="Center">
-                            <TextBlock Text="{Binding HeroCard3Value}"
-                                       FontSize="20" FontWeight="Bold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                       TextTrimming="CharacterEllipsis"/>
-                            <TextBlock Text="{Binding HeroCard3Label}"
-                                       FontSize="10" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       Margin="0,3,0,0"
-                                       TextTrimming="CharacterEllipsis"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-
-                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="3"
-                        Background="{DynamicResource TintRedBrush}"
-                        CornerRadius="{DynamicResource CardCornerRadius}" Padding="14" Margin="4"
-                        MinHeight="92" SnapsToDevicePixels="True">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Width="36" Height="36"
-                                CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource DangerBrush}"
-                                VerticalAlignment="Center">
-                            <TextBlock Text="↩️" FontSize="17"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Grid.Column="1" Margin="10,0,0,0"
-                                    VerticalAlignment="Center">
-                            <TextBlock Text="{Binding HeroCard4Value}"
-                                       FontSize="20" FontWeight="Bold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                       TextTrimming="CharacterEllipsis"/>
-                            <TextBlock Text="{Binding HeroCard4Label}"
-                                       FontSize="10" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       Margin="0,3,0,0"
-                                       TextTrimming="CharacterEllipsis"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-
-                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="4"
-                        Background="{DynamicResource TintGreenBrush}"
-                        CornerRadius="{DynamicResource CardCornerRadius}" Padding="14" Margin="4"
-                        MinHeight="92" SnapsToDevicePixels="True">
-                    <Grid>
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="Auto"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Border Grid.Column="0" Width="36" Height="36"
-                                CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource AccentBrush}"
-                                VerticalAlignment="Center">
-                            <TextBlock Text="{Binding HeroCard5Icon}"
-                                       FontSize="17"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-                        <StackPanel Grid.Column="1" Margin="10,0,0,0"
-                                    VerticalAlignment="Center">
-                            <TextBlock Text="{Binding HeroCard5Value}"
-                                       FontSize="20" FontWeight="Bold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                       TextTrimming="CharacterEllipsis"/>
-                            <TextBlock Text="{Binding HeroCard5Label}"
-                                       FontSize="10" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       Margin="0,3,0,0"
-                                       TextTrimming="CharacterEllipsis"/>
-                        </StackPanel>
-                    </Grid>
-                </Border>
-            </Grid>
-
-            <!-- Selected DN meta bar -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Margin="4,6,4,10" Padding="12,8" CornerRadius="{DynamicResource ControlCornerRadius}"
-                    Background="{DynamicResource TintIndigoBrush}"
-                    Visibility="{Binding HasSelection,
-                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="&#xE721;  Selected:" FontFamily="Segoe MDL2 Assets"
-                               FontSize="11" FontWeight="Bold"
-                               VerticalAlignment="Center"
-                               Margin="0,0,10,0"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock Grid.Column="1"
-                               Text="{Binding SelectedDnMetaLine}"
-                               FontSize="11" FontWeight="SemiBold"
-                               VerticalAlignment="Center"
-                               TextTrimming="CharacterEllipsis"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <Button Grid.Column="2" Style="{StaticResource RowOutlinedButton}"
-                            Tag="&#xE711;" Content="CLEAR"
-                            ToolTip="Clear selection"
-                            Command="{Binding ClearSelectionCommand}"/>
-                </Grid>
-            </Border>
-
-            <!-- FILTER BAR — hidden on Tab 3 (Pending) only -->
-            <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}"
-                    Padding="12,10" Margin="0,0,0,12"
-                    SnapsToDevicePixels="True">
-                <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="Visibility" Value="Visible"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding SelectedTabIndex}" Value="3">
-                                <Setter Property="Visibility" Value="Collapsed"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Border.Style>
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBox Grid.Column="0"
-                             Text="{Binding SearchText,
-                                    UpdateSourceTrigger=PropertyChanged}"
-                             FontSize="12" Padding="10,7"
-                             Margin="0,0,8,0"
-                             VerticalContentAlignment="Center"/>
-                    <ComboBox Grid.Column="1"
-                              ItemsSource="{Binding StatusFilterOptions}"
-                              SelectedItem="{Binding SelectedStatusFilter}"
-                              FontSize="12" Margin="0,0,8,0"
-                              VerticalContentAlignment="Center"/>
-                    <Button Grid.Column="2" Style="{StaticResource RowOutlinedButton}"
-                            Tag="&#xE711;" Content="CLEAR"
-                            Margin="0,0,8,0"
-                            ToolTip="Clear search and filters"
-                            Command="{Binding ClearFiltersCommand}"/>
-                    <Button Grid.Column="3" Style="{StaticResource RowPrimaryButton}"
-                            Tag="&#xE72C;" Content="REFRESH"
-                            ToolTip="Refresh list"
-                            Command="{Binding RefreshCommand}"/>
-                </Grid>
-            </Border>
-
-            <!-- TAB BAR — 6 tabs only, no Master DN tab -->
-            <Grid Margin="4,0,4,12">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <Button Grid.Column="0" Tag="&#xE7B8;" Content="ALL"
-                        CommandParameter="{Binding AllGroupedCount}"
-                        Margin="0,0,3,0" Click="OnTabCardClick"
-                        x:Name="TabAll">
-                    <Button.Style>
-                        <Style TargetType="Button"
-                               BasedOn="{StaticResource TabCardActiveStyle}"/>
-                    </Button.Style>
-                </Button>
-
-                <Button Grid.Column="1" Tag="&#xE70F;" Content="PREPARED"
-                        CommandParameter="{Binding PreparedGroupedCount}"
-                        Margin="3,0,3,0" Click="OnTabCardClick"
-                        x:Name="TabPrepared"
-                        Style="{StaticResource TabCardInactiveStyle}"/>
-
-                <Button Grid.Column="2" Tag="&#xE73E;" Content="DELIVERED"
-                        CommandParameter="{Binding DeliveredGroupedCount}"
-                        Margin="3,0,3,0" Click="OnTabCardClick"
-                        x:Name="TabDelivered"
-                        Style="{StaticResource TabCardInactiveStyle}"/>
-
-                <Button Grid.Column="3" Tag="&#xE81C;" Content="PENDING"
-                        CommandParameter="{Binding PendingItems.Count}"
-                        Margin="3,0,3,0" Click="OnTabCardClick"
-                        x:Name="TabPending"
-                        Style="{StaticResource TabCardInactiveStyle}"/>
-
-                <Button Grid.Column="4" Tag="&#xE713;" Content="REWORK"
-                        CommandParameter="{Binding ReworkGroupedCount}"
-                        Margin="3,0,3,0" Click="OnTabCardClick"
-                        x:Name="TabRework"
-                        Style="{StaticResource TabCardInactiveStyle}"/>
-
-                <Button Grid.Column="5" Tag="&#xE7A7;" Content="RETURNED"
-                        CommandParameter="{Binding ReturnedGroupedCount}"
-                        Margin="3,0,0,0" Click="OnTabCardClick"
-                        x:Name="TabReturned"
-                        Style="{StaticResource TabCardInactiveStyle}"/>
-            </Grid>
         </StackPanel>
 
-        <!-- ═══ TAB CONTENT — 6 tabs only ═══ -->
-        <Grid Grid.Row="1" Margin="30,0,30,16">
-
-            <!-- TAB 0: ALL -->
+        <Border Grid.Row="1" Style="{StaticResource ModuleListShellStyle}" Margin="4,0,4,4">
             <Grid>
-                <Grid.Style>
-                    <Style TargetType="Grid">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding SelectedTabIndex}" Value="0">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Grid.Style>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- v2: column headings (match the card columns below) -->
-                <Border Grid.Row="0"
-                        Background="{DynamicResource AccentBrush}"
-                        BorderBrush="{DynamicResource AccentBrush}"
-                        BorderThickness="1"
-                        CornerRadius="12,12,0,0"
-                        Padding="16,9"
-                        Margin="0,0,0,0">
+                <Border Grid.Row="0" Style="{StaticResource ModuleListKpiStripStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="280"/>
                             <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <TextBlock Grid.Column="0"
-                                   Text="JOB ORDER  ·  CUSTOMER  ·  PROJECT"
-                                   Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="White"/>
-                        <TextBlock Grid.Column="1"
-                                   Text="DELIVERY PROGRESS"
-                                   Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="White"
-                                   HorizontalAlignment="Right"
-                                   Margin="0,0,16,0"/>
-                        <TextBlock Grid.Column="2"
-                                   Text="QUANTITIES"
-                                   Style="{StaticResource ModuleColumnHeaderStyle}" Foreground="White"
-                                   Margin="8,0,6,0"/>
+
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintBlueBrush}">
+                                <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets" FontSize="15"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding HeroCard1Label}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding HeroCard1Value}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintAmberBrush}">
+                                <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets" FontSize="15"
+                                           Foreground="{DynamicResource WarningBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding HeroCard2Label}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding HeroCard2Value}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintAmberBrush}">
+                                <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="15"
+                                           Foreground="{DynamicResource WarningBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding HeroCard3Label}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding HeroCard3Value}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintRedBrush}">
+                                <TextBlock Text="&#xE72C;" FontFamily="Segoe MDL2 Assets" FontSize="15"
+                                           Foreground="{DynamicResource DangerBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding HeroCard4Label}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding HeroCard4Value}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <Border Grid.Column="7" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+                        <StackPanel Grid.Column="8" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintGreenBrush}">
+                                <TextBlock Text="{Binding HeroCard5Icon}" FontSize="15"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding HeroCard5Label}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding HeroCard5Value}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
                     </Grid>
                 </Border>
 
-                <ListBox Grid.Row="1"
-                         ItemsSource="{Binding AllItemsGrouped}"
-                         ItemTemplate="{StaticResource JoGroupRowTemplate}"
-                         ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
-                         BorderThickness="0" Background="Transparent"
-                         Focusable="False"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         ScrollViewer.CanContentScroll="True"
-                         VirtualizingStackPanel.IsVirtualizing="True"
-                         VirtualizingStackPanel.VirtualizationMode="Recycling"
-                         VirtualizingStackPanel.ScrollUnit="Pixel"
-                         VirtualizingStackPanel.CacheLength="200,400"
-                         VirtualizingStackPanel.CacheLengthUnit="Pixel"
-                         behaviors:SmoothScrollBehavior.IsEnabled="True">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <VirtualizingStackPanel/>
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                </ListBox>
-                <StackPanel Grid.Row="1"
-                            HorizontalAlignment="Center" VerticalAlignment="Center"
-                            IsHitTestVisible="False">
-                    <StackPanel.Style>
-                        <Style TargetType="StackPanel">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <MultiDataTrigger>
-                                    <MultiDataTrigger.Conditions>
-                                        <Condition Binding="{Binding AllItems.Count}" Value="0"/>
-                                        <Condition Binding="{Binding IsLoading}" Value="False"/>
-                                    </MultiDataTrigger.Conditions>
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </MultiDataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </StackPanel.Style>
-                    <emptyState:EmptyStateControl
-                        Icon="&#xE7F4;"
-                        Title="No delivery notes yet"
-                        Message="Delivery notes record what leaves the factory — quantities, driver, vehicle and status. Create one from a Job Order ('Create DN' above) and every shipment will be tracked here."/>
-                </StackPanel>
-            </Grid>
+                <Border Grid.Row="1"
+                        Background="{DynamicResource TintIndigoBrush}"
+                        Padding="12,8"
+                        Visibility="{Binding HasSelection,
+                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0" Text="Selected"
+                                   FontSize="11" FontWeight="Bold"
+                                   VerticalAlignment="Center" Margin="0,0,10,0"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding SelectedDnMetaLine}"
+                                   FontSize="11" FontWeight="SemiBold"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                        <Button Grid.Column="2" Style="{StaticResource RowOutlinedButton}"
+                                Tag="&#xE711;" Content="CLEAR"
+                                ToolTip="Clear selection"
+                                Command="{Binding ClearSelectionCommand}"/>
+                    </Grid>
+                </Border>
 
-            <!-- TAB 1: PREPARED -->
-            <Grid>
-                <Grid.Style>
-                    <Style TargetType="Grid">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding SelectedTabIndex}" Value="1">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Grid.Style>
-                <ListBox ItemsSource="{Binding PreparedItemsGrouped}"
-                         ItemTemplate="{StaticResource JoGroupRowTemplate}"
-                         ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
-                         BorderThickness="0" Background="Transparent"
-                         Focusable="False"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         ScrollViewer.CanContentScroll="True"
-                         VirtualizingStackPanel.IsVirtualizing="True"
-                         VirtualizingStackPanel.VirtualizationMode="Recycling"
-                         VirtualizingStackPanel.ScrollUnit="Pixel"
-                         behaviors:SmoothScrollBehavior.IsEnabled="True">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <VirtualizingStackPanel/>
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                </ListBox>
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                            IsHitTestVisible="False">
-                    <StackPanel.Style>
-                        <Style TargetType="StackPanel">
-                            <Setter Property="Visibility" Value="Collapsed"/>
+                <Border Grid.Row="2">
+                    <Border.Style>
+                        <Style TargetType="Border" BasedOn="{StaticResource ModuleListFilterBarStyle}">
+                            <Setter Property="Visibility" Value="Visible"/>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding PreparedItems.Count}" Value="0">
-                                    <Setter Property="Visibility" Value="Visible"/>
+                                <DataTrigger Binding="{Binding SelectedTabIndex}" Value="3">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </StackPanel.Style>
-                    <emptyState:EmptyStateControl
-                        Icon="&#xE70F;"
-                        Title="No prepared delivery notes"
-                        Message="Notes you prepare (not dispatched yet) wait in this tab until they go out."/>
-                </StackPanel>
-            </Grid>
+                    </Border.Style>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0"
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource ModuleListFilterInputStyle}"
+                                 Margin="0,0,8,0"
+                                 ToolTip="Search job, customer, driver, DN"/>
+                        <ComboBox Grid.Column="1"
+                                  ItemsSource="{Binding StatusFilterOptions}"
+                                  SelectedItem="{Binding SelectedStatusFilter}"
+                                  Style="{StaticResource ModuleListFilterComboStyle}"
+                                  Margin="0,0,8,0"/>
+                        <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
+                                Tag="&#xE711;" Content="CLEAR"
+                                Margin="0,0,8,0"
+                                ToolTip="Clear search and filters"
+                                Command="{Binding ClearFiltersCommand}"/>
+                        <Button Grid.Column="3" Style="{StaticResource PrimaryPillButton}"
+                                Tag="&#xE72C;" Content="REFRESH"
+                                ToolTip="Refresh list"
+                                Command="{Binding RefreshCommand}"/>
+                    </Grid>
+                </Border>
 
-            <!-- TAB 2: DELIVERED -->
-            <Grid>
-                <Grid.Style>
-                    <Style TargetType="Grid">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding SelectedTabIndex}" Value="2">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Grid.Style>
-                <ListBox ItemsSource="{Binding DeliveredItemsGrouped}"
-                         ItemTemplate="{StaticResource JoGroupRowTemplate}"
-                         ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
-                         BorderThickness="0" Background="Transparent"
-                         Focusable="False"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         ScrollViewer.CanContentScroll="True"
-                         VirtualizingStackPanel.IsVirtualizing="True"
-                         VirtualizingStackPanel.VirtualizationMode="Recycling"
-                         VirtualizingStackPanel.ScrollUnit="Pixel"
-                         behaviors:SmoothScrollBehavior.IsEnabled="True">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <VirtualizingStackPanel/>
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                </ListBox>
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                            IsHitTestVisible="False">
-                    <StackPanel.Style>
-                        <Style TargetType="StackPanel">
-                            <Setter Property="Visibility" Value="Collapsed"/>
+                <Grid Grid.Row="3" Margin="8,0,8,0">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Button Grid.Column="0" Tag="&#xE7B8;" Content="ALL"
+                            CommandParameter="{Binding AllGroupedCount}"
+                            Click="OnTabCardClick" x:Name="TabAll"
+                            Style="{StaticResource TabCardActiveStyle}"/>
+                    <Button Grid.Column="1" Tag="&#xE70F;" Content="PREPARED"
+                            CommandParameter="{Binding PreparedGroupedCount}"
+                            Click="OnTabCardClick" x:Name="TabPrepared"
+                            Style="{StaticResource TabCardInactiveStyle}"/>
+                    <Button Grid.Column="2" Tag="&#xE73E;" Content="DELIVERED"
+                            CommandParameter="{Binding DeliveredGroupedCount}"
+                            Click="OnTabCardClick" x:Name="TabDelivered"
+                            Style="{StaticResource TabCardInactiveStyle}"/>
+                    <Button Grid.Column="3" Tag="&#xE81C;" Content="PENDING"
+                            CommandParameter="{Binding PendingItems.Count}"
+                            Click="OnTabCardClick" x:Name="TabPending"
+                            Style="{StaticResource TabCardInactiveStyle}"/>
+                    <Button Grid.Column="4" Tag="&#xE713;" Content="REWORK"
+                            CommandParameter="{Binding ReworkGroupedCount}"
+                            Click="OnTabCardClick" x:Name="TabRework"
+                            Style="{StaticResource TabCardInactiveStyle}"/>
+                    <Button Grid.Column="5" Tag="&#xE7A7;" Content="RETURNED"
+                            CommandParameter="{Binding ReturnedGroupedCount}"
+                            Click="OnTabCardClick" x:Name="TabReturned"
+                            Style="{StaticResource TabCardInactiveStyle}"/>
+                </Grid>
+
+                <Border Grid.Row="4">
+                    <Border.Style>
+                        <Style TargetType="Border" BasedOn="{StaticResource ModuleListTableHeaderStyle}">
+                            <Setter Property="Visibility" Value="Visible"/>
                             <Style.Triggers>
-                                <DataTrigger Binding="{Binding DeliveredItems.Count}" Value="0">
-                                    <Setter Property="Visibility" Value="Visible"/>
+                                <DataTrigger Binding="{Binding SelectedTabIndex}" Value="3">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
                                 </DataTrigger>
                             </Style.Triggers>
                         </Style>
-                    </StackPanel.Style>
-                    <emptyState:EmptyStateControl
-                        Icon="&#xE73E;"
-                        Title="No delivered notes yet"
-                        Message="Notes move to this tab once their status becomes Delivered / Signed / Received."/>
-                </StackPanel>
-            </Grid>
+                    </Border.Style>
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3"/>
+                            <ColumnDefinition Width="1.5*"/>
+                            <ColumnDefinition Width="1.4*"/>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="150"/>
+                            <ColumnDefinition Width="170"/>
+                            <ColumnDefinition Width="130"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="1" Text="JOB ORDER" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="2" Text="CUSTOMER · PROJECT" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="3" Text="PROGRESS" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="4" Text="QTY ORD / DEL / BAL" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="5" Text="SQM" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="6" Text="STATUS" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                    </Grid>
+                </Border>
 
-            <!-- TAB 3: PENDING QTY -->
-            <Grid>
-                <Grid.Style>
-                    <Style TargetType="Grid">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding SelectedTabIndex}" Value="3">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Grid.Style>
-                <ListBox ItemsSource="{Binding PendingItems}"
-                         ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
-                         BorderThickness="0" Background="Transparent"
-                         Focusable="False"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         ScrollViewer.CanContentScroll="True"
-                         VirtualizingStackPanel.IsVirtualizing="True"
-                         VirtualizingStackPanel.VirtualizationMode="Recycling"
-                         VirtualizingStackPanel.ScrollUnit="Pixel"
-                         behaviors:SmoothScrollBehavior.IsEnabled="True">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <VirtualizingStackPanel/>
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                    <ListBox.ItemTemplate>
-                        <DataTemplate>
-                            <Border Style="{StaticResource PendingRowCardStyle}">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="200"/>
-                                    </Grid.ColumnDefinitions>
-                                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
-                                        <TextBlock Text="{Binding JobOrderId}"
-                                                   FontSize="14" FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                        <TextBlock FontSize="11" Margin="0,4,0,0"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}">
-                                            <Run Text="{Binding CustomerName, Mode=OneWay}"/>
-                                            <Run Text="  ·  "/>
-                                            <Run Text="{Binding ProjectName, Mode=OneWay}"/>
-                                        </TextBlock>
-                                        <TextBlock FontSize="11" Margin="0,5,0,0"
-                                                   Foreground="{DynamicResource SecondaryForegroundBrush}">
-                                            <Run Text="{Binding ProgressDisplay, Mode=OneWay}"
-                                                 FontWeight="SemiBold"/>
-                                            <Run Text="  ·  Balance: "/>
-                                            <Run Text="{Binding TotalBalance, Mode=OneWay}"
-                                                 FontWeight="Bold"/>
-                                            <Run Text=" pcs"/>
-                                        </TextBlock>
-                                    </StackPanel>
-                                    <StackPanel Grid.Column="1" VerticalAlignment="Center"
-                                                Margin="16,0,0,0">
-                                        <TextBlock HorizontalAlignment="Right"
-                                                   Margin="0,0,0,4"
-                                                   FontSize="11" FontWeight="Bold"
-                                                   Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                            <Run Text="{Binding ProgressPercent,
-                                                        Mode=OneWay,
-                                                        StringFormat={}{0:0.#}}"/>
-                                            <Run Text="%"/>
-                                        </TextBlock>
-                                        <Border x:Name="PendingTrack"
-                                                CornerRadius="4" Height="8"
-                                                Background="{DynamicResource BorderBrush}">
-                                            <Border CornerRadius="4"
-                                                    HorizontalAlignment="Left"
-                                                    Background="{DynamicResource AccentBrush}">
-                                                <Border.Width>
-                                                    <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
-                                                        <Binding Path="ProgressPercent"/>
-                                                        <Binding Path="ActualWidth"
-                                                                 ElementName="PendingTrack"/>
-                                                    </MultiBinding>
-                                                </Border.Width>
-                                            </Border>
-                                        </Border>
-                                    </StackPanel>
-                                </Grid>
-                            </Border>
-                        </DataTemplate>
-                    </ListBox.ItemTemplate>
-                </ListBox>
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                            IsHitTestVisible="False">
-                    <StackPanel.Style>
-                        <Style TargetType="StackPanel">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding PendingItems.Count}" Value="0">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </StackPanel.Style>
-                    <emptyState:EmptyStateControl
-                        Icon="&#xE81C;"
-                        Title="No pending quantities — all delivered!"
-                        Message="This tab lists job orders that still have undelivered pieces. When everything is delivered, it stays empty."/>
-                </StackPanel>
-            </Grid>
+                <Grid Grid.Row="5">
 
-            <!-- TAB 4: REWORK -->
-            <Grid>
-                <Grid.Style>
-                    <Style TargetType="Grid">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding SelectedTabIndex}" Value="4">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Grid.Style>
-                <ListBox ItemsSource="{Binding ReworkItemsGrouped}"
-                         ItemTemplate="{StaticResource JoGroupRowTemplate}"
-                         ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
-                         BorderThickness="0" Background="Transparent"
-                         Focusable="False"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         ScrollViewer.CanContentScroll="True"
-                         VirtualizingStackPanel.IsVirtualizing="True"
-                         VirtualizingStackPanel.VirtualizationMode="Recycling"
-                         VirtualizingStackPanel.ScrollUnit="Pixel"
-                         behaviors:SmoothScrollBehavior.IsEnabled="True">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <VirtualizingStackPanel/>
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                </ListBox>
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                            IsHitTestVisible="False">
-                    <StackPanel.Style>
-                        <Style TargetType="StackPanel">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding ReworkItems.Count}" Value="0">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </StackPanel.Style>
-                    <emptyState:EmptyStateControl
-                        Icon="&#xE713;"
-                        Title="No rework delivery notes"
-                        Message="Delivery notes of type Rework — glass coming back for reprocessing — are listed here."/>
-                </StackPanel>
-            </Grid>
+                    <!-- TAB 0: ALL -->
+                    <Grid>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="0">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <ListBox ItemsSource="{Binding AllItemsGrouped}"
+                                 ItemTemplate="{StaticResource JoGroupRowTemplate}"
+                                 ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
+                                 BorderThickness="0" Background="Transparent"
+                                 Focusable="False"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 ScrollViewer.CanContentScroll="True"
+                                 VirtualizingStackPanel.IsVirtualizing="True"
+                                 VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                 VirtualizingStackPanel.ScrollUnit="Pixel"
+                                 VirtualizingStackPanel.CacheLength="200,400"
+                                 VirtualizingStackPanel.CacheLengthUnit="Pixel"
+                                 behaviors:SmoothScrollBehavior.IsEnabled="True">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                    IsHitTestVisible="False">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding AllItems.Count}" Value="0"/>
+                                                <Condition Binding="{Binding IsLoading}" Value="False"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <emptyState:EmptyStateControl
+                                Icon="&#xE7F4;"
+                                Title="No delivery notes yet"
+                                Message="Delivery notes record what leaves the factory — quantities, driver, vehicle and status. Create one from a Job Order ('Create DN' above) and every shipment will be tracked here."/>
+                        </StackPanel>
+                    </Grid>
 
-            <!-- TAB 5: RETURNED -->
-            <Grid>
-                <Grid.Style>
-                    <Style TargetType="Grid">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding SelectedTabIndex}" Value="5">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Grid.Style>
-                <ListBox ItemsSource="{Binding ReturnedItemsGrouped}"
-                         ItemTemplate="{StaticResource JoGroupRowTemplate}"
-                         ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
-                         BorderThickness="0" Background="Transparent"
-                         Focusable="False"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         ScrollViewer.CanContentScroll="True"
-                         VirtualizingStackPanel.IsVirtualizing="True"
-                         VirtualizingStackPanel.VirtualizationMode="Recycling"
-                         VirtualizingStackPanel.ScrollUnit="Pixel"
-                         behaviors:SmoothScrollBehavior.IsEnabled="True">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <VirtualizingStackPanel/>
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                </ListBox>
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                            IsHitTestVisible="False">
-                    <StackPanel.Style>
-                        <Style TargetType="StackPanel">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding ReturnedItems.Count}" Value="0">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </StackPanel.Style>
-                    <emptyState:EmptyStateControl
-                        Icon="&#xE7A7;"
-                        Title="No returned delivery notes"
-                        Message="Delivery notes of type Return — glass sent back by the customer — are listed here."/>
-                </StackPanel>
-            </Grid>
+                    <!-- TAB 1: PREPARED -->
+                    <Grid>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="1">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <ListBox ItemsSource="{Binding PreparedItemsGrouped}"
+                                 ItemTemplate="{StaticResource JoGroupRowTemplate}"
+                                 ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
+                                 BorderThickness="0" Background="Transparent"
+                                 Focusable="False"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 ScrollViewer.CanContentScroll="True"
+                                 VirtualizingStackPanel.IsVirtualizing="True"
+                                 VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                 VirtualizingStackPanel.ScrollUnit="Pixel"
+                                 behaviors:SmoothScrollBehavior.IsEnabled="True">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                    IsHitTestVisible="False">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding PreparedItems.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <emptyState:EmptyStateControl
+                                Icon="&#xE70F;"
+                                Title="No prepared delivery notes"
+                                Message="Notes you prepare (not dispatched yet) wait in this tab until they go out."/>
+                        </StackPanel>
+                    </Grid>
 
-        </Grid>
+                    <!-- TAB 2: DELIVERED -->
+                    <Grid>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="2">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <ListBox ItemsSource="{Binding DeliveredItemsGrouped}"
+                                 ItemTemplate="{StaticResource JoGroupRowTemplate}"
+                                 ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
+                                 BorderThickness="0" Background="Transparent"
+                                 Focusable="False"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 ScrollViewer.CanContentScroll="True"
+                                 VirtualizingStackPanel.IsVirtualizing="True"
+                                 VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                 VirtualizingStackPanel.ScrollUnit="Pixel"
+                                 behaviors:SmoothScrollBehavior.IsEnabled="True">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                    IsHitTestVisible="False">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DeliveredItems.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <emptyState:EmptyStateControl
+                                Icon="&#xE73E;"
+                                Title="No delivered notes yet"
+                                Message="Notes move to this tab once their status becomes Delivered / Signed / Received."/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- TAB 3: PENDING -->
+                    <Grid>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="3">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <ListBox ItemsSource="{Binding PendingItems}"
+                                 ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
+                                 BorderThickness="0" Background="Transparent"
+                                 Focusable="False"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 ScrollViewer.CanContentScroll="True"
+                                 VirtualizingStackPanel.IsVirtualizing="True"
+                                 VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                 VirtualizingStackPanel.ScrollUnit="Pixel"
+                                 behaviors:SmoothScrollBehavior.IsEnabled="True">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                            <ListBox.ItemTemplate>
+                                <DataTemplate>
+                                    <Border Style="{StaticResource PendingRowCardStyle}">
+                                        <Grid>
+                                            <Grid.ColumnDefinitions>
+                                                <ColumnDefinition Width="*"/>
+                                                <ColumnDefinition Width="200"/>
+                                            </Grid.ColumnDefinitions>
+                                            <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                                                <TextBlock Text="{Binding JobOrderId}"
+                                                           FontSize="13" FontWeight="Bold"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                                                <TextBlock FontSize="11" Margin="0,4,0,0"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                                    <Run Text="{Binding CustomerName, Mode=OneWay}"/>
+                                                    <Run Text="  ·  "/>
+                                                    <Run Text="{Binding ProjectName, Mode=OneWay}"/>
+                                                </TextBlock>
+                                                <TextBlock FontSize="11" Margin="0,5,0,0"
+                                                           Foreground="{DynamicResource SecondaryForegroundBrush}">
+                                                    <Run Text="{Binding ProgressDisplay, Mode=OneWay}" FontWeight="SemiBold"/>
+                                                    <Run Text="  ·  Balance: "/>
+                                                    <Run Text="{Binding TotalBalance, Mode=OneWay}" FontWeight="Bold"/>
+                                                    <Run Text=" pcs"/>
+                                                </TextBlock>
+                                            </StackPanel>
+                                            <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="16,0,0,0">
+                                                <TextBlock HorizontalAlignment="Right" Margin="0,0,0,4"
+                                                           FontSize="11" FontWeight="Bold"
+                                                           Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                                    <Run Text="{Binding ProgressPercent, Mode=OneWay, StringFormat={}{0:0.#}}"/>
+                                                    <Run Text="%"/>
+                                                </TextBlock>
+                                                <Border x:Name="PendingTrack"
+                                                        CornerRadius="4" Height="6"
+                                                        Background="{DynamicResource BorderBrush}">
+                                                    <Border CornerRadius="4"
+                                                            HorizontalAlignment="Left"
+                                                            Background="{DynamicResource AccentBrush}">
+                                                        <Border.Width>
+                                                            <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
+                                                                <Binding Path="ProgressPercent"/>
+                                                                <Binding Path="ActualWidth" ElementName="PendingTrack"/>
+                                                            </MultiBinding>
+                                                        </Border.Width>
+                                                    </Border>
+                                                </Border>
+                                            </StackPanel>
+                                        </Grid>
+                                    </Border>
+                                </DataTemplate>
+                            </ListBox.ItemTemplate>
+                        </ListBox>
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                    IsHitTestVisible="False">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding PendingItems.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <emptyState:EmptyStateControl
+                                Icon="&#xE81C;"
+                                Title="No pending quantities — all delivered!"
+                                Message="This tab lists job orders that still have undelivered pieces. When everything is delivered, it stays empty."/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- TAB 4: REWORK -->
+                    <Grid>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="4">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <ListBox ItemsSource="{Binding ReworkItemsGrouped}"
+                                 ItemTemplate="{StaticResource JoGroupRowTemplate}"
+                                 ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
+                                 BorderThickness="0" Background="Transparent"
+                                 Focusable="False"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 ScrollViewer.CanContentScroll="True"
+                                 VirtualizingStackPanel.IsVirtualizing="True"
+                                 VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                 VirtualizingStackPanel.ScrollUnit="Pixel"
+                                 behaviors:SmoothScrollBehavior.IsEnabled="True">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                    IsHitTestVisible="False">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ReworkItems.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <emptyState:EmptyStateControl
+                                Icon="&#xE713;"
+                                Title="No rework delivery notes"
+                                Message="Delivery notes of type Rework — glass coming back for reprocessing — are listed here."/>
+                        </StackPanel>
+                    </Grid>
+
+                    <!-- TAB 5: RETURNED -->
+                    <Grid>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="5">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <ListBox ItemsSource="{Binding ReturnedItemsGrouped}"
+                                 ItemTemplate="{StaticResource JoGroupRowTemplate}"
+                                 ItemContainerStyle="{StaticResource DnListBoxItemStyle}"
+                                 BorderThickness="0" Background="Transparent"
+                                 Focusable="False"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 ScrollViewer.CanContentScroll="True"
+                                 VirtualizingStackPanel.IsVirtualizing="True"
+                                 VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                 VirtualizingStackPanel.ScrollUnit="Pixel"
+                                 behaviors:SmoothScrollBehavior.IsEnabled="True">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                    IsHitTestVisible="False">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding ReturnedItems.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <emptyState:EmptyStateControl
+                                Icon="&#xE7A7;"
+                                Title="No returned delivery notes"
+                                Message="Delivery notes of type Return — glass sent back by the customer — are listed here."/>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
+            </Grid>
+        </Border>
     </Grid>
 </UserControl>

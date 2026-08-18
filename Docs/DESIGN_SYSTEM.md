@@ -84,6 +84,10 @@ Light/Dark themes and the Normal/Monet/Professional families.
   keys so Light/Dark + the Appearance border slider actually reach
   those screens. Printable invoice, Splash/Login brand surfaces, and
   Settings accent swatches left as designed.
+- ✅ Document lists (2026-08-18): PI / JO / DN / TI share
+  `Themes/Styles/ListPageStyles.xaml` — compact KPI strip, one filter
+  row, underline tabs, pale table header, 12 px tokens. Bindings and
+  code-behind names unchanged.
 - 🔲 Remaining: print-surface hex, Splash/Login art, a few decorative
   white-alpha overlays, Production/Optimization ComingSoon modules.
 

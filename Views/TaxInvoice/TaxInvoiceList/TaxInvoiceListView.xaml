@@ -1,24 +1,10 @@
-<!-- MIGRATION LOG — Button Standardization (master prompt v1.0)
-     Date: 2026-08-15 — DN/TI/JO batch 4a
-     • Shell tabs (Workspace/God View/Activity) -> STEP D two-button
-       visibility pattern with MDL2 glyphs (E8B7/E774/E81C)
-     • List toolbars: Clear/Refresh/Create -> Row*/Primary pills
-     • Row actions (Open/Master Invoice) -> Row* variants
-     • Tab-card filter icons: emoji Tags -> MDL2 glyphs + MDL2 font
-       on the template icon TextBlocks
-     • Hero/Empty-state icon slots -> MDL2 glyphs (controls render
-       glyph-or-emoji via IconFontFamilyConverter)
-     • Decorative inline meta-text emoji (dates, runs) intentionally
-       left for the visual polish pass (not buttons/tabs/badges)
-     Commands/bindings/code-behind preserved; no VM changes.
-═══════════════════════════════════════════════════════════════ -->
+<!-- Tax Invoice list — industrial table chrome. Tab names, click handlers, family commands unchanged. -->
 <UserControl x:Class="ProGlassAutomation.Views.TaxInvoice.TaxInvoiceList.TaxInvoiceListView"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
              xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
-             xmlns:hero="clr-namespace:ProGlassAutomation.Controls.GradientHeroCard"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -29,322 +15,121 @@
 
     <UserControl.Resources>
 
-        <Style x:Key="InvListBoxItemStyle" TargetType="ListBoxItem">
-            <Setter Property="Padding" Value="0"/>
-            <Setter Property="Margin" Value="0"/>
-            <Setter Property="Background" Value="Transparent"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-            <Setter Property="Focusable" Value="False"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ListBoxItem">
-                        <ContentPresenter/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <Style x:Key="InvListBoxItemStyle" TargetType="ListBoxItem"
+               BasedOn="{StaticResource ModuleListBoxItemStyle}"/>
 
-        <Style x:Key="InvTabInactiveStyle" TargetType="Button">
-            <Setter Property="Background"
-                    Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="BorderBrush"
-                    Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="BorderThickness" Value="1"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Height" Value="44"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Card"
-                                Background="{TemplateBinding Background}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,0"
-                                SnapsToDevicePixels="True">
-                            <StackPanel Orientation="Horizontal"
-                                        VerticalAlignment="Center"
-                                        HorizontalAlignment="Center">
-                                <TextBlock Text="{TemplateBinding Tag}" FontFamily="Segoe MDL2 Assets"
-                                           FontSize="14" VerticalAlignment="Center"
-                                           Margin="0,0,7,0" Opacity="0.7"/>
-                                <TextBlock Text="{TemplateBinding Content}"
-                                           FontSize="11" FontWeight="Bold"
-                                           VerticalAlignment="Center"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2"
-                                        Margin="7,0,0,0" VerticalAlignment="Center"
-                                        Background="{DynamicResource MenuHoverBrush}">
-                                    <TextBlock
-                                        Text="{TemplateBinding CommandParameter}"
-                                        FontSize="10" FontWeight="Bold"
-                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                </Border>
-                            </StackPanel>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Card" Property="Background"
-                                        Value="{DynamicResource MenuHoverBrush}"/>
-                                <Setter TargetName="Card" Property="BorderBrush"
-                                        Value="{DynamicResource AccentBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <Style x:Key="InvTabInactiveStyle" TargetType="Button"
+               BasedOn="{StaticResource ModuleListTabInactiveStyle}"/>
+        <Style x:Key="InvTabActiveStyle" TargetType="Button"
+               BasedOn="{StaticResource ModuleListTabActiveStyle}"/>
 
-        <Style x:Key="InvTabActiveStyle" TargetType="Button">
-            <Setter Property="BorderThickness" Value="2"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Height" Value="44"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Card"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,0"
-                                SnapsToDevicePixels="True">
-                            <Border.BorderBrush>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
-                                    <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.BorderBrush>
-                            <Border.Background>
-                                <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
-                                    <GradientStop Color="{DynamicResource TintIndigoColor}" Offset="0"/>
-                                    <GradientStop Color="{DynamicResource TintIndigoColor}" Offset="1"/>
-                                </LinearGradientBrush>
-                            </Border.Background>
-                            <StackPanel Orientation="Horizontal"
-                                        VerticalAlignment="Center"
-                                        HorizontalAlignment="Center">
-                                <TextBlock Text="{TemplateBinding Tag}" FontFamily="Segoe MDL2 Assets"
-                                           FontSize="14" VerticalAlignment="Center"
-                                           Margin="0,0,7,0"/>
-                                <TextBlock Text="{TemplateBinding Content}"
-                                           FontSize="11" FontWeight="Bold"
-                                           VerticalAlignment="Center">
-                                    <TextBlock.Foreground>
-                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
-                                            <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
-                                        </LinearGradientBrush>
-                                    </TextBlock.Foreground>
-                                </TextBlock>
-                                <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2"
-                                        Margin="7,0,0,0" VerticalAlignment="Center"
-                                        Background="{DynamicResource AccentBrush}">
-                                    <TextBlock
-                                        Text="{TemplateBinding CommandParameter}"
-                                        FontSize="10" FontWeight="Bold"
-                                        Foreground="White"/>
-                                </Border>
-                            </StackPanel>
-                        </Border>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <Style x:Key="InvHeaderButtonStyle" TargetType="Button">
-            <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
-            <Setter Property="Foreground"
-                    Value="{DynamicResource OnAccentForegroundBrush}"/>
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="Padding" Value="16,10"/>
-            <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="FontSize" Value="12"/>
-            <Setter Property="FontWeight" Value="Bold"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="Button">
-                        <Border x:Name="Bg"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                Padding="{TemplateBinding Padding}">
-                            <ContentPresenter HorizontalAlignment="Center"
-                                              VerticalAlignment="Center"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="Bg" Property="Background"
-                                        Value="{DynamicResource AccentHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsPressed" Value="True">
-                                <Setter TargetName="Bg" Property="Background"
-                                        Value="{DynamicResource AccentDarkBrush}"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
-
-        <!-- ══════════════════════════════════════════════════════════════
-             FAMILY ROW TEMPLATE — ONE ROW PER PROFORMA INVOICE
-             Shows master invoice info + family-level aggregates.
-             All 4 tabs use this template.
-        ══════════════════════════════════════════════════════════════ -->
         <DataTemplate x:Key="FamilyRowTemplate">
-            <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}"
-                    Padding="14,12" Margin="0,0,0,8"
-                    Cursor="Hand" SnapsToDevicePixels="True"
+            <Border Cursor="Hand"
+                    MinHeight="56"
                     MouseLeftButtonUp="OnFamilyRowLeftClick"
                     MouseRightButtonUp="OnFamilyRowRightClick">
                 <Border.Style>
-                    <Style TargetType="Border">
-                        <Setter Property="BorderBrush"
-                                Value="{DynamicResource OutlineBrush}"/>
+                    <Style TargetType="Border" BasedOn="{StaticResource ModuleListRowStyle}">
                         <Style.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter Property="Background"
-                                        Value="{DynamicResource MenuHoverBrush}"/>
-                                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
+                                <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
                             </Trigger>
                             <DataTrigger Binding="{Binding IsSelected}" Value="True">
-                                <Setter Property="Background"
-                                        Value="{DynamicResource TintIndigoBrush}"/>
-                                <Setter Property="BorderThickness" Value="2"/>
-                                <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding IsFullyPaid}" Value="True">
-                                <Setter Property="BorderBrush" Value="{DynamicResource SuccessBrush}"/>
-                                <Setter Property="BorderThickness" Value="1.5"/>
-                            </DataTrigger>
-                            <DataTrigger Binding="{Binding AnyOverdue}" Value="True">
-                                <Setter Property="BorderBrush" Value="{DynamicResource DangerBrush}"/>
+                                <Setter Property="Background" Value="{DynamicResource TintIndigoBrush}"/>
                             </DataTrigger>
                         </Style.Triggers>
                     </Style>
                 </Border.Style>
-
                 <Grid>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="280"/>
-                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="3"/>
+                        <ColumnDefinition Width="1.5*"/>
+                        <ColumnDefinition Width="1.5*"/>
+                        <ColumnDefinition Width="90"/>
+                        <ColumnDefinition Width="140"/>
+                        <ColumnDefinition Width="130"/>
+                        <ColumnDefinition Width="130"/>
+                        <ColumnDefinition Width="110"/>
+                        <ColumnDefinition Width="130"/>
                     </Grid.ColumnDefinitions>
 
-                    <!-- ── LEFT: PI identity + latest invoice ── -->
-                    <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <Border Grid.Column="0">
+                        <Border.Style>
+                            <Style TargetType="Border">
+                                <Setter Property="Background" Value="Transparent"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding IsSelected}" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding IsFullyPaid}" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
+                                    </DataTrigger>
+                                    <DataTrigger Binding="{Binding AnyOverdue}" Value="True">
+                                        <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Border.Style>
+                    </Border>
 
-                        <StackPanel Orientation="Horizontal">
-                            <TextBlock Text="&#xE8C8;" FontFamily="Segoe MDL2 Assets" FontSize="14"
-                                       VerticalAlignment="Center" Opacity="0.7"/>
-                            <TextBlock Text="{Binding ProformaId}"
-                                       FontSize="15" FontWeight="Bold"
-                                       Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                       VerticalAlignment="Center"/>
-
-                            <!-- Invoice count badge -->
-                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2"
-                                    Margin="10,0,0,0" VerticalAlignment="Center"
-                                    Background="{DynamicResource TintIndigoBrush}">
-                                <TextBlock FontSize="9" FontWeight="Bold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                    <Run Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets"/><Run Text=" "/>
-                                    <Run Text="{Binding InvoiceCount, Mode=OneWay}"/>
-                                    <Run Text=" invoice(s)"/>
-                                </TextBlock>
-                            </Border>
-
-                            <!-- Family status badge -->
-                            <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2"
-                                    Margin="6,0,0,0" VerticalAlignment="Center">
-                                <Border.Background>
-                                    <Binding Path="FamilyStatusBrushKey"
-                                             Converter="{StaticResource BrushKeyConverter}"/>
-                                </Border.Background>
-                                <TextBlock Text="{Binding FamilyStatus}"
-                                           FontSize="9" FontWeight="Bold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                            </Border>
-
-                            <!-- Overdue warning -->
-                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2"
-                                    Margin="6,0,0,0" VerticalAlignment="Center"
-                                    Background="{DynamicResource TintRedBrush}"
-                                    Visibility="{Binding AnyOverdue,
-                                        Converter={StaticResource BoolToVisibilityConverter}}">
-                                <TextBlock Text="&#xE7BA; OVERDUE" FontFamily="Segoe MDL2 Assets"
-                                           FontSize="9" FontWeight="Bold"
-                                           Foreground="{DynamicResource DangerBrush}"/>
-                            </Border>
-                        </StackPanel>
-
-                        <!-- Customer · Project -->
-                        <StackPanel Orientation="Horizontal" Margin="0,5,0,0">
-                            <TextBlock Text="{Binding CustomerName}"
-                                       FontSize="12" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       TextTrimming="CharacterEllipsis" MaxWidth="220"/>
-                            <TextBlock Text=" · " FontSize="12" Margin="4,0"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"/>
-                            <TextBlock Text="{Binding ProjectName}"
-                                       FontSize="12"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                       TextTrimming="CharacterEllipsis" MaxWidth="280"/>
-                        </StackPanel>
-
-                        <!-- Latest invoice info -->
-                        <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                            <TextBlock FontSize="10" Opacity="0.7"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"><Run Text="&#xE787;" FontFamily="Segoe MDL2 Assets"/><Run Text=" Latest: "/></TextBlock>
-                            <TextBlock Text="{Binding LatestIssueDateDisplay}"
-                                       FontSize="10" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            <TextBlock FontSize="10" Margin="6,0,0,0"
-                                       Foreground="{DynamicResource MutedForegroundBrush}"><Run Text=" · "/><Run Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets"/><Run Text=" "/></TextBlock>
-                            <TextBlock Text="{Binding LatestInvoiceNumber}"
-                                       FontSize="10" FontWeight="SemiBold"
-                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                            <TextBlock Text="  " FontSize="10"/>
-                            <Border CornerRadius="4" Padding="6,1"
-                                    VerticalAlignment="Center">
-                                <Border.Background>
-                                    <Binding Path="LatestStatusBrushKey"
-                                             Converter="{StaticResource BrushKeyConverter}"/>
-                                </Border.Background>
-                                <TextBlock Text="{Binding LatestInvoiceStatus}"
-                                           FontSize="9" FontWeight="Bold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                            </Border>
-                        </StackPanel>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" Margin="14,8,8,8">
+                        <TextBlock Text="{Binding ProformaId}"
+                                   FontSize="13" FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                        <TextBlock FontSize="10" Margin="0,3,0,0"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   TextTrimming="CharacterEllipsis">
+                            <Run Text="Latest: "/><Run Text="{Binding LatestIssueDateDisplay, Mode=OneWay}"/>
+                            <Run Text="  ·  "/><Run Text="{Binding LatestInvoiceNumber, Mode=OneWay}"/>
+                            <Run Text="  "/><Run Text="{Binding LatestInvoiceStatus, Mode=OneWay}"/>
+                        </TextBlock>
                     </StackPanel>
 
-                    <!-- ── MIDDLE: progress + financial ── -->
-                    <StackPanel Grid.Column="1"
-                                VerticalAlignment="Center" Margin="16,0">
+                    <StackPanel Grid.Column="2" VerticalAlignment="Center" Margin="8,0">
+                        <TextBlock Text="{Binding CustomerName}"
+                                   FontSize="12" FontWeight="SemiBold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="{Binding ProjectName}"
+                                   FontSize="11" Margin="0,2,0,0"
+                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                   TextTrimming="CharacterEllipsis"/>
+                    </StackPanel>
 
-                        <TextBlock HorizontalAlignment="Right"
-                                   FontSize="11" FontWeight="Bold"
-                                   Margin="0,0,0,4"
+                    <Border Grid.Column="3"
+                            Background="{DynamicResource TintGrayBrush}"
+                            BorderBrush="{DynamicResource OutlineBrush}"
+                            BorderThickness="1"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
+                            Padding="8,3"
+                            VerticalAlignment="Center"
+                            HorizontalAlignment="Center">
+                        <TextBlock FontSize="10" FontWeight="Bold"
                                    Foreground="{DynamicResource PrimaryForegroundBrush}">
-                            <Run Text="{Binding ProgressPercent,
-                                        Mode=OneWay,
-                                        StringFormat={}{0:0.#}}"/>
-                            <Run Text="% Invoiced"/>
+                            <Run Text="{Binding InvoiceCount, Mode=OneWay}"/>
+                            <Run Text=" inv"/>
                         </TextBlock>
+                    </Border>
 
+                    <StackPanel Grid.Column="4" VerticalAlignment="Center" Margin="8,0">
+                        <TextBlock FontSize="11" FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   Margin="0,0,0,4">
+                            <Run Text="{Binding ProgressPercent, Mode=OneWay, StringFormat={}{0:0.#}}"/>
+                            <Run Text="%"/>
+                        </TextBlock>
                         <Border x:Name="ProgressTrack"
-                                CornerRadius="4" Height="8"
+                                CornerRadius="4" Height="6"
                                 Background="{DynamicResource BorderBrush}">
                             <Border CornerRadius="4" HorizontalAlignment="Left">
                                 <Border.Style>
                                     <Style TargetType="Border">
                                         <Setter Property="Background" Value="{DynamicResource AccentBrush}"/>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding IsFullyPaid}"
-                                                         Value="True">
+                                            <DataTrigger Binding="{Binding IsFullyPaid}" Value="True">
                                                 <Setter Property="Background" Value="{DynamicResource SuccessBrush}"/>
                                             </DataTrigger>
-                                            <DataTrigger Binding="{Binding AnyOverdue}"
-                                                         Value="True">
+                                            <DataTrigger Binding="{Binding AnyOverdue}" Value="True">
                                                 <Setter Property="Background" Value="{DynamicResource DangerBrush}"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -353,34 +138,54 @@
                                 <Border.Width>
                                     <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
                                         <Binding Path="ProgressPercent"/>
-                                        <Binding Path="ActualWidth"
-                                                 ElementName="ProgressTrack"/>
+                                        <Binding Path="ActualWidth" ElementName="ProgressTrack"/>
                                     </MultiBinding>
                                 </Border.Width>
                             </Border>
                         </Border>
-
-                        <TextBlock HorizontalAlignment="Right"
-                                   FontSize="10" Margin="0,5,0,0"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}">
-                            <Run Text="Invoiced: "
-                                 Foreground="{DynamicResource MutedForegroundBrush}"/>
-                            <Run Text="{Binding InvoicedTotalDisplay, Mode=OneWay}"
-                                 FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}"/>
-                        </TextBlock>
-
-                        <TextBlock HorizontalAlignment="Right"
-                                   FontSize="10" Margin="0,2,0,0"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}">
-                            <Run Text="Balance: "
-                                 Foreground="{DynamicResource MutedForegroundBrush}"/>
-                            <Run Text="{Binding BalanceTotalDisplay, Mode=OneWay}"
-                                 FontWeight="Bold" Foreground="{DynamicResource WarningBrush}"/>
-                        </TextBlock>
                     </StackPanel>
 
-                    <!-- ── RIGHT: open button ── -->
-                    <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                    <TextBlock Grid.Column="5"
+                               Text="{Binding InvoicedTotalDisplay}"
+                               FontSize="12" FontWeight="Bold"
+                               Foreground="{DynamicResource SuccessBrush}"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Right"
+                               Margin="0,0,12,0"/>
+
+                    <TextBlock Grid.Column="6"
+                               Text="{Binding BalanceTotalDisplay}"
+                               FontSize="12" FontWeight="Bold"
+                               Foreground="{DynamicResource WarningBrush}"
+                               VerticalAlignment="Center"
+                               HorizontalAlignment="Right"
+                               Margin="0,0,12,0"/>
+
+                    <StackPanel Grid.Column="7" VerticalAlignment="Center" HorizontalAlignment="Center">
+                        <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="8,3"
+                                Background="{Binding FamilyStatusBrushKey,
+                                             Converter={StaticResource BrushKeyConverter}}">
+                            <TextBlock Text="{Binding FamilyStatus}"
+                                       FontSize="9" FontWeight="Bold"
+                                       Foreground="White"
+                                       HorizontalAlignment="Center"/>
+                        </Border>
+                        <Border Background="{DynamicResource TintRedBrush}"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                Padding="6,2" Margin="0,4,0,0"
+                                HorizontalAlignment="Center"
+                                Visibility="{Binding AnyOverdue,
+                                    Converter={StaticResource BoolToVisibilityConverter}}">
+                            <TextBlock Text="OVERDUE" FontSize="8" FontWeight="Bold"
+                                       Foreground="{DynamicResource DangerBrush}"/>
+                        </Border>
+                    </StackPanel>
+
+                    <StackPanel Grid.Column="8"
+                                Orientation="Horizontal"
+                                HorizontalAlignment="Center"
+                                VerticalAlignment="Center"
+                                Margin="6,0,10,0">
                         <Button Style="{StaticResource RowPrimaryButton}"
                                 Tag="&#xE8B7;" Content="OPEN"
                                 ToolTip="Open this invoice family"
@@ -401,45 +206,38 @@
 
     </UserControl.Resources>
 
-    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
+    <Grid Background="{DynamicResource WindowBackgroundBrush}">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <!-- ═══ STICKY HEADER ═══ -->
-        <StackPanel Grid.Row="0" Margin="24,16,24,0">
-
-            <!-- Title row -->
-            <Grid Margin="4,0,4,14">
+        <StackPanel Grid.Row="0" Margin="4,4,4,12">
+            <Grid Margin="4,0,4,12">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-
                 <StackPanel Grid.Column="0">
-                    <TextBlock Text="Tax Invoices"
-                               Style="{StaticResource ModulePageTitleStyle}"/>
-                    <TextBlock Text="One row per Proforma Invoice. Click to open · view partial invoices inside detail."
-                               Style="{StaticResource ModulePageSubtitleStyle}"
-                               Margin="0,3,0,0"/>
+                    <TextBlock Text="Tax Invoices" Style="{StaticResource ModulePageTitleStyle}"/>
+                    <TextBlock Text="One family per proforma — open to see every partial invoice"
+                               Style="{StaticResource ModulePageSubtitleStyle}"/>
                 </StackPanel>
-
                 <Button Grid.Column="1"
+                        Style="{StaticResource PrimaryPillButton}"
+                        Tag="&#xE710;"
                         Content="NEW INVOICE"
                         Command="{Binding CreateInvoiceCommand}"
-                        Style="{StaticResource InvHeaderButtonStyle}"
-                        VerticalAlignment="Center" Margin="16,0,0,0"/>
+                        VerticalAlignment="Center"
+                        ToolTip="Create a new tax invoice"/>
             </Grid>
 
-            <!-- Loading -->
             <loading:LoadingStateControl
                     Visibility="{Binding IsLoading,
                                  Converter={StaticResource BoolToVisibilityConverter}}"
                     Message="Loading invoice families…"
                     Margin="4,0,4,10"/>
 
-            <!-- Error -->
             <Border Visibility="{Binding HasError,
                                  Converter={StaticResource BoolToVisibilityConverter}}"
                     Style="{StaticResource ModuleErrorBannerStyle}"
@@ -448,403 +246,421 @@
                            Foreground="{DynamicResource DangerBrush}" FontSize="12"
                            TextWrapping="Wrap"/>
             </Border>
-
-            <!-- KPI HERO CARDS -->
-            <Grid Margin="0,0,0,10">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <hero:GradientHeroCard Grid.Column="0"
-                    Icon="&#xE7BF;" Value="{Binding HeroCard1Value}"
-                    Label="{Binding HeroCard1Label}"
-                    GradientStartColor="{DynamicResource AccentDarkColor}" GradientEndColor="{DynamicResource AccentLightColor}"
-                    Margin="4" MinHeight="92"/>
-
-                <hero:GradientHeroCard Grid.Column="1"
-                    Icon="&#xE70F;" Value="{Binding HeroCard2Value}"
-                    Label="{Binding HeroCard2Label}"
-                    GradientStartColor="{DynamicResource AccentColor}" GradientEndColor="{DynamicResource AccentHoverColor}"
-                    Margin="4" MinHeight="92"/>
-
-                <hero:GradientHeroCard Grid.Column="2"
-                    Icon="&#xE72D;" Value="{Binding HeroCard3Value}"
-                    Label="{Binding HeroCard3Label}"
-                    GradientStartColor="{DynamicResource WarningColor}" GradientEndColor="{DynamicResource WarningColor}"
-                    Margin="4" MinHeight="92"/>
-
-                <hero:GradientHeroCard Grid.Column="3"
-                    Icon="&#xE73E;" Value="{Binding HeroCard4Value}"
-                    Label="{Binding HeroCard4Label}"
-                    GradientStartColor="{DynamicResource AccentColor}" GradientEndColor="{DynamicResource AccentLightColor}"
-                    Margin="4" MinHeight="92"/>
-
-                <hero:GradientHeroCard Grid.Column="4"
-                    Icon="&#xE7BA;" Value="{Binding HeroCard5Value}"
-                    Label="{Binding HeroCard5Label}"
-                    GradientStartColor="{DynamicResource DangerColor}" GradientEndColor="{DynamicResource DangerColor}"
-                    Margin="4" MinHeight="92"/>
-            </Grid>
-
-            <!-- Selected family meta bar -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Margin="4,0,4,10" Padding="12,8" CornerRadius="{DynamicResource ControlCornerRadius}"
-                    Background="{DynamicResource TintIndigoBrush}"
-                    Visibility="{Binding HasSelection,
-                                 Converter={StaticResource BoolToVisibilityConverter}}">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0"
-                               FontSize="11" FontWeight="Bold"
-                               VerticalAlignment="Center" Margin="0,0,10,0"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"><Run Text="&#xE721;" FontFamily="Segoe MDL2 Assets"/><Run Text="  Selected:"/></TextBlock>
-                    <TextBlock Grid.Column="1"
-                               Text="{Binding SelectedFamilyMetaLine}"
-                               FontSize="11" FontWeight="SemiBold"
-                               VerticalAlignment="Center"
-                               TextTrimming="CharacterEllipsis"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <Button Grid.Column="2" Style="{StaticResource RowOutlinedButton}"
-                            Tag="&#xE711;" Content="CLEAR"
-                            ToolTip="Clear selection"
-                            Command="{Binding ClearSelectionCommand}"/>
-                </Grid>
-            </Border>
-
-            <!-- FILTER BAR -->
-            <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}"
-                    Padding="12,10" Margin="0,0,0,12"
-                    SnapsToDevicePixels="True">
-                <Grid>
-                    <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="2*"/>
-                        <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="Auto"/>
-                        <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-
-                    <TextBox Grid.Column="0"
-                             Text="{Binding SearchText,
-                                    UpdateSourceTrigger=PropertyChanged}"
-                             FontSize="12" Margin="0,0,8,0"/>
-
-                    <ComboBox Grid.Column="1"
-                              ItemsSource="{Binding StatusFilterOptions}"
-                              SelectedItem="{Binding SelectedStatusFilter}"
-                              FontSize="12" Margin="0,0,8,0"/>
-
-                    <Button Grid.Column="2" Style="{StaticResource RowOutlinedButton}"
-                            Tag="&#xE711;" Content="CLEAR"
-                            Margin="0,0,8,0"
-                            ToolTip="Clear search and filters"
-                            Command="{Binding ClearFiltersCommand}"/>
-
-                    <Button Grid.Column="3" Style="{StaticResource RowPrimaryButton}"
-                            Tag="&#xE72C;" Content="REFRESH"
-                            ToolTip="Refresh list"
-                            Command="{Binding RefreshCommand}"/>
-                </Grid>
-            </Border>
-
-            <!-- TAB BAR — 4 tabs, all family-based -->
-            <Grid Margin="4,0,4,12">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <Button Grid.Column="0" Tag="&#xE8A5;" Content="ALL FAMILIES"
-                        CommandParameter="{Binding AllCount}"
-                        Margin="0,0,3,0" Click="OnTabClick"
-                        x:Name="TabAll"
-                        Style="{StaticResource InvTabActiveStyle}"/>
-
-                <Button Grid.Column="1" Tag="&#xE70F;" Content="HAS DRAFT"
-                        CommandParameter="{Binding DraftCount}"
-                        Margin="3,0,3,0" Click="OnTabClick"
-                        x:Name="TabDraft"
-                        Style="{StaticResource InvTabInactiveStyle}"/>
-
-                <Button Grid.Column="2" Tag="&#xE72D;" Content="HAS ISSUED"
-                        CommandParameter="{Binding IssuedCount}"
-                        Margin="3,0,3,0" Click="OnTabClick"
-                        x:Name="TabIssued"
-                        Style="{StaticResource InvTabInactiveStyle}"/>
-
-                <Button Grid.Column="3" Tag="&#xE73E;" Content="FULLY PAID"
-                        CommandParameter="{Binding PaidCount}"
-                        Margin="3,0,0,0" Click="OnTabClick"
-                        x:Name="TabPaid"
-                        Style="{StaticResource InvTabInactiveStyle}"/>
-            </Grid>
         </StackPanel>
 
-        <!-- ═══ TAB CONTENT — all use FamilyRowTemplate ═══ -->
-        <Grid Grid.Row="1" Margin="30,0,30,16">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+        <Border Grid.Row="1" Style="{StaticResource ModuleListShellStyle}" Margin="4,0,4,4">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-            <!-- v2: accent column heading strip (PI-list reference) -->
-            <Border Grid.Row="0"
-                    Background="{DynamicResource AccentBrush}"
-                    CornerRadius="12,12,0,0"
-                    Padding="16,9"
-                    Margin="0,0,0,8">
-                <Grid>
+                <Border Grid.Row="0" Style="{StaticResource ModuleListKpiStripStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                        </Grid.ColumnDefinitions>
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintBlueBrush}">
+                                <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets" FontSize="15"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding HeroCard1Label}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding HeroCard1Value}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintGrayBrush}">
+                                <TextBlock Text="&#xE70F;" FontFamily="Segoe MDL2 Assets" FontSize="15"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding HeroCard2Label}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding HeroCard2Value}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintIndigoBrush}">
+                                <TextBlock Text="&#xE724;" FontFamily="Segoe MDL2 Assets" FontSize="15"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding HeroCard3Label}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding HeroCard3Value}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+                        <StackPanel Grid.Column="6" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintGreenBrush}">
+                                <TextBlock Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="15"
+                                           Foreground="{DynamicResource SuccessBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding HeroCard4Label}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding HeroCard4Value}" Style="{StaticResource ModuleListKpiValueStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+                        <Border Grid.Column="7" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+                        <StackPanel Grid.Column="8" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}" Background="{DynamicResource TintRedBrush}">
+                                <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="15"
+                                           Foreground="{DynamicResource DangerBrush}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="{Binding HeroCard5Label}" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding HeroCard5Value}"
+                                           Style="{StaticResource ModuleListKpiValueStyle}"
+                                           Foreground="{DynamicResource DangerBrush}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="1"
+                        Background="{DynamicResource TintIndigoBrush}"
+                        Padding="12,8"
+                        Visibility="{Binding HasSelection,
+                                     Converter={StaticResource BoolToVisibilityConverter}}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="0"
+                                   FontSize="11" FontWeight="Bold"
+                                   VerticalAlignment="Center" Margin="0,0,10,0"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   Text="Selected"/>
+                        <TextBlock Grid.Column="1"
+                                   Text="{Binding SelectedFamilyMetaLine}"
+                                   FontSize="11" FontWeight="SemiBold"
+                                   VerticalAlignment="Center"
+                                   TextTrimming="CharacterEllipsis"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                        <Button Grid.Column="2" Style="{StaticResource RowOutlinedButton}"
+                                Tag="&#xE711;" Content="CLEAR"
+                                ToolTip="Clear selection"
+                                Command="{Binding ClearSelectionCommand}"/>
+                    </Grid>
+                </Border>
+
+                <Border Grid.Row="2" Style="{StaticResource ModuleListFilterBarStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBox Grid.Column="0"
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource ModuleListFilterInputStyle}"
+                                 Margin="0,0,8,0"
+                                 ToolTip="Search PI, customer, invoice no"/>
+                        <ComboBox Grid.Column="1"
+                                  ItemsSource="{Binding StatusFilterOptions}"
+                                  SelectedItem="{Binding SelectedStatusFilter}"
+                                  Style="{StaticResource ModuleListFilterComboStyle}"
+                                  Margin="0,0,8,0"/>
+                        <Button Grid.Column="2" Style="{StaticResource OutlinedPillButton}"
+                                Tag="&#xE711;" Content="CLEAR"
+                                Margin="0,0,8,0"
+                                ToolTip="Clear search and filters"
+                                Command="{Binding ClearFiltersCommand}"/>
+                        <Button Grid.Column="3" Style="{StaticResource PrimaryPillButton}"
+                                Tag="&#xE72C;" Content="REFRESH"
+                                ToolTip="Refresh list"
+                                Command="{Binding RefreshCommand}"/>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="3" Margin="8,0,8,0">
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="*"/>
-                        <ColumnDefinition Width="280"/>
-                        <ColumnDefinition Width="150"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
-                    <TextBlock Grid.Column="0" Text="INVOICE FAMILY (PI)"
-                               Style="{StaticResource ModuleColumnHeaderStyle}"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}"
-                               ToolTip="Proforma reference + its tax invoices"/>
-                    <TextBlock Grid.Column="1" Text="INVOICES &amp; STATUS"
-                               Style="{StaticResource ModuleColumnHeaderStyle}"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}"
-                               HorizontalAlignment="Center"
-                               ToolTip="Status chips for every invoice in the family"/>
-                    <TextBlock Grid.Column="2" Text="TOTALS · BALANCE"
-                               Style="{StaticResource ModuleColumnHeaderStyle}"
-                               Foreground="{DynamicResource OnAccentForegroundBrush}"
-                               HorizontalAlignment="Right"
-                               ToolTip="Family grand total and open balance"/>
+                    <Button Grid.Column="0" Tag="&#xE8A5;" Content="ALL FAMILIES"
+                            CommandParameter="{Binding AllCount}"
+                            Click="OnTabClick" x:Name="TabAll"
+                            Style="{StaticResource InvTabActiveStyle}"/>
+                    <Button Grid.Column="1" Tag="&#xE70F;" Content="HAS DRAFT"
+                            CommandParameter="{Binding DraftCount}"
+                            Click="OnTabClick" x:Name="TabDraft"
+                            Style="{StaticResource InvTabInactiveStyle}"/>
+                    <Button Grid.Column="2" Tag="&#xE72D;" Content="HAS ISSUED"
+                            CommandParameter="{Binding IssuedCount}"
+                            Click="OnTabClick" x:Name="TabIssued"
+                            Style="{StaticResource InvTabInactiveStyle}"/>
+                    <Button Grid.Column="3" Tag="&#xE73E;" Content="FULLY PAID"
+                            CommandParameter="{Binding PaidCount}"
+                            Click="OnTabClick" x:Name="TabPaid"
+                            Style="{StaticResource InvTabInactiveStyle}"/>
                 </Grid>
-            </Border>
 
-            <!-- TAB 0: ALL FAMILIES -->
-            <Grid Grid.Row="1">
-                <Grid.Style>
-                    <Style TargetType="Grid">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding SelectedTabIndex}" Value="0">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Grid.Style>
-                <ListBox ItemsSource="{Binding AllFamilies}"
-                         ItemTemplate="{StaticResource FamilyRowTemplate}"
-                         ItemContainerStyle="{StaticResource InvListBoxItemStyle}"
-                         BorderThickness="0" Background="Transparent"
-                         Focusable="False"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         ScrollViewer.CanContentScroll="True"
-                         ScrollViewer.IsDeferredScrollingEnabled="False"
-                         ScrollViewer.PanningMode="None"
-                         VirtualizingStackPanel.IsVirtualizing="True"
-                         VirtualizingStackPanel.VirtualizationMode="Recycling"
-                         VirtualizingStackPanel.ScrollUnit="Pixel"
-                         VirtualizingStackPanel.CacheLength="200,400"
-                         VirtualizingStackPanel.CacheLengthUnit="Pixel"
-                         behaviors:SmoothScrollBehavior.IsEnabled="True">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <VirtualizingStackPanel/>
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                </ListBox>
-                <StackPanel HorizontalAlignment="Center"
-                            VerticalAlignment="Center"
-                            IsHitTestVisible="False">
-                    <StackPanel.Style>
-                        <Style TargetType="StackPanel">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <MultiDataTrigger>
-                                    <MultiDataTrigger.Conditions>
-                                        <Condition Binding="{Binding AllFamilies.Count}"
-                                                   Value="0"/>
-                                        <Condition Binding="{Binding IsLoading}"
-                                                   Value="False"/>
-                                    </MultiDataTrigger.Conditions>
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </MultiDataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </StackPanel.Style>
-                    <emptyState:EmptyStateControl
-                        Icon="&#xE8A5;"
-                        Title="No invoice families yet"
-                        Message="A family groups every tax invoice belonging to one proforma invoice. Create a tax invoice ('New Invoice' above) and its family appears here with totals, balance and status."/>
-                </StackPanel>
+                <Border Grid.Row="4" Style="{StaticResource ModuleListTableHeaderStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3"/>
+                            <ColumnDefinition Width="1.5*"/>
+                            <ColumnDefinition Width="1.5*"/>
+                            <ColumnDefinition Width="90"/>
+                            <ColumnDefinition Width="140"/>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="130"/>
+                            <ColumnDefinition Width="110"/>
+                            <ColumnDefinition Width="130"/>
+                        </Grid.ColumnDefinitions>
+                        <TextBlock Grid.Column="1" Text="INVOICE FAMILY (PI)" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="2" Text="CUSTOMER · PROJECT" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="3" Text="INVOICES" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="4" Text="% INVOICED" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="5" Text="INVOICED" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   HorizontalAlignment="Right" Margin="0,0,12,0"/>
+                        <TextBlock Grid.Column="6" Text="BALANCE" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   HorizontalAlignment="Right" Margin="0,0,12,0"/>
+                        <TextBlock Grid.Column="7" Text="STATUS" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   HorizontalAlignment="Center"/>
+                    </Grid>
+                </Border>
+
+                <Grid Grid.Row="5">
+                    <Grid>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="0">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <ListBox ItemsSource="{Binding AllFamilies}"
+                                 ItemTemplate="{StaticResource FamilyRowTemplate}"
+                                 ItemContainerStyle="{StaticResource InvListBoxItemStyle}"
+                                 BorderThickness="0" Background="Transparent"
+                                 Focusable="False"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 ScrollViewer.CanContentScroll="True"
+                                 ScrollViewer.IsDeferredScrollingEnabled="False"
+                                 ScrollViewer.PanningMode="None"
+                                 VirtualizingStackPanel.IsVirtualizing="True"
+                                 VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                 VirtualizingStackPanel.ScrollUnit="Pixel"
+                                 VirtualizingStackPanel.CacheLength="200,400"
+                                 VirtualizingStackPanel.CacheLengthUnit="Pixel"
+                                 behaviors:SmoothScrollBehavior.IsEnabled="True">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                    IsHitTestVisible="False">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <MultiDataTrigger>
+                                            <MultiDataTrigger.Conditions>
+                                                <Condition Binding="{Binding AllFamilies.Count}" Value="0"/>
+                                                <Condition Binding="{Binding IsLoading}" Value="False"/>
+                                            </MultiDataTrigger.Conditions>
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </MultiDataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <emptyState:EmptyStateControl
+                                Icon="&#xE8A5;"
+                                Title="No invoice families yet"
+                                Message="A family groups every tax invoice belonging to one proforma invoice. Create a tax invoice ('New Invoice' above) and its family appears here with totals, balance and status."/>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="1">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <ListBox ItemsSource="{Binding DraftFamilies}"
+                                 ItemTemplate="{StaticResource FamilyRowTemplate}"
+                                 ItemContainerStyle="{StaticResource InvListBoxItemStyle}"
+                                 BorderThickness="0" Background="Transparent"
+                                 Focusable="False"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 ScrollViewer.CanContentScroll="True"
+                                 ScrollViewer.IsDeferredScrollingEnabled="False"
+                                 ScrollViewer.PanningMode="None"
+                                 VirtualizingStackPanel.IsVirtualizing="True"
+                                 VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                 VirtualizingStackPanel.ScrollUnit="Pixel"
+                                 VirtualizingStackPanel.CacheLength="200,400"
+                                 VirtualizingStackPanel.CacheLengthUnit="Pixel"
+                                 behaviors:SmoothScrollBehavior.IsEnabled="True">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                    IsHitTestVisible="False">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding DraftFamilies.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <emptyState:EmptyStateControl
+                                Icon="&#xE70F;"
+                                Title="No families with draft invoices"
+                                Message="Families appear here while any of their invoices is still a draft — not yet issued to the customer."/>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="2">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <ListBox ItemsSource="{Binding IssuedFamilies}"
+                                 ItemTemplate="{StaticResource FamilyRowTemplate}"
+                                 ItemContainerStyle="{StaticResource InvListBoxItemStyle}"
+                                 BorderThickness="0" Background="Transparent"
+                                 Focusable="False"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 ScrollViewer.CanContentScroll="True"
+                                 ScrollViewer.IsDeferredScrollingEnabled="False"
+                                 ScrollViewer.PanningMode="None"
+                                 VirtualizingStackPanel.IsVirtualizing="True"
+                                 VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                 VirtualizingStackPanel.ScrollUnit="Pixel"
+                                 VirtualizingStackPanel.CacheLength="200,400"
+                                 VirtualizingStackPanel.CacheLengthUnit="Pixel"
+                                 behaviors:SmoothScrollBehavior.IsEnabled="True">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                    IsHitTestVisible="False">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding IssuedFamilies.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <emptyState:EmptyStateControl
+                                Icon="&#xE72D;"
+                                Title="No families with issued invoices"
+                                Message="Once an invoice is issued to the customer, its family moves into this tab."/>
+                        </StackPanel>
+                    </Grid>
+
+                    <Grid>
+                        <Grid.Style>
+                            <Style TargetType="Grid">
+                                <Setter Property="Visibility" Value="Collapsed"/>
+                                <Style.Triggers>
+                                    <DataTrigger Binding="{Binding SelectedTabIndex}" Value="3">
+                                        <Setter Property="Visibility" Value="Visible"/>
+                                    </DataTrigger>
+                                </Style.Triggers>
+                            </Style>
+                        </Grid.Style>
+                        <ListBox ItemsSource="{Binding PaidFamilies}"
+                                 ItemTemplate="{StaticResource FamilyRowTemplate}"
+                                 ItemContainerStyle="{StaticResource InvListBoxItemStyle}"
+                                 BorderThickness="0" Background="Transparent"
+                                 Focusable="False"
+                                 ScrollViewer.HorizontalScrollBarVisibility="Disabled"
+                                 ScrollViewer.VerticalScrollBarVisibility="Auto"
+                                 ScrollViewer.CanContentScroll="True"
+                                 ScrollViewer.IsDeferredScrollingEnabled="False"
+                                 ScrollViewer.PanningMode="None"
+                                 VirtualizingStackPanel.IsVirtualizing="True"
+                                 VirtualizingStackPanel.VirtualizationMode="Recycling"
+                                 VirtualizingStackPanel.ScrollUnit="Pixel"
+                                 VirtualizingStackPanel.CacheLength="200,400"
+                                 VirtualizingStackPanel.CacheLengthUnit="Pixel"
+                                 behaviors:SmoothScrollBehavior.IsEnabled="True">
+                            <ListBox.ItemsPanel>
+                                <ItemsPanelTemplate>
+                                    <VirtualizingStackPanel/>
+                                </ItemsPanelTemplate>
+                            </ListBox.ItemsPanel>
+                        </ListBox>
+                        <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
+                                    IsHitTestVisible="False">
+                            <StackPanel.Style>
+                                <Style TargetType="StackPanel">
+                                    <Setter Property="Visibility" Value="Collapsed"/>
+                                    <Style.Triggers>
+                                        <DataTrigger Binding="{Binding PaidFamilies.Count}" Value="0">
+                                            <Setter Property="Visibility" Value="Visible"/>
+                                        </DataTrigger>
+                                    </Style.Triggers>
+                                </Style>
+                            </StackPanel.Style>
+                            <emptyState:EmptyStateControl
+                                Icon="&#xE73E;"
+                                Title="No fully paid families yet"
+                                Message="Families appear here when every invoice in the family has been fully paid."/>
+                        </StackPanel>
+                    </Grid>
+                </Grid>
             </Grid>
-
-            <!-- TAB 1: HAS DRAFT -->
-            <Grid Grid.Row="1">
-                <Grid.Style>
-                    <Style TargetType="Grid">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding SelectedTabIndex}" Value="1">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Grid.Style>
-                <ListBox ItemsSource="{Binding DraftFamilies}"
-                         ItemTemplate="{StaticResource FamilyRowTemplate}"
-                         ItemContainerStyle="{StaticResource InvListBoxItemStyle}"
-                         BorderThickness="0" Background="Transparent"
-                         Focusable="False"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         ScrollViewer.CanContentScroll="True"
-                         ScrollViewer.IsDeferredScrollingEnabled="False"
-                         ScrollViewer.PanningMode="None"
-                         VirtualizingStackPanel.IsVirtualizing="True"
-                         VirtualizingStackPanel.VirtualizationMode="Recycling"
-                         VirtualizingStackPanel.ScrollUnit="Pixel"
-                         VirtualizingStackPanel.CacheLength="200,400"
-                         VirtualizingStackPanel.CacheLengthUnit="Pixel"
-                         behaviors:SmoothScrollBehavior.IsEnabled="True">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <VirtualizingStackPanel/>
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                </ListBox>
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                            IsHitTestVisible="False">
-                    <StackPanel.Style>
-                        <Style TargetType="StackPanel">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding DraftFamilies.Count}" Value="0">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </StackPanel.Style>
-                    <emptyState:EmptyStateControl
-                        Icon="&#xE70F;"
-                        Title="No families with draft invoices"
-                        Message="Families appear here while any of their invoices is still a draft — not yet issued to the customer."/>
-                </StackPanel>
-            </Grid>
-
-            <!-- TAB 2: HAS ISSUED -->
-            <Grid Grid.Row="1">
-                <Grid.Style>
-                    <Style TargetType="Grid">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding SelectedTabIndex}" Value="2">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Grid.Style>
-                <ListBox ItemsSource="{Binding IssuedFamilies}"
-                         ItemTemplate="{StaticResource FamilyRowTemplate}"
-                         ItemContainerStyle="{StaticResource InvListBoxItemStyle}"
-                         BorderThickness="0" Background="Transparent"
-                         Focusable="False"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         ScrollViewer.CanContentScroll="True"
-                         ScrollViewer.IsDeferredScrollingEnabled="False"
-                         ScrollViewer.PanningMode="None"
-                         VirtualizingStackPanel.IsVirtualizing="True"
-                         VirtualizingStackPanel.VirtualizationMode="Recycling"
-                         VirtualizingStackPanel.ScrollUnit="Pixel"
-                         VirtualizingStackPanel.CacheLength="200,400"
-                         VirtualizingStackPanel.CacheLengthUnit="Pixel"
-                         behaviors:SmoothScrollBehavior.IsEnabled="True">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <VirtualizingStackPanel/>
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                </ListBox>
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                            IsHitTestVisible="False">
-                    <StackPanel.Style>
-                        <Style TargetType="StackPanel">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding IssuedFamilies.Count}" Value="0">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </StackPanel.Style>
-                    <emptyState:EmptyStateControl
-                        Icon="&#xE72D;"
-                        Title="No families with issued invoices"
-                        Message="Once an invoice is issued to the customer, its family moves into this tab."/>
-                </StackPanel>
-            </Grid>
-
-            <!-- TAB 3: FULLY PAID -->
-            <Grid Grid.Row="1">
-                <Grid.Style>
-                    <Style TargetType="Grid">
-                        <Setter Property="Visibility" Value="Collapsed"/>
-                        <Style.Triggers>
-                            <DataTrigger Binding="{Binding SelectedTabIndex}" Value="3">
-                                <Setter Property="Visibility" Value="Visible"/>
-                            </DataTrigger>
-                        </Style.Triggers>
-                    </Style>
-                </Grid.Style>
-                <ListBox ItemsSource="{Binding PaidFamilies}"
-                         ItemTemplate="{StaticResource FamilyRowTemplate}"
-                         ItemContainerStyle="{StaticResource InvListBoxItemStyle}"
-                         BorderThickness="0" Background="Transparent"
-                         Focusable="False"
-                         ScrollViewer.HorizontalScrollBarVisibility="Disabled"
-                         ScrollViewer.VerticalScrollBarVisibility="Auto"
-                         ScrollViewer.CanContentScroll="True"
-                         ScrollViewer.IsDeferredScrollingEnabled="False"
-                         ScrollViewer.PanningMode="None"
-                         VirtualizingStackPanel.IsVirtualizing="True"
-                         VirtualizingStackPanel.VirtualizationMode="Recycling"
-                         VirtualizingStackPanel.ScrollUnit="Pixel"
-                         VirtualizingStackPanel.CacheLength="200,400"
-                         VirtualizingStackPanel.CacheLengthUnit="Pixel"
-                         behaviors:SmoothScrollBehavior.IsEnabled="True">
-                    <ListBox.ItemsPanel>
-                        <ItemsPanelTemplate>
-                            <VirtualizingStackPanel/>
-                        </ItemsPanelTemplate>
-                    </ListBox.ItemsPanel>
-                </ListBox>
-                <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center"
-                            IsHitTestVisible="False">
-                    <StackPanel.Style>
-                        <Style TargetType="StackPanel">
-                            <Setter Property="Visibility" Value="Collapsed"/>
-                            <Style.Triggers>
-                                <DataTrigger Binding="{Binding PaidFamilies.Count}" Value="0">
-                                    <Setter Property="Visibility" Value="Visible"/>
-                                </DataTrigger>
-                            </Style.Triggers>
-                        </Style>
-                    </StackPanel.Style>
-                    <emptyState:EmptyStateControl
-                        Icon="&#xE73E;"
-                        Title="No fully paid families yet"
-                        Message="Families appear here when every invoice in the family has been fully paid."/>
-                </StackPanel>
-            </Grid>
-
-        </Grid>
+        </Border>
     </Grid>
 </UserControl>

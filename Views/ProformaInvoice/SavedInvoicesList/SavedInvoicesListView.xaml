@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
+             xmlns:emptyState="clr-namespace:ProGlassAutomation.Controls.EmptyState"
+             xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
              mc:Ignorable="d"
              d:DesignHeight="800"
              d:DesignWidth="1400"
@@ -13,139 +15,15 @@
              TextOptions.TextHintingMode="Fixed"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
-    <!-- ═══════════════════════════════════════════════════════════════
-         MIGRATION LOG — Button Standardization (master prompt v1.0)
-         Date: 2026-08-15
-         • 5 inline button templates -> centralized styles:
-           REFRESH->PrimaryPill, TODAY->OutlinedPill, SHARE EXCEL->SuccessPill,
-           CLEAR->OutlinedPill, OPEN->PrimaryPill (MinWidth 90 row variant)
-         • Version-history emoji button -> OutlinedPill icon-only (E81C)
-         • Emojis removed: calendar, share, clock
-         • All buttons now carry the 4 required state triggers via the
-           centralized templates + ToolTips
-         Commands/bindings preserved; no ViewModel changes.
-    ═══════════════════════════════════════════════════════════════ -->
-
-    <!--
-    ═══════════════════════════════════════════════════════════════════
-    UX CLEANUP — Chat 14 Phase 1, File 2
-    ═══════════════════════════════════════════════════════════════════
-
-    BUG-88 [MED]: Loading spinner now rotates continuously (360° in 1.5s).
-                  Uses RotateTransform + Storyboard on the parent StackPanel.
-                  No code-behind needed.
-
-    BUG-89 [LOW]: StatCardStyle MinHeight="92" ensures all three stat cards
-                  have identical heights regardless of value text length.
-
-    NEW-N1 [LOW]: Filter labels changed from ALL CAPS to Title Case.
-                  Softer, matches modern UX patterns.
-
-    NEW-N2 [LOW]: Sort dropdown displays a small arrow icon indicating
-                  ASC/DESC direction. Purely visual — no VM changes.
-
-    NEW-N4 [MED]: Empty state message is now self-contained. Previous copy
-                  referenced a button that lives in the PARENT view
-                  (ProformaInvoiceView "+ Add Invoice"). New copy uses
-                  "Add your first invoice from the toolbar above" which
-                  is directionally correct without naming a button that
-                  might be renamed later.
-
-    NEW-N5 [LOW]: OPEN button margin/padding adjusted so it doesn't clip
-                  on Windows display scaling >100%.
-
-    NEW-N6 [HIGH]: ListBox VirtualizingStackPanel.ScrollUnit changed from
-                   "Item" to "Pixel". Master prompt gotcha #5:
-                   "VirtualizingStackPanel.ScrollUnit=Item conflicts with
-                   SmoothScroll". Also ScrollViewer.CanContentScroll set
-                   to False. Enables smooth pixel-based scrolling.
-
-    NEW-N7 [LOW]: Loading spinner and empty state now sit in distinct
-                  Grid rows with Panel.ZIndex so they cannot overlap
-                  during first paint.
-
-    NEW-N8 [LOW]: Refresh button uses VerticalAlignment="Center" against
-                  the stat card row so it aligns to card vertical center,
-                  not the row top.
-
-    CHAT 17 — UI Polish:
-    UI-01: Stat cards now use solid rich colors (indigo/blue/green) with
-           white text. Consistent with Sales Report rich color design.
-    UI-02: Filter section card has indigo top stripe + colored icon block.
-    UI-03: Row left accent bar now shows permanent status color, not just
-           on hover. Hover still adds MenuHoverBrush background.
-    UI-04: Hint card updated to solid indigo for stronger visibility.
-
-    Preserved:
-      ✅ All 3 stat cards (Total Invoices, Showing, Total Value)
-      ✅ Right-click context menu wiring (OnRowRightClick handler)
-      ✅ All filter fields (Search, Status, From, To, Sort By, Clear)
-      ✅ Virtualized ListBox with SmoothScrollBehavior
-      ✅ Status pill DataTriggers (Draft/Sent/Approved/Rejected/Expired)
-      ✅ Hint card ("Right-click any row for more options")
-      ✅ Sticky column header with 8-column grid
-    ═══════════════════════════════════════════════════════════════════
-    -->
 
     <UserControl.Resources>
 
-        <!-- ══════════════════════════════════════════════════════════════
-             STAT CARD — BUG-89: MinHeight for uniform heights
-             UI-01: now a base style only — each card sets its own color
-        ══════════════════════════════════════════════════════════════ -->
-        <Style x:Key="StatCardStyle" TargetType="Border">
-            <Setter Property="BorderThickness" Value="0"/>
-            <Setter Property="CornerRadius"    Value="12"/>
-            <Setter Property="Padding"         Value="20,16"/>
-            <Setter Property="Margin"          Value="0,0,16,0"/>
-            <Setter Property="MinWidth"        Value="170"/>
-            <Setter Property="MinHeight"       Value="92"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-        </Style>
-
-        <!-- ══════════════════════════════════════════════════════════════
-             FILTER TEXT INPUT
-        ══════════════════════════════════════════════════════════════ -->
-        <Style x:Key="FilterInputStyle" TargetType="TextBox">
-            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="Background"               Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground"               Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderBrush"              Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="BorderThickness"          Value="1"/>
-            <Setter Property="Padding"                  Value="12,0"/>
-            <Setter Property="Height"                   Value="38"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-        </Style>
-
-        <!-- ══════════════════════════════════════════════════════════════
-             FILTER COMBO
-        ══════════════════════════════════════════════════════════════ -->
-        <Style x:Key="FilterComboStyle" TargetType="ComboBox">
-            <Setter Property="Height"                   Value="38"/>
-            <Setter Property="MinWidth"                 Value="140"/>
-            <Setter Property="VerticalContentAlignment" Value="Center"/>
-            <Setter Property="Padding"                  Value="10,0"/>
-        </Style>
-
-        <!-- ══════════════════════════════════════════════════════════════
-             FILTER FIELD LABEL — NEW-N1: sentence case, softer weight
-        ══════════════════════════════════════════════════════════════ -->
-        <Style x:Key="FilterLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="11"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource MutedForegroundBrush}"/>
-            <Setter Property="Margin"     Value="0,0,0,6"/>
-        </Style>
-
-        <!-- ══════════════════════════════════════════════════════════════
-             STATUS PILL — saturated professional palette
-        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="StatusPillStyle" TargetType="Border">
-            <Setter Property="CornerRadius"        Value="10"/>
-            <Setter Property="Padding"             Value="12,5"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
+            <Setter Property="Padding" Value="10,4"/>
             <Setter Property="HorizontalAlignment" Value="Center"/>
-            <Setter Property="MinWidth"            Value="76"/>
-            <Setter Property="Background"          Value="{DynamicResource SecondaryForegroundBrush}"/>
+            <Setter Property="MinWidth" Value="76"/>
+            <Setter Property="Background" Value="{DynamicResource SecondaryForegroundBrush}"/>
             <Style.Triggers>
                 <DataTrigger Binding="{Binding Status}" Value="Draft">
                     <Setter Property="Background" Value="{DynamicResource SecondaryForegroundBrush}"/>
@@ -165,506 +43,234 @@
             </Style.Triggers>
         </Style>
 
-        <!-- ══════════════════════════════════════════════════════════════
-             EMPTY STATE
-        ══════════════════════════════════════════════════════════════ -->
         <Style x:Key="EmptyStateStyle" TargetType="StackPanel">
             <Setter Property="Visibility" Value="Collapsed"/>
             <Style.Triggers>
                 <MultiDataTrigger>
                     <MultiDataTrigger.Conditions>
                         <Condition Binding="{Binding FilteredCount}" Value="0"/>
-                        <Condition Binding="{Binding IsLoading}"     Value="False"/>
+                        <Condition Binding="{Binding IsLoading}" Value="False"/>
                     </MultiDataTrigger.Conditions>
                     <Setter Property="Visibility" Value="Visible"/>
                 </MultiDataTrigger>
             </Style.Triggers>
         </Style>
 
-        <!-- ══════════════════════════════════════════════════════════════
-             ROW CARD — UI-03: permanent left accent removed from style.
-             Left accent is now an inline Border per row (status-driven).
-             Hover still applies MenuHoverBrush background.
-        ══════════════════════════════════════════════════════════════ -->
-        <Style x:Key="RowCardStyle" TargetType="Border">
-            <Setter Property="Background"          Value="Transparent"/>
-            <Setter Property="CornerRadius"        Value="8"/>
-            <Setter Property="Margin"              Value="0,3"/>
-            <Setter Property="Padding"             Value="0"/>
-            <Setter Property="BorderThickness"     Value="0"/>
-            <Setter Property="SnapsToDevicePixels" Value="True"/>
-            <Style.Triggers>
-                <Trigger Property="IsMouseOver" Value="True">
-                    <Setter Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
-                </Trigger>
-            </Style.Triggers>
-        </Style>
-
-        <!-- ══════════════════════════════════════════════════════════════
-             ListBoxItem style — strips selection padding
-        ══════════════════════════════════════════════════════════════ -->
-        <Style x:Key="InvoiceListBoxItemStyle" TargetType="ListBoxItem">
-            <Setter Property="Padding"                    Value="0"/>
-            <Setter Property="Margin"                     Value="0"/>
-            <Setter Property="Background"                 Value="Transparent"/>
-            <Setter Property="BorderThickness"            Value="0"/>
-            <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-            <Setter Property="Focusable"                  Value="False"/>
-            <Setter Property="SnapsToDevicePixels"        Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="ListBoxItem">
-                        <ContentPresenter/>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+        <Style x:Key="InvoiceListBoxItemStyle" TargetType="ListBoxItem"
+               BasedOn="{StaticResource ModuleListBoxItemStyle}"/>
 
     </UserControl.Resources>
 
-    <!-- ═══════════════════════════════════════════════════════════════
-         ROOT LAYOUT — Sticky header + virtualized table
-    ═══════════════════════════════════════════════════════════════ -->
-    <Grid Background="{DynamicResource ModuleBackgroundBrush}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-
-        <!-- ═══════════════════════════════════════════════════════════
-             STICKY HEADER
-        ═══════════════════════════════════════════════════════════════ -->
-        <StackPanel Grid.Row="0" Margin="24,20,24,0">
-
-            <!-- ── STAT CARDS ROW ──────────────────────────────────── -->
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,20">
-
-                <!-- Card 1 — TOTAL INVOICES — solid indigo -->
-                <Border Style="{StaticResource StatCardStyle}"
-                        Background="{DynamicResource AccentBrush}"
-                        ClipToBounds="True">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="4"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <Border Grid.Row="0"
-                                Background="{DynamicResource AccentDarkBrush}"
-                                CornerRadius="12,12,0,0"/>
-                        <Border Grid.Row="1" Padding="20,14">
-                            <StackPanel>
-                                <TextBlock Text="TOTAL INVOICES"
-                                           FontSize="11"
-                                           FontWeight="Bold"
-                                           Foreground="#A5B4FC"
-                                           Margin="0,0,0,8"/>
-                                <TextBlock Text="{Binding TotalCount}"
-                                           FontSize="28"
-                                           FontWeight="Bold"
-                                           Foreground="White"/>
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-                </Border>
-
-                <!-- Card 2 — SHOWING — solid blue -->
-                <Border Style="{StaticResource StatCardStyle}"
-                        Background="{DynamicResource AccentDarkBrush}"
-                        ClipToBounds="True">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="4"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <Border Grid.Row="0"
-                                Background="{DynamicResource AccentDarkBrush}"
-                                CornerRadius="12,12,0,0"/>
-                        <Border Grid.Row="1" Padding="20,14">
-                            <StackPanel>
-                                <TextBlock Text="SHOWING"
-                                           FontSize="11"
-                                           FontWeight="Bold"
-                                           Foreground="#93C5FD"
-                                           Margin="0,0,0,8"/>
-                                <TextBlock Text="{Binding FilteredCount}"
-                                           FontSize="28"
-                                           FontWeight="Bold"
-                                           Foreground="White"/>
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-                </Border>
-
-                <!-- Card 3 — TOTAL VALUE — v2: brand blue (was green) -->
-                <Border Style="{StaticResource StatCardStyle}"
-                        Background="{DynamicResource AccentBrush}"
-                        MinWidth="220"
-                        ClipToBounds="True">
-                    <Grid>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="4"/>
-                            <RowDefinition Height="*"/>
-                        </Grid.RowDefinitions>
-                        <Border Grid.Row="0"
-                                Background="#065F46"
-                                CornerRadius="12,12,0,0"/>
-                        <Border Grid.Row="1" Padding="20,14">
-                            <StackPanel>
-                                <TextBlock Text="TOTAL VALUE"
-                                           FontSize="11"
-                                           FontWeight="Bold"
-                                           Foreground="#6EE7B7"
-                                           Margin="0,0,0,8"/>
-                                <TextBlock Text="{Binding TotalValueSum, StringFormat=AED {0:N2}}"
-                                           FontSize="24"
-                                           FontWeight="Bold"
-                                           Foreground="White"/>
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-                </Border>
-
-                <!--
-                    NEW-N8: VerticalAlignment="Center" anchors to stat card
-                    row center.
-                -->
-                <Button Style="{StaticResource PrimaryPillButton}"
-                        Command="{Binding RefreshCommand}"
-                        Margin="16,0,0,0"
-                        Tag="&#xE72C;" Content="REFRESH"
-                        ToolTip="Reload the invoice list"/>
-
-                <!-- v2: one-tap TODAY filter -->
-                <Button Style="{StaticResource OutlinedPillButton}"
-                        Command="{Binding SetTodayFilterCommand}"
-                        Margin="10,0,0,0"
-                        Tag="&#xE787;" Content="TODAY"
-                        ToolTip="Filter invoices prepared today"/>
-
-                <!-- v2: share the filtered list as one Excel table -->
-                <Button Style="{StaticResource SuccessPillButton}"
-                        Command="{Binding ExportFilteredExcelCommand}"
-                        Margin="10,0,0,0"
-                        Tag="&#xE72D;" Content="SHARE EXCEL"
-                        ToolTip="Export the filtered invoices as one Excel table"/>
-            </StackPanel>
-
-            <!-- ── SEARCH & FILTER SECTION ──────────────────────────── -->
-            <Border Background="{DynamicResource SideMenuBackgroundBrush}"
-                    CornerRadius="{DynamicResource CardCornerRadius}"
-                    BorderThickness="{DynamicResource CardBorderThickness}"
-                    BorderBrush="{DynamicResource OutlineBrush}"
-                    Margin="0,0,0,16"
-                    SnapsToDevicePixels="True"
-                    ClipToBounds="True">
-                <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="4"/>
-                        <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
-
-                    <!-- UI-02: indigo top stripe on filter card -->
-                    <Border Grid.Row="0"
-                            Background="{DynamicResource AccentBrush}"
-                            CornerRadius="12,12,0,0"/>
-
-                    <Border Grid.Row="1" Padding="24,16,24,20">
-                        <StackPanel>
-                            <StackPanel Orientation="Horizontal"
-                                        Margin="0,0,0,14">
-                                <Border Width="28"
-                                        Height="28"
-                                        Background="{DynamicResource AccentBrush}"
-                                        CornerRadius="{DynamicResource CardCornerRadius}"
-                                        Margin="0,0,10,0">
-                                    <TextBlock Text="&#xE721;"
-                                               FontFamily="Segoe MDL2 Assets"
-                                               FontSize="13"
-                                               Foreground="White"
-                                               HorizontalAlignment="Center"
-                                               VerticalAlignment="Center"/>
-                                </Border>
-                                <TextBlock Text="Search &amp; Filter"
-                                           FontSize="15"
-                                           FontWeight="Bold"
-                                           Foreground="{DynamicResource AccentBrush}"
-                                           VerticalAlignment="Center"/>
-                            </StackPanel>
-
-                            <!-- NEW-N1: Filter labels sentence-case -->
-                            <Grid>
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="2*"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="12"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-
-                                <!-- Search -->
-                                <StackPanel Grid.Column="0">
-                                    <TextBlock Text="Search"
-                                               Style="{StaticResource FilterLabelStyle}"/>
-                                    <TextBox Text="{Binding SearchText,
-                                                 UpdateSourceTrigger=PropertyChanged}"
-                                             Style="{StaticResource FilterInputStyle}"/>
-                                </StackPanel>
-
-                                <!-- Status -->
-                                <StackPanel Grid.Column="2">
-                                    <TextBlock Text="Status"
-                                               Style="{StaticResource FilterLabelStyle}"/>
-                                    <ComboBox ItemsSource="{Binding StatusFilterOptions}"
-                                              SelectedItem="{Binding SelectedStatusFilter}"
-                                              Style="{StaticResource FilterComboStyle}"/>
-                                </StackPanel>
-
-                                <!-- From date -->
-                                <StackPanel Grid.Column="4">
-                                    <TextBlock Text="From date"
-                                               Style="{StaticResource FilterLabelStyle}"/>
-                                    <DatePicker SelectedDate="{Binding FromDate}"
-                                                Height="38"
-                                                VerticalContentAlignment="Center"/>
-                                </StackPanel>
-
-                                <!-- To date -->
-                                <StackPanel Grid.Column="6">
-                                    <TextBlock Text="To date"
-                                               Style="{StaticResource FilterLabelStyle}"/>
-                                    <DatePicker SelectedDate="{Binding ToDate}"
-                                                Height="38"
-                                                VerticalContentAlignment="Center"/>
-                                </StackPanel>
-
-                                <!--
-                                    NEW-N2: Sort label includes ⇅ arrow hint
-                                -->
-                                <StackPanel Grid.Column="8">
-                                    <StackPanel Orientation="Horizontal">
-                                        <TextBlock Text="Sort by"
-                                                   Style="{StaticResource FilterLabelStyle}"/>
-                                        <TextBlock Text=" ⇅"
-                                                   FontSize="11"
-                                                   FontWeight="Bold"
-                                                   Foreground="{DynamicResource MutedForegroundBrush}"
-                                                   Margin="0,0,0,6"/>
-                                    </StackPanel>
-                                    <ComboBox ItemsSource="{Binding SortPresetOptions}"
-                                              SelectedItem="{Binding SelectedSortPreset}"
-                                              Style="{StaticResource FilterComboStyle}"/>
-                                </StackPanel>
-
-                                <!-- Clear button -->
-                                <Button Grid.Column="10"
-                                        Style="{StaticResource OutlinedPillButton}"
-                                        Command="{Binding ClearFiltersCommand}"
-                                        Margin="0,22,0,0"
-                                        MinWidth="92"
-                                        Tag="&#xE711;" Content="CLEAR"
-                                        ToolTip="Clear all search filters"/>
-                            </Grid>
-                        </StackPanel>
-                    </Border>
-                </Grid>
-            </Border>
-
-            <!-- ── HINT CARD — UI-04: solid indigo ──────────────────── -->
-            <Border Background="{DynamicResource AccentBrush}"
-                    CornerRadius="{DynamicResource ControlCornerRadius}"
-                    Padding="14,10"
-                    Margin="0,0,0,16"
-                    SnapsToDevicePixels="True">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Text="&#xE946;"
-                               FontFamily="Segoe MDL2 Assets"
-                               FontSize="14"
-                               Foreground="White"
-                               VerticalAlignment="Center"
-                               Margin="0,0,10,0"/>
-                    <TextBlock
-                        Text="Right-click any row for more options: Duplicate, Export PDF/Excel, Change Status, Delete"
-                        FontSize="12"
-                        FontWeight="SemiBold"
-                        Foreground="White"
-                        VerticalAlignment="Center"/>
-                </StackPanel>
-            </Border>
-        </StackPanel>
-
-        <!-- ═══════════════════════════════════════════════════════════
-             VIRTUALIZED TABLE — sticky column header + scrollable rows
-        ═══════════════════════════════════════════════════════════════ -->
-        <Border Grid.Row="1"
-                Background="{DynamicResource ModuleBackgroundBrush}"
-                BorderThickness="{DynamicResource CardBorderThickness}"
-                BorderBrush="{DynamicResource OutlineBrush}"
-                CornerRadius="{DynamicResource CardCornerRadius}"
-                Margin="24,0,24,16"
-                SnapsToDevicePixels="True">
+    <Grid Background="{DynamicResource WindowBackgroundBrush}">
+        <Border Style="{StaticResource ModuleListShellStyle}" Margin="0,0,0,4">
             <Grid>
                 <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <!-- Sticky table column header -->
-                <Border Grid.Row="0"
-                        Background="{DynamicResource AccentBrush}"
-                        CornerRadius="12,12,0,0"
-                        SnapsToDevicePixels="True">
+                <!-- KPI strip — same three numbers, compact industrial chrome -->
+                <Border Grid.Row="0" Style="{StaticResource ModuleListKpiStripStyle}">
                     <Grid>
                         <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="1.2*"/>
+                        </Grid.ColumnDefinitions>
+
+                        <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}"
+                                    Background="{DynamicResource TintBlueBrush}">
+                                <TextBlock Text="&#xE8A5;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="15"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Total" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding TotalCount}"
+                                           Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="All saved PIs"
+                                           Style="{StaticResource ModuleListKpiHintStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+
+                        <StackPanel Grid.Column="2" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}"
+                                    Background="{DynamicResource TintGreenBrush}">
+                                <TextBlock Text="&#xE8A3;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="15"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Showing" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding FilteredCount}"
+                                           Style="{StaticResource ModuleListKpiValueStyle}"/>
+                                <TextBlock Text="After filters"
+                                           Style="{StaticResource ModuleListKpiHintStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
+
+                        <StackPanel Grid.Column="4" Orientation="Horizontal" VerticalAlignment="Center">
+                            <Border Style="{StaticResource ModuleListKpiIconStyle}"
+                                    Background="{DynamicResource TintIndigoBrush}">
+                                <TextBlock Text="&#xE9D2;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="15"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           HorizontalAlignment="Center"
+                                           VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="Value" Style="{StaticResource ModuleListKpiLabelStyle}"/>
+                                <TextBlock Text="{Binding TotalValueSum, StringFormat=AED {0:N2}}"
+                                           Style="{StaticResource ModuleListKpiValueStyle}"
+                                           FontSize="20"/>
+                                <TextBlock Text="Filtered sum"
+                                           Style="{StaticResource ModuleListKpiHintStyle}"/>
+                            </StackPanel>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- One filter row — no fat search card, no hint banner -->
+                <Border Grid.Row="1" Style="{StaticResource ModuleListFilterBarStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="2*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="Auto"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="8"/>
+                            <ColumnDefinition Width="Auto"/>
+                        </Grid.ColumnDefinitions>
+
+                        <TextBox Grid.Column="0"
+                                 Text="{Binding SearchText, UpdateSourceTrigger=PropertyChanged}"
+                                 Style="{StaticResource ModuleListFilterInputStyle}"
+                                 ToolTip="Search ref, company, customer, project"/>
+
+                        <ComboBox Grid.Column="2"
+                                  ItemsSource="{Binding StatusFilterOptions}"
+                                  SelectedItem="{Binding SelectedStatusFilter}"
+                                  Style="{StaticResource ModuleListFilterComboStyle}"/>
+
+                        <DatePicker Grid.Column="4"
+                                    SelectedDate="{Binding FromDate}"
+                                    Height="38"
+                                    Width="128"
+                                    VerticalContentAlignment="Center"
+                                    ToolTip="From date"/>
+
+                        <DatePicker Grid.Column="6"
+                                    SelectedDate="{Binding ToDate}"
+                                    Height="38"
+                                    Width="128"
+                                    VerticalContentAlignment="Center"
+                                    ToolTip="To date"/>
+
+                        <ComboBox Grid.Column="8"
+                                  ItemsSource="{Binding SortPresetOptions}"
+                                  SelectedItem="{Binding SelectedSortPreset}"
+                                  Style="{StaticResource ModuleListFilterComboStyle}"/>
+
+                        <StackPanel Grid.Column="10" Orientation="Horizontal">
+                            <Button Style="{StaticResource OutlinedPillButton}"
+                                    Command="{Binding ClearFiltersCommand}"
+                                    Margin="0,0,8,0"
+                                    MinWidth="92"
+                                    Tag="&#xE711;" Content="CLEAR"
+                                    ToolTip="Clear all search filters"/>
+                            <Button Style="{StaticResource PrimaryPillButton}"
+                                    Command="{Binding RefreshCommand}"
+                                    Margin="0,0,8,0"
+                                    MinWidth="108"
+                                    Tag="&#xE72C;" Content="REFRESH"
+                                    ToolTip="Reload the invoice list"/>
+                            <Button Style="{StaticResource OutlinedPillButton}"
+                                    Command="{Binding SetTodayFilterCommand}"
+                                    Margin="0,0,8,0"
+                                    MinWidth="92"
+                                    Tag="&#xE787;" Content="TODAY"
+                                    ToolTip="Filter invoices prepared today"/>
+                            <Button Style="{StaticResource SuccessPillButton}"
+                                    Command="{Binding ExportFilteredExcelCommand}"
+                                    MinWidth="130"
+                                    Tag="&#xE72D;" Content="SHARE EXCEL"
+                                    ToolTip="Export the filtered invoices as one Excel table"/>
+                        </StackPanel>
+                    </Grid>
+                </Border>
+
+                <!-- Pale table header -->
+                <Border Grid.Row="2" Style="{StaticResource ModuleListTableHeaderStyle}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="3"/>
                             <ColumnDefinition Width="1.2*"/>
                             <ColumnDefinition Width="1.8*"/>
                             <ColumnDefinition Width="1.5*"/>
                             <ColumnDefinition Width="1.5*"/>
-                            <ColumnDefinition Width="100"/>
+                            <ColumnDefinition Width="110"/>
                             <ColumnDefinition Width="1.4*"/>
                             <ColumnDefinition Width="120"/>
                             <ColumnDefinition Width="160"/>
                         </Grid.ColumnDefinitions>
-
-                        <TextBlock Grid.Column="0" Text="REF #"
-                                   FontSize="11" FontWeight="Bold"
-                                   Foreground="White" Padding="14,14"/>
-                        <TextBlock Grid.Column="1" Text="COMPANY"
-                                   FontSize="11" FontWeight="Bold"
-                                   Foreground="White" Padding="14,14"/>
-                        <TextBlock Grid.Column="2" Text="CUSTOMER"
-                                   FontSize="11" FontWeight="Bold"
-                                   Foreground="White" Padding="14,14"/>
-                        <TextBlock Grid.Column="3" Text="PROJECT"
-                                   FontSize="11" FontWeight="Bold"
-                                   Foreground="White" Padding="14,14"/>
-                        <TextBlock Grid.Column="4" Text="STATUS"
-                                   FontSize="11" FontWeight="Bold"
-                                   Foreground="White" Padding="14,14"
+                        <TextBlock Grid.Column="1" Text="REF #" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="2" Text="COMPANY" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="3" Text="CUSTOMER" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="4" Text="PROJECT" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="5" Text="STATUS" Style="{StaticResource ModuleListHeaderTextStyle}"
                                    HorizontalAlignment="Center"/>
-                        <TextBlock Grid.Column="5" Text="GRAND TOTAL"
-                                   FontSize="11" FontWeight="Bold"
-                                   Foreground="White" Padding="14,14"
-                                   HorizontalAlignment="Center"/>
-                        <TextBlock Grid.Column="6" Text="DATE"
-                                   FontSize="11" FontWeight="Bold"
-                                   Foreground="White" Padding="14,14"/>
-                        <TextBlock Grid.Column="7" Text="ACTION"
-                                   FontSize="11" FontWeight="Bold"
-                                   Foreground="White" Padding="14,14"
-                                   HorizontalAlignment="Center"/>
+                        <TextBlock Grid.Column="6" Text="GRAND TOTAL" Style="{StaticResource ModuleListHeaderTextStyle}"
+                                   HorizontalAlignment="Right" Margin="0,0,12,0"/>
+                        <TextBlock Grid.Column="7" Text="DATE" Style="{StaticResource ModuleListHeaderTextStyle}"/>
+                        <TextBlock Grid.Column="8" Text="" Style="{StaticResource ModuleListHeaderTextStyle}"/>
                     </Grid>
                 </Border>
 
-                <!-- Table body -->
-                <!--
-                    NEW-N7: Loading and empty states isolated using
-                    Panel.ZIndex so they cannot render on top of each
-                    other or on top of the ListBox during first paint.
-                -->
-                <Grid Grid.Row="1">
+                <Grid Grid.Row="3">
+                    <loading:LoadingStateControl
+                            Panel.ZIndex="2"
+                            Visibility="{Binding IsLoading,
+                                         Converter={StaticResource BoolToVisibilityConverter}}"
+                            Message="Loading invoices…"/>
 
-                    <!--
-                        BUG-88: Loading spinner — continuous 360° rotation.
-                        RotateTransform with RenderTransformOrigin at center.
-                        Storyboard defined inline on Loaded event.
-                        No code-behind changes.
-                    -->
-                    <StackPanel Panel.ZIndex="2"
-                                HorizontalAlignment="Center"
-                                VerticalAlignment="Center"
-                                Margin="0,60"
-                                Visibility="{Binding IsLoading,
-                                    Converter={StaticResource BoolToVisibilityConverter}}">
-                        <Grid Width="36"
-                              Height="36"
-                              HorizontalAlignment="Center">
-                            <TextBlock x:Name="LoadingSpinner"
-                                       Text="&#xE895;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="36"
-                                       Foreground="{DynamicResource AccentBrush}"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"
-                                       RenderTransformOrigin="0.5,0.5">
-                                <TextBlock.RenderTransform>
-                                    <RotateTransform x:Name="LoadingRotate"
-                                                     Angle="0"/>
-                                </TextBlock.RenderTransform>
-                                <TextBlock.Triggers>
-                                    <EventTrigger RoutedEvent="Loaded">
-                                        <BeginStoryboard>
-                                            <Storyboard>
-                                                <DoubleAnimation
-                                                    Storyboard.TargetName="LoadingRotate"
-                                                    Storyboard.TargetProperty="Angle"
-                                                    From="0"
-                                                    To="360"
-                                                    Duration="0:0:1.5"
-                                                    RepeatBehavior="Forever"/>
-                                            </Storyboard>
-                                        </BeginStoryboard>
-                                    </EventTrigger>
-                                </TextBlock.Triggers>
-                            </TextBlock>
-                        </Grid>
-                        <TextBlock Text="Loading invoices..."
-                                   FontSize="12"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,12,0,0"/>
-                    </StackPanel>
-
-                    <!--
-                        NEW-N4: Empty state — self-contained message.
-                        Panel.ZIndex="1" — below loading spinner (ZIndex=2).
-                    -->
                     <StackPanel Panel.ZIndex="1"
                                 HorizontalAlignment="Center"
                                 VerticalAlignment="Center"
-                                Margin="0,40"
                                 IsHitTestVisible="False"
                                 Style="{StaticResource EmptyStateStyle}">
-                        <Border Width="72"
-                                Height="72"
-                                CornerRadius="{DynamicResource CardCornerRadius}"
-                                Background="{DynamicResource AccentBrush}"
-                                HorizontalAlignment="Center">
-                            <TextBlock Text="&#xE7C3;"
-                                       FontFamily="Segoe MDL2 Assets"
-                                       FontSize="32"
-                                       Foreground="White"
-                                       HorizontalAlignment="Center"
-                                       VerticalAlignment="Center"/>
-                        </Border>
-                        <TextBlock Text="No saved invoices found"
-                                   FontSize="16"
-                                   FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   HorizontalAlignment="Center"
-                                   Margin="0,16,0,6"/>
-                        <TextBlock Text="Add your first invoice from the toolbar above."
-                                   FontSize="12"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   HorizontalAlignment="Center"/>
+                        <emptyState:EmptyStateControl
+                            Icon="&#xE7C3;"
+                            Title="No saved invoices found"
+                            Message="Add your first invoice from the toolbar above."/>
                     </StackPanel>
 
-                    <!--
-                        NEW-N6 [HIGH]: ScrollUnit=Pixel, CanContentScroll=False
-                        for SmoothScrollBehavior compatibility.
-                    -->
                     <ListBox Panel.ZIndex="0"
                              ItemsSource="{Binding FilteredItems}"
                              ItemContainerStyle="{StaticResource InvoiceListBoxItemStyle}"
                              BorderThickness="0"
                              Background="Transparent"
                              Focusable="False"
-                             Margin="4,4,4,8"
                              ScrollViewer.HorizontalScrollBarVisibility="Disabled"
                              ScrollViewer.VerticalScrollBarVisibility="Auto"
                              ScrollViewer.CanContentScroll="True"
@@ -683,64 +289,45 @@
                         </ListBox.ItemsPanel>
                         <ListBox.ItemTemplate>
                             <DataTemplate>
-                                <!--
-                                    UI-03: Row now has permanent left accent
-                                    bar driven by status color. Implemented
-                                    as inner Grid with colored col 0.
-                                    RowCardStyle border stays as outer wrapper
-                                    for hover effect.
-                                -->
-                                <Border Style="{StaticResource RowCardStyle}"
+                                <Border Style="{StaticResource ModuleListRowStyle}"
                                         MouseRightButtonUp="OnRowRightClick"
-                                        ClipToBounds="True">
+                                        MinHeight="48">
                                     <Grid>
-                                        <!-- Left accent bar (col 0 = 4px) -->
                                         <Grid.ColumnDefinitions>
-                                            <ColumnDefinition Width="4"/>
+                                            <ColumnDefinition Width="3"/>
                                             <ColumnDefinition Width="1.2*"/>
                                             <ColumnDefinition Width="1.8*"/>
                                             <ColumnDefinition Width="1.5*"/>
                                             <ColumnDefinition Width="1.5*"/>
-                                            <ColumnDefinition Width="100"/>
+                                            <ColumnDefinition Width="110"/>
                                             <ColumnDefinition Width="1.4*"/>
                                             <ColumnDefinition Width="120"/>
                                             <ColumnDefinition Width="160"/>
                                         </Grid.ColumnDefinitions>
 
-                                        <!-- Status-driven left accent border -->
                                         <Border Grid.Column="0">
                                             <Border.Style>
                                                 <Style TargetType="Border">
                                                     <Setter Property="Background"
                                                             Value="{DynamicResource SecondaryForegroundBrush}"/>
                                                     <Style.Triggers>
-                                                        <DataTrigger
-                                                            Binding="{Binding Status}"
-                                                            Value="Draft">
+                                                        <DataTrigger Binding="{Binding Status}" Value="Draft">
                                                             <Setter Property="Background"
                                                                     Value="{DynamicResource SecondaryForegroundBrush}"/>
                                                         </DataTrigger>
-                                                        <DataTrigger
-                                                            Binding="{Binding Status}"
-                                                            Value="Sent">
+                                                        <DataTrigger Binding="{Binding Status}" Value="Sent">
                                                             <Setter Property="Background"
                                                                     Value="{DynamicResource AccentDarkBrush}"/>
                                                         </DataTrigger>
-                                                        <DataTrigger
-                                                            Binding="{Binding Status}"
-                                                            Value="Approved">
+                                                        <DataTrigger Binding="{Binding Status}" Value="Approved">
                                                             <Setter Property="Background"
                                                                     Value="{DynamicResource SuccessBrush}"/>
                                                         </DataTrigger>
-                                                        <DataTrigger
-                                                            Binding="{Binding Status}"
-                                                            Value="Rejected">
+                                                        <DataTrigger Binding="{Binding Status}" Value="Rejected">
                                                             <Setter Property="Background"
                                                                     Value="{DynamicResource DangerBrush}"/>
                                                         </DataTrigger>
-                                                        <DataTrigger
-                                                            Binding="{Binding Status}"
-                                                            Value="Expired">
+                                                        <DataTrigger Binding="{Binding Status}" Value="Expired">
                                                             <Setter Property="Background"
                                                                     Value="{DynamicResource WarningBrush}"/>
                                                         </DataTrigger>
@@ -749,50 +336,45 @@
                                             </Border.Style>
                                         </Border>
 
-                                        <!-- REF # -->
                                         <TextBlock Grid.Column="1"
                                                    Text="{Binding ProformaId}"
-                                                   FontSize="14"
+                                                   FontSize="13"
                                                    FontWeight="Bold"
                                                    Foreground="{DynamicResource AccentBrush}"
-                                                   Padding="14,14"
+                                                   Padding="14,12"
                                                    VerticalAlignment="Center"/>
 
-                                        <!-- COMPANY -->
                                         <TextBlock Grid.Column="2"
                                                    Text="{Binding CompanyName}"
                                                    FontSize="12"
                                                    TextTrimming="CharacterEllipsis"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                   Padding="14,14"
+                                                   Padding="14,12"
                                                    VerticalAlignment="Center"
                                                    ToolTip="{Binding CompanyName}"/>
 
-                                        <!-- CUSTOMER -->
                                         <TextBlock Grid.Column="3"
                                                    Text="{Binding CustomerName}"
                                                    FontSize="12"
                                                    TextTrimming="CharacterEllipsis"
                                                    Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                                   Padding="14,14"
+                                                   Padding="14,12"
                                                    VerticalAlignment="Center"
                                                    ToolTip="{Binding CustomerName}"/>
 
-                                        <!-- PROJECT -->
                                         <TextBlock Grid.Column="4"
                                                    Text="{Binding ProjectName}"
                                                    FontSize="12"
                                                    TextTrimming="CharacterEllipsis"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   Padding="14,14"
+                                                   Padding="14,12"
                                                    VerticalAlignment="Center"
                                                    ToolTip="{Binding ProjectName}"/>
 
-                                        <!-- STATUS pill (computed business status) -->
                                         <Border Grid.Column="5"
                                                 CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                Padding="12,5"
-                                                MinWidth="110"
+                                                Padding="10,4"
+                                                MinWidth="88"
                                                 HorizontalAlignment="Center"
                                                 VerticalAlignment="Center"
                                                 Background="{Binding DisplayStatusBrushKey,
@@ -805,54 +387,46 @@
                                                        TextTrimming="CharacterEllipsis"/>
                                         </Border>
 
-                                        <!-- GRAND TOTAL -->
                                         <TextBlock Grid.Column="6"
-                                                   Text="{Binding GrandTotal,
-                                                       StringFormat=AED {0:N2}}"
-                                                   FontSize="14"
+                                                   Text="{Binding GrandTotal, StringFormat=AED {0:N2}}"
+                                                   FontSize="13"
                                                    FontWeight="Bold"
-                                                   Foreground="{DynamicResource SuccessBrush}"
-                                                   Padding="14,14"
-                                                   HorizontalAlignment="Center"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                                   Padding="14,12"
+                                                   HorizontalAlignment="Right"
                                                    VerticalAlignment="Center"/>
 
-                                        <!-- DATE -->
                                         <TextBlock Grid.Column="7"
-                                                   Text="{Binding CreatedAt,
-                                                       StringFormat=dd MMM yyyy}"
+                                                   Text="{Binding CreatedAt, StringFormat=dd MMM yyyy}"
                                                    FontSize="12"
                                                    Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                                   Padding="14,14"
+                                                   Padding="14,12"
                                                    VerticalAlignment="Center"/>
 
-                                        <!--
-                                            NEW-N5: OPEN button sizing hardened
-                                            for DPI scaling.
-                                        -->
                                         <StackPanel Grid.Column="8"
                                                     Orientation="Horizontal"
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center">
-<Button Style="{StaticResource RowPrimaryButton}"
-                                                Command="{Binding DataContext.LoadInvoiceCommand,
-                                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}"
-                                                ToolTip="Open &amp; Edit (right-click for more options)"
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"
-                                                Margin="6,0"
-                                                MinWidth="90"
-                                                Tag="&#xE8E5;" Content="OPEN"/>
-                                        <Button Style="{StaticResource RowOutlinedButton}"
-                                                Command="{Binding DataContext.ShowVersionsCommand,
-                                                    RelativeSource={RelativeSource AncestorType=UserControl}}"
-                                                CommandParameter="{Binding}"
-                                                ToolTip="Version history"
-                                                HorizontalAlignment="Center"
-                                                VerticalAlignment="Center"
-                                                Margin="6,0,0,0"
-                                                MinWidth="40"
-                                                Tag="&#xE81C;"/>
+                                            <Button Style="{StaticResource RowPrimaryButton}"
+                                                    Command="{Binding DataContext.LoadInvoiceCommand,
+                                                        RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    ToolTip="Open &amp; Edit (right-click for more options)"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    Margin="6,0"
+                                                    MinWidth="72"
+                                                    Tag="&#xE8E5;" Content="OPEN"/>
+                                            <Button Style="{StaticResource RowOutlinedButton}"
+                                                    Command="{Binding DataContext.ShowVersionsCommand,
+                                                        RelativeSource={RelativeSource AncestorType=UserControl}}"
+                                                    CommandParameter="{Binding}"
+                                                    ToolTip="Version history"
+                                                    HorizontalAlignment="Center"
+                                                    VerticalAlignment="Center"
+                                                    Margin="4,0,8,0"
+                                                    MinWidth="36"
+                                                    Tag="&#xE81C;"/>
                                         </StackPanel>
                                     </Grid>
                                 </Border>

@@ -230,37 +230,17 @@ CHAT 17 — LAYOUT FIX
                     <StackPanel Grid.Column="0" VerticalAlignment="Center">
                         <TextBlock Text="Proforma Invoices"
                                    Style="{StaticResource ModulePageTitleStyle}"/>
-                        <TextBlock Text="Browse, create, edit and export proforma invoices with ease."
+                        <TextBlock Text="Saved quotations ready to convert into job orders"
                                    Style="{StaticResource ModulePageSubtitleStyle}"/>
                     </StackPanel>
 
                     <Button Grid.Column="1"
                             Command="{Binding NewInvoiceCommand}"
-                            Style="{StaticResource HeroPillButton}"
-                            VerticalAlignment="Center">
-                        <StackPanel Orientation="Horizontal"
-                                    VerticalAlignment="Center">
-                            <Border Background="#FFFFFF"
-                                    Width="22"
-                                    Height="22"
-                                    CornerRadius="{DynamicResource CardCornerRadius}"
-                                    Margin="0,0,10,0"
-                                    VerticalAlignment="Center">
-                                <TextBlock Text="+"
-                                           FontSize="16"
-                                           FontWeight="Bold"
-                                           Foreground="{DynamicResource AccentBrush}"
-                                           HorizontalAlignment="Center"
-                                           VerticalAlignment="Center"
-                                           Margin="0,-2,0,0"/>
-                            </Border>
-                            <TextBlock Text="Add Invoice"
-                                       FontSize="13"
-                                       FontWeight="SemiBold"
-                                       Foreground="White"
-                                       VerticalAlignment="Center"/>
-                        </StackPanel>
-                    </Button>
+                            Style="{StaticResource PrimaryPillButton}"
+                            Tag="&#xE710;"
+                            Content="NEW INVOICE"
+                            VerticalAlignment="Center"
+                            ToolTip="Create a new proforma invoice"/>
                 </Grid>
 
                 <!-- Saved invoices list -->

@@ -11,7 +11,12 @@ Mockups (approve before any view rewrite):
 
 One chrome language. Four modules. Same 12 px tokens already on the Appearance slider.
 
-## What changes (if approved)
+## Status — APPLIED (2026-08-18)
+
+Chrome only. Bindings, commands, tab `x:Name`s, and right-click handlers
+were not rewritten. `tools/xaml-guard.py` clean.
+
+## What changed
 
 Content of the four list `UserControl`s only. **Not** MainWindow / sidebar / splash / printable invoice.
 
