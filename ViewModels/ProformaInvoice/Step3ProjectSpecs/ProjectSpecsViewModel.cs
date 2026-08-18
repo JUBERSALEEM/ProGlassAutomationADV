@@ -9,7 +9,6 @@
 //     4. LoadProjectFromCard sets ProjectReference from card
 //   All P-01..P-10 features + client filter logic preserved.
 // ═══════════════════════════════════════════════════════════════════════
-
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.MasterData;
 using System;
@@ -21,87 +20,6 @@ using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step3ProjectSpecs
 {
-    // ═══════════════════════════════════════════════════════════════════
-    //  PROJECT PROFILE CARD
-    // ═══════════════════════════════════════════════════════════════════
-
-    /// <summary>
-    /// Display model for a saved project card in the Fast Setup grid.
-    /// Built from <see cref="SavedProject"/> retrieved from masterdata.db.
-    ///
-    /// CHAT 15: ProjectReference field added.
-    /// </summary>
-    public class ProjectProfileCard : ViewModelBase
-    {
-        public int Id { get; set; }
-        public string ProjectIdentifierName { get; set; } = "";
-        public string ProjectContractNo { get; set; } = "";
-        public string ProjectReference { get; set; } = "";   // CHAT 15: NEW
-        public string SiteDeliveryLocation { get; set; } = "";
-        public string LpoNumber { get; set; } = "";
-        public string CustomerName { get; set; } = "";
-        public int UsageCount { get; set; }
-        public string LastUsed { get; set; } = "";
-
-        /// <summary>Usage badge label.</summary>
-        public string UsageBadgeText =>
-            UsageCount > 0 ? $"Used {UsageCount}×" : "New";
-
-        /// <summary>Customer context shown on card.</summary>
-        public string CustomerPreview =>
-            string.IsNullOrWhiteSpace(CustomerName)
-                ? "No client linked"
-                : CustomerName;
-
-        /// <summary>
-        /// Contract number — with clear "Project Name/No:" prefix.
-        /// Truncated to 30 chars for card display.
-        /// </summary>
-        public string ContractPreview
-        {
-            get
-            {
-                if (string.IsNullOrWhiteSpace(ProjectContractNo))
-                    return "No project no.";
-                var v = ProjectContractNo.Length > 30
-                    ? ProjectContractNo.Substring(0, 30) + "…"
-                    : ProjectContractNo;
-                return v;
-            }
-        }
-
-        /// <summary>
-        /// CHAT 15: NEW — Project reference preview with clear label.
-        /// Descriptive text (e.g. "HOUSE FOR IMAD HABIB").
-        /// Truncated to 40 chars.
-        /// </summary>
-        public string ReferencePreview
-        {
-            get
-            {
-                if (string.IsNullOrWhiteSpace(ProjectReference))
-                    return "No reference";
-                return ProjectReference.Length > 40
-                    ? ProjectReference.Substring(0, 40) + "…"
-                    : ProjectReference;
-            }
-        }
-    }
-
-    // ═══════════════════════════════════════════════════════════════════
-    //  PROJECT SPECS VIEW MODEL
-    // ═══════════════════════════════════════════════════════════════════
-
-    /// <summary>
-    /// ViewModel for Step 3 of the Proforma Invoice wizard (was Step 2).
-    /// Handles project identification, contract numbers, delivery location,
-    /// LPO, and saved project card auto-fill.
-    ///
-    /// P-07: Shell VM calls SetClientFilter() when client card is clicked
-    ///       in Step 2. Client-matching projects float to top of list.
-    /// E-FIX: DateTime.HasValue removed — non-nullable DateTime.
-    /// CHAT 15: ProjectReference field added.
-    /// </summary>
     public class ProjectSpecsViewModel : ViewModelBase
     {
         // ── Guard while populating from card ──────────────────────────
