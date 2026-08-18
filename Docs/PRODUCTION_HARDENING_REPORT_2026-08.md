@@ -28,6 +28,18 @@
 | 11/12 (God-VM) | Extracted `StatementSnapshotProjector.FilterByInvoices` (filter + financial/aging recompute) from StatementGenerator VM into a static helper + added `StatementSnapshotProjectorTests` | `8abd438` | ✅ (static; needs Windows build/test) |
 | 11/12 (God-VM) | Extracted `PnLMeasurement` (SafeYield, MeasureGroup, BuildRowDescription) from ProfitLossStep VM | `a4943c0` | ✅ (static; needs Windows build) |
 | 11/12 (God-VM) | Extracted `PaymentTermsResolver` (label→due-days) from TaxInvoiceDetail VM + `PaymentTermsResolverTests` | `34e1343` | ✅ (static; needs Windows build/test) |
+| 11/12 (God-VM) | Split DeliveryNoteDetail: extracted `DnItemRowViewModel` + `DnHistoryEntryViewModel` (2134→1909) | `7d24ec1` | ✅ (static) |
+| 11/12 (God-VM) | Extracted `ModuleWallpaperRow` out of SettingsViewModel (1795→1703) | `783718e` | ✅ (static) |
+| 11/12 (God-VM) | Split DataGridViewModel into `GlassItemRow.cs` + `SpecGroup.cs` (2172→159) | `f826df7` | ✅ (static) |
+| 11/12 (God-VM) | Extracted `StatusCheckItem` out of StatementGenerator VM | `f1da849` | ✅ (static) |
+| 11/12 (God-VM) | Extracted `SpecCostGroup` + `ProfitLossRow` out of ProfitLossStep VM (1872→1587) | `bb46736` | ✅ (static) |
+| 11/12 (calc) | Centralized UAE 5% VAT totals into shared `InvoiceTotalsCalculator` (dedup VM + Mapper) + tests | `f6a22df` | ✅ (static) |
+| 11/12 (God-VM) | Extracted `StatementLogHelper` (log severity + image detect) from StatementGenerator VM | `95a957b` | ✅ (static) |
+| 11/12 (arch) | Extracted `UserWarningDecision` enum out of StatementWorkflowEngine | `da18f08` | ✅ (static) |
+| 11/12 (arch) | Split misleading `StatementGeneratorViewModel2.cs` into `StatementPreviewViewModel` + `PreviewRowViewModel` + `AgingBarViewModel` | `0450f38` | ✅ (static) |
+| 11/12 (God-VM) | Extracted `GlassTypeCard` + `SpecTargetGroup` out of PricingEstimator VM | `1b2a53e` | ✅ (static) |
+| 11/12 (God-VM) | Extracted `InvoiceItem` + `WizardStep` out of ProformaInvoiceViewModel | `a11ca77` | ✅ (static) |
+| 11/12 (God-VM) | Extracted `AppLogPanelViewModel` + `DiagnosticsTab` out of DiagnosticsViewModel | `9abf176` | ✅ (static) |
 | 16 — Final re-audit | Fresh static re-audit: 508 C# files brace-balanced + using-clean, 137 XAML well-formed, no stray duplicate type collisions (nested `Kind` + partial VMs in separate namespaces verified) | — | ✅ (static) |
 | 9 — Design system | Consolidated hardcoded `CornerRadius` values matching the canonical tokens (10/14/20/999) to the token resources across 58 views/controls (149 occurrences) — behavior-identical, no local overrides; Login glyph-prefixed input chrome left untouched | `ac42788` | ✅ (static; needs Windows build) |
 | 10 — Performance | Adopted `SheetStoreRepository.SearchAsync` in the Sheet Store VM (categorical filters pushed to SQL WHERE; generation-guarded async; `_allSheets` retained for import duplicate-detection) | `5749066` | ✅ (static; needs Windows build) |
@@ -39,7 +51,7 @@
 
 **Remaining (requires Windows build/runtime review + business sign-off — not blind-applicable):**
 - Phase 9 remainder — the **visual** redesign of the remaining module detail headers / wizard steps still needs Windows rendering review (the token consolidation is applied; appearance is unchanged by design).
-- Phase 11/12 remainder — further incremental God-ViewModel extraction (DeliveryNoteDetail 2134, TaxInvoiceDetail 2129, Settings 1795) is ongoing; each batch is a small, build-verified step.
+- Phase 11/12 remainder — the large God VMs have been split substantially (standalone classes extracted to dedicated files). The remaining big files are single classes whose logic is tightly coupled to instance state (TaxInvoiceDetail 2118, StatementGenerator 1950, DeliveryNoteDetail 1909, Settings 1701, ProfitLossStep 1587, PrintableInvoice 1564); further extraction means pulling instance methods into parameterised helpers, which is higher-risk and done build-verified, incrementally.
 - Phase 17 — `dotnet test` execution of the added test suite (requires Windows). **Not yet run/confirmed green.**
 - Phase 18 — Release build (requires Windows). **Not yet run.**
 - Windows build confirmation of the Phase 9/10/13 commits (`ac42788`, `5749066`, `ead18f5`) — they compile statically but must be built + smoke-tested (fresh-DB first-run force-password + lockout paths) on Windows.
