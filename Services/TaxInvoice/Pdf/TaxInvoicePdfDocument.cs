@@ -246,11 +246,9 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
         {
             container.PaddingBottom(10).Column(col =>
             {
-                col.Item()
-                    .Background(ACCENT)
-                    .PaddingHorizontal(8).PaddingVertical(5)
-                    .Text($"SPECIFICATION {group.GroupNumber}: {group.GroupName}")
-                    .FontSize(10).Bold().FontColor(Colors.White);
+                col.Item().Element(c =>
+                    PdfChrome.GroupBanner(c,
+                        $"Specification {group.GroupNumber}: {group.GroupName}"));
 
                 col.Item().Table(table =>
                 {
@@ -278,90 +276,83 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                         };
                         for (int i = 0; i < heads.Length; i++)
                         {
-                            bool center = i == 0 || (i >= 2 && i <= 8);
-                            var cell = header.Cell()
-                                .Background(TABLE_HDR)
-                                .PaddingHorizontal(4).PaddingVertical(4);
-                            var aligned = center ? cell.AlignCenter() : i >= 9 ? cell.AlignRight() : cell;
-                            aligned.Text(heads[i]).FontSize(8).Bold()
-                                .FontColor(Colors.White);
+                            bool center = i == 0 || (i >= 6 && i <= 8);
+                            bool right = (i >= 2 && i <= 5) || i >= 9;
+                            PdfChrome.HeaderCell(header.Cell(), heads[i],
+                                center: center, right: right);
                         }
                     });
 
                     bool altRow = false;
                     foreach (var row in group.Rows)
                     {
-                        string rowBg = altRow ? LIGHT_BG : WHITE;
+                        PdfChrome.DataCell(table.Cell(), row.Serial.ToString(),
+                            alt: altRow, center: true);
+                        PdfChrome.DataCell(table.Cell(), row.GlassRef, alt: altRow);
+                        PdfChrome.DataCell(table.Cell(), row.W1.ToString(),
+                            alt: altRow, right: true);
+                        PdfChrome.DataCell(table.Cell(), row.H1.ToString(),
+                            alt: altRow, right: true);
+                        PdfChrome.DataCell(table.Cell(),
+                            row.W2 > 0 ? row.W2.ToString() : "—",
+                            alt: altRow, right: true);
+                        PdfChrome.DataCell(table.Cell(),
+                            row.H2 > 0 ? row.H2.ToString() : "—",
+                            alt: altRow, right: true);
+                        PdfChrome.DataCell(table.Cell(), row.Qty.ToString(),
+                            alt: altRow, center: true, bold: true);
+                        PdfChrome.DataCell(table.Cell(), row.Sqm.ToString("0.000"),
+                            alt: altRow, center: true);
+                        PdfChrome.DataCell(table.Cell(), row.TotalSqm.ToString("0.000"),
+                            alt: altRow, center: true, bold: true);
+                        PdfChrome.DataCell(table.Cell(), $"AED {row.Rate:N2}",
+                            alt: altRow, right: true);
+                        PdfChrome.DataCell(table.Cell(), $"AED {row.Value:N2}",
+                            alt: altRow, right: true, bold: true, color: GREEN);
                         altRow = !altRow;
-
-                        AddTableCell(table, row.Serial.ToString(),
-                            rowBg, center: true);
-                        AddTableCell(table, row.GlassRef, rowBg);
-                        AddTableCellRight(table, row.W1.ToString(), rowBg);
-                        AddTableCellRight(table, row.H1.ToString(), rowBg);
-                        AddTableCellRight(table,
-                            row.W2 > 0 ? row.W2.ToString() : "—", rowBg);
-                        AddTableCellRight(table,
-                            row.H2 > 0 ? row.H2.ToString() : "—", rowBg);
-                        AddTableCellRight(table, row.Qty.ToString(), rowBg,
-                            bold: true);
-                        AddTableCell(table,
-                            row.Sqm.ToString("0.000"), rowBg, center: true);
-                        AddTableCell(table,
-                            row.TotalSqm.ToString("0.000"), rowBg,
-                            center: true, bold: true);
-                        AddTableCellRight(table,
-                            $"AED {row.Rate:N2}", rowBg);
-                        AddTableCellRight(table,
-                            $"AED {row.Value:N2}", rowBg,
-                            bold: true, color: GREEN);
                     }
                 });
 
-                col.Item()
-                    .Background(LIGHT_BG)
-                    .BorderBottom(1).BorderColor(LINE)
-                    .Table(footer =>
+                col.Item().Element(c =>
+                    PdfChrome.SubtotalBar(c,
+                        $"Group qty {group.TotalQty}  ·  {group.TotalSqm:0.000} sqm",
+                        $"AED {group.TotalValue:N2}"));
+            });
+        }
+
+        private void RenderGlassTotalsRow(IContainer container)
+        {
+            int totalQty = _ctx.SpecGroups.Sum(g => g.TotalQty);
+            decimal totalSqm = _ctx.SpecGroups.Sum(g => g.TotalSqm);
+            decimal totalValue = _ctx.SpecGroups.Sum(g => g.TotalValue);
+
+            PdfChrome.GrandTotal(container,
+                $"Glass items  ·  {totalQty} pcs  ·  {totalSqm:0.000} sqm",
+                $"AED {totalValue:N2}");
+        }
+
+        private void RenderFinancialSummary(IContainer container)
+        {
+            container
+                .PaddingTop(10)
+                .Row(outer =>
+                {
+                    outer.RelativeItem(1);
+
+                    outer.RelativeItem(1).Column(col =>
                     {
-                        footer.ColumnsDefinition(c =>
+                        AddSummaryRow(col, "Subtotal:",
+                            $"AED {_ctx.Subtotal:N2}");
+
+                        if (_ctx.DiscountAmount > 0)
                         {
-                            c.ConstantColumn(24);
-                            c.RelativeColumn(1.6f);
-                            c.ConstantColumn(36);
-                            c.ConstantColumn(36);
-                            c.ConstantColumn(32);
-                            c.ConstantColumn(32);
-                            c.ConstantColumn(30);
-                            c.RelativeColumn(0.75f);
-                            c.RelativeColumn(0.85f);
-                            c.RelativeColumn(0.80f);
-                            c.RelativeColumn(0.95f);
-                        });
+                            AddSummaryRow(col,
+                                $"Discount ({_ctx.DiscountPercent:0.##}%):",
+                                $"- AED {_ctx.DiscountAmount:N2}",
+                                color: AMBER);
+                        }
 
-                        footer.Cell().ColumnSpan(6)
-                            .PaddingHorizontal(6).PaddingVertical(6)
-                            .Text("GROUP TOTAL:")
-                            .FontSize(9).Bold().FontColor(ACCENT);
-
-                        footer.Cell()
-                            .PaddingHorizontal(4).PaddingVertical(6)
-                            .AlignRight()
-                            .Text(group.TotalQty.ToString())
-                            .FontSize(9).Bold().FontColor(ACCENT);
-
-                        footer.Cell()
-                            .PaddingHorizontal(4).PaddingVertical(6)
-                            .Text("");
-
-                        footer.Cell()
-                            .PaddingHorizontal(4).PaddingVertical(6)
-                            .AlignRight()
-                            .Text(group.TotalSqm.ToString("0.000"))
-                            .FontSize(9).Bold().FontColor(ACCENT);
-
-                        footer.Cell()
-                            .PaddingHorizontal(4).PaddingVertical(6)
-                  AddSummaryRow(col, "After Discount:",
+                        AddSummaryRow(col, "After Discount:",
                             $"AED {_ctx.AfterDiscount:N2}");
 
                         col.Item().PaddingVertical(3)
@@ -698,64 +689,6 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
             public string CustomerTrn { get; set; } = "";
             public string ContactPerson { get; set; } = "";
             public string CustomerAddress { get; set; } = "";
-
-            public string ProjectIdentifierName { get; set; } = "";
-            public string ProjectContractNo { get; set; } = "";
-            public string ProjectReference { get; set; } = "";
-            public string SiteDeliveryLocation { get; set; } = "";
-
-            public string ProformaId { get; set; } = "";
-            public string DeliveryNoteRef { get; set; } = "";
-            public string PurchaseOrderNumber { get; set; } = "";
-            public string PaymentTerms { get; set; } = "";
-
-            public decimal Subtotal { get; set; }
-            public decimal DiscountPercent { get; set; }
-            public decimal DiscountAmount { get; set; }
-            public decimal AfterDiscount { get; set; }
-            public decimal VatAmount { get; set; }
-            public decimal GrandTotal { get; set; }
-            public decimal PreviouslyInvoiced { get; set; }
-            public decimal RemainingBalance { get; set; }
-
-            public string BankName { get; set; } = "";
-            public string BankAccountNumber { get; set; } = "";
-            public string Iban { get; set; } = "";
-            public string SwiftCode { get; set; } = "";
-            public string PaymentNotes { get; set; } = "";
-
-            public string PreparedByName { get; set; } = "";
-            public string PreparedByTitle { get; set; } = "";
-
-            public List<InvRenderSpecGroup> SpecGroups { get; } = new();
-        }
-
-        private sealed class InvRenderSpecGroup
-        {
-            public int GroupNumber { get; set; }
-            public string GroupName { get; set; } = "";
-            public int TotalQty { get; set; }
-            public decimal TotalSqm { get; set; }
-            public decimal TotalValue { get; set; }
-            public List<InvRenderRow> Rows { get; } = new();
-        }
-
-        private sealed class InvRenderRow
-        {
-            public int Serial { get; set; }
-            public string GlassRef { get; set; } = "";
-            public int W1 { get; set; }
-            public int H1 { get; set; }
-            public int W2 { get; set; }
-            public int H2 { get; set; }
-            public int Qty { get; set; }
-            public decimal Sqm { get; set; }
-            public decimal TotalSqm { get; set; }
-            public decimal Rate { get; set; }
-            public decimal Value { get; set; }
-        }
-    }
-} set; } = "";
 
             public string ProjectIdentifierName { get; set; } = "";
             public string ProjectContractNo { get; set; } = "";

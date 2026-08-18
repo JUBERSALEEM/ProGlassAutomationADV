@@ -273,13 +273,13 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                     // Header row
                     t.Header(h =>
                     {
-                        HeaderCell(h.Cell(), "#");
-                        HeaderCell(h.Cell(), "GLASS REF");
-                        HeaderCell(h.Cell(), "W1");
-                        HeaderCell(h.Cell(), "H1");
-                        HeaderCell(h.Cell(), "W2");
-                        HeaderCell(h.Cell(), "H2");
-                        HeaderCell(h.Cell(), "QTY");
+                        PdfChrome.HeaderCell(h.Cell(), "#");
+                        PdfChrome.HeaderCell(h.Cell(), "GLASS REF");
+                        PdfChrome.HeaderCell(h.Cell(), "W1");
+                        PdfChrome.HeaderCell(h.Cell(), "H1");
+                        PdfChrome.HeaderCell(h.Cell(), "W2");
+                        PdfChrome.HeaderCell(h.Cell(), "H2");
+                        PdfChrome.HeaderCell(h.Cell(), "QTY");
                     });
 
                     if (group.ItemRows != null)
@@ -330,54 +330,6 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                 new SignatureSlot { Title = "Prepared by" },
                 new SignatureSlot { Title = "Verified by" },
                 new SignatureSlot { Title = "Received by" });
-        }
-
-        // ── Helpers ────�nstantItem(8);
-                SignatureCell(row, "Received By");
-            });
-        }
-
-        private static void SignatureCell(RowDescriptor row, string label)
-        {
-            row.RelativeItem().Column(col =>
-            {
-                col.Item().PaddingTop(30)
-                    .BorderBottom(0.75f)
-                    .BorderColor(DocumentStyle.ColorText);
-                col.Item().PaddingTop(3).Text(label)
-                    .FontSize(DocumentStyle.FontSizeCaption)
-                    .FontColor(DocumentStyle.ColorMuted);
-                col.Item().Text("Name: _____________________")
-                    .FontSize(DocumentStyle.FontSizeCaption)
-                    .FontColor(DocumentStyle.ColorMuted);
-                col.Item().Text("Date: _______________________")
-                    .FontSize(DocumentStyle.FontSizeCaption)
-                    .FontColor(DocumentStyle.ColorMuted);
-            });
-        }
-
-        // ── Table cell helpers ──────────────────────────────────────
-        private static void HeaderCell(IContainer cell, string text)
-        {
-            cell.Background(DocumentStyle.ColorAccent)
-                .PaddingHorizontal(DocumentStyle.TableCellPaddingH)
-                .PaddingVertical(DocumentStyle.TableCellPaddingV)
-                .AlignCenter()
-                .Text(text)
-                .FontSize(DocumentStyle.FontSizeSmall)
-                .Bold()
-                .FontColor(DocumentStyle.ColorWhite);
-        }
-
-        private static void DataCell(IContainer cell, string text)
-        {
-            cell.Border(0.5f)
-                .BorderColor(DocumentStyle.ColorBorder)
-                .PaddingHorizontal(DocumentStyle.TableCellPaddingH)
-                .PaddingVertical(DocumentStyle.TableCellPaddingV)
-                .AlignCenter()
-                .Text(text)
-                .FontSize(DocumentStyle.FontSizeSmall);
         }
 
         // ── Helpers ──────────────────────────────────────────────────
