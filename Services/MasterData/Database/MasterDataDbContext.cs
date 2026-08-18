@@ -43,12 +43,9 @@ namespace ProGlassAutomation.Services.MasterData.Database
         {
             get
             {
-                var folder = Path.Combine(
-                    Environment.GetFolderPath(
-                        Environment.SpecialFolder.ApplicationData),
-                    "ProGlassAutomation");
-
-                return Path.Combine(folder, "masterdata.db");
+                return Path.Combine(
+                    ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder,
+                    "masterdata.db");
             }
         }
 

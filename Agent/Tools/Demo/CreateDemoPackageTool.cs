@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 namespace ProGlassAutomation.Agent.Tools.Demo
 {
     /// <summary>
-    /// Read/navigation-tier tool: walks live screens and writes a local
-    /// storyboard. It never deletes ERP data. Seeding only happens when
-    /// SampleDataService reports the database is empty.
+    /// Records a real module walkthrough into a verified MP4.
+    /// Never deletes ERP data. Seeds only the isolated demo folder
+    /// when that folder is empty. Success requires a valid MP4.
     /// </summary>
     public sealed class CreateDemoPackageTool : IAgentTool
     {
@@ -18,7 +18,7 @@ namespace ProGlassAutomation.Agent.Tools.Demo
         public ToolDefinition Definition { get; } = new()
         {
             Name = "create_demo_package",
-            Description = "Record a local demo storyboard of a module (or all modules)",
+            Description = "Record a live module walkthrough and write a verified MP4 (fails if ffmpeg/TTS/frames are missing)",
             Risk = ToolRisk.Navigation,
             RequiredPermission = "",
             RequiresConfirmation = true
@@ -30,17 +30,18 @@ namespace ProGlassAutomation.Agent.Tools.Demo
             {
                 if (SharedDirector.State is DemoJobState.Recording
                     or DemoJobState.Preparing or DemoJobState.Analyzing
-                    or DemoJobState.Narrating or DemoJobState.Rendering)
+                    or DemoJobState.Narrating or DemoJobState.Rendering
+                    or DemoJobState.Validating or DemoJobState.Queued)
                 {
                     return ToolResult.Fail(
                         "A demo is already running. Cancel it first — two jobs " +
                         "must not fight over the same window.");
                 }
 
-                string result = await SharedDirector.RunAsync(argument).ConfigureAwait(false);
+                await DemoJobQueue.Shared.EnqueueAsync(argument).ConfigureAwait(false);
                 return SharedDirector.State == DemoJobState.Completed
-                    ? ToolResult.Ok(result)
-                    : ToolResult.Fail(result);
+                    ? ToolResult.Ok(SharedDirector.Status)
+                    : ToolResult.Fail(SharedDirector.Status);
             }
             catch (Exception ex)
             {

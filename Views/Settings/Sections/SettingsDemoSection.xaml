@@ -26,7 +26,7 @@
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
             <TextBlock Text="Demo Center" Style="{StaticResource PageTitleStyle}"/>
-            <TextBlock Text="Isolated storyboard recording of real modules. Never writes over customer data."
+            <TextBlock Text="Records the live Proforma Invoice wizard into a verified MP4. Isolated demo database. Missing MP4 is a failed job."
                        Style="{StaticResource PageSubtitleStyle}"
                        TextWrapping="Wrap"/>
         </StackPanel>
@@ -35,7 +35,7 @@
                       VerticalScrollBarVisibility="Auto"
                       HorizontalScrollBarVisibility="Disabled">
             <StackPanel Margin="32,0,32,32">
-                <Border Style="{StaticResource SectionCardStyle}">
+                <Border Style="{StaticResource SectionCardStyle}" CornerRadius="12">
                     <StackPanel>
                         <TextBlock Text="WORKFLOW" Style="{StaticResource SectionLabelStyle}"/>
                         <TextBlock Text="Module"
@@ -46,27 +46,62 @@
                                   MinWidth="220"
                                   Padding="10,7"
                                   FontSize="13"/>
-                        <StackPanel Orientation="Horizontal" Margin="0,16,0,0">
+                        <TextBlock Text="Only Proforma Invoice has a recorded wizard. Other modules fail honestly instead of writing a storyboard."
+                                   Style="{StaticResource HintTextStyle}"
+                                   Margin="0,8,0,0"/>
+                        <WrapPanel Margin="0,16,0,0">
                             <Button Style="{StaticResource OutlinedPillButton}"
                                     Content="GENERATE SELECTED"
-                                    Command="{Binding GenerateSelectedCommand}"/>
+                                    Command="{Binding GenerateSelectedCommand}"
+                                    Margin="0,0,10,8"/>
                             <Button Style="{StaticResource OutlinedPillButton}"
-                                    Content="GENERATE ALL"
+                                    Content="GENERATE ALL (PI ONLY)"
                                     Command="{Binding GenerateAllCommand}"
-                                    Margin="10,0,0,0"/>
+                                    Margin="0,0,10,8"/>
+                            <Button Style="{StaticResource RowOutlinedButton}"
+                                    Content="RETRY LAST"
+                                    Command="{Binding RetryCommand}"
+                                    Margin="0,0,10,8"/>
                             <Button Style="{StaticResource RowOutlinedButton}"
                                     Content="CANCEL"
                                     Command="{Binding CancelCommand}"
-                                    Margin="10,0,0,0"/>
+                                    Margin="0,0,10,8"/>
                             <Button Style="{StaticResource RowOutlinedButton}"
                                     Content="OPEN OUTPUT"
                                     Command="{Binding OpenOutputCommand}"
-                                    Margin="10,0,0,0"/>
-                        </StackPanel>
+                                    Margin="0,0,10,8"/>
+                        </WrapPanel>
                     </StackPanel>
                 </Border>
 
-                <Border Style="{StaticResource SectionCardStyle}">
+                <Border Style="{StaticResource SectionCardStyle}" CornerRadius="12">
+                    <StackPanel>
+                        <TextBlock Text="ISOLATION" Style="{StaticResource SectionLabelStyle}"/>
+                        <TextBlock Text="{Binding IsolationText}"
+                                   Style="{StaticResource HintTextStyle}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,8,0,0"/>
+                        <WrapPanel Margin="0,14,0,0">
+                            <Button Style="{StaticResource RowOutlinedButton}"
+                                    Content="ENTER DEMO MODE"
+                                    Command="{Binding EnterDemoCommand}"
+                                    Margin="0,0,10,8"/>
+                            <Button Style="{StaticResource RowOutlinedButton}"
+                                    Content="EXIT DEMO MODE"
+                                    Command="{Binding ExitDemoCommand}"
+                                    Margin="0,0,10,8"/>
+                            <Button Style="{StaticResource RowOutlinedButton}"
+                                    Content="RESET DEMO FOLDER"
+                                    Command="{Binding ResetDemoCommand}"
+                                    Margin="0,0,10,8"/>
+                        </WrapPanel>
+                        <TextBlock Text="Reset deletes only %AppData%/ProGlassAutomation.Demo. Production files are never opened or cleared."
+                                   Style="{StaticResource HintTextStyle}"
+                                   Margin="0,4,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource SectionCardStyle}" CornerRadius="12">
                     <StackPanel>
                         <TextBlock Text="STATUS" Style="{StaticResource SectionLabelStyle}"/>
                         <TextBlock Text="{Binding StateText}"
@@ -77,10 +112,40 @@
                                    Style="{StaticResource HintTextStyle}"
                                    TextWrapping="Wrap"
                                    Margin="0,8,0,0"/>
+                        <TextBlock Text="{Binding VerifiedText}"
+                                   Style="{StaticResource HintTextStyle}"
+                                   Margin="0,8,0,0"/>
+                        <TextBlock Text="{Binding LastMp4Text}"
+                                   Style="{StaticResource HintTextStyle}"
+                                   TextWrapping="Wrap"
+                                   Margin="0,8,0,0"/>
                         <TextBlock Text="{Binding FfmpegStatus}"
                                    Style="{StaticResource HintTextStyle}"
                                    TextWrapping="Wrap"
                                    Margin="0,10,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource SectionCardStyle}" CornerRadius="12">
+                    <StackPanel>
+                        <TextBlock Text="HISTORY" Style="{StaticResource SectionLabelStyle}"/>
+                        <ItemsControl ItemsSource="{Binding History}">
+                            <ItemsControl.ItemTemplate>
+                                <DataTemplate>
+                                    <StackPanel Margin="0,0,0,10">
+                                        <TextBlock FontSize="12" FontWeight="SemiBold"
+                                                   Foreground="{DynamicResource PrimaryForegroundBrush}">
+                                            <Run Text="{Binding Module, Mode=OneWay}"/>
+                                            <Run Text=" · "/>
+                                            <Run Text="{Binding State, Mode=OneWay}"/>
+                                        </TextBlock>
+                                        <TextBlock Text="{Binding Status}"
+                                                   Style="{StaticResource HintTextStyle}"
+                                                   TextWrapping="Wrap"/>
+                                    </StackPanel>
+                                </DataTemplate>
+                            </ItemsControl.ItemTemplate>
+                        </ItemsControl>
                     </StackPanel>
                 </Border>
             </StackPanel>

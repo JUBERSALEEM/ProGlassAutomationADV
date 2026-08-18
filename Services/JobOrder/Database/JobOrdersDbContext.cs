@@ -19,20 +19,13 @@ namespace ProGlassAutomation.Services.JobOrder.Database
     {
         public DbSet<SavedJobOrder> JobOrders { get; set; }
 
-        private static readonly string DbFolder = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "ProGlassAutomation");
-
-        private static readonly string DbPath = Path.Combine(DbFolder, "joborders.db");
-
-        public static string DatabaseFilePath => DbPath;
+        public static string DatabaseFilePath =>
+            Path.Combine(ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder, "joborders.db");
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            if (!Directory.Exists(DbFolder))
-                Directory.CreateDirectory(DbFolder);
-
-            options.UseSqlite($"Data Source={DbPath}");
+            Directory.CreateDirectory(Path.GetDirectoryName(DatabaseFilePath)!);
+            options.UseSqlite($"Data Source={DatabaseFilePath}");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

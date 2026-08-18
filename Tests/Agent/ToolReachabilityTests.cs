@@ -63,7 +63,8 @@ namespace ProGlassAutomation.Tests.Agent
             ["get_statement"] = "what is outstanding",
             ["get_sales_analytics"] = "how much did we sell this month",
             ["update_sheet_stock"] = "add 10 to sheet 42",
-            ["get_stock_detail"] = "how much did we purchase",
+            ["get_stock_detail"] = "running low",
+            ["get_stock_history"] = "how much did we purchase",
             ["create_demo_package"] = "create a demo for inventory"
         };
 

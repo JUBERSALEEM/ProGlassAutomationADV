@@ -240,7 +240,9 @@ CHAT 17 — LAYOUT FIX
                             Tag="&#xE710;"
                             Content="NEW INVOICE"
                             VerticalAlignment="Center"
-                            ToolTip="Create a new proforma invoice"/>
+                            ToolTip="Create a new proforma invoice"
+                            AutomationProperties.AutomationId="ProformaInvoice.NewInvoiceButton"
+                            AutomationProperties.Name="New Invoice"/>
                 </Grid>
 
                 <!-- Saved invoices list -->
@@ -673,7 +675,9 @@ CHAT 17 — LAYOUT FIX
                             <!-- BACK — step navigation only -->
                             <Button Grid.Column="0"
                                     Command="{Binding PreviousStepCommand}"
-                                    Style="{StaticResource NeutralPillButton}">
+                                    Style="{StaticResource NeutralPillButton}"
+                                    AutomationProperties.AutomationId="ProformaInvoice.BackButton"
+                                    AutomationProperties.Name="Back">
                                 <StackPanel Orientation="Horizontal"
                                             VerticalAlignment="Center">
                                     <TextBlock Text="&#xE76B;"
@@ -702,7 +706,9 @@ CHAT 17 — LAYOUT FIX
                             <!-- CONTINUE -->
                             <Button Grid.Column="2"
                                     Command="{Binding NextStepCommand}"
-                                    Style="{StaticResource HeroPillButton}">
+                                    Style="{StaticResource HeroPillButton}"
+                                    AutomationProperties.AutomationId="ProformaInvoice.ContinueButton"
+                                    AutomationProperties.Name="Continue">
                                 <StackPanel Orientation="Horizontal"
                                             VerticalAlignment="Center">
                                     <TextBlock Text="Continue"

@@ -24,12 +24,28 @@ namespace ProGlassAutomation.Tests.Agent
         }
 
         [Theory]
-        [InlineData("how much 6mm clear purchased", "get_stock_detail")]
-        [InlineData("6 clr kitna kharida", "get_stock_detail")]
-        [InlineData("how much did we buy", "get_stock_detail")]
-        public void Purchase_questions_reach_stock_detail(string phrase, string tool)
+        [InlineData("how much 6mm clear purchased", "get_stock_history")]
+        [InlineData("6 clr kitna kharida", "get_stock_history")]
+        [InlineData("how much did we buy", "get_stock_history")]
+        [InlineData("how much 6 clr glas purches", "get_stock_history")]
+        public void Purchase_questions_reach_stock_history(string phrase, string tool)
         {
             Assert.Contains(tool, Detect(phrase));
+        }
+
+        [Fact]
+        public void Typo_stock_question_reaches_inventory()
+        {
+            Assert.Contains("get_inventory", Detect("how much 6 clr glas stok"));
+        }
+
+        [Fact]
+        public void Follow_up_purchase_keeps_thickness()
+        {
+            Detect("how much 6 clr glas stok");
+            string second = Detect("what about purchase");
+            Assert.Contains("get_stock_history", second);
+            Assert.Contains("6mm", second);
         }
 
         [Fact]
@@ -52,6 +68,14 @@ namespace ProGlassAutomation.Tests.Agent
         public void Demo_command_is_reachable()
         {
             Assert.Contains("create_demo_package", Detect("make a demo for delivery note"));
+        }
+
+        [Fact]
+        public void Proforma_invoice_demo_names_the_module()
+        {
+            string intent = Detect("Create a Proforma Invoice demo.");
+            Assert.Contains("create_demo_package", intent);
+            Assert.Contains("ProformaInvoice", intent);
         }
 
         [Fact]

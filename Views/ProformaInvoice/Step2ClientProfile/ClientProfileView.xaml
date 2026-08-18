@@ -600,7 +600,9 @@ CHAT 17 — UI POLISH
                     </TextBlock>
                     <TextBox Text="{Binding CustomerName,
                                  UpdateSourceTrigger=PropertyChanged}"
-                             ToolTip="Enter the client's full company name"/>
+                             ToolTip="Enter the client's full company name"
+                             AutomationProperties.AutomationId="ProformaInvoice.CustomerName"
+                             AutomationProperties.Name="Customer name"/>
                     <!--
                         FIXED: No Style= attribute. TextBlock.Style with BasedOn only.
                     -->

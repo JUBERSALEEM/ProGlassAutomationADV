@@ -71,7 +71,10 @@ namespace ProGlassAutomation.Agent.Intent
 
             (new[] { "purchased", "purchase quantity", "how much did we buy",
                      "how much did we purchase", "consumed", "how much used",
-                     "last purchase", "which supplier", "running low",
+                     "sheet history", "stock history", "buy history" },
+                "get_stock_history"),
+
+            (new[] { "last purchase", "which supplier", "running low",
                      "stock breakdown", "available quantity" },
                 "get_stock_detail"),
 
@@ -218,8 +221,17 @@ namespace ProGlassAutomation.Agent.Intent
                     : "tool:create_demo_package";
             }
 
-            if (parsed.Metric is ErpMetric.Purchased or ErpMetric.Consumed
-                or ErpMetric.Supplier or ErpMetric.LastPurchase
+            if (parsed.Metric is ErpMetric.Purchased or ErpMetric.Consumed)
+            {
+                ConversationSlots.ApplyMissing(parsed);
+                string histFilter = parsed.FilterText();
+                ConversationSlots.Remember(parsed, "get_stock_history");
+                return histFilter.Length > 0
+                    ? $"tool:get_stock_history:{histFilter}"
+                    : "tool:get_stock_history";
+            }
+
+            if (parsed.Metric is ErpMetric.Supplier or ErpMetric.LastPurchase
                 or ErpMetric.Wastage or ErpMetric.LowStock)
             {
                 string filter = parsed.FilterText();

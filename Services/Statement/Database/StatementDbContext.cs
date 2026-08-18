@@ -27,12 +27,11 @@ namespace ProGlassAutomation.Services.Statement.Database
         {
             get
             {
-                string folder = Path.Combine(
-                    Environment.GetFolderPath(
-                        Environment.SpecialFolder.ApplicationData),
-                    "ProGlassAutomation");
-                Directory.CreateDirectory(folder);
-                return Path.Combine(folder, "statements.db");
+                Directory.CreateDirectory(
+                    ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder);
+                return Path.Combine(
+                    ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder,
+                    "statements.db");
             }
         }
 

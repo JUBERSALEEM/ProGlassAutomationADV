@@ -651,7 +651,9 @@ CHAT 17 — UI POLISH
                     </TextBlock>
                     <TextBox Text="{Binding CompanyName,
                                  UpdateSourceTrigger=PropertyChanged}"
-                             ToolTip="Enter your company's full legal registered name"/>
+                             ToolTip="Enter your company's full legal registered name"
+                             AutomationProperties.AutomationId="ProformaInvoice.CompanyName"
+                             AutomationProperties.Name="Company registered name"/>
                     <!--
                         FIXED: Style set via TextBlock.Style BasedOn only.
                         No Style= attribute on the TextBlock element.

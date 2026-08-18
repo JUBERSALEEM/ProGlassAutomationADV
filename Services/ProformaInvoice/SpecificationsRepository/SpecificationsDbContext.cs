@@ -19,22 +19,14 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
 
         /// <summary>Public accessor used by the schema migration runner.</summary>
         public static string DatabaseFilePath => Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "ProGlassAutomation", "specifications.db");
+            ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder,
+            "specifications.db");
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            var appDataPath = Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-                "ProGlassAutomation");
-
-            // Ensure folder exists
-            if (!Directory.Exists(appDataPath))
-                Directory.CreateDirectory(appDataPath);
-
-            var dbPath = Path.Combine(appDataPath, "specifications.db");
-
-            optionsBuilder.UseSqlite($"Data Source={dbPath}");
+            Directory.CreateDirectory(
+                ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder);
+            optionsBuilder.UseSqlite($"Data Source={DatabaseFilePath}");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

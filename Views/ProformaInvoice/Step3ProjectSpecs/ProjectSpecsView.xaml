@@ -702,7 +702,9 @@ CHAT 17 — UI POLISH + BUG FIXES
                     </TextBlock>
                     <TextBox Text="{Binding ProjectIdentifierName,
                                  UpdateSourceTrigger=PropertyChanged}"
-                             ToolTip="e.g. IMAD HABIB"/>
+                             ToolTip="e.g. IMAD HABIB"
+                             AutomationProperties.AutomationId="ProformaInvoice.ProjectName"
+                             AutomationProperties.Name="Project identifier name"/>
                 </StackPanel>
 
                 <StackPanel Grid.Column="2">

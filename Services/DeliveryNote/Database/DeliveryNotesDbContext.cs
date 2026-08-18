@@ -32,12 +32,9 @@ namespace ProGlassAutomation.Services.DeliveryNote.Database
         {
             get
             {
-                var folder = Path.Combine(
-                    Environment.GetFolderPath(
-                        Environment.SpecialFolder.ApplicationData),
-                    "ProGlassAutomation");
-
-                return Path.Combine(folder, "deliverynotes.db");
+                return Path.Combine(
+                    ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder,
+                    "deliverynotes.db");
             }
         }
 

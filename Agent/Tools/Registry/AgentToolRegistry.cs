@@ -50,6 +50,8 @@ namespace ProGlassAutomation.Agent.Tools.Registry
                 new SearchTaxInvoiceTool(),
                 new SearchCustomerTool(),
                 new GetInventoryTool(),
+                new GetStockDetailTool(),
+                new GetStockHistoryTool(),
                 new GetActivityTool(),
 
                 // PHASE N — reads the profit Step 9 already computed and
@@ -92,7 +94,11 @@ namespace ProGlassAutomation.Agent.Tools.Registry
                 // Scope is deliberately one sheet and one quantity per
                 // call, capped, reversible, and audited with before/after
                 // values. No deletion, no pricing, no bulk operations.
-                new UpdateSheetStockTool()
+                new UpdateSheetStockTool(),
+
+                // Isolated demo recording. Navigation-tier: it never
+                // deletes ERP data. Success requires a verified MP4.
+                new CreateDemoPackageTool()
             };
 
             var map = new Dictionary<string, IAgentTool>(StringComparer.OrdinalIgnoreCase);

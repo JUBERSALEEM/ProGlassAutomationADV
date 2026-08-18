@@ -27,12 +27,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         {
             get
             {
-                var appDataFolder = Path.Combine(
-                    Environment.GetFolderPath(
-                        Environment.SpecialFolder.ApplicationData),
-                    "ProGlassAutomation");
-
-                return Path.Combine(appDataFolder, "proformainvoices.db");
+                return Path.Combine(
+                    ProGlassAutomation.Services.Database.AppDataRoot.CurrentFolder,
+                    "proformainvoices.db");
             }
         }
 

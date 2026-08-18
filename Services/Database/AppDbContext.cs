@@ -20,20 +20,13 @@ namespace ProGlassAutomation.Services.Database
         // Future modules add DbSets here:
         // public DbSet<ProformaInvoice> ProformaInvoices { get; set; }
 
-        private static readonly string DbFolder = Path.Combine(
-            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
-            "ProGlassAutomation");
-
-        private static readonly string DbPath = Path.Combine(DbFolder, "proglass.db");
-
-        public static string DatabaseFilePath => DbPath;
+        public static string DatabaseFilePath =>
+            Path.Combine(AppDataRoot.CurrentFolder, "proglass.db");
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {
-            if (!Directory.Exists(DbFolder))
-                Directory.CreateDirectory(DbFolder);
-
-            options.UseSqlite($"Data Source={DbPath}");
+            Directory.CreateDirectory(AppDataRoot.CurrentFolder);
+            options.UseSqlite($"Data Source={DatabaseFilePath}");
         }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)

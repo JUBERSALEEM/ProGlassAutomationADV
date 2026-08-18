@@ -1,16 +1,18 @@
-using ProGlassAutomation.Agent.Core;
-using ProGlassAutomation.Services.Export;
-using ProGlassAutomation.Services.SampleData;
+using ProGlassAutomation.Agent.Demo.Data;
+using ProGlassAutomation.Agent.Demo.Recording;
+using ProGlassAutomation.Agent.Demo.Tts;
+using ProGlassAutomation.Agent.Demo.Video;
+using ProGlassAutomation.Agent.Demo.Workflows;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
-using System.Linq;
 using System.IO;
+using System.Linq;
 using System.Text;
+using System.Text.Json;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Windows;
-using System.Windows.Media.Imaging;
 
 namespace ProGlassAutomation.Agent.Demo
 {
@@ -20,15 +22,35 @@ namespace ProGlassAutomation.Agent.Demo
         Rendering, Validating, Completed, Failed, Cancelled
     }
 
+    public sealed class DemoJobRecord
+    {
+        public DateTime StartedUtc { get; init; } = DateTime.UtcNow;
+        public string Module { get; init; } = "";
+        public string State { get; init; } = "";
+        public string Status { get; init; } = "";
+        public string? Mp4Path { get; init; }
+        public string? Folder { get; init; }
+        public int VerifiedEvents { get; init; }
+    }
+
     /// <summary>
-    /// Walks real Navigate() targets, captures the live window, writes a
-    /// storyboard package. Never deletes ERP data. Seeds only when empty.
+    /// Isolated demo folder → seed if empty → record the live wizard →
+    /// speak only verified events → mux a real MP4. No MP4 means Failed.
+    /// HTML / AVI / SRT are sidecars, never success.
     /// </summary>
     public sealed class DemoDirector
     {
+        public const int RecordFps = 8;
+
         public DemoJobState State { get; private set; } = DemoJobState.Queued;
         public string Status { get; private set; } = "";
         public string? LastOutputFolder { get; private set; }
+        public string? LastMp4Path { get; private set; }
+        public string? LastArgument { get; private set; }
+        public int VerifiedEventCount { get; private set; }
+        public string FfmpegHint { get; private set; } = "";
+
+        public ObservableCollection<DemoJobRecord> History { get; } = new();
 
         public event Action? Changed;
 
@@ -42,149 +64,328 @@ namespace ProGlassAutomation.Agent.Demo
             _cts = new CancellationTokenSource();
             var ct = _cts.Token;
             var log = new StringBuilder();
+            LastArgument = argument;
+            LastMp4Path = null;
+            VerifiedEventCount = 0;
 
             try
             {
-                Set(DemoJobState.Analyzing, "Discovering workflows from the Navigate switch.");
-                var workflows = DemoWorkflowCatalog.Resolve(argument).ToList();
-                if (workflows.Count == 0)
+                Set(DemoJobState.Analyzing, "Resolving a recorded workflow.");
+                var runner = ResolveRunner(argument, out string module, out string reason);
+                log.AppendLine(reason);
+                if (runner == null)
                 {
-                    Set(DemoJobState.Failed, "No matching module. I will not invent one.");
+                    Fail(module, reason, log, folder: null);
                     return Status;
                 }
-                log.AppendLine($"Workflows: {string.Join(", ", workflows.ConvertAll(w => w.Id))}");
 
-                Set(DemoJobState.Preparing, "Checking demo isolation.");
-                var (canSeed, seedReason) = await DemoIsolation.CanSeedAsync().ConfigureAwait(false);
-                log.AppendLine(seedReason);
-                if (canSeed)
+                Set(DemoJobState.Preparing, "Entering isolated Demo Mode.");
+                var entered = await DemoModeService.EnterAndSeedAsync(ct).ConfigureAwait(false);
+                log.AppendLine(entered.Message);
+                if (!entered.Ok)
                 {
-                    string seeded = await SampleDataService.SeedAsync().ConfigureAwait(false);
-                    log.AppendLine(seeded);
+                    Fail(module, entered.Message, log, folder: null);
+                    return Status;
                 }
 
-                string folder = DemoPackageComposer.NewJobFolder(
-                    workflows.Count == 1 ? workflows[0].Id : "All");
+                string folder = NewJobFolder(module);
                 LastOutputFolder = folder;
-                var steps = new List<DemoStepResult>();
+                log.AppendLine("Output: " + folder);
 
-                foreach (var wf in workflows)
+                Set(DemoJobState.Recording, "Recording the live Proforma Invoice wizard.");
+                var framesDir = Path.Combine(folder, "frames");
+                Directory.CreateDirectory(framesDir);
+                using var recorder = new WindowScreenRecorder();
+                recorder.Start(framesDir, RecordFps);
+
+                IReadOnlyList<VerifiedEvent> events;
+                try
+                {
+                    events = await runner.RunAsync(ct).ConfigureAwait(false);
+                }
+                finally
+                {
+                    await recorder.StopAsync().ConfigureAwait(false);
+                }
+
+                VerifiedEventCount = events.Count;
+                File.WriteAllText(
+                    Path.Combine(folder, "events.json"),
+                    JsonSerializer.Serialize(events.Select(e => new
+                    {
+                        e.Id, e.Title, e.Narration, e.Evidence, e.Utc
+                    }), new JsonSerializerOptions { WriteIndented = true }));
+                log.AppendLine($"Verified events: {events.Count}");
+
+                if (events.Count == 0)
+                {
+                    Fail(module,
+                        "No wizard action was verified. I will not narrate a walkthrough that did not run.",
+                        log, folder);
+                    return Status;
+                }
+
+                var jpegs = recorder.Frames
+                    .Select(f => f.Path)
+                    .Where(File.Exists)
+                    .ToList();
+                log.AppendLine($"Frames captured: {jpegs.Count}");
+                if (jpegs.Count == 0)
+                {
+                    Fail(module,
+                        "The recorder captured no frames. There is no video to encode.",
+                        log, folder);
+                    return Status;
+                }
+
+                Set(DemoJobState.Narrating, "Speaking only the verified events to WAV.");
+                var audioDir = Path.Combine(folder, "audio");
+                Directory.CreateDirectory(audioDir);
+                var wavs = new List<string>();
+                var beats = new List<(string Text, TimeSpan Duration)>();
+                var narration = new StringBuilder();
+
+                for (int i = 0; i < events.Count; i++)
                 {
                     ct.ThrowIfCancellationRequested();
-                    Set(DemoJobState.Recording, $"Opening {wf.Title}.");
+                    var ev = events[i];
+                    narration.AppendLine($"[{i + 1}] {ev.Title}");
+                    narration.AppendLine(ev.Narration);
+                    narration.AppendLine("evidence: " + ev.Evidence);
+                    narration.AppendLine();
 
-                    bool navigated = false;
-                    string navLog = "navigate not wired";
+                    string wav = Path.Combine(audioDir, $"n{i + 1:00}.wav");
+                    TimeSpan dur;
                     try
                     {
-                        if (AgentHost.Navigate != null)
-                        {
-                            AgentHost.Navigate(wf.NavigateTarget);
-                            navigated = true;
-                            navLog = "navigated via AgentHost.Navigate";
-                            await Task.Delay(450, ct).ConfigureAwait(false);
-                        }
+                        dur = await WaveFileSpeech
+                            .SpeakToWavAsync(ev.Narration, wav, ct)
+                            .ConfigureAwait(false);
                     }
                     catch (Exception ex)
                     {
-                        navLog = "navigate failed: " + ex.Message;
+                        Fail(module,
+                            "Windows SAPI could not write a WAV (" + ex.Message +
+                            "). I will not invent speech or mute the video and call it done.",
+                            log, folder);
+                        return Status;
                     }
 
-                    string frame = "";
-                    try
+                    if (!File.Exists(wav) || dur <= TimeSpan.Zero)
                     {
-                        frame = await CaptureFrameAsync(
-                            Path.Combine(folder, "frames",
-                                $"{steps.Count + 1:00}_{wf.Id}.png"),
-                            ct).ConfigureAwait(false);
-                    }
-                    catch (Exception ex)
-                    {
-                        navLog += "; capture: " + ex.Message;
+                        Fail(module,
+                            "A narration WAV is missing or has zero duration. Captions will not be faked.",
+                            log, folder);
+                        return Status;
                     }
 
-                    string beat = string.Join(" ", wf.NarrationBeats);
-                    if (!navigated)
-                        beat += " The screen could not be opened in this session, so this beat is the planned walkthrough only.";
-                    if (string.IsNullOrEmpty(frame))
-                        beat += " No screenshot was captured — I will not pretend a frame exists.";
-
-                    steps.Add(new DemoStepResult
-                    {
-                        Title = wf.Title,
-                        Narration = beat,
-                        FramePath = frame,
-                        Navigated = navigated,
-                        Log = navLog
-                    });
-                    log.AppendLine($"{wf.Id}: {navLog}; frame={(frame.Length > 0 ? "yes" : "no")}");
+                    wavs.Add(wav);
+                    beats.Add((ev.Narration, dur));
+                    log.AppendLine($"WAV {i + 1}: {dur.TotalSeconds:0.00}s");
                 }
 
-                Set(DemoJobState.Narrating, "Writing narration and captions from verified beats.");
-                DemoPackageComposer.WritePackage(folder,
-                    "ProGlass Automation — " +
-                    (workflows.Count == 1 ? workflows[0].Title : "Module walkthrough"),
-                    steps);
+                File.WriteAllText(Path.Combine(folder, "narration.txt"), narration.ToString());
+                CaptionWriter.Write(folder, beats);
 
-                Set(DemoJobState.Rendering, "Looking for ffmpeg (optional).");
-                string? mp4 = await DemoPackageComposer.TryFfmpegAsync(folder, ct)
-                    .ConfigureAwait(false);
-
-                Set(DemoJobState.Validating, "Checking output files.");
-                bool html = File.Exists(Path.Combine(folder, "index.html"));
-                bool srt = File.Exists(Path.Combine(folder, "captions.srt"));
-                if (!html || !srt)
+                string narrationWav = Path.Combine(folder, "narration.wav");
+                TimeSpan totalAudio;
+                try
                 {
-                    Set(DemoJobState.Failed, "Package incomplete — index.html or captions.srt missing.");
+                    totalAudio = WaveConcat.Concat(wavs, narrationWav);
+                }
+                catch (Exception ex)
+                {
+                    Fail(module, "Could not concatenate narration WAVs: " + ex.Message, log, folder);
+                    return Status;
+                }
+                if (totalAudio <= TimeSpan.Zero)
+                {
+                    Fail(module, "Concatenated narration has zero duration.", log, folder);
                     return Status;
                 }
 
+                Set(DemoJobState.Rendering, "Encoding AVI then asking ffmpeg for MP4.");
+                string avi = Path.Combine(folder, "recording.avi");
+                try
+                {
+                    MjpegAviWriter.Write(avi, jpegs, RecordFps);
+                    log.AppendLine("AVI written: " + new FileInfo(avi).Length + " bytes");
+                }
+                catch (Exception ex)
+                {
+                    Fail(module, "AVI encode failed: " + ex.Message, log, folder);
+                    return Status;
+                }
+
+                string mp4Name = runner.OutputFileName;
+                string mp4 = Path.Combine(folder, mp4Name);
+                string? produced = await FfmpegMp4Composer
+                    .ComposeAviWavAsync(avi, narrationWav, mp4, ct)
+                    .ConfigureAwait(false);
+
+                Set(DemoJobState.Validating, "Checking the MP4 is a real ISO-BMFF file.");
+                if (produced == null || !FfmpegMp4Composer.IsValidMp4(mp4))
+                {
+                    string why = FfmpegMp4Composer.Find() == null
+                        ? "ffmpeg was not found on PATH or in %AppData%/ProGlassAutomation/tools. No MP4 was produced. AVI is not an MP4."
+                        : "ffmpeg ran but did not leave a valid MP4 (missing ftyp box, empty file, or non-zero exit).";
+                    Fail(module, why, log, folder);
+                    return Status;
+                }
+
+                var info = new FileInfo(mp4);
+                double? probed = FfmpegMp4Composer.TryReadDurationSeconds(mp4);
+                bool durationOk = probed.HasValue ? probed.Value > 0 : totalAudio.TotalSeconds > 0;
+                if (info.Length <= 0 || !durationOk)
+                {
+                    Fail(module,
+                        "MP4 failed duration/size checks. " +
+                        (probed.HasValue
+                            ? $"ffprobe duration={probed.Value:0.00}s."
+                            : $"ffprobe unavailable; narration WAV was {totalAudio.TotalSeconds:0.00}s but the file is unusable."),
+                        log, folder);
+                    return Status;
+                }
+
+                LastMp4Path = mp4;
+                string durationNote = probed.HasValue
+                    ? $"ffprobe duration {probed.Value:0.00}s"
+                    : $"duration inferred from narration WAV {totalAudio.TotalSeconds:0.00}s (ffprobe not installed)";
+                log.AppendLine($"MP4 {info.Length} bytes, ftyp ok, {durationNote}");
                 File.WriteAllText(Path.Combine(folder, "director.log"), log.ToString());
+                File.WriteAllText(Path.Combine(folder, "RESULT.txt"),
+                    "COMPLETED\n" + mp4 + "\n" + durationNote + "\n");
+
+                Remember(new DemoJobRecord
+                {
+                    Module = module,
+                    State = nameof(DemoJobState.Completed),
+                    Status = $"Wrote {mp4Name} ({info.Length} bytes). {durationNote}.",
+                    Mp4Path = mp4,
+                    Folder = folder,
+                    VerifiedEvents = events.Count
+                });
 
                 Set(DemoJobState.Completed,
-                    $"Demo package written to {folder}." +
-                    (mp4 != null
-                        ? " ffmpeg produced video.mp4."
-                        : " ffmpeg was not found, so there is no MP4 — open index.html."));
+                    $"Wrote {mp4Name} ({info.Length} bytes). {durationNote}. Demo Mode is still on — production files were not opened.");
                 return Status;
             }
             catch (OperationCanceledException)
             {
                 Set(DemoJobState.Cancelled, "Demo cancelled.");
+                Remember(new DemoJobRecord
+                {
+                    Module = LastArgument ?? "",
+                    State = nameof(DemoJobState.Cancelled),
+                    Status = Status,
+                    Folder = LastOutputFolder
+                });
                 return Status;
             }
             catch (Exception ex)
             {
                 Debug.WriteLine($"[DemoDirector] {ex}");
-                Set(DemoJobState.Failed, "Demo stopped: " + ex.Message);
+                Fail(LastArgument ?? "", "Demo stopped: " + ex.Message, log, LastOutputFolder);
                 return Status;
             }
+        }
+
+        public static IDemoWorkflowRunner? ResolveRunner(
+            string? argument, out string module, out string reason)
+        {
+            string raw = (argument ?? "").Trim();
+            if (raw.Length == 0
+                || string.Equals(raw, "All", StringComparison.OrdinalIgnoreCase))
+            {
+                module = "ProformaInvoice";
+                reason = raw.Length == 0
+                    ? "No module named — using Proforma Invoice, the first complete recorded workflow."
+                    : "All modules requested. Only Proforma Invoice has a recorded wizard; other modules were not invented.";
+                return new ProformaInvoiceWorkflow();
+            }
+
+            var wf = DemoWorkflowCatalog.Find(raw);
+            module = wf?.Id ?? raw;
+            if (wf == null)
+            {
+                reason = $"No matching module for '{raw}'. I will not invent one.";
+                return null;
+            }
+
+            if (string.Equals(wf.Id, "ProformaInvoice", StringComparison.OrdinalIgnoreCase))
+            {
+                reason = "Proforma Invoice recorded workflow selected.";
+                return new ProformaInvoiceWorkflow();
+            }
+
+            reason = $"{wf.Title} has no recorded wizard yet. Proforma Invoice is the first complete target — I will not emit a fake video for this module.";
+            return null;
+        }
+
+        public static string NewJobFolder(string module)
+        {
+            string safe = string.Concat((module ?? "Demo").Where(ch =>
+                char.IsLetterOrDigit(ch) || ch is '-' or '_'));
+            if (safe.Length == 0) safe = "Demo";
+            string root = Path.Combine(
+                Services.Database.AppDataRoot.DemoFolder, "DemoVideos");
+            string dir = Path.Combine(root, safe, DateTime.Now.ToString("yyyyMMdd_HHmmss"));
+            Directory.CreateDirectory(dir);
+            return dir;
+        }
+
+        private void Fail(string module, string message, StringBuilder log, string? folder)
+        {
+            log.AppendLine("FAILED: " + message);
+            if (!string.IsNullOrEmpty(folder))
+            {
+                try
+                {
+                    File.WriteAllText(Path.Combine(folder, "director.log"), log.ToString());
+                    File.WriteAllText(Path.Combine(folder, "RESULT.txt"), "FAILED\n" + message + "\n");
+                }
+                catch { /* best effort */ }
+            }
+            Remember(new DemoJobRecord
+            {
+                Module = module,
+                State = nameof(DemoJobState.Failed),
+                Status = message,
+                Folder = folder,
+                VerifiedEvents = VerifiedEventCount
+            });
+            Set(DemoJobState.Failed, message);
+        }
+
+        private void Remember(DemoJobRecord rec)
+        {
+            try
+            {
+                var disp = System.Windows.Application.Current?.Dispatcher;
+                if (disp != null && !disp.CheckAccess())
+                {
+                    disp.Invoke(() => PushHistory(rec));
+                    return;
+                }
+                PushHistory(rec);
+            }
+            catch { /* history is informational */ }
+        }
+
+        private void PushHistory(DemoJobRecord rec)
+        {
+            History.Insert(0, rec);
+            while (History.Count > 20) History.RemoveAt(History.Count - 1);
         }
 
         private void Set(DemoJobState state, string status)
         {
             State = state;
             Status = status;
+            FfmpegHint = FfmpegMp4Composer.Find() == null
+                ? "ffmpeg not found — this job will fail (AVI is not accepted as an MP4)."
+                : "ffmpeg found — MP4 encode will be attempted.";
             try { Changed?.Invoke(); } catch { /* UI must not break the director */ }
-        }
-
-        private static Task<string> CaptureFrameAsync(string path, CancellationToken ct)
-        {
-            var dispatcher = Application.Current?.Dispatcher;
-            if (dispatcher == null) return Task.FromResult("");
-
-            return dispatcher.InvokeAsync(() =>
-            {
-                ct.ThrowIfCancellationRequested();
-                var bmp = ScreenshotService.CaptureMainWindow(ScreenshotQuality.FullHD);
-                if (bmp == null) return "";
-                Directory.CreateDirectory(Path.GetDirectoryName(path)!);
-                var encoder = new PngBitmapEncoder();
-                encoder.Frames.Add(BitmapFrame.Create(bmp));
-                using var fs = File.Create(path);
-                encoder.Save(fs);
-                return File.Exists(path) ? path : "";
-            }, System.Windows.Threading.DispatcherPriority.Render).Task;
         }
     }
 }
