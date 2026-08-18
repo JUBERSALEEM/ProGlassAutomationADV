@@ -368,9 +368,11 @@ namespace ProGlassAutomation.Services.Audit
                 if (string.IsNullOrWhiteSpace(displayName))
                     return (false, "Display name is required.");
 
-                if ((password ?? "").Length < 4)
+                if ((password ?? "").Length <
+                    ProGlassAutomation.Services.Security.PasswordHasher.MinLength)
                     return (false,
-                        "Password must be at least 4 characters.");
+                        $"Password must be at least " +
+                        $"{ProGlassAutomation.Services.Security.PasswordHasher.MinLength} characters.");
 
                 using var db = new AuditDbContext();
 
@@ -499,9 +501,11 @@ namespace ProGlassAutomation.Services.Audit
             {
                 username = (username ?? "").Trim();
 
-                if ((newPassword ?? "").Length < 4)
+                if ((newPassword ?? "").Length <
+                    ProGlassAutomation.Services.Security.PasswordHasher.MinLength)
                     return (false,
-                        "New password must be at least 4 characters.");
+                        $"New password must be at least " +
+                        $"{ProGlassAutomation.Services.Security.PasswordHasher.MinLength} characters.");
 
                 if (currentPassword == newPassword)
                     return (false,

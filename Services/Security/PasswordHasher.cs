@@ -93,6 +93,13 @@ namespace ProGlassAutomation.Services.Security
     /// </summary>
     public static class PasswordHasher
     {
+        /// <summary>
+        /// Minimum length for a NEW or CHANGED password. Existing stored
+        /// hashes are unaffected, so this only raises the bar for passwords
+        /// set from this version onward (Phase 13 — security hardening).
+        /// </summary>
+        public const int MinLength = 8;
+
         /// <summary>Marker for the current scheme.</summary>
         private const string Pbkdf2Prefix = "PBKDF2";
 

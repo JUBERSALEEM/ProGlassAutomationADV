@@ -201,9 +201,12 @@ namespace ProGlassAutomation.ViewModels.UserCenter
                 Status = "Username and display name are required.";
                 return;
             }
-            if (password.Length < 4)
+            if (password.Length <
+                ProGlassAutomation.Services.Security.PasswordHasher.MinLength)
             {
-                Status = "Password must be at least 4 characters.";
+                Status =
+                    $"Password must be at least " +
+                    $"{ProGlassAutomation.Services.Security.PasswordHasher.MinLength} characters.";
                 return;
             }
             if (password != confirm)
@@ -264,9 +267,12 @@ namespace ProGlassAutomation.ViewModels.UserCenter
                 return;
             }
 
-            if (newPassword.Length < 4)
+            if (newPassword.Length <
+                ProGlassAutomation.Services.Security.PasswordHasher.MinLength)
             {
-                Status = "New password must be at least 4 characters.";
+                Status =
+                    $"New password must be at least " +
+                    $"{ProGlassAutomation.Services.Security.PasswordHasher.MinLength} characters.";
                 return;
             }
 
