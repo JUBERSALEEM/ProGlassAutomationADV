@@ -25,6 +25,8 @@
 | 5/11 (calc) | Centralized physical panel area in Step 9 P&L via `SqmCalculator.CalculatePhysicalPanelArea` + tests | `6698abe` | ✅ (build verified) |
 | 8/9 (design) | Added shared `DialogStyles.xaml` (dialog card/footer/title primitives) | `e7c656b` | ✅ (build verified) |
 | 11/12 (God-VM) | Extracted 5 duplicated parse helpers (CleanNum, ParseInt, NullIfEmpty, SplitClipboardRows, BuildColumnValues) into shared `Utilities/TextParsing.cs`; rewired DataGrid (CleanNum/Split/BC), Step 9 P&L (ParseInt), Statement (NullIfEmpty); removed private copies | `b49c02a` | ✅ (static; needs Windows build) |
+| 11/12 (God-VM) | Extracted `StatementSnapshotProjector.FilterByInvoices` (filter + financial/aging recompute) from StatementGenerator VM into a static helper + added `StatementSnapshotProjectorTests` | `8abd438` | ✅ (static; needs Windows build/test) |
+| 11/12 (God-VM) | Extracted `PnLMeasurement` (SafeYield, MeasureGroup, BuildRowDescription) from ProfitLossStep VM | `a4943c0` | ✅ (static; needs Windows build) |
 | 16 — Final re-audit | Fresh static re-audit: 508 C# files brace-balanced + using-clean, 137 XAML well-formed, no stray duplicate type collisions (nested `Kind` + partial VMs in separate namespaces verified) | — | ✅ (static) |
 | 19 — Verdict | Final Production-Readiness verdict recorded below | — | ✅ (report) |
 
@@ -73,6 +75,8 @@
 - `Services/Dashboard/Core/DashboardMetricsService.cs`
 - `Utilities/SqmCalculator.cs`
 - `Utilities/TextParsing.cs` (shared CleanNum / ParseInt / NullIfEmpty / SplitClipboardRows / BuildColumnValues)
+- `Services/Statement/Workflow/StatementSnapshotProjector.cs` + `Tests/Agent/StatementSnapshotProjectorTests.cs`
+- `ViewModels/ProformaInvoice/Step9ProfitLoss/PnLMeasurement.cs`
 - `ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs`
 - `ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs`
 - `ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs`
