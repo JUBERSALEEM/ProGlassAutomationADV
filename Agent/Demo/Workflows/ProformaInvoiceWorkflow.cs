@@ -115,33 +115,59 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
 
             if (!await AdvanceToAsync(pi, 4, ct).ConfigureAwait(false)) return events;
             await PresentAsync(events, "step4",
-                "Glass type",
-                "Glass type and estimators. Prices come from the live Sheet Store, not a second price list.",
+                "Spec generator",
+                "Glass type and spec generator. I will run the SGU calculator, then the DGU calculator, then apply the SGU spec.",
                 "NextStepCommand → step 4",
-                HoldMs, ct).ConfigureAwait(false);
+                BeatMs, ct).ConfigureAwait(false);
+
+            var sgu = await RunSguCalculatorAsync(pi, ct).ConfigureAwait(false);
+            if (sgu.Ok)
+            {
+                await PresentAsync(events, "sgu_calc",
+                    "SGU calculator",
+                    $"SGU spec generated: {sgu.SpecName}. Live rate {sgu.Rate:0.00} dirhams per square metre from yield, cutting, tempering and margin.",
+                    $"SGU {sgu.SpecName} @ {sgu.Rate:0.00}",
+                    HoldMs, ct).ConfigureAwait(false);
+            }
+
+            var dgu = await RunDguCalculatorAsync(pi, ct).ConfigureAwait(false);
+            if (dgu.Ok)
+            {
+                await PresentAsync(events, "dgu_calc",
+                    "DGU calculator",
+                    $"DGU spec generated: {dgu.SpecName}. Outer and inner 6mm Clear FT with 12mm spacer. Rate {dgu.Rate:0.00}.",
+                    $"DGU {dgu.SpecName} @ {dgu.Rate:0.00}",
+                    HoldMs, ct).ConfigureAwait(false);
+            }
+
+            await RestoreSguAndApplyAsync(pi, ct).ConfigureAwait(false);
 
             if (!await AdvanceToAsync(pi, 5, ct).ConfigureAwait(false)) return events;
             await PresentAsync(events, "step5",
                 "Specification grid",
-                "The data grid is open. A proforma line keeps width, height, quantity, rate and value.",
+                "The data grid is open. I will attach the generated SGU spec and enter a real glass line with rate and value.",
                 "NextStepCommand → step 5",
                 BeatMs, ct).ConfigureAwait(false);
 
-            if (await FillLineAsync(pi, ct).ConfigureAwait(false))
+            if (await FillLineAsync(pi, sgu.SpecName, sgu.Rate, ct).ConfigureAwait(false))
             {
+                decimal usedRate = sgu.Rate > 0 ? sgu.Rate : Rate;
                 await PresentAsync(events, "line",
                     "Glass line",
-                    $"{GlassRef}: {WidthMm} by {HeightMm} millimetres, quantity {Quantity}, rate {Rate:0} dirhams per square metre.",
-                    $"W1={WidthMm} H1={HeightMm} Qty={Quantity} Rate={Rate} Ref={GlassRef}",
+                    $"{sgu.SpecName}: {WidthMm} by {HeightMm} millimetres, quantity {Quantity}, rate {usedRate:0.00}. Value follows quantity times area times rate.",
+                    $"W1={WidthMm} H1={HeightMm} Qty={Quantity} Rate={usedRate} Spec={sgu.SpecName}",
                     HoldMs, ct).ConfigureAwait(false);
             }
 
             if (!await AdvanceToAsync(pi, 6, ct).ConfigureAwait(false)) return events;
+            var charges = await SelectChargesAsync(pi, ct).ConfigureAwait(false);
             await PresentAsync(events, "step6",
                 "Other charges",
-                "Other charges stay empty on this quotation so the total is just the glass line.",
-                "NextStepCommand → step 6",
-                BeatMs, ct).ConfigureAwait(false);
+                charges.Ok
+                    ? $"I switched on {charges.Names}. Other-charges total {charges.Total:0.00}."
+                    : "Other charges are on screen. I could not enable a predefined row.",
+                charges.Ok ? charges.Names : "NextStepCommand → step 6",
+                HoldMs, ct).ConfigureAwait(false);
 
             if (!await AdvanceToAsync(pi, 7, ct).ConfigureAwait(false)) return events;
             await PresentAsync(events, "preview",
@@ -253,12 +279,121 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             }, ct).ConfigureAwait(false);
         }
 
+        private readonly struct CalcResult
+        {
+            public bool Ok { get; init; }
+            public string SpecName { get; init; }
+            public decimal Rate { get; init; }
+        }
+
+        private readonly struct ChargeResult
+        {
+            public bool Ok { get; init; }
+            public string Names { get; init; }
+            public decimal Total { get; init; }
+        }
+
+        private static async Task<CalcResult> RunSguCalculatorAsync(
+            ProformaInvoiceViewModel pi, CancellationToken ct)
+        {
+            DemoStage.Now("Running the SGU spec calculator.");
+            var result = await WpfUiDriver.OnUiAsync(() =>
+            {
+                var step4 = pi.Step4VM;
+                var sguCard = step4.GlassTypes.FirstOrDefault(g => g.Code == "SGU");
+                if (sguCard != null && step4.SelectGlassTypeCommand.CanExecute(sguCard))
+                    step4.SelectGlassTypeCommand.Execute(sguCard);
+
+                var sgu = step4.SguVM;
+                sgu.SelectedThickness = "6mm";
+                sgu.GlassColor = "Clear";
+                sgu.SelectedTreatment = "FT Glass";
+                sgu.BasePricePerSqm = 46m;
+                sgu.CuttingCostPerSqm = 15m;
+                sgu.TemperingCostPerSqm = 25m;
+                sgu.YieldFactor = 0.85m;
+                sgu.TargetMarginPercent = 15m;
+                sgu.SelectedPolishOption = "None (Standard)";
+                step4.RefreshSheetStoreData();
+                return new CalcResult
+                {
+                    Ok = step4.EstimatedRatePerSqm > 0m
+                         && !string.IsNullOrWhiteSpace(sgu.GeneratedSpecName),
+                    SpecName = sgu.GeneratedSpecName ?? "",
+                    Rate = step4.EstimatedRatePerSqm
+                };
+            }, ct).ConfigureAwait(false);
+
+            await WpfUiDriver.DwellAsync(900, ct).ConfigureAwait(false);
+            return result;
+        }
+
+        private static async Task<CalcResult> RunDguCalculatorAsync(
+            ProformaInvoiceViewModel pi, CancellationToken ct)
+        {
+            DemoStage.Now("Running the DGU spec calculator.");
+            var result = await WpfUiDriver.OnUiAsync(() =>
+            {
+                var step4 = pi.Step4VM;
+                var dguCard = step4.GlassTypes.FirstOrDefault(g => g.Code == "DGU");
+                if (dguCard != null && step4.SelectGlassTypeCommand.CanExecute(dguCard))
+                    step4.SelectGlassTypeCommand.Execute(dguCard);
+
+                var dgu = step4.DguVM;
+                dgu.OuterThickness = "6mm";
+                dgu.OuterGlassColor = "Clear";
+                dgu.OuterTreatment = "FT";
+                dgu.OuterBasePrice = 46m;
+                dgu.SpacerWidth = "12mm ASP";
+                dgu.SpacerMaterial = "Normal Mill Aluminum";
+                dgu.InnerThickness = "6mm";
+                dgu.InnerGlassColor = "Clear";
+                dgu.InnerTreatment = "FT";
+                dgu.InnerBasePrice = 46m;
+                dgu.YieldFactor = 0.85m;
+                dgu.MarginProfitPercent = 15m;
+                dgu.PanelExtra = "With Argon Gas";
+                step4.RefreshSheetStoreData();
+                return new CalcResult
+                {
+                    Ok = step4.EstimatedRatePerSqm > 0m
+                         && !string.IsNullOrWhiteSpace(dgu.GeneratedSpecName),
+                    SpecName = dgu.GeneratedSpecName ?? "",
+                    Rate = step4.EstimatedRatePerSqm
+                };
+            }, ct).ConfigureAwait(false);
+
+            await WpfUiDriver.DwellAsync(HoldMs, ct).ConfigureAwait(false);
+            return result;
+        }
+
+        private static async Task RestoreSguAndApplyAsync(
+            ProformaInvoiceViewModel pi, CancellationToken ct)
+        {
+            DemoStage.Now("Returning to the SGU spec for the data grid.");
+            await WpfUiDriver.OnUiAsync(() =>
+            {
+                var step4 = pi.Step4VM;
+                var sguCard = step4.GlassTypes.FirstOrDefault(g => g.Code == "SGU");
+                if (sguCard != null && step4.SelectGlassTypeCommand.CanExecute(sguCard))
+                    step4.SelectGlassTypeCommand.Execute(sguCard);
+                return true;
+            }, ct).ConfigureAwait(false);
+            await WpfUiDriver.DwellAsync(800, ct).ConfigureAwait(false);
+        }
+
         private static Task<bool> FillLineAsync(
-            ProformaInvoiceViewModel pi, CancellationToken ct) =>
+            ProformaInvoiceViewModel pi, string specName, decimal calcRate, CancellationToken ct) =>
             WpfUiDriver.OnUiAsync(() =>
             {
                 var group = pi.Step5VM.SpecGroups.FirstOrDefault();
                 if (group == null) return false;
+
+                group.SelectedGlassType = "SGU";
+                if (!string.IsNullOrWhiteSpace(specName))
+                    group.SelectedSpecName = specName;
+                if (calcRate > 0m)
+                    group.BaseRate = calcRate;
 
                 if (group.ItemRows.Count == 0
                     && group.AddRowCommand.CanExecute(null))
@@ -267,15 +402,35 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 var row = group.ItemRows.FirstOrDefault();
                 if (row == null) return false;
 
-                row.GlassRef = GlassRef;
+                row.GlassRef = string.IsNullOrWhiteSpace(specName) ? GlassRef : specName;
                 row.W1 = WidthMm;
                 row.H1 = HeightMm;
                 row.Qty = Quantity;
-                row.Rate = Rate;
+                row.Rate = calcRate > 0m ? calcRate : Rate;
                 return row.W1 == WidthMm
                     && row.H1 == HeightMm
-                    && row.Qty == Quantity
-                    && string.Equals(row.GlassRef, GlassRef, StringComparison.Ordinal);
+                    && row.Qty == Quantity;
+            }, ct);
+
+        private static Task<ChargeResult> SelectChargesAsync(
+            ProformaInvoiceViewModel pi, CancellationToken ct) =>
+            WpfUiDriver.OnUiAsync(() =>
+            {
+                var names = new List<string>();
+                foreach (var row in pi.Step6VM.ChargeRows)
+                {
+                    if (row.TemplateKey is "DELIVERY" or "SILICON_BED")
+                    {
+                        row.IsActive = true;
+                        names.Add(row.ChargeName);
+                    }
+                }
+                return new ChargeResult
+                {
+                    Ok = names.Count > 0,
+                    Names = string.Join(" and ", names),
+                    Total = pi.Step6VM.TotalOtherCharges
+                };
             }, ct);
 
         private static async Task<bool> AdvanceToAsync(

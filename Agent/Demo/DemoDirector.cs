@@ -127,7 +127,8 @@ namespace ProGlassAutomation.Agent.Demo
                 log.AppendLine($"Verified events: {events.Count}");
 
                 bool walkedWizard = events.Any(e =>
-                    e.Id is "new_invoice" or "company" or "customer" or "line" or "preview" or "saved");
+                    e.Id is "new_invoice" or "company" or "sgu_calc" or "dgu_calc"
+                        or "line" or "preview" or "saved");
                 if (events.Count == 0 || !walkedWizard)
                 {
                     Fail(module,
