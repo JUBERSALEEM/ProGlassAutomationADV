@@ -1,11 +1,12 @@
 // ═══════════════════════════════════════════════════════════════════════
-// FILE: TaxInvoiceRowViewModel.cs.cs
+// FILE: TaxInvoiceRowViewModel.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Tax Invoice — list rows
 //
-// TaxInvoiceRowViewModel.cs split out (Phase 11/12 God-VM split) — behaviour unchanged.
+// TaxInvoiceRowViewModel split out (Phase 11/12 God-VM split) — behaviour unchanged.
 // ═══════════════════════════════════════════════════════════════════════
 
+using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Models.TaxInvoice.TaxInvoiceFamily;
 using System;
 using System.Collections.Generic;
