@@ -850,8 +850,9 @@
                     </Border>
 
                     <!-- NOTIFICATION BELL — hover to peek, click to toggle -->
-                    <Grid x:Name="NotificationButton" Width="36" Height="36" Margin="0,0,10,0" VerticalAlignment="Center">
-                        <Button Style="{StaticResource TopIconButton}"
+                    <Grid Width="36" Height="36" Margin="0,0,10,0" VerticalAlignment="Center">
+                        <Button x:Name="NotificationButton"
+                                Style="{StaticResource TopIconButton}"
                                 Content="&#xEA8F;"
                                 Click="DropdownButton_Click"
                                 MouseEnter="TopBarButton_MouseEnter"
