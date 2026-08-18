@@ -3,7 +3,6 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:sections="clr-namespace:ProGlassAutomation.Views.JobOrder.JobOrderDetail.Sections"
-             xmlns:hero="clr-namespace:ProGlassAutomation.Controls.GradientHeroCard"
              xmlns:loading="clr-namespace:ProGlassAutomation.Controls.LoadingState"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
@@ -72,17 +71,30 @@
                            FontSize="12" TextWrapping="Wrap"/>
             </Border>
 
-            <!-- ── HERO HEADER — Indigo brand gradient ─────────────── -->
-            <hero:GradientHeroCard Icon="&#xE8C8;"
-                                   Value="{Binding JobOrderId}"
-                                   Label="{Binding GrandTotalDisplay}"
-                                   TrendArrow="&#xE8A5;"
-                                   TrendText="{Binding SourceProformaId}"
-                                   TrendVisibility="Visible"
-                                   GradientStartColor="{DynamicResource AccentColor}"
-                                   GradientEndColor="{DynamicResource AccentHoverColor}"
-                                   Margin="8,0,8,24"
-                                   MinHeight="160"/>
+            <Border Style="{StaticResource ModuleListShellStyle}"
+                    Margin="8,0,8,16" Padding="20,16">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <StackPanel Grid.Column="0">
+                        <TextBlock Text="{Binding JobOrderId}"
+                                   Style="{StaticResource ModulePageTitleStyle}"/>
+                        <TextBlock Style="{StaticResource ModulePageSubtitleStyle}">
+                            <Run Text="From "/><Run Text="{Binding SourceProformaId, Mode=OneWay}"/>
+                        </TextBlock>
+                    </StackPanel>
+                    <StackPanel Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right">
+                        <TextBlock Text="Source invoice"
+                                   Style="{StaticResource ModuleListKpiLabelStyle}"
+                                   HorizontalAlignment="Right"/>
+                        <TextBlock Text="{Binding GrandTotalDisplay}"
+                                   Style="{StaticResource ModuleListKpiValueStyle}"
+                                   HorizontalAlignment="Right"/>
+                    </StackPanel>
+                </Grid>
+            </Border>
 
             <!-- ── TWO-COLUMN LAYOUT ──────────────────────────────── -->
             <!-- ══ DETAIL TABS — Overview / Production ═══════════════ -->

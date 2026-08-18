@@ -1,6 +1,6 @@
 # Line-item DataGrid — analysis + proposed shared chrome
 
-Approve before any Step 5 / JO / DN / TI detail rewrite.
+**APPLIED 2026-08-18** — Step 5 chrome + arrow-key fix; JO grid drops Rate (production); DN/TI keep workflow columns. PI still has no God View (wizard).
 
 ## 1. Proforma Workspace / God View / Activity
 

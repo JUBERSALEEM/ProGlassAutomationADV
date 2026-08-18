@@ -21,6 +21,8 @@
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/DesignTokens.xaml"/>
                 <!-- Industrial list-page chrome (PI / JO / DN / TI) -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ListPageStyles.xaml"/>
+                <!-- Line-item table chrome (Step 5 + JO/DN/TI details) -->
+                <ResourceDictionary Source="pack://application:,,,/Themes/Styles/DataGridStyles.xaml"/>
                 <!-- v3 centralized button design system — single source
                      of truth for all button visuals project-wide. -->
                 <ResourceDictionary Source="Styles/ButtonStyles.xaml"/>

@@ -1,4 +1,4 @@
-﻿// ╔══════════════════════════════════════════════════════════════════════════╗
+// ╔══════════════════════════════════════════════════════════════════════════╗
 // ║  Behaviors/DataGridNavigationBehavior.cs                                 ║
 // ║  ProGlass Automation                                                     ║
 // ║                                                                          ║
@@ -479,6 +479,12 @@ namespace ProGlassAutomation.Behaviors
 
                 case Key.Right:
                     {
+                        // Caret first when the cell is being edited.
+                        // Jump cell when all text is selected (Excel) or
+                        // the caret is already at the end.
+                        if (!ShouldLeaveCell(current, goingRight: true))
+                            return;
+
                         e.Handled = true;
                         int rightTarget = idx + 1;
                         if (rightTarget < allBoxes.Count &&
@@ -491,6 +497,9 @@ namespace ProGlassAutomation.Behaviors
 
                 case Key.Left:
                     {
+                        if (!ShouldLeaveCell(current, goingRight: false))
+                            return;
+
                         e.Handled = true;
                         int leftTarget = idx - 1;
                         if (leftTarget >= 0 &&
@@ -949,6 +958,26 @@ namespace ProGlassAutomation.Behaviors
         {
             tb.Focus();
             tb.SelectAll();
+        }
+
+        /// <summary>
+        /// Excel rule: stay in the cell while the user is moving the caret.
+        /// Leave when the whole value is selected, or the caret is already
+        /// at the edge in the travel direction.
+        /// </summary>
+        private static bool ShouldLeaveCell(TextBox tb, bool goingRight)
+        {
+            string text = tb.Text ?? string.Empty;
+            if (text.Length == 0) return true;
+            if (tb.SelectionLength == text.Length) return true;
+
+            int caret = tb.CaretIndex;
+            if (tb.SelectionLength > 0)
+                caret = goingRight
+                    ? tb.SelectionStart + tb.SelectionLength
+                    : tb.SelectionStart;
+
+            return goingRight ? caret >= text.Length : caret <= 0;
         }
 
         private static int GetColumnsPerRow(TextBox current)

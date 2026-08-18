@@ -586,13 +586,10 @@
                                         <Border Style="{StaticResource SpecGroupCardStyle}">
                                             <StackPanel>
 
-                                                <Border CornerRadius="12,12,0,0" Padding="14,10">
-                                                    <Border.Background>
-                                                        <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                                            <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
-                                                            <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
-                                                        </LinearGradientBrush>
-                                                    </Border.Background>
+                                                <Border Background="{DynamicResource MenuHoverBrush}"
+                                                        BorderBrush="{DynamicResource DividerBrush}"
+                                                        BorderThickness="0,0,0,1"
+                                                        Padding="14,10">
                                                     <Grid>
                                                         <Grid.ColumnDefinitions>
                                                             <ColumnDefinition Width="Auto"/>
@@ -604,22 +601,26 @@
                                                         </Grid.ColumnDefinitions>
 
                                                         <Border Grid.Column="0"
-                                                                Width="4" CornerRadius="2"
-                                                                Background="White"
-                                                                Margin="0,0,10,0"/>
+                                                                Width="22" Height="22"
+                                                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                                                Background="{DynamicResource AccentBrush}"
+                                                                Margin="0,0,10,0">
+                                                            <TextBlock Text="&#xE8A5;"
+                                                                       FontFamily="Segoe MDL2 Assets"
+                                                                       FontSize="11"
+                                                                       Foreground="{DynamicResource OnAccentForegroundBrush}"
+                                                                       HorizontalAlignment="Center"
+                                                                       VerticalAlignment="Center"/>
+                                                        </Border>
 
                                                         <StackPanel Grid.Column="1"
                                                                     Orientation="Horizontal"
                                                                     VerticalAlignment="Center">
-                                                            <TextBlock Text="SPEC: "
-                                                                       FontSize="11" FontWeight="Bold"
-                                                                       Foreground="#CCFFFFFF"
-                                                                       VerticalAlignment="Center"/>
                                                             <TextBox Text="{Binding GroupName,
                                                                            UpdateSourceTrigger=PropertyChanged}"
                                                                      FontSize="13" FontWeight="Bold"
                                                                      Background="Transparent"
-                                                                     Foreground="White"
+                                                                     Foreground="{DynamicResource PrimaryForegroundBrush}"
                                                                      BorderThickness="0"
                                                                      Padding="4,2"
                                                                      MinWidth="200"
@@ -630,25 +631,19 @@
                                                                     Orientation="Horizontal"
                                                                     VerticalAlignment="Center"
                                                                     Margin="16,0,0,0">
-                                                            <TextBlock Text="Rate/SQM: "
-                                                                       FontSize="10" FontWeight="Bold"
-                                                                       Foreground="#CCFFFFFF"
+                                                            <TextBlock Text="Rate/SQM  "
+                                                                       FontSize="10" FontWeight="SemiBold"
+                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                        VerticalAlignment="Center"/>
                                                             <TextBox Text="{Binding BaseRate,
                                                                            UpdateSourceTrigger=PropertyChanged,
                                                                            StringFormat={}{0:0.00}}"
                                                                      behaviors:TextBoxBehaviors.AcceptDecimals="True"
-                                                                     FontSize="12" FontWeight="Bold"
-                                                                     Background="Transparent"
-                                                                     Foreground="White"
-                                                                     BorderThickness="0"
-                                                                     Padding="4,2"
-                                                                     Width="80"
-                                                                     TextAlignment="Right"
-                                                                     VerticalContentAlignment="Center"/>
+                                                                     Style="{StaticResource LineItemsDecimalCellStyle}"
+                                                                     Width="80"/>
                                                             <TextBlock Text=" AED"
-                                                                       FontSize="10" FontWeight="Bold"
-                                                                       Foreground="#CCFFFFFF"
+                                                                       FontSize="10" FontWeight="SemiBold"
+                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                        VerticalAlignment="Center"/>
                                                         </StackPanel>
 
@@ -656,12 +651,12 @@
                                                                     Orientation="Horizontal"
                                                                     VerticalAlignment="Center"
                                                                     Margin="16,0,0,0">
-                                                            <TextBlock Text="Total: "
+                                                            <TextBlock Text="Total  "
                                                                        FontSize="10"
-                                                                       Foreground="#CCFFFFFF"
+                                                                       Foreground="{DynamicResource SecondaryForegroundBrush}"
                                                                        VerticalAlignment="Center"/>
                                                             <TextBlock FontSize="12" FontWeight="Bold"
-                                                                       Foreground="White"
+                                                                       Foreground="{DynamicResource SuccessBrush}"
                                                                        VerticalAlignment="Center">
                                                                 <Run Text="AED "/>
                                                                 <Run Text="{Binding GroupTotalValue,
@@ -794,60 +789,40 @@
                                                                     <TextBox Grid.Column="1"
                                                                              Text="{Binding GlassRef,
                                                                                    UpdateSourceTrigger=PropertyChanged}"
-                                                                             FontSize="12"
-                                                                             Padding="6,4"
-                                                                             Margin="4,3"
-                                                                             VerticalContentAlignment="Center"/>
+                                                                             Style="{StaticResource LineItemsTextCellStyle}"
+                                                                             Margin="4,3"/>
 
                                                                     <TextBox Grid.Column="2"
                                                                              Text="{Binding W1,
                                                                                    UpdateSourceTrigger=PropertyChanged}"
-                                                                             behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
-                                                                             FontSize="12" FontWeight="SemiBold"
-                                                                             TextAlignment="Right"
-                                                                             Padding="4,4,8,4" Margin="2,3"
-                                                                             VerticalContentAlignment="Center"/>
+                                                                             Style="{StaticResource LineItemsIntCellStyle}"
+                                                                             Margin="2,3"/>
 
                                                                     <TextBox Grid.Column="3"
                                                                              Text="{Binding H1,
                                                                                    UpdateSourceTrigger=PropertyChanged}"
-                                                                             behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
-                                                                             FontSize="12" FontWeight="SemiBold"
-                                                                             TextAlignment="Right"
-                                                                             Padding="4,4,8,4" Margin="2,3"
-                                                                             VerticalContentAlignment="Center"/>
+                                                                             Style="{StaticResource LineItemsIntCellStyle}"
+                                                                             Margin="2,3"/>
 
                                                                     <TextBox Grid.Column="4"
                                                                              Text="{Binding W2,
                                                                                    UpdateSourceTrigger=PropertyChanged}"
-                                                                             behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
-                                                                             FontSize="11"
-                                                                             TextAlignment="Right"
-                                                                             Padding="4,4,8,4" Margin="2,3"
+                                                                             Style="{StaticResource LineItemsIntCellStyle}"
                                                                              Opacity="0.7"
-                                                                             VerticalContentAlignment="Center"/>
+                                                                             Margin="2,3"/>
 
                                                                     <TextBox Grid.Column="5"
                                                                              Text="{Binding H2,
                                                                                    UpdateSourceTrigger=PropertyChanged}"
-                                                                             behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
-                                                                             FontSize="11"
-                                                                             TextAlignment="Right"
-                                                                             Padding="4,4,8,4" Margin="2,3"
+                                                                             Style="{StaticResource LineItemsIntCellStyle}"
                                                                              Opacity="0.7"
-                                                                             VerticalContentAlignment="Center"/>
+                                                                             Margin="2,3"/>
 
                                                                     <TextBox Grid.Column="6"
                                                                              Text="{Binding Qty,
                                                                                    UpdateSourceTrigger=PropertyChanged}"
-                                                                             behaviors:TextBoxBehaviors.AcceptIntegersOnly="True"
-                                                                             FontSize="12" FontWeight="Bold"
-                                                                             TextAlignment="Right"
-                                                                             Padding="4,4,8,4" Margin="2,3"
-                                                                             BorderBrush="{DynamicResource AccentBrush}"
-                                                                             Background="{DynamicResource TintIndigoBrush}"
-                                                                             Foreground="{DynamicResource AccentDarkBrush}"
-                                                                             VerticalContentAlignment="Center"/>
+                                                                             Style="{StaticResource LineItemsIntCellStyle}"
+                                                                             Margin="2,3"/>
 
                                                                     <Border Grid.Column="7"
                                                                             Style="{StaticResource ColumnSeparatorStyle}"/>
@@ -876,14 +851,7 @@
                                                                         <TextBox Text="{Binding Rate,
                                                                                        UpdateSourceTrigger=PropertyChanged,
                                                                                        StringFormat={}{0:0.00}}"
-                                                                                 behaviors:TextBoxBehaviors.AcceptDecimals="True"
-                                                                                 FontSize="11" FontWeight="Bold"
-                                                                                 TextAlignment="Right"
-                                                                                 Padding="4,2,6,2"
-                                                                                 BorderBrush="{DynamicResource SuccessBrush}"
-                                                                                 Background="{DynamicResource TintGreenBrush}"
-                                                                                 Foreground="#065F46"
-                                                                                 VerticalContentAlignment="Center"/>
+                                                                                 Style="{StaticResource LineItemsDecimalCellStyle}"/>
                                                                         <TextBlock Text="{Binding Value,
                                                                                           StringFormat=AED {0:N2}}"
                                                                                    FontSize="11" FontWeight="Bold"

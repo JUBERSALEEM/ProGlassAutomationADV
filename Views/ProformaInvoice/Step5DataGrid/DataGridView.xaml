@@ -72,109 +72,17 @@ PRESERVED EXACTLY:
         <!-- ══════════════════════════════════════════════════════════════
              COMPACT INTEGER INPUT (W1, H1, W2, H2, Qty)
         ══════════════════════════════════════════════════════════════ -->
-        <Style x:Key="CompactIntInputStyle" TargetType="TextBox">
-            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus"   Value="True"/>
-            <Setter Property="behaviors:TextBoxBehaviors.AcceptIntegersOnly" Value="True"/>
-            <Setter Property="Background"                 Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground"                 Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness"            Value="1"/>
-            <Setter Property="BorderBrush"                Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="FontSize"                   Value="12"/>
-            <Setter Property="FontWeight"                 Value="SemiBold"/>
-            <Setter Property="Padding"                    Value="8,0"/>
-            <Setter Property="Height"                     Value="28"/>
-            <Setter Property="Width"                      Value="60"/>
-            <Setter Property="VerticalContentAlignment"   Value="Center"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="CaretBrush"                 Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="SelectionBrush"             Value="{DynamicResource AccentBrush}"/>
-            <Setter Property="SnapsToDevicePixels"        Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="InputBorder"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                SnapsToDevicePixels="True">
-                            <ScrollViewer x:Name="PART_ContentHost"
-                                          Focusable="False"
-                                          HorizontalScrollBarVisibility="Hidden"
-                                          VerticalScrollBarVisibility="Hidden"
-                                          Margin="{TemplateBinding Padding}"
-                                          VerticalAlignment="Center"
-                                          Background="Transparent"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="InputBorder"
-                                        Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="InputBorder"
-                                        Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                                <Setter TargetName="InputBorder"
-                                        Property="BorderThickness" Value="2"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+        <Style x:Key="CompactIntInputStyle" TargetType="TextBox"
+               BasedOn="{StaticResource LineItemsIntCellStyle}">
+            <Setter Property="Width" Value="60"/>
         </Style>
 
         <!-- ══════════════════════════════════════════════════════════════
              COMPACT DECIMAL INPUT (Rate, BaseRate, SurchargePercent)
         ══════════════════════════════════════════════════════════════ -->
-        <Style x:Key="CompactDecimalInputStyle" TargetType="TextBox">
-            <Setter Property="behaviors:TextBoxBehaviors.SelectAllOnFocus" Value="True"/>
-            <Setter Property="behaviors:TextBoxBehaviors.AcceptDecimals"   Value="True"/>
-            <Setter Property="Background"                 Value="{DynamicResource ModuleBackgroundBrush}"/>
-            <Setter Property="Foreground"                 Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="BorderThickness"            Value="1"/>
-            <Setter Property="BorderBrush"                Value="{DynamicResource BorderBrush}"/>
-            <Setter Property="FontSize"                   Value="12"/>
-            <Setter Property="FontWeight"                 Value="SemiBold"/>
-            <Setter Property="Padding"                    Value="8,0"/>
-            <Setter Property="Height"                     Value="28"/>
-            <Setter Property="Width"                      Value="60"/>
-            <Setter Property="VerticalContentAlignment"   Value="Center"/>
-            <Setter Property="HorizontalContentAlignment" Value="Center"/>
-            <Setter Property="CaretBrush"                 Value="{DynamicResource PrimaryForegroundBrush}"/>
-            <Setter Property="SelectionBrush"             Value="{DynamicResource AccentBrush}"/>
-            <Setter Property="SnapsToDevicePixels"        Value="True"/>
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="TextBox">
-                        <Border x:Name="InputBorder"
-                                Background="{TemplateBinding Background}"
-                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                BorderThickness="{TemplateBinding BorderThickness}"
-                                BorderBrush="{TemplateBinding BorderBrush}"
-                                SnapsToDevicePixels="True">
-                            <ScrollViewer x:Name="PART_ContentHost"
-                                          Focusable="False"
-                                          HorizontalScrollBarVisibility="Hidden"
-                                          VerticalScrollBarVisibility="Hidden"
-                                          Margin="{TemplateBinding Padding}"
-                                          VerticalAlignment="Center"
-                                          Background="Transparent"/>
-                        </Border>
-                        <ControlTemplate.Triggers>
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="InputBorder"
-                                        Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
-                            </Trigger>
-                            <Trigger Property="IsFocused" Value="True">
-                                <Setter TargetName="InputBorder"
-                                        Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                                <Setter TargetName="InputBorder"
-                                        Property="BorderThickness" Value="2"/>
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
+        <Style x:Key="CompactDecimalInputStyle" TargetType="TextBox"
+               BasedOn="{StaticResource LineItemsDecimalCellStyle}">
+            <Setter Property="Width" Value="60"/>
         </Style>
 
         <!-- ══════════════════════════════════════════════════════════════
@@ -574,26 +482,25 @@ PRESERVED EXACTLY:
                             <DataTrigger Binding="{Binding IsHighlighted}" Value="True">
                                 <Setter TargetName="RowBorder"
                                         Property="Background"
-                                        Value="#FEF08A"/>
+                                        Value="{DynamicResource TintAmberBrush}"/>
                                 <Setter TargetName="RowBorder"
                                         Property="BorderBrush"
-                                        Value="#EAB308"/>
+                                        Value="{DynamicResource WarningBrush}"/>
                                 <Setter TargetName="RowBorder"
                                         Property="BorderThickness"
                                         Value="0,1,0,2"/>
                             </DataTrigger>
 
-                            <!-- Priority 3 (highest): Selection — light-blue Excel-style -->
                             <DataTrigger Binding="{Binding IsSelected}" Value="True">
                                 <Setter TargetName="RowBorder"
                                         Property="Background"
-                                        Value="#DBEAFE"/>
+                                        Value="{DynamicResource TintBlueBrush}"/>
                                 <Setter TargetName="RowBorder"
                                         Property="BorderBrush"
-                                        Value="#3B82F6"/>
+                                        Value="{DynamicResource AccentBrush}"/>
                                 <Setter TargetName="RowBorder"
                                         Property="BorderThickness"
-                                        Value="1,1,1,1"/>
+                                        Value="3,0,0,1"/>
                             </DataTrigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -664,14 +571,11 @@ PRESERVED EXACTLY:
                         VerticalAlignment="Center"
                         TextWrapping="Wrap"
                         Margin="0,4,0,0">
-                        <Run Text="TIP: Ctrl+Shift+N = new group"/>
-                        <Run Text=" · Click cell → Ctrl+V = paste"/>
+                        <Run Text="TIP: Arrow keys move between cells"/>
+                        <Run Text=" · Tab / Enter = next cell / next row"/>
+                        <Run Text=" · Ctrl+V = paste"/>
                         <Run Text=" · Ctrl+F / Ctrl+H = find / replace"/>
-                        <Run Text=" · Click row / Shift+Click / Ctrl+Click = select"/>
-                        <Run Text=" · Ctrl+A = select all"/>
-                        <Run Text=" · Ctrl+D = fill down across selection"/>
-                        <Run Text=" · Escape = clear selection"/>
-                        <Run Text=" · Ctrl+Delete = delete row"/>
+                        <Run Text=" · Ctrl+A / Ctrl+D / Ctrl+Delete"/>
                     </TextBlock>
                 </StackPanel>
                 <StackPanel Grid.Column="1"
@@ -1134,11 +1038,9 @@ PRESERVED EXACTLY:
                                         </Grid>
 
                                         <!-- Column headers -->
-                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource MenuHoverBrush}"
-                                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                Padding="4,7">
+                                        <Border>
                                             <Border.Style>
-                                                <Style TargetType="Border">
+                                                <Style TargetType="Border" BasedOn="{StaticResource LineItemsHeaderStyle}">
                                                     <Setter Property="Visibility" Value="Visible"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding TotalRows}"
@@ -1372,12 +1274,9 @@ PRESERVED EXACTLY:
                                         </ListView>
 
                                         <!-- FOOTER TOTALS -->
-                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource MenuHoverBrush}"
-                                                CornerRadius="{DynamicResource ControlCornerRadius}"
-                                                Padding="4,8"
-                                                Margin="0,6,0,0">
+                                        <Border>
                                             <Border.Style>
-                                                <Style TargetType="Border">
+                                                <Style TargetType="Border" BasedOn="{StaticResource LineItemsFooterStyle}">
                                                     <Setter Property="Visibility" Value="Visible"/>
                                                     <Style.Triggers>
                                                         <DataTrigger Binding="{Binding TotalRows}"

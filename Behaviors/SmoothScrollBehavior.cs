@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Behaviors/SmoothScrollBehavior.cs
 // PROJECT: ProGlassAutomation
 // PURPOSE: Buttery-smooth 60fps scroll behavior for ScrollViewer.
@@ -41,6 +41,7 @@ using System;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Input;
 using System.Windows.Media;
 
@@ -326,6 +327,12 @@ namespace ProGlassAutomation.Behaviors
         {
             if (sender is not ScrollViewer sv) return;
             if (!_states.TryGetValue(sv, out var state)) return;
+
+            // Never steal arrows / Home / End from an editable cell.
+            // Step 5 Excel nav (and any TextBox) lives inside this
+            // ScrollViewer; PreviewKeyDown tunnels here first.
+            if (e.OriginalSource is TextBoxBase or PasswordBox or ComboBox)
+                return;
 
             state.IsItemMode = ResolveItemMode(sv);
 

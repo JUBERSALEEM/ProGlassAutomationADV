@@ -386,9 +386,7 @@
                                                                     </Border>
 
                                                                     <!-- Column headers -->
-                                                                    <Border CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource MenuHoverBrush}"
-                                                                            BorderBrush="{DynamicResource OutlineBrush}"
-                                                                            BorderThickness="0,0,0,1">
+                                                                    <Border Style="{StaticResource LineItemsHeaderStyle}">
                                                                         <Grid>
                                                                             <Grid.ColumnDefinitions>
                                                                                 <ColumnDefinition Width="40"/>
