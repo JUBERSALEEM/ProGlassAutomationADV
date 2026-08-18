@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Services.Database.SchemaMigrations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -57,6 +58,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         {
             using var db = new ProformaInvoicesDbContext();
             await db.Database.EnsureCreatedAsync();
+
+            // Additive schema upgrades for an existing proformainvoices.db.
+            SchemaMigrationRunner.Upgrade(
+                ProformaInvoicesDbContext.DatabaseFilePath,
+                AppSchemaMigrations.ProformaInvoices,
+                "Proforma Invoice");
         }
 
         public async Task<bool> ExistsByProformaIdAsync(string proformaId)

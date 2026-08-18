@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
+using ProGlassAutomation.Services.Database.SchemaMigrations;
 using ProGlassAutomation.Services.JobOrder.Database;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,12 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
         {
             using var db = new JobOrdersDbContext();
             await db.Database.EnsureCreatedAsync();
+
+            // Additive schema upgrades for an existing joborders.db.
+            SchemaMigrationRunner.Upgrade(
+                JobOrdersDbContext.DatabaseFilePath,
+                AppSchemaMigrations.JobOrders,
+                "Job Order");
         }
 
         // ── CRUD ──────────────────────────────────────────────────────────

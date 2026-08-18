@@ -17,6 +17,11 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
     {
         public DbSet<SavedSpecification> Specifications { get; set; }
 
+        /// <summary>Public accessor used by the schema migration runner.</summary>
+        public static string DatabaseFilePath => Path.Combine(
+            Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData),
+            "ProGlassAutomation", "specifications.db");
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
             var appDataPath = Path.Combine(

@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
+using ProGlassAutomation.Services.Database.SchemaMigrations;
 using ProGlassAutomation.Services.DeliveryNote.Database;
 using ProGlassAutomation.Utilities;
 using System;
@@ -27,6 +28,12 @@ namespace ProGlassAutomation.Services.DeliveryNote.Repository
         {
             using var ctx = new DeliveryNotesDbContext();
             await ctx.Database.EnsureCreatedAsync();
+
+            // Additive schema upgrades for an existing deliverynotes.db.
+            SchemaMigrationRunner.Upgrade(
+                DeliveryNotesDbContext.DatabaseFilePath,
+                AppSchemaMigrations.DeliveryNotes,
+                "Delivery Note");
         }
 
         // ── Single DN retrieval ──────────────────────────────────────────

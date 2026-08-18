@@ -1,4 +1,5 @@
-﻿using ProGlassAutomation.Services.Logging;
+using ProGlassAutomation.Services.Database.SchemaMigrations;
+using ProGlassAutomation.Services.Logging;
 using System;
 
 namespace ProGlassAutomation.Services.Database
@@ -17,6 +18,14 @@ namespace ProGlassAutomation.Services.Database
 
                 // Creates DB file + tables if they don't exist
                 db.Database.EnsureCreated();
+
+                // Bring an EXISTING proglass.db forward if any schema
+                // migrations are registered (additive only; see
+                // AppSchemaMigrations). Safe no-op until one is added.
+                SchemaMigrationRunner.Upgrade(
+                    AppDbContext.DatabaseFilePath,
+                    AppSchemaMigrations.ProGlass,
+                    "Sheet Store");
 
                 AppLogService.Info(
                     $"Main database ready at {AppDbContext.DatabaseFilePath}",

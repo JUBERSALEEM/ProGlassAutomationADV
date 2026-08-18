@@ -1,5 +1,6 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.ProformaInvoice.Specifications;
+using ProGlassAutomation.Services.Database.SchemaMigrations;
 using ProGlassAutomation.Services.Audit;
 using System;
 using System.Collections.Generic;
@@ -19,6 +20,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.SpecificationsRepository
         {
             using var db = new SpecificationsDbContext();
             await db.Database.EnsureCreatedAsync();
+
+            // Additive schema upgrades for an existing specifications.db.
+            SchemaMigrationRunner.Upgrade(
+                SpecificationsDbContext.DatabaseFilePath,
+                AppSchemaMigrations.Specifications,
+                "Specifications");
         }
 
         public async Task<List<SavedSpecification>> GetAllAsync(string glassTypeFilter = null)

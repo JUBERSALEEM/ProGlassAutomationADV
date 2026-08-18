@@ -14,6 +14,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Services.Audit;
+using ProGlassAutomation.Services.Database.SchemaMigrations;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -40,6 +41,13 @@ namespace ProGlassAutomation.Services.AI.AIMemory
             {
                 using var db = new AiMemoryDbContext();
                 await db.Database.EnsureCreatedAsync();
+
+                // Additive schema upgrades for an existing aimemory.db.
+                SchemaMigrationRunner.Upgrade(
+                    AiMemoryDbContext.DatabaseFilePath,
+                    AppSchemaMigrations.AiMemory,
+                    "AI Memory");
+
                 _initialized = true;
             }
             catch (Exception ex)

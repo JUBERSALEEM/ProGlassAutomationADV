@@ -11,6 +11,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.MasterData;
+using ProGlassAutomation.Services.Database.SchemaMigrations;
 using ProGlassAutomation.Services.MasterData.Database;
 using System;
 using System.Collections.Generic;
@@ -52,9 +53,18 @@ namespace ProGlassAutomation.Services.MasterData.Repository
             using var ctx = new MasterDataDbContext();
             await ctx.Database.EnsureCreatedAsync();
 
+            // Additive schema upgrades for an existing masterdata.db
+            // (future versioned migrations; empty today = no-op).
+            SchemaMigrationRunner.Upgrade(
+                MasterDataDbContext.DatabaseFilePath,
+                AppSchemaMigrations.MasterData,
+                "Master Data");
+
             // Schema evolution for databases created before v2 company
             // profile fields existed. EnsureCreated never ALTERs an
             // existing file, so add missing columns explicitly.
+            // (Legacy inline migrator — to be folded into AppSchemaMigrations
+            // in a later verified phase.)
             await EvolveCompanyColumnsAsync(ctx);
         }
 

@@ -1,7 +1,8 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.TaxInvoice.Attachment;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Models.TaxInvoice.TaxInvoiceFamily;
+using ProGlassAutomation.Services.Database.SchemaMigrations;
 using ProGlassAutomation.Services.TaxInvoice.Database;
 using System;
 using System.Collections.Generic;
@@ -36,6 +37,12 @@ namespace ProGlassAutomation.Services.TaxInvoice.Repository
         {
             using var ctx = new TaxInvoiceDbContext();
             await ctx.Database.EnsureCreatedAsync();
+
+            // Additive schema upgrades for an existing taxinvoices.db.
+            SchemaMigrationRunner.Upgrade(
+                TaxInvoiceDbContext.DatabaseFilePath,
+                AppSchemaMigrations.TaxInvoices,
+                "Tax Invoice");
         }
 
         // ── Single invoice retrieval ──────────────────────────────────────

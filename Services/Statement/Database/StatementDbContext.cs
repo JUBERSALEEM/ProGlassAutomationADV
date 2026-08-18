@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Statement/Database/StatementDbContext.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Account Statement / Sales Report (Chat 16)
@@ -35,6 +35,9 @@ namespace ProGlassAutomation.Services.Statement.Database
                 return Path.Combine(folder, "statements.db");
             }
         }
+
+        /// <summary>Public accessor used by the schema migration runner.</summary>
+        public static string DatabaseFilePath => DbPath;
 
         // ── Configuration ─────────────────────────────────────────────────
         protected override void OnConfiguring(

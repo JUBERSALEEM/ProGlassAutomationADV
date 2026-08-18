@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using System;
 using System.IO;
@@ -40,6 +40,9 @@ namespace ProGlassAutomation.Services.DeliveryNote.Database
                 return Path.Combine(folder, "deliverynotes.db");
             }
         }
+
+        /// <summary>Public accessor used by the schema migration runner.</summary>
+        public static string DatabaseFilePath => DbPath;
 
         // ── Configuration ────────────────────────────────────────────────
 

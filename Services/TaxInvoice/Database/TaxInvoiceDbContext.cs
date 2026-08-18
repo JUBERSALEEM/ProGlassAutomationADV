@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.TaxInvoice.Attachment;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using System;
@@ -58,6 +58,9 @@ namespace ProGlassAutomation.Services.TaxInvoice.Database
                 return Path.Combine(folder, "taxinvoices.db");
             }
         }
+
+        /// <summary>Public accessor used by the schema migration runner.</summary>
+        public static string DatabaseFilePath => DbPath;
 
         // ── Configuration ─────────────────────────────────────────────────
 

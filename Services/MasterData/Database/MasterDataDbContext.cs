@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.MasterData;
 using System;
 using System.IO;
@@ -51,6 +51,9 @@ namespace ProGlassAutomation.Services.MasterData.Database
                 return Path.Combine(folder, "masterdata.db");
             }
         }
+
+        /// <summary>Public accessor used by the schema migration runner.</summary>
+        public static string DatabaseFilePath => DbPath;
 
         protected override void OnConfiguring(DbContextOptionsBuilder options)
         {

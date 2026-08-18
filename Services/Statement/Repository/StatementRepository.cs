@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Statement/Repository/StatementRepository.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Account Statement / Sales Report (Chat 16 + Chat 21 v2 fix)
@@ -33,6 +33,7 @@
 
 using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.Statement;
+using ProGlassAutomation.Services.Database.SchemaMigrations;
 using ProGlassAutomation.Services.Statement.Database;
 using System;
 using System.Collections.Generic;
@@ -51,6 +52,12 @@ namespace ProGlassAutomation.Services.Statement.Repository
         {
             await using var ctx = new StatementDbContext();
             await ctx.Database.EnsureCreatedAsync();
+
+            // Additive schema upgrades for an existing statements.db.
+            SchemaMigrationRunner.Upgrade(
+                StatementDbContext.DatabaseFilePath,
+                AppSchemaMigrations.Statements,
+                "Statement");
         }
 
         // ── Single record retrieval ───────────────────────────────────────
