@@ -25,7 +25,6 @@ using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Models.Statement;
 using ProGlassAutomation.Models.Statement.Reconciliation;
 using ProGlassAutomation.Models.Statement.Workflow;
-using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Statement.Aggregation;
 using ProGlassAutomation.Services.Statement.Reconciliation;
@@ -35,7 +34,6 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Text.Json;
 using System.Threading.Tasks;
 
 namespace ProGlassAutomation.Services.Statement.Workflow
@@ -200,7 +198,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
             }
 
             var matching = allInvoices
-                .Where(i => MatchesFilter(i, filter))
+                .Where(i => StatementSnapshotFilter.MatchesFilter(i, filter))
                 .OrderBy(i => i.IssueDate)
                 .FirstOrDefault();
 
@@ -300,7 +298,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
 
             var allInvoices = await App.TaxInvoices.GetAllAsync();
             var firstMatching = allInvoices?
-                .Where(i => MatchesFilter(i, filter))
+                .Where(i => StatementSnapshotFilter.MatchesFilter(i, filter))
                 .OrderBy(i => i.IssueDate)
                 .FirstOrDefault();
 
@@ -341,7 +339,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
                 string.Equals(s, jo.Status,
                     StringComparison.OrdinalIgnoreCase));
 
-            int orderedQty = ExtractOrderedQtyFromJobOrder(jo);
+            int orderedQty = JobOrderQtyExtractor.ExtractOrderedQtyFromJobOrder(jo);
             result.OrderedQty = orderedQty;
             step.AddDetail($"📦 Ordered qty: {orderedQty} pcs");
 
@@ -384,7 +382,7 @@ namespace ProGlassAutomation.Services.Statement.Workflow
 
             var allInvoices = await App.TaxInvoices.GetAllAsync();
             var firstMatching = allInvoices?
-                .Where(i => MatchesFilter(i, filter))
+                .Where(i => StatementSnapshotFilter.MatchesFilter(i, filter))
                 .OrderBy(i => i.IssueDate)
                 .FirstOrDefault();
 
@@ -1697,121 +1695,6 @@ namespace ProGlassAutomation.Services.Statement.Workflow
         //  HELPERS
         // ═════════════════════════════════════════════════════════════════
 
-        private static bool MatchesFilter(
-            TaxInvoiceListItem inv, StatementFilter filter)
-        {
-            if (!SafeMatch(inv.CompanyName, filter.CompanyName)) return false;
-            if (!SafeMatch(inv.CustomerName, filter.CustomerName)) return false;
-            if (!SafeMatch(inv.ProjectName, filter.ProjectName)) return false;
-            if (filter.DateFrom.HasValue &&
-                inv.IssueDate.Date < filter.DateFrom.Value.Date) return false;
-            if (filter.DateTo.HasValue &&
-                inv.IssueDate.Date > filter.DateTo.Value.Date) return false;
-            if (filter.Statuses != null && filter.Statuses.Count > 0)
-            {
-                var statuses = filter.Statuses
-                    .Select(s => s.ToLowerInvariant()).ToHashSet();
-                if (!statuses.Contains(
-                        (inv.Status ?? "").ToLowerInvariant()))
-                    return false;
-            }
-            return true;
-        }
 
-        private static bool SafeMatch(string? haystack, string? needle)
-        {
-            if (string.IsNullOrWhiteSpace(needle)) return true;
-            if (string.IsNullOrEmpty(haystack)) return false;
-            return haystack.Trim().Contains(needle.Trim(),
-                StringComparison.OrdinalIgnoreCase);
-        }
-
-        /// <summary>
-        /// Extracts ordered qty from JobOrder snapshot.
-        /// Searches 3 JSON paths:
-        ///   1. EmbeddedInvoice.SpecGroups (correct for your app)
-        ///   2. ProformaInvoice.SpecGroups (fallback)
-        ///   3. root.SpecGroups (last resort)
-        /// Each group may have ItemRows or Rows (checks both).
-        /// </summary>
-        private static int ExtractOrderedQtyFromJobOrder(
-            Models.JobOrder.SavedJobOrder.SavedJobOrder jo)
-        {
-            if (string.IsNullOrWhiteSpace(jo.FullSnapshotJson) ||
-                jo.FullSnapshotJson == "{}")
-                return 0;
-
-            try
-            {
-                using var doc = JsonDocument.Parse(jo.FullSnapshotJson);
-                var root = doc.RootElement;
-                int total = 0;
-
-                // Path 1: EmbeddedInvoice.SpecGroups
-                if (root.TryGetProperty("EmbeddedInvoice", out var embedded))
-                {
-                    total = SumQtyFromSpecGroups(embedded);
-                    if (total > 0)
-                    {
-                        Debug.WriteLine(
-                            $"[Workflow] Qty from EmbeddedInvoice: {total}");
-                        return total;
-                    }
-                }
-
-                // Path 2: ProformaInvoice.SpecGroups
-                if (root.TryGetProperty("ProformaInvoice", out var pi))
-                {
-                    total = SumQtyFromSpecGroups(pi);
-                    if (total > 0)
-                    {
-                        Debug.WriteLine(
-                            $"[Workflow] Qty from ProformaInvoice: {total}");
-                        return total;
-                    }
-                }
-
-                // Path 3: root.SpecGroups
-                total = SumQtyFromSpecGroups(root);
-                Debug.WriteLine($"[Workflow] Qty from root: {total}");
-                return total;
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"[Workflow] Qty extract: {ex.Message}");
-                return 0;
-            }
-        }
-
-        /// <summary>
-        /// Sums Qty from SpecGroups → (ItemRows or Rows) → Qty
-        /// </summary>
-        private static int SumQtyFromSpecGroups(JsonElement parent)
-        {
-            if (!parent.TryGetProperty("SpecGroups", out var groups) ||
-                groups.ValueKind != JsonValueKind.Array)
-                return 0;
-
-            int total = 0;
-            foreach (var group in groups.EnumerateArray())
-            {
-                JsonElement rows;
-                bool hasRows =
-                    group.TryGetProperty("ItemRows", out rows) ||
-                    group.TryGetProperty("Rows", out rows);
-
-                if (!hasRows || rows.ValueKind != JsonValueKind.Array)
-                    continue;
-
-                foreach (var row in rows.EnumerateArray())
-                {
-                    if (row.TryGetProperty("Qty", out var qty) &&
-                        qty.TryGetInt32(out int q))
-                        total += q;
-                }
-            }
-
-            return total;
-        }
     }
 }
