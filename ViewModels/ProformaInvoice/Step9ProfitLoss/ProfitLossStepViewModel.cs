@@ -1013,7 +1013,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                     // edge-work charge will need it) but is deliberately
                     // discarded here: nothing in the P&L is priced per linear
                     // metre any more.
-                    var (cutSqm, _) = MeasureGroup(group);
+                    var (cutSqm, _) = PnLMeasurement.MeasureGroup(group);
                     if (cutSqm <= 0m) continue;
 
                     // Kept for the per-specification view: cost per SQM needs
@@ -1261,7 +1261,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                 Kind = "Spacer",
                                 SpecNumber = group.GroupNumber,
                                 SpecName = group.SelectedSpecName ?? "",
-                                Description = BuildRowDescription(
+                                Description = PnLMeasurement.BuildRowDescription(
                                     group,
                                     $"{spacerMm}mm ASP (includes cutting, tempering and production)",
                                     $"{cutSqm:0.##} SQM"),
@@ -1307,7 +1307,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                 Kind = "Production",
                                 SpecNumber = group.GroupNumber,
                                 SpecName = group.SelectedSpecName ?? "",
-                                Description = BuildRowDescription(
+                                Description = PnLMeasurement.BuildRowDescription(
                                     group, lamLabel, $"{cutSqm:0.##} SQM"),
                                 Quantity = Math.Round(cutSqm, 2),
                                 PricePerSqm = lamRate,
@@ -1359,7 +1359,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                 Kind = "Spacer",
                                 SpecNumber = group.GroupNumber,
                                 SpecName = group.SelectedSpecName ?? "",
-                                Description = BuildRowDescription(
+                                Description = PnLMeasurement.BuildRowDescription(
                                     group,
                                     $"{spacerMm}mm ASP (includes cutting, tempering and production)",
                                     $"{cutSqm:0.##} SQM"),
@@ -1412,7 +1412,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                 Kind = "Production",
                                 SpecNumber = group.GroupNumber,
                                 SpecName = group.SelectedSpecName ?? "",
-                                Description = BuildRowDescription(
+                                Description = PnLMeasurement.BuildRowDescription(
                                     group, label, $"{cutSqm:0.##} SQM"),
                                 Quantity = Math.Round(cutSqm, 2),
                                 PricePerSqm = lamRate,
@@ -1438,7 +1438,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                                 Kind = "Production",
                                 SpecNumber = group.GroupNumber,
                                 SpecName = group.SelectedSpecName ?? "",
-                                Description = BuildRowDescription(
+                                Description = PnLMeasurement.BuildRowDescription(
                                     group, "Cutting + tempering", $"{cutSqm:0.##} SQM"),
                                 Quantity = Math.Round(cutSqm, 2),
                                 PricePerSqm = rate,
@@ -1615,9 +1615,6 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
         //  than silently quoting a wrong percentage.
         // ══════════════════════════════════════════════════════════════════
 
-        private static decimal SafeYield(decimal yieldFactor) =>
-            yieldFactor <= 0m ? 1m : yieldFactor;
-
         private decimal QuoteBasisFor(
             string? glassType, bool isDgu, bool isLam, bool isDguLam)
         {
@@ -1632,7 +1629,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
 
                 decimal basis =
                     (vm.OuterBasePrice + vm.LamOuterBasePrice + vm.LamInnerBasePrice)
-                        / SafeYield(vm.YieldFactor)
+                        / PnLMeasurement.SafeYield(vm.YieldFactor)
                     + vm.TotalCuttingCost
                     + vm.TotalTemperingCost
                     + vm.InterlayerSellPrice
@@ -1647,7 +1644,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 if (vm == null) return 0m;
 
                 decimal basis =
-                    (vm.OuterBasePrice + vm.InnerBasePrice) / SafeYield(vm.YieldFactor)
+                    (vm.OuterBasePrice + vm.InnerBasePrice) / PnLMeasurement.SafeYield(vm.YieldFactor)
                     + vm.PvbMaterialRate
                     + vm.OuterCuttingCost + vm.InnerCuttingCost
                     + vm.OuterTemperingCost + vm.InnerTemperingCost;
@@ -1661,7 +1658,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 if (vm == null) return 0m;
 
                 decimal basis =
-                    (vm.OuterBasePrice + vm.InnerBasePrice) / SafeYield(vm.YieldFactor)
+                    (vm.OuterBasePrice + vm.InnerBasePrice) / PnLMeasurement.SafeYield(vm.YieldFactor)
                     + vm.SpacerPrice;
 
                 return Math.Round(basis, 2);
@@ -1687,7 +1684,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 if (vm == null) return 0m;
 
                 decimal basis =
-                    vm.BasePricePerSqm / SafeYield(vm.YieldFactor)
+                    vm.BasePricePerSqm / PnLMeasurement.SafeYield(vm.YieldFactor)
                     + vm.CuttingCostPerSqm
                     + vm.TemperingCostPerSqm;
 
@@ -1697,57 +1694,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
             return 0m;
         }
 
-        private static (decimal CutSqm, decimal PerimeterLm) MeasureGroup(SpecGroup group)
-        {
-            decimal cutSqm = 0m;
-            decimal perimeterLm = 0m;
-
-            var rows = group.ItemRows;
-            if (rows == null) return (0m, 0m);
-
-            foreach (var row in rows)
-            {
-                if (row == null) continue;
-
-                int qty = row.Qty > 0 ? row.Qty : 0;
-                if (qty == 0) continue;
-
-                // Phase 5/11: single authoritative physical panel area (no
-                // billable floor) from SqmCalculator - identical formula.
-                decimal area =
-                    ProGlassAutomation.Utilities.SqmCalculator
-                        .CalculatePhysicalPanelArea(row.W1, row.H1);
-
-                if (row.W2 > 0 && row.H2 > 0)
-                    area += ProGlassAutomation.Utilities.SqmCalculator
-                        .CalculatePhysicalPanelArea(row.W2, row.H2);
-
-                cutSqm += area * qty;
-
-                perimeterLm += (2m * (row.W1 + row.H1) / 1000m) * qty;
-            }
-
-            return (cutSqm, perimeterLm);
-        }
-
         /// <summary>
         /// Prices one pane against the Sheet Store. Returns null when the
         /// store has no usable purchase price (caller counts it as skipped).
         /// </summary>
-        /// <summary>
-        /// Builds the detail half of a P&amp;L row.
-        ///
-        /// The full specification is carried separately on
-        /// <see cref="ProfitLossRow.SpecName"/> and rendered in the SPEC
-        /// column, so it deliberately is NOT repeated here — printing it in
-        /// both places made every row unreadably long.
-        /// </summary>
-        private static string BuildRowDescription(
-            SpecGroup group, string part, string detail)
-        {
-            return string.IsNullOrWhiteSpace(detail) ? part : $"{part} · {detail}";
-        }
-
         private async Task<ProfitLossRow?> BuildGlassRowAsync(
             SpecGroup group,
             string side,
@@ -1870,7 +1820,7 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 // reads as the product actually being quoted rather than a
                 // fragment. Falls back to the parsed pane when a group has
                 // no spec selected.
-                Description = BuildRowDescription(
+                Description = PnLMeasurement.BuildRowDescription(
                     group,
                     $"{side} pane · {thicknessMm}mm {color}",
                     // Shows the cut area, the wastage allowance and the area
