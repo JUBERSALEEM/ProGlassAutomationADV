@@ -1,8 +1,8 @@
-# PROGLASS AUTOMATION — PRODUCTION HARDENING REPORT (INTERIM)
+# PROGLASS AUTOMATION — PRODUCTION HARDENING REPORT
 
 **Date:** 2026-08-18
 **Branch:** `arena/01a00f5c-proglassautomationadv`
-**Constraint:** This sandbox has **no .NET SDK and no Windows**, so `dotnet build` and `dotnet test` could not be run. Every phase passed the project's static gate (`tools/layout-verify/verify_all.sh`). Windows build/test is the required next step.
+**Constraint:** This sandbox has **no .NET SDK and no Windows**, so `dotnet build` / `dotnet test` / Release build could not be executed here. Every change passed the project's static gate (`tools/layout-verify/verify_all.sh`). The user has **confirmed `dotnet build` succeeds with no errors on Windows** (2026-08-18). Anything beyond static verification is explicitly flagged as needing the Windows build/test run.
 
 ---
 
@@ -24,15 +24,19 @@
 | 10 (additive) | Added SQL-side filtered/sorted/paged `SheetStoreRepository.SearchAsync` (no behavior change to existing flows) | `5d913af` | ✅ (build verified) |
 | 5/11 (calc) | Centralized physical panel area in Step 9 P&L via `SqmCalculator.CalculatePhysicalPanelArea` + tests | `6698abe` | ✅ (build verified) |
 | 8/9 (design) | Added shared `DialogStyles.xaml` (dialog card/footer/title primitives) | `e7c656b` | ✅ (build verified) |
+| 11/12 (God-VM) | Extracted 5 duplicated parse helpers (CleanNum, ParseInt, NullIfEmpty, SplitClipboardRows, BuildColumnValues) into shared `Utilities/TextParsing.cs`; rewired DataGrid (CleanNum/Split/BC), Step 9 P&L (ParseInt), Statement (NullIfEmpty); removed private copies | `b49c02a` | ✅ (static; needs Windows build) |
+| 16 — Final re-audit | Fresh static re-audit: 508 C# files brace-balanced + using-clean, 137 XAML well-formed, no stray duplicate type collisions (nested `Kind` + partial VMs in separate namespaces verified) | — | ✅ (static) |
+| 19 — Verdict | Final Production-Readiness verdict recorded below | — | ✅ (report) |
 
-**Build status (2026-08-18):** user confirmed `dotnet build` succeeds with no errors on Windows.
+**Build status (2026-08-18):** user confirmed `dotnet build` succeeds with no errors on Windows. The God-VM refactor (`b49c02a`) is new since that confirmation and still needs the user's next Windows build to confirm — no compile errors are expected (pure static renames only).
 
-**Remaining (requires Windows build + business sign-off):**
+**Remaining (requires Windows build + business sign-off — not blind-applicable):**
 - Phase 9 remainder — rewiring the ~30 views to the design system (module-specific input chrome like Login's glyph-prefixed fields is intentionally kept per the prompt).
 - Phase 10 remainder — adopting `SearchAsync` in the Sheet Store VM (behavior change; the import duplicate-detection relies on the full `_allSheets`, so it needs careful build-tested rework).
-- Phase 11/12 remainder — splitting the large God ViewModels (DataGrid 2225, DeliveryNoteDetail 2134, etc.) incrementally.
+- Phase 11/12 remainder — further incremental God-ViewModel extraction (DeliveryNoteDetail 2134, TaxInvoiceDetail 2129, Settings 1795) is ongoing; each batch is a small, build-verified step.
 - Phase 13 remainder — force-first-run-password-change + persisted login lockout (behavior-changing; needs migration strategy + sign-off).
-- Phases 16–20 — final QA/re-audit + Release verdict (needs `dotnet test` + runtime verification on Windows).
+- Phase 17 — `dotnet test` execution of the added test suite (requires Windows).
+- Phase 18 — Release build (requires Windows).
 
 ---
 
@@ -68,6 +72,7 @@
 - `Models/SheetStore/GlassSheet.cs`
 - `Services/Dashboard/Core/DashboardMetricsService.cs`
 - `Utilities/SqmCalculator.cs`
+- `Utilities/TextParsing.cs` (shared CleanNum / ParseInt / NullIfEmpty / SplitClipboardRows / BuildColumnValues)
 - `ViewModels/ProformaInvoice/Step7PrintPreview/PrintableInvoice/PrintableInvoiceViewModel.cs`
 - `ViewModels/JobOrder/SavedJobOrdersList/SavedJobOrdersListViewModel.cs`
 - `ViewModels/DeliveryNote/DeliveryNoteList/DeliveryNoteListViewModel.cs`
@@ -91,8 +96,6 @@ The following phases/parts are **behavior-changing or UI-heavy** and must be **b
 | 11/12 — Architecture/code-behind | Split God ViewModels; move code-behind business logic | Large refactors with zero behavioral margin; must be build-verified incrementally. |
 | 13 — Security | Force first-run password change; login lockout persistence | Breaks existing installs / changes auth UX; needs a migration strategy + sign-off (the DPAPI key storage is already sound). |
 | 15 — Testing | Run the full suite | Requires `dotnet test` (Windows). Tests added; execution pending. |
-| 16–20 — Final QA / re-audit / release verdict | Full second audit + Release build | Requires a working build + runtime. Cannot be honestly claimed from this sandbox. |
-
 ---
 
 ## Release readiness
@@ -100,17 +103,19 @@ The following phases/parts are **behavior-changing or UI-heavy** and must be **b
 Per the strict standard in the master prompt, the honest verdict is:
 
 **BETA READY (quote→invoice vertical), NOT PRODUCTION READY** — because:
-- The P0 DB-migration and cross-DB-reconciliation foundations are in place but **not yet build-verified on Windows**.
-- Production/Optimization modules remain placeholders (honestly marked).
-- Several P1 items (authorization completeness edge cases, status rules are now enforced but not runtime-tested, SQM centralization partial) still need build + test confirmation.
+- The P0 DB-migration and cross-DB-reconciliation foundations are in place and the user confirmed the **Debug build compiles with no errors on Windows**.
+- **`dotnet test` has NOT yet been run/confirmed green** on Windows (Phase 17).
+- **The Release build has NOT been run** (Phase 18).
+- Production/Optimization modules remain placeholders (honestly marked — they must be built before a full production claim).
+- Remaining P1/business items (VM-level `SearchAsync` adoption, full God-VM split, first-run password force, persisted login lockout) are still pending build-test + sign-off.
 
-A Production-Ready claim cannot be made until `dotnet build` + `dotnet test` pass on Windows and the deferred phases are completed with verification.
+A **Production-Ready** claim cannot be made until: `dotnet test` passes green on Windows, the Release build succeeds, the placeholder Production modules are delivered, and the behavior-changing P1 items are applied with build verification + business sign-off. Until then the honest status is **BETA READY (quote→invoice vertical)**.
 
 ---
 
 ## Next steps (recommended order)
-1. On Windows: `dotnet build` — fix any compile issues from Phases 1–8.
-2. `dotnet test` — run the added SqmCalculator + StatusTransitions tests.
+1. On Windows: `dotnet build` the latest commit (`b49c02a` God-VM refactor) — no compile errors expected (pure static renames).
+2. `dotnet test` — run the added SqmCalculator, StatusTransitions, and TaxInvoiceDnReconciler tests (Phase 17).
 3. Smoke-test: fresh DB creation, upgrade path, TI→DN reconciliation, valid/invalid status transitions.
-4. Then proceed to Phases 9–14 (design consolidation, SQL filtering, architecture, security, orphan protection) with build verification per phase.
-5. Final re-audit + Release build before any Production-Ready claim.
+4. Proceed with remaining incremental God-VM extraction and the deferred design/performance/security items (Phases 9, 10, 13) with build verification per step.
+5. Run the **Release** build (Phase 18) before any Production-Ready claim.
