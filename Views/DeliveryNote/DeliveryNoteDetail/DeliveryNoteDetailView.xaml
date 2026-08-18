@@ -25,6 +25,48 @@
 
 
 
+        <Style x:Key="DnMenuActionItem" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="Padding" Value="12,9"/>
+            <Setter Property="HorizontalContentAlignment" Value="Left"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg" Background="Transparent"
+                                CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,9"
+                                SnapsToDevicePixels="True">
+                            <StackPanel Orientation="Horizontal">
+                                <TextBlock Text="{TemplateBinding Tag}"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="14"
+                                           Foreground="{DynamicResource AccentBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,10,0"/>
+                                <TextBlock Text="{TemplateBinding Content}"
+                                           FontSize="13" FontWeight="SemiBold"
+                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                           VerticalAlignment="Center"/>
+                            </StackPanel>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="{DynamicResource MenuHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.8"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.40"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="ActionButtonStyle" TargetType="Button">
             <Setter Property="Padding" Value="16,8"/>
             <Setter Property="FontSize" Value="12"/>
@@ -319,6 +361,15 @@
             </Style.Triggers>
         </Style>
 
+        <Style x:Key="DnMenuRealOnlyItem" TargetType="Button"
+               BasedOn="{StaticResource DnMenuActionItem}">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsMasterDn}" Value="True">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+
         <!-- THIS DN / DELIVERED column header -->
 
         <!-- DeliveredQty TextBox — hidden on Master DN -->
@@ -339,8 +390,8 @@
 
         <!-- Master DN banner -->
         <Style x:Key="MasterDnBannerStyle" TargetType="Border">
-            <Setter Property="Margin" Value="0,0,0,12"/>
-            <Setter Property="Padding" Value="16,12"/>
+            <Setter Property="Margin" Value="0,0,0,8"/>
+            <Setter Property="Padding" Value="12,8"/>
             <Setter Property="CornerRadius" Value="12"/>
             <Setter Property="SnapsToDevicePixels" Value="True"/>
             <Setter Property="Visibility" Value="Collapsed"/>
@@ -395,7 +446,8 @@
          Row 4: Items + History
     -->
     <Grid Margin="{DynamicResource DensityPageMargin}"
-          Background="{DynamicResource ModuleBackgroundBrush}">
+          Background="{DynamicResource ModuleBackgroundBrush}"
+          PreviewMouseLeftButtonDown="Root_PreviewMouseLeftButtonDown">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -461,54 +513,74 @@
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
 
-                    <!-- Real DN actions -->
-                    <StackPanel Style="{StaticResource RealDnActionsStyle}">
-                        <!-- v2 §24: version history -->
-                        <Button Style="{StaticResource RowOutlinedButton}"
-                                Tag="&#xE81C;" Content="HISTORY"
-                                Command="{Binding ShowVersionsCommand}"
-                                Margin="0,0,6,0"
-                                ToolTip="Version history — every save is preserved"/>
-                        <Button Style="{StaticResource PrimaryPillButton}"
-                                Tag="&#xE74E;" Content="SAVE"
-                                Command="{Binding SaveCommand}"
-                                Margin="0,0,6,0"
-                                ToolTip="Save (Ctrl+S)"/>
-                        <Button Style="{StaticResource SuccessPillButton}"
-                                Tag="&#xE7F4;" Content="MAKE DN"
-                                Command="{Binding MakeDnCommand}"
-                                Margin="0,0,12,0"
-                                ToolTip="Create a split delivery note"/>
-                        <Border Width="1" Margin="0,4,12,4"
-                                Background="{DynamicResource BorderBrush}"/>
-                        <Button Style="{StaticResource SuccessPillButton}"
-                                Tag="&#xE8A5;" Content="PDF"
-                                Command="{Binding ExportPdfCommand}"
-                                Margin="0,0,6,0"
-                                ToolTip="Export PDF"/>
-                        <Button Style="{StaticResource SuccessPillButton}"
-                                Tag="&#xE9F9;" Content="EXCEL"
-                                Command="{Binding ExportExcelCommand}"
-                                Margin="0,0,6,0"
-                                ToolTip="Export Excel"/>
-                        <Button Style="{StaticResource SuccessPillButton}"
-                                Tag="&#xE72D;" Content="CSV"
-                                Command="{Binding ExportCsvCommand}"
-                                Margin="0,0,12,0"
-                                ToolTip="Export CSV"/>
-                        <Border Width="1" Margin="0,4,12,4"
-                                Background="{DynamicResource BorderBrush}"/>
-                        <Button Style="{StaticResource DangerButton}"
-                                Tag="&#xE74D;" Content="DELETE"
-                                Command="{Binding DeleteDnCommand}"
-                                ToolTip="Delete this delivery note"/>
-                    </StackPanel>
-
-                    <!-- Master DN button -->
-                    <Button Style="{StaticResource PrimaryPillButton}"
-                            Tag="&#xE7B8;" Content="CREATE NEW DN FROM BALANCE"
+                    <Button Style="{StaticResource CreateFromMasterButtonStyle}"
+                            Tag="&#xE7B8;" Content="CREATE FROM BALANCE"
                             Command="{Binding CreateNewDnFromMasterCommand}"
+                            Margin="0,0,8,0"
                             ToolTip="Create a new DN pre-filled with balance quantities"/>
+
+                    <Button x:Name="ActionsMenuButton"
+                            Style="{StaticResource OutlinedPillButton}"
+                            Tag="&#xE712;" Content="ACTIONS"
+                            ToolTip="Save, dispatch, export and more"
+                            Click="ActionsMenuButton_Click"/>
+
+                    <Popup x:Name="ActionsMenuPopup"
+                           PlacementTarget="{Binding ElementName=ActionsMenuButton}"
+                           Placement="Bottom"
+                           HorizontalAlignment="Right"
+                           VerticalOffset="4"
+                           AllowsTransparency="True"
+                           StaysOpen="True"
+                           PopupAnimation="Fade">
+                        <Border Background="{DynamicResource ModuleBackgroundBrush}"
+                                BorderBrush="{DynamicResource OutlineBrush}"
+                                BorderThickness="1"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
+                                Padding="6"
+                                MinWidth="220"
+                                SnapsToDevicePixels="True">
+                            <Border.Effect>
+                                <DropShadowEffect BlurRadius="20" ShadowDepth="4"
+                                                  Direction="270" Opacity="0.25"
+                                                  Color="#000000"/>
+                            </Border.Effect>
+                            <StackPanel>
+                                <Button Style="{StaticResource DnMenuRealOnlyItem}"
+                                        Tag="&#xE74E;" Content="Save  (Ctrl+S)"
+                                        Command="{Binding SaveCommand}"
+                                        Click="MenuActionClicked"/>
+                                <Button Style="{StaticResource DnMenuRealOnlyItem}"
+                                        Tag="&#xE7F4;" Content="Make DN"
+                                        Command="{Binding MakeDnCommand}"
+                                        Click="MenuActionClicked"/>
+                                <Button Style="{StaticResource DnMenuActionItem}"
+                                        Tag="&#xE81C;" Content="Version history"
+                                        Command="{Binding ShowVersionsCommand}"
+                                        Click="MenuActionClicked"/>
+                                <Border Height="1" Margin="10,4"
+                                        Background="{DynamicResource OutlineBrush}"/>
+                                <Button Style="{StaticResource DnMenuActionItem}"
+                                        Tag="&#xE8A5;" Content="Export PDF"
+                                        Command="{Binding ExportPdfCommand}"
+                                        Click="MenuActionClicked"/>
+                                <Button Style="{StaticResource DnMenuActionItem}"
+                                        Tag="&#xE9F9;" Content="Export Excel"
+                                        Command="{Binding ExportExcelCommand}"
+                                        Click="MenuActionClicked"/>
+                                <Button Style="{StaticResource DnMenuActionItem}"
+                                        Tag="&#xE72D;" Content="Export CSV"
+                                        Command="{Binding ExportCsvCommand}"
+                                        Click="MenuActionClicked"/>
+                                <Border Height="1" Margin="10,4"
+                                        Background="{DynamicResource OutlineBrush}"/>
+                                <Button Style="{StaticResource DnMenuRealOnlyItem}"
+                                        Tag="&#xE74D;" Content="Delete delivery note"
+                                        Command="{Binding DeleteDnCommand}"
+                                        Click="MenuActionClicked"/>
+                            </StackPanel>
+                        </Border>
+                    </Popup>
                 </StackPanel>
             </Grid>
         </Border>
