@@ -15,7 +15,7 @@
         UseLayoutRounding="True"
         SnapsToDevicePixels="True">
 
-    <Border CornerRadius="18"
+    <Border CornerRadius="{DynamicResource CardCornerRadius}"
             Background="{DynamicResource ModuleBackgroundBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
             BorderThickness="{DynamicResource CardBorderThickness}"
@@ -93,7 +93,7 @@
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="0,1,0,0"
                     Background="{DynamicResource MenuHoverBrush}"
-                    CornerRadius="0,0,18,18"
+                    CornerRadius="0,0,12,12"
                     Padding="20,14"
                     Margin="0,20,0,0">
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">

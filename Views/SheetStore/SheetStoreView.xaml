@@ -392,7 +392,7 @@
                         Background="{DynamicResource AccentBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="14,14,0,0" Padding="12,10"
+                        CornerRadius="12,12,0,0" Padding="12,10"
                         SnapsToDevicePixels="True">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -433,7 +433,7 @@
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="1,0,1,1"
-                        CornerRadius="0,0,14,14"
+                        CornerRadius="0,0,12,12"
                         SnapsToDevicePixels="True">
                     <Grid>
                         <ListBox ItemsSource="{Binding Sheets}"
@@ -561,7 +561,7 @@
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="22"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="20"
                         SnapsToDevicePixels="True">
                     <Border.Effect>

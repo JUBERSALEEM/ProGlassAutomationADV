@@ -24,7 +24,7 @@
 
             <Border Grid.Row="0"
                     Background="{DynamicResource AccentBrush}"
-                    CornerRadius="14,14,0,0"
+                    CornerRadius="12,12,0,0"
                     Padding="18,12">
                 <TextBlock Text="Recent Activity"
                            FontSize="14" FontWeight="Bold"

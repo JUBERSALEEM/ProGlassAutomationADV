@@ -59,7 +59,7 @@
              SEARCH PILL — module filter · query · clear
         ══════════════════════════════════════════════════════════════ -->
         <Border x:Name="SearchPill"
-                CornerRadius="18"
+                CornerRadius="{DynamicResource CardCornerRadius}"
                 Height="36"
                 Padding="14,0,8,0"
                 VerticalAlignment="Center"
@@ -165,7 +165,7 @@
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="12"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     MinWidth="440"
                     Padding="0">
                 <Grid>
@@ -206,7 +206,7 @@
 
                                         <Border Grid.Column="0"
                                                 Width="26" Height="26"
-                                                CornerRadius="7"
+                                                CornerRadius="{DynamicResource CardCornerRadius}"
                                                 Margin="0,0,10,0"
                                                 VerticalAlignment="Center"
                                                 Background="{DynamicResource TintIndigoBrush}">
@@ -226,7 +226,7 @@
                                         </StackPanel>
 
                                         <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="2"
-                                                CornerRadius="{DynamicResource PillCornerRadius}"
+                                                CornerRadius="{DynamicResource CardCornerRadius}"
                                                 Padding="8,3"
                                                 Margin="10,0,0,0"
                                                 VerticalAlignment="Center"

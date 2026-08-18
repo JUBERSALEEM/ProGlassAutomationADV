@@ -266,7 +266,7 @@
                 <!-- Accent table header -->
                 <Border Grid.Row="0"
                         Background="{DynamicResource AccentBrush}"
-                        CornerRadius="16,16,0,0"
+                        CornerRadius="12,12,0,0"
                         Padding="16,12">
                     <Grid>
                         <Grid.ColumnDefinitions>

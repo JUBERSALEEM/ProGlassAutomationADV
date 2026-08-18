@@ -483,12 +483,11 @@ namespace ProGlassAutomation.Services
         public static double CardCornerRadius => _cardCornerRadius;
 
         /// <summary>
-        /// Applies one corner radius to every card / panel via the shared
-        /// CardCornerRadius theme resource. Also derives:
-        ///   ControlCornerRadius     = max(4, radius − 2)  inputs, chips
-        ///   CardCornerRadiusLarge   = radius + 4          dialogs, heroes
-        /// PillCornerRadius stays 999 (full pill). Views already bind these
-        /// tokens, so one slider restyles the whole app.
+        /// Applies one corner radius to every card, input and button via
+        /// CardCornerRadius / ControlCornerRadius / CardCornerRadiusLarge.
+        /// All three are the SAME value so nothing looks "more round"
+        /// than the Appearance slider (default 12). PillCornerRadius stays
+        /// 999 only for true chips; button styles now bind CardCornerRadius.
         /// </summary>
         public static void ApplyCardCornerRadius(double radius)
         {
@@ -499,12 +498,10 @@ namespace ProGlassAutomation.Services
             var resources = Application.Current?.Resources;
             if (resources == null) return;
 
-            double control = Math.Max(4.0, radius - 2.0);
-            double large = radius + 4.0;
-
-            resources["CardCornerRadius"] = new CornerRadius(radius);
-            resources["ControlCornerRadius"] = new CornerRadius(control);
-            resources["CardCornerRadiusLarge"] = new CornerRadius(large);
+            var cr = new CornerRadius(radius);
+            resources["CardCornerRadius"] = cr;
+            resources["ControlCornerRadius"] = cr;
+            resources["CardCornerRadiusLarge"] = cr;
         }
 
         /// <summary>

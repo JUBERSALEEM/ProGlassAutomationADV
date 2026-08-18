@@ -483,7 +483,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg"
                                 Background="Transparent"
-                                CornerRadius="8"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="12,0"
                                 SnapsToDevicePixels="True">
                             <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
@@ -647,7 +647,7 @@
                             MouseLeftButtonDown="Logo_MouseLeftButtonDown"
                             ToolTip="About ProGlass Automation">
                     <Border Width="38" Height="38"
-                            CornerRadius="10"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Effect="{StaticResource LogoGlow}"
                             SnapsToDevicePixels="True">
                         <Border.Background>
@@ -710,7 +710,7 @@
 
                     <!-- AI AGENT PULSE PILL (theme-based accent) -->
                     <Border Height="36"
-                            CornerRadius="18"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="12,0"
                             Margin="0,0,10,0"
                             Background="{DynamicResource TintBlueBrush}"
@@ -775,14 +775,14 @@
                             Background="{DynamicResource MenuHoverBrush}"
                             BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="1"
-                            CornerRadius="9"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="10,0"
                             Margin="0,0,10,0"
                             SnapsToDevicePixels="True"
                             ToolTip="Current date and time">
                         <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                             <Border Width="28" Height="28"
-                                    CornerRadius="7"
+                                    CornerRadius="{DynamicResource CardCornerRadius}"
                                     Background="{StaticResource DateTimeIconGradient}"
                                     Margin="0,0,10,0">
                                 <TextBlock Text="&#xE787;"
@@ -808,7 +808,7 @@
 
                     <!-- CONNECTIVITY PILL -->
                     <Border Height="36"
-                            CornerRadius="18"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="12,0"
                             Margin="0,0,10,0"
                             BorderBrush="#4DFFFFFF"
@@ -906,12 +906,12 @@
                                         Background="{DynamicResource MenuHoverBrush}"
                                         BorderBrush="{DynamicResource BorderBrush}"
                                         BorderThickness="1"
-                                        CornerRadius="20"
+                                        CornerRadius="{DynamicResource CardCornerRadius}"
                                         Padding="6,0,14,0"
                                         SnapsToDevicePixels="True">
                                     <StackPanel Orientation="Horizontal" VerticalAlignment="Center">
                                         <Border Width="30" Height="30"
-                                                CornerRadius="15"
+                                                CornerRadius="{DynamicResource CardCornerRadius}"
                                                 Background="{StaticResource AvatarGradient}"
                                                 Margin="0,0,10,0">
                                             <TextBlock Text="{Binding CurrentUserInitials, FallbackValue=&apos;?&apos;}"
@@ -967,7 +967,7 @@
 
             <!-- ELEVATION CASTER (empty shadow-only Border) -->
             <Border Margin="16"
-                    CornerRadius="16"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     Effect="{StaticResource CardShadow}"
                     IsHitTestVisible="False"
@@ -977,12 +977,12 @@
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="1"
-                    CornerRadius="16"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     Margin="16"
                     ClipToBounds="True"
                     SnapsToDevicePixels="True">
                 <Grid>
-                    <Border CornerRadius="16"
+                    <Border CornerRadius="{DynamicResource CardCornerRadius}"
                             Background="{DynamicResource ModuleWallpaperBrush}"
                             IsHitTestVisible="False"/>
                     <ContentControl Content="{Binding CurrentViewModel}"/>
@@ -1013,7 +1013,7 @@
                     Background="{DynamicResource SideMenuBackgroundBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="0,0,1,0"
-                    CornerRadius="0,16,16,0"
+                    CornerRadius="0,12,12,0"
                     Panel.ZIndex="10"
                     Effect="{StaticResource DrawerLeftShadow}"
                     SnapsToDevicePixels="True">
@@ -1293,7 +1293,7 @@
                     <Border Grid.Row="1"
                             Margin="12,0,12,14"
                             Padding="14,12"
-                            CornerRadius="12"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Background="{StaticResource StorageCardGradient}"
                             BorderBrush="{DynamicResource BorderBrush}"
                             BorderThickness="1"
@@ -1337,7 +1337,7 @@
                     HorizontalAlignment="Right"
                     VerticalAlignment="Stretch"
                     MaxHeight="720"
-                    CornerRadius="16"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     ClipToBounds="True"
                     BorderBrush="{DynamicResource AccentBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"

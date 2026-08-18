@@ -135,7 +135,7 @@
                     <Border Background="{DynamicResource MenuHoverBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
-                            CornerRadius="{DynamicResource PillCornerRadius}"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="{TemplateBinding Padding}">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"/>

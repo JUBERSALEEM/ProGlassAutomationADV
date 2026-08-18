@@ -375,7 +375,7 @@
                                 <Border Width="28"
                                         Height="28"
                                         Background="{DynamicResource AccentBrush}"
-                                        CornerRadius="7"
+                                        CornerRadius="{DynamicResource CardCornerRadius}"
                                         Margin="0,0,10,0">
                                     <TextBlock Text="&#xE721;"
                                                FontFamily="Segoe MDL2 Assets"
@@ -632,7 +632,7 @@
                                 Style="{StaticResource EmptyStateStyle}">
                         <Border Width="72"
                                 Height="72"
-                                CornerRadius="36"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
                                 Background="{DynamicResource AccentBrush}"
                                 HorizontalAlignment="Center">
                             <TextBlock Text="&#xE7C3;"

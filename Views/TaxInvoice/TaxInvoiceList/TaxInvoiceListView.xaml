@@ -600,7 +600,7 @@
             <!-- v2: accent column heading strip (PI-list reference) -->
             <Border Grid.Row="0"
                     Background="{DynamicResource AccentBrush}"
-                    CornerRadius="14,14,0,0"
+                    CornerRadius="12,12,0,0"
                     Padding="16,9"
                     Margin="0,0,0,8">
                 <Grid>

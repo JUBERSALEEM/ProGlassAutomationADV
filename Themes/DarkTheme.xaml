@@ -253,9 +253,9 @@
                      po:Freeze="True"/>
 
     <!-- Card shapes — one source of truth for corner radii. -->
-    <CornerRadius x:Key="ControlCornerRadius">10</CornerRadius>
+    <CornerRadius x:Key="ControlCornerRadius">12</CornerRadius>
     <CornerRadius x:Key="CardCornerRadius">12</CornerRadius>
-    <CornerRadius x:Key="CardCornerRadiusLarge">16</CornerRadius>
+    <CornerRadius x:Key="CardCornerRadiusLarge">12</CornerRadius>
     <CornerRadius x:Key="PillCornerRadius">999</CornerRadius>
 
     <!-- Card border thickness — one source of truth for every card/panel

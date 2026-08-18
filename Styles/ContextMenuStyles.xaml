@@ -33,7 +33,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="12"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="6"
                             SnapsToDevicePixels="True">
                         <Border.Effect>
@@ -74,7 +74,7 @@
                         <!-- Item chrome -->
                         <Border x:Name="Bg"
                                 Background="Transparent"
-                                CornerRadius="8"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="4,2"
                                 Margin="3,0"
                                 SnapsToDevicePixels="True">
@@ -110,7 +110,7 @@
                             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                                     BorderBrush="{DynamicResource OutlineBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="12"
+                                    CornerRadius="{DynamicResource CardCornerRadius}"
                                     Padding="6"
                                     SnapsToDevicePixels="True">
                                 <Border.Effect>
@@ -164,7 +164,7 @@
                                 Opacity="0"/>
                         <Border x:Name="Bg"
                                 Background="Transparent"
-                                CornerRadius="8"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="4,2"
                                 Margin="3,0"
                                 SnapsToDevicePixels="True">
@@ -211,7 +211,7 @@
                             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                                     BorderBrush="{DynamicResource OutlineBrush}"
                                     BorderThickness="1"
-                                    CornerRadius="12"
+                                    CornerRadius="{DynamicResource CardCornerRadius}"
                                     Padding="6"
                                     SnapsToDevicePixels="True">
                                 <Border.Effect>

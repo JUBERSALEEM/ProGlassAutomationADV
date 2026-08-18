@@ -4,7 +4,7 @@
              FontFamily="Segoe UI">
     <Grid Background="{DynamicResource WindowBackgroundBrush}">
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" MaxWidth="600">
-            <Border Width="110" Height="110" CornerRadius="28" HorizontalAlignment="Center">
+            <Border Width="110" Height="110" CornerRadius="{DynamicResource CardCornerRadius}" HorizontalAlignment="Center">
                 <Border.Background>
                     <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                         <GradientStop Color="#1E88E5" Offset="0"/>

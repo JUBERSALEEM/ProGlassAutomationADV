@@ -36,7 +36,7 @@
             <!-- ── HEADER ──────────────────────────────────────────────── -->
             <Border Grid.Row="0"
                     Background="{DynamicResource AccentBrush}"
-                    CornerRadius="16,16,0,0"
+                    CornerRadius="12,12,0,0"
                     Padding="24,16">
                 <Grid>
                     <Grid.ColumnDefinitions>
@@ -141,7 +141,7 @@
             <Border Grid.Row="5"
                     Margin="0,16,0,0"
                     Padding="24,14"
-                    CornerRadius="0,0,16,16"
+                    CornerRadius="0,0,12,12"
                     Background="{DynamicResource MenuHoverBrush}"
                     BorderBrush="{DynamicResource BorderBrush}"
                     BorderThickness="0,1,0,0">

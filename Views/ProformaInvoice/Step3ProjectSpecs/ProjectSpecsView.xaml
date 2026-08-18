@@ -241,7 +241,7 @@ CHAT 17 — UI POLISH + BUG FIXES
                     <!-- UI-01: Indigo top stripe -->
                     <Border Grid.Row="0"
                             Background="{DynamicResource AccentBrush}"
-                            CornerRadius="16,16,0,0"/>
+                            CornerRadius="12,12,0,0"/>
 
                     <!-- Card body -->
                     <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1"
@@ -335,7 +335,7 @@ CHAT 17 — UI POLISH + BUG FIXES
                                 </StackPanel.Style>
                                 <Border Width="18"
                                         Height="18"
-                                        CornerRadius="9"
+                                        CornerRadius="{DynamicResource CardCornerRadius}"
                                         BorderThickness="2"
                                         BorderBrush="{DynamicResource AccentBrush}"
                                         Margin="0,0,10,0"
@@ -422,7 +422,7 @@ CHAT 17 — UI POLISH + BUG FIXES
                                     -->
                                     <Border Width="56"
                                             Height="56"
-                                            CornerRadius="28"
+                                            CornerRadius="{DynamicResource CardCornerRadius}"
                                             Background="{DynamicResource AccentBrush}"
                                             HorizontalAlignment="Center"
                                             Margin="0,0,0,12">

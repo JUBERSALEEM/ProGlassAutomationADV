@@ -400,7 +400,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <Border Width="36" Height="36"
                                         Background="#FFFFFF33"
-                                        CornerRadius="9"
+                                        CornerRadius="{DynamicResource CardCornerRadius}"
                                         Margin="0,0,14,0">
                                     <TextBlock Text="📚"
                                                FontSize="17"

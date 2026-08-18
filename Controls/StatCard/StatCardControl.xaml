@@ -88,7 +88,7 @@
             <!-- Icon badge -->
             <Border Grid.Column="0"
                     Width="40" Height="40"
-                    CornerRadius="12"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     Background="{DynamicResource TintIndigoBrush}"
                     VerticalAlignment="Center">
                 <TextBlock Text="{Binding Icon, ElementName=Root}"

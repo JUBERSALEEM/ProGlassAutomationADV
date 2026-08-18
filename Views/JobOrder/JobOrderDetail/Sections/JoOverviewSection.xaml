@@ -140,7 +140,7 @@
 
                                         <Border Background="{DynamicResource AccentBrush}"
                                                 Padding="10,8"
-                                                CornerRadius="8,8,0,0">
+                                                CornerRadius="12,12,0,0">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="SPEC "
                                                            FontSize="11" FontWeight="Bold"
@@ -263,7 +263,7 @@
 
                                         <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintGrayBrush}"
                                                 Padding="10,8"
-                                                CornerRadius="0,0,8,8">
+                                                CornerRadius="0,0,12,12">
                                             <StackPanel Orientation="Horizontal">
                                                 <TextBlock Text="Glass Type: "
                                                            FontSize="10" FontWeight="SemiBold"

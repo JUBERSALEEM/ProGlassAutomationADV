@@ -346,7 +346,7 @@
                             Background="{DynamicResource MenuHoverBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
-                            CornerRadius="17"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True"
                             UseLayoutRounding="True">

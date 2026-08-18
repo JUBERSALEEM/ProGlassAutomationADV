@@ -421,7 +421,7 @@
 
                                         <Border Grid.Column="0"
                                                 Width="38" Height="38"
-                                                CornerRadius="19"
+                                                CornerRadius="{DynamicResource CardCornerRadius}"
                                                 Background="{DynamicResource TintIndigoBrush}"
                                                 VerticalAlignment="Center">
                                             <TextBlock Text="&#xE77B;"

@@ -69,7 +69,7 @@
                     MaxWidth="340"
                     Margin="24,0"
                     Background="{DynamicResource MenuHoverBrush}"
-                    CornerRadius="{DynamicResource PillCornerRadius}"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="14,0"
                     Height="38"
                     HorizontalAlignment="Stretch"

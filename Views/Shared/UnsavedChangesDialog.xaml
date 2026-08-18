@@ -55,7 +55,7 @@
                         <Border Background="{DynamicResource MenuHoverBrush}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
-                                CornerRadius="{DynamicResource PillCornerRadius}"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
@@ -72,7 +72,7 @@
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
                         <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintRedBrush}"
-                                CornerRadius="{DynamicResource PillCornerRadius}"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
@@ -90,7 +90,7 @@
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{DynamicResource AccentBrush}"
-                                CornerRadius="{DynamicResource PillCornerRadius}"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>

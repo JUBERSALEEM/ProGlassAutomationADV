@@ -352,7 +352,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                     <Button.Template>
                                         <ControlTemplate TargetType="Button">
                                             <Border x:Name="PillBorder"
-                                                    CornerRadius="18"
+                                                    CornerRadius="{DynamicResource CardCornerRadius}"
                                                     Padding="14,7"
                                                     BorderThickness="{DynamicResource CardBorderThickness}"
                                                     SnapsToDevicePixels="True">
@@ -515,7 +515,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="ApplyBorder"
                                         Background="{DynamicResource AccentBrush}"
-                                        CornerRadius="17"
+                                        CornerRadius="{DynamicResource CardCornerRadius}"
                                         Padding="18,0"
                                         Height="34"
                                         SnapsToDevicePixels="True">

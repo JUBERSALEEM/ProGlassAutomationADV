@@ -62,7 +62,7 @@
                 <ControlTemplate TargetType="TextBox">
                     <Border x:Name="Chrome"
                             Background="{TemplateBinding Background}"
-                            CornerRadius="6"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             BorderThickness="{TemplateBinding BorderThickness}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             SnapsToDevicePixels="True">
@@ -144,7 +144,7 @@
                     <Border Background="{DynamicResource ModuleBackgroundBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
-                            CornerRadius="8"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             SnapsToDevicePixels="True">
                         <Grid>
                             <Grid.RowDefinitions>

@@ -346,7 +346,7 @@
                                          Opacity="0.35"
                                          IsHitTestVisible="False"/>
                                 <Border Width="150" Height="150"
-                                        CornerRadius="34"
+                                        CornerRadius="{DynamicResource CardCornerRadius}"
                                         SnapsToDevicePixels="True">
                                     <Border.Background>
                                         <ImageBrush ImageSource="pack://application:,,,/Resources/proglass_icon_256.png"

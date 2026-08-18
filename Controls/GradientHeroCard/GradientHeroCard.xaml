@@ -11,7 +11,7 @@
     </UserControl.Resources>
 
     <Border x:Name="RootBorder"
-            CornerRadius="16"
+            CornerRadius="{DynamicResource CardCornerRadius}"
             Padding="24"
             ClipToBounds="True">
         <Border.Background>
@@ -61,7 +61,7 @@
                     <Border Grid.Column="0"
                             x:Name="IconBadge"
                             Width="46" Height="46"
-                            CornerRadius="12"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Background="#33FFFFFF"
                             HorizontalAlignment="Left"
                             VerticalAlignment="Top">

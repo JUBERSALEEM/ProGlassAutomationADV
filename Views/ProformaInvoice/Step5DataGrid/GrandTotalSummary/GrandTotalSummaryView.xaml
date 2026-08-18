@@ -399,7 +399,7 @@ PRESERVED EXACTLY:
 
                 <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Background="{DynamicResource TintIndigoBrush}"
                         Width="44" Height="44"
-                        CornerRadius="22"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
                         HorizontalAlignment="Center"
                         Margin="0,0,0,10">
                     <TextBlock Text="&#xE9D2;"

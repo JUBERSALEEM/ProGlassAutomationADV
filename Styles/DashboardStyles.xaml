@@ -320,7 +320,7 @@
                             Background="{DynamicResource ElevatedSurfaceBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="1"
-                            CornerRadius="8"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Height="30"
                             Padding="12,0"
                             SnapsToDevicePixels="True">
@@ -367,7 +367,7 @@
                             Background="{DynamicResource AccentBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="1"
-                            CornerRadius="8"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Height="30"
                             Padding="12,0"
                             SnapsToDevicePixels="True">
@@ -457,7 +457,7 @@
 
                 <Border Grid.Column="0"
                         Width="28" Height="28"
-                        CornerRadius="7"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
                         VerticalAlignment="Top"
                         Margin="0,0,10,0"
                         Background="{Binding BadgeColor,
@@ -968,7 +968,7 @@
                              Converter={StaticResource BrushKeyConverter}}"
                 BorderBrush="{DynamicResource OutlineBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
-                CornerRadius="12"
+                CornerRadius="{DynamicResource CardCornerRadius}"
                 Padding="12,10"
                 Margin="0,0,0,8"
                 SnapsToDevicePixels="True">
@@ -981,7 +981,7 @@
 
                 <Border Grid.Column="0"
                         Width="34" Height="34"
-                        CornerRadius="10"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
                         VerticalAlignment="Top"
                         Margin="0,0,12,0"
                         Background="{Binding StatusColor,
@@ -1012,7 +1012,7 @@
                                FontWeight="Bold"
                                HorizontalAlignment="Right"
                                Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <Border CornerRadius="6"
+                    <Border CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="7,2"
                             Margin="0,4,0,0"
                             HorizontalAlignment="Right"

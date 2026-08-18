@@ -444,7 +444,7 @@
                             Margin="0,48,0,48">
                     <Border Width="72" Height="72"
                             Background="{DynamicResource AccentBrush}"
-                            CornerRadius="18"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             HorizontalAlignment="Center">
                         <TextBlock Text="↻"
                                    FontSize="32"
@@ -478,7 +478,7 @@
                             Margin="0,48,0,48">
 
                     <Border Width="80" Height="80"
-                            CornerRadius="18"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             HorizontalAlignment="Center"
                             ClipToBounds="True"
                             Margin="0,0,0,20">

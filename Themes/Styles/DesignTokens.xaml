@@ -8,11 +8,11 @@
      whole application looks and behaves consistently.
 
      RADIUS SCALE (canonical — defined in Light/Dark theme files):
-       ControlCornerRadius      = card−2   small controls, tags, inputs
-       CardCornerRadius         = 12       cards, list rows, panels
-                                           (Settings → Appearance slider)
-       CardCornerRadiusLarge    = card+4   section cards, hero panels
-       PillCornerRadius         = 999      pills, chips, round buttons
+       ControlCornerRadius      = 12   inputs, chips, buttons (same as card)
+       CardCornerRadius         = 12   cards, panels, action buttons
+                                       (Settings → Appearance slider)
+       CardCornerRadiusLarge    = 12   dialogs, heroes (same as card)
+       PillCornerRadius         = 999  status chips only — not buttons
 
      TYPE SCALE:
        20 Bold     page title
@@ -92,7 +92,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{DynamicResource PillCornerRadius}"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="Center"
@@ -230,7 +230,7 @@
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Bg"
                             Background="Transparent"
-                            CornerRadius="{DynamicResource PillCornerRadius}"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="Center"

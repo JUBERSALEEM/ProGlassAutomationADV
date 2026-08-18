@@ -51,7 +51,7 @@
                             Background="{DynamicResource AccentBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
-                            CornerRadius="{DynamicResource PillCornerRadius}"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="{TemplateBinding Padding}"
                             Height="{TemplateBinding Height}"
                             SnapsToDevicePixels="True">
@@ -117,7 +117,7 @@
                             Background="{DynamicResource SuccessBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
-                            CornerRadius="{DynamicResource PillCornerRadius}"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="{TemplateBinding Padding}"
                             Height="{TemplateBinding Height}"
                             SnapsToDevicePixels="True">
@@ -182,7 +182,7 @@
                             Background="{DynamicResource ModuleBackgroundBrush}"
                             BorderBrush="{DynamicResource AccentBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
-                            CornerRadius="{DynamicResource PillCornerRadius}"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="{TemplateBinding Padding}"
                             Height="{TemplateBinding Height}"
                             SnapsToDevicePixels="True">
@@ -314,7 +314,7 @@
                 Background="{TemplateBinding Background}"
                 BorderBrush="{TemplateBinding BorderBrush}"
                 BorderThickness="{TemplateBinding BorderThickness}"
-                CornerRadius="8"
+                CornerRadius="{DynamicResource CardCornerRadius}"
                 Padding="{TemplateBinding Padding}"
                 Height="{TemplateBinding Height}"
                 SnapsToDevicePixels="True">

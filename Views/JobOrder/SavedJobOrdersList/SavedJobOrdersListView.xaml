@@ -289,7 +289,7 @@
                     Background="{DynamicResource MenuHoverBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="1,1,1,0"
-                    CornerRadius="10,10,0,0"
+                    CornerRadius="12,12,0,0"
                     Padding="18,9"
                     Margin="0,0,0,0"
                     SnapsToDevicePixels="True">

@@ -586,7 +586,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Width="36" Height="36"
-                                CornerRadius="9" Background="{DynamicResource WarningBrush}"
+                                CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource WarningBrush}"
                                 VerticalAlignment="Center">
                             <TextBlock Text="&#xE713;" FontFamily="Segoe MDL2 Assets" FontSize="17"
                                        HorizontalAlignment="Center"
@@ -617,7 +617,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Width="36" Height="36"
-                                CornerRadius="9" Background="{DynamicResource DangerBrush}"
+                                CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource DangerBrush}"
                                 VerticalAlignment="Center">
                             <TextBlock Text="↩️" FontSize="17"
                                        HorizontalAlignment="Center"
@@ -648,7 +648,7 @@
                             <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
                         <Border Grid.Column="0" Width="36" Height="36"
-                                CornerRadius="9" Background="{DynamicResource AccentBrush}"
+                                CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource AccentBrush}"
                                 VerticalAlignment="Center">
                             <TextBlock Text="{Binding HeroCard5Icon}"
                                        FontSize="17"
@@ -824,7 +824,7 @@
                         Background="{DynamicResource AccentBrush}"
                         BorderBrush="{DynamicResource AccentBrush}"
                         BorderThickness="1"
-                        CornerRadius="14,14,0,0"
+                        CornerRadius="12,12,0,0"
                         Padding="16,9"
                         Margin="0,0,0,0">
                     <Grid>

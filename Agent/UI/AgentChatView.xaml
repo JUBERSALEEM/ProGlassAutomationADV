@@ -83,7 +83,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="bd"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="18"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>
@@ -130,7 +130,7 @@
 
                 <Border Grid.Column="0"
                         Width="38" Height="38"
-                        CornerRadius="10"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
                         Background="{DynamicResource TintIndigoBrush}"
                         VerticalAlignment="Center">
                     <TextBlock Text="&#xE99A;"
@@ -293,7 +293,7 @@
                             Background="White"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="1"
-                            CornerRadius="20"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="14,0"
                             Height="40"
                             VerticalAlignment="Center"
@@ -338,7 +338,7 @@
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="bd"
                                         Background="{DynamicResource AccentBrush}"
-                                        CornerRadius="20"
+                                        CornerRadius="{DynamicResource CardCornerRadius}"
                                         SnapsToDevicePixels="True">
                                     <ContentPresenter HorizontalAlignment="Center"
                                                       VerticalAlignment="Center"/>

@@ -394,7 +394,7 @@
             </StackPanel.Style>
             <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintIndigoBrush}"
                     Width="48" Height="48"
-                    CornerRadius="24"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     HorizontalAlignment="Center"
                     Margin="0,0,0,10">
                 <TextBlock Text="&#xE790;"

@@ -298,7 +298,7 @@
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="bd"
                                         Background="{DynamicResource WarningBrush}"
-                                        CornerRadius="9"
+                                        CornerRadius="{DynamicResource CardCornerRadius}"
                                         Padding="{TemplateBinding Padding}">
                                     <StackPanel Orientation="Horizontal"
                                                 VerticalAlignment="Center">
@@ -349,7 +349,7 @@
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="bd"
                                         Background="{DynamicResource AccentBrush}"
-                                        CornerRadius="9"
+                                        CornerRadius="{DynamicResource CardCornerRadius}"
                                         Padding="{TemplateBinding Padding}">
                                     <TextBlock Text="CLOSE"
                                                FontSize="12"

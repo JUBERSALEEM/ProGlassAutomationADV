@@ -138,7 +138,7 @@
                                 <Border Background="{DynamicResource ModuleBackgroundBrush}"
                                         BorderBrush="{DynamicResource OutlineBrush}"
                                         BorderThickness="1"
-                                        CornerRadius="12"
+                                        CornerRadius="{DynamicResource CardCornerRadius}"
                                         Padding="6"
                                         MinWidth="{TemplateBinding ActualWidth}">
                                     <ScrollViewer MaxHeight="300">

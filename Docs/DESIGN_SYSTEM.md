@@ -14,18 +14,17 @@ when each screen looks fine alone.
 ### Radius scale — defined in `Themes/LightTheme.xaml` / `DarkTheme.xaml`
 | Token | Default | Use |
 |---|---|---|
-| `ControlCornerRadius` | 10 (card − 2) | small controls, tags, inputs, list rows |
-| `CardCornerRadius` | **12** | cards, panels — driven by Appearance |
-| `CardCornerRadiusLarge` | 16 (card + 4) | section cards, hero panels, dialogs |
-| `PillCornerRadius` | 999 | pills, chips, round buttons |
+| `ControlCornerRadius` | **12** (same as card) | inputs, chips, compact buttons |
+| `CardCornerRadius` | **12** | cards, panels, **all action buttons** |
+| `CardCornerRadiusLarge` | **12** (same as card) | dialogs, heroes |
+| `PillCornerRadius` | 999 | status chips only — not buttons |
 
 `CardCornerRadius` is a **runtime setting** (Settings → Appearance →
-Card Corner Radius, default 12). ThemeManager writes the three tokens
-above so one slider restyles every view that already binds
-`{DynamicResource CardCornerRadius}`. Do not hardcode a new radius.
+Card Corner Radius, default 12). ThemeManager writes all three card
+tokens to that one value so nothing looks rounder than the slider.
 
 For one-sided corners (table headers) use the matching literal, e.g.
-`14,14,0,0` for a `CardCornerRadius` top edge.
+`12,12,0,0` for a `CardCornerRadius` top edge.
 
 ### Type scale — `Themes/Styles/DesignTokens.xaml` + `TypographyStyles.xaml`
 | Size / weight | Use | Shared style |

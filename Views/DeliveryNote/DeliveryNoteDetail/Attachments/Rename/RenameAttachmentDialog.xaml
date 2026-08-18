@@ -191,7 +191,7 @@
             <!-- ── ACTION BUTTONS ──────────────────────────────────────── -->
             <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="4"
                     Background="{DynamicResource MenuHoverBrush}"
-                    CornerRadius="0,0,20,20"
+                    CornerRadius="0,0,12,12"
                     Padding="20,14">
                 <StackPanel Orientation="Horizontal"
                             HorizontalAlignment="Right">

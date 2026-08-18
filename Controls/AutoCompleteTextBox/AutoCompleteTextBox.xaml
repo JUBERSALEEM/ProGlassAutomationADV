@@ -27,7 +27,7 @@
                     <ControlTemplate TargetType="ListBoxItem">
                         <Border x:Name="ItemBorder"
                                 Background="Transparent"
-                                CornerRadius="6"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="{TemplateBinding Padding}"
                                 Margin="2,1">
                             <ContentPresenter/>
@@ -56,7 +56,7 @@
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
                 BorderThickness="1"
-                CornerRadius="8"
+                CornerRadius="{DynamicResource CardCornerRadius}"
                 SnapsToDevicePixels="True"
                 Height="38">
             <Grid>
@@ -114,7 +114,7 @@
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource AccentBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="8"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     Margin="0,4,0,0">
                 <Border.Effect>
                     <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.20" Color="Black"/>

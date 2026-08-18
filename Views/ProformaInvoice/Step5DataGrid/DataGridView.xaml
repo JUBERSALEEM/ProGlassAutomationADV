@@ -722,7 +722,7 @@ PRESERVED EXACTLY:
                 <StackPanel HorizontalAlignment="Center">
                     <Border Background="{DynamicResource AccentBrush}"
                             Width="72" Height="72"
-                            CornerRadius="36"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             HorizontalAlignment="Center"
                             Margin="0,0,0,16">
                         <TextBlock Text="&#xF0E2;"
@@ -1468,7 +1468,7 @@ PRESERVED EXACTLY:
                                             </StackPanel.Style>
                                             <Border Background="{DynamicResource AccentBrush}"
                                                     Width="48" Height="48"
-                                                    CornerRadius="24"
+                                                    CornerRadius="{DynamicResource CardCornerRadius}"
                                                     HorizontalAlignment="Center"
                                                     Margin="0,0,0,10">
                                                 <TextBlock Text="&#xE7C3;"

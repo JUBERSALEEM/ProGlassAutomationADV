@@ -88,7 +88,7 @@ CHAT 17 — LAYOUT FIX
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Root"
                                 Background="{TemplateBinding Background}"
-                                CornerRadius="22"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="22,0"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
@@ -129,7 +129,7 @@ CHAT 17 — LAYOUT FIX
                                 Background="{DynamicResource ModuleBackgroundBrush}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
-                                CornerRadius="22"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="22,0"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
@@ -166,7 +166,7 @@ CHAT 17 — LAYOUT FIX
                     <ControlTemplate TargetType="Button">
                         <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" x:Name="Root"
                                 Background="{DynamicResource MenuHoverBrush}"
-                                CornerRadius="22"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="22,0"
                                 SnapsToDevicePixels="True">
                             <ContentPresenter HorizontalAlignment="Center"
@@ -243,7 +243,7 @@ CHAT 17 — LAYOUT FIX
                             <Border Background="#FFFFFF"
                                     Width="22"
                                     Height="22"
-                                    CornerRadius="11"
+                                    CornerRadius="{DynamicResource CardCornerRadius}"
                                     Margin="0,0,10,0"
                                     VerticalAlignment="Center">
                                 <TextBlock Text="+"
@@ -395,7 +395,7 @@ CHAT 17 — LAYOUT FIX
                                                             HorizontalAlignment="Center">
                                                     <Border x:Name="NumberCircle"
                                                             Width="18" Height="18"
-                                                            CornerRadius="9"
+                                                            CornerRadius="{DynamicResource CardCornerRadius}"
                                                             Background="{DynamicResource MenuHoverBrush}"
                                                             VerticalAlignment="Center"
                                                             Margin="0,0,6,0">

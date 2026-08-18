@@ -166,7 +166,7 @@
                         <TextBlock Style="{StaticResource HintTextStyle}"
                                    Margin="0,10,0,0"
                                    TextWrapping="Wrap"
-                                   Text="How round every card is. Default 12 px — the tighter industrial look. 0 is a sharp rectangle. One slider restyles the whole app; you do not edit individual screens."/>
+                                   Text="How round every card AND button is. Default 12 px. 0 is a sharp rectangle. One slider restyles the whole app — cards, inputs and buttons together."/>
                     </StackPanel>
                 </Border>
 

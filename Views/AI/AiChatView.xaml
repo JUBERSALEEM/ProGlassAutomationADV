@@ -83,7 +83,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="bd"
-                                CornerRadius="21"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
                                 Background="{StaticResource ChatBrand}"
                                 SnapsToDevicePixels="True"
                                 UseLayoutRounding="True">
@@ -241,7 +241,7 @@
 
                 <!-- Header -->
                 <Border Grid.Row="0"
-                        CornerRadius="20,20,0,0"
+                        CornerRadius="12,12,0,0"
                         Padding="16,12"
                         Background="{StaticResource ChatBrand}"
                         SnapsToDevicePixels="True">
@@ -255,7 +255,7 @@
 
                         <Border Grid.Column="0"
                                 Width="38" Height="38"
-                                CornerRadius="19"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
                                 Background="#33FFFFFF"
                                 VerticalAlignment="Center"
                                 SnapsToDevicePixels="True">
@@ -451,7 +451,7 @@
                     <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" HorizontalAlignment="Left"
                             VerticalAlignment="Bottom"
                             Background="{DynamicResource MenuHoverBrush}"
-                            CornerRadius="16,16,16,4"
+                            CornerRadius="12,12,12,4"
                             Padding="14,10"
                             Margin="16,0,0,8"
                             SnapsToDevicePixels="True">
@@ -605,7 +605,7 @@
                     <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" HorizontalAlignment="Left"
                             VerticalAlignment="Bottom"
                             Background="{DynamicResource MenuHoverBrush}"
-                            CornerRadius="16,16,16,4"
+                            CornerRadius="12,12,12,4"
                             Padding="14,10"
                             Margin="16,0,0,8"
                             MaxWidth="430"
@@ -678,7 +678,7 @@
                 <!-- Input area -->
                 <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="3"
                         Background="{DynamicResource SideMenuBackgroundBrush}"
-                        CornerRadius="0,0,20,20"
+                        CornerRadius="0,0,12,12"
                         Padding="12"
                         SnapsToDevicePixels="True">
                     <Grid>
@@ -701,7 +701,7 @@
                             <Button.Template>
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="bd"
-                                            CornerRadius="18"
+                                            CornerRadius="{DynamicResource CardCornerRadius}"
                                             SnapsToDevicePixels="True"
                                             UseLayoutRounding="True">
                                         <Border.Style>
@@ -833,7 +833,7 @@
                                 <Button.Template>
                                     <ControlTemplate TargetType="Button">
                                         <Border x:Name="bd"
-                                                CornerRadius="18"
+                                                CornerRadius="{DynamicResource CardCornerRadius}"
                                                 SnapsToDevicePixels="True"
                                                 UseLayoutRounding="True">
                                             <Border.Style>
@@ -893,7 +893,7 @@
                         <!-- Text input -->
                         <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Column="2"
                                 Background="{DynamicResource MenuHoverBrush}"
-                                CornerRadius="21"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
                                 Padding="14,0"
                                 Height="42"
                                 VerticalAlignment="Center"
@@ -939,7 +939,7 @@
             <Button.Template>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="bd"
-                            CornerRadius="30"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Background="{StaticResource ChatBrand}"
                             Effect="{StaticResource BtnShadow}"
                             SnapsToDevicePixels="True"

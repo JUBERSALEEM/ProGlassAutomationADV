@@ -64,7 +64,7 @@
                                                        FontSize="12" FontWeight="Bold"
                                                        Foreground="{DynamicResource PrimaryForegroundBrush}"/>
                                             <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Margin="8,0,0,0"
-                                                    CornerRadius="7"
+                                                    CornerRadius="{DynamicResource CardCornerRadius}"
                                                     Padding="6,1"
                                                     VerticalAlignment="Center"
                                                     Background="{DynamicResource TintBlueBrush}">
@@ -126,7 +126,7 @@
             <Button.Template>
                 <ControlTemplate TargetType="Button">
                     <Border Background="{DynamicResource AccentBrush}"
-                            CornerRadius="{DynamicResource PillCornerRadius}"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="{TemplateBinding Padding}">
                         <ContentPresenter HorizontalAlignment="Center"
                                           VerticalAlignment="Center"/>

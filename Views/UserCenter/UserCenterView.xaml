@@ -136,7 +136,7 @@
                                     </Grid.ColumnDefinitions>
 
                                     <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Width="44" Height="44"
-                                            CornerRadius="22"
+                                            CornerRadius="{DynamicResource CardCornerRadius}"
                                             VerticalAlignment="Center"
                                             Background="{DynamicResource TintIndigoBrush}">
                                         <TextBlock Text="&#xE77B;"

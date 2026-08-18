@@ -30,7 +30,7 @@
         <Setter Property="Background"
                 Value="{DynamicResource MenuHoverBrush}"/>
         <Setter Property="CornerRadius"
-                Value="{DynamicResource PillCornerRadius}"/>
+                Value="{DynamicResource CardCornerRadius}"/>
         <Setter Property="Padding" Value="4"/>
         <Setter Property="HorizontalAlignment" Value="Left"/>
         <Setter Property="SnapsToDevicePixels" Value="True"/>
@@ -59,7 +59,7 @@
                             Background="{TemplateBinding Background}"
                             BorderBrush="{TemplateBinding BorderBrush}"
                             BorderThickness="{TemplateBinding BorderThickness}"
-                            CornerRadius="{DynamicResource PillCornerRadius}"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="Center"
@@ -102,7 +102,7 @@
 
                 <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="1" Grid.Column="0"
                         Width="40" Height="40"
-                        CornerRadius="12"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         VerticalAlignment="Center">
                     <TextBlock Text="{Binding Icon}"
