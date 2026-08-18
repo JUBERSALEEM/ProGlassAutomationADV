@@ -107,6 +107,24 @@
             <GradientStop Color="#33FFFFFF" Offset="1.0"/>
         </LinearGradientBrush>
 
+        <!-- ═══ SIDE-RAIL GLASS SURFACES ═══ -->
+        <LinearGradientBrush x:Key="RailPanelBg" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#1AFFFFFF" Offset="0.0"/>
+            <GradientStop Color="#07FFFFFF" Offset="1.0"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="RailItemBg" StartPoint="0,0" EndPoint="0,1">
+            <GradientStop Color="#16FFFFFF" Offset="0.0"/>
+            <GradientStop Color="#05FFFFFF" Offset="1.0"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="IconTileBg" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#26FFFFFF" Offset="0.0"/>
+            <GradientStop Color="#0AFFFFFF" Offset="1.0"/>
+        </LinearGradientBrush>
+        <LinearGradientBrush x:Key="RailBorderBrush" StartPoint="0,0" EndPoint="1,1">
+            <GradientStop Color="#66FFFFFF" Offset="0.0"/>
+            <GradientStop Color="#2EFFFFFF" Offset="1.0"/>
+        </LinearGradientBrush>
+
         <!-- ═══ PROGRESS — luminous ═══ -->
         <LinearGradientBrush x:Key="ProgressGradient" StartPoint="0,0" EndPoint="1,0">
             <GradientStop Color="#1D4ED8" Offset="0.0"/>
@@ -199,6 +217,59 @@
             </StackPanel>
         </DataTemplate>
 
+        <!-- ═══ SIDE-RAIL 2050 GLASS ITEM PRIMITIVES ═══ -->
+        <Style x:Key="GlassRailPanelStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="22"/>
+            <Setter Property="Padding" Value="20,18"/>
+            <Setter Property="Background" Value="{StaticResource RailPanelBg}"/>
+            <Setter Property="BorderBrush" Value="{StaticResource RailBorderBrush}"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="Effect" Value="{StaticResource GlassGlow}"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+            <Setter Property="UseLayoutRounding" Value="True"/>
+        </Style>
+
+        <Style x:Key="GlassRailItemStyle" TargetType="Border">
+            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="Padding" Value="11,9"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="Background" Value="{StaticResource RailItemBg}"/>
+            <Setter Property="BorderBrush" Value="#2EFFFFFF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <Style x:Key="GlassIconTileStyle" TargetType="Border">
+            <Setter Property="Width" Value="38"/>
+            <Setter Property="Height" Value="38"/>
+            <Setter Property="CornerRadius" Value="11"/>
+            <Setter Property="Background" Value="{StaticResource IconTileBg}"/>
+            <Setter Property="BorderBrush" Value="#4DFFFFFF"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
+        <Style x:Key="RailIndexStyle" TargetType="TextBlock">
+            <Setter Property="FontFamily" Value="Segoe UI"/>
+            <Setter Property="FontSize" Value="9"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Foreground" Value="#6E93C5FD"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Margin" Value="0,0,9,0"/>
+        </Style>
+
+        <Style x:Key="RailLabelStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="12.5"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="Foreground" Value="{StaticResource Frost}"/>
+        </Style>
+
+        <Style x:Key="RailSubStyle" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="9.5"/>
+            <Setter Property="Foreground" Value="#A0BFDBFE"/>
+            <Setter Property="Margin" Value="0,2,0,0"/>
+        </Style>
+
     </Window.Resources>
 
     <Grid Background="{StaticResource PageBg}">
@@ -269,113 +340,208 @@
             </StackPanel>
         </Border>
 
-        <!-- ═══ LEFT CAPABILITY RAIL ═══ -->
-        <StackPanel HorizontalAlignment="Left" VerticalAlignment="Center"
-                    Margin="56,0,0,0" Width="230"
-                    IsHitTestVisible="False">
-            <TextBlock Text="MODULES"
-                       FontSize="10" FontWeight="Bold"
-                       Opacity="0.6"
-                       Foreground="{StaticResource Azure}"
-                       Margin="2,0,0,14"/>
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,13">
-                <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets"
-                           FontSize="15" Foreground="{StaticResource Azure}"
-                           Opacity="0.85" VerticalAlignment="Center"
-                           Margin="0,0,12,0"/>
-                <TextBlock Text="Proforma Invoicing" FontSize="12.5"
-                           Foreground="{StaticResource Frost}" Opacity="0.9"
-                           VerticalAlignment="Center"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,13">
-                <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets"
-                           FontSize="15" Foreground="{StaticResource Azure}"
-                           Opacity="0.85" VerticalAlignment="Center"
-                           Margin="0,0,12,0"/>
-                <TextBlock Text="Job Orders &amp; Production" FontSize="12.5"
-                           Foreground="{StaticResource Frost}" Opacity="0.9"
-                           VerticalAlignment="Center"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,13">
-                <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets"
-                           FontSize="15" Foreground="{StaticResource Azure}"
-                           Opacity="0.85" VerticalAlignment="Center"
-                           Margin="0,0,12,0"/>
-                <TextBlock Text="Delivery Notes" FontSize="12.5"
-                           Foreground="{StaticResource Frost}" Opacity="0.9"
-                           VerticalAlignment="Center"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" Margin="0,0,0,13">
-                <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets"
-                           FontSize="15" Foreground="{StaticResource Azure}"
-                           Opacity="0.85" VerticalAlignment="Center"
-                           Margin="0,0,12,0"/>
-                <TextBlock Text="VAT Tax Invoices" FontSize="12.5"
-                           Foreground="{StaticResource Frost}" Opacity="0.9"
-                           VerticalAlignment="Center"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal">
-                <TextBlock Text="&#xE9F9;" FontFamily="Segoe MDL2 Assets"
-                           FontSize="15" Foreground="{StaticResource Azure}"
-                           Opacity="0.85" VerticalAlignment="Center"
-                           Margin="0,0,12,0"/>
-                <TextBlock Text="Profit &amp; Loss Analysis" FontSize="12.5"
-                           Foreground="{StaticResource Frost}" Opacity="0.9"
-                           VerticalAlignment="Center"/>
-            </StackPanel>
-        </StackPanel>
+        <!-- ═══ LEFT CAPABILITY RAIL — 2050 glass panel ═══ -->
+        <Border HorizontalAlignment="Left" VerticalAlignment="Center"
+                Margin="56,0,0,0" Width="300"
+                Style="{StaticResource GlassRailPanelStyle}"
+                IsHitTestVisible="False">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,14">
+                    <Rectangle Width="3" Height="16" RadiusX="1.5" RadiusY="1.5"
+                               VerticalAlignment="Center"
+                               Fill="{StaticResource Azure}" Margin="0,0,10,0"/>
+                    <TextBlock Text="MODULES" FontSize="11" FontWeight="Bold"
+                               Foreground="{StaticResource Ice}"/>
+                </StackPanel>
 
-        <!-- ═══ RIGHT CAPABILITY RAIL ═══ -->
-        <StackPanel HorizontalAlignment="Right" VerticalAlignment="Center"
-                    Margin="0,0,56,0" Width="230"
-                    IsHitTestVisible="False">
-            <TextBlock Text="BUILT FOR"
-                       FontSize="10" FontWeight="Bold"
-                       Opacity="0.6"
-                       HorizontalAlignment="Right"
-                       Foreground="{StaticResource Azure}"
-                       Margin="0,0,2,14"/>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,13">
-                <TextBlock Text="Works Fully Offline" FontSize="12.5"
-                           Foreground="{StaticResource Frost}" Opacity="0.9"
-                           VerticalAlignment="Center" Margin="0,0,12,0"/>
-                <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets"
-                           FontSize="15" Foreground="{StaticResource Azure}"
-                           Opacity="0.85" VerticalAlignment="Center"/>
+                <Border Style="{StaticResource GlassRailItemStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="01" Style="{StaticResource RailIndexStyle}"/>
+                        <Border Style="{StaticResource GlassIconTileStyle}">
+                            <TextBlock Text="&#xE8A5;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="17" Foreground="{StaticResource Ice}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Proforma Invoicing" Style="{StaticResource RailLabelStyle}"/>
+                            <TextBlock Text="Quotes &amp; proposals" Style="{StaticResource RailSubStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource GlassRailItemStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="02" Style="{StaticResource RailIndexStyle}"/>
+                        <Border Style="{StaticResource GlassIconTileStyle}">
+                            <TextBlock Text="&#xE9D9;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="17" Foreground="{StaticResource Ice}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Job Orders &amp; Production" Style="{StaticResource RailLabelStyle}"/>
+                            <TextBlock Text="Plan &amp; execute" Style="{StaticResource RailSubStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource GlassRailItemStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="03" Style="{StaticResource RailIndexStyle}"/>
+                        <Border Style="{StaticResource GlassIconTileStyle}">
+                            <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="17" Foreground="{StaticResource Ice}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Delivery Notes" Style="{StaticResource RailLabelStyle}"/>
+                            <TextBlock Text="Dispatch &amp; track" Style="{StaticResource RailSubStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource GlassRailItemStyle}">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="04" Style="{StaticResource RailIndexStyle}"/>
+                        <Border Style="{StaticResource GlassIconTileStyle}">
+                            <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="17" Foreground="{StaticResource Ice}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="VAT Tax Invoices" Style="{StaticResource RailLabelStyle}"/>
+                            <TextBlock Text="Compliance ready" Style="{StaticResource RailSubStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource GlassRailItemStyle}" Margin="0">
+                    <StackPanel Orientation="Horizontal">
+                        <TextBlock Text="05" Style="{StaticResource RailIndexStyle}"/>
+                        <Border Style="{StaticResource GlassIconTileStyle}">
+                            <TextBlock Text="&#xE9F9;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="17" Foreground="{StaticResource Ice}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                            <TextBlock Text="Profit &amp; Loss Analysis" Style="{StaticResource RailLabelStyle}"/>
+                            <TextBlock Text="Margin insights" Style="{StaticResource RailSubStyle}"/>
+                        </StackPanel>
+                    </StackPanel>
+                </Border>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,13">
-                <TextBlock Text="FTA 5% VAT Ready" FontSize="12.5"
-                           Foreground="{StaticResource Frost}" Opacity="0.9"
-                           VerticalAlignment="Center" Margin="0,0,12,0"/>
-                <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets"
-                           FontSize="15" Foreground="{StaticResource Azure}"
-                           Opacity="0.85" VerticalAlignment="Center"/>
+        </Border>
+
+        <!-- ═══ RIGHT CAPABILITY RAIL — 2050 glass panel (mirrored) ═══ -->
+        <Border HorizontalAlignment="Right" VerticalAlignment="Center"
+                Margin="0,0,56,0" Width="300"
+                Style="{StaticResource GlassRailPanelStyle}"
+                IsHitTestVisible="False">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                            Margin="0,0,0,14">
+                    <TextBlock Text="BUILT FOR" FontSize="11" FontWeight="Bold"
+                               Foreground="{StaticResource Ice}"/>
+                    <Rectangle Width="3" Height="16" RadiusX="1.5" RadiusY="1.5"
+                               VerticalAlignment="Center"
+                               Fill="{StaticResource Azure}" Margin="10,0,0,0"/>
+                </StackPanel>
+
+                <Border Style="{StaticResource GlassRailItemStyle}">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <StackPanel Margin="0,0,12,0" VerticalAlignment="Center"
+                                    HorizontalAlignment="Right">
+                            <TextBlock Text="Works Fully Offline" Style="{StaticResource RailLabelStyle}"
+                                       HorizontalAlignment="Right"/>
+                            <TextBlock Text="No internet needed" Style="{StaticResource RailSubStyle}"
+                                       HorizontalAlignment="Right"/>
+                        </StackPanel>
+                        <Border Style="{StaticResource GlassIconTileStyle}">
+                            <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="17" Foreground="{StaticResource Ice}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="01" Style="{StaticResource RailIndexStyle}"
+                                   Margin="9,0,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource GlassRailItemStyle}">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <StackPanel Margin="0,0,12,0" VerticalAlignment="Center"
+                                    HorizontalAlignment="Right">
+                            <TextBlock Text="FTA 5% VAT Ready" Style="{StaticResource RailLabelStyle}"
+                                       HorizontalAlignment="Right"/>
+                            <TextBlock Text="UAE compliant" Style="{StaticResource RailSubStyle}"
+                                       HorizontalAlignment="Right"/>
+                        </StackPanel>
+                        <Border Style="{StaticResource GlassIconTileStyle}">
+                            <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="17" Foreground="{StaticResource Ice}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="02" Style="{StaticResource RailIndexStyle}"
+                                   Margin="9,0,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource GlassRailItemStyle}">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <StackPanel Margin="0,0,12,0" VerticalAlignment="Center"
+                                    HorizontalAlignment="Right">
+                            <TextBlock Text="Data Stays On Your PC" Style="{StaticResource RailLabelStyle}"
+                                       HorizontalAlignment="Right"/>
+                            <TextBlock Text="Private &amp; local" Style="{StaticResource RailSubStyle}"
+                                       HorizontalAlignment="Right"/>
+                        </StackPanel>
+                        <Border Style="{StaticResource GlassIconTileStyle}">
+                            <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="17" Foreground="{StaticResource Ice}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="03" Style="{StaticResource RailIndexStyle}"
+                                   Margin="9,0,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource GlassRailItemStyle}">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <StackPanel Margin="0,0,12,0" VerticalAlignment="Center"
+                                    HorizontalAlignment="Right">
+                            <TextBlock Text="Full Audit Trail" Style="{StaticResource RailLabelStyle}"
+                                       HorizontalAlignment="Right"/>
+                            <TextBlock Text="Every change logged" Style="{StaticResource RailSubStyle}"
+                                       HorizontalAlignment="Right"/>
+                        </StackPanel>
+                        <Border Style="{StaticResource GlassIconTileStyle}">
+                            <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="17" Foreground="{StaticResource Ice}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="04" Style="{StaticResource RailIndexStyle}"
+                                   Margin="9,0,0,0"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Style="{StaticResource GlassRailItemStyle}" Margin="0">
+                    <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
+                        <StackPanel Margin="0,0,12,0" VerticalAlignment="Center"
+                                    HorizontalAlignment="Right">
+                            <TextBlock Text="Automatic Backups" Style="{StaticResource RailLabelStyle}"
+                                       HorizontalAlignment="Right"/>
+                            <TextBlock Text="Always protected" Style="{StaticResource RailSubStyle}"
+                                       HorizontalAlignment="Right"/>
+                        </StackPanel>
+                        <Border Style="{StaticResource GlassIconTileStyle}">
+                            <TextBlock Text="&#xE8F7;" FontFamily="Segoe MDL2 Assets"
+                                       FontSize="17" Foreground="{StaticResource Ice}"
+                                       HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                        <TextBlock Text="05" Style="{StaticResource RailIndexStyle}"
+                                   Margin="9,0,0,0"/>
+                    </StackPanel>
+                </Border>
             </StackPanel>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,13">
-                <TextBlock Text="Data Stays On Your PC" FontSize="12.5"
-                           Foreground="{StaticResource Frost}" Opacity="0.9"
-                           VerticalAlignment="Center" Margin="0,0,12,0"/>
-                <TextBlock Text="&#xE77B;" FontFamily="Segoe MDL2 Assets"
-                           FontSize="15" Foreground="{StaticResource Azure}"
-                           Opacity="0.85" VerticalAlignment="Center"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,0,13">
-                <TextBlock Text="Full Audit Trail" FontSize="12.5"
-                           Foreground="{StaticResource Frost}" Opacity="0.9"
-                           VerticalAlignment="Center" Margin="0,0,12,0"/>
-                <TextBlock Text="&#xE81C;" FontFamily="Segoe MDL2 Assets"
-                           FontSize="15" Foreground="{StaticResource Azure}"
-                           Opacity="0.85" VerticalAlignment="Center"/>
-            </StackPanel>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
-                <TextBlock Text="Automatic Backups" FontSize="12.5"
-                           Foreground="{StaticResource Frost}" Opacity="0.9"
-                           VerticalAlignment="Center" Margin="0,0,12,0"/>
-                <TextBlock Text="&#xE8F7;" FontFamily="Segoe MDL2 Assets"
-                           FontSize="15" Foreground="{StaticResource Azure}"
-                           Opacity="0.85" VerticalAlignment="Center"/>
-            </StackPanel>
-        </StackPanel>
+        </Border>
 
         <!-- ═══ CENTER STAGE ═══ -->
         <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
@@ -495,22 +661,28 @@
                 </Border>
             </Grid>
 
-            <StackPanel x:Name="LoadingStrip"
-                        Orientation="Horizontal"
-                        HorizontalAlignment="Center"
-                        Margin="0,14,0,0">
-                <TextBlock x:Name="LoadingText"
-                           Text="Starting engines"
-                           FontSize="11"
-                           Foreground="{StaticResource Frost}"
-                           IsHitTestVisible="False"/>
-                <TextBlock x:Name="LoadingDots"
-                           Text=""
-                           FontSize="11"
-                           FontWeight="Bold"
-                           Foreground="{StaticResource Azure}"
-                           IsHitTestVisible="False"/>
-            </StackPanel>
+            <!-- Glass loading pill -->
+            <Border CornerRadius="14" Padding="16,7"
+                    HorizontalAlignment="Center"
+                    Margin="0,14,0,0"
+                    Background="{StaticResource IconTileBg}"
+                    BorderBrush="#30FFFFFF"
+                    BorderThickness="1"
+                    SnapsToDevicePixels="True">
+                <StackPanel x:Name="LoadingStrip" Orientation="Horizontal">
+                    <TextBlock x:Name="LoadingText"
+                               Text="Starting engines"
+                               FontSize="11"
+                               Foreground="{StaticResource Frost}"
+                               IsHitTestVisible="False"/>
+                    <TextBlock x:Name="LoadingDots"
+                               Text=""
+                               FontSize="11"
+                               FontWeight="Bold"
+                               Foreground="{StaticResource Azure}"
+                               IsHitTestVisible="False"/>
+                </StackPanel>
+            </Border>
 
         </StackPanel>
 
@@ -663,22 +835,32 @@
             </Border>
         </Grid>
 
-        <!-- ═══ FOOTER ═══ -->
-        <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Center"
-                    Margin="0,0,0,34">
-            <TextBlock FontSize="11"
-                       Foreground="{StaticResource Cerulean}"
-                       IsHitTestVisible="False">
-                <Run Text="Developed by"/>
-                <Run Text=" Juber Saleem" FontWeight="Bold"/>
-            </TextBlock>
-            <TextBlock FontSize="10"
-                       Margin="0,4,0,0"
-                       Foreground="#8093C5FD"
-                       IsHitTestVisible="False">
-                <Run Text="© 2026 ProGlass Automation · Sharjah, UAE"/>
-            </TextBlock>
-        </StackPanel>
+        <!-- ═══ FOOTER — glass pill ═══ -->
+        <Border CornerRadius="16" Padding="22,10"
+                HorizontalAlignment="Center" VerticalAlignment="Bottom"
+                Margin="0,0,0,30"
+                Background="{StaticResource IconTileBg}"
+                BorderBrush="#2EFFFFFF"
+                BorderThickness="1"
+                Effect="{StaticResource GlassGlow}"
+                SnapsToDevicePixels="True">
+            <StackPanel>
+                <TextBlock FontSize="11"
+                           Foreground="{StaticResource Cerulean}"
+                           HorizontalAlignment="Center"
+                           IsHitTestVisible="False">
+                    <Run Text="Developed by"/>
+                    <Run Text=" Juber Saleem" FontWeight="Bold"/>
+                </TextBlock>
+                <TextBlock FontSize="10"
+                           Margin="0,4,0,0"
+                           Foreground="#A0BFDBFE"
+                           HorizontalAlignment="Center"
+                           IsHitTestVisible="False">
+                    <Run Text="© 2026 ProGlass Automation · Sharjah, UAE"/>
+                </TextBlock>
+            </StackPanel>
+        </Border>
 
     </Grid>
 </Window>
