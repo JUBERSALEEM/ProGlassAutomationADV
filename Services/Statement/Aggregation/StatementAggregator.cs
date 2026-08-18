@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Statement/Aggregation/StatementAggregator.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Account Statement / Sales Report (Chat 22 v3 — Reconciliation)
@@ -32,10 +32,10 @@
 using ProGlassAutomation.Models.Statement;
 using ProGlassAutomation.Models.Statement.Reconciliation;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Statement.Reconciliation;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -208,8 +208,14 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[Aggregator] Reconciliation batch failed: " +
-                                $"{ex.Message}");
+                AppLogService.Error(
+                    "[Statement] Reconciliation batch failed.", ex,
+                    new LogContext
+                    {
+                        Module = "Statement",
+                        Class = nameof(StatementAggregator),
+                        Operation = "GetReconciliationMapAsync"
+                    });
                 // Return empty map — statement still generates, just no
                 // reconciliation data. Preview UI degrades gracefully.
                 return new Dictionary<string, OrderReconciliationSummary>(
@@ -540,8 +546,8 @@ namespace ProGlassAutomation.Services.Statement.Aggregation
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[Aggregator] PI JSON parse error " +
-                                $"{proformaId}: {ex.Message}");
+                AppLogService.Warning(
+                    $"[Statement] PI JSON parse error for {proformaId}: {ex.Message}");
                 return false;
             }
         }

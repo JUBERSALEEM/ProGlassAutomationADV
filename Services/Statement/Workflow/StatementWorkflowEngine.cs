@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Statement/Workflow/StatementWorkflowEngine.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Account Statement / Sales Report — Workflow Engine
@@ -26,12 +26,12 @@ using ProGlassAutomation.Models.Statement;
 using ProGlassAutomation.Models.Statement.Reconciliation;
 using ProGlassAutomation.Models.Statement.Workflow;
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.Statement.Aggregation;
 using ProGlassAutomation.Services.Statement.Reconciliation;
 using ProGlassAutomation.Services.TaxInvoice.Pdf;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text.Json;
@@ -172,7 +172,14 @@ namespace ProGlassAutomation.Services.Statement.Workflow
             }
             catch (Exception ex)
             {
-                Debug.WriteLine($"[Workflow] Fatal error: {ex}");
+                AppLogService.Error(
+                    "[Statement] Workflow execution failed.", ex,
+                    new LogContext
+                    {
+                        Module = "Statement",
+                        Class = nameof(StatementWorkflowEngine),
+                        Operation = "ExecuteAsync"
+                    });
                 MarkRemainingPendingAsSkipped();
                 result.Outcome = WorkflowOutcome.Blocked;
                 result.Summary = $"Workflow failed: {ex.Message}";

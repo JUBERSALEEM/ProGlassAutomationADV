@@ -52,8 +52,14 @@ namespace ProGlassAutomation.Services.AI.AIMemory
             }
             catch (Exception ex)
             {
-                System.Diagnostics.Debug.WriteLine(
-                    $"[AiMemory] Init failed: {ex.Message}");
+                AppLogService.Error(
+                    "[AiMemory] Initialization failed.", ex,
+                    new LogContext
+                    {
+                        Module = "AI",
+                        Class = nameof(AiMemoryService),
+                        Operation = "InitializeAsync"
+                    });
             }
         }
 

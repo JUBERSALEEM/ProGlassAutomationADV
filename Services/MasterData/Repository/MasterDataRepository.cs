@@ -12,6 +12,7 @@
 using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.MasterData;
 using ProGlassAutomation.Services.Database.SchemaMigrations;
+using ProGlassAutomation.Services.Logging;
 using ProGlassAutomation.Services.MasterData.Database;
 using System;
 using System.Collections.Generic;
@@ -516,8 +517,8 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine(
-                        $"[MasterData] Company auto-save failed: {ex.Message}");
+                    AppLogService.Warning(
+                            "[MasterData] Company auto-save failed: " + ex.Message);
                 }
             }
 
@@ -540,8 +541,8 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine(
-                        $"[MasterData] Client auto-save failed: {ex.Message}");
+                    AppLogService.Warning(
+                            "[MasterData] Client auto-save failed: " + ex.Message);
                 }
             }
 
@@ -557,8 +558,8 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine(
-                        $"[MasterData] Salesman auto-save failed: {ex.Message}");
+                    AppLogService.Warning(
+                            "[MasterData] Salesman auto-save failed: " + ex.Message);
                 }
             }
 
@@ -579,8 +580,8 @@ namespace ProGlassAutomation.Services.MasterData.Repository
                 }
                 catch (Exception ex)
                 {
-                    System.Diagnostics.Debug.WriteLine(
-                        $"[MasterData] Project auto-save failed: {ex.Message}");
+                    AppLogService.Warning(
+                            "[MasterData] Project auto-save failed: " + ex.Message);
                 }
             }
         }
