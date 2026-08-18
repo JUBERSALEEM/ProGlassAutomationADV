@@ -22,7 +22,7 @@
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
             <TextBlock Text="Demo Center" Style="{StaticResource PageTitleStyle}"/>
-            <TextBlock Text="Walks the live Proforma Invoice wizard — list, new invoice, company, client, project, grid, preview, save — then records a verified MP4. A screen change alone is not a demo."
+            <TextBlock Text="Full PI walk steps 1–9: company, client, project, SGU/DGU calculators, multi-line grid, other charges, preview, attachments, profit and loss. Then a verified MP4."
                        Style="{StaticResource PageSubtitleStyle}"
                        TextWrapping="Wrap"/>
         </StackPanel>

@@ -11,24 +11,21 @@ using System.Windows;
 namespace ProGlassAutomation.Agent.Demo.Workflows
 {
     /// <summary>
-    /// Full Proforma Invoice product walk: list → new invoice → company →
-    /// client → project → glass type → grid line → charges → preview → save.
-    /// Each beat dwells long enough to film and presents live narration.
+    /// Complete PI showcase, steps 1–9, with realistic UAE dummy data
+    /// entered through the same commands and properties the clerk uses.
+    /// Attachments are shown, not faked (no file-picker). P&amp;L is recalculated.
     /// </summary>
     public sealed class ProformaInvoiceWorkflow : IDemoWorkflowRunner
     {
-        public const string Customer = "Demo Glass Contractor";
-        public const string Project = "Demo Tower Fit-Out";
         public const string Company = "ProGlass Automation Demo";
         public const string CompanyTrn = "100234567800003";
-        public const string CompanyLocation = "Sharjah, UAE";
+        public const string CompanyLocation = "Sharjah Industrial Area 12, UAE";
+        public const string Customer = "Al Noor Glazing Contracting LLC";
+        public const string CustomerTrn = "100556677800003";
+        public const string Project = "Al Zahia Tower — Podium Glazing";
         public const string GlassRef = "CLR-06";
-        public const int WidthMm = 1200;
-        public const int HeightMm = 900;
-        public const int Quantity = 4;
-        public const decimal Rate = 150m;
 
-        public const int BeatMs = 2400;
+        public const int BeatMs = 2200;
         public const int HoldMs = 2800;
 
         public string ModuleId => "ProformaInvoice";
@@ -46,86 +43,71 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 "ProformaInvoice.NewInvoiceButton", 8000, ct).ConfigureAwait(false);
 
             await PresentAsync(events, "opened_list",
-                "Proforma Invoice list",
-                "This is the live Proforma Invoice list. Saved quotations sit here until we convert them to job orders.",
-                "AgentHost.Navigate(ProformaInvoice)",
-                BeatMs, ct).ConfigureAwait(false);
+                "Step 0 — Invoice list",
+                "The live Proforma Invoice list. A quotation starts here and becomes a job order after approval.",
+                "Navigate ProformaInvoice", BeatMs, ct).ConfigureAwait(false);
 
             var pi = await ResolvePiAsync(ct).ConfigureAwait(false);
             if (pi == null) return events;
 
-            bool started = await StartNewInvoiceAsync(pi, ct).ConfigureAwait(false);
-            bool wizard = await WaitUntilAsync(() => pi.IsWizardView, 15_000, ct)
-                .ConfigureAwait(false);
-            if (!started || !wizard)
+            await StartNewInvoiceAsync(pi, ct).ConfigureAwait(false);
+            if (!await WaitUntilAsync(() => pi.IsWizardView, 15_000, ct).ConfigureAwait(false))
             {
                 DemoStage.Now("New Invoice did not open the wizard.");
                 return events;
             }
 
-            await WaitUntilAsync(() => pi.CurrentStepNumber == 1, 4000, ct)
-                .ConfigureAwait(false);
-
+            await WaitUntilAsync(() => pi.CurrentStepNumber == 1, 4000, ct).ConfigureAwait(false);
             await PresentAsync(events, "new_invoice",
                 "New invoice",
-                "I pressed New Invoice — the same command as the button. A fresh quotation is open on company details.",
-                "TriggerNewInvoice / NewInvoiceCommand",
-                BeatMs, ct).ConfigureAwait(false);
+                "New Invoice opened the nine-step wizard. Same command as the button on the list.",
+                "TriggerNewInvoice", BeatMs, ct).ConfigureAwait(false);
 
+            // ── 1 Company ────────────────────────────────────────────
             if (await FillCompanyAsync(pi, ct).ConfigureAwait(false))
             {
                 await PresentAsync(events, "company",
-                    "Company details",
-                    $"Company is {Company}, Sharjah, TRN ending 003. This is the letterhead the print preview will use.",
-                    $"Step1VM.CompanyName={pi.Step1VM.CompanyName}",
+                    "Step 1 — Company",
+                    $"{Company}, Sharjah. TRN {CompanyTrn}. Valid fourteen days. This letterhead prints on the quotation.",
+                    $"Company={pi.Step1VM.CompanyName} Id={pi.Step1VM.ProformaId}",
                     HoldMs, ct).ConfigureAwait(false);
             }
 
+            // ── 2 Client ─────────────────────────────────────────────
             if (!await AdvanceToAsync(pi, 2, ct).ConfigureAwait(false)) return events;
-            await PresentAsync(events, "step2",
-                "Client step",
-                "Continue opened the client profile. This is who the quotation is billed to.",
-                "NextStepCommand → step 2",
-                BeatMs, ct).ConfigureAwait(false);
-
             if (await FillCustomerAsync(pi, ct).ConfigureAwait(false))
             {
                 await PresentAsync(events, "customer",
-                    "Customer",
-                    $"The customer is {Customer}. Name, TRN and billing address are the same fields a clerk types.",
-                    $"Step2VM.CustomerName={pi.Step2VM.CustomerName}",
+                    "Step 2 — Client",
+                    $"{Customer}, attention Eng. Mariam Al Suwaidi. Salesman A. Rahman. Billing in Al Zahia, Sharjah.",
+                    $"Customer={pi.Step2VM.CustomerName}",
                     HoldMs, ct).ConfigureAwait(false);
             }
 
+            // ── 3 Project ────────────────────────────────────────────
             if (!await AdvanceToAsync(pi, 3, ct).ConfigureAwait(false)) return events;
-            await PresentAsync(events, "step3",
-                "Project step",
-                "Project specifications are on screen — site, contract and LPO.",
-                "NextStepCommand → step 3",
-                BeatMs, ct).ConfigureAwait(false);
-
             if (await FillProjectAsync(pi, ct).ConfigureAwait(false))
             {
                 await PresentAsync(events, "project",
-                    "Project",
-                    $"The project is {Project}. This name follows the job order and delivery note later in the chain.",
-                    $"Step3VM.ProjectIdentifierName={pi.Step3VM.ProjectIdentifierName}",
+                    "Step 3 — Project",
+                    $"{Project}. Contract AZT-POD-26, LPO 4418, delivery Al Zahia, Sharjah. This name follows the job and the delivery note.",
+                    $"Project={pi.Step3VM.ProjectIdentifierName}",
                     HoldMs, ct).ConfigureAwait(false);
             }
 
+            // ── 4 Calculators ────────────────────────────────────────
             if (!await AdvanceToAsync(pi, 4, ct).ConfigureAwait(false)) return events;
             await PresentAsync(events, "step4",
-                "Spec generator",
-                "Glass type and spec generator. I will run the SGU calculator, then the DGU calculator, then apply the SGU spec.",
-                "NextStepCommand → step 4",
-                BeatMs, ct).ConfigureAwait(false);
+                "Step 4 — Spec generator",
+                "I will run the SGU calculator, then the DGU calculator, so both spec generators are on camera.",
+                "Step 4", BeatMs, ct).ConfigureAwait(false);
 
             var sgu = await RunSguCalculatorAsync(pi, ct).ConfigureAwait(false);
             if (sgu.Ok)
             {
                 await PresentAsync(events, "sgu_calc",
                     "SGU calculator",
-                    $"SGU spec generated: {sgu.SpecName}. Live rate {sgu.Rate:0.00} dirhams per square metre from yield, cutting, tempering and margin.",
+                    $"SGU {sgu.SpecName}. Rate {sgu.Rate:0.00} dirhams per square metre from sell price, yield 0.85, cutting, tempering and 15 percent margin.",
                     $"SGU {sgu.SpecName} @ {sgu.Rate:0.00}",
                     HoldMs, ct).ConfigureAwait(false);
             }
@@ -135,58 +117,73 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             {
                 await PresentAsync(events, "dgu_calc",
                     "DGU calculator",
-                    $"DGU spec generated: {dgu.SpecName}. Outer and inner 6mm Clear FT with 12mm spacer. Rate {dgu.Rate:0.00}.",
+                    $"DGU {dgu.SpecName}. Outer and inner 6 millimetre Clear FT, 12 millimetre spacer, argon. Rate {dgu.Rate:0.00}.",
                     $"DGU {dgu.SpecName} @ {dgu.Rate:0.00}",
                     HoldMs, ct).ConfigureAwait(false);
             }
 
-            await RestoreSguAndApplyAsync(pi, ct).ConfigureAwait(false);
+            await RestoreSguAsync(pi, ct).ConfigureAwait(false);
 
+            // ── 5 Grid ───────────────────────────────────────────────
             if (!await AdvanceToAsync(pi, 5, ct).ConfigureAwait(false)) return events;
-            await PresentAsync(events, "step5",
-                "Specification grid",
-                "The data grid is open. I will attach the generated SGU spec and enter a real glass line with rate and value.",
-                "NextStepCommand → step 5",
-                BeatMs, ct).ConfigureAwait(false);
+            int lines = await FillGridAsync(pi, sgu, dgu, ct).ConfigureAwait(false);
+            await PresentAsync(events, "line",
+                "Step 5 — Data grid",
+                $"{lines} glass lines: SGU partitions and a DGU vision panel. Width, height, quantity, rate and value stay on the proforma.",
+                $"rows={lines} SGU={sgu.SpecName} DGU={dgu.SpecName}",
+                HoldMs, ct).ConfigureAwait(false);
 
-            if (await FillLineAsync(pi, sgu.SpecName, sgu.Rate, ct).ConfigureAwait(false))
-            {
-                decimal usedRate = sgu.Rate > 0 ? sgu.Rate : Rate;
-                await PresentAsync(events, "line",
-                    "Glass line",
-                    $"{sgu.SpecName}: {WidthMm} by {HeightMm} millimetres, quantity {Quantity}, rate {usedRate:0.00}. Value follows quantity times area times rate.",
-                    $"W1={WidthMm} H1={HeightMm} Qty={Quantity} Rate={usedRate} Spec={sgu.SpecName}",
-                    HoldMs, ct).ConfigureAwait(false);
-            }
-
+            // ── 6 Charges ────────────────────────────────────────────
             if (!await AdvanceToAsync(pi, 6, ct).ConfigureAwait(false)) return events;
             var charges = await SelectChargesAsync(pi, ct).ConfigureAwait(false);
             await PresentAsync(events, "step6",
-                "Other charges",
+                "Step 6 — Other charges",
                 charges.Ok
-                    ? $"I switched on {charges.Names}. Other-charges total {charges.Total:0.00}."
-                    : "Other charges are on screen. I could not enable a predefined row.",
-                charges.Ok ? charges.Names : "NextStepCommand → step 6",
-                HoldMs, ct).ConfigureAwait(false);
+                    ? $"Enabled {charges.Names}. Other-charges total {charges.Total:0.00} dirhams."
+                    : "Other charges are on screen.",
+                charges.Names, HoldMs, ct).ConfigureAwait(false);
 
+            // ── 7 Preview + save ─────────────────────────────────────
             if (!await AdvanceToAsync(pi, 7, ct).ConfigureAwait(false)) return events;
             await PresentAsync(events, "preview",
-                "Print preview",
-                "Print preview is the live quotation. Rate and value stay on the document. This snapshot is what the rest of the chain reads.",
-                "NextStepCommand → step 7",
-                HoldMs, ct).ConfigureAwait(false);
+                "Step 7 — Print preview",
+                "Print preview is the live quotation. Rate and value stay on the document. This snapshot feeds the job order later.",
+                "Step 7", HoldMs, ct).ConfigureAwait(false);
 
             bool saved = await SaveDraftAsync(pi, ct).ConfigureAwait(false);
             if (saved)
             {
                 await PresentAsync(events, "saved",
                     "Draft saved",
-                    $"Draft {pi.Step1VM.ProformaId} is saved with SilentDraftSave — the same persist the wizard uses when you leave the form.",
+                    $"Draft {pi.Step1VM.ProformaId} saved with SilentDraftSave — the same persist as leaving the wizard.",
                     $"ProformaId={pi.Step1VM.ProformaId}",
-                    HoldMs, ct).ConfigureAwait(false);
+                    BeatMs, ct).ConfigureAwait(false);
             }
 
-            await WpfUiDriver.DwellAsync(800, ct).ConfigureAwait(false);
+            // ── 8 Attachments (no file picker) ───────────────────────
+            if (!await AdvanceToAsync(pi, 8, ct).ConfigureAwait(false)) return events;
+            await ShowAttachmentsAsync(pi, ct).ConfigureAwait(false);
+            await PresentAsync(events, "step8",
+                "Step 8 — Attachments",
+                "Attachments hold drawings and signed copies. This showcase does not invent files or open a picker. The step is live and empty.",
+                $"attachments={pi.Step8VM.AttachmentsCount}",
+                HoldMs, ct).ConfigureAwait(false);
+
+            // ── 9 Profit & Loss ──────────────────────────────────────
+            if (!await AdvanceToAsync(pi, 9, ct).ConfigureAwait(false)) return events;
+            var pnl = await RecalculateProfitAsync(pi, ct).ConfigureAwait(false);
+            await PresentAsync(events, "step9",
+                "Step 9 — Profit and loss",
+                pnl.Ok
+                    ? $"P and L recalculated. Gross {pnl.Gross:0.00}, glass cost {pnl.Glass:0.00}, profit {pnl.Profit:0.00}, margin {pnl.Margin:0.0} percent."
+                    : "Profit and loss is on screen. Recalculate ran against Sheet Store and Step 4 rates.",
+                pnl.Ok
+                    ? $"gross={pnl.Gross:0.00} profit={pnl.Profit:0.00} margin={pnl.Margin:0.0}"
+                    : "Step 9",
+                HoldMs, ct).ConfigureAwait(false);
+
+            await SaveDraftAsync(pi, ct).ConfigureAwait(false);
+            await WpfUiDriver.DwellAsync(900, ct).ConfigureAwait(false);
             return events;
         }
 
@@ -210,26 +207,21 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
         private static void SpeakLive(string text)
         {
             try { App.TextToSpeech?.SpeakAsync(text); }
-            catch { /* live voice is optional; WAV is written later */ }
+            catch { /* live voice optional */ }
         }
 
-        private static async Task<bool> StartNewInvoiceAsync(
+        private static async Task StartNewInvoiceAsync(
             ProformaInvoiceViewModel pi, CancellationToken ct)
         {
-            bool clicked = await WpfUiDriver
-                .ClickAsync("ProformaInvoice.NewInvoiceButton", ct)
+            await WpfUiDriver.ClickAsync("ProformaInvoice.NewInvoiceButton", ct)
                 .ConfigureAwait(false);
-
             await WpfUiDriver.OnUiAsync(() =>
             {
-                try { pi.TriggerNewInvoice(); }
-                catch { /* same public entry the dashboard uses */ }
-                if (!clicked && pi.NewInvoiceCommand.CanExecute(null))
+                try { pi.TriggerNewInvoice(); } catch { }
+                if (pi.NewInvoiceCommand.CanExecute(null))
                     pi.NewInvoiceCommand.Execute(null);
                 return true;
             }, ct).ConfigureAwait(false);
-
-            return true;
         }
 
         private static async Task<bool> FillCompanyAsync(
@@ -239,10 +231,18 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 .ConfigureAwait(false);
             return await WpfUiDriver.OnUiAsync(() =>
             {
-                pi.Step1VM.CompanyName = Company;
-                pi.Step1VM.CompanyTrn = CompanyTrn;
-                pi.Step1VM.CompanyLocation = CompanyLocation;
-                return string.Equals(pi.Step1VM.CompanyName, Company, StringComparison.Ordinal);
+                var s = pi.Step1VM;
+                s.CompanyName = Company;
+                s.CompanyTrn = CompanyTrn;
+                s.CompanyLocation = CompanyLocation;
+                s.Representative = "Khalid Al Nuaimi";
+                s.RepresentativeMobile = "+971 50 882 1140";
+                s.CompanyEmail = "quotes@proglass.ae";
+                s.BankName = "Emirates NBD";
+                s.AccountNumber = "AE070260001234567890123";
+                s.ValidUntil = DateTime.Now.AddDays(14);
+                s.ProformaStatus = "Draft";
+                return s.CompanyName == Company;
             }, ct).ConfigureAwait(false);
         }
 
@@ -253,13 +253,16 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 .ConfigureAwait(false);
             return await WpfUiDriver.OnUiAsync(() =>
             {
-                pi.Step2VM.CustomerName = Customer;
-                pi.Step2VM.CustomerTrn = "100987654300003";
-                pi.Step2VM.BillingAddress = "PO Box 12345, Sharjah, UAE";
-                pi.Step2VM.SalesRepresentative = "A. Rahman";
-                pi.Step2VM.DocumentPreparedBy = "Demo User";
-                pi.Step2VM.ClientContactPhone = "+971 50 123 4567";
-                return string.Equals(pi.Step2VM.CustomerName, Customer, StringComparison.Ordinal);
+                var s = pi.Step2VM;
+                s.CustomerName = Customer;
+                s.CustomerTrn = CustomerTrn;
+                s.CustomerReferenceCode = "ANG-014";
+                s.BillingAddress = "Warehouse 22, Al Zahia, Sharjah, UAE";
+                s.AttentionExecutiveName = "Eng. Mariam Al Suwaidi";
+                s.SalesRepresentative = "A. Rahman";
+                s.DocumentPreparedBy = "Fatima Hassan";
+                s.ClientContactPhone = "+971 55 320 7781";
+                return s.CustomerName == Customer;
             }, ct).ConfigureAwait(false);
         }
 
@@ -270,12 +273,13 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 .ConfigureAwait(false);
             return await WpfUiDriver.OnUiAsync(() =>
             {
-                pi.Step3VM.ProjectIdentifierName = Project;
-                pi.Step3VM.ProjectContractNo = "CTR-2026-11";
-                pi.Step3VM.SiteDeliveryLocation = "Sharjah Industrial Area";
-                pi.Step3VM.LpoNumber = "LPO-889";
-                return string.Equals(
-                    pi.Step3VM.ProjectIdentifierName, Project, StringComparison.Ordinal);
+                var s = pi.Step3VM;
+                s.ProjectIdentifierName = Project;
+                s.ProjectContractNo = "AZT-POD-26";
+                s.ProjectReference = "Podium curtain wall and lobby partitions — Al Zahia Tower";
+                s.SiteDeliveryLocation = "Al Zahia, Sharjah";
+                s.LpoNumber = "4418";
+                return s.ProjectIdentifierName == Project;
             }, ct).ConfigureAwait(false);
         }
 
@@ -293,6 +297,15 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             public decimal Total { get; init; }
         }
 
+        private readonly struct PnlResult
+        {
+            public bool Ok { get; init; }
+            public decimal Gross { get; init; }
+            public decimal Glass { get; init; }
+            public decimal Profit { get; init; }
+            public decimal Margin { get; init; }
+        }
+
         private static async Task<CalcResult> RunSguCalculatorAsync(
             ProformaInvoiceViewModel pi, CancellationToken ct)
         {
@@ -300,9 +313,9 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             var result = await WpfUiDriver.OnUiAsync(() =>
             {
                 var step4 = pi.Step4VM;
-                var sguCard = step4.GlassTypes.FirstOrDefault(g => g.Code == "SGU");
-                if (sguCard != null && step4.SelectGlassTypeCommand.CanExecute(sguCard))
-                    step4.SelectGlassTypeCommand.Execute(sguCard);
+                var card = step4.GlassTypes.FirstOrDefault(g => g.Code == "SGU");
+                if (card != null && step4.SelectGlassTypeCommand.CanExecute(card))
+                    step4.SelectGlassTypeCommand.Execute(card);
 
                 var sgu = step4.SguVM;
                 sgu.SelectedThickness = "6mm";
@@ -313,7 +326,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 sgu.TemperingCostPerSqm = 25m;
                 sgu.YieldFactor = 0.85m;
                 sgu.TargetMarginPercent = 15m;
-                sgu.SelectedPolishOption = "None (Standard)";
+                sgu.SelectedPolishOption = "Polished Edges";
                 step4.RefreshSheetStoreData();
                 return new CalcResult
                 {
@@ -323,8 +336,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                     Rate = step4.EstimatedRatePerSqm
                 };
             }, ct).ConfigureAwait(false);
-
-            await WpfUiDriver.DwellAsync(900, ct).ConfigureAwait(false);
+            await WpfUiDriver.DwellAsync(1000, ct).ConfigureAwait(false);
             return result;
         }
 
@@ -335,9 +347,9 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             var result = await WpfUiDriver.OnUiAsync(() =>
             {
                 var step4 = pi.Step4VM;
-                var dguCard = step4.GlassTypes.FirstOrDefault(g => g.Code == "DGU");
-                if (dguCard != null && step4.SelectGlassTypeCommand.CanExecute(dguCard))
-                    step4.SelectGlassTypeCommand.Execute(dguCard);
+                var card = step4.GlassTypes.FirstOrDefault(g => g.Code == "DGU");
+                if (card != null && step4.SelectGlassTypeCommand.CanExecute(card))
+                    step4.SelectGlassTypeCommand.Execute(card);
 
                 var dgu = step4.DguVM;
                 dgu.OuterThickness = "6mm";
@@ -362,55 +374,73 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                     Rate = step4.EstimatedRatePerSqm
                 };
             }, ct).ConfigureAwait(false);
-
             await WpfUiDriver.DwellAsync(HoldMs, ct).ConfigureAwait(false);
             return result;
         }
 
-        private static async Task RestoreSguAndApplyAsync(
+        private static async Task RestoreSguAsync(
             ProformaInvoiceViewModel pi, CancellationToken ct)
         {
-            DemoStage.Now("Returning to the SGU spec for the data grid.");
             await WpfUiDriver.OnUiAsync(() =>
             {
-                var step4 = pi.Step4VM;
-                var sguCard = step4.GlassTypes.FirstOrDefault(g => g.Code == "SGU");
-                if (sguCard != null && step4.SelectGlassTypeCommand.CanExecute(sguCard))
-                    step4.SelectGlassTypeCommand.Execute(sguCard);
+                var card = pi.Step4VM.GlassTypes.FirstOrDefault(g => g.Code == "SGU");
+                if (card != null && pi.Step4VM.SelectGlassTypeCommand.CanExecute(card))
+                    pi.Step4VM.SelectGlassTypeCommand.Execute(card);
                 return true;
             }, ct).ConfigureAwait(false);
-            await WpfUiDriver.DwellAsync(800, ct).ConfigureAwait(false);
+            await WpfUiDriver.DwellAsync(600, ct).ConfigureAwait(false);
         }
 
-        private static Task<bool> FillLineAsync(
-            ProformaInvoiceViewModel pi, string specName, decimal calcRate, CancellationToken ct) =>
+        private static Task<int> FillGridAsync(
+            ProformaInvoiceViewModel pi, CalcResult sgu, CalcResult dgu, CancellationToken ct) =>
             WpfUiDriver.OnUiAsync(() =>
             {
-                var group = pi.Step5VM.SpecGroups.FirstOrDefault();
-                if (group == null) return false;
+                var grid = pi.Step5VM;
+                if (grid.SpecGroups.Count == 0) return 0;
 
-                group.SelectedGlassType = "SGU";
-                if (!string.IsNullOrWhiteSpace(specName))
-                    group.SelectedSpecName = specName;
-                if (calcRate > 0m)
-                    group.BaseRate = calcRate;
+                var g1 = grid.SpecGroups[0];
+                g1.SelectedGlassType = "SGU";
+                if (!string.IsNullOrWhiteSpace(sgu.SpecName))
+                    g1.SelectedSpecName = sgu.SpecName;
+                if (sgu.Rate > 0m) g1.BaseRate = sgu.Rate;
 
-                if (group.ItemRows.Count == 0
-                    && group.AddRowCommand.CanExecute(null))
-                    group.AddRowCommand.Execute(null);
+                while (g1.ItemRows.Count < 3 && g1.AddRowCommand.CanExecute(null))
+                    g1.AddRowCommand.Execute(null);
 
-                var row = group.ItemRows.FirstOrDefault();
-                if (row == null) return false;
+                AddLine(g1, 0, sgu, 1200, 900, 6);
+                AddLine(g1, 1, sgu, 2100, 1500, 4);
+                AddLine(g1, 2, sgu, 800, 2100, 8);
 
-                row.GlassRef = string.IsNullOrWhiteSpace(specName) ? GlassRef : specName;
-                row.W1 = WidthMm;
-                row.H1 = HeightMm;
-                row.Qty = Quantity;
-                row.Rate = calcRate > 0m ? calcRate : Rate;
-                return row.W1 == WidthMm
-                    && row.H1 == HeightMm
-                    && row.Qty == Quantity;
+                if (grid.AddSpecGroupCommand.CanExecute(null))
+                    grid.AddSpecGroupCommand.Execute(null);
+
+                var g2 = grid.SpecGroups.LastOrDefault();
+                if (g2 != null && !ReferenceEquals(g2, g1))
+                {
+                    g2.SelectedGlassType = "DGU";
+                    if (!string.IsNullOrWhiteSpace(dgu.SpecName))
+                        g2.SelectedSpecName = dgu.SpecName;
+                    if (dgu.Rate > 0m) g2.BaseRate = dgu.Rate;
+                    if (g2.ItemRows.Count == 0 && g2.AddRowCommand.CanExecute(null))
+                        g2.AddRowCommand.Execute(null);
+                    AddLine(g2, 0, dgu, 1500, 2200, 3);
+                }
+
+                return grid.SpecGroups.Sum(g => g.ItemRows.Count);
             }, ct);
+
+        private static void AddLine(
+            ViewModels.ProformaInvoice.Step5DataGrid.SpecGroup group,
+            int index, CalcResult calc, int w, int h, int qty)
+        {
+            if (index >= group.ItemRows.Count) return;
+            var row = group.ItemRows[index];
+            row.GlassRef = string.IsNullOrWhiteSpace(calc.SpecName) ? GlassRef : calc.SpecName;
+            row.W1 = w;
+            row.H1 = h;
+            row.Qty = qty;
+            if (calc.Rate > 0m) row.Rate = calc.Rate;
+        }
 
         private static Task<ChargeResult> SelectChargesAsync(
             ProformaInvoiceViewModel pi, CancellationToken ct) =>
@@ -419,7 +449,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 var names = new List<string>();
                 foreach (var row in pi.Step6VM.ChargeRows)
                 {
-                    if (row.TemplateKey is "DELIVERY" or "SILICON_BED")
+                    if (row.TemplateKey is "DELIVERY" or "SILICON_BED" or "POLISH")
                     {
                         row.IsActive = true;
                         names.Add(row.ChargeName);
@@ -428,10 +458,44 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 return new ChargeResult
                 {
                     Ok = names.Count > 0,
-                    Names = string.Join(" and ", names),
+                    Names = string.Join(", ", names),
                     Total = pi.Step6VM.TotalOtherCharges
                 };
             }, ct);
+
+        private static async Task ShowAttachmentsAsync(
+            ProformaInvoiceViewModel pi, CancellationToken ct)
+        {
+            try
+            {
+                await pi.Step8VM.LoadAsync().ConfigureAwait(true);
+            }
+            catch { /* empty step is honest */ }
+            await WpfUiDriver.DwellAsync(400, ct).ConfigureAwait(false);
+        }
+
+        private static async Task<PnlResult> RecalculateProfitAsync(
+            ProformaInvoiceViewModel pi, CancellationToken ct)
+        {
+            DemoStage.Now("Recalculating profit and loss.");
+            try
+            {
+                await pi.Step9VM.RecalculateAsync().ConfigureAwait(true);
+            }
+            catch { /* P&L never breaks the walk */ }
+
+            await WaitUntilAsync(() => !pi.Step9VM.IsBusy, 8000, ct).ConfigureAwait(false);
+            await WpfUiDriver.DwellAsync(500, ct).ConfigureAwait(false);
+
+            return await WpfUiDriver.OnUiAsync(() => new PnlResult
+            {
+                Ok = true,
+                Gross = pi.Step9VM.GrossVatInclusive,
+                Glass = pi.Step9VM.TotalGlassCost,
+                Profit = pi.Step9VM.Profit,
+                Margin = pi.Step9VM.MarginPercent
+            }, ct).ConfigureAwait(false);
+        }
 
         private static async Task<bool> AdvanceToAsync(
             ProformaInvoiceViewModel pi, int step, CancellationToken ct)
@@ -440,11 +504,10 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 return true;
 
             DemoStage.Now($"Continue to step {step}.");
-            bool clicked = await WpfUiDriver
-                .ClickAsync("ProformaInvoice.ContinueButton", ct)
+            await WpfUiDriver.ClickAsync("ProformaInvoice.ContinueButton", ct)
                 .ConfigureAwait(false);
 
-            if (!clicked || await CurrentStepAsync(pi, ct).ConfigureAwait(false) < step)
+            if (await CurrentStepAsync(pi, ct).ConfigureAwait(false) < step)
             {
                 await WpfUiDriver.OnUiAsync(() =>
                 {
@@ -461,8 +524,8 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             }
 
             bool reached = await WaitUntilAsync(
-                () => pi.CurrentStepNumber >= step, 6000, ct).ConfigureAwait(false);
-            await WpfUiDriver.WaitReadyAsync(350, ct).ConfigureAwait(false);
+                () => pi.CurrentStepNumber >= step, 8000, ct).ConfigureAwait(false);
+            await WpfUiDriver.WaitReadyAsync(400, ct).ConfigureAwait(false);
             return reached;
         }
 
@@ -478,10 +541,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 ProGlassAutomation.Agent.Core.AgentHost.Navigate(target);
                 return true;
             }
-            catch
-            {
-                return false;
-            }
+            catch { return false; }
         }
 
         private static Task<ProformaInvoiceViewModel?> ResolvePiAsync(CancellationToken ct) =>
@@ -513,11 +573,9 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             if (disp.CheckAccess())
                 return await pi.Step7VM.PrintableInvoice.SilentDraftSaveAsync()
                     .ConfigureAwait(true);
-
             var op = disp.InvokeAsync(
                 () => pi.Step7VM.PrintableInvoice.SilentDraftSaveAsync(),
-                System.Windows.Threading.DispatcherPriority.Normal,
-                ct);
+                System.Windows.Threading.DispatcherPriority.Normal, ct);
             return await op.Task.Unwrap().ConfigureAwait(false);
         }
     }
