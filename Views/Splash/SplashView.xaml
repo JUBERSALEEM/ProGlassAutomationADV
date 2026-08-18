@@ -127,8 +127,8 @@
 
         <!-- ═══ PROGRESS — luminous ═══ -->
         <LinearGradientBrush x:Key="ProgressGradient" StartPoint="0,0" EndPoint="1,0">
-            <GradientStop Color="#1D4ED8" Offset="0.0"/>
-            <GradientStop Color="#3B82F6" Offset="0.55"/>
+            <GradientStop Color="{DynamicResource AccentColor}" Offset="0.0"/>
+            <GradientStop Color="{DynamicResource AccentLightColor}" Offset="0.55"/>
             <GradientStop Color="#93C5FD" Offset="1.0"/>
         </LinearGradientBrush>
 
@@ -140,9 +140,9 @@
         </LinearGradientBrush>
 
         <!-- ═══ GLASS SHADOWS ═══ -->
-        <DropShadowEffect x:Key="IconShadow" Color="#1D4ED8"
+        <DropShadowEffect x:Key="IconShadow" Color="{DynamicResource AccentColor}"
                           BlurRadius="48" ShadowDepth="0" Opacity="0.7"/>
-        <DropShadowEffect x:Key="GlassGlow" Color="#1D4ED8"
+        <DropShadowEffect x:Key="GlassGlow" Color="{DynamicResource AccentColor}"
                           BlurRadius="20" ShadowDepth="0" Opacity="0.55"/>
         <DropShadowEffect x:Key="ChipShadow" Color="#000000"
                           BlurRadius="16" ShadowDepth="3" Opacity="0.4"/>
@@ -219,7 +219,7 @@
 
         <!-- ═══ SIDE-RAIL 2050 GLASS ITEM PRIMITIVES ═══ -->
         <Style x:Key="GlassRailPanelStyle" TargetType="Border">
-            <Setter Property="CornerRadius" Value="22"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadiusLarge}"/>
             <Setter Property="Padding" Value="20,18"/>
             <Setter Property="Background" Value="{StaticResource RailPanelBg}"/>
             <Setter Property="BorderBrush" Value="{StaticResource RailBorderBrush}"/>
@@ -230,7 +230,7 @@
         </Style>
 
         <Style x:Key="GlassRailItemStyle" TargetType="Border">
-            <Setter Property="CornerRadius" Value="14"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
             <Setter Property="Padding" Value="11,9"/>
             <Setter Property="Margin" Value="0,0,0,10"/>
             <Setter Property="Background" Value="{StaticResource RailItemBg}"/>
@@ -242,7 +242,7 @@
         <Style x:Key="GlassIconTileStyle" TargetType="Border">
             <Setter Property="Width" Value="38"/>
             <Setter Property="Height" Value="38"/>
-            <Setter Property="CornerRadius" Value="11"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
             <Setter Property="Background" Value="{StaticResource IconTileBg}"/>
             <Setter Property="BorderBrush" Value="#4DFFFFFF"/>
             <Setter Property="BorderThickness" Value="1"/>
@@ -268,6 +268,68 @@
             <Setter Property="FontSize" Value="9.5"/>
             <Setter Property="Foreground" Value="#A0BFDBFE"/>
             <Setter Property="Margin" Value="0,2,0,0"/>
+        </Style>
+
+        <Style x:Key="TermsDeclineButtonStyle" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Foreground" Value="{StaticResource Frost}"/>
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg"
+                                Background="Transparent"
+                                BorderBrush="#40FFFFFF"
+                                BorderThickness="1"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background" Value="#22FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="TermsContinueButtonStyle" TargetType="Button">
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
+            <Setter Property="Foreground" Value="{DynamicResource OnAccentForegroundBrush}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="Bg"
+                                Background="{DynamicResource AccentBrush}"
+                                BorderThickness="0"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
+                                SnapsToDevicePixels="True">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="Bg" Property="Background"
+                                        Value="{DynamicResource AccentHoverBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="Bg" Property="Background"
+                                        Value="{DynamicResource AccentDarkBrush}"/>
+                            </Trigger>
+                            <Trigger Property="IsEnabled" Value="False">
+                                <Setter TargetName="Bg" Property="Opacity" Value="0.45"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
         </Style>
 
     </Window.Resources>
@@ -662,7 +724,7 @@
             </Grid>
 
             <!-- Glass loading pill -->
-            <Border CornerRadius="14" Padding="16,7"
+            <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,7"
                     HorizontalAlignment="Center"
                     Margin="0,14,0,0"
                     Background="{StaticResource IconTileBg}"
@@ -724,7 +786,7 @@
                     MaxWidth="980"
                     Margin="60,26,60,10"
                     Padding="42,34"
-                    CornerRadius="18"
+                    CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                     BorderBrush="#33FFFFFF"
                     BorderThickness="1">
                 <Border.Background>
@@ -811,24 +873,13 @@
                                 Content="DECLINE AND EXIT"
                                 Width="170" Height="42"
                                 Margin="0,0,12,0"
-                                FontSize="11"
-                                Cursor="Hand"
-                                FocusVisualStyle="{x:Null}"
-                                Foreground="{StaticResource Frost}"
-                                Background="Transparent"
-                                BorderBrush="#40FFFFFF"
-                                BorderThickness="1"
+                                Style="{StaticResource TermsDeclineButtonStyle}"
                                 Click="DeclineTerms_Click"/>
                         <Button x:Name="ContinueButton"
                                 Content="ACCEPT AND CONTINUE"
                                 Width="220" Height="42"
-                                FontSize="12" FontWeight="Bold"
-                                Cursor="Hand"
                                 IsEnabled="False"
-                                FocusVisualStyle="{x:Null}"
-                                Foreground="White"
-                                Background="{StaticResource Royal}"
-                                BorderThickness="0"
+                                Style="{StaticResource TermsContinueButtonStyle}"
                                 Click="ContinueFromTerms_Click"/>
                     </StackPanel>
                 </Grid>
@@ -836,7 +887,7 @@
         </Grid>
 
         <!-- ═══ FOOTER — glass pill ═══ -->
-        <Border CornerRadius="16" Padding="22,10"
+        <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="22,10"
                 HorizontalAlignment="Center" VerticalAlignment="Bottom"
                 Margin="0,0,0,30"
                 Background="{StaticResource IconTileBg}"

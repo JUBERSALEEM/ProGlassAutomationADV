@@ -76,7 +76,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
                         <Border x:Name="Chrome"
-                                CornerRadius="12"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Background="{DynamicResource WindowBackgroundBrush}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
@@ -126,7 +126,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="PasswordBox">
                         <Border x:Name="Chrome"
-                                CornerRadius="12"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Background="{DynamicResource WindowBackgroundBrush}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
@@ -179,7 +179,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg"
-                                CornerRadius="12"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Background="{DynamicResource AccentBrush}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
@@ -214,7 +214,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Bg"
-                                CornerRadius="12"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Background="Transparent"
                                 BorderBrush="{DynamicResource OutlineBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
@@ -290,7 +290,7 @@
                     <!-- App mark + name -->
                     <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
                         <Border Width="56" Height="56"
-                                CornerRadius="16"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
                                 SnapsToDevicePixels="True">
                             <Border.Background>
                                 <ImageBrush ImageSource="pack://application:,,,/Resources/proglass_icon_256.png"
@@ -322,7 +322,7 @@
                     <!-- First-run credential hint -->
                     <Border x:Name="DefaultCredWarning"
                             Margin="0,22,0,0" Padding="14,11"
-                            CornerRadius="12"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
                             Background="{DynamicResource WindowBackgroundBrush}"
                             BorderBrush="{DynamicResource WarningBrush}"
                             BorderThickness="1"
@@ -363,7 +363,7 @@
 
                     <Border x:Name="ErrorPanel"
                             Margin="0,14,0,0" Padding="12,9"
-                            CornerRadius="10"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
                             Background="{DynamicResource WindowBackgroundBrush}"
                             BorderBrush="{DynamicResource DangerBrush}"
                             BorderThickness="1"
