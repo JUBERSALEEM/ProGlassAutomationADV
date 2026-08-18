@@ -18,6 +18,7 @@
 
 using ProGlassAutomation.Models.Statement;
 using ProGlassAutomation.Services.Export.Pdf;
+using ProGlassAutomation.Services.Export.Pdf.Renderers;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -67,17 +68,33 @@ namespace ProGlassAutomation.Services.Statement.Pdf
         public void Compose(IDocumentContainer container)
         {
             PdfThemeCatalog.ApplySaved();
+            PdfChrome.Reset();
             container.Page(page =>
             {
                 page.Size(PageSizes.A4);
-                page.Margin(30);
+                page.Margin(DocumentStyle.MarginMm, Unit.Millimetre);
                 page.DefaultTextStyle(t =>
-                    t.FontFamily("Arial")
+                    t.FontFamily(DocumentStyle.FontFamily)
                      .FontSize(9)
                      .FontColor(DARK));
 
-                page.Content().Element(RenderContent);
-                page.Footer().Element(RenderFooter);
+                page.Header().Column(h =>
+                {
+                    h.Item().ShowOnce().Element(RenderStatementHeader);
+                    h.Item().SkipOnce().Element(c =>
+                    {
+                        var info = new LetterheadInfo
+                        {
+                            CompanyName = _snap.CustomerInfo.CompanyName ?? "",
+                            DocumentTitle = "ACCOUNT STATEMENT",
+                            DocumentId = _snap.Header.StatementNumber ?? ""
+                        };
+                        PdfChrome.Continuation(c, info);
+                    });
+                });
+                page.Content().PaddingTop(8).Element(RenderContent);
+                page.Footer().Element(f =>
+                    PdfChrome.Footer(f, _snap.Header.StatementNumber));
             });
         }
 
@@ -85,9 +102,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
         {
             container.Column(col =>
             {
-                col.Item().Element(RenderStatementHeader);
-
-                col.Item().PaddingTop(10).Element(RenderCustomerBlock);
+                col.Item().Element(RenderCustomerBlock);
 
                 col.Item().PaddingTop(10).PaddingBottom(6)
                    .LineHorizontal(1).LineColor(LINE);
@@ -130,116 +145,54 @@ namespace ProGlassAutomation.Services.Statement.Pdf
 
         private void RenderStatementHeader(IContainer container)
         {
-            container.Column(col =>
+            var info = new LetterheadInfo
             {
-                // ── Row 1: Title bar (unchanged — works fine) ─────────────
-                col.Item()
-                   .Background(ACCENT)
-                   .PaddingHorizontal(14).PaddingVertical(8)
-                   .Row(row =>
-                   {
-                       row.RelativeItem().Column(c =>
-                       {
-                           c.Item()
-                            .Text("ACCOUNT STATEMENT")
-                            .FontSize(14).Bold().FontColor(WHITE);
-                           c.Item().PaddingTop(2)
-                            .Text(_snap.Header.Title ?? "")
-                            .FontSize(9).FontColor(DocumentStyle.ColorAccentSoft);
-                       });
+                CompanyName = _snap.CustomerInfo.CompanyName ?? "",
+                DocumentTitle = "ACCOUNT STATEMENT",
+                DocumentId = _snap.Header.StatementNumber ?? "",
+                SubtitleLine = _snap.Header.Title
+            };
+            info.Meta.Add(("Period", _snap.Header.PeriodDisplay ?? ""));
+            info.Meta.Add(("Generated",
+                _snap.Header.GeneratedAt.ToString("dd MMM yyyy  HH:mm")));
+            if (!string.IsNullOrWhiteSpace(_snap.Header.FilterSummary))
+                info.Meta.Add(("Filter", _snap.Header.FilterSummary));
 
-                       row.AutoItem().AlignRight().Column(c =>
-                       {
-                           c.Item().AlignRight()
-                            .Text(_snap.Header.StatementNumber ?? "")
-                            .FontSize(13).Bold().FontColor(WHITE);
-                           c.Item().PaddingTop(2).AlignRight()
-                            .Text("Generated: " +
-                                  _snap.Header.GeneratedAt
-                                       .ToString("dd MMM yyyy  HH:mm"))
-                            .FontSize(8).FontColor(DocumentStyle.ColorAccentSoft);
-                       });
-                   });
-
-                // ── Row 2: Meta strip — Period + Filter Summary ───────────
-                // FIX: Split into a Column so filter summary can wrap
-                // to multiple lines instead of trying to fit on one line
-                // and overflowing horizontally.
-                col.Item()
-                   .Background(TABLE_HDR)
-                   .PaddingHorizontal(14).PaddingVertical(6)
-                   .Column(meta =>
-                   {
-                       // Period — short text, safe as single line
-                       meta.Item()
-                           .Text("Period: " + _snap.Header.PeriodDisplay)
-                           .FontSize(8).FontColor(DocumentStyle.ColorMuted);
-
-                       // Filter summary — long text, wraps naturally
-                       // NOT inside a Row with AutoItem → no width conflict
-                       string filterSummary = _snap.Header.FilterSummary ?? "";
-                       if (!string.IsNullOrWhiteSpace(filterSummary))
-                       {
-                           meta.Item().PaddingTop(3)
-                               .Text(filterSummary)
-                               .FontSize(8).FontColor(DocumentStyle.ColorMuted);
-                       }
-                   });
-            });
+            PdfChrome.Letterhead(container, info);
         }
 
         private void RenderCustomerBlock(IContainer container)
         {
-            container
-                .Background(LIGHT_BG)
-                .Border(1).BorderColor(LINE)
-                .Padding(12)
-                .Row(row =>
-                {
-                    row.RelativeItem().Column(col =>
+            container.Row(row =>
+            {
+                row.RelativeItem().Element(c =>
+                    PdfChrome.InfoCard(c, "From / Supplier", col =>
                     {
-                        col.Item().Text("FROM / SUPPLIER")
-                           .FontSize(8).Bold().FontColor(MUTED);
-                        col.Item().PaddingTop(4)
-                           .Text(_snap.CustomerInfo.CompanyName ?? "")
-                           .FontSize(11).Bold().FontColor(DARK);
-                        if (!string.IsNullOrWhiteSpace(
-                                _snap.CustomerInfo.SalesmanName))
-                            col.Item().PaddingTop(2)
-                               .Text("Salesman: " +
-                                     _snap.CustomerInfo.SalesmanName)
-                               .FontSize(9).FontColor(MUTED);
-                    });
-
-                    row.ConstantItem(1).Background(LINE);
-                    row.ConstantItem(20);
-
-                    row.RelativeItem().Column(col =>
+                        col.Item().Text(_snap.CustomerInfo.CompanyName ?? "")
+                            .FontSize(11).Bold().FontColor(DARK);
+                        if (!string.IsNullOrWhiteSpace(_snap.CustomerInfo.SalesmanName))
+                            PdfChrome.LabelValue(col, "Salesman",
+                                _snap.CustomerInfo.SalesmanName);
+                    }));
+                row.ConstantItem(12);
+                row.RelativeItem().Element(c =>
+                    PdfChrome.InfoCard(c, "Bill To / Customer", col =>
                     {
-                        col.Item().Text("BILL TO / CUSTOMER")
-                           .FontSize(8).Bold().FontColor(MUTED);
-                        col.Item().PaddingTop(4)
-                           .Text(_snap.CustomerInfo.CustomerName ?? "")
-                           .FontSize(11).Bold().FontColor(DARK);
-                        if (!string.IsNullOrWhiteSpace(
-                                _snap.CustomerInfo.ProjectName))
-                            col.Item().PaddingTop(2)
-                               .Text("Project: " +
-                                     _snap.CustomerInfo.ProjectName)
-                               .FontSize(9).FontColor(MUTED);
-                    });
-                });
+                        col.Item().Text(_snap.CustomerInfo.CustomerName ?? "")
+                            .FontSize(11).Bold().FontColor(DARK);
+                        if (!string.IsNullOrWhiteSpace(_snap.CustomerInfo.ProjectName))
+                            PdfChrome.LabelValue(col, "Project",
+                                _snap.CustomerInfo.ProjectName);
+                    }));
+            });
         }
 
         private void RenderInvoiceTable(IContainer container)
         {
             container.Column(col =>
             {
-                col.Item()
-                   .Background(TABLE_HDR)
-                   .PaddingHorizontal(10).PaddingVertical(6)
-                   .Text("INVOICE SUMMARY")
-                   .FontSize(10).Bold().FontColor(WHITE);
+                col.Item().Element(c =>
+                    PdfChrome.Section(c, "Invoice summary"));
 
                 col.Item().Table(table =>
                 {
@@ -257,19 +210,15 @@ namespace ProGlassAutomation.Services.Statement.Pdf
 
                     table.Header(header =>
                     {
-                        foreach (var h in new[]
+                        var heads = new[]
                         {
                             "INVOICE NO","DATE","PI REF",
                             "DN REF","QTY","TOTAL (AED)",
                             "BALANCE","STATUS"
-                        })
-                        {
-                            header.Cell()
-                                  .Background(ACCENT)
-                                  .PaddingHorizontal(5).PaddingVertical(5)
-                                  .Text(h).FontSize(8).Bold()
-                                  .FontColor(WHITE);
-                        }
+                        };
+                        for (int i = 0; i < heads.Length; i++)
+                            PdfChrome.HeaderCell(header.Cell(), heads[i],
+                                center: i >= 4, right: i == 5 || i == 6);
                     });
 
                     bool alt = false;
@@ -301,50 +250,10 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                     }
                 });
 
-                col.Item().Background(TABLE_HDR).Table(footer =>
-                {
-                    footer.ColumnsDefinition(c =>
-                    {
-                        c.RelativeColumn(1.4f);
-                        c.RelativeColumn(0.9f);
-                        c.RelativeColumn(1.0f);
-                        c.RelativeColumn(1.1f);
-                        c.ConstantColumn(30);
-                        c.RelativeColumn(1.1f);
-                        c.RelativeColumn(0.9f);
-                        c.ConstantColumn(56);
-                    });
-
-                    footer.Cell().ColumnSpan(4)
-                          .PaddingHorizontal(8).PaddingVertical(6)
-                          .Text($"TOTAL — " +
-                                $"{_snap.Financial.TotalInvoiceCount} INVOICES")
-                          .FontSize(9).Bold().FontColor(WHITE);
-
-                    footer.Cell()
-                          .PaddingHorizontal(5).PaddingVertical(6)
-                          .AlignRight()
-                          .Text(_snap.Financial.TotalQty.ToString())
-                          .FontSize(9).Bold().FontColor(WHITE);
-
-                    footer.Cell()
-                          .PaddingHorizontal(5).PaddingVertical(6)
-                          .AlignRight()
-                          .Text($"AED {_snap.Financial.TotalInvoiced:N2}")
-                          .FontSize(9).Bold().FontColor(WHITE);
-
-                    footer.Cell()
-                          .PaddingHorizontal(5).PaddingVertical(6)
-                          .AlignRight()
-                          .Text($"AED {_snap.Financial.TotalOutstanding:N2}")
-                          .FontSize(9).Bold()
-                          .FontColor(_snap.Financial.TotalOutstanding > 0
-                              ? DocumentStyle.ColorDanger : DocumentStyle.ColorSuccess);
-
-                    footer.Cell()
-                          .PaddingHorizontal(5).PaddingVertical(6)
-                          .Text("");
-                });
+                col.Item().Element(c =>
+                    PdfChrome.GrandTotal(c,
+                        $"{_snap.Financial.TotalInvoiceCount} invoices  ·  {_snap.Financial.TotalQty} pcs",
+                        $"AED {_snap.Financial.TotalOutstanding:N2} outstanding"));
             });
         }
 
@@ -393,21 +302,10 @@ namespace ProGlassAutomation.Services.Statement.Pdf
 
                 row.RelativeItem(1).Column(col =>
                 {
-                    col.Item()
-                       .Background(ACCENT)
-                       .Padding(14)
-                       .Column(inner =>
-                       {
-                           inner.Item().AlignCenter()
-                                .Text("TOTAL OUTSTANDING")
-                                .FontSize(9).Bold().FontColor(DocumentStyle.ColorAccentSoft);
-                           inner.Item().PaddingTop(6).AlignCenter()
-                                .Text($"AED {fin.TotalOutstanding:N2}")
-                                .FontSize(16).Bold().FontColor(WHITE);
-                           inner.Item().PaddingTop(4).AlignCenter()
-                                .Text($"{fin.TotalInvoiceCount} Invoice(s)")
-                                .FontSize(8).FontColor(DocumentStyle.ColorAccentSoft);
-                       });
+                    col.Item().Element(c =>
+                        PdfChrome.GrandTotal(c,
+                            "Total outstanding",
+                            $"AED {fin.TotalOutstanding:N2}"));
 
                     if (fin.OverdueAmount > 0)
                     {
@@ -433,9 +331,8 @@ namespace ProGlassAutomation.Services.Statement.Pdf
 
             container.Column(col =>
             {
-                col.Item()
-                   .Text("AGING ANALYSIS (Based on Due Date)")
-                   .FontSize(10).Bold().FontColor(DARK);
+                col.Item().Element(c =>
+                    PdfChrome.Section(c, "Aging analysis"));
 
                 col.Item().PaddingTop(8)
                    .Background(LIGHT_BG)
@@ -650,41 +547,24 @@ namespace ProGlassAutomation.Services.Statement.Pdf
             TableDescriptor table, string text, string bg,
             bool bold = false, string? color = null)
         {
-            var cell = table.Cell()
-                .Background(bg)
-                .BorderBottom(1).BorderColor(LINE)
-                .PaddingHorizontal(5).PaddingVertical(4);
-            var txt = cell.Text(text).FontSize(8);
-            if (bold) txt.Bold();
-            if (color != null) txt.FontColor(color);
+            bool alt = string.Equals(bg, LIGHT_BG, StringComparison.OrdinalIgnoreCase);
+            PdfChrome.DataCell(table.Cell(), text, alt: alt, bold: bold, color: color);
         }
 
         private static void AddCellRight(
             TableDescriptor table, string text, string bg,
             bool bold = false, string? color = null)
         {
-            var cell = table.Cell()
-                .Background(bg)
-                .BorderBottom(1).BorderColor(LINE)
-                .PaddingHorizontal(5).PaddingVertical(4)
-                .AlignRight();
-            var txt = cell.Text(text).FontSize(8);
-            if (bold) txt.Bold();
-            if (color != null) txt.FontColor(color);
+            bool alt = string.Equals(bg, LIGHT_BG, StringComparison.OrdinalIgnoreCase);
+            PdfChrome.DataCell(table.Cell(), text, alt: alt, right: true, bold: bold, color: color);
         }
 
         private static void AddCellCenter(
             TableDescriptor table, string text, string bg,
             bool bold = false, string? color = null)
         {
-            var cell = table.Cell()
-                .Background(bg)
-                .BorderBottom(1).BorderColor(LINE)
-                .PaddingHorizontal(4).PaddingVertical(4)
-                .AlignCenter();
-            var txt = cell.Text(text).FontSize(8);
-            if (bold) txt.Bold();
-            if (color != null) txt.FontColor(color);
+            bool alt = string.Equals(bg, LIGHT_BG, StringComparison.OrdinalIgnoreCase);
+            PdfChrome.DataCell(table.Cell(), text, alt: alt, center: true, bold: bold, color: color);
         }
 
         private static void AddSummaryRow(

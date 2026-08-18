@@ -1,5 +1,6 @@
 using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Services.Export.Pdf;
+using ProGlassAutomation.Services.Export.Pdf.Renderers;
 using ProGlassAutomation.Services.TaxInvoice.Mapper;
 using ProGlassAutomation.Utilities;
 using QuestPDF.Fluent;
@@ -71,68 +72,76 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
 
         public PageLayout PageLayout => PageLayout.A4Portrait;
 
-        public LetterheadInfo? Letterhead => new LetterheadInfo
+        public LetterheadInfo? Letterhead
         {
-            CompanyName = _ctx.CompanyName,
-            CompanyLocation = _ctx.CompanyLocation,
-            CompanyTrn = _ctx.CompanyTrn,
-            DocumentTitle = DocumentTitle,
-            DocumentId = DocumentId
-        };
+            get
+            {
+                var info = new LetterheadInfo
+                {
+                    CompanyName = _ctx.CompanyName,
+                    CompanyLocation = _ctx.CompanyLocation,
+                    CompanyTrn = _ctx.CompanyTrn,
+                    DocumentTitle = DocumentTitle,
+                    DocumentId = DocumentId,
+                    SubtitleLine = _ctx.Status
+                };
+                info.Meta.Add(("Issue", _ctx.IssueDateDisplay));
+                info.Meta.Add(("Due", _ctx.DueDateDisplay));
+                info.Meta.Add(("Status", _ctx.Status));
+                if (_ctx.IsPartial)
+                    info.Meta.Add(("Type", $"Partial {_ctx.SequenceLetter}"));
+                return info;
+            }
+        }
 
         public void RenderContent(ColumnDescriptor content)
         {
-            // 1. Full-width invoice metadata strip
-            content.Item().Element(RenderInvoiceBadge);
+            if (_ctx.IsPartial)
+            {
+                content.Item()
+                    .Background(AMBER)
+                    .PaddingHorizontal(10).PaddingVertical(5)
+                    .Text($"Partial invoice — sequence {_ctx.SequenceLetter}. Covers a portion of the order.")
+                    .FontSize(8).Bold().FontColor(WHITE);
+            }
 
-            content.Item().PaddingTop(6).PaddingBottom(6)
-                .LineHorizontal(1).LineColor(LINE);
-
-            // 2. Supplier | Customer blocks
             content.Item().Row(row =>
             {
                 row.RelativeItem().Element(RenderSupplierBlock);
-                row.ConstantItem(16);
+                row.ConstantItem(12);
                 row.RelativeItem().Element(RenderCustomerBlock);
             });
 
-            content.Item().PaddingTop(8).PaddingBottom(8)
-    .LineHorizontal(1).LineColor(LINE);
+            bool hasProject =
+                !string.IsNullOrWhiteSpace(_ctx.ProjectIdentifierName) ||
+                !string.IsNullOrWhiteSpace(_ctx.ProjectContractNo) ||
+                !string.IsNullOrWhiteSpace(_ctx.ProjectReference) ||
+                !string.IsNullOrWhiteSpace(_ctx.SiteDeliveryLocation);
+            if (hasProject)
+                content.Item().Element(RenderProjectBlock);
 
-            // 2b. Project details — dedicated section
-            content.Item().Element(RenderProjectBlock);
-
-            content.Item().PaddingTop(6).PaddingBottom(6)
-                .LineHorizontal(1).LineColor(LINE);
-
-            // 3. Invoice references bar
             content.Item().Element(RenderReferencesBar);
 
-            content.Item().PaddingTop(6).PaddingBottom(6)
-                .LineHorizontal(1).LineColor(LINE);
-
-            // 4. Spec group tables
             foreach (var group in _ctx.SpecGroups)
                 content.Item().Element(c => RenderSpecTable(c, group));
 
             if (_ctx.SpecGroups.Any())
                 content.Item().Element(RenderGlassTotalsRow);
 
-            // 5. Financial summary
             content.Item().Element(RenderFinancialSummary);
+            content.Item().Element(RenderAmountInWords);
 
-            // 6. Amount in words
-            content.Item().PaddingTop(8).Element(RenderAmountInWords);
+            bool hasBank =
+                !string.IsNullOrWhiteSpace(_ctx.BankName) ||
+                !string.IsNullOrWhiteSpace(_ctx.BankAccountNumber) ||
+                !string.IsNullOrWhiteSpace(_ctx.Iban) ||
+                !string.IsNullOrWhiteSpace(_ctx.SwiftCode);
+            if (hasBank)
+                content.Item().Element(RenderBankDetails);
 
-            // 7. Bank details
-            content.Item().PaddingTop(10).Element(RenderBankDetails);
+            content.Item().Element(RenderSignatureBlocks);
 
-            // 8. Signature blocks
-            content.Item().PaddingTop(12).Element(RenderSignatureBlocks);
-
-            // 9. Footer note
-            content.Item().PaddingTop(8)
-                .BorderTop(1).BorderColor(LINE).PaddingTop(6)
+            content.Item()
                 .Text("This is a computer-generated Tax Invoice. " +
                       "No signature is required for electronic copies.")
                 .FontSize(8).Italic().FontColor(MUTED);
@@ -141,84 +150,6 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
         // ════════════════════════════════════════════════════════════════════
         //  SECTION RENDERERS
         // ════════════════════════════════════════════════════════════════════
-
-        private void RenderInvoiceBadge(IContainer container)
-        {
-            container
-                .Border(1).BorderColor(LINE)
-                .Background(LIGHT_BG)
-                .Column(strip =>
-                {
-                    strip.Item()
-                        .Background(ACCENT)
-                        .PaddingHorizontal(12).PaddingVertical(6)
-                        .Row(titleRow =>
-                        {
-                            titleRow.RelativeItem()
-                                .Text("TAX INVOICE")
-                                .FontSize(13).Bold().FontColor(WHITE);
-
-                            titleRow.AutoItem()
-                                .AlignRight()
-                                .Text(_ctx.InvoiceNumber)
-                                .FontSize(12).Bold().FontColor(WHITE);
-                        });
-
-                    strip.Item()
-                        .PaddingHorizontal(12).PaddingVertical(8)
-                        .Row(metaRow =>
-                        {
-                            metaRow.RelativeItem().Column(c =>
-                            {
-                                c.Item().Text("INVOICE NO")
-                                    .FontSize(8).Bold().FontColor(MUTED);
-                                c.Item().PaddingTop(2)
-                                    .Text(_ctx.InvoiceNumber)
-                                    .FontSize(10).SemiBold().FontColor(DARK);
-                            });
-
-                            metaRow.RelativeItem().Column(c =>
-                            {
-                                c.Item().Text("ISSUE DATE")
-                                    .FontSize(8).Bold().FontColor(MUTED);
-                                c.Item().PaddingTop(2)
-                                    .Text(_ctx.IssueDateDisplay)
-                                    .FontSize(10).SemiBold().FontColor(DARK);
-                            });
-
-                            metaRow.RelativeItem().Column(c =>
-                            {
-                                c.Item().Text("DUE DATE")
-                                    .FontSize(8).Bold().FontColor(MUTED);
-                                c.Item().PaddingTop(2)
-                                    .Text(_ctx.DueDateDisplay)
-                                    .FontSize(10).SemiBold()
-                                    .FontColor(_ctx.IsOverdue ? RED : DARK);
-                            });
-
-                            metaRow.RelativeItem().Column(c =>
-                            {
-                                c.Item().Text("STATUS")
-                                    .FontSize(8).Bold().FontColor(MUTED);
-                                c.Item().PaddingTop(2)
-                                    .Text(_ctx.Status)
-                                    .FontSize(10).SemiBold()
-                                    .FontColor(GetStatusColor(_ctx.Status));
-                            });
-                        });
-
-                    if (_ctx.IsPartial)
-                    {
-                        strip.Item()
-                            .Background(AMBER)
-                            .PaddingHorizontal(12).PaddingVertical(5)
-                            .AlignCenter()
-                            .Text($"⚠  PARTIAL INVOICE — SEQUENCE ({_ctx.SequenceLetter})  " +
-                                  $"·  This invoice covers a portion of the total order.")
-                            .FontSize(9).Bold().FontColor(WHITE);
-                    }
-                });
-        }
 
         private static string GetStatusColor(string status) => status switch
         {
@@ -233,33 +164,26 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
 
         private void RenderSupplierBlock(IContainer container)
         {
-            container.Column(col =>
+            PdfChrome.InfoCard(container, "From / Supplier", col =>
             {
-                col.Item().Text("FROM / SUPPLIER:")
-                    .FontSize(10).Bold().FontColor(DARK);
-
-                AddLabelValue(col, "Company:", _ctx.CompanyName);
-                AddLabelValue(col, "TRN:", _ctx.CompanyTrn);
-                AddLabelValue(col, "Address:", _ctx.CompanyAddress);
-                AddLabelValue(col, "Location:", _ctx.CompanyLocation);
-                AddLabelValue(col, "Phone:", _ctx.CompanyPhone);
-                AddLabelValue(col, "Email:", _ctx.CompanyEmail);
+                PdfChrome.LabelValue(col, "Company", _ctx.CompanyName);
+                PdfChrome.LabelValue(col, "TRN", _ctx.CompanyTrn);
+                PdfChrome.LabelValue(col, "Address", _ctx.CompanyAddress);
+                PdfChrome.LabelValue(col, "Location", _ctx.CompanyLocation);
+                PdfChrome.LabelValue(col, "Phone", _ctx.CompanyPhone);
+                PdfChrome.LabelValue(col, "Email", _ctx.CompanyEmail);
             });
         }
 
         private void RenderCustomerBlock(IContainer container)
         {
-            container.Column(col =>
+            PdfChrome.InfoCard(container, "Bill To / Customer", col =>
             {
-                col.Item().Text("BILL TO / CUSTOMER:")
-                    .FontSize(10).Bold().FontColor(DARK);
-
-                AddLabelValue(col, "Customer:", _ctx.CustomerName);
-                AddLabelValue(col, "Customer TRN:", _ctx.CustomerTrn);
-                AddLabelValue(col, "Contact:", _ctx.ContactPerson);
-
+                PdfChrome.LabelValue(col, "Customer", _ctx.CustomerName);
+                PdfChrome.LabelValue(col, "TRN", _ctx.CustomerTrn);
+                PdfChrome.LabelValue(col, "Contact", _ctx.ContactPerson);
                 if (!string.IsNullOrWhiteSpace(_ctx.CustomerAddress))
-                    AddLabelValue(col, "Address:", _ctx.CustomerAddress);
+                    PdfChrome.LabelValue(col, "Address", _ctx.CustomerAddress);
             });
         }
 
@@ -279,97 +203,43 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
 
             if (!hasAnyProjectData) return;
 
-            container
-                .Border(1).BorderColor(LINE)
-                .Column(col =>
+            PdfChrome.InfoCard(container, "Project", col =>
+            {
+                col.Item().Row(row =>
                 {
-                    // Section header — indigo accent bar
-                    col.Item()
-                        .Background(ACCENT)
-                        .PaddingHorizontal(10).PaddingVertical(5)
-                        .Text("PROJECT DETAILS")
-                        .FontSize(9).Bold().FontColor(WHITE);
-
-                    // Project fields — 2-column layout for balanced spacing
-                    col.Item()
-                        .Background(LIGHT_BG)
-                        .Padding(10)
-                        .Row(row =>
-                        {
-                            // Left column
-                            row.RelativeItem().Column(left =>
-                            {
-                                if (!string.IsNullOrWhiteSpace(_ctx.ProjectIdentifierName))
-                                    AddLabelValue(left, "Project Identifier Name:",
-                                        _ctx.ProjectIdentifierName);
-
-                                if (!string.IsNullOrWhiteSpace(_ctx.ProjectContractNo))
-                                    AddLabelValue(left, "Project Name / No:",
-                                        _ctx.ProjectContractNo);
-                            });
-
-                            row.ConstantItem(20);
-
-                            // Right column
-                            row.RelativeItem().Column(right =>
-                            {
-                                if (!string.IsNullOrWhiteSpace(_ctx.ProjectReference))
-                                    AddLabelValue(right, "Project Reference:",
-                                        _ctx.ProjectReference);
-
-                                if (!string.IsNullOrWhiteSpace(_ctx.SiteDeliveryLocation))
-                                    AddLabelValue(right, "Site / Delivery Location:",
-                                        _ctx.SiteDeliveryLocation);
-                            });
-                        });
+                    row.RelativeItem().Column(left =>
+                    {
+                        if (!string.IsNullOrWhiteSpace(_ctx.ProjectIdentifierName))
+                            PdfChrome.LabelValue(left, "Identifier",
+                                _ctx.ProjectIdentifierName);
+                        if (!string.IsNullOrWhiteSpace(_ctx.ProjectContractNo))
+                            PdfChrome.LabelValue(left, "Name / No",
+                                _ctx.ProjectContractNo);
+                    });
+                    row.ConstantItem(16);
+                    row.RelativeItem().Column(right =>
+                    {
+                        if (!string.IsNullOrWhiteSpace(_ctx.ProjectReference))
+                            PdfChrome.LabelValue(right, "Reference",
+                                _ctx.ProjectReference);
+                        if (!string.IsNullOrWhiteSpace(_ctx.SiteDeliveryLocation))
+                            PdfChrome.LabelValue(right, "Site",
+                                _ctx.SiteDeliveryLocation);
+                    });
                 });
+            });
         }
 
         private void RenderReferencesBar(IContainer container)
         {
-            container
-                .Background(LIGHT_BG)
-                .Padding(8)
-                .Row(row =>
-                {
-                    row.RelativeItem().Column(col =>
-                    {
-                        col.Item().Text("PI REFERENCE")
-                            .FontSize(8).Bold().FontColor(MUTED);
-                        col.Item().Text(_ctx.ProformaId)
-                            .FontSize(10).SemiBold().FontColor(DARK);
-                    });
-
-                    if (!string.IsNullOrWhiteSpace(_ctx.DeliveryNoteRef))
-                    {
-                        row.RelativeItem().Column(col =>
-                        {
-                            col.Item().Text("DN REFERENCE")
-                                .FontSize(8).Bold().FontColor(MUTED);
-                            col.Item().Text(_ctx.DeliveryNoteRef)
-                                .FontSize(10).SemiBold().FontColor(DARK);
-                        });
-                    }
-
-                    if (!string.IsNullOrWhiteSpace(_ctx.PurchaseOrderNumber))
-                    {
-                        row.RelativeItem().Column(col =>
-                        {
-                            col.Item().Text("CUSTOMER PO")
-                                .FontSize(8).Bold().FontColor(MUTED);
-                            col.Item().Text(_ctx.PurchaseOrderNumber)
-                                .FontSize(10).SemiBold().FontColor(DARK);
-                        });
-                    }
-
-                    row.RelativeItem().Column(col =>
-                    {
-                        col.Item().Text("PAYMENT TERMS")
-                            .FontSize(8).Bold().FontColor(MUTED);
-                        col.Item().Text(_ctx.PaymentTerms)
-                            .FontSize(10).SemiBold().FontColor(DARK);
-                    });
-                });
+            var items = new List<(string, string)>
+            {
+                ("PI", _ctx.ProformaId),
+                ("DN", _ctx.DeliveryNoteRef),
+                ("Customer PO", _ctx.PurchaseOrderNumber),
+                ("Terms", _ctx.PaymentTerms)
+            };
+            PdfChrome.MetaStrip(container, items);
         }
 
         private void RenderSpecTable(IContainer container, InvRenderSpecGroup group)
@@ -491,107 +361,7 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
 
                         footer.Cell()
                             .PaddingHorizontal(4).PaddingVertical(6)
-                            .Text("");
-
-                        footer.Cell()
-                            .PaddingHorizontal(4).PaddingVertical(6)
-                            .AlignRight()
-                            .Text($"AED {group.TotalValue:N2}")
-                            .FontSize(10).Bold().FontColor(GREEN);
-                    });
-            });
-        }
-
-        private void RenderGlassTotalsRow(IContainer container)
-        {
-            int totalQty = _ctx.SpecGroups.Sum(g => g.TotalQty);
-            decimal totalSqm = _ctx.SpecGroups.Sum(g => g.TotalSqm);
-            decimal totalValue = _ctx.SpecGroups.Sum(g => g.TotalValue);
-
-            container.PaddingBottom(6)
-                .Background(ACCENT)
-                .Table(footer =>
-                {
-                    footer.ColumnsDefinition(c =>
-                    {
-                        c.ConstantColumn(24);
-                        c.RelativeColumn(1.6f);
-                        c.ConstantColumn(36);
-                        c.ConstantColumn(36);
-                        c.ConstantColumn(32);
-                        c.ConstantColumn(32);
-                        c.ConstantColumn(30);
-                        c.RelativeColumn(0.75f);
-                        c.RelativeColumn(0.85f);
-                        c.RelativeColumn(0.80f);
-                        c.RelativeColumn(0.95f);
-                    });
-
-                    footer.Cell().ColumnSpan(6)
-                        .PaddingHorizontal(6).PaddingVertical(7)
-                        .Text("GLASS ITEMS TOTAL:")
-                        .FontSize(10).Bold().FontColor(Colors.White);
-
-                    footer.Cell()
-                        .PaddingHorizontal(4).PaddingVertical(7)
-                        .AlignRight()
-                        .Text(totalQty.ToString())
-                        .FontSize(10).Bold().FontColor(Colors.White);
-
-                    footer.Cell()
-                        .PaddingHorizontal(4).PaddingVertical(7)
-                        .Text("");
-
-                    footer.Cell()
-                        .PaddingHorizontal(4).PaddingVertical(7)
-                        .AlignRight()
-                        .Text(totalSqm.ToString("0.000"))
-                        .FontSize(10).Bold().FontColor(Colors.White);
-
-                    footer.Cell()
-                        .PaddingHorizontal(4).PaddingVertical(7)
-                        .Text("");
-
-                    footer.Cell()
-                        .PaddingHorizontal(4).PaddingVertical(7)
-                        .AlignRight()
-                        .Text($"AED {totalValue:N2}")
-                        .FontSize(11).Bold().FontColor(Colors.White);
-                });
-        }
-
-        // ═════════════════════════════════════════════════════════════════
-        //  FINANCIAL SUMMARY — CHAT 17 FIX
-        //  Removed .Width(320) fixed constraint.
-        //  Now uses Row(2 relative parts) — flex layout, no crash.
-        // ═════════════════════════════════════════════════════════════════
-
-        private void RenderFinancialSummary(IContainer container)
-        {
-            container
-                .PaddingTop(10)
-                .BorderTop(1).BorderColor(LINE)
-                .PaddingTop(10)
-                .Row(outer =>
-                {
-                    // Left spacer — pushes summary to right side
-                    outer.RelativeItem(1);
-
-                    // Right side — summary content (flex, not fixed width)
-                    outer.RelativeItem(1).Column(col =>
-                    {
-                        AddSummaryRow(col, "Subtotal:",
-                            $"AED {_ctx.Subtotal:N2}");
-
-                        if (_ctx.DiscountAmount > 0)
-                        {
-                            AddSummaryRow(col,
-                                $"Discount ({_ctx.DiscountPercent:0.##}%):",
-                                $"- AED {_ctx.DiscountAmount:N2}",
-                                color: AMBER);
-                        }
-
-                        AddSummaryRow(col, "After Discount:",
+                  AddSummaryRow(col, "After Discount:",
                             $"AED {_ctx.AfterDiscount:N2}");
 
                         col.Item().PaddingVertical(3)
@@ -601,18 +371,10 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                             $"AED {_ctx.VatAmount:N2}",
                             size: 10);
 
-                        col.Item().PaddingTop(6)
-                            .Background(ACCENT)
-                            .PaddingHorizontal(12).PaddingVertical(8)
-                            .Row(r =>
-                            {
-                                r.RelativeItem()
-                                    .Text("GRAND TOTAL (VAT INCLUSIVE):")
-                                    .FontSize(10).Bold().FontColor(Colors.White);
-                                r.AutoItem()
-                                    .Text($"AED {_ctx.GrandTotal:N2}")
-                                    .FontSize(12).Bold().FontColor(Colors.White);
-                            });
+                        col.Item().PaddingTop(6).Element(c =>
+                            PdfChrome.GrandTotal(c,
+                                "Grand total (VAT inclusive)",
+                                $"AED {_ctx.GrandTotal:N2}"));
 
                         if (_ctx.IsPartial && _ctx.PreviouslyInvoiced > 0)
                         {
@@ -635,65 +397,44 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
 
         private void RenderAmountInWords(IContainer container)
         {
-            container
-                .Background(LIGHT_BG)
-                .Border(1).BorderColor(LINE)
-                .Padding(10)
-                .Column(col =>
-                {
-                    col.Item().Text("AMOUNT IN WORDS:")
-                        .FontSize(9).Bold().FontColor(MUTED);
-
-                    col.Item().PaddingTop(3)
-                        .Text(TaxInvoiceMapper.AmountToWords(_ctx.GrandTotal))
-                        .FontSize(11).Bold().Italic().FontColor(DARK);
-                });
+            PdfChrome.InfoCard(container, "Amount in words", col =>
+            {
+                col.Item()
+                    .Text(TaxInvoiceMapper.AmountToWords(_ctx.GrandTotal))
+                    .FontSize(11).Italic().FontColor(DARK);
+            });
         }
 
         private void RenderBankDetails(IContainer container)
         {
             if (string.IsNullOrWhiteSpace(_ctx.BankName)
-                && string.IsNullOrWhiteSpace(_ctx.Iban))
+                && string.IsNullOrWhiteSpace(_ctx.BankAccountNumber)
+                && string.IsNullOrWhiteSpace(_ctx.Iban)
+                && string.IsNullOrWhiteSpace(_ctx.SwiftCode))
                 return;
 
-            container.Column(col =>
+            PdfChrome.InfoCard(container, "Bank / Payment", col =>
             {
-                col.Item()
-                    .Background(ACCENT)
-                    .PaddingHorizontal(8).PaddingVertical(5)
-                    .Text("BANK / PAYMENT DETAILS")
-                    .FontSize(10).Bold().FontColor(Colors.White);
-
-                col.Item()
-                    .Background(LIGHT_BG)
-                    .Border(1).BorderColor(LINE)
-                    .Padding(10)
-                    .Row(row =>
+                col.Item().Row(row =>
+                {
+                    row.RelativeItem().Column(left =>
                     {
-                        row.RelativeItem().Column(left =>
-                        {
-                            AddLabelValue(left, "Bank Name:",
-                                _ctx.BankName);
-                            AddLabelValue(left, "Account Number:",
-                                _ctx.BankAccountNumber);
-                        });
-
-                        row.ConstantItem(20);
-
-                        row.RelativeItem().Column(right =>
-                        {
-                            AddLabelValue(right, "IBAN:", _ctx.Iban);
-                            AddLabelValue(right, "SWIFT/BIC:",
-                                _ctx.SwiftCode);
-                        });
+                        PdfChrome.LabelValue(left, "Bank", _ctx.BankName);
+                        PdfChrome.LabelValue(left, "Account", _ctx.BankAccountNumber);
                     });
+                    row.ConstantItem(16);
+                    row.RelativeItem().Column(right =>
+                    {
+                        PdfChrome.LabelValue(right, "IBAN", _ctx.Iban);
+                        PdfChrome.LabelValue(right, "SWIFT / BIC", _ctx.SwiftCode);
+                    });
+                });
 
                 if (!string.IsNullOrWhiteSpace(_ctx.PaymentNotes))
                 {
-                    col.Item()
-                        .PaddingTop(4).PaddingHorizontal(4)
+                    col.Item().PaddingTop(4)
                         .Text(_ctx.PaymentNotes)
-                        .FontSize(9).Italic().FontColor(MUTED);
+                        .FontSize(8).Italic().FontColor(MUTED);
                 }
             });
         }
@@ -708,75 +449,26 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
 
         private void RenderSignatureBlocks(IContainer container)
         {
-            container.Row(row =>
-            {
-                // Prepared by
-                row.RelativeItem()
-                    .Border(1).BorderColor(LINE).Padding(10)
-                    .Column(col =>
+            PdfChrome.Signatures(container,
+                new SignatureSlot
+                {
+                    Title = "Prepared by",
+                    Body = col =>
                     {
-                        col.Item().Text("PREPARED BY")
-                            .FontSize(9).Bold().FontColor(ACCENT);
-
                         col.Item().PaddingTop(4)
                             .Text(string.IsNullOrWhiteSpace(_ctx.PreparedByName)
                                 ? "—" : _ctx.PreparedByName)
                             .FontSize(10).SemiBold().FontColor(DARK);
-
                         if (!string.IsNullOrWhiteSpace(_ctx.PreparedByTitle))
                             col.Item().PaddingTop(2)
                                 .Text(_ctx.PreparedByTitle)
-                                .FontSize(9).FontColor(MUTED);
-
-                        col.Item().PaddingTop(18)
-                            .BorderBottom(1).BorderColor(LINE)
-                            .Text("Signature").FontSize(8).FontColor(MUTED);
-                    });
-
-                row.ConstantItem(16);
-
-                // Customer approval
-                row.RelativeItem()
-                    .Border(1).BorderColor(LINE).Padding(10)
-                    .Column(col =>
-                    {
-                        col.Item().Text("CUSTOMER ACKNOWLEDGEMENT")
-                            .FontSize(9).Bold().FontColor(ACCENT);
-
-                        // FIX: Removed .Height(1) — replaced with Text(" ")
-                        // which gives BorderBottom something measurable.
-                        col.Item().PaddingTop(4).Row(r =>
-                        {
-                            r.AutoItem().Text("Name: ")
-                                .FontSize(9).FontColor(MUTED);
-                            r.RelativeItem().PaddingLeft(6)
-                                .BorderBottom(1).BorderColor(LINE)
-                                .Text(" ").FontSize(9);
-                        });
-
-                        col.Item().PaddingTop(6).Row(r =>
-                        {
-                            r.AutoItem().Text("Signature: ")
-                                .FontSize(9).FontColor(MUTED);
-                            r.RelativeItem().PaddingLeft(6)
-                                .BorderBottom(1).BorderColor(LINE)
-                                .Text(" ").FontSize(9);
-                        });
-
-                        col.Item().PaddingTop(6).Row(r =>
-                        {
-                            r.AutoItem().Text("Date: ")
-                                .FontSize(9).FontColor(MUTED);
-                            r.RelativeItem().PaddingLeft(6)
-                                .BorderBottom(1).BorderColor(LINE)
-                                .Text(" ").FontSize(9);
-                        });
-
-                        col.Item().PaddingTop(6)
-                            .Text("Stamp / Company Seal")
-                            .FontSize(8).FontColor(MUTED);
-                    });
-            });
+                                .FontSize(8).FontColor(MUTED);
+                    }
+                },
+                new SignatureSlot
+                {
+                    Title = "Customer acknowledgement"
+                });
         }
 
         // ════════════════════════════════════════════════════════════════════
@@ -1006,6 +698,64 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
             public string CustomerTrn { get; set; } = "";
             public string ContactPerson { get; set; } = "";
             public string CustomerAddress { get; set; } = "";
+
+            public string ProjectIdentifierName { get; set; } = "";
+            public string ProjectContractNo { get; set; } = "";
+            public string ProjectReference { get; set; } = "";
+            public string SiteDeliveryLocation { get; set; } = "";
+
+            public string ProformaId { get; set; } = "";
+            public string DeliveryNoteRef { get; set; } = "";
+            public string PurchaseOrderNumber { get; set; } = "";
+            public string PaymentTerms { get; set; } = "";
+
+            public decimal Subtotal { get; set; }
+            public decimal DiscountPercent { get; set; }
+            public decimal DiscountAmount { get; set; }
+            public decimal AfterDiscount { get; set; }
+            public decimal VatAmount { get; set; }
+            public decimal GrandTotal { get; set; }
+            public decimal PreviouslyInvoiced { get; set; }
+            public decimal RemainingBalance { get; set; }
+
+            public string BankName { get; set; } = "";
+            public string BankAccountNumber { get; set; } = "";
+            public string Iban { get; set; } = "";
+            public string SwiftCode { get; set; } = "";
+            public string PaymentNotes { get; set; } = "";
+
+            public string PreparedByName { get; set; } = "";
+            public string PreparedByTitle { get; set; } = "";
+
+            public List<InvRenderSpecGroup> SpecGroups { get; } = new();
+        }
+
+        private sealed class InvRenderSpecGroup
+        {
+            public int GroupNumber { get; set; }
+            public string GroupName { get; set; } = "";
+            public int TotalQty { get; set; }
+            public decimal TotalSqm { get; set; }
+            public decimal TotalValue { get; set; }
+            public List<InvRenderRow> Rows { get; } = new();
+        }
+
+        private sealed class InvRenderRow
+        {
+            public int Serial { get; set; }
+            public string GlassRef { get; set; } = "";
+            public int W1 { get; set; }
+            public int H1 { get; set; }
+            public int W2 { get; set; }
+            public int H2 { get; set; }
+            public int Qty { get; set; }
+            public decimal Sqm { get; set; }
+            public decimal TotalSqm { get; set; }
+            public decimal Rate { get; set; }
+            public decimal Value { get; set; }
+        }
+    }
+} set; } = "";
 
             public string ProjectIdentifierName { get; set; } = "";
             public string ProjectContractNo { get; set; } = "";

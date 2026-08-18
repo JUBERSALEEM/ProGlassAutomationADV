@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
+using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.Export.Pdf.Renderers;
@@ -58,15 +58,26 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
         // ── IPdfLayout ───────────────────────────────────────────────────
         public PageLayout PageLayout => PageLayout.A4Portrait;
 
-        public LetterheadInfo? Letterhead => new LetterheadInfo
+        public LetterheadInfo? Letterhead
         {
-            CompanyName = _joRef.CompanyName,
-            CompanyLocation = _joRef.CompanyLocation,
-            CompanyTrn = _joRef.CompanyTrn,
-            DocumentTitle = DocumentTitle,
-            DocumentId = DocumentId,
-            SubtitleLine = BuildSubtitle()
-        };
+            get
+            {
+                var info = new LetterheadInfo
+                {
+                    CompanyName = _joRef.CompanyName,
+                    CompanyLocation = _joRef.CompanyLocation,
+                    CompanyTrn = _joRef.CompanyTrn,
+                    DocumentTitle = DocumentTitle,
+                    DocumentId = DocumentId,
+                    SubtitleLine = BuildSubtitle()
+                };
+                info.Meta.Add(("Date", _entity.DeliveryDate.ToString("dd MMM yyyy")));
+                info.Meta.Add(("Status", _entity.Status ?? ""));
+                info.Meta.Add(("Job Order", _entity.JobOrderId ?? ""));
+                info.Meta.Add(("This DN", _entity.TotalDeliveredQty.ToString()));
+                return info;
+            }
+        }
 
         public void RenderContent(ColumnDescriptor content)
         {
@@ -116,131 +127,39 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
         {
             container.Row(row =>
             {
-                // Left column — customer + project
-                row.RelativeItem()
-                    .Border(0.5f).BorderColor(DocumentStyle.ColorBorder)
-                    .Padding(8)
-                    .Column(col =>
+                row.RelativeItem().Element(c =>
+                    PdfChrome.InfoCard(c, "Customer", col =>
                     {
-                        col.Item().Text("CUSTOMER")
-                            .FontSize(DocumentStyle.FontSizeCaption)
-                            .SemiBold()
-                            .FontColor(DocumentStyle.ColorAccent);
-
-                        col.Item().PaddingTop(4)
-                            .Text(_joRef.CustomerName)
+                        col.Item().Text(_joRef.CustomerName)
                             .FontSize(DocumentStyle.FontSizeH2).Bold();
-
                         if (!string.IsNullOrWhiteSpace(_joRef.ProjectName))
-                            col.Item().Text($"Project: {_joRef.ProjectName}")
-                                .FontSize(DocumentStyle.FontSizeSmall)
-                                .FontColor(DocumentStyle.ColorMuted);
-
+                            PdfChrome.LabelValue(col, "Project", _joRef.ProjectName);
                         if (!string.IsNullOrWhiteSpace(_joRef.CompanyTrn))
-                            col.Item().Text($"TRN: {_joRef.CompanyTrn}")
-                                .FontSize(DocumentStyle.FontSizeSmall)
-                                .FontColor(DocumentStyle.ColorMuted);
-
-                        col.Item().PaddingTop(6).Text("JOB ORDER")
-                            .FontSize(DocumentStyle.FontSizeCaption)
-                            .SemiBold()
-                            .FontColor(DocumentStyle.ColorAccent);
-
-                        col.Item().PaddingTop(2)
-                            .Text(_entity.JobOrderId)
-                            .FontSize(DocumentStyle.FontSizeBody).SemiBold();
-
+                            PdfChrome.LabelValue(col, "TRN", _joRef.CompanyTrn);
+                        PdfChrome.LabelValue(col, "Job order", _entity.JobOrderId);
                         if (!string.IsNullOrWhiteSpace(_entity.ProformaId))
-                            col.Item().Text($"PI Ref: {_entity.ProformaId}")
-                                .FontSize(DocumentStyle.FontSizeSmall)
-                                .FontColor(DocumentStyle.ColorMuted);
-                    });
+                            PdfChrome.LabelValue(col, "PI", _entity.ProformaId);
+                    }));
 
                 row.ConstantItem(10);
 
-                // Right column — logistics
-                row.RelativeItem()
-                    .Border(0.5f).BorderColor(DocumentStyle.ColorBorder)
-                    .Padding(8)
-                    .Column(col =>
+                row.RelativeItem().Element(c =>
+                    PdfChrome.InfoCard(c, "Logistics", col =>
                     {
-                        col.Item().Text("LOGISTICS")
-                            .FontSize(DocumentStyle.FontSizeCaption)
-                            .SemiBold()
-                            .FontColor(DocumentStyle.ColorAccent);
-
-                        col.Item().PaddingTop(4).Row(r =>
-                        {
-                            r.ConstantItem(80).Text("Date:")
-                                .FontSize(DocumentStyle.FontSizeSmall)
-                                .FontColor(DocumentStyle.ColorMuted);
-                            r.RelativeItem()
-                                .Text(_entity.DeliveryDate.ToString("dd MMM yyyy"))
-                                .FontSize(DocumentStyle.FontSizeSmall).SemiBold();
-                        });
-
-                        col.Item().Row(r =>
-                        {
-                            r.ConstantItem(80).Text("Time:")
-                                .FontSize(DocumentStyle.FontSizeSmall)
-                                .FontColor(DocumentStyle.ColorMuted);
-                            r.RelativeItem()
-                                .Text(_entity.DeliveryTime)
-                                .FontSize(DocumentStyle.FontSizeSmall).SemiBold();
-                        });
-
-                        col.Item().Row(r =>
-                        {
-                            r.ConstantItem(80).Text("Driver:")
-                                .FontSize(DocumentStyle.FontSizeSmall)
-                                .FontColor(DocumentStyle.ColorMuted);
-                            r.RelativeItem()
-                                .Text(string.IsNullOrWhiteSpace(_entity.DriverName)
-                                    ? "—" : _entity.DriverName)
-                                .FontSize(DocumentStyle.FontSizeSmall).SemiBold();
-                        });
-
-                        col.Item().Row(r =>
-                        {
-                            r.ConstantItem(80).Text("Vehicle:")
-                                .FontSize(DocumentStyle.FontSizeSmall)
-                                .FontColor(DocumentStyle.ColorMuted);
-                            r.RelativeItem()
-                                .Text(string.IsNullOrWhiteSpace(_entity.VehicleNumber)
-                                    ? "—" : _entity.VehicleNumber)
-                                .FontSize(DocumentStyle.FontSizeSmall).SemiBold();
-                        });
-
-                        col.Item().Row(r =>
-                        {
-                            r.ConstantItem(80).Text("Receiver:")
-                                .FontSize(DocumentStyle.FontSizeSmall)
-                                .FontColor(DocumentStyle.ColorMuted);
-                            r.RelativeItem()
-                                .Text(string.IsNullOrWhiteSpace(_entity.ReceiverName)
-                                    ? "—" : _entity.ReceiverName)
-                                .FontSize(DocumentStyle.FontSizeSmall).SemiBold();
-                        });
-
-                        col.Item().Row(r =>
-                        {
-                            r.ConstantItem(80).Text("Status:")
-                                .FontSize(DocumentStyle.FontSizeSmall)
-                                .FontColor(DocumentStyle.ColorMuted);
-                            r.RelativeItem()
-                                .Text(_entity.Status)
-                                .FontSize(DocumentStyle.FontSizeSmall).SemiBold();
-                        });
-
-                        col.Item().Row(r =>
-                        {
-                            r.ConstantItem(80).Text("Type:")
-                                .FontSize(DocumentStyle.FontSizeSmall)
-                                .FontColor(DocumentStyle.ColorMuted);
-                            r.RelativeItem()
-                                .Text(_entity.DeliveryType)
-                                .FontSize(DocumentStyle.FontSizeSmall).SemiBold();
-                        });
+                        PdfChrome.LabelValue(col, "Date",
+                            _entity.DeliveryDate.ToString("dd MMM yyyy"));
+                        PdfChrome.LabelValue(col, "Time", _entity.DeliveryTime);
+                        PdfChrome.LabelValue(col, "Driver",
+                            string.IsNullOrWhiteSpace(_entity.DriverName)
+                                ? "—" : _entity.DriverName);
+                        PdfChrome.LabelValue(col, "Vehicle",
+                            string.IsNullOrWhiteSpace(_entity.VehicleNumber)
+                                ? "—" : _entity.VehicleNumber);
+                        PdfChrome.LabelValue(col, "Receiver",
+                            string.IsNullOrWhiteSpace(_entity.ReceiverName)
+                                ? "—" : _entity.ReceiverName);
+                        PdfChrome.LabelValue(col, "Status", _entity.Status);
+                        PdfChrome.LabelValue(col, "Type", _entity.DeliveryType);
 
                         if (_entity.IsFoc)
                         {
@@ -254,16 +173,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
                         }
 
                         if (!string.IsNullOrWhiteSpace(_entity.Notes))
-                        {
-                            col.Item().PaddingTop(6).Text("NOTES")
-                                .FontSize(DocumentStyle.FontSizeCaption)
-                                .SemiBold()
-                                .FontColor(DocumentStyle.ColorAccent);
-                            col.Item().Text(_entity.Notes)
-                                .FontSize(DocumentStyle.FontSizeSmall)
-                                .FontColor(DocumentStyle.ColorMuted);
-                        }
-                    });
+                            PdfChrome.LabelValue(col, "Notes", _entity.Notes);
+                    }));
             });
         }
 
@@ -274,13 +185,8 @@ namespace ProGlassAutomation.Services.DeliveryNote.Export
         {
             container.PaddingBottom(6).Column(col =>
             {
-                col.Item()
-                    .Background(DocumentStyle.ColorAccentLight)
-                    .PaddingHorizontal(6).PaddingVertical(3)
-                    .Text(specGroupName)
-                    .FontSize(DocumentStyle.FontSizeBody)
-                    .Bold()
-                    .FontColor(DocumentStyle.ColorAccent);
+                col.Item().Element(c =>
+                    PdfChrome.GroupBanner(c, specGroupName));
 
                 col.Item().Table(t =>
                 {

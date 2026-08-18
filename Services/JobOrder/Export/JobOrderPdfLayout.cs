@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
+using ProGlassAutomation.Models.JobOrder.SavedJobOrder;
 using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Services.Export.Core;
 using ProGlassAutomation.Services.Export.Pdf;
@@ -59,20 +59,35 @@ namespace ProGlassAutomation.Services.JobOrder.Export
         // ── IPdfLayout ───────────────────────────────────────────────
         public PageLayout PageLayout => PageLayout.A4Portrait;
 
-        public LetterheadInfo? Letterhead => new LetterheadInfo
+        public LetterheadInfo? Letterhead
         {
-            CompanyName = _invoice.Company?.CompanyName ?? string.Empty,
-            CompanyLocation = _invoice.Company?.CompanyLocation ?? string.Empty,
-            CompanyTrn = _invoice.Company?.CompanyTrn ?? string.Empty,
-            DocumentTitle = DocumentTitle,
-            DocumentId = DocumentId,
-            SubtitleLine = BuildSubtitle()
-        };
+            get
+            {
+                var info = new LetterheadInfo
+                {
+                    CompanyName = _invoice.Company?.CompanyName ?? string.Empty,
+                    CompanyLocation = _invoice.Company?.CompanyLocation ?? string.Empty,
+                    CompanyTrn = _invoice.Company?.CompanyTrn ?? string.Empty,
+                    DocumentTitle = DocumentTitle,
+                    DocumentId = DocumentId,
+                    SubtitleLine = BuildSubtitle()
+                };
+                info.Meta.Add(("Status", FormatStatus(_snapshot.Production?.Status)));
+                info.Meta.Add(("Priority", _snapshot.Production?.Priority ?? "Medium"));
+                info.Meta.Add(("Delivery",
+                    _snapshot.Production?.DeliveryDate.HasValue == true
+                        ? _snapshot.Production.DeliveryDate.Value.ToString("dd MMM yyyy")
+                        : "Not set"));
+                info.Meta.Add(("Source PI", _snapshot.SourceProformaId ?? "—"));
+                return info;
+            }
+        }
 
         public void RenderContent(ColumnDescriptor content)
         {
-            // ── Priority + Delivery + Status strip ────────────────────
-            content.Item().Element(RenderStatusStrip);
+            if (DocumentStyle.Kind is PdfLayoutKind.SplitConsole
+                or PdfLayoutKind.QuietForm)
+                content.Item().Element(RenderStatusStrip);
 
             // ── Client + Site Delivery ────────────────────────────────
             content.Item().Element(c =>
@@ -117,139 +132,64 @@ namespace ProGlassAutomation.Services.JobOrder.Export
 
         private void RenderStatusStrip(IContainer container)
         {
-            container.Row(row =>
-            {
-                row.RelativeItem().Column(col =>
-                {
-                    col.Item().Text("STATUS")
-                        .FontSize(DocumentStyle.FontSizeCaption)
-                        .FontColor(DocumentStyle.ColorMuted);
-                    col.Item().Text(FormatStatus(_snapshot.Production?.Status))
-                        .FontSize(DocumentStyle.FontSizeH2)
-                        .SemiBold()
-                        .FontColor(DocumentStyle.ColorAccent);
-                });
-
-                row.RelativeItem().Column(col =>
-                {
-                    col.Item().Text("PRIORITY")
-                        .FontSize(DocumentStyle.FontSizeCaption)
-                        .FontColor(DocumentStyle.ColorMuted);
-                    col.Item().Text(_snapshot.Production?.Priority ?? "Medium")
-                        .FontSize(DocumentStyle.FontSizeH2)
-                        .SemiBold()
-                        .FontColor(ResolvePriorityColor(_snapshot.Production?.Priority));
-                });
-
-                row.RelativeItem().Column(col =>
-                {
-                    col.Item().Text("DELIVERY DATE")
-                        .FontSize(DocumentStyle.FontSizeCaption)
-                        .FontColor(DocumentStyle.ColorMuted);
-                    col.Item().Text(_snapshot.Production?.DeliveryDate.HasValue == true
-                                    ? _snapshot.Production.DeliveryDate.Value.ToString("dd MMM yyyy")
-                                    : "Not set")
-                        .FontSize(DocumentStyle.FontSizeH2)
-                        .SemiBold()
-                        .FontColor(DocumentStyle.ColorText);
-                });
-
-                row.RelativeItem().Column(col =>
-                {
-                    col.Item().Text("SOURCE PI")
-                        .FontSize(DocumentStyle.FontSizeCaption)
-                        .FontColor(DocumentStyle.ColorMuted);
-                    col.Item().Text(_snapshot.SourceProformaId ?? "—")
-                        .FontSize(DocumentStyle.FontSizeH2)
-                        .SemiBold()
-                        .FontColor(DocumentStyle.ColorText);
-                });
-            });
+            PdfChrome.KpiStrip(container,
+                ("Status", FormatStatus(_snapshot.Production?.Status), DocumentStyle.ColorAccent),
+                ("Priority", _snapshot.Production?.Priority ?? "Medium",
+                    ResolvePriorityColor(_snapshot.Production?.Priority)),
+                ("Delivery",
+                    _snapshot.Production?.DeliveryDate.HasValue == true
+                        ? _snapshot.Production.DeliveryDate.Value.ToString("dd MMM yyyy")
+                        : "Not set", null),
+                ("Source PI", _snapshot.SourceProformaId ?? "—", null));
         }
 
         private void RenderClientAndDelivery(IContainer container)
         {
             container.Row(row =>
             {
-                // Left — Client
-                row.RelativeItem().Border(0.5f).BorderColor(DocumentStyle.ColorBorder)
-                    .Padding(8)
-                    .Column(col =>
+                row.RelativeItem().Element(c =>
+                    PdfChrome.InfoCard(c, "Client", col =>
                     {
-                        col.Item().Text("CLIENT")
-                            .FontSize(DocumentStyle.FontSizeCaption).SemiBold()
-                            .FontColor(DocumentStyle.ColorAccent);
-
-                        col.Item().PaddingTop(4).Text(_invoice.Client?.CustomerName ?? "—")
+                        col.Item().Text(_invoice.Client?.CustomerName ?? "—")
                             .FontSize(DocumentStyle.FontSizeH2).Bold();
 
                         if (!string.IsNullOrWhiteSpace(_invoice.Client?.CustomerTrn))
-                            col.Item().Text($"TRN: {_invoice.Client.CustomerTrn}")
-                                .FontSize(DocumentStyle.FontSizeSmall)
-                                .FontColor(DocumentStyle.ColorMuted);
-
-                        // CHAT 20 FIX: Labels corrected to match Step 3 exactly.
-                        // Previous labels "Project" and "Contract" were misleading
-                        // — they didn't match what user sees in Step 3.
-
+                            PdfChrome.LabelValue(col, "TRN", _invoice.Client.CustomerTrn);
                         if (!string.IsNullOrWhiteSpace(_invoice.Project?.ProjectIdentifierName))
-                            col.Item().Text($"Project Identifier Name: {_invoice.Project.ProjectIdentifierName}")
-                                .FontSize(DocumentStyle.FontSizeSmall);
-
+                            PdfChrome.LabelValue(col, "Identifier",
+                                _invoice.Project.ProjectIdentifierName);
                         if (!string.IsNullOrWhiteSpace(_invoice.Project?.ProjectContractNo))
-                            col.Item().Text($"Project Name / No: {_invoice.Project.ProjectContractNo}")
-                                .FontSize(DocumentStyle.FontSizeSmall);
-
-                        // CHAT 20 FIX: Project Reference field added (was missing).
-                        // This is the descriptive text like "HOUSE FOR IMAD HABIB".
+                            PdfChrome.LabelValue(col, "Name / No",
+                                _invoice.Project.ProjectContractNo);
                         if (!string.IsNullOrWhiteSpace(_invoice.Project?.ProjectReference))
-                            col.Item().Text($"Project Reference: {_invoice.Project.ProjectReference}")
-                                .FontSize(DocumentStyle.FontSizeSmall);
-
+                            PdfChrome.LabelValue(col, "Reference",
+                                _invoice.Project.ProjectReference);
                         if (!string.IsNullOrWhiteSpace(_invoice.Project?.LpoNumber))
-                            col.Item().Text($"LPO: {_invoice.Project.LpoNumber}")
-                                .FontSize(DocumentStyle.FontSizeSmall);
-                    });
+                            PdfChrome.LabelValue(col, "LPO", _invoice.Project.LpoNumber);
+                    }));
 
                 row.ConstantItem(10);
 
-                // Right — Site Delivery
-                row.RelativeItem().Border(0.5f).BorderColor(DocumentStyle.ColorBorder)
-                    .Padding(8)
-                    .Column(col =>
+                row.RelativeItem().Element(c =>
+                    PdfChrome.InfoCard(c, "Site delivery", col =>
                     {
-                        col.Item().Text("SITE DELIVERY")
-                            .FontSize(DocumentStyle.FontSizeCaption).SemiBold()
-                            .FontColor(DocumentStyle.ColorAccent);
-
                         var prod = _snapshot.Production;
                         string contact = prod?.SiteDeliveryContact ?? string.Empty;
                         string phone = prod?.SiteDeliveryPhone ?? string.Empty;
                         string addr = prod?.SiteDeliveryAddress ?? string.Empty;
 
-                        col.Item().PaddingTop(4).Text(
+                        col.Item().Text(
                             string.IsNullOrWhiteSpace(contact) ? "No contact set" : contact)
                             .FontSize(DocumentStyle.FontSizeH2).Bold();
 
                         if (!string.IsNullOrWhiteSpace(phone))
-                            col.Item().Text($"📞 {phone}")
-                                .FontSize(DocumentStyle.FontSizeSmall);
-
+                            PdfChrome.LabelValue(col, "Phone", phone);
                         if (!string.IsNullOrWhiteSpace(addr))
-                            col.Item().PaddingTop(2).Text(addr)
-                                .FontSize(DocumentStyle.FontSizeSmall);
-
-                        // Fallback to source-invoice site location if empty
-                        if (string.IsNullOrWhiteSpace(addr)
-                            && !string.IsNullOrWhiteSpace(_invoice.Project?.SiteDeliveryLocation))
-                        {
-                            col.Item().PaddingTop(2)
-                                .Text($"(from PI: {_invoice.Project.SiteDeliveryLocation})")
-                                .FontSize(DocumentStyle.FontSizeCaption)
-                                .Italic()
-                                .FontColor(DocumentStyle.ColorMuted);
-                        }
-                    });
+                            PdfChrome.LabelValue(col, "Address", addr);
+                        else if (!string.IsNullOrWhiteSpace(_invoice.Project?.SiteDeliveryLocation))
+                            PdfChrome.LabelValue(col, "From PI",
+                                _invoice.Project.SiteDeliveryLocation);
+                    }));
             });
         }
 
@@ -310,20 +250,11 @@ namespace ProGlassAutomation.Services.JobOrder.Export
             container.PaddingBottom(6).Column(col =>
             {
                 // Group header
-                col.Item().Background(DocumentStyle.ColorAccentLight)
-                    .PaddingHorizontal(6).PaddingVertical(3)
-                    .Row(row =>
-                    {
-                        row.RelativeItem().Text(
-                            $"SPEC {group.GroupNumber}: {group.SelectedSpecName}")
-                            .FontSize(DocumentStyle.FontSizeBody).Bold()
-                            .FontColor(DocumentStyle.ColorAccent);
-
-                        row.ConstantItem(120).AlignRight().Text(
-                            $"Type: {group.SelectedGlassType}")
-                            .FontSize(DocumentStyle.FontSizeSmall)
-                            .FontColor(DocumentStyle.ColorMuted);
-                    });
+                col.Item().Element(c =>
+                    PdfChrome.GroupBanner(c,
+                        $"Spec {group.GroupNumber}: {group.SelectedSpecName}",
+                        string.IsNullOrWhiteSpace(group.SelectedGlassType)
+                            ? null : $"Type: {group.SelectedGlassType}"));
 
                 // Table
                 col.Item().Table(t =>
@@ -351,18 +282,19 @@ namespace ProGlassAutomation.Services.JobOrder.Export
                         HeaderCell(h.Cell(), "QTY");
                     });
 
-                    // Data rows
                     if (group.ItemRows != null)
                     {
+                        bool alt = false;
                         foreach (var r in group.ItemRows)
                         {
-                            DataCell(t.Cell(), r.SerialNumber.ToString());
-                            DataCell(t.Cell(), r.GlassRef ?? "—");
-                            DataCell(t.Cell(), r.W1 > 0 ? r.W1.ToString() : "—");
-                            DataCell(t.Cell(), r.H1 > 0 ? r.H1.ToString() : "—");
-                            DataCell(t.Cell(), r.W2 > 0 ? r.W2.ToString() : "—");
-                            DataCell(t.Cell(), r.H2 > 0 ? r.H2.ToString() : "—");
-                            DataCell(t.Cell(), r.Qty.ToString());
+                            PdfChrome.DataCell(t.Cell(), r.SerialNumber.ToString(), alt: alt, center: true);
+                            PdfChrome.DataCell(t.Cell(), r.GlassRef ?? "—", alt: alt, center: true);
+                            PdfChrome.DataCell(t.Cell(), r.W1 > 0 ? r.W1.ToString() : "—", alt: alt, center: true);
+                            PdfChrome.DataCell(t.Cell(), r.H1 > 0 ? r.H1.ToString() : "—", alt: alt, center: true);
+                            PdfChrome.DataCell(t.Cell(), r.W2 > 0 ? r.W2.ToString() : "—", alt: alt, center: true);
+                            PdfChrome.DataCell(t.Cell(), r.H2 > 0 ? r.H2.ToString() : "—", alt: alt, center: true);
+                            PdfChrome.DataCell(t.Cell(), r.Qty.ToString(), alt: alt, center: true, bold: true);
+                            alt = !alt;
                         }
                     }
                 });
@@ -387,28 +319,20 @@ namespace ProGlassAutomation.Services.JobOrder.Export
 
             int totalSpecs = _invoice.SpecGroups?.Count ?? 0;
 
-            container.Background(DocumentStyle.ColorTableHeader)
-                .Padding(8)
-                .Row(row =>
-                {
-                    row.RelativeItem().Text($"TOTAL SPECS: {totalSpecs}")
-                        .FontSize(DocumentStyle.FontSizeBody).Bold();
-
-                    row.RelativeItem().AlignRight()
-                        .Text($"TOTAL PIECES: {totalPieces}")
-                        .FontSize(DocumentStyle.FontSizeBody).Bold()
-                        .FontColor(DocumentStyle.ColorAccent);
-                });
+            PdfChrome.KpiStrip(container,
+                ("Total specs", totalSpecs.ToString(), null),
+                ("Total pieces", totalPieces.ToString(), DocumentStyle.ColorAccent));
         }
 
         private void RenderSignatureBlock(IContainer container)
         {
-            container.Row(row =>
-            {
-                SignatureCell(row, "Prepared By");
-                row.ConstantItem(8);
-                SignatureCell(row, "Verified By");
-                row.ConstantItem(8);
+            PdfChrome.Signatures(container,
+                new SignatureSlot { Title = "Prepared by" },
+                new SignatureSlot { Title = "Verified by" },
+                new SignatureSlot { Title = "Received by" });
+        }
+
+        // ── Helpers ────�nstantItem(8);
                 SignatureCell(row, "Received By");
             });
         }

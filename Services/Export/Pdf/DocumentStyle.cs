@@ -19,6 +19,8 @@ namespace ProGlassAutomation.Services.Export.Pdf
         public static void Apply(string? layoutId) =>
             Apply(PdfThemeCatalog.Resolve(layoutId));
 
+        public static PdfLayoutKind Kind => Current.Kind;
+
         // ── Fonts ─────────────────────────────────────────────────────
         public const string FontFamily = "Segoe UI";
         public const float FontSizeTitle = 20f;
@@ -44,14 +46,17 @@ namespace ProGlassAutomation.Services.Export.Pdf
         public static string ColorSuccess => Current.Success;
         public static string ColorWarning => Current.Warning;
         public static string ColorWhite => Current.White;
+        public static string ColorHighlight => Current.Highlight;
 
-        // ── Spacing (points) ──────────────────────────────────────────
-        public const float SpaceSection = 10f;
+        // ── Spacing / architecture (from the active print layout) ─────
+        public static float SpaceSection => Current.ContentSpacing;
         public const float SpaceParagraph = 6f;
         public const float SpaceRow = 4f;
 
-        public const float TableBorderThickness = 0.6f;
-        public const float TableCellPaddingH = 5f;
-        public const float TableCellPaddingV = 3.5f;
+        public static float TableBorderThickness =>
+            Current.TableGrid ? 0.75f : 0.5f;
+        public static float TableCellPaddingH => Current.CellPadH;
+        public static float TableCellPaddingV => Current.CellPadV;
+        public static float MarginMm => Current.MarginMm;
     }
 }

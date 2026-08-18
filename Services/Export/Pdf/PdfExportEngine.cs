@@ -259,37 +259,40 @@ namespace ProGlassAutomation.Services.Export.Pdf
         private static IDocument BuildQuestPdfDocument(IPdfLayout layout)
         {
             PdfThemeCatalog.ApplySaved();
+            PdfChrome.Reset();
             var pageLayout = layout.PageLayout ?? PageLayout.A4Portrait;
             string documentId = layout.DocumentId ?? string.Empty;
+            float marginMm = DocumentStyle.MarginMm;
 
             return Document.Create(container =>
             {
                 container.Page(page =>
                 {
-                    // Page size + orientation
                     page.Size(ResolvePageSize(pageLayout));
-                    page.Margin(pageLayout.MarginMm, Unit.Millimetre);
+                    page.Margin(marginMm, Unit.Millimetre);
                     page.DefaultTextStyle(t => t
                         .FontFamily(DocumentStyle.FontFamily)
                         .FontSize(DocumentStyle.FontSizeBody)
                         .FontColor(DocumentStyle.ColorText));
 
-                    // Header (letterhead) — PAGE 1 ONLY via ShowOnce()
                     if (layout.Letterhead != null)
                     {
-                        page.Header().ShowOnce().Element(h =>
-                            LetterheadRenderer.Render(h, layout.Letterhead));
+                        var letterhead = layout.Letterhead;
+                        page.Header().Column(h =>
+                        {
+                            h.Item().ShowOnce().Element(c =>
+                                LetterheadRenderer.Render(c, letterhead));
+                            h.Item().SkipOnce().Element(c =>
+                                LetterheadRenderer.RenderContinuation(c, letterhead));
+                        });
                     }
 
-                    // Content — module renders here
-                    page.Content().Column(col =>
+                    page.Content().PaddingTop(8).Column(col =>
                     {
                         col.Spacing(DocumentStyle.SpaceSection);
                         layout.RenderContent(col);
                     });
 
-                    // Footer (every page) — passes DocumentId so
-                    // continuation pages self-identify
                     page.Footer().Element(f =>
                         FooterRenderer.Render(f, documentId));
                 });

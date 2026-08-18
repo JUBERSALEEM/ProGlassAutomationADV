@@ -233,7 +233,9 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
             container.Page(page =>
             {
                 page.Size(QuestPDF.Helpers.PageSizes.A4);
-                page.Margin(30);
+                page.Margin(
+                    ProGlassAutomation.Services.Export.Pdf.DocumentStyle.MarginMm,
+                    QuestPDF.Infrastructure.Unit.Millimetre);
                 page.DefaultTextStyle(x => x
                     .FontFamily(ProGlassAutomation.Services.Export.Pdf.DocumentStyle.FontFamily)
                     .FontSize(ProGlassAutomation.Services.Export.Pdf.DocumentStyle.FontSizeBody)
@@ -242,13 +244,20 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                 var lh = _layout.Letterhead;
                 if (lh != null)
                 {
-                    page.Header().ShowOnce().Element(h =>
-                        ProGlassAutomation.Services.Export.Pdf.Renderers
-                            .LetterheadRenderer.Render(h, lh));
+                    page.Header().Column(h =>
+                    {
+                        h.Item().ShowOnce().Element(c =>
+                            ProGlassAutomation.Services.Export.Pdf.Renderers
+                                .LetterheadRenderer.Render(c, lh));
+                        h.Item().SkipOnce().Element(c =>
+                            ProGlassAutomation.Services.Export.Pdf.Renderers
+                                .LetterheadRenderer.RenderContinuation(c, lh));
+                    });
                 }
 
-                page.Content().PaddingTop(10).Column(col =>
+                page.Content().PaddingTop(8).Column(col =>
                 {
+                    col.Spacing(ProGlassAutomation.Services.Export.Pdf.DocumentStyle.SpaceSection);
                     _layout.RenderContent(col);
                 });
 

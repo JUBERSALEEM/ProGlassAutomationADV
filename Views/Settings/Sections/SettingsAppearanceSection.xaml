@@ -223,6 +223,10 @@
                                    Margin="0,10,0,0"
                                    TextWrapping="Wrap"
                                    Text="{Binding PdfLayoutHint}"/>
+                        <TextBlock Style="{StaticResource HintTextStyle}"
+                                   Margin="0,6,0,0"
+                                   TextWrapping="Wrap"
+                                   Text="These are five different page architectures — letterhead, tables, cards, totals and signatures all change. Not a colour swap. Applies to PI, JO, DN, Tax Invoice, Statement and Sheet Store on the next export."/>
                     </StackPanel>
                 </Border>
 

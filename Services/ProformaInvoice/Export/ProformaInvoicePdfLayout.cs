@@ -33,7 +33,6 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         private static string MUTED => DocumentStyle.ColorMuted;
         private static string LINE => DocumentStyle.ColorBorder;
         private static string LIGHT_BG => DocumentStyle.ColorSurface;
-        private static string TABLE_HEADER => DocumentStyle.ColorTableHeader;
         private static string GREEN => DocumentStyle.ColorSuccess;
         private static string RED => DocumentStyle.ColorDanger;
 
@@ -63,31 +62,34 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
         public PageLayout PageLayout => PageLayout.A4Portrait;
 
-        public LetterheadInfo? Letterhead => new LetterheadInfo
+        public LetterheadInfo? Letterhead
         {
-            CompanyName = _snapshot.Company?.CompanyName ?? "",
-            CompanyLocation = _snapshot.Company?.CompanyLocation ?? "",
-            CompanyTrn = _snapshot.Company?.CompanyTrn ?? "",
-            DocumentTitle = DocumentTitle,
-            DocumentId = DocumentId
-        };
+            get
+            {
+                var info = new LetterheadInfo
+                {
+                    CompanyName = _snapshot.Company?.CompanyName ?? "",
+                    CompanyLocation = _snapshot.Company?.CompanyLocation ?? "",
+                    CompanyTrn = _snapshot.Company?.CompanyTrn ?? "",
+                    DocumentTitle = DocumentTitle,
+                    DocumentId = DocumentId,
+                    SubtitleLine = _ctx.ProformaStatus
+                };
+                info.Meta.Add(("Date", _ctx.IssueDate));
+                info.Meta.Add(("Valid until", _ctx.ValidUntil));
+                info.Meta.Add(("Status", _ctx.ProformaStatus));
+                return info;
+            }
+        }
 
         public void RenderContent(ColumnDescriptor content)
         {
-            content.Item().Element(c => RenderPiBadgeRow(c));
-
-            content.Item().PaddingTop(6).PaddingBottom(6)
-                .LineHorizontal(1).LineColor(LINE);
-
             content.Item().Row(row =>
             {
                 row.RelativeItem().Element(c => RenderClientBlock(c));
-                row.ConstantItem(16);
+                row.ConstantItem(12);
                 row.RelativeItem().Element(c => RenderProjectBlock(c));
             });
-
-            content.Item().PaddingTop(8).PaddingBottom(8)
-                .LineHorizontal(1).LineColor(LINE);
 
             foreach (var group in _ctx.SpecGroups)
                 content.Item().Element(c => RenderSpecTable(c, group));
@@ -95,26 +97,31 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             if (_ctx.SpecGroups.Count > 0)
                 content.Item().Element(c => RenderGrandSpecSummary(c));
 
-            content.Item().Element(c => RenderOtherCharges(c));
+            if (_ctx.OtherCharges.Any())
+                content.Item().Element(c => RenderOtherCharges(c));
 
             content.Item().Element(c => RenderFinancialSummary(c));
 
             if (_ctx.TermClauses.Any())
                 content.Item().Element(c => RenderTermsAndConditions(c));
 
-            content.Item().PaddingTop(10)
-                .BorderTop(1).BorderColor(LINE).PaddingTop(6)
-                .Column(footer =>
+            if (!string.IsNullOrWhiteSpace(_ctx.FooterDisclaimer)
+                || !string.IsNullOrWhiteSpace(_ctx.TermsText))
+            {
+                content.Item().Element(PdfChrome.Hairline);
+                content.Item().Column(footer =>
                 {
-                    footer.Item()
-                        .Text(_ctx.FooterDisclaimer)
-                        .FontSize(8).Italic().FontColor(MUTED);
+                    if (!string.IsNullOrWhiteSpace(_ctx.FooterDisclaimer))
+                        footer.Item()
+                            .Text(_ctx.FooterDisclaimer)
+                            .FontSize(8).Italic().FontColor(MUTED);
 
                     if (!string.IsNullOrWhiteSpace(_ctx.TermsText))
                         footer.Item()
                             .Text($"Terms: {_ctx.TermsText}")
                             .FontSize(8).Italic().FontColor(MUTED);
                 });
+            }
 
             content.Item().Element(c => RenderSignatureBlocks(c));
         }
@@ -123,63 +130,29 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         //  SECTION RENDERERS
         // ════════════════════════════════════════════════════════════════════
 
-        private void RenderPiBadgeRow(IContainer container)
-        {
-            container.AlignRight().Width(200)
-                .Border(1).BorderColor(LINE)
-                .Background(LIGHT_BG)
-                .Padding(10)
-                .Column(badge =>
-                {
-                    badge.Item().AlignCenter()
-                        .Text("PROFORMA INVOICE")
-                        .FontSize(12).Bold().FontColor(DARK);
-
-                    badge.Item().PaddingTop(6)
-                        .Text($"Ref: {_ctx.ProformaId}")
-                        .FontSize(9).SemiBold();
-
-                    badge.Item()
-                        .Text($"Date: {_ctx.IssueDate}")
-                        .FontSize(9).SemiBold();
-
-                    if (!string.IsNullOrWhiteSpace(_ctx.ProformaStatus))
-                        badge.Item()
-                            .Text($"Status: {_ctx.ProformaStatus}")
-                            .FontSize(9).FontColor(MUTED);
-                });
-        }
-
         private void RenderClientBlock(IContainer container)
         {
-            container.Column(col =>
+            PdfChrome.InfoCard(container, "Client / Bill To", col =>
             {
-                col.Item().Text("CLIENT / BILL TO:")
-                    .FontSize(10).Bold().FontColor(DARK);
-
-                AddLabelValue(col, "Customer Name:", _ctx.CustomerName);
-                AddLabelValue(col, "TRN/VAT Number:", _ctx.CustomerTrn);
-                AddLabelValue(col, "Attention Name:", _ctx.AttentionName);
-                AddLabelValue(col, "Contact Details:", _ctx.ContactPhone);
-                AddLabelValue(col, "Billing Address:", _ctx.BillingAddress);
-                AddLabelValue(col, "Client Reference:", _ctx.CustomerReference);
+                PdfChrome.LabelValue(col, "Customer", _ctx.CustomerName);
+                PdfChrome.LabelValue(col, "TRN / VAT", _ctx.CustomerTrn);
+                PdfChrome.LabelValue(col, "Attention", _ctx.AttentionName);
+                PdfChrome.LabelValue(col, "Contact", _ctx.ContactPhone);
+                PdfChrome.LabelValue(col, "Address", _ctx.BillingAddress);
+                PdfChrome.LabelValue(col, "Client ref", _ctx.CustomerReference);
             });
         }
 
         private void RenderProjectBlock(IContainer container)
         {
-            container.Column(col =>
+            PdfChrome.InfoCard(container, "Project", col =>
             {
-                col.Item().Text("PROJECT ESTIMATE METRIC:")
-                    .FontSize(10).Bold().FontColor(DARK);
-
-                AddLabelValue(col, "Project Designation:", _ctx.ProjectName);
-                AddLabelValue(col, "Project Code / ID:", _ctx.ProjectContractNo);
-                AddLabelValue(col, "Site Delivery:", _ctx.SiteDelivery);
-                AddLabelValue(col, "LPO / PO Reference:", _ctx.LpoNumber);
-                AddLabelValue(col, "Assigned Salesman:", _ctx.SalesRepresentative);
-                AddLabelValue(col, "Valid Until:",
-                    $"{_ctx.ValidUntil} • Status: {_ctx.ProformaStatus}");
+                PdfChrome.LabelValue(col, "Project", _ctx.ProjectName);
+                PdfChrome.LabelValue(col, "Code / ID", _ctx.ProjectContractNo);
+                PdfChrome.LabelValue(col, "Site", _ctx.SiteDelivery);
+                PdfChrome.LabelValue(col, "LPO / PO", _ctx.LpoNumber);
+                PdfChrome.LabelValue(col, "Salesman", _ctx.SalesRepresentative);
+                PdfChrome.LabelValue(col, "Valid until", _ctx.ValidUntil);
             });
         }
 
@@ -191,11 +164,8 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                     ? group.GroupName
                     : $"Spec Group {group.GroupNumber}";
 
-                col.Item()
-                    .Background(ACCENT)
-                    .PaddingHorizontal(8).PaddingVertical(5)
-                    .Text($"SPECIFICATION {group.GroupNumber}: {specLabel}")
-                    .FontSize(10).Bold().FontColor(Colors.White);
+                col.Item().Element(c =>
+                    PdfChrome.GroupBanner(c, $"Specification {group.GroupNumber}: {specLabel}"));
 
                 col.Item().Table(table =>
                 {
@@ -221,47 +191,37 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                             "#", "GLASS REF", "W1", "H1", "W2", "H2",
                             "QTY", "AREA", "TOTAL AREA", "RATE", "TOTAL"
                         };
-                        foreach (var h in headers)
+                        for (int i = 0; i < headers.Length; i++)
                         {
-                            header.Cell()
-                                .Background(TABLE_HEADER)
-                                .PaddingHorizontal(4).PaddingVertical(4)
-                                .Text(h).FontSize(8).Bold()
-                                .FontColor(Colors.White);
+                            bool right = i >= 2;
+                            bool center = i == 0 || i == 6;
+                            PdfChrome.HeaderCell(header.Cell(), headers[i],
+                                center: center, right: right && !center);
                         }
                     });
 
+                    bool alt = false;
                     foreach (var row in group.Rows)
                     {
-                        AddCell(table, row.Serial.ToString());
-                        AddCell(table, row.GlassRef);
-                        AddCellRight(table, row.W1.ToString());
-                        AddCellRight(table, row.H1.ToString());
-                        AddCellRight(table, row.W2.ToString());
-                        AddCellRight(table, row.H2.ToString());
-                        AddCellCenter(table, row.Qty.ToString());
-                        AddCellRight(table, row.UnitArea.ToString("0.000"));
-                        AddCellRight(table, row.TotalArea.ToString("0.000"));
-                        AddCellRight(table, row.Rate.ToString("N2"));
-                        AddCellRight(table, row.Total.ToString("N2"), bold: true);
+                        AddCell(table, row.Serial.ToString(), alt, center: true);
+                        AddCell(table, row.GlassRef, alt);
+                        AddCell(table, row.W1.ToString(), alt, right: true);
+                        AddCell(table, row.H1.ToString(), alt, right: true);
+                        AddCell(table, row.W2.ToString(), alt, right: true);
+                        AddCell(table, row.H2.ToString(), alt, right: true);
+                        AddCell(table, row.Qty.ToString(), alt, center: true);
+                        AddCell(table, row.UnitArea.ToString("0.000"), alt, right: true);
+                        AddCell(table, row.TotalArea.ToString("0.000"), alt, right: true);
+                        AddCell(table, row.Rate.ToString("N2"), alt, right: true);
+                        AddCell(table, row.Total.ToString("N2"), alt, right: true, bold: true);
+                        alt = !alt;
                     }
                 });
 
-                col.Item()
-                    .Background(LIGHT_BG)
-                    .BorderBottom(1).BorderColor(LINE)
-                    .PaddingHorizontal(6).PaddingVertical(5)
-                    .Row(r =>
-                    {
-                        r.RelativeItem()
-                            .Text($"SPEC SUB-TOTALS:  QTY: {group.TotalQty}  •  " +
-                                  $"AREA: {group.TotalArea:0.000} sqm")
-                            .FontSize(9).Bold().FontColor(ACCENT);
-
-                        r.AutoItem()
-                            .Text($"VALUE: AED {group.TotalValue:N2}")
-                            .FontSize(10).Bold().FontColor(GREEN);
-                    });
+                col.Item().Element(c =>
+                    PdfChrome.SubtotalBar(c,
+                        $"Qty {group.TotalQty}  ·  Area {group.TotalArea:0.000} sqm",
+                        $"AED {group.TotalValue:N2}"));
             });
         }
 
@@ -272,20 +232,9 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             decimal totalArea = _ctx.SpecGroups.Sum(g => g.TotalArea);
             decimal totalValue = _ctx.SpecGroups.Sum(g => g.TotalValue);
 
-            container.PaddingBottom(6)
-                .Background(ACCENT)
-                .PaddingHorizontal(8).PaddingVertical(6)
-                .Row(r =>
-                {
-                    r.RelativeItem()
-                        .Text($"GRAND TOTAL:  {specCount} Spec{(specCount != 1 ? "s" : "")}  •  " +
-                              $"QTY: {totalQty}  •  AREA: {totalArea:0.000} sqm")
-                        .FontSize(10).Bold().FontColor(Colors.White);
-
-                    r.AutoItem()
-                        .Text($"VALUE: AED {totalValue:N2}")
-                        .FontSize(11).Bold().FontColor(Colors.White);
-                });
+            PdfChrome.GrandTotal(container,
+                $"Glass  ·  {specCount} spec{(specCount != 1 ? "s" : "")}  ·  {totalQty} pcs  ·  {totalArea:0.000} sqm",
+                $"AED {totalValue:N2}");
         }
 
         private void RenderOtherCharges(IContainer container)
@@ -294,26 +243,23 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
             container.PaddingTop(4).Column(col =>
             {
-                col.Item()
-                    .Background(ACCENT)
-                    .PaddingHorizontal(8).PaddingVertical(5)
-                    .Text("SUPPLEMENTARY / FABRICATION OTHER CHARGES")
-                    .FontSize(10).Bold().FontColor(Colors.White);
+                col.Item().Element(c =>
+                    PdfChrome.Section(c, "Other charges"));
 
-                col.Item()
-                    .Background(TABLE_HEADER)
-                    .PaddingHorizontal(8).PaddingVertical(4)
-                    .Row(hdr =>
+                col.Item().Table(hdr =>
+                {
+                    hdr.ColumnsDefinition(c =>
                     {
-                        hdr.RelativeItem(2f).Text("DESCRIPTION")
-                            .FontSize(8).Bold().FontColor(Colors.White);
-                        hdr.RelativeItem(1.2f).Text("QTY/SQM")
-                            .FontSize(8).Bold().FontColor(Colors.White);
-                        hdr.RelativeItem(1f).Text("RATE")
-                            .FontSize(8).Bold().FontColor(Colors.White);
-                        hdr.RelativeItem(1f).AlignRight().Text("AMOUNT")
-                            .FontSize(8).Bold().FontColor(Colors.White);
+                        c.RelativeColumn(2f);
+                        c.RelativeColumn(1.2f);
+                        c.RelativeColumn(1f);
+                        c.RelativeColumn(1f);
                     });
+                    PdfChrome.HeaderCell(hdr.Cell(), "DESCRIPTION", center: false);
+                    PdfChrome.HeaderCell(hdr.Cell(), "QTY / SQM");
+                    PdfChrome.HeaderCell(hdr.Cell(), "RATE", right: true, center: false);
+                    PdfChrome.HeaderCell(hdr.Cell(), "AMOUNT", right: true, center: false);
+                });
 
                 col.Item()
                     .Background(LIGHT_BG)
@@ -343,12 +289,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
         private void RenderFinancialSummary(IContainer container)
         {
             container
-                .PaddingTop(10)
-                .BorderTop(1).BorderColor(LINE)
-                .PaddingTop(10)
-                .AlignRight().Width(320)
-                .Column(col =>
+                .PaddingTop(6)
+                .Row(outer =>
                 {
+                    outer.RelativeItem(1);
+                    outer.RelativeItem(1).Column(col =>
+                    {
                     AddSummaryRow(col,
                         "Glass Materials Total:",
                         $"{_ctx.GlassMaterialsTotal:N2} AED");
@@ -376,32 +322,20 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
                             $"Standard UAE VAT ({_ctx.VatPercent:0.##}%):",
                             $"{_ctx.VatAmount:N2} AED");
 
-                    col.Item()
-                        .PaddingTop(6)
-                        .Background(ACCENT)
-                        .PaddingHorizontal(12).PaddingVertical(8)
-                        .Row(r =>
-                        {
-                            r.RelativeItem()
-                                .Text("TOTAL EST VALUE (VAT INC):")
-                                .FontSize(12).Bold().FontColor(Colors.White);
-
-                            r.AutoItem()
-                                .Text($"{_ctx.GrandTotal:N2} AED")
-                                .FontSize(13).Bold().FontColor(Colors.White);
-                        });
+                    col.Item().PaddingTop(6).Element(c =>
+                        PdfChrome.GrandTotal(c,
+                            "Total estimate (VAT inc)",
+                            $"{_ctx.GrandTotal:N2} AED"));
+                    });
                 });
         }
 
         private void RenderTermsAndConditions(IContainer container)
         {
-            container.PaddingTop(14).Column(col =>
+            container.PaddingTop(8).Column(col =>
             {
-                col.Item()
-                    .Background(ACCENT)
-                    .PaddingHorizontal(8).PaddingVertical(5)
-                    .Text("TERMS & CONDITIONS")
-                    .FontSize(10).Bold().FontColor(Colors.White);
+                col.Item().Element(c =>
+                    PdfChrome.Section(c, "Terms & conditions"));
 
                 col.Item()
                     .Background(LIGHT_BG)
@@ -448,78 +382,27 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
 
         private void RenderSignatureBlocks(IContainer container)
         {
-            container.PaddingTop(12).Row(row =>
-            {
-                row.RelativeItem()
-                    .Border(1).BorderColor(LINE)
-                    .Padding(10)
-                    .Column(col =>
+            PdfChrome.Signatures(container,
+                new SignatureSlot
+                {
+                    Title = "Prepared by",
+                    Body = col =>
                     {
-                        col.Item()
-                            .Text("PREPARED BY (ERP AUTHENTICATED)")
-                            .FontSize(9).Bold().FontColor(ACCENT);
-
                         col.Item().PaddingTop(4)
                             .Text(string.IsNullOrWhiteSpace(_ctx.PreparedByName)
                                 ? "—" : _ctx.PreparedByName)
                             .FontSize(10).SemiBold().FontColor(DARK);
-
                         if (!string.IsNullOrWhiteSpace(_ctx.PreparedByDept))
                             col.Item().PaddingTop(2)
                                 .Text(_ctx.PreparedByDept)
-                                .FontSize(9).FontColor(MUTED);
-
-                        col.Item().PaddingTop(3).Row(r =>
-                        {
-                            r.AutoItem()
-                                .Text("Status: ")
-                                .FontSize(9).FontColor(MUTED);
-
-                            r.AutoItem()
-                                .Text(string.IsNullOrWhiteSpace(_ctx.PreparedByStatus)
-                                    ? "Draft" : _ctx.PreparedByStatus)
-                                .FontSize(9).Bold().FontColor(GREEN);
-                        });
-                    });
-
-                row.ConstantItem(16);
-
-                row.RelativeItem()
-                    .Border(1).BorderColor(LINE)
-                    .Padding(10)
-                    .Column(col =>
-                    {
-                        col.Item()
-                            .Text("CLIENT APPROVAL SIGN & MOB NUMBER")
-                            .FontSize(9).Bold().FontColor(ACCENT);
-
-                        col.Item().PaddingTop(4).Row(r =>
-                        {
-                            r.AutoItem()
-                                .Text("Approval Sign:")
-                                .FontSize(9).FontColor(MUTED);
-
-                            r.RelativeItem().PaddingLeft(6)
-                                .BorderBottom(1).BorderColor(LINE)
-                                .Height(1);
-                        });
-
-                        col.Item().PaddingTop(4).Row(r =>
-                        {
-                            r.AutoItem()
-                                .Text("Mobile Number:")
-                                .FontSize(9).FontColor(MUTED);
-
-                            r.RelativeItem().PaddingLeft(6)
-                                .BorderBottom(1).BorderColor(LINE)
-                                .Height(1);
-                        });
-
-                        col.Item().PaddingTop(4)
-                            .Text("Authorized Name & Stamp")
-                            .FontSize(9).FontColor(MUTED);
-                    });
-            });
+                                .FontSize(8).FontColor(MUTED);
+                        col.Item().PaddingTop(2)
+                            .Text(string.IsNullOrWhiteSpace(_ctx.PreparedByStatus)
+                                ? "Draft" : _ctx.PreparedByStatus)
+                            .FontSize(8).FontColor(GREEN);
+                    }
+                },
+                new SignatureSlot { Title = "Client approval" });
         }
 
         // ════════════════════════════════════════════════════════════════════
@@ -802,33 +685,12 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
             });
         }
 
-        private static void AddCell(TableDescriptor table, string text)
+        private static void AddCell(
+            TableDescriptor table, string text, bool alt,
+            bool center = false, bool right = false, bool bold = false)
         {
-            table.Cell()
-                .BorderBottom(1).BorderColor(LINE)
-                .PaddingHorizontal(4).PaddingVertical(3)
-                .Text(text).FontSize(8);
-        }
-
-        private static void AddCellCenter(TableDescriptor table, string text)
-        {
-            table.Cell()
-                .BorderBottom(1).BorderColor(LINE)
-                .PaddingHorizontal(4).PaddingVertical(3)
-                .AlignCenter()
-                .Text(text).FontSize(8);
-        }
-
-        private static void AddCellRight(
-            TableDescriptor table, string text, bool bold = false)
-        {
-            var cell = table.Cell()
-                .BorderBottom(1).BorderColor(LINE)
-                .PaddingHorizontal(4).PaddingVertical(3)
-                .AlignRight()
-                .Text(text).FontSize(8);
-
-            if (bold) cell.Bold();
+            PdfChrome.DataCell(table.Cell(), text,
+                alt: alt, center: center, right: right, bold: bold);
         }
 
         // ════════════════════════════════════════════════════════════════════
