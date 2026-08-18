@@ -75,6 +75,7 @@
             <conv:InverseBoolToVisibilityConverter  x:Key="InverseBoolToVisibilityConverter"/>
             <conv:BrushKeyConverter                 x:Key="BrushKeyConverter"/>
             <conv:PercentToWidthConverter           x:Key="PercentToWidthConverter"/>
+            <conv:SliderValueLabelConverter         x:Key="SliderValueLabelConverter"/>
             <conv:FractionToStarConverter           x:Key="FractionToStarConverter"/>
             <conv:EqualityToVisibilityConverter     x:Key="EqualityToVisibilityConverter"/>
             <conv:WindowInsetConverter              x:Key="WindowInsetConverter"/>

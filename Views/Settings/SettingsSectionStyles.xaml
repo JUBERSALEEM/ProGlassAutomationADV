@@ -576,7 +576,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="RepeatButton">
                     <Border Background="{DynamicResource MenuHoverBrush}"
-                            CornerRadius="6"
+                            CornerRadius="12"
                             SnapsToDevicePixels="True"/>
                 </ControlTemplate>
             </Setter.Value>
@@ -590,7 +590,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="RepeatButton">
                     <Border Background="{DynamicResource AccentBrush}"
-                            CornerRadius="6"
+                            CornerRadius="12"
                             SnapsToDevicePixels="True"/>
                 </ControlTemplate>
             </Setter.Value>
@@ -623,23 +623,27 @@
         </Setter>
     </Style>
 
-    <!-- iPhone-style pill slider: a fully-rounded pill track (12px) with an
-         accent fill showing the level, and a clean round accent thumb. -->
+    <!-- Fill-bar slider (reference look): a tall rounded bar with an
+         accent-coloured fill showing the current level and a centered value
+         label ("62%" for opacity sliders, "1.5" for border thickness). The
+         thumb is subtle; the whole bar is the slider. -->
     <Style x:Key="ModernSliderStyle" TargetType="Slider">
-        <Setter Property="Height" Value="28"/>
+        <Setter Property="Height" Value="40"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Slider">
                     <Grid VerticalAlignment="Center">
-                        <Border Height="12" CornerRadius="6"
+                        <!-- Base rounded bar -->
+                        <Border Height="40" CornerRadius="12"
                                 Background="{DynamicResource MenuHoverBrush}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
                                 BorderThickness="1"
                                 SnapsToDevicePixels="True"/>
+                        <!-- Accent fill (Decrease portion) + track -->
                         <Track x:Name="PART_Track"
-                               Height="12">
+                               Height="40">
                             <Track.DecreaseRepeatButton>
                                 <RepeatButton Style="{StaticResource ModernSliderFillRepeatStyle}"
                                               Command="Slider.DecreaseLarge"/>
@@ -652,6 +656,19 @@
                                 <Thumb Style="{StaticResource ModernSliderThumbStyle}"/>
                             </Track.Thumb>
                         </Track>
+                        <!-- Centered value label -->
+                        <TextBlock HorizontalAlignment="Center"
+                                   VerticalAlignment="Center"
+                                   FontSize="15" FontWeight="SemiBold"
+                                   Foreground="White"
+                                   IsHitTestVisible="False">
+                            <TextBlock.Text>
+                                <MultiBinding Converter="{StaticResource SliderValueLabelConverter}">
+                                    <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Value"/>
+                                    <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="Maximum"/>
+                                </MultiBinding>
+                            </TextBlock.Text>
+                        </TextBlock>
                     </Grid>
                 </ControlTemplate>
             </Setter.Value>
