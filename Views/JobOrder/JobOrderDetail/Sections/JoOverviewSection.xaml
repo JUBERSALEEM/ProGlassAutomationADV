@@ -14,132 +14,128 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <StackPanel Grid.Column="0">
 
-                        <TextBlock Text="SOURCE INVOICE SNAPSHOT"
-                                   Style="{StaticResource SectionTitleStyle}"
-                                   Margin="8,0,0,4"/>
-                        <TextBlock Text="{Binding ConvertedDisplay}"
-                                   FontSize="11"
-                                   Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                   Margin="8,0,0,16"/>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*" MinHeight="180"/>
+        </Grid.RowDefinitions>
 
-                        <Grid Margin="0,0,0,14">
-                            <Grid.ColumnDefinitions>
-                                <ColumnDefinition Width="*"/>
-                                <ColumnDefinition Width="16"/>
-                                <ColumnDefinition Width="*"/>
-                            </Grid.ColumnDefinitions>
+        <!-- Compact identity strip — one row, not three stacked cards -->
+        <Border Grid.Row="0"
+                Style="{StaticResource ModuleListKpiStripStyle}"
+                BorderBrush="{DynamicResource OutlineBrush}"
+                BorderThickness="{DynamicResource CardBorderThickness}"
+                CornerRadius="{DynamicResource CardCornerRadius}"
+                Margin="0,0,0,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="1.2*"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
 
-                            <Border Grid.Column="0"
-                                    Background="{DynamicResource ModuleBackgroundBrush}"
-                                    BorderBrush="{DynamicResource OutlineBrush}"
-                                    BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}"
-                                    Padding="16,14"
-                                    SnapsToDevicePixels="True">
-                                <StackPanel>
-                                    <TextBlock Text="COMPANY"
-                                               Style="{StaticResource CardLabelStyle}"
-                                               Margin="0,0,0,8"/>
-                                    <TextBlock Text="{Binding InvoiceSnapshot.Company.CompanyName, FallbackValue=—}"
-                                               FontSize="13" FontWeight="SemiBold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                        <TextBlock Text="TRN: " Style="{StaticResource ReadOnlyLabelStyle}"/>
-                                        <TextBlock Text="{Binding InvoiceSnapshot.Company.CompanyTrn, FallbackValue=—}"
-                                                   Style="{StaticResource ReadOnlyFieldStyle}"/>
-                                    </StackPanel>
-                                    <TextBlock Text="{Binding InvoiceSnapshot.Company.CompanyLocation, FallbackValue=—}"
-                                               Style="{StaticResource ReadOnlyFieldStyle}" Margin="0,2,0,0"/>
-                                </StackPanel>
-                            </Border>
+                <StackPanel Grid.Column="0" VerticalAlignment="Center">
+                    <TextBlock Text="COMPANY" Style="{StaticResource CardLabelStyle}"/>
+                    <TextBlock Text="{Binding InvoiceSnapshot.Company.CompanyName, FallbackValue=—}"
+                               FontSize="13" FontWeight="SemiBold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                               TextTrimming="CharacterEllipsis"/>
+                    <TextBlock FontSize="11"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               TextTrimming="CharacterEllipsis">
+                        <Run Text="TRN "/><Run Text="{Binding InvoiceSnapshot.Company.CompanyTrn, Mode=OneWay, FallbackValue=—}"/>
+                    </TextBlock>
+                </StackPanel>
 
-                            <Border Grid.Column="2"
-                                    Background="{DynamicResource ModuleBackgroundBrush}"
-                                    BorderBrush="{DynamicResource OutlineBrush}"
-                                    BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}"
-                                    Padding="16,14"
-                                    SnapsToDevicePixels="True">
-                                <StackPanel>
-                                    <TextBlock Text="CLIENT"
-                                               Style="{StaticResource CardLabelStyle}"
-                                               Margin="0,0,0,8"/>
-                                    <TextBlock Text="{Binding InvoiceSnapshot.Client.CustomerName, FallbackValue=—}"
-                                               FontSize="13" FontWeight="SemiBold"
-                                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                    <StackPanel Orientation="Horizontal" Margin="0,4,0,0">
-                                        <TextBlock Text="TRN: " Style="{StaticResource ReadOnlyLabelStyle}"/>
-                                        <TextBlock Text="{Binding InvoiceSnapshot.Client.CustomerTrn, FallbackValue=—}"
-                                                   Style="{StaticResource ReadOnlyFieldStyle}"/>
-                                    </StackPanel>
-                                    <TextBlock Text="{Binding InvoiceSnapshot.Client.BillingAddress, FallbackValue=—}"
-                                               Style="{StaticResource ReadOnlyFieldStyle}"
-                                               TextWrapping="Wrap" Margin="0,2,0,0"/>
-                                </StackPanel>
-                            </Border>
-                        </Grid>
+                <Border Grid.Column="1" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
-                        <Border Background="{DynamicResource ModuleBackgroundBrush}"
-            BorderBrush="{DynamicResource OutlineBrush}"
-            BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}"
-            Padding="16,14" Margin="0,0,0,14"
-            SnapsToDevicePixels="True">
-                            <StackPanel>
-                                <TextBlock Text="PROJECT"
-                       Style="{StaticResource CardLabelStyle}"
-                       Margin="0,0,0,8"/>
+                <StackPanel Grid.Column="2" VerticalAlignment="Center">
+                    <TextBlock Text="CLIENT" Style="{StaticResource CardLabelStyle}"/>
+                    <TextBlock Text="{Binding InvoiceSnapshot.Client.CustomerName, FallbackValue=—}"
+                               FontSize="13" FontWeight="SemiBold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                               TextTrimming="CharacterEllipsis"/>
+                    <TextBlock FontSize="11"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               TextTrimming="CharacterEllipsis">
+                        <Run Text="TRN "/><Run Text="{Binding InvoiceSnapshot.Client.CustomerTrn, Mode=OneWay, FallbackValue=—}"/>
+                    </TextBlock>
+                </StackPanel>
 
-                                <!-- Row 1: Project Identifier Name | Project Name / No -->
-                                <Grid Margin="0,0,0,10">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="16"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
+                <Border Grid.Column="3" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
-                                    <StackPanel Grid.Column="0">
-                                        <TextBlock Text="Project Identifier Name"
-                               Style="{StaticResource ReadOnlyLabelStyle}"/>
-                                        <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectIdentifierName,
-                                    FallbackValue=—}"
-                               Style="{StaticResource ReadOnlyFieldStyle}"
-                               TextWrapping="Wrap"/>
-                                    </StackPanel>
+                <StackPanel Grid.Column="4" VerticalAlignment="Center">
+                    <TextBlock Text="PROJECT" Style="{StaticResource CardLabelStyle}"/>
+                    <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectIdentifierName, FallbackValue=—}"
+                               FontSize="13" FontWeight="SemiBold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                               TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectContractNo, FallbackValue=—}"
+                               FontSize="11"
+                               Foreground="{DynamicResource SecondaryForegroundBrush}"
+                               TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
 
-                                    <StackPanel Grid.Column="2">
-                                        <TextBlock Text="Project Name / No"
-                               Style="{StaticResource ReadOnlyLabelStyle}"/>
-                                        <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectContractNo,
-                                    FallbackValue=—}"
-                               Style="{StaticResource ReadOnlyFieldStyle}"
-                               TextWrapping="Wrap"/>
-                                    </StackPanel>
-                                </Grid>
+                <Border Grid.Column="5" Style="{StaticResource ModuleListKpiDividerStyle}"/>
 
-                                <!-- Row 2: Project Reference (full width) -->
-                                <StackPanel>
-                                    <TextBlock Text="Project Reference"
-                           Style="{StaticResource ReadOnlyLabelStyle}"/>
-                                    <TextBlock Text="{Binding InvoiceSnapshot.Project.ProjectReference,
-                                FallbackValue=—}"
-                           Style="{StaticResource ReadOnlyFieldStyle}"
-                           TextWrapping="Wrap"/>
-                                </StackPanel>
-                            </StackPanel>
-                        </Border>
+                <StackPanel Grid.Column="6" VerticalAlignment="Center" MinWidth="120">
+                    <TextBlock Text="INVOICE VALUE" Style="{StaticResource CardLabelStyle}"/>
+                    <TextBlock Text="{Binding GrandTotalDisplay}"
+                               FontSize="{DynamicResource DensityKpiValueFontSize}"
+                               FontWeight="Bold"
+                               Foreground="{DynamicResource SuccessBrush}"/>
+                </StackPanel>
+            </Grid>
+        </Border>
 
-                        <TextBlock Text="GLASS SPECIFICATIONS"
-                                   FontSize="15" FontWeight="Bold"
-                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                   Margin="0,10,0,12"/>
+        <!-- Glass table fills leftover height and scrolls internally -->
+        <Border Grid.Row="1"
+                Style="{StaticResource LineItemsTableStyle}"
+                Padding="0">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
 
-                        <ItemsControl ItemsSource="{Binding InvoiceSnapshot.SpecGroups}">
-                            <ItemsControl.ItemTemplate>
-                                <DataTemplate>
-                                    <StackPanel Margin="0,0,0,16">
+                <Grid Grid.Row="0" Margin="12,8,12,6">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                        <ColumnDefinition Width="Auto"/>
+                    </Grid.ColumnDefinitions>
+                    <TextBlock Text="GLASS PANELS"
+                               FontSize="12" FontWeight="Bold"
+                               Foreground="{DynamicResource PrimaryForegroundBrush}"
+                               VerticalAlignment="Center"/>
+                    <TextBlock Grid.Column="1"
+                               Text="Production ticket — qty and sizes only"
+                               FontSize="10"
+                               Foreground="{DynamicResource MutedForegroundBrush}"
+                               VerticalAlignment="Center"/>
+                </Grid>
+
+                <ScrollViewer Grid.Row="1"
+                              VerticalScrollBarVisibility="Auto"
+                              HorizontalScrollBarVisibility="Auto"
+                              CanContentScroll="False"
+                              PanningMode="VerticalOnly"
+                              Focusable="True"
+                              FocusVisualStyle="{x:Null}"
+                              behaviors:SmoothScrollBehavior.IsEnabled="True">
+                    <ItemsControl ItemsSource="{Binding InvoiceSnapshot.SpecGroups}"
+                                  Margin="8,0,8,8">
+                        <ItemsControl.ItemTemplate>
+                            <DataTemplate>
+                                <Border Style="{StaticResource SpecGroupCardStyle}">
+                                    <StackPanel>
 
                                         <Border Background="{DynamicResource MenuHoverBrush}"
-                                                Padding="12,8"
+                                                Padding="12,6"
                                                 BorderBrush="{DynamicResource DividerBrush}"
                                                 BorderThickness="0,0,0,1">
                                             <StackPanel Orientation="Horizontal">
@@ -164,13 +160,13 @@
                                         <Border Style="{StaticResource LineItemsHeaderStyle}">
                                             <Grid>
                                                 <Grid.ColumnDefinitions>
-                                                    <ColumnDefinition Width="30"/>
+                                                    <ColumnDefinition Width="36"/>
                                                     <ColumnDefinition Width="1.8*"/>
+                                                    <ColumnDefinition Width="64"/>
+                                                    <ColumnDefinition Width="64"/>
+                                                    <ColumnDefinition Width="64"/>
+                                                    <ColumnDefinition Width="64"/>
                                                     <ColumnDefinition Width="56"/>
-                                                    <ColumnDefinition Width="56"/>
-                                                    <ColumnDefinition Width="56"/>
-                                                    <ColumnDefinition Width="56"/>
-                                                    <ColumnDefinition Width="48"/>
                                                 </Grid.ColumnDefinitions>
                                                 <TextBlock Grid.Column="0" Text="#"
                                                            Style="{StaticResource LineItemsHeaderTextStyle}"/>
@@ -193,18 +189,17 @@
                                         <ItemsControl ItemsSource="{Binding ItemRows}">
                                             <ItemsControl.ItemTemplate>
                                                 <DataTemplate>
-                                                    <Border CornerRadius="{DynamicResource CardCornerRadius}" BorderThickness="0,0,0,1"
-                                                            BorderBrush="{DynamicResource OutlineBrush}"
-                                                            Padding="0,1">
-                                                        <Grid>
+                                                    <Border Style="{StaticResource ModuleListRowStyle}"
+                                                            Padding="0,2">
+                                                        <Grid MinHeight="{DynamicResource DensityRowHeight}">
                                                             <Grid.ColumnDefinitions>
-                                                                <ColumnDefinition Width="30"/>
+                                                                <ColumnDefinition Width="36"/>
                                                                 <ColumnDefinition Width="1.8*"/>
+                                                                <ColumnDefinition Width="64"/>
+                                                                <ColumnDefinition Width="64"/>
+                                                                <ColumnDefinition Width="64"/>
+                                                                <ColumnDefinition Width="64"/>
                                                                 <ColumnDefinition Width="56"/>
-                                                                <ColumnDefinition Width="56"/>
-                                                                <ColumnDefinition Width="56"/>
-                                                                <ColumnDefinition Width="56"/>
-                                                                <ColumnDefinition Width="48"/>
                                                             </Grid.ColumnDefinitions>
                                                             <TextBlock Grid.Column="0"
                                                                        Text="{Binding SerialNumber}"
@@ -246,27 +241,12 @@
                                         </Border>
 
                                     </StackPanel>
-                                </DataTemplate>
-                            </ItemsControl.ItemTemplate>
-                        </ItemsControl>
-
-                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintGreenBrush}"
-                                CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,16"
-                                Margin="0,14,0,12"
-                                SnapsToDevicePixels="True">
-                            <StackPanel>
-                                <TextBlock Text="INVOICE VALUE"
-                                           Style="{StaticResource CardLabelStyle}"
-                                           Margin="0,0,0,6"/>
-                                <TextBlock Text="{Binding GrandTotalDisplay}"
-                                           FontSize="26" FontWeight="Bold"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                <TextBlock Text="VAT inclusive · immutable from source PI"
-                                           FontSize="11"
-                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
-                                           Margin="0,4,0,0"/>
-                            </StackPanel>
-                        </Border>
-
-                    </StackPanel>
+                                </Border>
+                            </DataTemplate>
+                        </ItemsControl.ItemTemplate>
+                    </ItemsControl>
+                </ScrollViewer>
+            </Grid>
+        </Border>
+    </Grid>
 </UserControl>

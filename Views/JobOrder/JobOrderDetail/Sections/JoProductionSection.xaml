@@ -14,7 +14,14 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <StackPanel Grid.Column="2">
+    <ScrollViewer VerticalScrollBarVisibility="Auto"
+                  HorizontalScrollBarVisibility="Disabled"
+                  CanContentScroll="False"
+                  PanningMode="VerticalOnly"
+                  Focusable="True"
+                  FocusVisualStyle="{x:Null}"
+                  behaviors:SmoothScrollBehavior.IsEnabled="True">
+    <StackPanel Margin="0,0,8,8">
 
                         <TextBlock Text="PRODUCTION DETAILS"
                                    Style="{StaticResource SectionTitleStyle}"
@@ -32,7 +39,7 @@
                                 <ComboBox ItemsSource="{Binding StatusOptions}"
                                           SelectedItem="{Binding SelectedStatus}"
                                           FontSize="13" Padding="8,6"
-                                          Height="38"
+                                          Height="{DynamicResource DensityInputHeight}"
                                           VerticalContentAlignment="Center"/>
                             </StackPanel>
 
@@ -41,7 +48,7 @@
                                 <ComboBox ItemsSource="{Binding PriorityOptions}"
                                           SelectedItem="{Binding SelectedPriority}"
                                           FontSize="13" Padding="8,6"
-                                          Height="38"
+                                          Height="{DynamicResource DensityInputHeight}"
                                           VerticalContentAlignment="Center"/>
                             </StackPanel>
                         </Grid>
@@ -49,7 +56,7 @@
                         <TextBlock Text="Delivery Date" Style="{StaticResource FieldLabelStyle}"/>
                         <DatePicker SelectedDate="{Binding DeliveryDate}"
                                     FontSize="13" Padding="8,6"
-                                    Height="38"
+                                    Height="{DynamicResource DensityInputHeight}"
                                     Margin="0,0,0,14"/>
 
                         <TextBlock Text="── Site Delivery ──"
@@ -151,4 +158,5 @@
                         </Grid>
 
                     </StackPanel>
+    </ScrollViewer>
 </UserControl>

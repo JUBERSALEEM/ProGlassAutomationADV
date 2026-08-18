@@ -14,126 +14,103 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Disabled"
-                  CanContentScroll="False"
-                  PanningMode="VerticalOnly"
-                  Focusable="False"
-                  FocusVisualStyle="{x:Null}">
-        <StackPanel>
-        <!-- Stats + form + glass grid scroll as one page so the
-             items table is never squeezed to 0 height on a laptop. -->
-        <Border Style="{StaticResource CardStyle}">
-                <StackPanel>
-                    <Border Style="{StaticResource SectionHeaderStyle}"
-                        Background="{DynamicResource AccentBrush}">
-                        <StackPanel>
-                            <TextBlock FontSize="11" FontWeight="Bold"
-                                       Foreground="{DynamicResource OnAccentForegroundBrush}"><Run Text="&#xE7BF;" FontFamily="Segoe MDL2 Assets"/><Run Text="  THIS INVOICE — FINANCIAL SUMMARY"/></TextBlock>
-                            <TextBlock Text="Live totals — updates as you edit rows"
-                                       FontSize="10" Foreground="{DynamicResource OnAccentForegroundBrush}" Opacity="0.8"
-                                       Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </Border>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*" MinHeight="180"/>
+        </Grid.RowDefinitions>
 
-                    <Grid Margin="12,12,12,12">
-                        <Grid.ColumnDefinitions>
-                            <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
-                        </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="10"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
+        <!-- One-row financial KPI — was a 2×2 card that hid the glass table -->
+        <Border Grid.Row="0"
+                Style="{StaticResource CardStyle}"
+                Padding="8,6"
+                Margin="0,0,0,8">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
 
-                        <Border Grid.Row="0" Grid.Column="0"
-                                Style="{StaticResource CompactStatTileStyle}">
-                            <StackPanel HorizontalAlignment="Center">
-                                <TextBlock Text="{Binding SubtotalDisplay}"
-                                           FontSize="13" FontWeight="Bold"
-                                           HorizontalAlignment="Center"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                           TextTrimming="CharacterEllipsis"/>
-                                <TextBlock Text="SUBTOTAL"
-                                           FontSize="10" FontWeight="Bold"
-                                           HorizontalAlignment="Center"
-                                           Margin="0,4,0,0"
-                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
-                            </StackPanel>
-                        </Border>
+                <Border Grid.Column="0" Style="{StaticResource CompactStatTileStyle}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding SubtotalDisplay}"
+                                   FontSize="13" FontWeight="Bold"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="SUBTOTAL"
+                                   FontSize="10" FontWeight="Bold"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,2,0,0"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                    </StackPanel>
+                </Border>
 
-                        <!-- LAYOUT FIX: Grid.Column="2" was missing, so the
-                             VAT tile rendered on top of the SUBTOTAL tile. -->
-                        <Border Grid.Row="0" Grid.Column="2"
-                                Style="{StaticResource CompactStatTileStyle}">
-                            <StackPanel HorizontalAlignment="Center">
-                                <TextBlock Text="{Binding VatDisplay}"
-                                           FontSize="13" FontWeight="Bold"
-                                           HorizontalAlignment="Center"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                           TextTrimming="CharacterEllipsis"/>
-                                <TextBlock Text="VAT (5%)"
-                                           FontSize="10" FontWeight="Bold"
-                                           HorizontalAlignment="Center"
-                                           Margin="0,4,0,0"
-                                           Foreground="{DynamicResource MutedForegroundBrush}"/>
-                            </StackPanel>
-                        </Border>
+                <Border Grid.Column="2" Style="{StaticResource CompactStatTileStyle}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding VatDisplay}"
+                                   FontSize="13" FontWeight="Bold"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="VAT (5%)"
+                                   FontSize="10" FontWeight="Bold"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,2,0,0"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"/>
+                    </StackPanel>
+                </Border>
 
-                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="2" Grid.Column="0"
-                                Style="{StaticResource CompactStatTileStyle}"
-                                Background="{DynamicResource TintAmberBrush}">
-                            <StackPanel HorizontalAlignment="Center">
-                                <TextBlock Text="{Binding DiscountAmountDisplay}"
-                                           FontSize="13" FontWeight="Bold"
-                                           HorizontalAlignment="Center"
-                                           Foreground="{DynamicResource WarningBrush}"
-                                           TextTrimming="CharacterEllipsis"/>
-                                <TextBlock Text="DISCOUNT"
-                                           FontSize="10" FontWeight="Bold"
-                                           HorizontalAlignment="Center"
-                                           Margin="0,4,0,0"
-                                           Foreground="{DynamicResource WarningBrush}"/>
-                            </StackPanel>
-                        </Border>
+                <Border Grid.Column="4"
+                        Style="{StaticResource CompactStatTileStyle}"
+                        Background="{DynamicResource TintAmberBrush}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding DiscountAmountDisplay}"
+                                   FontSize="13" FontWeight="Bold"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource WarningBrush}"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="DISCOUNT"
+                                   FontSize="10" FontWeight="Bold"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,2,0,0"
+                                   Foreground="{DynamicResource WarningBrush}"/>
+                    </StackPanel>
+                </Border>
 
-                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="2" Grid.Column="2"
-                                Style="{StaticResource CompactStatTileStyle}"
-                                Background="{DynamicResource TintGreenBrush}">
-                            <StackPanel HorizontalAlignment="Center">
-                                <TextBlock Text="{Binding GrandTotalDisplay}"
-                                           FontSize="13" FontWeight="Bold"
-                                           HorizontalAlignment="Center"
-                                           Foreground="{DynamicResource SuccessBrush}"
-                                           TextTrimming="CharacterEllipsis"/>
-                                <TextBlock Text="GRAND TOTAL"
-                                           FontSize="10" FontWeight="Bold"
-                                           HorizontalAlignment="Center"
-                                           Margin="0,4,0,0"
-                                           Foreground="{DynamicResource SuccessBrush}"/>
-                            </StackPanel>
-                        </Border>
-                    </Grid>
-                </StackPanel>
-            </Border>
-        <!-- ══════════════════════════════════════════════════════════
-             INVOICE CONTENT
-             Order: Hero → Details form → Spec groups
-             LAYOUT FIX: now explicitly row 1 (the star-sized row), so it
-             fills the remaining height beneath the stats card.
-        ══════════════════════════════════════════════════════════ -->
-        <Border Margin="0,12,0,0" Style="{StaticResource CardStyle}">
+                <Border Grid.Column="6"
+                        Style="{StaticResource CompactStatTileStyle}"
+                        Background="{DynamicResource TintGreenBrush}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <TextBlock Text="{Binding GrandTotalDisplay}"
+                                   FontSize="13" FontWeight="Bold"
+                                   HorizontalAlignment="Center"
+                                   Foreground="{DynamicResource SuccessBrush}"
+                                   TextTrimming="CharacterEllipsis"/>
+                        <TextBlock Text="GRAND TOTAL"
+                                   FontSize="10" FontWeight="Bold"
+                                   HorizontalAlignment="Center"
+                                   Margin="0,2,0,0"
+                                   Foreground="{DynamicResource SuccessBrush}"/>
+                    </StackPanel>
+                </Border>
+            </Grid>
+        </Border>
+        <Border Grid.Row="1" Style="{StaticResource CardStyle}">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*" MinHeight="180"/>
                     </Grid.RowDefinitions>
 
                     <!-- HERO STRIP -->
-                    <Border Grid.Row="0" CornerRadius="12,12,0,0" Padding="18,14">
+                    <Border Grid.Row="0" CornerRadius="12,12,0,0" Padding="12,8">
                         <Border.Background>
                             <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
                                 <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
@@ -242,14 +219,18 @@
                         </Grid>
                     </Border>
 
-                    <!-- HEADER FIELDS FORM (compact — includes customer + bank) -->
-                    <Border CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1"
-                            Padding="18,14"
-                            BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="0,0,0,1">
+                    <Expander Grid.Row="1"
+                              IsExpanded="False"
+                              Margin="10,4,10,4"
+                              Background="Transparent">
+                        <Expander.Header>
+                            <TextBlock Text="INVOICE HEADER — refs, bank, customer, project"
+                                       FontSize="11" FontWeight="SemiBold"
+                                       Foreground="{DynamicResource SecondaryForegroundBrush}"/>
+                        </Expander.Header>
+                    <Border Padding="4,8,4,4">
                         <StackPanel>
-                            <!-- Row 1: PI ref, DN ref, PO, Status -->
-                            <Grid Margin="0,0,0,12">
+                            <Grid Margin="0,0,0,8">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="14"/>
@@ -289,7 +270,7 @@
                                                Text="STATUS"/>
                                     <ComboBox ItemsSource="{Binding StatusOptions}"
                                               SelectedItem="{Binding Status}"
-                                              FontSize="12" Height="38"/>
+                                              FontSize="12" Height="{DynamicResource DensityInputHeight}"/>
                                 </StackPanel>
                             </Grid>
 
@@ -309,7 +290,7 @@
                                     <TextBlock Style="{StaticResource FieldLabelStyle}"
                                                Text="ISSUE DATE"/>
                                     <DatePicker SelectedDate="{Binding IssueDate}"
-                                                FontSize="12" Height="38"/>
+                                                FontSize="12" Height="{DynamicResource DensityInputHeight}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="2">
@@ -317,7 +298,7 @@
                                                Text="PAYMENT TERMS"/>
                                     <ComboBox ItemsSource="{Binding PaymentTermsOptions}"
                                               SelectedItem="{Binding PaymentTerms}"
-                                              FontSize="12" Height="38"/>
+                                              FontSize="12" Height="{DynamicResource DensityInputHeight}"/>
                                 </StackPanel>
 
                                 <StackPanel Grid.Column="4">
@@ -520,9 +501,14 @@
                             </Grid>
                         </StackPanel>
                     </Border>
+                    </Expander>
 
-                    <!-- SPEC GROUPS + GLASS ITEM ROWS (internal scroll) -->
-                    <StackPanel Grid.Row="2" Margin="14,12,14,14">
+                    <Grid Grid.Row="2" Margin="10,6,10,8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
+                        <StackPanel Grid.Row="0">
 
                             <Grid Margin="4,0,4,10">
                                 <Grid.ColumnDefinitions>
@@ -572,8 +558,18 @@
                                                Foreground="{DynamicResource SecondaryForegroundBrush}"/>
                                 </StackPanel>
                             </Border>
+                        </StackPanel>
 
-                            <ItemsControl ItemsSource="{Binding SpecGroups}">
+                            <ScrollViewer Grid.Row="1"
+                                          VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Auto"
+                                          CanContentScroll="False"
+                                          PanningMode="Both"
+                                          Focusable="True"
+                                          FocusVisualStyle="{x:Null}"
+                                          behaviors:SmoothScrollBehavior.IsEnabled="True">
+                            <ItemsControl ItemsSource="{Binding SpecGroups}"
+                                          MinWidth="900">
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border Style="{StaticResource SpecGroupCardStyle}">
@@ -909,9 +905,9 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                    </StackPanel>
+                            </ScrollViewer>
+                    </Grid>
                 </Grid>
             </Border>
-        </StackPanel>
-    </ScrollViewer>
+    </Grid>
 </UserControl>

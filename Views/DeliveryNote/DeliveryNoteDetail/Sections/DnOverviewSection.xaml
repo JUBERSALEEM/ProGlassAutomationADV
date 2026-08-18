@@ -14,177 +14,146 @@
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
     </UserControl.Resources>
-    <ScrollViewer VerticalScrollBarVisibility="Auto"
-                  HorizontalScrollBarVisibility="Disabled"
-                  CanContentScroll="False"
-                  PanningMode="VerticalOnly"
-                  Focusable="False"
-                  FocusVisualStyle="{x:Null}">
-        <StackPanel>
-        <!-- STATS + ITEMS scroll together so the glass grid is never
-             clipped to 0 height on a laptop (star-row leftover). -->
-        <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}"
-                    SnapsToDevicePixels="True">
-                <StackPanel>
-                    <Border Style="{StaticResource SectionHeaderStyle}">
-                        <Border.Background>
-                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
-                                <GradientStop Color="{DynamicResource AccentColor}" Offset="0"/>
-                                <GradientStop Color="{DynamicResource AccentHoverColor}" Offset="1"/>
-                            </LinearGradientBrush>
-                        </Border.Background>
-                        <StackPanel>
-                            <TextBlock FontSize="11" FontWeight="Bold"
-                                       Foreground="White"><Run Text="&#xE9F9;" FontFamily="Segoe MDL2 Assets"/><Run Text="  QUICK STATS"/></TextBlock>
-                            <TextBlock Text="Delivery numbers at a glance"
-                                       FontSize="10" Foreground="#CCFFFFFF"
-                                       Margin="0,2,0,0"/>
-                        </StackPanel>
-                    </Border>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*" MinHeight="180"/>
+        </Grid.RowDefinitions>
 
-                    <Grid Margin="12,12,12,8">
+        <!-- One-row KPI strip — was a 2×2 card that ate the laptop viewport -->
+        <Border Grid.Row="0"
+                Background="{DynamicResource ModuleBackgroundBrush}"
+                BorderBrush="{DynamicResource OutlineBrush}"
+                BorderThickness="{DynamicResource CardBorderThickness}"
+                CornerRadius="{DynamicResource CardCornerRadius}"
+                Padding="8,6"
+                Margin="0,0,0,8"
+                SnapsToDevicePixels="True">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="8"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="12"/>
+                    <ColumnDefinition Width="1.4*"/>
+                </Grid.ColumnDefinitions>
+
+                <Border Grid.Column="0" Style="{StaticResource CompactStatTileStyle}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="{Binding TotalOrderedQty}"
+                                       Style="{StaticResource CompactStatNumberStyle}"/>
+                            <TextBlock Text=" pcs" Style="{StaticResource CompactStatUnitStyle}"/>
+                        </StackPanel>
+                        <TextBlock Text="ORDERED" Style="{StaticResource CompactStatLabelStyle}"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="2"
+                        Style="{StaticResource CompactStatTileStyle}"
+                        Background="{DynamicResource TintIndigoBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="{DynamicResource CardBorderThickness}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="{Binding TotalPreviouslyDeliveredQty}"
+                                       Style="{StaticResource CompactStatNumberStyle}"
+                                       Foreground="{DynamicResource AccentBrush}"/>
+                            <TextBlock Text=" pcs" Style="{StaticResource CompactStatUnitStyle}"
+                                       Foreground="{DynamicResource AccentBrush}" Opacity="0.75"/>
+                        </StackPanel>
+                        <TextBlock Style="{StaticResource PrevDeliveredLabelStyle}"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="4"
+                        Style="{StaticResource CompactStatTileStyle}"
+                        Background="{DynamicResource TintGreenBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="{DynamicResource CardBorderThickness}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="{Binding TotalDeliveredQty}"
+                                       Style="{StaticResource CompactStatNumberStyle}"
+                                       Foreground="{DynamicResource SuccessBrush}"/>
+                            <TextBlock Text=" pcs" Style="{StaticResource CompactStatUnitStyle}"
+                                       Foreground="{DynamicResource SuccessBrush}" Opacity="0.75"/>
+                        </StackPanel>
+                        <TextBlock Style="{StaticResource ThisDnLabelStyle}"/>
+                    </StackPanel>
+                </Border>
+
+                <Border Grid.Column="6"
+                        Style="{StaticResource CompactStatTileStyle}"
+                        Background="{DynamicResource TintAmberBrush}"
+                        BorderBrush="{DynamicResource OutlineBrush}"
+                        BorderThickness="{DynamicResource CardBorderThickness}">
+                    <StackPanel HorizontalAlignment="Center">
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                            <TextBlock Text="{Binding TotalBalanceQty}"
+                                       Style="{StaticResource CompactStatNumberStyle}"
+                                       Foreground="{DynamicResource WarningBrush}"/>
+                            <TextBlock Text=" pcs" Style="{StaticResource CompactStatUnitStyle}"
+                                       Foreground="{DynamicResource WarningBrush}" Opacity="0.75"/>
+                        </StackPanel>
+                        <TextBlock Text="BALANCE"
+                                   Style="{StaticResource CompactStatLabelStyle}"
+                                   Foreground="{DynamicResource WarningBrush}"/>
+                    </StackPanel>
+                </Border>
+
+                <StackPanel Grid.Column="8" VerticalAlignment="Center">
+                    <Grid Margin="0,0,0,4">
                         <Grid.ColumnDefinitions>
                             <ColumnDefinition Width="*"/>
-                            <ColumnDefinition Width="10"/>
-                            <ColumnDefinition Width="*"/>
+                            <ColumnDefinition Width="Auto"/>
                         </Grid.ColumnDefinitions>
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="10"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <Border Grid.Row="0" Grid.Column="0"
-                                Style="{StaticResource CompactStatTileStyle}">
-                            <StackPanel HorizontalAlignment="Center">
-                                <StackPanel Orientation="Horizontal"
-                                            HorizontalAlignment="Center">
-                                    <TextBlock Text="{Binding TotalOrderedQty}"
-                                               Style="{StaticResource CompactStatNumberStyle}"/>
-                                    <TextBlock Text=" pcs"
-                                               Style="{StaticResource CompactStatUnitStyle}"/>
-                                </StackPanel>
-                                <TextBlock Text="ORDERED"
-                                           Style="{StaticResource CompactStatLabelStyle}"/>
-                            </StackPanel>
-                        </Border>
-
-                        <!-- LAYOUT FIX: Grid.Column="2" was missing, so the
-                             PREVIOUSLY DELIVERED tile rendered on top of the
-                             ORDERED tile. -->
-                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="0" Grid.Column="2"
-                                Style="{StaticResource CompactStatTileStyle}"
-                                Background="{DynamicResource TintIndigoBrush}">
-                            <StackPanel HorizontalAlignment="Center">
-                                <StackPanel Orientation="Horizontal"
-                                            HorizontalAlignment="Center">
-                                    <TextBlock Text="{Binding TotalPreviouslyDeliveredQty}"
-                                               Style="{StaticResource CompactStatNumberStyle}"
-                                               Foreground="{DynamicResource AccentBrush}"/>
-                                    <TextBlock Text=" pcs"
-                                               Style="{StaticResource CompactStatUnitStyle}"
-                                               Foreground="{DynamicResource AccentBrush}" Opacity="0.75"/>
-                                </StackPanel>
-                                <TextBlock Style="{StaticResource PrevDeliveredLabelStyle}"/>
-                            </StackPanel>
-                        </Border>
-
-                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="2" Grid.Column="0"
-                                Style="{StaticResource CompactStatTileStyle}"
-                                Background="{DynamicResource TintGreenBrush}">
-                            <StackPanel HorizontalAlignment="Center">
-                                <StackPanel Orientation="Horizontal"
-                                            HorizontalAlignment="Center">
-                                    <TextBlock Text="{Binding TotalDeliveredQty}"
-                                               Style="{StaticResource CompactStatNumberStyle}"
-                                               Foreground="{DynamicResource SuccessBrush}"/>
-                                    <TextBlock Text=" pcs"
-                                               Style="{StaticResource CompactStatUnitStyle}"
-                                               Foreground="{DynamicResource SuccessBrush}" Opacity="0.75"/>
-                                </StackPanel>
-                                <TextBlock Style="{StaticResource ThisDnLabelStyle}"/>
-                            </StackPanel>
-                        </Border>
-
-                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="2" Grid.Column="2"
-                                Style="{StaticResource CompactStatTileStyle}"
-                                Background="{DynamicResource TintAmberBrush}">
-                            <StackPanel HorizontalAlignment="Center">
-                                <StackPanel Orientation="Horizontal"
-                                            HorizontalAlignment="Center">
-                                    <TextBlock Text="{Binding TotalBalanceQty}"
-                                               Style="{StaticResource CompactStatNumberStyle}"
-                                               Foreground="{DynamicResource WarningBrush}"/>
-                                    <TextBlock Text=" pcs"
-                                               Style="{StaticResource CompactStatUnitStyle}"
-                                               Foreground="{DynamicResource WarningBrush}" Opacity="0.75"/>
-                                </StackPanel>
-                                <TextBlock Text="BALANCE"
-                                           Style="{StaticResource CompactStatLabelStyle}"
-                                           Foreground="{DynamicResource WarningBrush}"/>
-                            </StackPanel>
-                        </Border>
+                        <TextBlock Text="PROGRESS"
+                                   FontSize="9" FontWeight="Bold"
+                                   Foreground="{DynamicResource MutedForegroundBrush}"
+                                   VerticalAlignment="Center"/>
+                        <TextBlock Grid.Column="1"
+                                   FontSize="11" FontWeight="Bold"
+                                   Foreground="{DynamicResource PrimaryForegroundBrush}">
+                            <Run Text="{Binding DeliveryProgressPercent,
+                                        Mode=OneWay,
+                                        StringFormat={}{0:0.#}}"/>
+                            <Run Text="%"/>
+                        </TextBlock>
                     </Grid>
-
-                    <!-- Progress bar -->
-                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Margin="12,0,12,12" CornerRadius="{DynamicResource ControlCornerRadius}"
-                            Padding="12,8"
-                            Background="{DynamicResource MenuHoverBrush}">
-                        <StackPanel>
-                            <Grid Margin="0,0,0,5">
-                                <Grid.ColumnDefinitions>
-                                    <ColumnDefinition Width="*"/>
-                                    <ColumnDefinition Width="Auto"/>
-                                </Grid.ColumnDefinitions>
-                                <TextBlock Grid.Column="0"
-                                           Text="OVERALL DELIVERY PROGRESS"
-                                           FontSize="9" FontWeight="Bold"
-                                           Foreground="{DynamicResource MutedForegroundBrush}"
-                                           VerticalAlignment="Center"/>
-                                <TextBlock Grid.Column="1"
-                                           FontSize="11" FontWeight="Bold"
-                                           VerticalAlignment="Center"
-                                           Foreground="{DynamicResource PrimaryForegroundBrush}">
-                                    <Run Text="{Binding DeliveryProgressPercent,
-                                                Mode=OneWay,
-                                                StringFormat={}{0:0.#}}"/>
-                                    <Run Text="%"/>
-                                </TextBlock>
-                            </Grid>
-                            <Border x:Name="StatsProgressTrack"
-                                    CornerRadius="4" Height="8"
-                                    Background="{DynamicResource BorderBrush}">
-                                <Border CornerRadius="4"
-                                        HorizontalAlignment="Left"
-                                        Background="{DynamicResource AccentBrush}">
-                                    <Border.Width>
-                                        <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
-                                            <Binding Path="DeliveryProgressPercent"/>
-                                            <Binding Path="ActualWidth"
-                                                     ElementName="StatsProgressTrack"/>
-                                        </MultiBinding>
-                                    </Border.Width>
-                                </Border>
-                            </Border>
-                        </StackPanel>
+                    <Border x:Name="StatsProgressTrack"
+                            CornerRadius="4" Height="6"
+                            Background="{DynamicResource BorderBrush}">
+                        <Border CornerRadius="4"
+                                HorizontalAlignment="Left"
+                                Background="{DynamicResource AccentBrush}">
+                            <Border.Width>
+                                <MultiBinding Converter="{StaticResource PercentToWidthConverter}">
+                                    <Binding Path="DeliveryProgressPercent"/>
+                                    <Binding Path="ActualWidth"
+                                             ElementName="StatsProgressTrack"/>
+                                </MultiBinding>
+                            </Border.Width>
+                        </Border>
                     </Border>
                 </StackPanel>
-            </Border>
-        <!-- ITEMS CARD
-             LAYOUT FIX: now explicitly row 1 (the star-sized row) so it
-             fills the height remaining under the stats card. -->
-        <Border Margin="0,12,0,0"
+            </Grid>
+        </Border>
+        <Border Grid.Row="1" Grid.RowSpan="2"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     SnapsToDevicePixels="True">
                 <Grid>
                     <Grid.RowDefinitions>
                         <RowDefinition Height="Auto"/>
                         <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="Auto"/>
+                        <RowDefinition Height="*" MinHeight="180"/>
                     </Grid.RowDefinitions>
 
                     <!-- Hero strip -->
@@ -267,7 +236,8 @@
                                            Text="STATUS"/>
                                 <ComboBox ItemsSource="{Binding StatusOptions}"
                                           SelectedItem="{Binding Status}"
-                                          FontSize="12" Height="38"
+                                          FontSize="12"
+                                          Height="{DynamicResource DensityInputHeight}"
                                           VerticalContentAlignment="Center"/>
                             </StackPanel>
                             <StackPanel Grid.Row="0" Grid.Column="2">
@@ -291,7 +261,8 @@
                                 <CheckBox IsChecked="{Binding IsFoc}"
                                           Content="Free" FontSize="12"
                                           Foreground="{DynamicResource PrimaryForegroundBrush}"
-                                          VerticalAlignment="Center" Height="38"/>
+                                          VerticalAlignment="Center"
+                                          Height="{DynamicResource DensityInputHeight}"/>
                             </StackPanel>
                             <StackPanel Grid.Row="2" Grid.Column="0"
                                         Grid.ColumnSpan="3">
@@ -307,17 +278,20 @@
                                            Text="NOTES"/>
                                 <TextBox Text="{Binding Notes,
                                                 UpdateSourceTrigger=PropertyChanged}"
-                                         FontSize="12" Padding="10,6"
-                                         Height="38" TextWrapping="NoWrap"/>
+                                         FontSize="12" Padding="8,4"
+                                         Height="{DynamicResource DensityInputHeight}"
+                                         TextWrapping="NoWrap"/>
                             </StackPanel>
                         </Grid>
                     </Border>
 
-                    <!-- ITEMS TABLE — grows with content; page scroll is outer -->
-                    <StackPanel Grid.Row="2" Margin="14,12,14,14">
+                    <Grid Grid.Row="2" Margin="10,6,10,8">
+                        <Grid.RowDefinitions>
+                            <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="*"/>
+                        </Grid.RowDefinitions>
 
-                            <!-- Items header + action buttons -->
-                            <Grid Margin="4,0,4,10">
+                            <Grid Grid.Row="0" Margin="4,0,4,6">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
@@ -345,8 +319,16 @@
                                         ToolTip="Reset all Delivered quantities back to 0."/>
                             </Grid>
 
-                            <!-- Items grouped by spec -->
-                            <ItemsControl ItemsSource="{Binding GroupedItemsView}">
+                            <ScrollViewer Grid.Row="1"
+                                          VerticalScrollBarVisibility="Auto"
+                                          HorizontalScrollBarVisibility="Auto"
+                                          CanContentScroll="False"
+                                          PanningMode="Both"
+                                          Focusable="True"
+                                          FocusVisualStyle="{x:Null}"
+                                          behaviors:SmoothScrollBehavior.IsEnabled="True">
+                            <ItemsControl ItemsSource="{Binding GroupedItemsView}"
+                                          MinWidth="980">
                                 <ItemsControl.GroupStyle>
                                     <GroupStyle>
                                         <GroupStyle.ContainerStyle>
@@ -605,9 +587,9 @@
                                     </DataTemplate>
                                 </ItemsControl.ItemTemplate>
                             </ItemsControl>
-                    </StackPanel>
+                            </ScrollViewer>
+                    </Grid>
                 </Grid>
             </Border>
-        </StackPanel>
-    </ScrollViewer>
+    </Grid>
 </UserControl>

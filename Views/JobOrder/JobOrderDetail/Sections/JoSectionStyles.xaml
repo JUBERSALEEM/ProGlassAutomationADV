@@ -64,4 +64,13 @@
             <Setter Property="Foreground" Value="{DynamicResource AccentBrush}"/>
         </Style>
 
+        <Style x:Key="SpecGroupCardStyle" TargetType="Border">
+            <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
+            <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
+            <Setter Property="BorderThickness" Value="{DynamicResource CardBorderThickness}"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource CardCornerRadius}"/>
+            <Setter Property="Margin" Value="0,0,0,10"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+        </Style>
+
 </ResourceDictionary>
