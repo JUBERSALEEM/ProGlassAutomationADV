@@ -59,6 +59,7 @@ namespace ProGlassAutomation.ViewModels.Settings
                 if (value != "Appearance" && value != "AI" &&
                     value != "Agent" && value != "Voice" &&
                     value != "Updates" && value != "Data" &&
+                    value != "Demo" &&
                     value != "About")
                     return;
 

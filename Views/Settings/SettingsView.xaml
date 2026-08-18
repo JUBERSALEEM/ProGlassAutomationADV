@@ -300,6 +300,11 @@
                     ElementName=SettingsRoot,
                     Converter={StaticResource BoolToVisibilityConverter},
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
+            <sections:SettingsDemoSection
+                Visibility="{Binding DataContext.IsDemoPage,
+                    ElementName=SettingsRoot,
+                    Converter={StaticResource BoolToVisibilityConverter},
+                    FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
             <sections:SettingsAboutSection
                 Visibility="{Binding DataContext.IsAboutPage,
                     ElementName=SettingsRoot,
