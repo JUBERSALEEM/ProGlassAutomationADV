@@ -453,8 +453,12 @@
                 </Border>
             </Grid>
 
-            <!-- ══ RIGHT SLIDE-IN DETAIL / STATS PANEL ══ -->
-            <Grid x:Name="DetailPanel" Grid.Column="1" Margin="16,0,0,0">
+            <!-- ══ RIGHT SLIDE-IN DETAIL / STATS PANEL ══
+                 Collapsed by default so the main grid is full-width and the
+                 normal list view is professionally visible. It slides in
+                 only when a row is selected (see code-behind). -->
+            <Grid x:Name="DetailPanel" Grid.Column="1" Margin="16,0,0,0"
+                  Visibility="Collapsed">
                 <Grid.RenderTransform>
                     <TranslateTransform x:Name="PanelSlide" X="360"/>
                 </Grid.RenderTransform>
