@@ -342,6 +342,33 @@ namespace ProGlassAutomation.ViewModels.Settings
             }
         }
 
+        /// <summary>
+        /// Global card corner radius (DIPs). Default 12. One slider
+        /// restyles every card through CardCornerRadius (and the derived
+        /// Control / Large tokens). Persisted across restarts.
+        /// </summary>
+        public double CardCornerRadius
+        {
+            get => App.Config?.Appearance?.CardCornerRadius ?? 12;
+            set
+            {
+                if (App.Config?.Appearance == null) return;
+                double v = value < 0 ? 0 : value;
+                if (Math.Abs(App.Config.Appearance.CardCornerRadius - v) < 0.05) return;
+
+                App.Config.Appearance.CardCornerRadius = v;
+                ThemeManager.ApplyCardCornerRadius(v);
+                Services.AI.AIConfig.ConfigService.Save(App.Config);
+
+                ProGlassAutomation.Services.Audit.AuditService.Log(
+                    ProGlassAutomation.Services.Audit.AuditSections.Settings,
+                    "Card corner radius changed",
+                    $"{v:0} px");
+
+                OnPropertyChanged();
+            }
+        }
+
         public bool IsDarkTheme
         {
             get => ThemeManager.CurrentTheme == AppTheme.Dark;

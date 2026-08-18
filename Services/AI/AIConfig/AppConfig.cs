@@ -35,6 +35,15 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// </summary>
         public double CardBorderThickness { get; set; } = 1.5;
 
+        /// <summary>
+        /// Uniform corner radius (DIPs) for every card / panel. Defaults
+        /// to 12 — the tighter industrial look. Applied globally through
+        /// CardCornerRadius so one slider restyles the whole app.
+        /// ControlCornerRadius and CardCornerRadiusLarge are derived from
+        /// this value (radius − 2 and radius + 4).
+        /// </summary>
+        public double CardCornerRadius { get; set; } = 12;
+
         /// <summary>Global wallpaper image path (empty = none).</summary>
         public string WallpaperPath { get; set; } = "";
 

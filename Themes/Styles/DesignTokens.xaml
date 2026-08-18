@@ -8,10 +8,11 @@
      whole application looks and behaves consistently.
 
      RADIUS SCALE (canonical — defined in Light/Dark theme files):
-       ControlCornerRadius      = 10   small controls, tags, inputs
-       CardCornerRadius         = 14   cards, list rows, panels
-       CardCornerRadiusLarge    = 20   section cards, hero panels
-       PillCornerRadius         = 999  pills, chips, round buttons
+       ControlCornerRadius      = card−2   small controls, tags, inputs
+       CardCornerRadius         = 12       cards, list rows, panels
+                                           (Settings → Appearance slider)
+       CardCornerRadiusLarge    = card+4   section cards, hero panels
+       PillCornerRadius         = 999      pills, chips, round buttons
 
      TYPE SCALE:
        20 Bold     page title

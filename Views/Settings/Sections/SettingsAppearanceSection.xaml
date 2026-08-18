@@ -131,6 +131,42 @@
                                    Margin="0,10,0,0"
                                    TextWrapping="Wrap"
                                    Text="Sets the edge weight of every card and panel across the whole app (0 = no border). One setting, applied everywhere."/>
+
+                        <Border Height="1" Margin="0,18,0,16"
+                                Background="{DynamicResource DividerBrush}"/>
+
+                        <DockPanel>
+                            <StackPanel Orientation="Horizontal"
+                                        VerticalAlignment="Center">
+                                <TextBlock Text="&#xE7B3;"
+                                           FontFamily="Segoe MDL2 Assets"
+                                           FontSize="16"
+                                           Foreground="{DynamicResource SecondaryForegroundBrush}"
+                                           VerticalAlignment="Center"
+                                           Margin="0,0,10,0"
+                                           IsHitTestVisible="False"/>
+                                <TextBlock Text="Card Corner Radius"
+                                           Style="{StaticResource RowTitleStyle}"/>
+                            </StackPanel>
+                            <TextBlock HorizontalAlignment="Right"
+                                       VerticalAlignment="Center"
+                                       FontSize="13" FontWeight="Bold"
+                                       Foreground="{DynamicResource AccentBrush}">
+                                <Run Text="{Binding CardCornerRadius, StringFormat={}{0:0}}"/>
+                                <Run Text=" px"/>
+                            </TextBlock>
+                        </DockPanel>
+                        <Slider Margin="0,10,0,0"
+                                Style="{StaticResource ModernSliderStyle}"
+                                Minimum="0" Maximum="24"
+                                TickFrequency="2"
+                                IsSnapToTickEnabled="True"
+                                Value="{Binding CardCornerRadius, Mode=TwoWay}"
+                                VerticalAlignment="Center"/>
+                        <TextBlock Style="{StaticResource HintTextStyle}"
+                                   Margin="0,10,0,0"
+                                   TextWrapping="Wrap"
+                                   Text="How round every card is. Default 12 px — the tighter industrial look. 0 is a sharp rectangle. One slider restyles the whole app; you do not edit individual screens."/>
                     </StackPanel>
                 </Border>
 

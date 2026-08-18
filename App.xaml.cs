@@ -483,6 +483,10 @@ namespace ProGlassAutomation
             ProGlassAutomation.Services.ThemeManager.ApplyCardBorderThickness(
                 Config.Appearance?.CardBorderThickness ?? 1.5);
 
+            // 9h) Restore the persisted card corner radius (default 12).
+            ProGlassAutomation.Services.ThemeManager.ApplyCardCornerRadius(
+                Config.Appearance?.CardCornerRadius ?? 12);
+
             AuditService.Log(
                 AuditSections.App, "App started",
                 $"Motion tier {PerformanceProfileService.TargetFps} fps");

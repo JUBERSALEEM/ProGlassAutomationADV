@@ -108,6 +108,10 @@ namespace ProGlassAutomation.Services
             // saved value after every theme swap.
             ReapplyCardBorderThickness();
 
+            // Same for card corner radius — theme files ship 12/10/16
+            // defaults, then the user's saved radius wins.
+            ReapplyCardCornerRadius();
+
             ThemeChanged?.Invoke(null, EventArgs.Empty);
         }
 
@@ -472,6 +476,42 @@ namespace ProGlassAutomation.Services
         /// </summary>
         public static void ReapplyCardBorderThickness()
             => ApplyCardBorderThickness(_cardBorderThickness);
+
+        private static double _cardCornerRadius = 12;
+
+        /// <summary>Current global card corner radius in DIPs.</summary>
+        public static double CardCornerRadius => _cardCornerRadius;
+
+        /// <summary>
+        /// Applies one corner radius to every card / panel via the shared
+        /// CardCornerRadius theme resource. Also derives:
+        ///   ControlCornerRadius     = max(4, radius − 2)  inputs, chips
+        ///   CardCornerRadiusLarge   = radius + 4          dialogs, heroes
+        /// PillCornerRadius stays 999 (full pill). Views already bind these
+        /// tokens, so one slider restyles the whole app.
+        /// </summary>
+        public static void ApplyCardCornerRadius(double radius)
+        {
+            if (radius < 0.0) radius = 0.0;
+            if (radius > 28.0) radius = 28.0;
+            _cardCornerRadius = radius;
+
+            var resources = Application.Current?.Resources;
+            if (resources == null) return;
+
+            double control = Math.Max(4.0, radius - 2.0);
+            double large = radius + 4.0;
+
+            resources["CardCornerRadius"] = new CornerRadius(radius);
+            resources["ControlCornerRadius"] = new CornerRadius(control);
+            resources["CardCornerRadiusLarge"] = new CornerRadius(large);
+        }
+
+        /// <summary>
+        /// Re-applies the saved card corner radius after a theme swap.
+        /// </summary>
+        public static void ReapplyCardCornerRadius()
+            => ApplyCardCornerRadius(_cardCornerRadius);
 
         private static void FreezeAndSet(
             ResourceDictionary resources, string key, Color color)
