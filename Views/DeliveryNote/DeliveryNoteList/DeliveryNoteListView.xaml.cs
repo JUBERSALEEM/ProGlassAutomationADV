@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList;
+using ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList;
 using System;
 using System.Windows;
 using System.Windows.Controls;
@@ -112,28 +112,49 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
                 return;
             if (DataContext is not DeliveryNoteListViewModel vm) return;
 
-            var menu = new ContextMenu();
+            var menu = new ContextMenu
+            {
+                PlacementTarget = element,
+                Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint,
+                Style = (Style)FindResource("ModernContextMenuStyle")
+            };
 
             // ── Open latest DN ────────────────────────────────────────
             var openItem = new MenuItem
             {
-                Header = $"📂  Open latest DN ({group.LatestDnId})"
+                Header = $"📂  Open latest DN ({group.LatestDnId})",
+                FontWeight = FontWeights.SemiBold,
+                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Padding = new Thickness(8, 6, 20, 6)
             };
             openItem.Click += (_, __) =>
                 vm.OpenGroupCommand.Execute(group);
             menu.Items.Add(openItem);
 
-            menu.Items.Add(new Separator());
+            menu.Items.Add(new Separator
+            {
+                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+            });
 
             // ── Change Status submenu ─────────────────────────────────
-            var statusMenu = new MenuItem { Header = "🔄  Change Status" };
+            var statusMenu = new MenuItem
+            {
+                Header = "🔄  Change Status",
+                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Padding = new Thickness(8, 6, 20, 6)
+            };
             foreach (var status in new[]
             {
                 "Draft", "Dispatched", "Delivered", "Signed", "Received"
             })
             {
                 var s = status;
-                var statusItem = new MenuItem { Header = s };
+                var statusItem = new MenuItem
+                {
+                    Header = s,
+                    Style = (Style)FindResource("ModernCheckableMenuItemStyle"),
+                    Padding = new Thickness(8, 6, 20, 6)
+                };
                 statusItem.Click += async (_, __) =>
                 {
                     try
@@ -162,13 +183,18 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             }
             menu.Items.Add(statusMenu);
 
-            menu.Items.Add(new Separator());
+            menu.Items.Add(new Separator
+            {
+                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+            });
 
             // ── Generate Master Tax Invoice ───────────────────────────
             var masterInvItem = new MenuItem
             {
                 Header = "🧾  Generate Master Tax Invoice",
-                IsEnabled = group.AnyDelivered
+                IsEnabled = group.AnyDelivered,
+                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Padding = new Thickness(8, 6, 20, 6)
             };
             masterInvItem.Click += (_, __) =>
                 vm.GenerateMasterInvoiceCommand.Execute(group);
@@ -179,13 +205,18 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
             }
             menu.Items.Add(masterInvItem);
 
-            menu.Items.Add(new Separator());
+            menu.Items.Add(new Separator
+            {
+                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+            });
 
             // ── Delete latest DN ──────────────────────────────────────
             var deleteItem = new MenuItem
             {
                 Header = $"🗑  Delete latest DN ({group.LatestDnId})",
-                Foreground = Brushes.Firebrick
+                Foreground = Brushes.Firebrick,
+                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Padding = new Thickness(8, 6, 20, 6)
             };
             deleteItem.Click += (_, __) =>
             {
@@ -240,34 +271,65 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
                 return;
             if (DataContext is not DeliveryNoteListViewModel vm) return;
 
-            var menu = new ContextMenu();
+            var menu = new ContextMenu
+            {
+                PlacementTarget = element,
+                Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint,
+                Style = (Style)FindResource("ModernContextMenuStyle")
+            };
 
-            var openItem = new MenuItem { Header = "📂  Open" };
+            var openItem = new MenuItem
+            {
+                Header = "📂  Open Delivery Note",
+                FontWeight = FontWeights.SemiBold,
+                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Padding = new Thickness(8, 6, 20, 6)
+            };
             openItem.Click += (_, __) => vm.OpenCommand.Execute(row);
             menu.Items.Add(openItem);
 
-            menu.Items.Add(new Separator());
+            menu.Items.Add(new Separator
+            {
+                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+            });
 
-            var statusMenu = new MenuItem { Header = "🔄  Change Status" };
+            var statusMenu = new MenuItem
+            {
+                Header = "🔄  Change Status",
+                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Padding = new Thickness(8, 6, 20, 6)
+            };
             foreach (var status in new[]
             {
                 "Draft", "Dispatched", "Delivered", "Signed", "Received"
             })
             {
                 var s = status;
-                var statusItem = new MenuItem { Header = s };
+                var statusItem = new MenuItem
+                {
+                    Header = s,
+                    IsCheckable = true,
+                    IsChecked = string.Equals(row.Status, s, StringComparison.OrdinalIgnoreCase),
+                    Style = (Style)FindResource("ModernCheckableMenuItemStyle"),
+                    Padding = new Thickness(8, 6, 20, 6)
+                };
                 statusItem.Click += (_, __) =>
                     vm.ChangeStatusCommand.Execute((row, s));
                 statusMenu.Items.Add(statusItem);
             }
             menu.Items.Add(statusMenu);
 
-            menu.Items.Add(new Separator());
+            menu.Items.Add(new Separator
+            {
+                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+            });
 
             var deleteItem = new MenuItem
             {
-                Header = "🗑  Delete",
-                Foreground = Brushes.Firebrick
+                Header = "🗑  Delete Delivery Note",
+                Foreground = Brushes.Firebrick,
+                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Padding = new Thickness(8, 6, 20, 6)
             };
             deleteItem.Click += (_, __) => vm.DeleteCommand.Execute(row);
             menu.Items.Add(deleteItem);

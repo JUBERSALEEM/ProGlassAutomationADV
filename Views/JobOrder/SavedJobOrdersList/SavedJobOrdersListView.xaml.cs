@@ -35,33 +35,40 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
 
             var menu = new ContextMenu
             {
-                FontFamily = new System.Windows.Media.FontFamily("Segoe UI"),
-                FontSize = 12
+                PlacementTarget = element,
+                Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint,
+                Style = (Style)FindResource("ModernContextMenuStyle")
             };
 
             // Open
             var openItem = new MenuItem
             {
-                Header = "📂  Open",
+                Header = "📂  Open Job Order",
                 FontWeight = FontWeights.SemiBold,
-                Padding = new Thickness(4, 6, 20, 6)
+                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Padding = new Thickness(8, 6, 20, 6)
             };
             openItem.Click += (_, __) => vm.OpenJobOrderCommand.Execute(row);
             menu.Items.Add(openItem);
 
-            menu.Items.Add(new Separator());
+            menu.Items.Add(new Separator
+            {
+                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+            });
 
             // ── Export sub-menu (Phase 9.5a-r3) ─────────────────────
             var exportMenu = new MenuItem
             {
                 Header = "📤  Export",
-                Padding = new Thickness(4, 6, 20, 6)
+                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Padding = new Thickness(8, 6, 20, 6)
             };
 
             var exportPdfItem = new MenuItem
             {
                 Header = "📄  PDF — Production Sheet",
-                Padding = new Thickness(4, 4, 16, 4)
+                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Padding = new Thickness(8, 6, 20, 6)
             };
             exportPdfItem.Click += async (_, __) =>
             {
@@ -80,7 +87,8 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
             var exportExcelItem = new MenuItem
             {
                 Header = "📊  Excel — Multi-Sheet Workbook",
-                Padding = new Thickness(4, 4, 16, 4)
+                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Padding = new Thickness(8, 6, 20, 6)
             };
             exportExcelItem.Click += async (_, __) =>
             {
@@ -98,33 +106,38 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
 
             menu.Items.Add(exportMenu);
 
-            menu.Items.Add(new Separator());
+            menu.Items.Add(new Separator
+            {
+                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+            });
 
-            // Change Status sub-menu
+            // Change Status sub-menu — friendly labels mapping to the stored
+            // production statuses (which drive the production sheet + detail).
             var statusMenu = new MenuItem
             {
                 Header = "📊  Change Status",
-                Padding = new Thickness(4, 6, 20, 6)
+                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Padding = new Thickness(8, 6, 20, 6)
             };
-            // Status and priority go through the ViewModel commands so the
-            // update keeps the indexed column AND the embedded snapshot in
-            // sync (the detail view and production sheet read the snapshot),
-            // and so the error handling + audit trail live in one place.
-            // Same Tuple parameter convention as the Proforma Invoice list.
-            foreach (var status in new[] { "Draft", "Released", "InProduction", "Completed", "Delivered", "Rejected" })
+            foreach (var (stored, label) in new[]
             {
-                string label = status switch
-                {
-                    "InProduction" => "In Production",
-                    _ => status
-                };
+                ("Draft", "Draft"),
+                ("Released", "Released to Factory"),
+                ("InProduction", "In Production"),
+                ("Completed", "Completed"),
+                ("Delivered", "Delivered"),
+                ("Rejected", "Rejected")
+            })
+            {
                 statusMenu.Items.Add(new MenuItem
                 {
                     Header = label,
-                    IsChecked = string.Equals(row.StatusRaw, status, StringComparison.OrdinalIgnoreCase),
-                    Padding = new Thickness(4, 4, 16, 4),
+                    IsCheckable = true,
+                    IsChecked = string.Equals(row.StatusRaw, stored, StringComparison.OrdinalIgnoreCase),
+                    Style = (Style)FindResource("ModernCheckableMenuItemStyle"),
+                    Padding = new Thickness(8, 6, 20, 6),
                     Command = vm.ChangeStatusCommand,
-                    CommandParameter = Tuple.Create(row, status)
+                    CommandParameter = Tuple.Create(row, stored)
                 });
             }
             menu.Items.Add(statusMenu);
@@ -133,30 +146,37 @@ namespace ProGlassAutomation.Views.JobOrder.SavedJobOrdersList
             var priorityMenu = new MenuItem
             {
                 Header = "🏷️  Change Priority",
-                Padding = new Thickness(4, 6, 20, 6)
+                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Padding = new Thickness(8, 6, 20, 6)
             };
             foreach (var priority in new[] { "High", "Medium", "Low" })
             {
                 priorityMenu.Items.Add(new MenuItem
                 {
                     Header = priority,
+                    IsCheckable = true,
                     IsChecked = string.Equals(row.PriorityRaw, priority, StringComparison.OrdinalIgnoreCase),
-                    Padding = new Thickness(4, 4, 16, 4),
+                    Style = (Style)FindResource("ModernCheckableMenuItemStyle"),
+                    Padding = new Thickness(8, 6, 20, 6),
                     Command = vm.ChangePriorityCommand,
                     CommandParameter = Tuple.Create(row, priority)
                 });
             }
             menu.Items.Add(priorityMenu);
 
-            menu.Items.Add(new Separator());
+            menu.Items.Add(new Separator
+            {
+                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+            });
 
             // Delete
             var deleteItem = new MenuItem
             {
-                Header = "🗑️  Delete",
+                Header = "🗑️  Delete Job Order",
                 Foreground = new System.Windows.Media.SolidColorBrush(
                     System.Windows.Media.Color.FromRgb(0xEF, 0x44, 0x44)),
-                Padding = new Thickness(4, 6, 20, 6)
+                Style = (Style)FindResource("ModernMenuItemStyle"),
+                Padding = new Thickness(8, 6, 20, 6)
             };
             deleteItem.Click += (_, __) => vm.DeleteJobOrderCommand.Execute(row);
             menu.Items.Add(deleteItem);

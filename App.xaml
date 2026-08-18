@@ -31,6 +31,11 @@
                 <!-- Module tab strip + God View styles (DN/JO/TI tabs) -->
                 <ResourceDictionary Source="pack://application:,,,/Themes/Styles/ModuleTabStyles.xaml"/>
 
+                <!-- Modern rounded context-menu styles for every module's
+                     right-click menu (Proforma / Job Order / Delivery Note /
+                     Tax Invoice). -->
+                <ResourceDictionary Source="Styles/ContextMenuStyles.xaml"/>
+
                 <!-- Shared dashboard chrome for all 7 module dashboards.
                      Previously each dashboard declared its own local
                      SolidColorBrush resources with hardcoded hex (44 in

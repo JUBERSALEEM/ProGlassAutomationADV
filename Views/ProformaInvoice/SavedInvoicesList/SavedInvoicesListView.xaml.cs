@@ -47,35 +47,65 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
 
             var menu = new ContextMenu
             {
-                FontFamily = new System.Windows.Media.FontFamily("Segoe UI"),
-                FontSize = 12,
-
                 // BUG-87: anchor menu to the clicked row explicitly
                 PlacementTarget = element,
-                Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint
+                Placement = System.Windows.Controls.Primitives.PlacementMode.MousePoint,
+                Style = (Style)FindResource("ModernContextMenuStyle")
             };
 
-            menu.Items.Add(CreateMenuItem("📂  Open & Edit", vm.LoadInvoiceCommand, item, bold: true));
-            menu.Items.Add(CreateMenuItem("📋  Duplicate", vm.DuplicateInvoiceCommand, item));
-            menu.Items.Add(new Separator());
+            // ── Primary actions ──────────────────────────────────────────
+            menu.Items.Add(CreateMenuItem("📂  Open & Edit Invoice",
+                vm.LoadInvoiceCommand, item, bold: true));
+            menu.Items.Add(CreateMenuItem("📋  Duplicate Invoice",
+                vm.DuplicateInvoiceCommand, item));
 
-            menu.Items.Add(CreateMenuItem("📄  Export PDF", vm.ExportPdfFromListCommand, item));
-            menu.Items.Add(CreateMenuItem("📊  Export Excel", vm.ExportExcelFromListCommand, item));
-            menu.Items.Add(CreateMenuItem("📋  Export CSV", vm.ExportCsvFromListCommand, item));  // BUG-76 parity
-            menu.Items.Add(new Separator());
+            menu.Items.Add(new Separator
+            {
+                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+            });
 
-            // Change Status sub-menu
-            var statusMenu = new MenuItem { Header = "🔄  Change Status" };
-            statusMenu.Items.Add(CreateStatusItem("Draft", item, vm));
-            statusMenu.Items.Add(CreateStatusItem("Sent", item, vm));
-            statusMenu.Items.Add(CreateStatusItem("Approved", item, vm));
-            statusMenu.Items.Add(CreateStatusItem("Rejected", item, vm));
-            statusMenu.Items.Add(CreateStatusItem("Expired", item, vm));
+            // ── Export sub-menu ──────────────────────────────────────────
+            var exportMenu = new MenuItem
+            {
+                Header = "📤  Export",
+                Style = (Style)FindResource("ModernMenuItemStyle")
+            };
+            exportMenu.Items.Add(CreateMenuItem("PDF — Full Invoice",
+                vm.ExportPdfFromListCommand, item));
+            exportMenu.Items.Add(CreateMenuItem("Excel — Workbook",
+                vm.ExportExcelFromListCommand, item));
+            exportMenu.Items.Add(CreateMenuItem("CSV — Comma Separated",
+                vm.ExportCsvFromListCommand, item));
+            menu.Items.Add(exportMenu);
+
+            menu.Items.Add(new Separator
+            {
+                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+            });
+
+            // ── Change Status sub-menu ───────────────────────────────────
+            // Friendly business labels map onto the stored status values the
+            // ViewModel already understands (Approved still routes through the
+            // Step 8 approval flow; Rejected displays as "Cancelled").
+            var statusMenu = new MenuItem
+            {
+                Header = "🔄  Change Status",
+                Style = (Style)FindResource("ModernMenuItemStyle")
+            };
+            statusMenu.Items.Add(CreateStatusItem("PI Created", "Draft", item, vm));
+            statusMenu.Items.Add(CreateStatusItem("PI Sent", "Sent", item, vm));
+            statusMenu.Items.Add(CreateStatusItem("PI Confirmed", "Approved", item, vm));
+            statusMenu.Items.Add(CreateStatusItem("Cancelled", "Rejected", item, vm));
+            statusMenu.Items.Add(CreateStatusItem("Expired", "Expired", item, vm));
             menu.Items.Add(statusMenu);
 
-            menu.Items.Add(new Separator());
+            menu.Items.Add(new Separator
+            {
+                Style = (Style)FindResource("ModernMenuSeparatorStyle")
+            });
 
-            var deleteItem = CreateMenuItem("🗑  Delete", vm.DeleteInvoiceCommand, item);
+            var deleteItem = CreateMenuItem("🗑  Delete Invoice",
+                vm.DeleteInvoiceCommand, item);
             deleteItem.Foreground = new System.Windows.Media.SolidColorBrush(
                 System.Windows.Media.Color.FromRgb(0xEF, 0x44, 0x44));
             menu.Items.Add(deleteItem);
@@ -85,7 +115,7 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
             e.Handled = true;
         }
 
-        private static MenuItem CreateMenuItem(
+        private MenuItem CreateMenuItem(
             string header, ICommand command, object parameter, bool bold = false)
         {
             var item = new MenuItem
@@ -93,7 +123,8 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
                 Header = header,
                 Command = command,
                 CommandParameter = parameter,
-                Padding = new Thickness(4, 6, 20, 6)
+                Style = (Style)Application.Current.FindResource("ModernMenuItemStyle"),
+                Padding = new Thickness(8, 6, 20, 6)
             };
             if (bold) item.FontWeight = FontWeights.SemiBold;
             return item;
@@ -108,17 +139,21 @@ namespace ProGlassAutomation.Views.ProformaInvoice.SavedInvoicesList
         /// command's SafeFireAsync path.
         /// </summary>
         private MenuItem CreateStatusItem(
-            string status, SavedInvoiceListItem item, SavedInvoicesListViewModel vm)
+            string displayLabel, string storedStatus,
+            SavedInvoiceListItem item, SavedInvoicesListViewModel vm)
         {
             var menuItem = new MenuItem
             {
-                Header = status,
-                Tag = status,
-                Padding = new Thickness(4, 4, 20, 4),
+                Header = displayLabel,
+                Tag = storedStatus,
+                IsCheckable = true,
+                IsChecked = string.Equals(item.Status, storedStatus, StringComparison.OrdinalIgnoreCase),
+                Style = (Style)Application.Current.FindResource("ModernCheckableMenuItemStyle"),
+                Padding = new Thickness(8, 6, 20, 6),
 
                 // BUG-72: use command with Tuple parameter — VM handles errors
                 Command = vm.ChangeStatusCommand,
-                CommandParameter = Tuple.Create(item, status)
+                CommandParameter = Tuple.Create(item, storedStatus)
             };
 
             return menuItem;
