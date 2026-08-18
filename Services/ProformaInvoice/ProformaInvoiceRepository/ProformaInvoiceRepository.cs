@@ -262,6 +262,7 @@ namespace ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository
         {
             using var db = new ProformaInvoicesDbContext();
             return await db.ProformaInvoices
+                .AsNoTracking()
                 .OrderByDescending(x => x.CreatedAt)
                 .ToListAsync(cancellationToken);
         }

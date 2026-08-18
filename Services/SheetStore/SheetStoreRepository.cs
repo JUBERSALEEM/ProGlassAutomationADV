@@ -1,4 +1,4 @@
-﻿using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore;
 using ProGlassAutomation.Models.SheetStore;
 using ProGlassAutomation.Services.Database;
 using System;
@@ -19,6 +19,7 @@ namespace ProGlassAutomation.Services.SheetStore
         {
             using var db = new AppDbContext();
             return await db.GlassSheets
+                .AsNoTracking()
                 .OrderBy(g => g.Category)
                 .ThenBy(g => g.Color)
                 .ThenBy(g => g.ThicknessMm)
@@ -117,6 +118,7 @@ namespace ProGlassAutomation.Services.SheetStore
         {
             using var db = new AppDbContext();
             return await db.GlassSheets
+                .AsNoTracking()
                 .Select(g => g.Category)
                 .Distinct()
                 .OrderBy(c => c)
@@ -127,6 +129,7 @@ namespace ProGlassAutomation.Services.SheetStore
         {
             using var db = new AppDbContext();
             return await db.GlassSheets
+                .AsNoTracking()
                 .Select(g => g.Color)
                 .Distinct()
                 .OrderBy(c => c)
@@ -137,6 +140,7 @@ namespace ProGlassAutomation.Services.SheetStore
         {
             using var db = new AppDbContext();
             return await db.GlassSheets
+                .AsNoTracking()
                 .Select(g => g.Supplier)
                 .Distinct()
                 .OrderBy(s => s)
@@ -147,6 +151,7 @@ namespace ProGlassAutomation.Services.SheetStore
         {
             using var db = new AppDbContext();
             return await db.GlassSheets
+                .AsNoTracking()
                 .Select(g => g.ThicknessMm)
                 .Distinct()
                 .OrderBy(t => t)

@@ -34,6 +34,7 @@ namespace ProGlassAutomation.Services.JobOrder.Repository
         {
             using var db = new JobOrdersDbContext();
             return await db.JobOrders
+                .AsNoTracking()
                 .OrderByDescending(j => j.UpdatedAt)
                 .ToListAsync();
         }
