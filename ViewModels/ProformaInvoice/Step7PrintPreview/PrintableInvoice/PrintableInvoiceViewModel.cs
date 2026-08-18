@@ -964,9 +964,10 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step7PrintPreview.Printa
                 };
                 var rowGrid = MakeGridWithColumns(widths);
 
-                decimal unitArea = Math.Max(
-                    Math.Round((decimal)row.W1 * row.H1 / 1_000_000m, 3),
-                    0.5m);
+                // Phase 5: single authoritative panel SQM (round-3 + 0.5 floor).
+                decimal unitArea =
+                    ProGlassAutomation.Utilities.SqmCalculator.CalculatePanel(
+                        row.W1, row.H1);
                 decimal totalArea = Math.Round(unitArea * row.Qty, 3);
 
                 AddTableCell(rowGrid, 0, row.SerialNumber.ToString(), FontWeights.Normal, HorizontalAlignment.Center);

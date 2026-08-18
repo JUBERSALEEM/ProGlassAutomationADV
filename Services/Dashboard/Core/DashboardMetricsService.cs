@@ -114,7 +114,9 @@ namespace ProGlassAutomation.Services.Dashboard.Core
             // cannot be translated to SQL, so they are recomputed here
             // from the raw columns using the identical formulas.
             public int Balance => Stock - Used;
-            public decimal SqmPerSheet => (WidthMm * HeightMm) / 1_000_000m;
+            public decimal SqmPerSheet =>
+                ProGlassAutomation.Utilities.SqmCalculator.CalculateSheetArea(
+                    WidthMm, HeightMm);
             public decimal BalanceValue => SqmPerSheet * Balance * SellPricePerSqm;
             public decimal BalanceCost => SqmPerSheet * Balance * PurchasePricePerSqm;
             public decimal SqmBalance => SqmPerSheet * Balance;

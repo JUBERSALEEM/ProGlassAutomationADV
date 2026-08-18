@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -59,7 +59,9 @@ namespace ProGlassAutomation.Models.SheetStore
 
         /// <summary>Area of one sheet in square meters. E.g., 3210×2250 = 7.2225 SQM</summary>
         [NotMapped]
-        public decimal SqmPerSheet => (WidthMm * HeightMm) / 1_000_000m;
+        public decimal SqmPerSheet =>
+            ProGlassAutomation.Utilities.SqmCalculator.CalculateSheetArea(
+                WidthMm, HeightMm);
 
         /// <summary>Alias for backward compatibility.</summary>
         [NotMapped]

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace ProGlassAutomation.Utilities
 {
@@ -45,6 +45,20 @@ namespace ProGlassAutomation.Utilities
         {
             if (quantity <= 0) return 0m;
             return Math.Round(CalculatePanel(widthMm, heightMm) * quantity, 3);
+        }
+
+        /// <summary>
+        /// Calculate the PHYSICAL area of a stock sheet in square meters
+        /// (Width mm × Height mm / 1,000,000). Unlike panel SQM, a stock
+        /// sheet has NO billable minimum floor — it is the raw physical
+        /// area used for inventory value/cost. Rounded to 4 decimal places
+        /// (matches the existing sheet-store convention). Returns 0 for
+        /// invalid dimensions.
+        /// </summary>
+        public static decimal CalculateSheetArea(int widthMm, int heightMm)
+        {
+            if (widthMm <= 0 || heightMm <= 0) return 0m;
+            return Math.Round((decimal)widthMm * heightMm / 1_000_000m, 4);
         }
     }
 }
