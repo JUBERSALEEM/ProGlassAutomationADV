@@ -19,7 +19,8 @@
 | 6 — Production/Optimization | Marked placeholders honestly (sidebar "Coming soon" tooltips); `ComingSoonView` already clear | `cb0c12d` | ✅ |
 | 7 — Error/observability (P2) | Converted Release-invisible `Debug.WriteLine` failures to `AppLogService` (MasterData, Statement, AiMemory) | `c0c0612` | ✅ |
 | 8 — Design system (P2) | Added shared `InputStyles.xaml` (TextBox/PasswordBox/ComboBox), registered globally | `b5c0302` | ✅ |
-| 15 — Testing | Added `SqmCalculatorTests` + `StatusTransitionsTests` | `4d617ee`, `ee0bdf9` | ✅ (run pending) |
+| 14 — Orphan protection | Added `DependencyGuard` (cross-DB delete guards for PI/JO/DN), wired into delete flows | `8216476` | ✅ (build pending) |
+| 15 — Testing | Added `SqmCalculatorTests`, `StatusTransitionsTests`, `TaxInvoiceDnReconcilerTests` | `4d617ee`, `ee0bdf9`, `…` | ✅ (run pending) |
 
 ---
 
@@ -73,11 +74,10 @@ The following phases/parts are **behavior-changing or UI-heavy** and must be **b
 
 | Phase | Deferred item | Why |
 |---|---|---|
-| 9 — UI/UX pass | Restyle ~30 views to the design system; fix spacing/DPI | Requires runtime rendering (Windows) to verify; no build here. High regression risk. |
+| 9 — UI/UX pass | Restyle ~30 views to the design system; fix spacing/DPI | Requires runtime rendering (Windows) to verify; no build here. High regression risk. (Empty-state already shared across 7 list views.) |
 | 10 — Performance | Push `GetAllAsync` filtering/sorting/paging into SQL | Changes query behavior across 31 callers; must be measured + tested on real DBs. |
 | 11/12 — Architecture/code-behind | Split God ViewModels; move code-behind business logic | Large refactors with zero behavioral margin; must be build-verified incrementally. |
 | 13 — Security | Force first-run password change; login lockout persistence | Breaks existing installs / changes auth UX; needs a migration strategy + sign-off (the DPAPI key storage is already sound). |
-| 14 — Orphan protection | Block PI/JO/DN/TI deletes that have dependents | Changes delete behaviour; must be tested against real business history and signed off (the prompt: "do not guess"). |
 | 15 — Testing | Run the full suite | Requires `dotnet test` (Windows). Tests added; execution pending. |
 | 16–20 — Final QA / re-audit / release verdict | Full second audit + Release build | Requires a working build + runtime. Cannot be honestly claimed from this sandbox. |
 
