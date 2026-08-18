@@ -726,6 +726,21 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     return;   // ApproveAsync forwards to Step 8
                 }
 
+                // Phase 3: enforce centralized status-transition rules at the
+                // business boundary.
+                var transition = ProGlassAutomation.Services.Workflow.StatusTransitions
+                    .Validate(
+                        ProGlassAutomation.Services.Workflow.StatusTransitions
+                            .Kind.ProformaInvoice,
+                        entity.Status, newStatus);
+                if (!transition.IsValid)
+                {
+                    MessageBox.Show(transition.Reason ?? "Invalid status change.",
+                        "Status Change Not Allowed",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
                 entity.Status = newStatus;
                 await App.Invoices.UpdateAsync(entity);
                 await LoadInvoicesAsync();

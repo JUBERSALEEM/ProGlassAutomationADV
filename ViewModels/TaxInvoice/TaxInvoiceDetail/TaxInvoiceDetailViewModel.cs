@@ -2101,6 +2101,18 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
         private async Task ChangeStatusAndSaveAsync(string newStatus)
         {
+            // Phase 3: enforce centralized status-transition rules at the
+            // business boundary.
+            var transition = ProGlassAutomation.Services.Workflow.StatusTransitions
+                .Validate(
+                    ProGlassAutomation.Services.Workflow.StatusTransitions.Kind.TaxInvoice,
+                    _status, newStatus);
+            if (!transition.IsValid)
+            {
+                StatusMessage = transition.Reason ?? "Invalid status change.";
+                return;
+            }
+
             Status = newStatus;
             await SaveAsync();
         }

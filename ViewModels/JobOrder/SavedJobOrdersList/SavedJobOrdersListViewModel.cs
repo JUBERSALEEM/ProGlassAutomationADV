@@ -605,6 +605,20 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
                 var entity = await App.Jobs.GetByIdAsync(row.Id);
                 if (entity == null) return;
 
+                // Phase 3: enforce the centralized status-transition rules at
+                // the business boundary (not just hiding it in the UI).
+                var transition = ProGlassAutomation.Services.Workflow.StatusTransitions
+                    .Validate(
+                        ProGlassAutomation.Services.Workflow.StatusTransitions.Kind.JobOrder,
+                        entity.Status, newStatus);
+                if (!transition.IsValid)
+                {
+                    MessageBox.Show(transition.Reason ?? "Invalid status change.",
+                        "Status Change Not Allowed",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
                 entity.Status = newStatus;
                 entity.UpdatedAt = DateTime.Now;
 

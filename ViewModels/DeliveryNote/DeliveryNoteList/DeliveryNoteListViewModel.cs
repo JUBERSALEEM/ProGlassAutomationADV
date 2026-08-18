@@ -986,6 +986,20 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteList
                 var entity = await App.DeliveryNotes!.GetByIdAsync(row.Id);
                 if (entity == null) return;
 
+                // Phase 3: enforce centralized status-transition rules at the
+                // business boundary.
+                var transition = ProGlassAutomation.Services.Workflow.StatusTransitions
+                    .Validate(
+                        ProGlassAutomation.Services.Workflow.StatusTransitions.Kind.DeliveryNote,
+                        entity.Status, newStatus);
+                if (!transition.IsValid)
+                {
+                    MessageBox.Show(transition.Reason ?? "Invalid status change.",
+                        "Status Change Not Allowed",
+                        MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+
                 entity.Status = newStatus;
                 entity.UpdatedAt = DateTime.Now;
                 await App.DeliveryNotes.UpdateAsync(entity);

@@ -165,6 +165,21 @@ namespace ProGlassAutomation.Views.DeliveryNote.DeliveryNoteList
                             .GetByIdAsync(group.LatestDnDbId);
                         if (latestDn == null) return;
 
+                        // Phase 3: enforce centralized status-transition rules.
+                        var transition = ProGlassAutomation.Services.Workflow
+                            .StatusTransitions.Validate(
+                                ProGlassAutomation.Services.Workflow
+                                    .StatusTransitions.Kind.DeliveryNote,
+                                latestDn.Status, s);
+                        if (!transition.IsValid)
+                        {
+                            MessageBox.Show(
+                                transition.Reason ?? "Invalid status change.",
+                                "Status Change Not Allowed",
+                                MessageBoxButton.OK, MessageBoxImage.Warning);
+                            return;
+                        }
+
                         latestDn.Status = s;
                         latestDn.UpdatedAt = DateTime.Now;
                         await App.DeliveryNotes.UpdateAsync(latestDn);
