@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Dashboard/PiDashboardViewModel.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Proforma Invoice Dashboard (Chat 23 v2.2)
@@ -71,6 +71,13 @@ namespace ProGlassAutomation.ViewModels.Dashboard
         {
             get => _statusBars;
             private set { if (_statusBars == value) return; _statusBars = value; OnPropertyChanged(); }
+        }
+
+        private ObservableCollection<ChartSliceModel> _statusMix = new();
+        public ObservableCollection<ChartSliceModel> StatusMixSlices
+        {
+            get => _statusMix;
+            private set { _statusMix = value; OnPropertyChanged(); }
         }
 
         // ── top customer bars ─────────────────────────────────────────────
@@ -233,6 +240,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     IsHighlight = idx == 0
                 }));
 
+            StatusMixSlices = DashboardChartAdapter.FromBars(StatusBars);
             HasChartData = invoices.Any();
         }
 

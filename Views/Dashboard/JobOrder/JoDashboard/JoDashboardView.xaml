@@ -1,4 +1,4 @@
-﻿<!-- ════════════════════════════════════════════════════════════════════
+<!-- ════════════════════════════════════════════════════════════════════
      FILE: Views/Dashboard/JobOrder/JoDashboard/JoDashboardView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Job Order Dashboard
@@ -35,6 +35,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:trend="clr-namespace:ProGlassAutomation.Controls.TrendChart"
+             xmlns:donut="clr-namespace:ProGlassAutomation.Controls.DonutChart"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -192,9 +193,9 @@
                             Style="{StaticResource SoftSectionStyle}"
                             Margin="10,0,0,20">
                         <StackPanel>
-                            <TextBlock Text="Priority Breakdown"
+                            <TextBlock Text="Status mix"
                                        Style="{StaticResource SoftSectionTitleStyle}"/>
-                            <TextBlock Text="Job orders grouped by assigned priority"
+                            <TextBlock Text="Shared donut — same control every dashboard uses"
                                        Style="{StaticResource SoftSectionSubtitleStyle}"/>
 
                             <Grid>

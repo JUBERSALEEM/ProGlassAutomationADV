@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Dashboard/TaxInvoice/TiDashboard/TiDashboardViewModel.cs
 // PROJECT: ProGlassAutomation
 // NAMESPACE: ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard
@@ -192,6 +192,13 @@ namespace ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard
             }
         }
 
+        private ObservableCollection<ChartSliceModel> _agingMix = new();
+        public ObservableCollection<ChartSliceModel> AgingMixSlices
+        {
+            get => _agingMix;
+            private set { _agingMix = value; OnPropertyChanged(); }
+        }
+
         private bool _hasAgingData;
         public bool HasAgingData
         {
@@ -362,6 +369,14 @@ namespace ProGlassAutomation.ViewModels.Dashboard.TaxInvoice.TiDashboard
             NormalizeAgingWidths(aging);
             AgingBrackets = new ObservableCollection<AgingBracket>(aging);
             HasAgingData = aging.Any(b => b.InvoiceCount > 0);
+            AgingMixSlices = new ObservableCollection<ChartSliceModel>(
+                aging.Select((b, i) => new ChartSliceModel
+                {
+                    Label = b.Label,
+                    RawValue = b.Amount,
+                    ValueDisplay = b.AmountDisplay,
+                    Accent = i switch { 0 => "Green", 1 => "Amber", 2 => "Red", _ => "Blue" }
+                }));
 
             // ── 5. Top customers — normalize bar widths ───────────────────
             NormalizeCustomerWidths(customers);

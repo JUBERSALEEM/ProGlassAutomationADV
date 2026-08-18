@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Dashboard/SheetStoreDashboardViewModel.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Sheet Store Dashboard (Chat 23 v2.1)
@@ -68,6 +68,13 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                 _categoryBars = value;
                 OnPropertyChanged();
             }
+        }
+
+        private ObservableCollection<ChartSliceModel> _categoryMix = new();
+        public ObservableCollection<ChartSliceModel> CategoryMixSlices
+        {
+            get => _categoryMix;
+            private set { _categoryMix = value; OnPropertyChanged(); }
         }
 
         private bool _hasChartData;
@@ -180,6 +187,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard
                     IsHighlight = g.SqmBalance == maxSqm
                 }));
 
+            CategoryMixSlices = DashboardChartAdapter.FromBars(CategoryBars);
             HasChartData = grouped.Any();
         }
 

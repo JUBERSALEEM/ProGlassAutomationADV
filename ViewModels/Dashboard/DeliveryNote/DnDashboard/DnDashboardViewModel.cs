@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: ViewModels/Dashboard/DeliveryNote/DnDashboard/DnDashboardViewModel.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Delivery Note Dashboard (Chat 23 v2.5)
@@ -25,6 +25,7 @@
 
 using ProGlassAutomation.Models.Dashboard;
 using ProGlassAutomation.Models.DeliveryNote.SavedDeliveryNote;
+using ProGlassAutomation.ViewModels.Dashboard;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -101,6 +102,13 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
                 _typeBarsCol = value;
                 OnPropertyChanged();
             }
+        }
+
+        private ObservableCollection<ChartSliceModel> _statusMix = new();
+        public ObservableCollection<ChartSliceModel> StatusMixSlices
+        {
+            get => _statusMix;
+            private set { _statusMix = value; OnPropertyChanged(); }
         }
 
         // ── Recent feed ──────────────────────────────────────────────
@@ -319,6 +327,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
             KpiCards = new ObservableCollection<KpiCardModel>(_kpiCards);
             StatusBars = new ObservableCollection<ChartBarModel>(_statusBars);
             TypeBars = new ObservableCollection<ChartBarModel>(_typeBars);
+            StatusMixSlices = DashboardChartAdapter.FromBars(_statusBars);
             RecentFeed = new ObservableCollection<ActivityFeedItem>(_recentFeed);
 
             HasStatusData = total > 0;
@@ -332,6 +341,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.DeliveryNote.DnDashboard
             KpiCards = new ObservableCollection<KpiCardModel>(_kpiCards);
             StatusBars = new ObservableCollection<ChartBarModel>(_statusBars);
             TypeBars = new ObservableCollection<ChartBarModel>(_typeBars);
+            StatusMixSlices = DashboardChartAdapter.FromBars(_statusBars);
             RecentFeed = new ObservableCollection<ActivityFeedItem>(_recentFeed);
         }
 

@@ -69,6 +69,9 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
         public bool HasOverdue => _overdueAmount > 0;
         public bool HasStatements => _totalStatements > 0;
 
+        public ObservableCollection<ProGlassAutomation.Models.Dashboard.ChartSliceModel> BalanceMixSlices { get; }
+            = new();
+
         /// <summary>
         /// True only after first load completes with zero statements.
         /// Uses base.IsLoading to avoid conflict with DashboardPageBase.
@@ -127,6 +130,7 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
                     _totalOutstanding = 0m;
                     _overdueAmount = 0m;
                     _isLoaded = true;
+                    RebuildBalanceMix();
                     OnPropertyChanged(string.Empty);
                 });
                 return;
@@ -175,9 +179,37 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
                 _totalOutstanding = totalOut;
                 _overdueAmount = totalOverdue;
                 _isLoaded = true;
+                RebuildBalanceMix();
 
                 // Batch notification — single fire
                 OnPropertyChanged(string.Empty);
+            });
+        }
+
+        private void RebuildBalanceMix()
+        {
+            decimal collected = Math.Max(0m, _totalInvoiced - _totalOutstanding);
+            BalanceMixSlices.Clear();
+            BalanceMixSlices.Add(new ProGlassAutomation.Models.Dashboard.ChartSliceModel
+            {
+                Label = "Collected",
+                RawValue = collected,
+                ValueDisplay = $"AED {collected:N0}",
+                Accent = "Green"
+            });
+            BalanceMixSlices.Add(new ProGlassAutomation.Models.Dashboard.ChartSliceModel
+            {
+                Label = "Outstanding",
+                RawValue = Math.Max(0m, _totalOutstanding - _overdueAmount),
+                ValueDisplay = TotalOutstandingDisplay,
+                Accent = "Amber"
+            });
+            BalanceMixSlices.Add(new ProGlassAutomation.Models.Dashboard.ChartSliceModel
+            {
+                Label = "Overdue",
+                RawValue = _overdueAmount,
+                ValueDisplay = OverdueAmountDisplay,
+                Accent = "Red"
             });
         }
     }

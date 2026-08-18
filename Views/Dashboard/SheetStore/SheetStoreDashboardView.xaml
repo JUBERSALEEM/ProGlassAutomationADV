@@ -1,4 +1,4 @@
-﻿<!-- ════════════════════════════════════════════════════════════════════
+<!-- ════════════════════════════════════════════════════════════════════
      FILE: Views/Dashboard/SheetStore/SheetStoreDashboardView.xaml
      PROJECT: ProGlassAutomation
      MODULE: Sheet Store Dashboard
@@ -34,6 +34,7 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:behaviors="clr-namespace:ProGlassAutomation.Behaviors"
              xmlns:trend="clr-namespace:ProGlassAutomation.Controls.TrendChart"
+             xmlns:donut="clr-namespace:ProGlassAutomation.Controls.DonutChart"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
@@ -141,12 +142,13 @@
                 <!-- CHART ROW -->
                 <Grid>
                     <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="2*"/>
                         <ColumnDefinition Width="*"/>
                     </Grid.ColumnDefinitions>
 
                     <Border Grid.Column="0"
                             Style="{StaticResource SoftSectionStyle}"
-                            Margin="0,0,0,20">
+                            Margin="0,0,10,20">
                         <StackPanel>
                             <TextBlock Text="Available SQM by Category"
                                        Style="{StaticResource SoftSectionTitleStyle}"/>
@@ -183,6 +185,25 @@
                                        Style="{StaticResource SoftMetaStyle}"
                                        HorizontalAlignment="Right"
                                        Margin="0,12,2,0"/>
+                        </StackPanel>
+                    </Border>
+
+                    <Border Grid.Column="1"
+                            Style="{StaticResource SoftSectionStyle}"
+                            Margin="10,0,0,20">
+                        <StackPanel>
+                            <TextBlock Text="Category mix"
+                                       Style="{StaticResource SoftSectionTitleStyle}"/>
+                            <TextBlock Text="Shared donut — theme-safe slices"
+                                       Style="{StaticResource SoftSectionSubtitleStyle}"/>
+                            <Border Style="{StaticResource SoftChartWellStyle}">
+                                <donut:DonutChartControl
+                                    Height="200"
+                                    Slices="{Binding CategoryMixSlices}"
+                                    HoleLabel="SQM"
+                                    EmptyMessage="No stock mix yet."
+                                    Thickness="20"/>
+                            </Border>
                         </StackPanel>
                     </Border>
                 </Grid>
