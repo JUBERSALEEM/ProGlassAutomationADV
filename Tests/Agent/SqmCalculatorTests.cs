@@ -64,6 +64,28 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Equal(0m, SqmCalculator.CalculateSheetArea(w, h));
         }
 
+        // ── Physical panel area (no floor) ────────────────────────────────
+
+        [Fact]
+        public void CalculatePhysicalPanelArea_no_floor_and_not_rounded()
+        {
+            // 1000×1000 → 1.0 exactly
+            Assert.Equal(1.0m, SqmCalculator.CalculatePhysicalPanelArea(1000, 1000));
+            // 3210×2250 → 7.2225 (kept exact, not rounded)
+            Assert.Equal(7.2225m, SqmCalculator.CalculatePhysicalPanelArea(3210, 2250));
+            // 600×400 → 0.24 (below 0.5 - NO floor for physical area)
+            Assert.Equal(0.24m, SqmCalculator.CalculatePhysicalPanelArea(600, 400));
+        }
+
+        [Theory]
+        [InlineData(0, 500)]
+        [InlineData(-100, 500)]
+        [InlineData(0, 0)]
+        public void CalculatePhysicalPanelArea_invalid_dimensions_return_zero(int w, int h)
+        {
+            Assert.Equal(0m, SqmCalculator.CalculatePhysicalPanelArea(w, h));
+        }
+
         // ── Total ─────────────────────────────────────────────────────────
 
         [Fact]

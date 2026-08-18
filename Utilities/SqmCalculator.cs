@@ -60,5 +60,20 @@ namespace ProGlassAutomation.Utilities
             if (widthMm <= 0 || heightMm <= 0) return 0m;
             return Math.Round((decimal)widthMm * heightMm / 1_000_000m, 4);
         }
+
+        /// <summary>
+        /// Physical area of ONE panel face in square meters, with NO billable
+        /// minimum floor (Width mm × Height mm / 1,000,000). Used for
+        /// cut-area aggregates (e.g. Step 9 profit &amp; loss) where the true
+        /// material area is required, not the billed 0.5 m² floor.
+        /// Returns 0 for invalid dimensions. Callers sum this over panels as
+        /// needed; this returns the single-face value (not rounded) so an
+        /// aggregate stays exact before any final rounding.
+        /// </summary>
+        public static decimal CalculatePhysicalPanelArea(int widthMm, int heightMm)
+        {
+            if (widthMm <= 0 || heightMm <= 0) return 0m;
+            return (decimal)widthMm * heightMm / 1_000_000m;
+        }
     }
 }

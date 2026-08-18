@@ -1711,10 +1711,15 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step9ProfitLoss
                 int qty = row.Qty > 0 ? row.Qty : 0;
                 if (qty == 0) continue;
 
-                decimal area = (row.W1 * (decimal)row.H1) / 1_000_000m;
+                // Phase 5/11: single authoritative physical panel area (no
+                // billable floor) from SqmCalculator - identical formula.
+                decimal area =
+                    ProGlassAutomation.Utilities.SqmCalculator
+                        .CalculatePhysicalPanelArea(row.W1, row.H1);
 
                 if (row.W2 > 0 && row.H2 > 0)
-                    area += (row.W2 * (decimal)row.H2) / 1_000_000m;
+                    area += ProGlassAutomation.Utilities.SqmCalculator
+                        .CalculatePhysicalPanelArea(row.W2, row.H2);
 
                 cutSqm += area * qty;
 
