@@ -22,7 +22,7 @@
 
         <StackPanel Grid.Row="0" Margin="32,26,32,14">
             <TextBlock Text="Demo Center" Style="{StaticResource PageTitleStyle}"/>
-            <TextBlock Text="Records the live Proforma Invoice wizard into a verified MP4. Isolated demo database. Missing MP4 is a failed job."
+            <TextBlock Text="Walks the live Proforma Invoice wizard — list, new invoice, company, client, project, grid, preview, save — then records a verified MP4. A screen change alone is not a demo."
                        Style="{StaticResource PageSubtitleStyle}"
                        TextWrapping="Wrap"/>
         </StackPanel>

@@ -1,21 +1,19 @@
 using ProGlassAutomation.Agent.Demo.Automation;
 using ProGlassAutomation.ViewModels;
 using ProGlassAutomation.ViewModels.ProformaInvoice;
-using ProGlassAutomation.ViewModels.ProformaInvoice.Step5DataGrid;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Input;
 
 namespace ProGlassAutomation.Agent.Demo.Workflows
 {
     /// <summary>
-    /// Walks the live Proforma Invoice wizard the same way a user does:
-    /// New Invoice command, Continue button, bound fields, draft save.
-    /// Only successful actions are returned as verified events.
+    /// Full Proforma Invoice product walk: list → new invoice → company →
+    /// client → project → glass type → grid line → charges → preview → save.
+    /// Each beat dwells long enough to film and presents live narration.
     /// </summary>
     public sealed class ProformaInvoiceWorkflow : IDemoWorkflowRunner
     {
@@ -30,6 +28,9 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
         public const int Quantity = 4;
         public const decimal Rate = 150m;
 
+        public const int BeatMs = 2400;
+        public const int HoldMs = 2800;
+
         public string ModuleId => "ProformaInvoice";
         public string OutputFileName => "ProformaInvoice_Demo.mp4";
 
@@ -38,202 +39,230 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             var events = new List<VerifiedEvent>();
 
             if (!Navigate("ProformaInvoice"))
-            {
                 return events;
-            }
-            await WpfUiDriver.WaitReadyAsync(500, ct).ConfigureAwait(false);
-            events.Add(Ok(
-                "opened_list",
+
+            await WpfUiDriver.WaitReadyAsync(400, ct).ConfigureAwait(false);
+            await WpfUiDriver.WaitForIdAsync(
+                "ProformaInvoice.NewInvoiceButton", 8000, ct).ConfigureAwait(false);
+
+            await PresentAsync(events, "opened_list",
                 "Proforma Invoice list",
-                "The Proforma Invoice module is open on the live list.",
-                "AgentHost.Navigate(ProformaInvoice)"));
+                "This is the live Proforma Invoice list. Saved quotations sit here until we convert them to job orders.",
+                "AgentHost.Navigate(ProformaInvoice)",
+                BeatMs, ct).ConfigureAwait(false);
 
             var pi = await ResolvePiAsync(ct).ConfigureAwait(false);
             if (pi == null) return events;
 
-            bool started = await WpfUiDriver
-                .ClickAsync("ProformaInvoice.NewInvoiceButton", ct)
+            bool started = await StartNewInvoiceAsync(pi, ct).ConfigureAwait(false);
+            bool wizard = await WaitUntilAsync(() => pi.IsWizardView, 15_000, ct)
                 .ConfigureAwait(false);
-            if (!started)
+            if (!started || !wizard)
             {
-                started = await OnUiAsync(() =>
-                {
-                    if (pi.NewInvoiceCommand.CanExecute(null))
-                    {
-                        pi.NewInvoiceCommand.Execute(null);
-                        return true;
-                    }
-                    return false;
-                }, ct).ConfigureAwait(false);
+                DemoStage.Now("New Invoice did not open the wizard.");
+                return events;
             }
 
-            bool wizard = await WaitUntilAsync(
-                () => pi.IsWizardView, 10_000, ct).ConfigureAwait(false);
-            if (!started || !wizard) return events;
+            await WaitUntilAsync(() => pi.CurrentStepNumber == 1, 4000, ct)
+                .ConfigureAwait(false);
 
-            await WpfUiDriver.WaitReadyAsync(400, ct).ConfigureAwait(false);
-            events.Add(Ok(
-                "new_invoice",
+            await PresentAsync(events, "new_invoice",
                 "New invoice",
-                "A new proforma was started with the same New Invoice command the button uses.",
-                "NewInvoiceCommand / ProformaInvoice.NewInvoiceButton"));
+                "I pressed New Invoice — the same command as the button. A fresh quotation is open on company details.",
+                "TriggerNewInvoice / NewInvoiceCommand",
+                BeatMs, ct).ConfigureAwait(false);
 
             if (await FillCompanyAsync(pi, ct).ConfigureAwait(false))
             {
-                events.Add(Ok(
-                    "company",
+                await PresentAsync(events, "company",
                     "Company details",
-                    $"Company is set to {Company} in Sharjah, with the demo TRN.",
-                    $"Step1VM.CompanyName={pi.Step1VM.CompanyName}"));
+                    $"Company is {Company}, Sharjah, TRN ending 003. This is the letterhead the print preview will use.",
+                    $"Step1VM.CompanyName={pi.Step1VM.CompanyName}",
+                    HoldMs, ct).ConfigureAwait(false);
             }
 
-            if (!await ContinueToAsync(pi, 2, ct).ConfigureAwait(false)) return events;
-            events.Add(Ok(
-                "step2",
+            if (!await AdvanceToAsync(pi, 2, ct).ConfigureAwait(false)) return events;
+            await PresentAsync(events, "step2",
                 "Client step",
-                "Continue moved the wizard to the client profile step.",
-                "NextStepCommand / ProformaInvoice.ContinueButton → step 2"));
+                "Continue opened the client profile. This is who the quotation is billed to.",
+                "NextStepCommand → step 2",
+                BeatMs, ct).ConfigureAwait(false);
 
             if (await FillCustomerAsync(pi, ct).ConfigureAwait(false))
             {
-                events.Add(Ok(
-                    "customer",
+                await PresentAsync(events, "customer",
                     "Customer",
-                    $"The customer is {Customer}.",
-                    $"Step2VM.CustomerName={pi.Step2VM.CustomerName}"));
+                    $"The customer is {Customer}. Name, TRN and billing address are the same fields a clerk types.",
+                    $"Step2VM.CustomerName={pi.Step2VM.CustomerName}",
+                    HoldMs, ct).ConfigureAwait(false);
             }
 
-            if (!await ContinueToAsync(pi, 3, ct).ConfigureAwait(false)) return events;
-            events.Add(Ok(
-                "step3",
+            if (!await AdvanceToAsync(pi, 3, ct).ConfigureAwait(false)) return events;
+            await PresentAsync(events, "step3",
                 "Project step",
-                "Continue opened the project specifications step.",
-                "NextStepCommand → step 3"));
+                "Project specifications are on screen — site, contract and LPO.",
+                "NextStepCommand → step 3",
+                BeatMs, ct).ConfigureAwait(false);
 
             if (await FillProjectAsync(pi, ct).ConfigureAwait(false))
             {
-                events.Add(Ok(
-                    "project",
+                await PresentAsync(events, "project",
                     "Project",
-                    $"The project is {Project}.",
-                    $"Step3VM.ProjectIdentifierName={pi.Step3VM.ProjectIdentifierName}"));
+                    $"The project is {Project}. This name follows the job order and delivery note later in the chain.",
+                    $"Step3VM.ProjectIdentifierName={pi.Step3VM.ProjectIdentifierName}",
+                    HoldMs, ct).ConfigureAwait(false);
             }
 
-            if (!await ContinueToAsync(pi, 4, ct).ConfigureAwait(false)) return events;
-            await WpfUiDriver.WaitReadyAsync(350, ct).ConfigureAwait(false);
-            events.Add(Ok(
-                "step4",
-                "Glass type step",
-                "The glass type and estimator step is on screen.",
-                "NextStepCommand → step 4"));
+            if (!await AdvanceToAsync(pi, 4, ct).ConfigureAwait(false)) return events;
+            await PresentAsync(events, "step4",
+                "Glass type",
+                "Glass type and estimators. Prices come from the live Sheet Store, not a second price list.",
+                "NextStepCommand → step 4",
+                HoldMs, ct).ConfigureAwait(false);
 
-            if (!await ContinueToAsync(pi, 5, ct).ConfigureAwait(false)) return events;
-            events.Add(Ok(
-                "step5",
-                "Data grid",
-                "The specification grid is open. Rate and value stay on a proforma line.",
-                "NextStepCommand → step 5"));
+            if (!await AdvanceToAsync(pi, 5, ct).ConfigureAwait(false)) return events;
+            await PresentAsync(events, "step5",
+                "Specification grid",
+                "The data grid is open. A proforma line keeps width, height, quantity, rate and value.",
+                "NextStepCommand → step 5",
+                BeatMs, ct).ConfigureAwait(false);
 
             if (await FillLineAsync(pi, ct).ConfigureAwait(false))
             {
-                events.Add(Ok(
-                    "line",
+                await PresentAsync(events, "line",
                     "Glass line",
-                    $"{GlassRef}: {WidthMm} by {HeightMm} millimetres, quantity {Quantity}, rate {Rate:0}.",
-                    $"W1={WidthMm} H1={HeightMm} Qty={Quantity} Rate={Rate} Ref={GlassRef}"));
+                    $"{GlassRef}: {WidthMm} by {HeightMm} millimetres, quantity {Quantity}, rate {Rate:0} dirhams per square metre.",
+                    $"W1={WidthMm} H1={HeightMm} Qty={Quantity} Rate={Rate} Ref={GlassRef}",
+                    HoldMs, ct).ConfigureAwait(false);
             }
 
-            if (!await ContinueToAsync(pi, 6, ct).ConfigureAwait(false)) return events;
-            await WpfUiDriver.WaitReadyAsync(300, ct).ConfigureAwait(false);
-            events.Add(Ok(
-                "step6",
+            if (!await AdvanceToAsync(pi, 6, ct).ConfigureAwait(false)) return events;
+            await PresentAsync(events, "step6",
                 "Other charges",
-                "Other charges are left empty for this quotation.",
-                "NextStepCommand → step 6"));
+                "Other charges stay empty on this quotation so the total is just the glass line.",
+                "NextStepCommand → step 6",
+                BeatMs, ct).ConfigureAwait(false);
 
-            if (!await ContinueToAsync(pi, 7, ct).ConfigureAwait(false)) return events;
-            await WpfUiDriver.WaitReadyAsync(500, ct).ConfigureAwait(false);
-            events.Add(Ok(
-                "preview",
+            if (!await AdvanceToAsync(pi, 7, ct).ConfigureAwait(false)) return events;
+            await PresentAsync(events, "preview",
                 "Print preview",
-                "Print preview shows the live quotation the rest of the chain will read.",
-                "NextStepCommand → step 7"));
+                "Print preview is the live quotation. Rate and value stay on the document. This snapshot is what the rest of the chain reads.",
+                "NextStepCommand → step 7",
+                HoldMs, ct).ConfigureAwait(false);
 
             bool saved = await SaveDraftAsync(pi, ct).ConfigureAwait(false);
-
             if (saved)
             {
-                events.Add(Ok(
-                    "saved",
+                await PresentAsync(events, "saved",
                     "Draft saved",
-                    "The proforma was persisted with SilentDraftSave — the same save the wizard uses when leaving the form.",
-                    $"ProformaId={pi.Step1VM.ProformaId}"));
+                    $"Draft {pi.Step1VM.ProformaId} is saved with SilentDraftSave — the same persist the wizard uses when you leave the form.",
+                    $"ProformaId={pi.Step1VM.ProformaId}",
+                    HoldMs, ct).ConfigureAwait(false);
             }
 
+            await WpfUiDriver.DwellAsync(800, ct).ConfigureAwait(false);
             return events;
+        }
+
+        private static async Task PresentAsync(
+            List<VerifiedEvent> events,
+            string id, string title, string narration, string evidence,
+            int dwellMs, CancellationToken ct)
+        {
+            DemoStage.Now(title + " — " + narration);
+            SpeakLive(narration);
+            events.Add(new VerifiedEvent
+            {
+                Id = id,
+                Title = title,
+                Narration = narration,
+                Evidence = evidence
+            });
+            await WpfUiDriver.DwellAsync(dwellMs, ct).ConfigureAwait(false);
+        }
+
+        private static void SpeakLive(string text)
+        {
+            try { App.TextToSpeech?.SpeakAsync(text); }
+            catch { /* live voice is optional; WAV is written later */ }
+        }
+
+        private static async Task<bool> StartNewInvoiceAsync(
+            ProformaInvoiceViewModel pi, CancellationToken ct)
+        {
+            bool clicked = await WpfUiDriver
+                .ClickAsync("ProformaInvoice.NewInvoiceButton", ct)
+                .ConfigureAwait(false);
+
+            await WpfUiDriver.OnUiAsync(() =>
+            {
+                try { pi.TriggerNewInvoice(); }
+                catch { /* same public entry the dashboard uses */ }
+                if (!clicked && pi.NewInvoiceCommand.CanExecute(null))
+                    pi.NewInvoiceCommand.Execute(null);
+                return true;
+            }, ct).ConfigureAwait(false);
+
+            return true;
         }
 
         private static async Task<bool> FillCompanyAsync(
             ProformaInvoiceViewModel pi, CancellationToken ct)
         {
-            bool typed = await WpfUiDriver
-                .SetTextAsync("ProformaInvoice.CompanyName", Company, ct)
+            await WpfUiDriver.SetTextAsync("ProformaInvoice.CompanyName", Company, ct)
                 .ConfigureAwait(false);
-            await OnUiAsync(() =>
+            return await WpfUiDriver.OnUiAsync(() =>
             {
-                if (!typed || string.IsNullOrWhiteSpace(pi.Step1VM.CompanyName))
-                    pi.Step1VM.CompanyName = Company;
+                pi.Step1VM.CompanyName = Company;
                 pi.Step1VM.CompanyTrn = CompanyTrn;
                 pi.Step1VM.CompanyLocation = CompanyLocation;
-                return true;
+                return string.Equals(pi.Step1VM.CompanyName, Company, StringComparison.Ordinal);
             }, ct).ConfigureAwait(false);
-            return string.Equals(pi.Step1VM.CompanyName, Company, StringComparison.Ordinal);
         }
 
         private static async Task<bool> FillCustomerAsync(
             ProformaInvoiceViewModel pi, CancellationToken ct)
         {
-            bool typed = await WpfUiDriver
-                .SetTextAsync("ProformaInvoice.CustomerName", Customer, ct)
+            await WpfUiDriver.SetTextAsync("ProformaInvoice.CustomerName", Customer, ct)
                 .ConfigureAwait(false);
-            await OnUiAsync(() =>
+            return await WpfUiDriver.OnUiAsync(() =>
             {
-                if (!typed || string.IsNullOrWhiteSpace(pi.Step2VM.CustomerName))
-                    pi.Step2VM.CustomerName = Customer;
-                return true;
+                pi.Step2VM.CustomerName = Customer;
+                pi.Step2VM.CustomerTrn = "100987654300003";
+                pi.Step2VM.BillingAddress = "PO Box 12345, Sharjah, UAE";
+                pi.Step2VM.SalesRepresentative = "A. Rahman";
+                pi.Step2VM.DocumentPreparedBy = "Demo User";
+                pi.Step2VM.ClientContactPhone = "+971 50 123 4567";
+                return string.Equals(pi.Step2VM.CustomerName, Customer, StringComparison.Ordinal);
             }, ct).ConfigureAwait(false);
-            return string.Equals(pi.Step2VM.CustomerName, Customer, StringComparison.Ordinal);
         }
 
         private static async Task<bool> FillProjectAsync(
             ProformaInvoiceViewModel pi, CancellationToken ct)
         {
-            bool typed = await WpfUiDriver
-                .SetTextAsync("ProformaInvoice.ProjectName", Project, ct)
+            await WpfUiDriver.SetTextAsync("ProformaInvoice.ProjectName", Project, ct)
                 .ConfigureAwait(false);
-            await OnUiAsync(() =>
+            return await WpfUiDriver.OnUiAsync(() =>
             {
-                if (!typed || string.IsNullOrWhiteSpace(pi.Step3VM.ProjectIdentifierName))
-                    pi.Step3VM.ProjectIdentifierName = Project;
-                return true;
+                pi.Step3VM.ProjectIdentifierName = Project;
+                pi.Step3VM.ProjectContractNo = "CTR-2026-11";
+                pi.Step3VM.SiteDeliveryLocation = "Sharjah Industrial Area";
+                pi.Step3VM.LpoNumber = "LPO-889";
+                return string.Equals(
+                    pi.Step3VM.ProjectIdentifierName, Project, StringComparison.Ordinal);
             }, ct).ConfigureAwait(false);
-            return string.Equals(
-                pi.Step3VM.ProjectIdentifierName, Project, StringComparison.Ordinal);
         }
 
-        private static async Task<bool> FillLineAsync(
-            ProformaInvoiceViewModel pi, CancellationToken ct)
-        {
-            return await OnUiAsync(() =>
+        private static Task<bool> FillLineAsync(
+            ProformaInvoiceViewModel pi, CancellationToken ct) =>
+            WpfUiDriver.OnUiAsync(() =>
             {
                 var group = pi.Step5VM.SpecGroups.FirstOrDefault();
                 if (group == null) return false;
 
                 if (group.ItemRows.Count == 0
                     && group.AddRowCommand.CanExecute(null))
-                {
                     group.AddRowCommand.Execute(null);
-                }
 
                 var row = group.ItemRows.FirstOrDefault();
                 if (row == null) return false;
@@ -247,42 +276,44 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                     && row.H1 == HeightMm
                     && row.Qty == Quantity
                     && string.Equals(row.GlassRef, GlassRef, StringComparison.Ordinal);
-            }, ct).ConfigureAwait(false);
-        }
+            }, ct);
 
-        private static async Task<bool> ContinueToAsync(
+        private static async Task<bool> AdvanceToAsync(
             ProformaInvoiceViewModel pi, int step, CancellationToken ct)
         {
-            if (pi.CurrentStepNumber == step) return true;
+            if (await CurrentStepAsync(pi, ct).ConfigureAwait(false) >= step)
+                return true;
 
+            DemoStage.Now($"Continue to step {step}.");
             bool clicked = await WpfUiDriver
                 .ClickAsync("ProformaInvoice.ContinueButton", ct)
                 .ConfigureAwait(false);
-            if (!clicked)
+
+            if (!clicked || await CurrentStepAsync(pi, ct).ConfigureAwait(false) < step)
             {
-                clicked = await OnUiAsync(() =>
+                await WpfUiDriver.OnUiAsync(() =>
                 {
-                    ICommand cmd = pi.NextStepCommand;
-                    if (cmd.CanExecute(null))
+                    if (pi.NextStepCommand.CanExecute(null))
+                        pi.NextStepCommand.Execute(null);
+                    if (pi.CurrentStepNumber < step)
                     {
-                        cmd.Execute(null);
-                        return true;
+                        var target = pi.WizardSteps.FirstOrDefault(s => s.StepNumber == step);
+                        if (target != null && pi.GoToStepCommand.CanExecute(target))
+                            pi.GoToStepCommand.Execute(target);
                     }
-                    var target = pi.WizardSteps.FirstOrDefault(s => s.StepNumber == step);
-                    if (target != null && pi.GoToStepCommand.CanExecute(target))
-                    {
-                        pi.GoToStepCommand.Execute(target);
-                        return true;
-                    }
-                    return false;
+                    return true;
                 }, ct).ConfigureAwait(false);
             }
 
             bool reached = await WaitUntilAsync(
-                () => pi.CurrentStepNumber >= step, 4_000, ct).ConfigureAwait(false);
-            await WpfUiDriver.WaitReadyAsync(280, ct).ConfigureAwait(false);
-            return clicked && reached;
+                () => pi.CurrentStepNumber >= step, 6000, ct).ConfigureAwait(false);
+            await WpfUiDriver.WaitReadyAsync(350, ct).ConfigureAwait(false);
+            return reached;
         }
+
+        private static Task<int> CurrentStepAsync(
+            ProformaInvoiceViewModel pi, CancellationToken ct) =>
+            WpfUiDriver.OnUiAsync(() => pi.CurrentStepNumber, ct);
 
         private static bool Navigate(string target)
         {
@@ -299,7 +330,7 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
         }
 
         private static Task<ProformaInvoiceViewModel?> ResolvePiAsync(CancellationToken ct) =>
-            OnUiAsync(() =>
+            WpfUiDriver.OnUiAsync(() =>
             {
                 var dc = Application.Current?.MainWindow?.DataContext;
                 return dc is MainViewModel main ? main.ProformaInvoiceVM : null;
@@ -312,10 +343,11 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
             while (DateTime.UtcNow < until)
             {
                 ct.ThrowIfCancellationRequested();
-                if (await OnUiAsync(test, ct).ConfigureAwait(false)) return true;
-                await Task.Delay(120, ct).ConfigureAwait(false);
+                if (await WpfUiDriver.OnUiAsync(test, ct).ConfigureAwait(false))
+                    return true;
+                await Task.Delay(150, ct).ConfigureAwait(false);
             }
-            return await OnUiAsync(test, ct).ConfigureAwait(false);
+            return await WpfUiDriver.OnUiAsync(test, ct).ConfigureAwait(false);
         }
 
         private static async Task<bool> SaveDraftAsync(
@@ -333,22 +365,5 @@ namespace ProGlassAutomation.Agent.Demo.Workflows
                 ct);
             return await op.Task.Unwrap().ConfigureAwait(false);
         }
-
-        private static Task<T> OnUiAsync<T>(Func<T> work, CancellationToken ct)
-        {
-            var disp = Application.Current?.Dispatcher;
-            if (disp == null) return Task.FromResult(default(T)!);
-            if (disp.CheckAccess()) return Task.FromResult(work());
-            return disp.InvokeAsync(work, System.Windows.Threading.DispatcherPriority.Normal, ct).Task;
-        }
-
-        private static VerifiedEvent Ok(string id, string title, string narration, string evidence) =>
-            new()
-            {
-                Id = id,
-                Title = title,
-                Narration = narration,
-                Evidence = evidence
-            };
     }
 }

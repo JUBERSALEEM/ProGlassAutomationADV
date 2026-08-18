@@ -12,8 +12,8 @@ using System.Windows.Threading;
 namespace ProGlassAutomation.Agent.Demo.Automation
 {
     /// <summary>
-    /// In-process WPF driver. Walks the live visual tree by AutomationId,
-    /// then invokes the same Command the user would click.
+    /// In-process WPF driver. Walks the live visual and logical trees
+    /// by AutomationId, then invokes the same Command the user would click.
     /// </summary>
     public static class WpfUiDriver
     {
@@ -28,22 +28,55 @@ namespace ProGlassAutomation.Agent.Demo.Automation
             if (ms > 0) await Task.Delay(ms, ct).ConfigureAwait(false);
         }
 
-        public static Task<bool> ClickAsync(string automationId, CancellationToken ct) =>
-            OnUiAsync(() =>
+        public static async Task DwellAsync(int ms, CancellationToken ct)
+        {
+            if (ms <= 0) return;
+            await WaitReadyAsync(Math.Min(120, ms), ct).ConfigureAwait(false);
+            int left = ms - Math.Min(120, ms);
+            if (left > 0) await Task.Delay(left, ct).ConfigureAwait(false);
+        }
+
+        public static async Task<bool> WaitForIdAsync(
+            string automationId, int timeoutMs, CancellationToken ct)
+        {
+            var until = DateTime.UtcNow.AddMilliseconds(timeoutMs);
+            while (DateTime.UtcNow < until)
             {
-                var el = FindById(Application.Current?.MainWindow, automationId);
-                if (el is ButtonBase btn)
+                ct.ThrowIfCancellationRequested();
+                if (await ExistsAsync(automationId, ct).ConfigureAwait(false))
+                    return true;
+                await Task.Delay(150, ct).ConfigureAwait(false);
+            }
+            return await ExistsAsync(automationId, ct).ConfigureAwait(false);
+        }
+
+        public static Task<bool> ExistsAsync(string automationId, CancellationToken ct) =>
+            OnUiAsync(() => FindById(Application.Current?.MainWindow, automationId) != null, ct);
+
+        public static async Task<bool> ClickAsync(string automationId, CancellationToken ct)
+        {
+            for (int attempt = 0; attempt < 4; attempt++)
+            {
+                bool ok = await OnUiAsync(() =>
                 {
-                    if (btn.Command != null && btn.Command.CanExecute(btn.CommandParameter))
+                    var el = FindById(Application.Current?.MainWindow, automationId);
+                    if (el is ButtonBase btn)
                     {
-                        btn.Command.Execute(btn.CommandParameter);
+                        if (btn.Command != null && btn.Command.CanExecute(btn.CommandParameter))
+                        {
+                            btn.Command.Execute(btn.CommandParameter);
+                            return true;
+                        }
+                        btn.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
                         return true;
                     }
-                    btn.RaiseEvent(new RoutedEventArgs(ButtonBase.ClickEvent));
-                    return true;
-                }
-                return false;
-            }, ct);
+                    return false;
+                }, ct).ConfigureAwait(false);
+                if (ok) return true;
+                await Task.Delay(200, ct).ConfigureAwait(false);
+            }
+            return false;
+        }
 
         public static Task<bool> SetTextAsync(string automationId, string value, CancellationToken ct) =>
             OnUiAsync(() =>
@@ -64,19 +97,6 @@ namespace ProGlassAutomation.Agent.Demo.Automation
                 return false;
             }, ct);
 
-        public static Task<string?> ReadTextAsync(string automationId, CancellationToken ct) =>
-            OnUiAsync(() =>
-            {
-                var el = FindById(Application.Current?.MainWindow, automationId);
-                return el switch
-                {
-                    TextBox tb => tb.Text,
-                    TextBlock tblk => tblk.Text,
-                    ContentControl cc => cc.Content?.ToString(),
-                    _ => AutomationProperties.GetName(el)
-                };
-            }, ct);
-
         public static DependencyObject? FindById(DependencyObject? root, string id)
         {
             if (root == null || string.IsNullOrWhiteSpace(id)) return null;
@@ -90,10 +110,19 @@ namespace ProGlassAutomation.Agent.Demo.Automation
                 var hit = FindById(VisualTreeHelper.GetChild(root, i), id);
                 if (hit != null) return hit;
             }
+
+            foreach (var child in LogicalTreeHelper.GetChildren(root))
+            {
+                if (child is DependencyObject d)
+                {
+                    var hit = FindById(d, id);
+                    if (hit != null) return hit;
+                }
+            }
             return null;
         }
 
-        private static Task<T> OnUiAsync<T>(Func<T> work, CancellationToken ct)
+        public static Task<T> OnUiAsync<T>(Func<T> work, CancellationToken ct)
         {
             var disp = Application.Current?.Dispatcher;
             if (disp == null) return Task.FromResult(default(T)!);

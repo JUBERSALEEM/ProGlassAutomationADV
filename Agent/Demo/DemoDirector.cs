@@ -126,10 +126,13 @@ namespace ProGlassAutomation.Agent.Demo
                     }), new JsonSerializerOptions { WriteIndented = true }));
                 log.AppendLine($"Verified events: {events.Count}");
 
-                if (events.Count == 0)
+                bool walkedWizard = events.Any(e =>
+                    e.Id is "new_invoice" or "company" or "customer" or "line" or "preview" or "saved");
+                if (events.Count == 0 || !walkedWizard)
                 {
                     Fail(module,
-                        "No wizard action was verified. I will not narrate a walkthrough that did not run.",
+                        "The wizard did not run. Only a screen change is not a demo. " +
+                        "New Invoice / Continue never verified, so I will not pretend a walkthrough happened.",
                         log, folder);
                     return Status;
                 }
