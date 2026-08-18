@@ -32,7 +32,7 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="TextBox">
                         <Border x:Name="Chrome"
-                                CornerRadius="10"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Background="{DynamicResource WindowBackgroundBrush}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"

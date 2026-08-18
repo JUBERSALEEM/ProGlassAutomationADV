@@ -213,7 +213,7 @@
 
         <!-- TECH STACK ITEM -->
         <DataTemplate x:Key="TechItemTemplate">
-            <Border CornerRadius="10" Padding="14,12" Margin="6"
+            <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="14,12" Margin="6"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     Background="{DynamicResource TintIndigoBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
@@ -238,7 +238,7 @@
 
         <!-- CAPABILITY CARD -->
         <DataTemplate x:Key="CapabilityCardTemplate">
-            <Border CornerRadius="14" Padding="20,20" Margin="8"
+            <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,20" Margin="8"
                     MinWidth="230" MaxWidth="280" BorderThickness="{DynamicResource CardBorderThickness}"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
@@ -272,7 +272,7 @@
 
         <!-- WORKFLOW STAGE CARD -->
         <DataTemplate x:Key="WorkflowCardTemplate">
-            <Border CornerRadius="14" Padding="20,20" Margin="8"
+            <Border CornerRadius="{DynamicResource CardCornerRadius}" Padding="20,20" Margin="8"
                     MinWidth="200" MaxWidth="240" BorderThickness="{DynamicResource CardBorderThickness}"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
@@ -374,7 +374,7 @@
                                         HorizontalAlignment="Center"
                                         Margin="0,18,0,0">
                                 <Border Background="{DynamicResource AccentBrush}"
-                                        CornerRadius="14" Padding="16,8"
+                                        CornerRadius="{DynamicResource CardCornerRadius}" Padding="16,8"
                                         Margin="0,0,8,0"
                                         SnapsToDevicePixels="True">
                                     <TextBlock Text="{Binding Version}"
@@ -411,7 +411,7 @@
                                         HorizontalAlignment="Center"
                                         Margin="0,12,0,0">
                                 <Border Width="52" Height="52"
-                                        CornerRadius="14"
+                                        CornerRadius="{DynamicResource CardCornerRadius}"
                                         VerticalAlignment="Center"
                                         SnapsToDevicePixels="True">
                                     <Border.Background>
@@ -433,7 +433,7 @@
                                 </StackPanel>
                             </StackPanel>
 
-                            <Border CornerRadius="20" Padding="18,10"
+                            <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="18,10"
                                     Margin="0,16,0,0"
                                     HorizontalAlignment="Center"
                                     Cursor="Hand"

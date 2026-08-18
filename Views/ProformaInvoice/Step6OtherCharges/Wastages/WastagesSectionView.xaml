@@ -141,7 +141,7 @@
             <StackPanel Grid.Column="0" Orientation="Horizontal">
                 <Border Background="{DynamicResource TintIndigoBrush}"
                         Width="34" Height="34"
-                        CornerRadius="10"
+                        CornerRadius="{DynamicResource ControlCornerRadius}"
                         VerticalAlignment="Center"
                         Margin="0,0,12,0">
                     <!-- Segoe MDL2 color / palette icon -->
@@ -259,7 +259,7 @@
                                     <Border Background="{DynamicResource ModuleBackgroundBrush}"
                                             BorderBrush="{DynamicResource AccentBrush}"
                                             BorderThickness="{DynamicResource CardBorderThickness}"
-                                            CornerRadius="10"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Padding="14"
                                             MaxHeight="320"
                                             Width="380">

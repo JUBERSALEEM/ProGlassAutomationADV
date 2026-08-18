@@ -31,7 +31,7 @@
         <conv:IconFontFamilyConverter x:Key="IconFont"/>
     </UserControl.Resources>
 
-    <Border CornerRadius="20"
+    <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
             Background="{DynamicResource ModuleBackgroundBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
             BorderThickness="{DynamicResource CardBorderThickness}"
@@ -44,7 +44,7 @@
 
             <!-- Tinted icon badge (Overview-dashboard style) -->
             <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Width="64" Height="64"
-                    CornerRadius="20"
+                    CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                     HorizontalAlignment="Center"
                     Background="{DynamicResource TintIndigoBrush}">
                 <TextBlock Text="{Binding Icon, ElementName=Root}"
@@ -91,7 +91,7 @@
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
                         <Border Background="{DynamicResource AccentBrush}"
-                                CornerRadius="20"
+                                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center"
                                               VerticalAlignment="Center"/>

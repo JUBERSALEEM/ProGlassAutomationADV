@@ -446,7 +446,7 @@
 
                                 <!-- Status pill -->
                                 <Border Grid.Column="2"
-                                        CornerRadius="10"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="10,4"
                                         VerticalAlignment="Center"
                                         Margin="0,0,8,0"
@@ -459,7 +459,7 @@
 
                                 <!-- Priority pill -->
                                 <Border Grid.Column="3"
-                                        CornerRadius="10"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="10,4"
                                         VerticalAlignment="Center"
                                         Margin="0,0,12,0"

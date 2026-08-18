@@ -57,7 +57,7 @@
                 <!-- Icon badge -->
                 <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="0"
                         Width="46" Height="46"
-                        CornerRadius="14"
+                        CornerRadius="{DynamicResource CardCornerRadius}"
                         Background="{DynamicResource TintIndigoBrush}"
                         VerticalAlignment="Center">
                     <TextBlock Text="&#xE723;"
@@ -197,14 +197,14 @@
                                     <Grid Grid.Column="0"
                                           Width="56" Height="56"
                                           VerticalAlignment="Center">
-                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="10"
+                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Background="{DynamicResource TintGrayBrush}">
                                             <TextBlock Text="{Binding TypeIcon}"
                                                        FontSize="24"
                                                        HorizontalAlignment="Center"
                                                        VerticalAlignment="Center"/>
                                         </Border>
-                                        <Border CornerRadius="10">
+                                        <Border CornerRadius="{DynamicResource ControlCornerRadius}">
                                             <Border.Style>
                                                 <Style TargetType="Border">
                                                     <Setter Property="Visibility"

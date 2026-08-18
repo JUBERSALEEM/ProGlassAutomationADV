@@ -67,7 +67,7 @@
                 <!-- Brand header -->
                 <StackPanel DockPanel.Dock="Top" Margin="14,0,14,12">
                     <StackPanel Orientation="Horizontal">
-                        <Border Width="34" Height="34" CornerRadius="10"
+                        <Border Width="34" Height="34" CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Background="{DynamicResource AccentBrush}"
                                 VerticalAlignment="Center">
                             <TextBlock Text="&#xE713;"

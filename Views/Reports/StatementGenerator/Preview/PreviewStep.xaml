@@ -356,7 +356,7 @@
                         <ListView.ItemTemplate>
                             <DataTemplate>
                                 <Border BorderThickness="1"
-                                        CornerRadius="10"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="14,12"
                                         ClipToBounds="True">
                                     <Border.Style>
@@ -517,7 +517,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border Margin="4,0"
-                                        CornerRadius="10"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="14,12"
                                         Background="{DynamicResource ModuleBackgroundBrush}"
                                         BorderThickness="1"
@@ -651,7 +651,7 @@
                         <ItemsControl.ItemTemplate>
                             <DataTemplate>
                                 <Border Margin="0,0,0,10"
-                                        CornerRadius="10"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                         BorderThickness="1"
                                         Padding="0">
                                     <Border.Style>

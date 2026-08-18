@@ -7,7 +7,7 @@
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
 
-    <Border Width="360" CornerRadius="14"
+    <Border Width="360" CornerRadius="{DynamicResource CardCornerRadius}"
             Background="{DynamicResource ModuleBackgroundBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
             BorderThickness="{DynamicResource CardBorderThickness}">

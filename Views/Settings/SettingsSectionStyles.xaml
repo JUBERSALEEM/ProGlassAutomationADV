@@ -187,7 +187,7 @@
                 <ControlTemplate TargetType="ToggleButton">
                     <Grid SnapsToDevicePixels="True">
                         <Border x:Name="Track"
-                                CornerRadius="14"
+                                CornerRadius="{DynamicResource CardCornerRadius}"
                                 Background="{TemplateBinding Background}"
                                 SnapsToDevicePixels="True"
                                 UseLayoutRounding="True"/>
@@ -394,7 +394,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="Bd"
-                            CornerRadius="14"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Padding="{TemplateBinding Padding}"
                             Background="Transparent"
                             BorderBrush="{DynamicResource AccentBrush}"
@@ -485,7 +485,7 @@
                 <ControlTemplate TargetType="Button">
                     <Grid>
                         <Border x:Name="Bd"
-                                CornerRadius="10"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="12,10"
                                 Background="{TemplateBinding Background}"
                                 SnapsToDevicePixels="True"

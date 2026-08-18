@@ -78,7 +78,7 @@
                     <!-- Trend badge (top-right, e.g. "↗ 12%") -->
                     <Border Grid.Column="2"
                             x:Name="TrendBadge"
-                            CornerRadius="10"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="10,4"
                             Background="#33FFFFFF"
                             HorizontalAlignment="Right"

@@ -477,7 +477,7 @@
 
             <!-- ── HINT CARD — UI-04: solid indigo ──────────────────── -->
             <Border Background="{DynamicResource AccentBrush}"
-                    CornerRadius="10"
+                    CornerRadius="{DynamicResource ControlCornerRadius}"
                     Padding="14,10"
                     Margin="0,0,0,16"
                     SnapsToDevicePixels="True">
@@ -790,7 +790,7 @@
 
                                         <!-- STATUS pill (computed business status) -->
                                         <Border Grid.Column="5"
-                                                CornerRadius="10"
+                                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Padding="12,5"
                                                 MinWidth="110"
                                                 HorizontalAlignment="Center"

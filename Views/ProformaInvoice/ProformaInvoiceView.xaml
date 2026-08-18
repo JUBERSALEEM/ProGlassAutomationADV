@@ -313,7 +313,7 @@ CHAT 17 — LAYOUT FIX
 
             <Border Grid.Row="0"
                     Background="{DynamicResource SideMenuBackgroundBrush}"
-                    CornerRadius="10"
+                    CornerRadius="{DynamicResource ControlCornerRadius}"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
                     Padding="8,6"
@@ -470,7 +470,7 @@ CHAT 17 — LAYOUT FIX
                     <!-- Step content panel -->
                     <Border Grid.Row="0"
                             Background="{DynamicResource ModuleBackgroundBrush}"
-                            CornerRadius="20"
+                            CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             SnapsToDevicePixels="True">
@@ -681,7 +681,7 @@ CHAT 17 — LAYOUT FIX
                     -->
                     <Border Grid.Row="1"
                             Background="{DynamicResource ModuleBackgroundBrush}"
-                            CornerRadius="20"
+                            CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
                             Margin="0,16,0,0"

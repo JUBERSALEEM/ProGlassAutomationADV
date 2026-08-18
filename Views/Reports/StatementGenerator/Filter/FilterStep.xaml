@@ -200,7 +200,7 @@
                                     Background="White"
                                     BorderBrush="{DynamicResource OutlineBrush}"
                                     BorderThickness="{DynamicResource CardBorderThickness}"
-                                    CornerRadius="10"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
                                     SnapsToDevicePixels="True"
                                     Effect="{StaticResource InputShadow}">
                                 <Grid>
@@ -243,7 +243,7 @@
                                 <Border Background="White"
                                         BorderBrush="{DynamicResource OutlineBrush}"
                                         BorderThickness="{DynamicResource CardBorderThickness}"
-                                        CornerRadius="10"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                         MinWidth="{TemplateBinding ActualWidth}"
                                         MaxHeight="280"
                                         Padding="4"
@@ -326,7 +326,7 @@
                                 Background="White"
                                 BorderBrush="{DynamicResource OutlineBrush}"
                                 BorderThickness="{DynamicResource CardBorderThickness}"
-                                CornerRadius="10"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 SnapsToDevicePixels="True"
                                 Effect="{StaticResource InputShadow}">
                             <Grid>
@@ -434,7 +434,7 @@
         <ControlTemplate x:Key="StatusChipTemplate" TargetType="CheckBox">
             <Border x:Name="chipRoot"
                     BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="10"
+                    CornerRadius="{DynamicResource ControlCornerRadius}"
                     Padding="14,8"
                     Background="{StaticResource ChipBg}"
                     BorderBrush="{DynamicResource OutlineBrush}"
@@ -468,7 +468,7 @@
 
                     <Border x:Name="countBadge"
                             Background="{StaticResource CountBadgeBg}"
-                            CornerRadius="10"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="8,3"
                             Margin="10,0,0,0"
                             MinWidth="24"
@@ -618,7 +618,7 @@
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="20"
+                        CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                         Padding="0"
                         Effect="{StaticResource CardShadow}"
                         CacheMode="BitmapCache"
@@ -680,7 +680,7 @@
                                                 Background="{StaticResource ClearBtnBg}"
                                                 BorderBrush="{DynamicResource OutlineBrush}"
                                                 BorderThickness="{DynamicResource CardBorderThickness}"
-                                                CornerRadius="10"
+                                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Padding="{TemplateBinding Padding}"
                                                 SnapsToDevicePixels="True">
                                             <StackPanel Orientation="Horizontal"
@@ -869,7 +869,7 @@
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="{DynamicResource CardBorderThickness}"
-                        CornerRadius="20"
+                        CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                         Padding="0"
                         Effect="{StaticResource CardShadow}"
                         CacheMode="BitmapCache"

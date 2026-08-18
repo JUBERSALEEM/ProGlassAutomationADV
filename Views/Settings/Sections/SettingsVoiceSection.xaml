@@ -156,7 +156,7 @@
                                     <!-- Status badge — RIGHT docked first -->
                                     <Border DockPanel.Dock="Right"
                                             VerticalAlignment="Center"
-                                            CornerRadius="10" Padding="10,4"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}" Padding="10,4"
                                             SnapsToDevicePixels="True"
                                             UseLayoutRounding="True">
                                         <Border.Style>

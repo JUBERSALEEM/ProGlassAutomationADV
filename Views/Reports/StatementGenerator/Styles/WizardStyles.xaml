@@ -127,7 +127,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="bd"
-                            CornerRadius="10"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
                             Background="{StaticResource PrimaryGradient}"
                             Effect="{StaticResource PrimaryButtonShadow}"
                             Padding="{TemplateBinding Padding}"
@@ -166,7 +166,7 @@
             <Setter.Value>
                 <ControlTemplate TargetType="Button">
                     <Border x:Name="bd"
-                            CornerRadius="10"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
                             Background="{StaticResource SuccessGradient}"
                             Effect="{StaticResource SuccessButtonShadow}"
                             Padding="{TemplateBinding Padding}"
@@ -207,7 +207,7 @@
                             Background="{DynamicResource ModuleBackgroundBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
-                            CornerRadius="10"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">
                         <ContentPresenter HorizontalAlignment="Center"
@@ -247,7 +247,7 @@
                             Background="Transparent"
                             BorderBrush="{DynamicResource OutlineBrush}"
                             BorderThickness="{DynamicResource CardBorderThickness}"
-                            CornerRadius="10"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">
                         <ContentPresenter x:Name="cp"

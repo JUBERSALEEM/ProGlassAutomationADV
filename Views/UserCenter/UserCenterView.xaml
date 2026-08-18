@@ -54,7 +54,7 @@
         <StackPanel Margin="32,26,32,32">
 
             <!-- A-3 — DEFAULT CREDENTIAL WARNING -->
-            <Border Margin="0,0,0,16" Padding="16,12" CornerRadius="10"
+            <Border Margin="0,0,0,16" Padding="16,12" CornerRadius="{DynamicResource ControlCornerRadius}"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource WarningBrush}"
                     BorderThickness="1"
@@ -196,7 +196,7 @@
                 <Border Grid.Column="2"
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="14"
+                        BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="24,20">
                     <StackPanel>
 

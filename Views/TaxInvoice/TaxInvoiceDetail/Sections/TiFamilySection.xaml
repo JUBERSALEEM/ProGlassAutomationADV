@@ -204,7 +204,7 @@
                     <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="2"
                             Margin="12,0,12,12"
                             Padding="14,12"
-                            CornerRadius="10"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
                             Background="{DynamicResource TintIndigoBrush}">
                         <StackPanel>
                             <TextBlock Text="FAMILY TOTALS"

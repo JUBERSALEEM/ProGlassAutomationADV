@@ -60,7 +60,7 @@
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{TemplateBinding BorderBrush}"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="10" Padding="12,0"
+                                CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,0"
                                 SnapsToDevicePixels="True">
                             <StackPanel Orientation="Horizontal"
                                         VerticalAlignment="Center"
@@ -72,7 +72,7 @@
                                            FontSize="11" FontWeight="Bold"
                                            VerticalAlignment="Center"
                                            Foreground="{DynamicResource SecondaryForegroundBrush}"/>
-                                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="10" Padding="7,2"
+                                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2"
                                         Margin="7,0,0,0" VerticalAlignment="Center"
                                         Background="{DynamicResource MenuHoverBrush}">
                                     <TextBlock
@@ -104,7 +104,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="Card"
                                 BorderThickness="{TemplateBinding BorderThickness}"
-                                CornerRadius="10" Padding="12,0"
+                                CornerRadius="{DynamicResource ControlCornerRadius}" Padding="12,0"
                                 SnapsToDevicePixels="True">
                             <Border.BorderBrush>
                                 <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
@@ -134,7 +134,7 @@
                                         </LinearGradientBrush>
                                     </TextBlock.Foreground>
                                 </TextBlock>
-                                <Border CornerRadius="10" Padding="7,2"
+                                <Border CornerRadius="{DynamicResource ControlCornerRadius}" Padding="7,2"
                                         Margin="7,0,0,0" VerticalAlignment="Center"
                                         Background="{DynamicResource AccentBrush}">
                                     <TextBlock
@@ -190,7 +190,7 @@
         ══════════════════════════════════════════════════════════════ -->
         <DataTemplate x:Key="FamilyRowTemplate">
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="10"
+                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}"
                     Padding="14,12" Margin="0,0,0,8"
                     Cursor="Hand" SnapsToDevicePixels="True"
                     MouseLeftButtonUp="OnFamilyRowLeftClick"
@@ -493,7 +493,7 @@
             </Grid>
 
             <!-- Selected family meta bar -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Margin="4,0,4,10" Padding="12,8" CornerRadius="10"
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Margin="4,0,4,10" Padding="12,8" CornerRadius="{DynamicResource ControlCornerRadius}"
                     Background="{DynamicResource TintIndigoBrush}"
                     Visibility="{Binding HasSelection,
                                  Converter={StaticResource BoolToVisibilityConverter}}">
@@ -523,7 +523,7 @@
             <!-- FILTER BAR -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="10"
+                    BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource ControlCornerRadius}"
                     Padding="12,10" Margin="0,0,0,12"
                     SnapsToDevicePixels="True">
                 <Grid>

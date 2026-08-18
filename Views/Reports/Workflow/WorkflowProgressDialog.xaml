@@ -106,7 +106,7 @@
                             <!-- Step row card -->
                             <Border Margin="0,0,0,8"
                                     Padding="14,12"
-                                    CornerRadius="10"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
                                     BorderThickness="{DynamicResource CardBorderThickness}"
                                     Background="{DynamicResource SideMenuBackgroundBrush}"
                                     BorderBrush="{DynamicResource OutlineBrush}">
@@ -232,7 +232,7 @@
             <Border Grid.Row="3"
                     Margin="24,4,24,12"
                     Padding="14,10"
-                    CornerRadius="10"
+                    CornerRadius="{DynamicResource ControlCornerRadius}"
                     BorderThickness="1"
                     Visibility="{Binding HasResult,
                         Converter={StaticResource BoolToVisibilityConverter}}">

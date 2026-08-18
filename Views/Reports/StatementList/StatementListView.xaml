@@ -22,7 +22,7 @@
         <!-- ══ ROW 0 — RICH HEADER ══ -->
         <Border Grid.Row="0"
                 Margin="24,16,24,0"
-                CornerRadius="14"
+                CornerRadius="{DynamicResource CardCornerRadius}"
                 ClipToBounds="True">
             <Border CornerRadius="{DynamicResource CardCornerRadius}" Background="{DynamicResource AccentBrush}" Padding="24,20">
                 <Grid>
@@ -35,7 +35,7 @@
                     <Border Grid.Column="0"
                             Width="56" Height="56"
                             Background="{DynamicResource AccentBrush}"
-                            CornerRadius="14"
+                            CornerRadius="{DynamicResource CardCornerRadius}"
                             Margin="0,0,18,0">
                         <TextBlock Text="≡"
                                    FontSize="26"
@@ -87,7 +87,7 @@
                                 <ControlTemplate TargetType="Button">
                                     <Border x:Name="bd"
                                             Background="White"
-                                            CornerRadius="10"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Padding="{TemplateBinding Padding}">
                                         <ContentPresenter HorizontalAlignment="Center"
                                                           VerticalAlignment="Center"/>
@@ -264,7 +264,7 @@
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
                         BorderThickness="1"
-                        CornerRadius="10"
+                        CornerRadius="{DynamicResource ControlCornerRadius}"
                         Height="38">
                     <Grid>
                         <Grid.ColumnDefinitions>
@@ -353,7 +353,7 @@
                         <ControlTemplate TargetType="Button">
                             <Border x:Name="bd"
                                     Background="{DynamicResource AccentBrush}"
-                                    CornerRadius="10"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Padding="{TemplateBinding Padding}">
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="↻"
@@ -388,7 +388,7 @@
                 Background="{DynamicResource SideMenuBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
                 BorderThickness="{DynamicResource CardBorderThickness}"
-                CornerRadius="10"
+                CornerRadius="{DynamicResource ControlCornerRadius}"
                 Padding="16,8"
                 Visibility="{Binding IsListVisible,
                     Converter={StaticResource BoolToVisibilityConverter}}">
@@ -436,7 +436,7 @@
         <Grid Grid.Row="4" Margin="24,8,24,16">
 
             <Border Background="{DynamicResource AccentBrush}"
-                    CornerRadius="14"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     Visibility="{Binding IsLoading,
                         Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel HorizontalAlignment="Center"
@@ -469,7 +469,7 @@
             <Border Background="{DynamicResource SideMenuBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     BorderThickness="{DynamicResource CardBorderThickness}"
-                    CornerRadius="14"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     Visibility="{Binding IsEmpty,
                         Converter={StaticResource BoolToVisibilityConverter}}">
                 <StackPanel HorizontalAlignment="Center"
@@ -525,7 +525,7 @@
                             <ControlTemplate TargetType="Button">
                                 <Border x:Name="bd"
                                         Background="{DynamicResource AccentBrush}"
-                                        CornerRadius="10"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="{TemplateBinding Padding}">
                                     <ContentPresenter HorizontalAlignment="Center"
                                                       VerticalAlignment="Center"/>
@@ -674,7 +674,7 @@
                                 <Border Grid.Column="2"
                                         Background="{DynamicResource SuccessBrush}"
                                         Margin="0,10,8,10"
-                                        CornerRadius="10"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="12,10">
                                     <StackPanel VerticalAlignment="Center">
                                         <TextBlock Text="INVOICED"
@@ -693,7 +693,7 @@
                                 <Border Grid.Column="3"
                                         Background="{DynamicResource WarningBrush}"
                                         Margin="0,10,8,10"
-                                        CornerRadius="10"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Padding="12,10">
                                     <StackPanel VerticalAlignment="Center">
                                         <TextBlock Text="OUTSTANDING"

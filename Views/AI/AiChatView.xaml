@@ -215,7 +215,7 @@
                 HorizontalAlignment="Right"
                 VerticalAlignment="Bottom"
                 Margin="0,0,25,95"
-                CornerRadius="20"
+                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
                 Effect="{StaticResource PanelShadow}"
                 SnapsToDevicePixels="True"
@@ -314,7 +314,7 @@
                         </StackPanel.Style>
 
                         <Border Width="72" Height="72"
-                                CornerRadius="20"
+                                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                                 HorizontalAlignment="Center"
                                 Background="{StaticResource ChatBrand}"
                                 SnapsToDevicePixels="True"

@@ -62,7 +62,7 @@
                     <!-- Viewing-different-family-member warning -->
                     <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="1"
                             Padding="12,8" Margin="10,10,10,0"
-                            CornerRadius="10"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
                             Background="{DynamicResource TintAmberBrush}"
                             SnapsToDevicePixels="True">
                         <Border.Style>
@@ -124,7 +124,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Margin="0,4" Padding="12,10"
-                                                CornerRadius="10"
+                                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Background="{DynamicResource MenuHoverBrush}"
                                                 SnapsToDevicePixels="True">
                                             <Grid>

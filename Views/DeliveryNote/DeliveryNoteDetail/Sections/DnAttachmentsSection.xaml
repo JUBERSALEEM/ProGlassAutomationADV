@@ -104,7 +104,7 @@
                                 <ItemsControl.ItemTemplate>
                                     <DataTemplate>
                                         <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Margin="0,4" Padding="12,10"
-                                                CornerRadius="10"
+                                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                                 Background="{DynamicResource MenuHoverBrush}"
                                                 SnapsToDevicePixels="True">
                                             <Grid>

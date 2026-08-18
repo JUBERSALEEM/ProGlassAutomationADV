@@ -36,7 +36,7 @@
 
             <!-- Sheet info card -->
             <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource MenuHoverBrush}"
-                    CornerRadius="10" Padding="16,12" Margin="0,0,0,16">
+                    CornerRadius="{DynamicResource ControlCornerRadius}" Padding="16,12" Margin="0,0,0,16">
                 <StackPanel>
                     <TextBlock Text="{Binding Sheet.Category}" FontSize="16" FontWeight="Bold"
                                Foreground="{DynamicResource AccentBrush}"/>

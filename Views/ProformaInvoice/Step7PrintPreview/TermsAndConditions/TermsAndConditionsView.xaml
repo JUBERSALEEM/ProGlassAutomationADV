@@ -149,7 +149,7 @@
                 <StackPanel Grid.Column="0" Orientation="Horizontal">
                     <Border Background="{DynamicResource TintIndigoBrush}"
                             Width="34" Height="34"
-                            CornerRadius="10"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
                             VerticalAlignment="Center"
                             Margin="0,0,12,0">
                         <!-- Segoe MDL2 document / legal icon -->

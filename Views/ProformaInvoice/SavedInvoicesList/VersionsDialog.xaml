@@ -75,7 +75,7 @@
 
                                         <Border Grid.Column="0"
                                                 Width="40" Height="40"
-                                                CornerRadius="20"
+                                                CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                                                 Background="{DynamicResource TintIndigoBrush}"
                                                 VerticalAlignment="Center">
                                             <TextBlock Text="{Binding VersionNo}"

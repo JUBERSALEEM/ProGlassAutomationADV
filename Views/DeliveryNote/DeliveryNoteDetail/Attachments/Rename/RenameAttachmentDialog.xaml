@@ -68,7 +68,7 @@
     <!-- ═══════════════════════════════════════════════════════════════════
          GLASSY CARD — rounded 20px, drop shadow, subtle border
     ═══════════════════════════════════════════════════════════════════ -->
-    <Border CornerRadius="20"
+    <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}"
             Background="{DynamicResource ModuleBackgroundBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
             BorderThickness="{DynamicResource CardBorderThickness}"

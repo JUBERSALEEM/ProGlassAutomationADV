@@ -580,7 +580,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
-                                <Border Width="40" Height="40" CornerRadius="20"
+                                <Border Width="40" Height="40" CornerRadius="{DynamicResource CardCornerRadiusLarge}"
                                         Grid.Column="0"
                                         Background="{DynamicResource AccentBrush}">
                                     <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets"
@@ -614,7 +614,7 @@
                                        FontSize="10" FontWeight="Bold"
                                        Foreground="{DynamicResource MutedForegroundBrush}"
                                        Margin="4,0,0,8"/>
-                            <Border CornerRadius="20" Padding="16,12"
+                            <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="16,12"
                                     Margin="0,0,0,10"
                                     Background="{DynamicResource TintRedBrush}"
                                     BorderBrush="{DynamicResource DangerBrush}"
@@ -628,7 +628,7 @@
                                     </StackPanel>
                                 </StackPanel>
                             </Border>
-                            <Border CornerRadius="20" Padding="16,12"
+                            <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="16,12"
                                     Margin="0,0,0,10"
                                     Background="{DynamicResource TintGreenBrush}"
                                     BorderBrush="{DynamicResource SuccessBrush}"
@@ -642,7 +642,7 @@
                                     </StackPanel>
                                 </StackPanel>
                             </Border>
-                            <Border CornerRadius="20" Padding="16,12"
+                            <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="16,12"
                                     Margin="0,0,0,16"
                                     Background="{DynamicResource TintBlueBrush}"
                                     BorderBrush="{DynamicResource AccentBrush}"
@@ -668,7 +668,7 @@
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
-                                <Border CornerRadius="20" Padding="12,10"
+                                <Border CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="12,10"
                                         Margin="0,0,3,10"
                                         Background="{DynamicResource TintGreenBrush}"
                                         BorderBrush="{DynamicResource SuccessBrush}"
@@ -678,7 +678,7 @@
                                         <TextBlock Text="{Binding DisplayStock}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Border>
-                                <Border Grid.Column="1" CornerRadius="20" Padding="12,10"
+                                <Border Grid.Column="1" CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="12,10"
                                         Margin="3,0,3,10"
                                         Background="{DynamicResource TintRedBrush}"
                                         BorderBrush="{DynamicResource DangerBrush}"
@@ -688,7 +688,7 @@
                                         <TextBlock Text="{Binding DisplayUsed}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </Border>
-                                <Border Grid.Column="2" CornerRadius="20" Padding="12,10"
+                                <Border Grid.Column="2" CornerRadius="{DynamicResource CardCornerRadiusLarge}" Padding="12,10"
                                         Margin="3,0,0,10"
                                         Background="{DynamicResource TintAmberBrush}"
                                         BorderBrush="{DynamicResource WarningBrush}"

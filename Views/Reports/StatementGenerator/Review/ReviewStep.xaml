@@ -80,7 +80,7 @@
 
             <!-- ═══ SUCCESS/WARNING BANNER ═══ -->
             <Border Grid.Row="1"
-                    CornerRadius="14"
+                    CornerRadius="{DynamicResource CardCornerRadius}"
                     Padding="24,20">
                 <Border.Style>
                     <Style TargetType="Border">
@@ -166,7 +166,7 @@
                     <!-- Warning count badge (only if warnings exist) -->
                     <Border Grid.Column="3"
                             Background="#FFFFFF33"
-                            CornerRadius="10"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="14,8"
                             VerticalAlignment="Center"
                             Visibility="{Binding IsLastWorkflowComplete,
@@ -217,7 +217,7 @@
                             <StackPanel Orientation="Horizontal">
                                 <Border Width="40" Height="40"
                                         Background="#FFFFFF33"
-                                        CornerRadius="10"
+                                        CornerRadius="{DynamicResource ControlCornerRadius}"
                                         Margin="0,0,14,0">
                                     <TextBlock Text="📄"
                                                FontSize="20"
@@ -359,7 +359,7 @@
                                             Background="{DynamicResource ModuleBackgroundBrush}"
                                             BorderBrush="{DynamicResource OutlineBrush}"
                                             BorderThickness="{DynamicResource CardBorderThickness}"
-                                            CornerRadius="10">
+                                            CornerRadius="{DynamicResource ControlCornerRadius}">
                                         <StackPanel Orientation="Horizontal"
                                                     HorizontalAlignment="Center"
                                                     VerticalAlignment="Center">
@@ -667,7 +667,7 @@
                                             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                                                     BorderBrush="{DynamicResource OutlineBrush}"
                                                     BorderThickness="{DynamicResource CardBorderThickness}"
-                                                    CornerRadius="10"
+                                                    CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="14,12"
                                                     Margin="0,0,0,6">
                                                 <Grid>
@@ -722,7 +722,7 @@
                                             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                                                     BorderBrush="{DynamicResource OutlineBrush}"
                                                     BorderThickness="{DynamicResource CardBorderThickness}"
-                                                    CornerRadius="10"
+                                                    CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="14,12"
                                                     Margin="0,0,0,6">
                                                 <Grid>
@@ -777,7 +777,7 @@
                                             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                                                     BorderBrush="{DynamicResource OutlineBrush}"
                                                     BorderThickness="{DynamicResource CardBorderThickness}"
-                                                    CornerRadius="10"
+                                                    CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="14,12"
                                                     Margin="0,0,0,6">
                                                 <Grid>

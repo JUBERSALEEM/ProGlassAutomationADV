@@ -226,7 +226,7 @@
                                         </StackPanel>
 
                                         <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="2"
-                                                CornerRadius="999"
+                                                CornerRadius="{DynamicResource PillCornerRadius}"
                                                 Padding="8,3"
                                                 Margin="10,0,0,0"
                                                 VerticalAlignment="Center"

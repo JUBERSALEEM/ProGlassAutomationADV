@@ -211,7 +211,7 @@
                 Background="{DynamicResource TintRedBrush}"
                 BorderBrush="{DynamicResource DangerBrush}"
                 BorderThickness="1"
-                CornerRadius="10"
+                CornerRadius="{DynamicResource ControlCornerRadius}"
                 Padding="14,12"
                 Margin="0,16,0,0"
                 SnapsToDevicePixels="True"

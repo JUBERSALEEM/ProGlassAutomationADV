@@ -81,7 +81,7 @@
                     <!-- Serial disc -->
                     <Border Grid.Column="0"
                             Width="34" Height="34"
-                            CornerRadius="10"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
                             Margin="0,0,12,0"
                             VerticalAlignment="Center"
                             SnapsToDevicePixels="True"

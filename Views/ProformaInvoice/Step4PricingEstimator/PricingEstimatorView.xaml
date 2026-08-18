@@ -274,7 +274,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                  SELECT SPECIFICATION TARGET GROUPS
             ══════════════════════════════════════════════════════════ -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    CornerRadius="10"
+                    CornerRadius="{DynamicResource ControlCornerRadius}"
                     Padding="10"
                     Margin="0,6,0,0"
                     BorderThickness="{DynamicResource CardBorderThickness}"
@@ -318,7 +318,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                        Foreground="{DynamicResource SecondaryForegroundBrush}"
                                        VerticalAlignment="Center"/>
                             <Border Background="{DynamicResource AccentBrush}"
-                                    CornerRadius="10"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Padding="10,3"
                                     MinWidth="36"
                                     Margin="6,0,0,0">
@@ -463,7 +463,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
             ══════════════════════════════════════════════════════════ -->
             <!-- PERF-02: DropShadowEffect removed. BorderThickness=2. -->
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
-                    CornerRadius="10"
+                    CornerRadius="{DynamicResource ControlCornerRadius}"
                     Padding="12,8"
                     Margin="0,6,0,0"
                     BorderThickness="2"

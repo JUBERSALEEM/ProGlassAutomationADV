@@ -692,7 +692,7 @@ PRESERVED EXACTLY:
                                VerticalAlignment="Center"
                                Margin="0,0,10,0"/>
                     <Border Background="{DynamicResource AccentBrush}"
-                            CornerRadius="10"
+                            CornerRadius="{DynamicResource ControlCornerRadius}"
                             Padding="14,6"
                             MinWidth="46">
                         <TextBlock Text="{Binding TotalSpecGroups}"
@@ -1082,7 +1082,7 @@ PRESERVED EXACTLY:
                                 <!-- GLASS PANEL ITEMS TABLE -->
                                 <Border
                                     Background="{DynamicResource WindowBackgroundBrush}"
-                                    CornerRadius="10"
+                                    CornerRadius="{DynamicResource ControlCornerRadius}"
                                     Padding="12"
                                     BorderThickness="{DynamicResource CardBorderThickness}"
                                     BorderBrush="{DynamicResource OutlineBrush}"

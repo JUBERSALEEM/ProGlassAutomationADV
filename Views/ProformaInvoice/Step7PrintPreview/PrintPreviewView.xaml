@@ -251,7 +251,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                         <Border Background="{DynamicResource AccentBrush}"
                                 Width="34"
                                 Height="34"
-                                CornerRadius="10"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 VerticalAlignment="Center"
                                 Margin="0,0,12,0">
                             <TextBlock Text="&#xE945;"
@@ -432,7 +432,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                    Foreground="White"
                                    VerticalAlignment="Center"/>
                         <Border Background="#4B5563"
-                                CornerRadius="10"
+                                CornerRadius="{DynamicResource ControlCornerRadius}"
                                 Padding="8,3"
                                 Margin="12,0,0,0"
                                 VerticalAlignment="Center">
