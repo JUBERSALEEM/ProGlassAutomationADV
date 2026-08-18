@@ -333,6 +333,7 @@
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
                         <ColumnDefinition Width="Auto"/>
+                        <ColumnDefinition Width="Auto"/>
                     </Grid.ColumnDefinitions>
                     <StackPanel Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center">
                         <Border Width="30" Height="30" CornerRadius="8" Margin="0,0,10,0"
@@ -356,9 +357,13 @@
                         <TextBlock Text="BUYING VALUE" Style="{StaticResource StatLabel}"/>
                         <TextBlock Text="{Binding TotalBuyingValue, StringFormat={}{0:N0} AED}" Style="{StaticResource StatValue}" FontSize="16" Foreground="{DynamicResource DangerBrush}"/>
                     </StackPanel>
-                    <StackPanel Grid.Column="5">
+                    <StackPanel Grid.Column="5" Margin="0,0,28,0">
                         <TextBlock Text="SELLING VALUE" Style="{StaticResource StatLabel}"/>
                         <TextBlock Text="{Binding TotalSellingValue, StringFormat={}{0:N0} AED}" Style="{StaticResource StatValue}" FontSize="16" Foreground="{DynamicResource SuccessBrush}"/>
+                    </StackPanel>
+                    <StackPanel Grid.Column="6">
+                        <TextBlock Text="EXPECTED PROFIT" Style="{StaticResource StatLabel}"/>
+                        <TextBlock Text="{Binding TotalProfit, StringFormat={}{0:N0} AED}" Style="{StaticResource StatValue}" FontSize="16" Foreground="{DynamicResource AccentBrush}"/>
                     </StackPanel>
                 </Grid>
             </Border>
