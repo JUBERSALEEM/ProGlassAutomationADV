@@ -369,6 +369,20 @@ and testable.
 
 ## Fastest wins / execution progress
 
+### Phase 9 remainder — module headers / wizard steps: **APPLIED** (2026-08-18)
+
+Shared chrome added to `DesignTokens.xaml` (`ModuleDetailTitleStyle`,
+`ModuleDetailActionBarStyle`, `ModuleWizardStepIconStyle`,
+`ModuleErrorBannerStyle`, `ModuleSuccessBannerStyle`,
+`ModuleFieldLabelStyle`, `ModuleInlineWarningStyle`). JO/DN/TI detail
+action bars + list/detail error banners, the PI list title, and PI
+wizard steps 1–3 / 5–8 headers now consume those primitives. Global
+TextBox focus ring and Step 4 inputs no longer hardcode indigo.
+Statement wizard Filter/Preview/Execute hex and the printable-invoice
+surface are the next visual increment (one module per commit).
+
+See `Docs/FILE_ANALYSIS_2026-08.md` and `Docs/DESIGN_SYSTEM.md`.
+
 ### Phase 0 — accent identity fix: **COMPLETE** ✅
 
 Implemented in commits `2192e4b` → `cc2b0b6`. The entire hardcoded indigo

@@ -219,8 +219,8 @@ namespace ProGlassAutomation.Tests.Agent
         {
             // Both must match, or the hybrid is mistaken for a plain DGU
             // or a plain LAM and half its cost disappears.
-            Assert.True(SpacerPattern.IsMatch(HybridSpec));
-            Assert.True(PvbPattern.IsMatch(HybridSpec));
+            Assert.Matches(SpacerPattern, HybridSpec);
+            Assert.Matches(PvbPattern, HybridSpec);
         }
 
         [Fact]

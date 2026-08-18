@@ -1,4 +1,4 @@
-﻿<!--
+<!--
 ═══════════════════════════════════════════════════════════════════════
 FILE: Views/ProformaInvoice/Step2ClientProfile/ClientProfileView.xaml
 ═══════════════════════════════════════════════════════════════════════
@@ -34,12 +34,8 @@ CHAT 17 — UI POLISH
 
     <UserControl.Resources>
 
-        <Style x:Key="FieldLabelStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="11"/>
-            <Setter Property="FontWeight" Value="SemiBold"/>
-            <Setter Property="Foreground" Value="{DynamicResource SecondaryForegroundBrush}"/>
-            <Setter Property="Margin"     Value="0,0,0,8"/>
-        </Style>
+        <Style x:Key="FieldLabelStyle" TargetType="TextBlock"
+               BasedOn="{StaticResource ModuleFieldLabelStyle}"/>
 
         <Style x:Key="SubsectionLabelStyle" TargetType="TextBlock">
             <Setter Property="FontSize"   Value="11"/>
@@ -52,11 +48,8 @@ CHAT 17 — UI POLISH
             InlineWarningStyle — used via BasedOn ONLY.
             Never applied as Style= attribute directly on any element.
         -->
-        <Style x:Key="InlineWarningStyle" TargetType="TextBlock">
-            <Setter Property="FontSize"   Value="11"/>
-            <Setter Property="Foreground" Value="#B45309"/>
-            <Setter Property="Margin"     Value="2,4,0,0"/>
-        </Style>
+        <Style x:Key="InlineWarningStyle" TargetType="TextBlock"
+               BasedOn="{StaticResource ModuleInlineWarningStyle}"/>
 
         <!-- Salesman editable ComboBox — WPF Gotcha #12: TextSearch.TextPath required -->
         <Style x:Key="SalesmanComboBoxStyle" TargetType="ComboBox">
@@ -93,14 +86,14 @@ CHAT 17 — UI POLISH
             <Style.Triggers>
                 <Trigger Property="IsMouseOver" Value="True">
                     <Setter Property="BorderBrush" Value="{DynamicResource AccentBrush}"/>
-                    <Setter Property="Background"  Value="#EEF2FF"/>
+                    <Setter Property="Background"  Value="{DynamicResource TintIndigoBrush}"/>
                 </Trigger>
             </Style.Triggers>
         </Style>
 
         <Style x:Key="UsageBadgeStyle" TargetType="Border">
-            <Setter Property="Background"   Value="#EEF2FF"/>
-            <Setter Property="CornerRadius" Value="8"/>
+            <Setter Property="Background"   Value="{DynamicResource TintIndigoBrush}"/>
+            <Setter Property="CornerRadius" Value="{DynamicResource ControlCornerRadius}"/>
             <Setter Property="Padding"      Value="6,3"/>
         </Style>
 
@@ -143,11 +136,7 @@ CHAT 17 — UI POLISH
 
             <!-- ══ STEP HEADER ══ -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                <Border Background="{DynamicResource AccentBrush}"
-                        Width="44"
-                        Height="44"
-                        CornerRadius="12"
-                        VerticalAlignment="Center">
+                <Border Style="{StaticResource ModuleWizardStepIconStyle}">
                     <Border.Effect>
                         <DropShadowEffect BlurRadius="12"
                                           ShadowDepth="2"
@@ -158,20 +147,16 @@ CHAT 17 — UI POLISH
                     <TextBlock Text="&#xE77B;"
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="20"
-                               Foreground="White"
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
                 </Border>
                 <StackPanel VerticalAlignment="Center" Margin="16,0,0,0">
                     <TextBlock Text="Client Profile &amp; References"
-                               FontSize="22"
-                               FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                               Style="{StaticResource ModulePageTitleStyle}"/>
                     <TextBlock
                         Text="Select a saved client or enter customer details, billing address and salesman."
-                        FontSize="12"
-                        Foreground="{DynamicResource SecondaryForegroundBrush}"
-                        Margin="0,4,0,0"
+                        Style="{StaticResource ModulePageSubtitleStyle}"
                         TextWrapping="Wrap"/>
                 </StackPanel>
             </StackPanel>
@@ -268,7 +253,7 @@ CHAT 17 — UI POLISH
                                                 <Trigger Property="IsMouseOver" Value="True">
                                                     <Setter TargetName="RefreshBg"
                                                             Property="Background"
-                                                            Value="#EEF2FF"/>
+                                                            Value="{DynamicResource TintIndigoBrush}"/>
                                                 </Trigger>
                                             </ControlTemplate.Triggers>
                                         </ControlTemplate>
@@ -325,15 +310,13 @@ CHAT 17 — UI POLISH
                             </StackPanel>
 
                             <!-- ERROR STATE -->
-                            <Border CornerRadius="{DynamicResource ControlCornerRadius}"
-                                    Padding="14,10"
-                                    Margin="0,0,0,12"
-                                    Background="#FEF2F2"
-                                    BorderBrush="#B91C1C"
-                                    BorderThickness="1">
+                            <Border>
                                 <Border.Style>
-                                    <Style TargetType="Border">
+                                    <Style TargetType="Border"
+                                           BasedOn="{StaticResource ModuleErrorBannerStyle}">
                                         <Setter Property="Visibility" Value="Collapsed"/>
+                                        <Setter Property="Padding" Value="14,10"/>
+                                        <Setter Property="Margin" Value="0,0,0,12"/>
                                         <Style.Triggers>
                                             <DataTrigger Binding="{Binding HasCardsError}"
                                                          Value="True">
@@ -563,8 +546,8 @@ CHAT 17 — UI POLISH
                 <Border.Style>
                     <Style TargetType="Border">
                         <Setter Property="Visibility"      Value="Collapsed"/>
-                        <Setter Property="Background"      Value="#D1FAE5"/>
-                        <Setter Property="BorderBrush"     Value="#047857"/>
+                        <Setter Property="Background"      Value="{DynamicResource TintGreenBrush}"/>
+                        <Setter Property="BorderBrush"     Value="{DynamicResource SuccessBrush}"/>
                         <Setter Property="BorderThickness" Value="1"/>
                         <Style.Triggers>
                             <DataTrigger Binding="{Binding HasLoadedProfile}"

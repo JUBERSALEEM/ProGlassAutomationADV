@@ -1,4 +1,4 @@
-﻿<!--
+<!--
     ══════════════════════════════════════════════════════════════════════
     FILE: Styles/Step4SectionStyles.xaml
 
@@ -76,10 +76,10 @@
                     </Border>
                     <ControlTemplate.Triggers>
                         <Trigger Property="IsMouseOver" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush" Value="#6366F1"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
                         </Trigger>
                         <Trigger Property="IsFocused" Value="True">
-                            <Setter TargetName="Chrome" Property="BorderBrush"     Value="#4338CA"/>
+                            <Setter TargetName="Chrome" Property="BorderBrush"     Value="{DynamicResource AccentBrush}"/>
                             <Setter TargetName="Chrome" Property="BorderThickness" Value="2"/>
                         </Trigger>
                     </ControlTemplate.Triggers>
@@ -102,10 +102,10 @@
         <Setter Property="VerticalContentAlignment" Value="Center"/>
         <Style.Triggers>
             <Trigger Property="IsMouseOver" Value="True">
-                <Setter Property="BorderBrush" Value="#6366F1"/>
+                <Setter Property="BorderBrush" Value="{DynamicResource AccentHoverBrush}"/>
             </Trigger>
             <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                <Setter Property="BorderBrush"     Value="#4338CA"/>
+                <Setter Property="BorderBrush"     Value="{DynamicResource AccentBrush}"/>
                 <Setter Property="BorderThickness" Value="2"/>
             </Trigger>
         </Style.Triggers>
@@ -205,7 +205,7 @@
                                                Text="&#xE76C;"
                                                FontFamily="Segoe MDL2 Assets"
                                                FontSize="9"
-                                               Foreground="#4338CA"
+                                               Foreground="{DynamicResource AccentBrush}"
                                                VerticalAlignment="Center"
                                                Margin="0,0,8,0"/>
 

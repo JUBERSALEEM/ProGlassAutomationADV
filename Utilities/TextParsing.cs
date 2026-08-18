@@ -19,11 +19,14 @@ namespace ProGlassAutomation.Utilities
     {
         /// <summary>
         /// Normalises a user-typed numeric string for parsing: trims and strips
-        /// thousands separators (commas) and embedded spaces. Empty/null input
-        /// collapses to "0".
+        /// thousands separators (commas) and embedded spaces. Empty/null/whitespace
+        /// input collapses to "0".
         /// </summary>
-        public static string CleanNum(string s) =>
-            s?.Trim().Replace(",", "").Replace(" ", "") ?? "0";
+        public static string CleanNum(string? s)
+        {
+            var cleaned = s?.Trim().Replace(",", "").Replace(" ", "");
+            return string.IsNullOrEmpty(cleaned) ? "0" : cleaned;
+        }
 
         /// <summary>
         /// Parses an invariant-culture integer, tolerating leading/trailing

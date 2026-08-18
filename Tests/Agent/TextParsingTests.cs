@@ -21,6 +21,7 @@ namespace ProGlassAutomation.Tests.Agent
         [InlineData("1 234", "1234")]
         [InlineData("  42  ", "42")]
         [InlineData("", "0")]
+        [InlineData("   ", "0")]
         [InlineData(null, "0")]
         public void CleanNum_strips_separators_and_whitespace(
             string? input, string expected)

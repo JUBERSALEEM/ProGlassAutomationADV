@@ -161,8 +161,7 @@
 
         <!-- ══ ROW 0 — ACTION BAR ════════════════════════════════════ -->
         <Border Grid.Row="0"
-                Style="{StaticResource CardStyle}"
-                Padding="14,12" Margin="0,0,0,12">
+                Style="{StaticResource ModuleDetailActionBarStyle}">
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="Auto"/>
@@ -181,9 +180,7 @@
                             Orientation="Horizontal"
                             VerticalAlignment="Center">
                     <TextBlock Text="{Binding PageTitle}"
-                               FontSize="18" FontWeight="Bold"
-                               VerticalAlignment="Center"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                               Style="{StaticResource ModuleDetailTitleStyle}"/>
 
                     <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="8" Padding="10,3"
                             Margin="10,0,0,0" VerticalAlignment="Center"

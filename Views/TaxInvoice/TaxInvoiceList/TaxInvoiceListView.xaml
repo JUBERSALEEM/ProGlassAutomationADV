@@ -443,8 +443,7 @@
             <!-- Error -->
             <Border Visibility="{Binding HasError,
                                  Converter={StaticResource BoolToVisibilityConverter}}"
-                    Background="#FEF2F2" BorderBrush="#FECACA"
-                    BorderThickness="1" CornerRadius="12"
+                    Style="{StaticResource ModuleErrorBannerStyle}"
                     Padding="14" Margin="4,0,4,10">
                 <TextBlock Text="{Binding ErrorMessage}"
                            Foreground="{DynamicResource DangerBrush}" FontSize="12"

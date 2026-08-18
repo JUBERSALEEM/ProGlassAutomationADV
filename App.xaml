@@ -145,12 +145,12 @@
                                         Margin=-2 so it peeks out slightly around MainBorder.
                                     -->
                                 <Border x:Name="FocusRing"
-                                            CornerRadius="10"
+                                            CornerRadius="{DynamicResource ControlCornerRadius}"
                                             Margin="-2"
                                             Opacity="0"
                                             IsHitTestVisible="False">
                                     <Border.Background>
-                                        <SolidColorBrush Color="#4338CA"/>
+                                        <SolidColorBrush Color="{DynamicResource AccentColor}"/>
                                     </Border.Background>
                                     <Border.Effect>
                                         <BlurEffect Radius="0"/>
@@ -166,7 +166,7 @@
                                             Background="{TemplateBinding Background}"
                                             BorderBrush="{TemplateBinding BorderBrush}"
                                             BorderThickness="{TemplateBinding BorderThickness}"
-                                            CornerRadius="8">
+                                            CornerRadius="{DynamicResource ControlCornerRadius}">
                                     <ScrollViewer x:Name="PART_ContentHost"
                                                       Focusable="False"
                                                       Margin="{TemplateBinding Padding}"
@@ -179,18 +179,18 @@
 
                             <ControlTemplate.Triggers>
 
-                                <!-- Hover: border shifts to soft indigo -->
+                                <!-- Hover: border shifts to theme accent hover -->
                                 <Trigger Property="IsMouseOver" Value="True">
                                     <Setter TargetName="MainBorder"
                                                 Property="BorderBrush"
-                                                Value="#6366F1"/>
+                                                Value="{DynamicResource AccentHoverBrush}"/>
                                 </Trigger>
 
-                                <!-- Focus: border = deep indigo + glow animates in -->
+                                <!-- Focus: border = theme accent + glow animates in -->
                                 <Trigger Property="IsKeyboardFocusWithin" Value="True">
                                     <Setter TargetName="MainBorder"
                                                 Property="BorderBrush"
-                                                Value="#4338CA"/>
+                                                Value="{DynamicResource AccentBrush}"/>
                                     <Setter TargetName="MainBorder"
                                                 Property="BorderThickness"
                                                 Value="2"/>

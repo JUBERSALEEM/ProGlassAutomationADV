@@ -182,12 +182,12 @@ CHAT 17 — TWO-PART SPEC-TARGET SELECTOR
 
             <!-- STEP HEADER (PERF-01 applied) -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                <Border Background="{DynamicResource AccentBrush}" Width="44" Height="44" CornerRadius="12" VerticalAlignment="Center">
-                    <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="White" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                <Border Style="{StaticResource ModuleWizardStepIconStyle}">
+                    <TextBlock Text="&#xE8C7;" FontFamily="Segoe MDL2 Assets" FontSize="20" Foreground="{DynamicResource OnAccentForegroundBrush}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
                 </Border>
                 <StackPanel VerticalAlignment="Center" Margin="16,0,0,0">
-                    <TextBlock Text="{Binding Title}" FontSize="22" FontWeight="Bold" Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock Text="{Binding Subtitle}" FontSize="12" Foreground="{DynamicResource SecondaryForegroundBrush}" Margin="0,4,0,0" TextWrapping="Wrap"/>
+                    <TextBlock Text="{Binding Title}" Style="{StaticResource ModulePageTitleStyle}"/>
+                    <TextBlock Text="{Binding Subtitle}" Style="{StaticResource ModulePageSubtitleStyle}" TextWrapping="Wrap"/>
                 </StackPanel>
             </StackPanel>
 

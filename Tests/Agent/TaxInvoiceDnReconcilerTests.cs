@@ -52,7 +52,7 @@ namespace ProGlassAutomation.Tests.Agent
         [InlineData(null)]
         [InlineData("")]
         [InlineData("   ")]
-        public void Empty_reference_returns_empty(string reference)
+        public void Empty_reference_returns_empty(string? reference)
         {
             Assert.Empty(TaxInvoiceDnReconciler.ParseDnRefs(reference));
         }

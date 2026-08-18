@@ -72,11 +72,8 @@
                             Margin="16,0,0,0"
                             VerticalAlignment="Center">
                     <TextBlock Text="Attachments"
-                               FontSize="18" FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                    <TextBlock FontSize="12"
-                               Margin="0,2,0,0"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}">
+                               Style="{StaticResource ModulePageTitleStyle}"/>
+                    <TextBlock Style="{StaticResource ModulePageSubtitleStyle}">
                         <Run Text="Site photos, drawings &amp; approvals for invoice "/>
                         <Run Text="{Binding ProformaId, Mode=OneWay,
                                             FallbackValue='(set ID in Step 1)'}"/>

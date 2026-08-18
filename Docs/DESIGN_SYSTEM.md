@@ -63,9 +63,19 @@ Light/Dark themes and the Normal/Monet/Professional families.
 - ✅ Job Order / Delivery Note / Tax Invoice — page titles + subtitles on
   the shared styles (consistent 24/12 scale).
 - ✅ Splash + About — version bound to `AppInfo.Version` (no stale strings).
-- 🔲 Remaining module chrome (DN/TI/PI detail headers, wizard steps) —
-  migrate incrementally per the rules above; each is a small, reviewable
-  change.
+- ✅ Phase 9 header/wizard rewire (this increment):
+  - Shared chrome added: `ModuleDetailTitleStyle`,
+    `ModuleDetailActionBarStyle`, `ModuleWizardStepIconStyle`,
+    `ModuleErrorBannerStyle`, `ModuleSuccessBannerStyle`,
+    `ModuleFieldLabelStyle`, `ModuleInlineWarningStyle`.
+  - JO/DN/TI detail action bars + error banners consume those primitives.
+  - PI list title and wizard steps 1–3 / 5–8 headers use
+    `ModulePageTitleStyle` + `ModuleWizardStepIconStyle`.
+  - Global TextBox focus ring and Step 4 inputs no longer hardcode indigo
+    (`#4338CA` / `#6366F1`) — they follow `AccentBrush`.
+- 🔲 Remaining chrome (Statement wizard Filter/Preview/Execute hex,
+  PrintableInvoice print surface, DN/TI list row semantic hex, PDF
+  exporters) — migrate incrementally; each is a small, reviewable change.
 
 ## Why pilot-first
 A global find-and-replace across 89 XAML files is how you break a working

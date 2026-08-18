@@ -1,4 +1,4 @@
-﻿<!--
+<!--
 ═══════════════════════════════════════════════════════════════════════
 FILE: Views/ProformaInvoice/Step5DataGrid/DataGridView.xaml
 
@@ -620,26 +620,19 @@ PRESERVED EXACTLY:
                  STEP HEADER
             ══════════════════════════════════════════════════════════ -->
             <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
-                <Border Background="{DynamicResource AccentBrush}"
-                        Width="44" Height="44"
-                        CornerRadius="12"
-                        VerticalAlignment="Center">
+                <Border Style="{StaticResource ModuleWizardStepIconStyle}">
                     <TextBlock Text="&#xF0E2;"
                                FontFamily="Segoe MDL2 Assets"
                                FontSize="20"
-                               Foreground="White"
+                               Foreground="{DynamicResource OnAccentForegroundBrush}"
                                HorizontalAlignment="Center"
                                VerticalAlignment="Center"/>
                 </Border>
                 <StackPanel VerticalAlignment="Center" Margin="16,0,0,0">
                     <TextBlock Text="{Binding Title}"
-                               FontSize="22"
-                               FontWeight="Bold"
-                               Foreground="{DynamicResource PrimaryForegroundBrush}"/>
+                               Style="{StaticResource ModulePageTitleStyle}"/>
                     <TextBlock Text="{Binding Subtitle}"
-                               FontSize="12"
-                               Foreground="{DynamicResource SecondaryForegroundBrush}"
-                               Margin="0,4,0,0"
+                               Style="{StaticResource ModulePageSubtitleStyle}"
                                TextWrapping="Wrap"/>
                 </StackPanel>
             </StackPanel>
