@@ -603,10 +603,9 @@
 
                             <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,16,0,16"/>
 
-                            <!-- TOTAL PURCHASE / SELLING / PROFIT — clean cards
-                                 matching the top-panel pill-button shape (radius
-                                 20) instead of oversized pills. -->
-                            <TextBlock Text="TOTAL INVENTORY"
+                            <!-- SELECTED ROW PURCHASE / SELLING / PROFIT —
+                                 per-row values, not the list totals. -->
+                            <TextBlock Text="ROW DETAILS"
                                        FontSize="10" FontWeight="Bold"
                                        Foreground="{DynamicResource MutedForegroundBrush}"
                                        Margin="4,0,0,8"/>
@@ -619,8 +618,8 @@
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE7BF;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{DynamicResource DangerBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                     <StackPanel>
-                                        <TextBlock Text="TOTAL PURCHASE" Style="{StaticResource StatLabel}" Foreground="{DynamicResource DangerBrush}"/>
-                                        <TextBlock Text="{Binding TotalBuyingValue, StringFormat={}{0:N0} AED}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}" Margin="0,2,0,0"/>
+                                        <TextBlock Text="PURCHASE VALUE" Style="{StaticResource StatLabel}" Foreground="{DynamicResource DangerBrush}"/>
+                                        <TextBlock Text="{Binding DisplayBuyingValue, StringFormat={}{0:N0} AED}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </StackPanel>
                             </Border>
@@ -633,8 +632,8 @@
                                 <StackPanel Orientation="Horizontal">
                                     <TextBlock Text="&#xE7BF;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{DynamicResource SuccessBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                     <StackPanel>
-                                        <TextBlock Text="TOTAL SELLING" Style="{StaticResource StatLabel}" Foreground="{DynamicResource SuccessBrush}"/>
-                                        <TextBlock Text="{Binding TotalSellingValue, StringFormat={}{0:N0} AED}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" Margin="0,2,0,0"/>
+                                        <TextBlock Text="SELLING VALUE" Style="{StaticResource StatLabel}" Foreground="{DynamicResource SuccessBrush}"/>
+                                        <TextBlock Text="{Binding DisplaySellingValue, StringFormat={}{0:N0} AED}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource SuccessBrush}" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </StackPanel>
                             </Border>
@@ -648,12 +647,12 @@
                                     <TextBlock Text="&#xE9F9;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{DynamicResource AccentBrush}" VerticalAlignment="Center" Margin="0,0,12,0"/>
                                     <StackPanel>
                                         <TextBlock Text="EXPECTED PROFIT" Style="{StaticResource StatLabel}" Foreground="{DynamicResource AccentBrush}"/>
-                                        <TextBlock Text="{Binding TotalProfit, StringFormat={}{0:N0} AED}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,2,0,0"/>
+                                        <TextBlock Text="{Binding DisplayProfit, StringFormat={}{0:N0} AED}" FontSize="16" FontWeight="Bold" Foreground="{DynamicResource AccentBrush}" Margin="0,2,0,0"/>
                                     </StackPanel>
                                 </StackPanel>
                             </Border>
 
-                            <!-- Selected row stock cards (radius 20, matching pills) -->
+                            <!-- Selected row stock: STOCK / USED / BALANCE -->
                             <TextBlock Text="SELECTED ROW"
                                        FontSize="10" FontWeight="Bold"
                                        Foreground="{DynamicResource MutedForegroundBrush}"
@@ -662,9 +661,10 @@
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>
                                     <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
                                 <Border CornerRadius="20" Padding="12,10"
-                                        Margin="0,0,4,10"
+                                        Margin="0,0,3,10"
                                         Background="{DynamicResource TintGreenBrush}"
                                         BorderBrush="{DynamicResource SuccessBrush}"
                                         BorderThickness="1">
@@ -674,7 +674,17 @@
                                     </StackPanel>
                                 </Border>
                                 <Border Grid.Column="1" CornerRadius="20" Padding="12,10"
-                                        Margin="4,0,0,10"
+                                        Margin="3,0,3,10"
+                                        Background="{DynamicResource TintRedBrush}"
+                                        BorderBrush="{DynamicResource DangerBrush}"
+                                        BorderThickness="1">
+                                    <StackPanel>
+                                        <TextBlock Text="USED" FontSize="9" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}"/>
+                                        <TextBlock Text="{Binding DisplayUsed}" FontSize="14" FontWeight="Bold" Foreground="{DynamicResource DangerBrush}" Margin="0,2,0,0"/>
+                                    </StackPanel>
+                                </Border>
+                                <Border Grid.Column="2" CornerRadius="20" Padding="12,10"
+                                        Margin="3,0,0,10"
                                         Background="{DynamicResource TintAmberBrush}"
                                         BorderBrush="{DynamicResource WarningBrush}"
                                         BorderThickness="1">
