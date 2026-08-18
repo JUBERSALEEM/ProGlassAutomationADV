@@ -47,12 +47,14 @@
 | UI fix | Login redesigned to a blurred-blue stage (fixed navy→blue gradient + blurred orbs + light frosted card, theme-independent readable chrome); added admin-mediated "Forgot password?" reset (`ResetPasswordWindow` + `AuditService.AdminResetPasswordAsync`); fixed password-window collapsing (larger sizes + scrollable forms) | `cf4268e` | ✅ (static; needs Windows build) |
 | 19 — Verdict | Final Production-Readiness verdict recorded below | — | ✅ (report) |
 
+**Phase 17 (testing) — CONFIRMED GREEN on Windows:** `dotnet test` → total 428, failed 0, succeeded 428 (2026-08-18). This covers the Phase 5 SQM, Phase 15 StatusTransitions/Reconciler, and the added Statement/PaymentTerms/InvoiceTotals tests. (Also fixed the 7 initial xUnit failures — an `InlineData` int→`long?` conversion and two StatusTransitions tests that over-stated strictness vs the actual permissive-but-deterministic table.)
+
 **Build status (2026-08-18):** user confirmed `dotnet build` succeeds with no errors on Windows. The God-VM refactor (`b49c02a`) is new since that confirmation and still needs the user's next Windows build to confirm — no compile errors are expected (pure static renames only).
 
 **Remaining (requires Windows build/runtime review + business sign-off — not blind-applicable):**
 - Phase 9 remainder — the **visual** redesign of the remaining module detail headers / wizard steps still needs Windows rendering review (the token consolidation is applied; appearance is unchanged by design).
 - Phase 11/12 remainder — the large God VMs have been split substantially (standalone classes extracted to dedicated files). The remaining big files are single classes whose logic is tightly coupled to instance state (TaxInvoiceDetail 2118, StatementGenerator 1950, DeliveryNoteDetail 1909, Settings 1701, ProfitLossStep 1587, PrintableInvoice 1564); further extraction means pulling instance methods into parameterised helpers, which is higher-risk and done build-verified, incrementally.
-- Phase 17 — `dotnet test` execution of the added test suite (requires Windows). **Not yet run/confirmed green.**
+- Phase 17 — `dotnet test` execution of the added test suite (requires Windows). **DONE — 428/428 green.**
 - Phase 18 — Release build (requires Windows). **Not yet run.**
 - Windows build confirmation of the Phase 9/10/13 commits (`ac42788`, `5749066`, `ead18f5`) — they compile statically but must be built + smoke-tested (fresh-DB first-run force-password + lockout paths) on Windows.
 
