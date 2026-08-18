@@ -15,7 +15,6 @@
 //   S-09  BUG-77/78/79/80/81 all preserved
 //   S-10  Step7VM constructor args corrected for new Step2/Step3 types
 // ═══════════════════════════════════════════════════════════════════════
-
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.ProformaInvoice.Step7PrintPreview.TermsAndConditions;
 using ProGlassAutomation.Services.ProformaInvoice.ProformaInvoiceRepository;
@@ -29,58 +28,6 @@ using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice
 {
-    /// <summary>
-    /// Temporary list item — Dashboard contract placeholder.
-    /// BUG-79 [MEDIUM]: Real data comes from Phase 20+ Dashboard analytics.
-    /// </summary>
-    public class InvoiceItem : ViewModelBase
-    {
-        public string InvoiceNo { get; set; }
-        public string CustomerName { get; set; }
-        public string Date { get; set; }
-        public decimal Amount { get; set; }
-        public string Status { get; set; } = "Pending";
-    }
-
-    /// <summary>
-    /// Represents a single step in the wizard sidebar.
-    /// BUG-81: Kept in shell file — splitting breaks XAML clr-namespace bindings.
-    /// </summary>
-    public class WizardStep : ViewModelBase
-    {
-        public int StepNumber { get; set; }
-        public string Title { get; set; }
-        public string Subtitle { get; set; }
-
-        private bool _isActive;
-        public bool IsActive
-        {
-            get => _isActive;
-            set { _isActive = value; OnPropertyChanged(); }
-        }
-
-        private bool _isCompleted;
-        public bool IsCompleted
-        {
-            get => _isCompleted;
-            set { _isCompleted = value; OnPropertyChanged(); }
-        }
-    }
-
-    /// <summary>
-    /// Main ViewModel for the Proforma Invoice module.
-    /// Phase 7.19: List-first architecture.
-    /// Phase 8.2:  TriggerNewInvoice() for Dashboard quick action.
-    /// Chat 15:    Step swap (Client=2, Project=3) + card wiring.
-    ///
-    /// BUG-77 [HIGH]:   LoadInvoiceIntoWizard async void → async Task via SafeFireAsync.
-    /// BUG-78 [HIGH]:   StartNewInvoice clean spec-group rebuild (no handler leak).
-    /// BUG-79 [MEDIUM]: InvoiceItem as Dashboard placeholder.
-    /// BUG-80 [LOW]:    Dashboard totals return 0 — Phase 20+.
-    /// BUG-81 [COSMETIC]: File structure preserved.
-    /// S-07:            Client→Project filter wired via PropertyChanged subscription.
-    ///                  Subscription is made ONCE in constructor — safe for VM lifetime.
-    /// </summary>
     public class ProformaInvoiceViewModel : ViewModelBase,
         ProGlassAutomation.Agent.Context.IAgentContextAware
     {
