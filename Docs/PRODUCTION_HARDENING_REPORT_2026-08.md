@@ -43,6 +43,9 @@
 | 11/12 (God-VM) | Split DN + TI list row VMs into per-class files (`DeliveryNoteRowViewModel`, `PendingQtyRowViewModel`, `JobOrderGroupRowViewModel`, `TaxInvoiceRowViewModel`, `InvoiceFamilyRowViewModel`) | `233c8a6` | ✅ (static) |
 | 11/12 (God-VM) | Extracted `ProjectProfileCard` (ProjectSpecs) + `ClientProfileCard` (ClientProfile) | `233c8a6` | ✅ (static) |
 | 11/12 (God-VM) | Extracted `InvRowViewModel`, `UserRowViewModel`, `ActivityRowViewModel`, `GlobalSearchResult`, `CompanyProfileCard`, `JobOrderRowViewModel`, `RecentStatementItem` to per-class files | `7537306` | ✅ (static) |
+| 11/12 (arch) | Extracted `StatementSnapshotFilter` (MatchesFilter/SafeMatch) + `JobOrderQtyExtractor` (JSON qty) out of `StatementWorkflowEngine` (1816→~1700) | `feedcee` | ✅ (static) |
+| 15 (build fix) | Restored `IExcelPasteable` interface lost during the FindReplaceDialog extract (CS0246) as `Behaviors/IExcelPasteable.cs` | `3879cdd` | ✅ (static) |
+| 15 (build fix) | Restored missing `SavedTaxInvoice` using in `TaxInvoiceRowViewModel` (CS0246, BOM-drop during split) | `8109cc2` | ✅ (static) |
 | 11/12 (God-VM) | Extracted `DuplicateAction` enum, `JobProfitabilityRow`, `KpiTileModel` to per-class files | `2bb307f` | ✅ (static) |
 | 11/12 (arch) | Extracted `FindReplaceDialog` out of `DataGridNavigationBehavior` (1243→963) | `58e9822` | ✅ (static) |
 | 15 (testing) | Added `TextParsingTests` + `StatementLogHelperTests` for the Phase 11/12 extracted helpers | `1c9a29c` | ✅ (static; needs dotnet test) |
