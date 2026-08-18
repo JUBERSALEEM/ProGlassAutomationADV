@@ -109,8 +109,14 @@ namespace ProGlassAutomation.Views.SheetStore
         private void ActionsMenuButton_Click(object sender, RoutedEventArgs e)
         {
             // The ContextMenu lives in resources (a ContextMenu cannot be a
-            // visual child). Resolve it and open it anchored to the button.
-            if (Resources["ActionsMenu"] is ContextMenu menu)
+            // visual child). Toggle: single click opens, second click closes.
+            if (Resources["ActionsMenu"] is not ContextMenu menu) return;
+
+            if (menu.IsOpen)
+            {
+                menu.IsOpen = false;
+            }
+            else
             {
                 // A ContextMenu in resources is not in the visual tree, so it
                 // does not inherit the UserControl's DataContext. Wire it

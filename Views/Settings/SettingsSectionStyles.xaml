@@ -623,23 +623,23 @@
         </Setter>
     </Style>
 
-    <!-- iPhone-style pill slider: a tall rounded pill track with an accent
-         fill and a round accent thumb. -->
+    <!-- iPhone-style pill slider: a fully-rounded pill track (12px) with an
+         accent fill showing the level, and a clean round accent thumb. -->
     <Style x:Key="ModernSliderStyle" TargetType="Slider">
-        <Setter Property="Height" Value="26"/>
+        <Setter Property="Height" Value="28"/>
         <Setter Property="VerticalAlignment" Value="Center"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
         <Setter Property="Template">
             <Setter.Value>
                 <ControlTemplate TargetType="Slider">
                     <Grid VerticalAlignment="Center">
-                        <Border Height="10" CornerRadius="5"
+                        <Border Height="12" CornerRadius="6"
                                 Background="{DynamicResource MenuHoverBrush}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
                                 BorderThickness="1"
                                 SnapsToDevicePixels="True"/>
                         <Track x:Name="PART_Track"
-                               Height="10">
+                               Height="12">
                             <Track.DecreaseRepeatButton>
                                 <RepeatButton Style="{StaticResource ModernSliderFillRepeatStyle}"
                                               Command="Slider.DecreaseLarge"/>

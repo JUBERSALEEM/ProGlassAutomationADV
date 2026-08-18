@@ -52,20 +52,20 @@
              LEFT — NAVIGATION RAIL (rounded floating card, clearly visible)
         ══════════════════════════════════════════════════════════════ -->
         <Border CornerRadius="16" Grid.Column="0"
-                Margin="16,16,8,16"
+                Margin="14,14,6,14"
                 Background="{DynamicResource SideMenuBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
                 BorderThickness="1"
                 SnapsToDevicePixels="True">
             <Border.Effect>
-                <DropShadowEffect BlurRadius="18" ShadowDepth="3"
-                                  Direction="270" Opacity="0.15"
+                <DropShadowEffect BlurRadius="16" ShadowDepth="2"
+                                  Direction="270" Opacity="0.12"
                                   Color="#000000"/>
             </Border.Effect>
-            <DockPanel Margin="12,24,12,20">
+            <DockPanel Margin="10,20,10,16">
 
                 <!-- Brand header -->
-                <StackPanel DockPanel.Dock="Top" Margin="16,0,16,14">
+                <StackPanel DockPanel.Dock="Top" Margin="14,0,14,12">
                     <StackPanel Orientation="Horizontal">
                         <Border Width="34" Height="34" CornerRadius="10"
                                 Background="{DynamicResource AccentBrush}"

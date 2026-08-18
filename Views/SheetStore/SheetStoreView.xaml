@@ -502,16 +502,23 @@
                     <ScrollViewer VerticalScrollBarVisibility="Auto"
                                   HorizontalScrollBarVisibility="Disabled">
                         <StackPanel>
-                            <!-- Panel header -->
-                            <StackPanel Orientation="Horizontal">
+                            <!-- Panel header — close button pinned to the far
+                                 right corner so it never overlaps the content. -->
+                            <Grid>
+                                <Grid.ColumnDefinitions>
+                                    <ColumnDefinition Width="Auto"/>
+                                    <ColumnDefinition Width="*"/>
+                                    <ColumnDefinition Width="Auto"/>
+                                </Grid.ColumnDefinitions>
                                 <Border Width="40" Height="40" CornerRadius="20"
-                                        Margin="0,0,12,0"
+                                        Grid.Column="0"
                                         Background="{DynamicResource AccentBrush}">
                                     <TextBlock Text="&#xE7B8;" FontFamily="Segoe MDL2 Assets"
                                                FontSize="17" Foreground="White"
                                                HorizontalAlignment="Center" VerticalAlignment="Center"/>
                                 </Border>
-                                <StackPanel VerticalAlignment="Center">
+                                <StackPanel Grid.Column="1" VerticalAlignment="Center"
+                                            Margin="12,0,10,0">
                                     <TextBlock Text="SHEET DETAILS"
                                                FontSize="11" FontWeight="Bold"
                                                Foreground="{DynamicResource AccentBrush}"/>
@@ -521,13 +528,13 @@
                                                TextTrimming="CharacterEllipsis"
                                                Margin="0,2,0,0"/>
                                 </StackPanel>
-                                <Button Style="{StaticResource RowOutlinedButton}"
+                                <Button Grid.Column="2"
+                                        Style="{StaticResource RowOutlinedButton}"
                                         Tag="&#xE711;" Content=""
-                                        Margin="0,0,0,0"
-                                        HorizontalAlignment="Right"
+                                        VerticalAlignment="Top"
                                         ToolTip="Close (click the row again)"
                                         Command="{Binding ClearSelectionCommand}"/>
-                            </StackPanel>
+                            </Grid>
 
                             <Border Height="1" Background="{DynamicResource OutlineBrush}" Margin="0,16,0,16"/>
 
