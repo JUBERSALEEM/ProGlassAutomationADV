@@ -17,6 +17,41 @@
              SnapsToDevicePixels="True">
 
     <UserControl.Resources>
+
+        <!-- Dropdown menu for the grouped header actions (Refresh/Import/
+             CSV/Excel/PDF/History). Lives in Resources because a ContextMenu
+             cannot be a logical/visual child of a panel. -->
+        <ContextMenu x:Key="ActionsMenu"
+                     Placement="Bottom"
+                     Style="{StaticResource ModernContextMenuStyle}">
+            <MenuItem Header="Refresh Data"
+                      Tag="&#xE72C;"
+                      Style="{StaticResource ModernMenuItemStyle}"
+                      Command="{Binding RefreshCommand}"/>
+            <MenuItem Header="Import from CSV"
+                      Tag="&#xE896;"
+                      Style="{StaticResource ModernMenuItemStyle}"
+                      Command="{Binding ImportCsvCommand}"/>
+            <Separator Style="{StaticResource ModernMenuSeparatorStyle}"/>
+            <MenuItem Header="Export CSV"
+                      Tag="&#xE72D;"
+                      Style="{StaticResource ModernMenuItemStyle}"
+                      Command="{Binding ExportCsvCommand}"/>
+            <MenuItem Header="Export Excel"
+                      Tag="&#xE9F9;"
+                      Style="{StaticResource ModernMenuItemStyle}"
+                      Command="{Binding ExportExcelCommand}"/>
+            <MenuItem Header="Export PDF Report"
+                      Tag="&#xE8A5;"
+                      Style="{StaticResource ModernMenuItemStyle}"
+                      Command="{Binding ExportPdfCommand}"/>
+            <Separator Style="{StaticResource ModernMenuSeparatorStyle}"/>
+            <MenuItem Header="Show History"
+                      Tag="&#xE81C;"
+                      Style="{StaticResource ModernMenuItemStyle}"
+                      Command="{Binding ShowHistoryCommand}"/>
+        </ContextMenu>
+
         <Style x:Key="StatBox" TargetType="Border">
             <Setter Property="Background" Value="{DynamicResource ModuleBackgroundBrush}"/>
             <Setter Property="BorderBrush" Value="{DynamicResource OutlineBrush}"/>
@@ -122,39 +157,6 @@
                             Tag="&#xE710;" Content="ADD NEW"
                             ToolTip="Add a new glass sheet"
                             Command="{Binding AddCommand}"/>
-
-                    <!-- Dropdown menu for the grouped actions -->
-                    <ContextMenu x:Name="ActionsMenu"
-                                 Placement="Bottom"
-                                 PlacementTarget="{Binding ElementName=ActionsMenuButton}"
-                                 Style="{StaticResource ModernContextMenuStyle}">
-                        <MenuItem Header="Refresh Data"
-                                  Tag="&#xE72C;"
-                                  Style="{StaticResource ModernMenuItemStyle}"
-                                  Command="{Binding RefreshCommand}"/>
-                        <MenuItem Header="Import from CSV"
-                                  Tag="&#xE896;"
-                                  Style="{StaticResource ModernMenuItemStyle}"
-                                  Command="{Binding ImportCsvCommand}"/>
-                        <Separator Style="{StaticResource ModernMenuSeparatorStyle}"/>
-                        <MenuItem Header="Export CSV"
-                                  Tag="&#xE72D;"
-                                  Style="{StaticResource ModernMenuItemStyle}"
-                                  Command="{Binding ExportCsvCommand}"/>
-                        <MenuItem Header="Export Excel"
-                                  Tag="&#xE9F9;"
-                                  Style="{StaticResource ModernMenuItemStyle}"
-                                  Command="{Binding ExportExcelCommand}"/>
-                        <MenuItem Header="Export PDF Report"
-                                  Tag="&#xE8A5;"
-                                  Style="{StaticResource ModernMenuItemStyle}"
-                                  Command="{Binding ExportPdfCommand}"/>
-                        <Separator Style="{StaticResource ModernMenuSeparatorStyle}"/>
-                        <MenuItem Header="Show History"
-                                  Tag="&#xE81C;"
-                                  Style="{StaticResource ModernMenuItemStyle}"
-                                  Command="{Binding ShowHistoryCommand}"/>
-                    </ContextMenu>
                 </StackPanel>
             </DockPanel>
 

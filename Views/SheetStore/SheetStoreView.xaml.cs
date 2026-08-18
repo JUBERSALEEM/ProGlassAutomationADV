@@ -108,9 +108,17 @@ namespace ProGlassAutomation.Views.SheetStore
 
         private void ActionsMenuButton_Click(object sender, RoutedEventArgs e)
         {
-            if (ActionsMenu == null) return;
-            ActionsMenu.PlacementTarget = ActionsMenuButton;
-            ActionsMenu.IsOpen = true;
+            // The ContextMenu lives in resources (a ContextMenu cannot be a
+            // visual child). Resolve it and open it anchored to the button.
+            if (Resources["ActionsMenu"] is ContextMenu menu)
+            {
+                // A ContextMenu in resources is not in the visual tree, so it
+                // does not inherit the UserControl's DataContext. Wire it
+                // explicitly so the MenuItem Command bindings resolve.
+                menu.DataContext = DataContext;
+                menu.PlacementTarget = ActionsMenuButton;
+                menu.IsOpen = true;
+            }
             e.Handled = true;
         }
     }
@@ -141,6 +149,18 @@ namespace ProGlassAutomation.Views.SheetStore
         {
             get => (GridLength)GetValue(ToProperty);
             set => SetValue(ToProperty, value);
+        }
+
+        public static readonly DependencyProperty EasingFunctionProperty =
+            DependencyProperty.Register(
+                nameof(EasingFunction),
+                typeof(IEasingFunction),
+                typeof(GridLengthAnimation));
+
+        public IEasingFunction EasingFunction
+        {
+            get => (IEasingFunction)GetValue(EasingFunctionProperty);
+            set => SetValue(EasingFunctionProperty, value);
         }
 
         protected override Freezable CreateInstanceCore() => new GridLengthAnimation();
