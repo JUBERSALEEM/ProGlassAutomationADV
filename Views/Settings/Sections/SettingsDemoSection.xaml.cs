@@ -1,3 +1,4 @@
+using ProGlassAutomation.Agent.Demo;
 using System.Windows.Controls;
 
 namespace ProGlassAutomation.Views.Settings.Sections
@@ -7,6 +8,8 @@ namespace ProGlassAutomation.Views.Settings.Sections
         public SettingsDemoSection()
         {
             InitializeComponent();
+            // Local value — parent SettingsViewModel must not steal command bindings.
+            DataContext = new DemoCenterViewModel();
         }
     }
 }

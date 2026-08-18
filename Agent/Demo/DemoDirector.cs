@@ -18,7 +18,7 @@ namespace ProGlassAutomation.Agent.Demo
 {
     public enum DemoJobState
     {
-        Queued, Analyzing, Preparing, Recording, Narrating,
+        Idle, Queued, Analyzing, Preparing, Recording, Narrating,
         Rendering, Validating, Completed, Failed, Cancelled
     }
 
@@ -42,8 +42,17 @@ namespace ProGlassAutomation.Agent.Demo
     {
         public const int RecordFps = 8;
 
-        public DemoJobState State { get; private set; } = DemoJobState.Queued;
+        public DemoJobState State { get; private set; } = DemoJobState.Idle;
         public string Status { get; private set; } = "";
+
+        /// <summary>
+        /// True only while a job is actually in flight.
+        /// Idle / Completed / Failed / Cancelled must NOT block Generate.
+        /// </summary>
+        public bool IsRunning =>
+            State is DemoJobState.Analyzing or DemoJobState.Preparing
+                or DemoJobState.Recording or DemoJobState.Narrating
+                or DemoJobState.Rendering or DemoJobState.Validating;
         public string? LastOutputFolder { get; private set; }
         public string? LastMp4Path { get; private set; }
         public string? LastArgument { get; private set; }

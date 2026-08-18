@@ -1,15 +1,11 @@
 <UserControl x:Class="ProGlassAutomation.Views.Settings.Sections.SettingsDemoSection"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:demo="clr-namespace:ProGlassAutomation.Agent.Demo"
              FontFamily="Segoe UI"
              TextOptions.TextFormattingMode="Display"
              TextOptions.TextRenderingMode="ClearType"
              UseLayoutRounding="True"
              SnapsToDevicePixels="True">
-    <UserControl.DataContext>
-        <demo:DemoCenterViewModel/>
-    </UserControl.DataContext>
     <UserControl.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>

@@ -301,6 +301,7 @@
                     Converter={StaticResource BoolToVisibilityConverter},
                     FallbackValue=Collapsed, TargetNullValue=Collapsed}"/>
             <sections:SettingsDemoSection
+                Panel.ZIndex="2"
                 Visibility="{Binding DataContext.IsDemoPage,
                     ElementName=SettingsRoot,
                     Converter={StaticResource BoolToVisibilityConverter},

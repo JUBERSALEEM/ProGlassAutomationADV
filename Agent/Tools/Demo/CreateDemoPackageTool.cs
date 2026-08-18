@@ -28,10 +28,7 @@ namespace ProGlassAutomation.Agent.Tools.Demo
         {
             try
             {
-                if (SharedDirector.State is DemoJobState.Recording
-                    or DemoJobState.Preparing or DemoJobState.Analyzing
-                    or DemoJobState.Narrating or DemoJobState.Rendering
-                    or DemoJobState.Validating or DemoJobState.Queued)
+                if (SharedDirector.IsRunning)
                 {
                     return ToolResult.Fail(
                         "A demo is already running. Cancel it first — two jobs " +

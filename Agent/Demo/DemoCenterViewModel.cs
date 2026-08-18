@@ -14,93 +14,62 @@ namespace ProGlassAutomation.Agent.Demo
 {
     public sealed class DemoCenterViewModel : ViewModelBase
     {
+        private readonly DemoDirector _director;
+
         public DemoCenterViewModel()
         {
-            var d = CreateDemoPackageTool.SharedDirector;
-            d.Changed += () =>
+            _director = CreateDemoPackageTool.SharedDirector;
+            _director.Changed += () =>
             {
                 var disp = System.Windows.Application.Current?.Dispatcher;
-                if (disp == null) return;
+                if (disp == null)
+                {
+                    RaiseStatus();
+                    return;
+                }
                 disp.InvokeAsync(RaiseStatus);
             };
 
-            GenerateSelectedCommand = new RelayCommand(async _ =>
-            {
-                if (IsBusy) return;
-                await DemoJobQueue.Shared.EnqueueAsync(SelectedModule).ConfigureAwait(true);
-                RaiseStatus();
-            });
+            GenerateSelectedCommand = new RelayCommand(
+                async _ => await StartAsync(SelectedModule).ConfigureAwait(true),
+                _ => !IsBusy);
 
-            GenerateAllCommand = new RelayCommand(async _ =>
-            {
-                if (IsBusy) return;
-                await DemoJobQueue.Shared.EnqueueAsync("All").ConfigureAwait(true);
-                RaiseStatus();
-            });
+            GenerateAllCommand = new RelayCommand(
+                async _ => await StartAsync("All").ConfigureAwait(true),
+                _ => !IsBusy);
 
-            RetryCommand = new RelayCommand(async _ =>
-            {
-                if (IsBusy) return;
-                string arg = CreateDemoPackageTool.SharedDirector.LastArgument
-                    ?? SelectedModule;
-                await DemoJobQueue.Shared.EnqueueAsync(arg).ConfigureAwait(true);
-                RaiseStatus();
-            });
+            RetryCommand = new RelayCommand(
+                async _ => await StartAsync(_director.LastArgument ?? SelectedModule)
+                    .ConfigureAwait(true),
+                _ => !IsBusy);
 
             CancelCommand = new RelayCommand(_ =>
-                CreateDemoPackageTool.SharedDirector.Cancel());
-
-            OpenOutputCommand = new RelayCommand(_ =>
             {
-                string? file = CreateDemoPackageTool.SharedDirector.LastMp4Path;
-                string folder = CreateDemoPackageTool.SharedDirector.LastOutputFolder
-                    ?? Path.Combine(AppDataRoot.DemoFolder, "DemoVideos");
-                string target = file != null && File.Exists(file) ? file : folder;
-                try
-                {
-                    if (Directory.Exists(target) || File.Exists(target))
-                    {
-                        Process.Start(new ProcessStartInfo
-                        {
-                            FileName = target,
-                            UseShellExecute = true
-                        });
-                    }
-                    else
-                    {
-                        Directory.CreateDirectory(folder);
-                        Process.Start(new ProcessStartInfo
-                        {
-                            FileName = folder,
-                            UseShellExecute = true
-                        });
-                    }
-                }
-                catch (Exception ex)
-                {
-                    StatusText = "Could not open output: " + ex.Message;
-                    OnPropertyChanged(nameof(StatusText));
-                }
+                _director.Cancel();
+                SetLocalStatus("Cancel requested.");
             });
+
+            OpenOutputCommand = new RelayCommand(_ => OpenOutput());
 
             EnterDemoCommand = new RelayCommand(async _ =>
             {
+                SetLocalStatus("Entering isolated Demo Mode…");
                 var r = await DemoModeService.EnterAndSeedAsync(default).ConfigureAwait(true);
-                StatusText = r.Message;
-                RaiseStatus();
+                SetLocalStatus(r.Message);
+                RaiseFlags();
             });
 
             ExitDemoCommand = new RelayCommand(_ =>
             {
                 DemoModeService.Exit();
-                StatusText = "Demo Mode off. Next ERP open uses the production folder.";
-                RaiseStatus();
+                SetLocalStatus("Demo Mode off. Next ERP open uses the production folder.");
+                RaiseFlags();
             });
 
             ResetDemoCommand = new RelayCommand(_ =>
             {
-                StatusText = DemoModeService.ResetDemoFolder();
-                RaiseStatus();
+                SetLocalStatus(DemoModeService.ResetDemoFolder());
+                RaiseFlags();
             });
         }
 
@@ -123,21 +92,15 @@ namespace ProGlassAutomation.Agent.Demo
             "HTML storyboards and AVI files are not accepted as done. " +
             "Work happens in %AppData%/ProGlassAutomation.Demo — production files stay closed.";
 
-        public string StateText =>
-            CreateDemoPackageTool.SharedDirector.State.ToString();
+        public string StateText => _director.State.ToString();
 
-        public bool IsBusy =>
-            CreateDemoPackageTool.SharedDirector.State
-                is DemoJobState.Analyzing or DemoJobState.Preparing
-                or DemoJobState.Recording or DemoJobState.Narrating
-                or DemoJobState.Rendering or DemoJobState.Validating
-                or DemoJobState.Queued;
+        public bool IsBusy => _director.IsRunning;
 
         public string FfmpegStatus
         {
             get
             {
-                string hint = CreateDemoPackageTool.SharedDirector.FfmpegHint;
+                string hint = _director.FfmpegHint;
                 if (!string.IsNullOrEmpty(hint)) return hint;
                 return FfmpegMp4Composer.Find() == null
                     ? "ffmpeg not found — generate will fail. AVI is not an MP4."
@@ -154,9 +117,9 @@ namespace ProGlassAutomation.Agent.Demo
         {
             get
             {
-                string? p = CreateDemoPackageTool.SharedDirector.LastMp4Path;
+                string? p = _director.LastMp4Path;
                 if (string.IsNullOrEmpty(p))
-                    return CreateDemoPackageTool.SharedDirector.State == DemoJobState.Completed
+                    return _director.State == DemoJobState.Completed
                         ? "MP4 path missing — treat as failed."
                         : "No MP4 yet. Missing MP4 means the job failed.";
                 return p;
@@ -164,11 +127,9 @@ namespace ProGlassAutomation.Agent.Demo
         }
 
         public string VerifiedText =>
-            "Verified events last run: " +
-            CreateDemoPackageTool.SharedDirector.VerifiedEventCount;
+            "Verified events last run: " + _director.VerifiedEventCount;
 
-        public ObservableCollection<DemoJobRecord> History =>
-            CreateDemoPackageTool.SharedDirector.History;
+        public ObservableCollection<DemoJobRecord> History => _director.History;
 
         public ICommand GenerateSelectedCommand { get; }
         public ICommand GenerateAllCommand { get; }
@@ -179,16 +140,71 @@ namespace ProGlassAutomation.Agent.Demo
         public ICommand ExitDemoCommand { get; }
         public ICommand ResetDemoCommand { get; }
 
+        private async System.Threading.Tasks.Task StartAsync(string argument)
+        {
+            if (_director.IsRunning)
+            {
+                SetLocalStatus("A demo is already running. Cancel it first.");
+                return;
+            }
+
+            SetLocalStatus("Starting " + (string.IsNullOrWhiteSpace(argument) ? "Proforma Invoice" : argument) + "…");
+            try
+            {
+                await DemoJobQueue.Shared.EnqueueAsync(argument).ConfigureAwait(true);
+            }
+            catch (Exception ex)
+            {
+                SetLocalStatus("Generate failed: " + ex.Message);
+            }
+            RaiseStatus();
+        }
+
+        private void OpenOutput()
+        {
+            string? file = _director.LastMp4Path;
+            string folder = _director.LastOutputFolder
+                ?? Path.Combine(AppDataRoot.DemoFolder, "DemoVideos");
+            string target = file != null && File.Exists(file) ? file : folder;
+            try
+            {
+                Directory.CreateDirectory(
+                    Directory.Exists(target) ? target : (Path.GetDirectoryName(target) ?? folder));
+                Process.Start(new ProcessStartInfo
+                {
+                    FileName = File.Exists(target) || Directory.Exists(target) ? target : folder,
+                    UseShellExecute = true
+                });
+            }
+            catch (Exception ex)
+            {
+                SetLocalStatus("Could not open output: " + ex.Message);
+            }
+        }
+
+        private void SetLocalStatus(string text)
+        {
+            StatusText = text ?? "";
+            OnPropertyChanged(nameof(StatusText));
+        }
+
         private void RaiseStatus()
         {
-            StatusText = CreateDemoPackageTool.SharedDirector.Status;
+            if (!string.IsNullOrWhiteSpace(_director.Status))
+                StatusText = _director.Status;
             OnPropertyChanged(nameof(StatusText));
+            RaiseFlags();
+        }
+
+        private void RaiseFlags()
+        {
             OnPropertyChanged(nameof(StateText));
             OnPropertyChanged(nameof(IsBusy));
             OnPropertyChanged(nameof(FfmpegStatus));
             OnPropertyChanged(nameof(IsolationText));
             OnPropertyChanged(nameof(LastMp4Text));
             OnPropertyChanged(nameof(VerifiedText));
+            CommandManager.InvalidateRequerySuggested();
         }
     }
 }

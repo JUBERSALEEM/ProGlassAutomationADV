@@ -107,5 +107,13 @@ namespace ProGlassAutomation.Tests.Agent
             Assert.Null(runner);
             Assert.Contains("no recorded wizard", reason, StringComparison.OrdinalIgnoreCase);
         }
+
+        [Fact]
+        public void Fresh_director_is_idle_so_Generate_is_not_blocked()
+        {
+            var d = new DemoDirector();
+            Assert.Equal(DemoJobState.Idle, d.State);
+            Assert.False(d.IsRunning);
+        }
     }
 }
