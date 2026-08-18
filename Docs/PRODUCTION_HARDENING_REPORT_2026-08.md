@@ -40,6 +40,9 @@
 | 11/12 (God-VM) | Extracted `GlassTypeCard` + `SpecTargetGroup` out of PricingEstimator VM | `1b2a53e` | ✅ (static) |
 | 11/12 (God-VM) | Extracted `InvoiceItem` + `WizardStep` out of ProformaInvoiceViewModel | `a11ca77` | ✅ (static) |
 | 11/12 (God-VM) | Extracted `AppLogPanelViewModel` + `DiagnosticsTab` out of DiagnosticsViewModel | `9abf176` | ✅ (static) |
+| 11/12 (God-VM) | Split DN + TI list row VMs into per-class files (`DeliveryNoteRowViewModel`, `PendingQtyRowViewModel`, `JobOrderGroupRowViewModel`, `TaxInvoiceRowViewModel`, `InvoiceFamilyRowViewModel`) | `233c8a6` | ✅ (static) |
+| 11/12 (God-VM) | Extracted `ProjectProfileCard` (ProjectSpecs) + `ClientProfileCard` (ClientProfile) | `233c8a6` | ✅ (static) |
+| 11/12 (God-VM) | Extracted `InvRowViewModel`, `UserRowViewModel`, `ActivityRowViewModel`, `GlobalSearchResult`, `CompanyProfileCard`, `JobOrderRowViewModel`, `RecentStatementItem` to per-class files | `7537306` | ✅ (static) |
 | 16 — Final re-audit | Fresh static re-audit: 508 C# files brace-balanced + using-clean, 137 XAML well-formed, no stray duplicate type collisions (nested `Kind` + partial VMs in separate namespaces verified) | — | ✅ (static) |
 | 9 — Design system | Consolidated hardcoded `CornerRadius` values matching the canonical tokens (10/14/20/999) to the token resources across 58 views/controls (149 occurrences) — behavior-identical, no local overrides; Login glyph-prefixed input chrome left untouched | `ac42788` | ✅ (static; needs Windows build) |
 | 10 — Performance | Adopted `SheetStoreRepository.SearchAsync` in the Sheet Store VM (categorical filters pushed to SQL WHERE; generation-guarded async; `_allSheets` retained for import duplicate-detection) | `5749066` | ✅ (static; needs Windows build) |
