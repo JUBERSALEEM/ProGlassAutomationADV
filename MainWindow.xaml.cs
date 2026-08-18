@@ -163,17 +163,8 @@ namespace ProGlassAutomation
         // Uses the shared DropdownButton_Click handler (hover-peek +
         // click-toggle) like the other top-bar popups.
 
-        /// <summary>True when <paramref name="element"/> is a descendant of <paramref name="root"/> in the visual tree.</summary>
         private static bool IsDescendantOf(DependencyObject element, DependencyObject root)
-        {
-            DependencyObject? current = element;
-            while (current != null)
-            {
-                if (ReferenceEquals(current, root)) return true;
-                current = System.Windows.Media.VisualTreeHelper.GetParent(current);
-            }
-            return false;
-        }
+            => ProGlassAutomation.Utilities.UiTreeHelper.IsDescendantOf(element, root);
 
         // ── top-bar dropdowns (reference pattern) ─────────────────────────
         // One shared close-timer + a single "pointer over popup" flag.

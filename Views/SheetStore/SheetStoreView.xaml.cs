@@ -145,15 +145,7 @@ namespace ProGlassAutomation.Views.SheetStore
         }
 
         private static bool IsDescendantOf(DependencyObject element, DependencyObject root)
-        {
-            DependencyObject? current = element;
-            while (current != null)
-            {
-                if (ReferenceEquals(current, root)) return true;
-                current = System.Windows.Media.VisualTreeHelper.GetParent(current);
-            }
-            return false;
-        }
+            => ProGlassAutomation.Utilities.UiTreeHelper.IsDescendantOf(element, root);
     }
 
     /// <summary>

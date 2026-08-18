@@ -1523,12 +1523,10 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice.TaxInvoiceDetail
 
             try
             {
-                // Parse comma-separated DN IDs from DeliveryNoteReference
-                // Trim whitespace from each ID — handles "DN-001, DN-002" too
-                var dnIds = DeliveryNoteReference
-                    .Split(',', StringSplitOptions.RemoveEmptyEntries)
-                    .Select(id => id.Trim())
-                    .Where(id => !string.IsNullOrWhiteSpace(id))
+                // Phase 11/12: reuse the shared DN-reference parser (single
+                // implementation, also used by the reconciliation sweep).
+                var dnIds = ProGlassAutomation.Services.TaxInvoice.Repository
+                    .TaxInvoiceDnReconciler.ParseDnRefs(DeliveryNoteReference)
                     .ToList();
 
                 if (dnIds.Count == 0) return;
