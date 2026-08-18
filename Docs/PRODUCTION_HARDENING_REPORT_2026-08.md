@@ -32,6 +32,7 @@
 | 9 — Design system | Consolidated hardcoded `CornerRadius` values matching the canonical tokens (10/14/20/999) to the token resources across 58 views/controls (149 occurrences) — behavior-identical, no local overrides; Login glyph-prefixed input chrome left untouched | `ac42788` | ✅ (static; needs Windows build) |
 | 10 — Performance | Adopted `SheetStoreRepository.SearchAsync` in the Sheet Store VM (categorical filters pushed to SQL WHERE; generation-guarded async; `_allSheets` retained for import duplicate-detection) | `5749066` | ✅ (static; needs Windows build) |
 | 13 — Security | Persisted login lockout (survives restart, 5 fails → 5 min window) + forced first-run password rotation via new `ForcePasswordChangeWindow`; additive audit.db columns | `ead18f5` | ✅ (static; needs Windows build) |
+| UI fix | Login redesigned to a blurred-blue stage (fixed navy→blue gradient + blurred orbs + light frosted card, theme-independent readable chrome); added admin-mediated "Forgot password?" reset (`ResetPasswordWindow` + `AuditService.AdminResetPasswordAsync`); fixed password-window collapsing (larger sizes + scrollable forms) | `cf4268e` | ✅ (static; needs Windows build) |
 | 19 — Verdict | Final Production-Readiness verdict recorded below | — | ✅ (report) |
 
 **Build status (2026-08-18):** user confirmed `dotnet build` succeeds with no errors on Windows. The God-VM refactor (`b49c02a`) is new since that confirmation and still needs the user's next Windows build to confirm — no compile errors are expected (pure static renames only).
