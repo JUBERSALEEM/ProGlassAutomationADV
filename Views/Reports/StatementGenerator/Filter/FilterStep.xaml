@@ -199,7 +199,7 @@
                             <Border x:Name="rootBorder"
                                     Background="White"
                                     BorderBrush="{DynamicResource OutlineBrush}"
-                                    BorderThickness="{StaticResource CardBorderThickness}"
+                                    BorderThickness="{DynamicResource CardBorderThickness}"
                                     CornerRadius="10"
                                     SnapsToDevicePixels="True"
                                     Effect="{StaticResource InputShadow}">
@@ -242,7 +242,7 @@
                                    VerticalOffset="4">
                                 <Border Background="White"
                                         BorderBrush="{DynamicResource OutlineBrush}"
-                                        BorderThickness="{StaticResource CardBorderThickness}"
+                                        BorderThickness="{DynamicResource CardBorderThickness}"
                                         CornerRadius="10"
                                         MinWidth="{TemplateBinding ActualWidth}"
                                         MaxHeight="280"
@@ -325,7 +325,7 @@
                         <Border x:Name="rootBorder"
                                 Background="White"
                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                BorderThickness="{StaticResource CardBorderThickness}"
+                                BorderThickness="{DynamicResource CardBorderThickness}"
                                 CornerRadius="10"
                                 SnapsToDevicePixels="True"
                                 Effect="{StaticResource InputShadow}">
@@ -433,7 +433,7 @@
         ══════════════════════════════════════════════════════════ -->
         <ControlTemplate x:Key="StatusChipTemplate" TargetType="CheckBox">
             <Border x:Name="chipRoot"
-                    BorderThickness="{StaticResource CardBorderThickness}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="10"
                     Padding="14,8"
                     Background="{StaticResource ChipBg}"
@@ -446,7 +446,7 @@
                             CornerRadius="5"
                             Background="Transparent"
                             BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="{StaticResource CardBorderThickness}"
+                            BorderThickness="{DynamicResource CardBorderThickness}"
                             Margin="0,0,10,0"
                             VerticalAlignment="Center"
                             SnapsToDevicePixels="True">
@@ -579,7 +579,7 @@
                     <Border Grid.Column="1"
                             Background="{DynamicResource ModuleBackgroundBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="{StaticResource CardBorderThickness}"
+                            BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="16"
                             Padding="22,18"
                             VerticalAlignment="Center"
@@ -617,7 +617,7 @@
                 <Border Grid.Row="2"
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="{StaticResource CardBorderThickness}"
+                        BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="20"
                         Padding="0"
                         Effect="{StaticResource CardShadow}"
@@ -679,7 +679,7 @@
                                         <Border x:Name="bd"
                                                 Background="{StaticResource ClearBtnBg}"
                                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                                BorderThickness="{StaticResource CardBorderThickness}"
+                                                BorderThickness="{DynamicResource CardBorderThickness}"
                                                 CornerRadius="10"
                                                 Padding="{TemplateBinding Padding}"
                                                 SnapsToDevicePixels="True">
@@ -868,7 +868,7 @@
                 <Border Grid.Row="4"
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="{StaticResource CardBorderThickness}"
+                        BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="20"
                         Padding="0"
                         Effect="{StaticResource CardShadow}"

@@ -139,7 +139,7 @@
         <Border Grid.Row="1"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
-                BorderThickness="{StaticResource CardBorderThickness}"
+                BorderThickness="{DynamicResource CardBorderThickness}"
                 CornerRadius="12" Padding="16,14" Margin="0,0,0,16"
                 SnapsToDevicePixels="True">
             <StackPanel>
@@ -211,7 +211,7 @@
                 </Grid>
 
                 <!-- Row 2: Search -->
-                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}" Background="{DynamicResource MenuHoverBrush}"
+                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource MenuHoverBrush}"
                         CornerRadius="8" Padding="12,8" Margin="0,12,0,0"
                         SnapsToDevicePixels="True">
                     <DockPanel>
@@ -232,7 +232,7 @@
         <Border Grid.Row="2"
                 Background="{DynamicResource ModuleBackgroundBrush}"
                 BorderBrush="{DynamicResource OutlineBrush}"
-                BorderThickness="{StaticResource CardBorderThickness}"
+                BorderThickness="{DynamicResource CardBorderThickness}"
                 CornerRadius="12" Padding="12"
                 SnapsToDevicePixels="True">
             <Grid>

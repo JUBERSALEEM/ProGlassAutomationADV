@@ -111,7 +111,7 @@
                         <DataTemplate>
                             <Border Margin="0,0,0,10" Padding="14,12"
                                     CornerRadius="12" Cursor="Hand"
-                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}"
+                                    BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}"
                                     Background="{DynamicResource ModuleBackgroundBrush}"
                                     MouseLeftButtonDown="UserCard_Click"
                                     Tag="{Binding}"
@@ -162,7 +162,7 @@
                                     </StackPanel>
 
                                     <StackPanel Grid.Column="2" VerticalAlignment="Center">
-                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}" Background="{DynamicResource TintIndigoBrush}"
+                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintIndigoBrush}"
                                                 CornerRadius="8" Padding="8,3">
                                             <Border.Style>
                                                 <Style TargetType="Border">
@@ -196,7 +196,7 @@
                 <Border Grid.Column="2"
                         Background="{DynamicResource ModuleBackgroundBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="{StaticResource CardBorderThickness}" CornerRadius="14"
+                        BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="14"
                         Padding="24,20">
                     <StackPanel>
 

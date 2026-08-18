@@ -64,7 +64,7 @@
                 Padding="14,0,8,0"
                 VerticalAlignment="Center"
                 Background="{DynamicResource ModuleBackgroundBrush}"
-                BorderThickness="{StaticResource CardBorderThickness}"
+                BorderThickness="{DynamicResource CardBorderThickness}"
                 SnapsToDevicePixels="True">
             <Border.Style>
                 <Style TargetType="Border">
@@ -164,7 +164,7 @@
 
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="{StaticResource CardBorderThickness}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="12"
                     MinWidth="440"
                     Padding="0">
@@ -225,7 +225,7 @@
                                                        Style="{StaticResource GsResultSubtitleStyle}"/>
                                         </StackPanel>
 
-                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}" Grid.Column="2"
+                                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="2"
                                                 CornerRadius="999"
                                                 Padding="8,3"
                                                 Margin="10,0,0,0"
@@ -267,7 +267,7 @@
                     </Border>
 
                     <!-- Status footer -->
-                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}" Grid.Row="1"
+                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="1"
                             Padding="12,7"
                             Background="{DynamicResource MenuHoverBrush}"
                             CornerRadius="0,0,12,12">

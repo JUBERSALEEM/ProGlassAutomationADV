@@ -70,7 +70,7 @@
                     SnapsToDevicePixels="True"
                     Background="{DynamicResource TintGrayBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="{StaticResource CardBorderThickness}">
+                    BorderThickness="{DynamicResource CardBorderThickness}">
                 <Grid>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition Width="Auto"/>

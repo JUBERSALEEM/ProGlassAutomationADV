@@ -141,7 +141,7 @@
                 <Border Width="62" Height="62"
                         CornerRadius="18"
                         Background="#10FFFFFF"
-                        BorderThickness="{StaticResource CardBorderThickness}"
+                        BorderThickness="{DynamicResource CardBorderThickness}"
                         BorderBrush="{Binding BorderBrush}"
                         Margin="8,0"
                         SnapsToDevicePixels="True">

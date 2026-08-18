@@ -419,7 +419,7 @@
                         <!-- Config path -->
                         <Border Background="{DynamicResource MenuHoverBrush}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                BorderThickness="{StaticResource CardBorderThickness}" CornerRadius="10"
+                                BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="10"
                                 Padding="12,10" Margin="0,12,0,0"
                                 SnapsToDevicePixels="True"
                                 UseLayoutRounding="True">

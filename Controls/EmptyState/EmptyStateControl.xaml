@@ -34,7 +34,7 @@
     <Border CornerRadius="20"
             Background="{DynamicResource ModuleBackgroundBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
-            BorderThickness="{StaticResource CardBorderThickness}"
+            BorderThickness="{DynamicResource CardBorderThickness}"
             Padding="34,30"
             MaxWidth="460"
             HorizontalAlignment="Center"
@@ -43,7 +43,7 @@
         <StackPanel HorizontalAlignment="Center">
 
             <!-- Tinted icon badge (Overview-dashboard style) -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}" Width="64" Height="64"
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Width="64" Height="64"
                     CornerRadius="20"
                     HorizontalAlignment="Center"
                     Background="{DynamicResource TintIndigoBrush}">

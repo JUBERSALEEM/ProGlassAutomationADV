@@ -17,7 +17,7 @@
     <Border CornerRadius="16"
             Background="{DynamicResource ModuleBackgroundBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
-            BorderThickness="{StaticResource CardBorderThickness}">
+            BorderThickness="{DynamicResource CardBorderThickness}">
         <Border.Effect>
             <DropShadowEffect BlurRadius="32" ShadowDepth="0"
                               Opacity="0.22" Color="#000000"/>

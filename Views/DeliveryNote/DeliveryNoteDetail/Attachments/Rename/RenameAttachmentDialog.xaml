@@ -40,7 +40,7 @@
                         <Border x:Name="Br"
                                 Background="{TemplateBinding Background}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                BorderThickness="{StaticResource CardBorderThickness}"
+                                BorderThickness="{DynamicResource CardBorderThickness}"
                                 CornerRadius="10,0,0,10">
                             <ScrollViewer x:Name="PART_ContentHost"
                                           Margin="{TemplateBinding Padding}"
@@ -71,7 +71,7 @@
     <Border CornerRadius="20"
             Background="{DynamicResource ModuleBackgroundBrush}"
             BorderBrush="{DynamicResource OutlineBrush}"
-            BorderThickness="{StaticResource CardBorderThickness}"
+            BorderThickness="{DynamicResource CardBorderThickness}"
             Margin="14">
         <Border.Effect>
             <DropShadowEffect BlurRadius="30" ShadowDepth="0"
@@ -174,7 +174,7 @@
             </Grid>
 
             <!-- ── VALIDATION AREA ─────────────────────────────────────── -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}" Grid.Row="3"
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="3"
                     x:Name="ValidationBorder"
                     Margin="28,4,28,0"
                     Padding="12,8"
@@ -189,7 +189,7 @@
             </Border>
 
             <!-- ── ACTION BUTTONS ──────────────────────────────────────── -->
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}" Grid.Row="4"
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="4"
                     Background="{DynamicResource MenuHoverBrush}"
                     CornerRadius="0,0,20,20"
                     Padding="20,14">

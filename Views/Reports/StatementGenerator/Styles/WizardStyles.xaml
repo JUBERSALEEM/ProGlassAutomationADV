@@ -206,7 +206,7 @@
                     <Border x:Name="bd"
                             Background="{DynamicResource ModuleBackgroundBrush}"
                             BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="{StaticResource CardBorderThickness}"
+                            BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="10"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">
@@ -246,7 +246,7 @@
                     <Border x:Name="bd"
                             Background="Transparent"
                             BorderBrush="{DynamicResource OutlineBrush}"
-                            BorderThickness="{StaticResource CardBorderThickness}"
+                            BorderThickness="{DynamicResource CardBorderThickness}"
                             CornerRadius="10"
                             Padding="{TemplateBinding Padding}"
                             SnapsToDevicePixels="True">

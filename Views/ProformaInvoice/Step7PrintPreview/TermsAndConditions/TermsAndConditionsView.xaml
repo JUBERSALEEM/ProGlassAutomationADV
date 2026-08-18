@@ -227,7 +227,7 @@
                                 <Border x:Name="B"
                                         Background="{DynamicResource ModuleBackgroundBrush}"
                                         BorderBrush="{DynamicResource BorderBrush}"
-                                        BorderThickness="{StaticResource CardBorderThickness}"
+                                        BorderThickness="{DynamicResource CardBorderThickness}"
                                         CornerRadius="8"
                                         Padding="14,8"
                                         SnapsToDevicePixels="True">

@@ -187,7 +187,7 @@ CHAT 17 — UI POLISH
                 UI-03: Empty state → solid #4338CA circle / white icon.
             -->
             <Border Margin="0,0,0,24"
-                    BorderThickness="{StaticResource CardBorderThickness}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
                     BorderBrush="{DynamicResource OutlineBrush}"
                     CornerRadius="16"
                     ClipToBounds="True">
@@ -203,7 +203,7 @@ CHAT 17 — UI POLISH
                             CornerRadius="16,16,0,0"/>
 
                     <!-- Card body -->
-                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1"
+                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" CornerRadius="{DynamicResource CardCornerRadius}" Grid.Row="1"
                             Background="{DynamicResource ModuleBackgroundBrush}"
                             Padding="24,20,24,24">
                         <StackPanel>
@@ -363,7 +363,7 @@ CHAT 17 — UI POLISH
                                     Margin="0,0,0,8"
                                     Background="{DynamicResource WindowBackgroundBrush}"
                                     BorderBrush="{DynamicResource OutlineBrush}"
-                                    BorderThickness="{StaticResource CardBorderThickness}">
+                                    BorderThickness="{DynamicResource CardBorderThickness}">
                                 <Border.Style>
                                     <Style TargetType="Border">
                                         <Setter Property="Visibility" Value="Collapsed"/>

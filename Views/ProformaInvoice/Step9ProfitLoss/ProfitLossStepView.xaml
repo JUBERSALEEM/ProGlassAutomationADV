@@ -91,7 +91,7 @@
             <Border Background="{DynamicResource ModuleBackgroundBrush}"
                     CornerRadius="16"
                     Padding="20"
-                    BorderThickness="{StaticResource CardBorderThickness}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
                     BorderBrush="{DynamicResource OutlineBrush}">
                 <StackPanel>
 
@@ -290,7 +290,7 @@
                     CornerRadius="16"
                     Padding="0"
                     Margin="0,16,0,0"
-                    BorderThickness="{StaticResource CardBorderThickness}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
                     BorderBrush="{DynamicResource OutlineBrush}">
                 <StackPanel>
 
@@ -419,7 +419,7 @@
                                         <!-- ── RATE CHECK ────────────────── -->
                                         <Border Background="{DynamicResource TintPurpleBrush}"
                                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                                BorderThickness="{StaticResource CardBorderThickness}"
+                                                BorderThickness="{DynamicResource CardBorderThickness}"
                                                 CornerRadius="6"
                                                 Padding="10,7"
                                                 Margin="0,8,0,0">

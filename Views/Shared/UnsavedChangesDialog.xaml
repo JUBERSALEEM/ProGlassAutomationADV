@@ -54,7 +54,7 @@
                     <ControlTemplate TargetType="Button">
                         <Border Background="{DynamicResource MenuHoverBrush}"
                                 BorderBrush="{DynamicResource OutlineBrush}"
-                                BorderThickness="{StaticResource CardBorderThickness}"
+                                BorderThickness="{DynamicResource CardBorderThickness}"
                                 CornerRadius="{DynamicResource PillCornerRadius}"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center"
@@ -71,7 +71,7 @@
                     BorderThickness="0">
                 <Button.Template>
                     <ControlTemplate TargetType="Button">
-                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}" Background="{DynamicResource TintRedBrush}"
+                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintRedBrush}"
                                 CornerRadius="{DynamicResource PillCornerRadius}"
                                 Padding="{TemplateBinding Padding}">
                             <ContentPresenter HorizontalAlignment="Center"

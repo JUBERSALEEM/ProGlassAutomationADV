@@ -1330,7 +1330,7 @@
                     CornerRadius="16"
                     ClipToBounds="True"
                     BorderBrush="{DynamicResource AccentBrush}"
-                    BorderThickness="{StaticResource CardBorderThickness}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
                     Effect="{StaticResource DrawerLeftShadow}"
                     Visibility="{Binding IsAgentChatOpen,
                         Converter={StaticResource BoolToVisibilityConverter}}">

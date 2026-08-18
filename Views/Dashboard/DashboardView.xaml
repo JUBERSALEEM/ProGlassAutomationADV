@@ -224,7 +224,7 @@
             <Border Grid.Column="1"
                     Background="{DynamicResource ElevatedSurfaceBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="{StaticResource CardBorderThickness}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="9"
                     Padding="3"
                     HorizontalAlignment="Left"
@@ -253,7 +253,7 @@
 
                 <Border Background="{DynamicResource ElevatedSurfaceBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="{StaticResource CardBorderThickness}"
+                        BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="7"
                         Padding="9,5"
                         Margin="0,0,8,0"
@@ -275,7 +275,7 @@
 
                 <Border Background="{DynamicResource ElevatedSurfaceBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="{StaticResource CardBorderThickness}"
+                        BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="7"
                         Padding="7,4"
                         VerticalAlignment="Center">

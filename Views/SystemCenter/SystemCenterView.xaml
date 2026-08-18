@@ -172,7 +172,7 @@
 
                 <Border Background="{DynamicResource ElevatedSurfaceBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="{StaticResource CardBorderThickness}"
+                        BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="18">
                     <StackPanel>
@@ -232,7 +232,7 @@
 
                 <Border Background="{DynamicResource ElevatedSurfaceBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="{StaticResource CardBorderThickness}"
+                        BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="18"
                         Margin="0,14,0,0">
@@ -286,7 +286,7 @@
                 <!-- Same-network presence -->
                 <Border Background="{DynamicResource ElevatedSurfaceBrush}"
                         BorderBrush="{DynamicResource OutlineBrush}"
-                        BorderThickness="{StaticResource CardBorderThickness}"
+                        BorderThickness="{DynamicResource CardBorderThickness}"
                         CornerRadius="{DynamicResource CardCornerRadius}"
                         Padding="18"
                         Margin="0,14,0,0">
@@ -328,7 +328,7 @@
                         <ItemsControl ItemsSource="{Binding OnlinePeers}">
                             <ItemsControl.ItemTemplate>
                                 <DataTemplate>
-                                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}" Padding="10,7" Margin="0,0,0,6"
+                                    <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Padding="10,7" Margin="0,0,0,6"
                                             Background="{DynamicResource MenuHoverBrush}"
                                             CornerRadius="{DynamicResource ControlCornerRadius}">
                                         <Grid>
@@ -365,7 +365,7 @@
             <Border Grid.Column="1"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="{StaticResource CardBorderThickness}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     ClipToBounds="True">
                 <Grid>
@@ -409,7 +409,7 @@
                                 <Border Padding="14,10" Margin="0,4"
                                         Background="{DynamicResource ElevatedSurfaceBrush}"
                                         BorderBrush="{DynamicResource OutlineBrush}"
-                                        BorderThickness="{StaticResource CardBorderThickness}"
+                                        BorderThickness="{DynamicResource CardBorderThickness}"
                                         CornerRadius="{DynamicResource ControlCornerRadius}">
                                     <Grid>
                                         <Grid.ColumnDefinitions>
@@ -439,7 +439,7 @@
                                                 <TextBlock Text="{Binding DisplayName}"
                                                            FontSize="13" FontWeight="Bold"
                                                            Foreground="{DynamicResource PrimaryForegroundBrush}"/>
-                                                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}" Background="{DynamicResource TintGreenBrush}"
+                                                <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintGreenBrush}"
                                                         CornerRadius="8"
                                                         Padding="6,1"
                                                         Margin="8,0,0,0"
@@ -585,7 +585,7 @@
             <Border Grid.Row="1"
                     Background="{DynamicResource ModuleBackgroundBrush}"
                     BorderBrush="{DynamicResource OutlineBrush}"
-                    BorderThickness="{StaticResource CardBorderThickness}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
                     CornerRadius="{DynamicResource CardCornerRadius}"
                     ClipToBounds="True">
                 <Grid>
@@ -673,7 +673,7 @@
                                                        VerticalAlignment="Center"
                                                        Foreground="{DynamicResource MutedForegroundBrush}"/>
 
-                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}" Grid.Column="1"
+                                            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Column="1"
                                                     Background="{DynamicResource TintBlueBrush}"
                                                     CornerRadius="{DynamicResource ControlCornerRadius}"
                                                     Padding="8,3"

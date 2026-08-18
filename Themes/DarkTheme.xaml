@@ -247,7 +247,7 @@
 
     <!-- Card border thickness — one source of truth for every card/panel
          edge. Driven by the Appearance > Border Thickness setting; cards
-         reference this via {StaticResource CardBorderThickness}. -->
+         reference this via {DynamicResource CardBorderThickness}. -->
     <Thickness x:Key="CardBorderThickness">1.5</Thickness>
 
     <!-- Motion defaults (pre-profile values; tuned at startup). -->

@@ -277,7 +277,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                     CornerRadius="10"
                     Padding="10"
                     Margin="0,6,0,0"
-                    BorderThickness="{StaticResource CardBorderThickness}"
+                    BorderThickness="{DynamicResource CardBorderThickness}"
                     BorderBrush="{DynamicResource OutlineBrush}">
                 <StackPanel>
 
@@ -354,7 +354,7 @@ CHAT 17 — PERFORMANCE + UI POLISH
                                             <Border x:Name="PillBorder"
                                                     CornerRadius="18"
                                                     Padding="14,7"
-                                                    BorderThickness="{StaticResource CardBorderThickness}"
+                                                    BorderThickness="{DynamicResource CardBorderThickness}"
                                                     SnapsToDevicePixels="True">
                                                 <StackPanel Orientation="Horizontal">
                                                     <TextBlock x:Name="CheckIcon"

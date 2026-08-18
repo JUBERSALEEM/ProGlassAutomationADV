@@ -176,7 +176,7 @@
                         <Border x:Name="AB"
                                 Background="{DynamicResource ModuleBackgroundBrush}"
                                 BorderBrush="{DynamicResource AccentBrush}"
-                                BorderThickness="{StaticResource CardBorderThickness}"
+                                BorderThickness="{DynamicResource CardBorderThickness}"
                                 CornerRadius="8"
                                 Padding="14,8"
                                 SnapsToDevicePixels="True">
@@ -258,7 +258,7 @@
                                        PopupAnimation="Fade">
                                     <Border Background="{DynamicResource ModuleBackgroundBrush}"
                                             BorderBrush="{DynamicResource AccentBrush}"
-                                            BorderThickness="{StaticResource CardBorderThickness}"
+                                            BorderThickness="{DynamicResource CardBorderThickness}"
                                             CornerRadius="10"
                                             Padding="14"
                                             MaxHeight="320"
@@ -392,7 +392,7 @@
                     </Style.Triggers>
                 </Style>
             </StackPanel.Style>
-            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}" Background="{DynamicResource TintIndigoBrush}"
+            <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Background="{DynamicResource TintIndigoBrush}"
                     Width="48" Height="48"
                     CornerRadius="24"
                     HorizontalAlignment="Center"

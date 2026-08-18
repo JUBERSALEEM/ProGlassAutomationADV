@@ -82,7 +82,7 @@
                             </StackPanel>
                         </Border>
 
-                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}" Grid.Row="2" Grid.Column="0"
+                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="2" Grid.Column="0"
                                 Style="{StaticResource CompactStatTileStyle}"
                                 Background="{DynamicResource TintAmberBrush}">
                             <StackPanel HorizontalAlignment="Center">
@@ -99,7 +99,7 @@
                             </StackPanel>
                         </Border>
 
-                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{StaticResource CardBorderThickness}" Grid.Row="2" Grid.Column="2"
+                        <Border BorderBrush="{DynamicResource OutlineBrush}" BorderThickness="{DynamicResource CardBorderThickness}" Grid.Row="2" Grid.Column="2"
                                 Style="{StaticResource CompactStatTileStyle}"
                                 Background="{DynamicResource TintGreenBrush}">
                             <StackPanel HorizontalAlignment="Center">
