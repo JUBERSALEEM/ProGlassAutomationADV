@@ -1,4 +1,4 @@
-﻿// ═══════════════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════════════
 // FILE: Services/Statement/Pdf/StatementPdfDocument.cs
 // PROJECT: ProGlassAutomation
 // MODULE: Account Statement / Sales Report
@@ -17,6 +17,7 @@
 // ═══════════════════════════════════════════════════════════════════════
 
 using ProGlassAutomation.Models.Statement;
+using ProGlassAutomation.Services.Export.Pdf;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -30,16 +31,16 @@ namespace ProGlassAutomation.Services.Statement.Pdf
     public class StatementPdfDocument : IDocument
     {
         // ── Brand colors ──────────────────────────────────────────────────
-        private const string ACCENT = "#4338CA";
-        private const string DARK = "#0F172A";
-        private const string MUTED = "#475569";
-        private const string LINE = "#CBD5E1";
-        private const string LIGHT_BG = "#F1F5F9";
-        private const string TABLE_HDR = "#1E293B";
-        private const string GREEN = "#047857";
-        private const string AMBER = "#B45309";
-        private const string RED = "#B91C1C";
-        private const string WHITE = "#FFFFFF";
+        private static string ACCENT => DocumentStyle.ColorAccent;
+        private static string DARK => DocumentStyle.ColorText;
+        private static string MUTED => DocumentStyle.ColorMuted;
+        private static string LINE => DocumentStyle.ColorBorder;
+        private static string LIGHT_BG => DocumentStyle.ColorSurface;
+        private static string TABLE_HDR => DocumentStyle.ColorTableHeader;
+        private static string GREEN => DocumentStyle.ColorSuccess;
+        private static string AMBER => DocumentStyle.ColorWarning;
+        private static string RED => DocumentStyle.ColorDanger;
+        private static string WHITE => DocumentStyle.ColorWhite;
 
         private readonly StatementSnapshot _snap;
 
@@ -65,6 +66,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
 
         public void Compose(IDocumentContainer container)
         {
+            PdfThemeCatalog.ApplySaved();
             container.Page(page =>
             {
                 page.Size(PageSizes.A4);
@@ -143,7 +145,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                             .FontSize(14).Bold().FontColor(WHITE);
                            c.Item().PaddingTop(2)
                             .Text(_snap.Header.Title ?? "")
-                            .FontSize(9).FontColor("#C7D2FE");
+                            .FontSize(9).FontColor(DocumentStyle.ColorAccentSoft);
                        });
 
                        row.AutoItem().AlignRight().Column(c =>
@@ -155,7 +157,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                             .Text("Generated: " +
                                   _snap.Header.GeneratedAt
                                        .ToString("dd MMM yyyy  HH:mm"))
-                            .FontSize(8).FontColor("#C7D2FE");
+                            .FontSize(8).FontColor(DocumentStyle.ColorAccentSoft);
                        });
                    });
 
@@ -171,7 +173,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                        // Period — short text, safe as single line
                        meta.Item()
                            .Text("Period: " + _snap.Header.PeriodDisplay)
-                           .FontSize(8).FontColor("#94A3B8");
+                           .FontSize(8).FontColor(DocumentStyle.ColorMuted);
 
                        // Filter summary — long text, wraps naturally
                        // NOT inside a Row with AutoItem → no width conflict
@@ -180,7 +182,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                        {
                            meta.Item().PaddingTop(3)
                                .Text(filterSummary)
-                               .FontSize(8).FontColor("#94A3B8");
+                               .FontSize(8).FontColor(DocumentStyle.ColorMuted);
                        }
                    });
             });
@@ -337,7 +339,7 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                           .Text($"AED {_snap.Financial.TotalOutstanding:N2}")
                           .FontSize(9).Bold()
                           .FontColor(_snap.Financial.TotalOutstanding > 0
-                              ? "#FCA5A5" : "#6EE7B7");
+                              ? DocumentStyle.ColorDanger : DocumentStyle.ColorSuccess);
 
                     footer.Cell()
                           .PaddingHorizontal(5).PaddingVertical(6)
@@ -398,13 +400,13 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                        {
                            inner.Item().AlignCenter()
                                 .Text("TOTAL OUTSTANDING")
-                                .FontSize(9).Bold().FontColor("#C7D2FE");
+                                .FontSize(9).Bold().FontColor(DocumentStyle.ColorAccentSoft);
                            inner.Item().PaddingTop(6).AlignCenter()
                                 .Text($"AED {fin.TotalOutstanding:N2}")
                                 .FontSize(16).Bold().FontColor(WHITE);
                            inner.Item().PaddingTop(4).AlignCenter()
                                 .Text($"{fin.TotalInvoiceCount} Invoice(s)")
-                                .FontSize(8).FontColor("#C7D2FE");
+                                .FontSize(8).FontColor(DocumentStyle.ColorAccentSoft);
                        });
 
                     if (fin.OverdueAmount > 0)

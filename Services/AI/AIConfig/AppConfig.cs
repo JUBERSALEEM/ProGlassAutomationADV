@@ -71,6 +71,12 @@ namespace ProGlassAutomation.Services.AI.AIConfig
         /// whole UI keeps the chosen colour between sessions.
         /// </summary>
         public string AccentPreset { get; set; } = "GlassBlue";
+
+        /// <summary>
+        /// Print layout id: ClassicNavy | ModernTeal | EditorialInk |
+        /// IndustrialSteel | MinimalIvory. Applied to every PDF.
+        /// </summary>
+        public string PdfLayoutId { get; set; } = "ClassicNavy";
     }
 
     /// <summary>

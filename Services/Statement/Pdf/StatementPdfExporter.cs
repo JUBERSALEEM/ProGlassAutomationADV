@@ -592,9 +592,9 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                     {
                         col.Item()
                            .Text($"Attachment: {fileName}")
-                           .FontSize(10).Bold().FontColor("#4338CA");
+                           .FontSize(10).Bold().FontColor(ProGlassAutomation.Services.Export.Pdf.DocumentStyle.ColorAccent);
                         col.Item().PaddingTop(2)
-                           .LineHorizontal(1).LineColor("#CBD5E1");
+                           .LineHorizontal(1).LineColor(ProGlassAutomation.Services.Export.Pdf.DocumentStyle.ColorBorder);
                     });
 
                     page.Content().AlignCenter().AlignMiddle()
@@ -619,16 +619,16 @@ namespace ProGlassAutomation.Services.Statement.Pdf
                     {
                         col.Item().AlignCenter()
                            .Text("⚠ INVOICE NOT AVAILABLE")
-                           .FontSize(20).Bold().FontColor("#B91C1C");
+                           .FontSize(20).Bold().FontColor(ProGlassAutomation.Services.Export.Pdf.DocumentStyle.ColorDanger);
                         col.Item().PaddingTop(16).AlignCenter()
                            .Text($"Invoice: {invoiceNumber}")
-                           .FontSize(14).SemiBold().FontColor("#0F172A");
+                           .FontSize(14).SemiBold().FontColor(ProGlassAutomation.Services.Export.Pdf.DocumentStyle.ColorText);
                         col.Item().PaddingTop(8).AlignCenter()
                            .Text("This invoice could not be regenerated.")
-                           .FontSize(11).FontColor("#475569");
+                           .FontSize(11).FontColor(ProGlassAutomation.Services.Export.Pdf.DocumentStyle.ColorMuted);
                         col.Item().PaddingTop(12).AlignCenter()
                            .Text($"Reason: {errorMessage}")
-                           .FontSize(9).Italic().FontColor("#94A3B8");
+                           .FontSize(9).Italic().FontColor(ProGlassAutomation.Services.Export.Pdf.DocumentStyle.ColorMuted);
                     });
                 });
             }).GeneratePdf();

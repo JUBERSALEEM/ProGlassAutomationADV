@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
+using ProGlassAutomation.Models.ProformaInvoice.SavedInvoice;
 using ProGlassAutomation.Models.ProformaInvoice.Step6OtherCharges;
 using ProGlassAutomation.Services.Export.Pdf;
 using ProGlassAutomation.Services.Export.Pdf.Renderers;
@@ -28,15 +28,14 @@ namespace ProGlassAutomation.Services.ProformaInvoice.Export
     /// </summary>
     public class ProformaInvoicePdfLayout : IPdfLayout
     {
-        // Brand colours
-        private const string ACCENT = "#4F46E5";
-        private const string DARK = "#0F172A";
-        private const string MUTED = "#475569";
-        private const string LINE = "#CBD5E1";
-        private const string LIGHT_BG = "#F1F5F9";
-        private const string TABLE_HEADER = "#1E293B";
-        private const string GREEN = "#047857";
-        private const string RED = "#B91C1C";
+        private static string ACCENT => DocumentStyle.ColorAccent;
+        private static string DARK => DocumentStyle.ColorText;
+        private static string MUTED => DocumentStyle.ColorMuted;
+        private static string LINE => DocumentStyle.ColorBorder;
+        private static string LIGHT_BG => DocumentStyle.ColorSurface;
+        private static string TABLE_HEADER => DocumentStyle.ColorTableHeader;
+        private static string GREEN => DocumentStyle.ColorSuccess;
+        private static string RED => DocumentStyle.ColorDanger;
 
         private readonly SavedProformaInvoice _entity;
         private readonly ProformaInvoiceSnapshot _snapshot;

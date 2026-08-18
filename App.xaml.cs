@@ -490,6 +490,9 @@ namespace ProGlassAutomation
             ProGlassAutomation.Services.ThemeManager.ApplyDisplayDensity(
                 Config.Appearance?.DisplayDensity ?? "Compact");
 
+            ProGlassAutomation.Services.Export.Pdf.DocumentStyle.Apply(
+                Config.Appearance?.PdfLayoutId);
+
             AuditService.Log(
                 AuditSections.App, "App started",
                 $"Motion tier {PerformanceProfileService.TargetFps} fps");

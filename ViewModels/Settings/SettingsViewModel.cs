@@ -352,6 +352,44 @@ namespace ProGlassAutomation.ViewModels.Settings
             "Compact", "Normal", "Comfortable"
         };
 
+        public List<string> PdfLayoutOptions { get; } = new()
+        {
+            "Classic Navy", "Modern Teal", "Editorial Ink",
+            "Industrial Steel", "Minimal Ivory"
+        };
+
+        public string PdfLayout
+        {
+            get
+            {
+                var id = App.Config?.Appearance?.PdfLayoutId ?? "ClassicNavy";
+                return ProGlassAutomation.Services.Export.Pdf.PdfThemeCatalog
+                    .Resolve(id).DisplayName;
+            }
+            set
+            {
+                if (App.Config?.Appearance == null) return;
+                var theme = ProGlassAutomation.Services.Export.Pdf.PdfThemeCatalog
+                    .Resolve(value);
+                if (App.Config.Appearance.PdfLayoutId == theme.Id) return;
+
+                App.Config.Appearance.PdfLayoutId = theme.Id;
+                ProGlassAutomation.Services.Export.Pdf.DocumentStyle.Apply(theme);
+                Services.AI.AIConfig.ConfigService.Save(App.Config);
+
+                ProGlassAutomation.Services.Audit.AuditService.Log(
+                    ProGlassAutomation.Services.Audit.AuditSections.Settings,
+                    "PDF layout changed", theme.DisplayName);
+
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(PdfLayoutHint));
+            }
+        }
+
+        public string PdfLayoutHint =>
+            ProGlassAutomation.Services.Export.Pdf.PdfThemeCatalog
+                .Resolve(App.Config?.Appearance?.PdfLayoutId).Description;
+
         /// <summary>
         /// Compact / Normal / Comfortable. One setting shrinks shared
         /// chrome so laptop screens can see the data grid.

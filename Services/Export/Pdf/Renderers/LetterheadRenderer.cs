@@ -1,61 +1,64 @@
-﻿using QuestPDF.Fluent;
+using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 
 namespace ProGlassAutomation.Services.Export.Pdf.Renderers
 {
     /// <summary>
-    /// Renders the top-of-page company header block.
-    /// Left side: Company name + location + TRN.
-    /// Right side: Document type + document ID (large, accent color).
+    /// Professional page-1 letterhead. Accent rail, company block, document badge.
     /// </summary>
     public static class LetterheadRenderer
     {
         public static void Render(IContainer container, LetterheadInfo info)
         {
-            container
-                .PaddingBottom(8)
-                .BorderBottom(1)
-                .BorderColor(DocumentStyle.ColorBorder)
-                .Row(row =>
+            container.Column(col =>
+            {
+                col.Item().Height(4).Background(DocumentStyle.ColorAccent);
+
+                col.Item().PaddingTop(10).PaddingBottom(8).Row(row =>
                 {
-                    // Left — company block
-                    row.RelativeItem().Column(col =>
+                    row.RelativeItem().Column(left =>
                     {
-                        col.Item().Text(info.CompanyName)
-                            .FontSize(DocumentStyle.FontSizeH1)
-                            .Bold()
+                        left.Item().Text(info.CompanyName ?? "")
+                            .FontSize(15).Bold()
                             .FontColor(DocumentStyle.ColorAccent);
 
                         if (!string.IsNullOrWhiteSpace(info.CompanyLocation))
-                            col.Item().Text(info.CompanyLocation)
+                            left.Item().PaddingTop(2).Text(info.CompanyLocation)
                                 .FontSize(DocumentStyle.FontSizeSmall)
                                 .FontColor(DocumentStyle.ColorMuted);
 
                         if (!string.IsNullOrWhiteSpace(info.CompanyTrn))
-                            col.Item().Text($"TRN: {info.CompanyTrn}")
+                            left.Item().PaddingTop(1)
+                                .Text($"TRN  {info.CompanyTrn}")
                                 .FontSize(DocumentStyle.FontSizeSmall)
-                                .FontColor(DocumentStyle.ColorMuted);
+                                .SemiBold()
+                                .FontColor(DocumentStyle.ColorText);
                     });
 
-                    // Right — document identity
-                    row.ConstantItem(180).Column(col =>
+                    row.ConstantItem(200).AlignRight().Column(right =>
                     {
-                        col.Item().AlignRight().Text(info.DocumentTitle)
-                            .FontSize(DocumentStyle.FontSizeH2)
-                            .SemiBold()
-                            .FontColor(DocumentStyle.ColorMuted);
+                        right.Item().AlignRight()
+                            .Background(DocumentStyle.ColorAccent)
+                            .PaddingHorizontal(10).PaddingVertical(4)
+                            .Text((info.DocumentTitle ?? "").ToUpperInvariant())
+                            .FontSize(8).Bold()
+                            .FontColor(DocumentStyle.ColorAccentOn);
 
-                        col.Item().AlignRight().Text(info.DocumentId)
-                            .FontSize(DocumentStyle.FontSizeTitle)
-                            .Bold()
+                        right.Item().AlignRight().PaddingTop(6)
+                            .Text(info.DocumentId ?? "")
+                            .FontSize(16).Bold()
                             .FontColor(DocumentStyle.ColorAccent);
 
                         if (!string.IsNullOrWhiteSpace(info.SubtitleLine))
-                            col.Item().AlignRight().Text(info.SubtitleLine)
+                            right.Item().AlignRight().PaddingTop(2)
+                                .Text(info.SubtitleLine)
                                 .FontSize(DocumentStyle.FontSizeCaption)
                                 .FontColor(DocumentStyle.ColorMuted);
                     });
                 });
+
+                col.Item().Height(1).Background(DocumentStyle.ColorAccent);
+            });
         }
     }
 }

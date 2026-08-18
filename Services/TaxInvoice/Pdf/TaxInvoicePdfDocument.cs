@@ -31,17 +31,17 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
     public class TaxInvoicePdfDocument : IPdfLayout
     {
         // ── Brand colors (match app palette) ─────────────────────────────
-        private const string ACCENT = "#4338CA";
-        private const string ACCENT_DARK = "#3730A3";
-        private const string DARK = "#0F172A";
-        private const string MUTED = "#475569";
-        private const string LINE = "#CBD5E1";
-        private const string LIGHT_BG = "#F1F5F9";
-        private const string TABLE_HDR = "#1E293B";
-        private const string GREEN = "#047857";
-        private const string AMBER = "#B45309";
-        private const string RED = "#B91C1C";
-        private const string WHITE = "#FFFFFF";
+        private static string ACCENT => DocumentStyle.ColorAccent;
+        private static string ACCENT_DARK => DocumentStyle.ColorAccentDark;
+        private static string DARK => DocumentStyle.ColorText;
+        private static string MUTED => DocumentStyle.ColorMuted;
+        private static string LINE => DocumentStyle.ColorBorder;
+        private static string LIGHT_BG => DocumentStyle.ColorSurface;
+        private static string TABLE_HDR => DocumentStyle.ColorTableHeader;
+        private static string GREEN => DocumentStyle.ColorSuccess;
+        private static string AMBER => DocumentStyle.ColorWarning;
+        private static string RED => DocumentStyle.ColorDanger;
+        private static string WHITE => DocumentStyle.ColorWhite;
 
         private readonly SavedTaxInvoice _entity;
         private readonly TaxInvoiceSnapshot _snapshot;

@@ -1,4 +1,4 @@
-﻿using QuestPDF.Fluent;
+using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 using ProGlassAutomation.Services.Export.Core;
@@ -258,6 +258,7 @@ namespace ProGlassAutomation.Services.Export.Pdf
         /// </summary>
         private static IDocument BuildQuestPdfDocument(IPdfLayout layout)
         {
+            PdfThemeCatalog.ApplySaved();
             var pageLayout = layout.PageLayout ?? PageLayout.A4Portrait;
             string documentId = layout.DocumentId ?? string.Empty;
 

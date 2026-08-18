@@ -1,4 +1,4 @@
-﻿using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
+using ProGlassAutomation.Models.TaxInvoice.SavedTaxInvoice;
 using ProGlassAutomation.Services.TaxInvoice.Mapper;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
@@ -235,70 +235,26 @@ namespace ProGlassAutomation.Services.TaxInvoice.Pdf
                 page.Size(QuestPDF.Helpers.PageSizes.A4);
                 page.Margin(30);
                 page.DefaultTextStyle(x => x
-                    .FontFamily("Arial")
-                    .FontSize(10));
+                    .FontFamily(ProGlassAutomation.Services.Export.Pdf.DocumentStyle.FontFamily)
+                    .FontSize(ProGlassAutomation.Services.Export.Pdf.DocumentStyle.FontSizeBody)
+                    .FontColor(ProGlassAutomation.Services.Export.Pdf.DocumentStyle.ColorText));
 
-                // ── Header (letterhead) ───────────────────────────────────
                 var lh = _layout.Letterhead;
                 if (lh != null)
                 {
-                    page.Header().Column(col =>
-                    {
-                        col.Item().Row(row =>
-                        {
-                            row.RelativeItem().Column(left =>
-                            {
-                                left.Item()
-                                    .Text(lh.CompanyName)
-                                    .FontSize(18).Bold()
-                                    .FontColor("#4338CA");
-
-                                if (!string.IsNullOrWhiteSpace(lh.CompanyLocation))
-                                    left.Item()
-                                        .Text(lh.CompanyLocation)
-                                        .FontSize(9).FontColor("#475569");
-
-                                if (!string.IsNullOrWhiteSpace(lh.CompanyTrn))
-                                    left.Item()
-                                        .Text($"TRN: {lh.CompanyTrn}")
-                                        .FontSize(9).FontColor("#475569");
-                            });
-
-                            row.ConstantItem(20);
-
-                            row.AutoItem().AlignRight().Column(right =>
-                            {
-                                right.Item()
-                                    .Text(lh.DocumentTitle)
-                                    .FontSize(14).Bold()
-                                    .FontColor("#0F172A");
-
-                                right.Item()
-                                    .Text(lh.DocumentId)
-                                    .FontSize(11).SemiBold()
-                                    .FontColor("#4338CA");
-                            });
-                        });
-
-                        col.Item().PaddingTop(4)
-                            .LineHorizontal(2).LineColor("#4338CA");
-                    });
+                    page.Header().ShowOnce().Element(h =>
+                        ProGlassAutomation.Services.Export.Pdf.Renderers
+                            .LetterheadRenderer.Render(h, lh));
                 }
 
-                // ── Content ───────────────────────────────────────────────
-                page.Content().PaddingTop(12).Column(col =>
+                page.Content().PaddingTop(10).Column(col =>
                 {
                     _layout.RenderContent(col);
                 });
 
-                // ── Footer (page numbers) ─────────────────────────────────
-                page.Footer().AlignCenter().Text(text =>
-                {
-                    text.Span("Page ").FontSize(8).FontColor("#475569");
-                    text.CurrentPageNumber().FontSize(8).FontColor("#475569");
-                    text.Span(" of ").FontSize(8).FontColor("#475569");
-                    text.TotalPages().FontSize(8).FontColor("#475569");
-                });
+                page.Footer().Element(f =>
+                    ProGlassAutomation.Services.Export.Pdf.Renderers
+                        .FooterRenderer.Render(f, _layout.DocumentId));
             });
         }
     }

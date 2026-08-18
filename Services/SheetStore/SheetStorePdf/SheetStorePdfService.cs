@@ -1,4 +1,5 @@
-﻿using ProGlassAutomation.Models.SheetStore;
+using ProGlassAutomation.Models.SheetStore;
+using ProGlassAutomation.Services.Export.Pdf;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
@@ -26,6 +27,7 @@ namespace ProGlassAutomation.Services.SheetStore.SheetStorePdf
         {
             return Task.Run(() =>
             {
+                PdfThemeCatalog.ApplySaved();
                 var totalBuy = sheets.Sum(s => s.TotalPurchaseValue);
                 var totalSell = sheets.Sum(s => s.TotalSellValue);
                 var totalProfit = totalSell - totalBuy;
@@ -44,29 +46,28 @@ namespace ProGlassAutomation.Services.SheetStore.SheetStorePdf
                         // ============ HEADER ============
                         page.Header().Column(col =>
                         {
-                            col.Item().Background("#1E88E5").Padding(15).Row(row =>
+                            col.Item().Background(DocumentStyle.ColorAccent).Padding(15).Row(row =>
                             {
                                 row.RelativeItem().Column(c =>
                                 {
                                     c.Item().Text("ProGlass Automation")
-                                        .FontSize(20).Bold().FontColor("#FFFFFF");
+                                        .FontSize(18).Bold().FontColor(DocumentStyle.ColorAccentOn);
                                     c.Item().Text("Sheet Store — Inventory Report")
-                                        .FontSize(12).FontColor("#E3F2FD");
+                                        .FontSize(11).FontColor(DocumentStyle.ColorAccentSoft);
                                 });
                                 row.ConstantItem(200).AlignRight().Column(c =>
                                 {
                                     c.Item().Text($"Generated: {DateTime.Now:dd-MMM-yyyy HH:mm}")
-                                        .FontSize(9).FontColor("#E3F2FD");
+                                        .FontSize(9).FontColor(DocumentStyle.ColorAccentSoft);
                                     c.Item().Text($"User: {Environment.UserName}")
-                                        .FontSize(9).FontColor("#E3F2FD");
+                                        .FontSize(9).FontColor(DocumentStyle.ColorAccentSoft);
                                     c.Item().Text($"{sheets.Count} items")
-                                        .FontSize(9).FontColor("#E3F2FD");
+                                        .FontSize(9).FontColor(DocumentStyle.ColorAccentSoft);
                                 });
                             });
 
-                            // Filter info
-                            col.Item().Background("#F5F5F5").Padding(8).Text(filterInfo)
-                                .FontSize(8).Italic().FontColor("#64748B");
+                            col.Item().Background(DocumentStyle.ColorSurface).Padding(8).Text(filterInfo)
+                                .FontSize(8).Italic().FontColor(DocumentStyle.ColorMuted);
                         });
 
                         // ============ CONTENT ============
@@ -77,20 +78,21 @@ namespace ProGlassAutomation.Services.SheetStore.SheetStorePdf
                             {
                                 void SummaryCard(string label, string value, string color)
                                 {
-                                    row.RelativeItem().Border(1).BorderColor("#E2E8F0")
+                                    row.RelativeItem().Border(1).BorderColor(DocumentStyle.ColorBorder)
+                                        .Background(DocumentStyle.ColorSurface)
                                         .Padding(10).Column(c =>
                                         {
-                                            c.Item().Text(label).FontSize(8).Bold().FontColor("#64748B");
+                                            c.Item().Text(label).FontSize(8).Bold().FontColor(DocumentStyle.ColorMuted);
                                             c.Item().Text(value).FontSize(14).Bold().FontColor(color);
                                         });
                                 }
 
-                                SummaryCard("TOTAL STOCK", $"{totalStock} sheets", "#10B981");
-                                SummaryCard("TOTAL USED", $"{totalUsed} sheets", "#EF4444");
-                                SummaryCard("BALANCE", $"{totalBalance} sheets", "#F59E0B");
-                                SummaryCard("BUYING VALUE", $"{totalBuy:N0} AED", "#991B1B");
-                                SummaryCard("SELLING VALUE", $"{totalSell:N0} AED", "#166534");
-                                SummaryCard("PROFIT", $"{totalProfit:N0} AED", "#1E40AF");
+                                SummaryCard("TOTAL STOCK", $"{totalStock} sheets", DocumentStyle.ColorSuccess);
+                                SummaryCard("TOTAL USED", $"{totalUsed} sheets", DocumentStyle.ColorDanger);
+                                SummaryCard("BALANCE", $"{totalBalance} sheets", DocumentStyle.ColorWarning);
+                                SummaryCard("BUYING VALUE", $"{totalBuy:N0} AED", DocumentStyle.ColorDanger);
+                                SummaryCard("SELLING VALUE", $"{totalSell:N0} AED", DocumentStyle.ColorSuccess);
+                                SummaryCard("PROFIT", $"{totalProfit:N0} AED", DocumentStyle.ColorAccent);
                             });
 
                             col.Item().PaddingVertical(10);
@@ -121,8 +123,8 @@ namespace ProGlassAutomation.Services.SheetStore.SheetStorePdf
                                 {
                                     void HeaderCell(string text)
                                     {
-                                        header.Cell().Background("#334155").Padding(5)
-                                            .Text(text).FontSize(7).Bold().FontColor("#FFFFFF");
+                                        header.Cell().Background(DocumentStyle.ColorTableHeader).Padding(5)
+                                            .Text(text).FontSize(7).Bold().FontColor(DocumentStyle.ColorWhite);
                                     }
 
                                     HeaderCell("#");
@@ -145,48 +147,50 @@ namespace ProGlassAutomation.Services.SheetStore.SheetStorePdf
                                 for (int i = 0; i < sheets.Count; i++)
                                 {
                                     var s = sheets[i];
-                                    var bg = i % 2 == 0 ? "#F8FAFC" : "#FFFFFF";
+                                    var bg = i % 2 == 0 ? DocumentStyle.ColorTableAlt : DocumentStyle.ColorWhite;
 
-                                    void DataCell(string text, string color = "#1F2937")
+                                    void DataCell(string text, string color = null)
                                     {
                                         table.Cell().Background(bg).Padding(4)
-                                            .Text(text).FontSize(8).FontColor(color);
+                                            .Text(text).FontSize(8).FontColor(color ?? DocumentStyle.ColorText);
                                     }
 
                                     DataCell($"{s.Id}");
-                                    DataCell(s.Category, "#1E88E5");
+                                    DataCell(s.Category, DocumentStyle.ColorAccent);
                                     DataCell(s.ThicknessDisplay);
                                     DataCell(s.Color);
                                     DataCell(s.SizeDisplay);
-                                    DataCell(s.Supplier, "#64748B");
+                                    DataCell(s.Supplier, DocumentStyle.ColorMuted);
                                     DataCell($"{s.SqmPerSheet:N4}");
                                     DataCell($"{s.PurchasePricePerSqm:N2}");
                                     DataCell($"{s.SellPricePerSqm:N2}");
-                                    DataCell($"{s.TotalPurchaseValue:N0}", "#991B1B");
-                                    DataCell($"{s.TotalSellValue:N0}", "#166534");
-                                    DataCell($"{s.Stock}", "#166534");
-                                    DataCell($"{s.Used}", "#991B1B");
-                                    DataCell($"{s.Balance}", "#92400E");
+                                    DataCell($"{s.TotalPurchaseValue:N0}", DocumentStyle.ColorDanger);
+                                    DataCell($"{s.TotalSellValue:N0}", DocumentStyle.ColorSuccess);
+                                    DataCell($"{s.Stock}", DocumentStyle.ColorSuccess);
+                                    DataCell($"{s.Used}", DocumentStyle.ColorDanger);
+                                    DataCell($"{s.Balance}", DocumentStyle.ColorWarning);
                                 }
                             });
 
                             col.Item().PaddingVertical(8);
 
                             // Totals row
-                            col.Item().Background("#EFF6FF").Border(1).BorderColor("#93C5FD")
+                            col.Item().Background(DocumentStyle.ColorAccentLight)
+                                .Border(1).BorderColor(DocumentStyle.ColorBorder)
                                 .Padding(10).Row(row =>
                                 {
-                                    row.RelativeItem().Text("TOTALS").Bold().FontSize(10);
+                                    row.RelativeItem().Text("TOTALS").Bold().FontSize(10)
+                                        .FontColor(DocumentStyle.ColorText);
                                     row.ConstantItem(120).Text($"Buy: {totalBuy:N0} AED")
-                                        .Bold().FontSize(9).FontColor("#991B1B");
+                                        .Bold().FontSize(9).FontColor(DocumentStyle.ColorDanger);
                                     row.ConstantItem(120).Text($"Sell: {totalSell:N0} AED")
-                                        .Bold().FontSize(9).FontColor("#166534");
+                                        .Bold().FontSize(9).FontColor(DocumentStyle.ColorSuccess);
                                     row.ConstantItem(120).Text($"Profit: {totalProfit:N0} AED")
-                                        .Bold().FontSize(9).FontColor("#1E40AF");
+                                        .Bold().FontSize(9).FontColor(DocumentStyle.ColorAccent);
                                     row.ConstantItem(80).Text($"Stock: {totalStock}")
-                                        .Bold().FontSize(9).FontColor("#166534");
+                                        .Bold().FontSize(9).FontColor(DocumentStyle.ColorSuccess);
                                     row.ConstantItem(80).Text($"Balance: {totalBalance}")
-                                        .Bold().FontSize(9).FontColor("#F59E0B");
+                                        .Bold().FontSize(9).FontColor(DocumentStyle.ColorWarning);
                                 });
                         });
 
