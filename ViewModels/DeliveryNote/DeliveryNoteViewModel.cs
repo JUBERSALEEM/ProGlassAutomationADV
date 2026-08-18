@@ -81,6 +81,8 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
         { get; set; }
         public Func<string, Task>? OnRequestOpenTaxInvoiceForMasterFromProforma
         { get; set; }
+        public Func<string, Task<string>>? OnRequestAutoCreateTaxInvoice
+        { get; set; }
 
         // ── Navigation state ──────────────────────────────────────────────
 
@@ -186,6 +188,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                         FullSnapshotJson = "{}"
                     },
                     masterDn));
+
+            DetailVM.OnRequestAutoCreateTaxInvoice = async dnId =>
+            {
+                if (OnRequestAutoCreateTaxInvoice == null) return "";
+                return await OnRequestAutoCreateTaxInvoice(dnId);
+            };
 
             // ── Chat 14: DN Detail Convert → single-DN invoice ────────────
             DetailVM.OnRequestOpenTaxInvoiceForDeliveryNote = async dnId =>
@@ -402,6 +410,25 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote
                 // ── SCENARIO A: No Master DN — first delivery ─────────────
                 if (masterDn == null)
                 {
+                    try
+                    {
+                        masterDn = await Services.DeliveryNote
+                            .MasterDeliveryNoteService
+                            .EnsureForJobOrderAsync(jobOrder);
+                    }
+                    catch (Exception masterEx)
+                    {
+                        Services.Logging.AppLogService.Error(
+                            "Could not auto-create Master DN before first delivery.",
+                            masterEx,
+                            new Services.Logging.LogContext
+                            {
+                                Module = "DeliveryNote",
+                                Class = nameof(DeliveryNoteViewModel),
+                                Operation = "EnsureMasterDn"
+                            });
+                    }
+
                     await CreateFirstDnAsync(jobOrder);
                     return;
                 }

@@ -299,6 +299,33 @@ namespace ProGlassAutomation.ViewModels.TaxInvoice
         ///
         /// Prompts if a draft invoice already exists for the same PI.
         /// </summary>
+        /// <summary>
+        /// Auto-path after DN dispatch: persist a Draft tax invoice for
+        /// THIS DN's delivered qty (PI rates). Does not steal an existing
+        /// family draft. Skips if this DN is already invoiced.
+        /// Returns the new invoice number, or empty if skipped.
+        /// </summary>
+        public async Task<string> CreateAndSaveDraftFromDeliveryNoteAsync(
+            string deliveryNoteId)
+        {
+            if (string.IsNullOrWhiteSpace(deliveryNoteId)) return "";
+            if (App.DeliveryNotes == null) return "";
+
+            var dn = await App.DeliveryNotes
+                .GetByDeliveryNoteIdAsync(deliveryNoteId);
+            if (dn == null || dn.IsMasterDn) return "";
+            if (dn.HasTaxInvoice) return dn.TaxInvoiceId ?? "";
+            if (dn.TotalDeliveredQty <= 0) return "";
+
+            await DetailVM.InitFromDeliveryNoteAsync(deliveryNoteId);
+            await DetailVM.TrySaveAsync();
+
+            string number = DetailVM.EditingInvoiceNumber ?? "";
+            if (!string.IsNullOrWhiteSpace(number))
+                await SafeLoadListAsync();
+            return number;
+        }
+
         public async Task CreateFromDeliveryNoteAsync(string deliveryNoteId)
         {
             if (string.IsNullOrWhiteSpace(deliveryNoteId)) return;

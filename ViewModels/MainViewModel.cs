@@ -635,6 +635,11 @@ namespace ProGlassAutomation.ViewModels
                     await TaxInvoiceVM.CreateFromDeliveryNoteAsync(deliveryNoteId);
                 };
 
+            DeliveryNoteVM.OnRequestAutoCreateTaxInvoice =
+                async deliveryNoteId =>
+                    await TaxInvoiceVM.CreateAndSaveDraftFromDeliveryNoteAsync(
+                        deliveryNoteId);
+
             // ── commands ──────────────────────────────────────────────────
             ToggleMenuCommand = new RelayCommand(_ =>
             {

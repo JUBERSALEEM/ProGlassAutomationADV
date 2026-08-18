@@ -579,6 +579,14 @@ namespace ProGlassAutomation.ViewModels.JobOrder.SavedJobOrdersList
 
                 var inserted = await App.Jobs.InsertAsync(entity);
 
+                try
+                {
+                    await ProGlassAutomation.Services.DeliveryNote
+                        .MasterDeliveryNoteService
+                        .EnsureForJobOrderAsync(inserted);
+                }
+                catch { /* first real DN will retry */ }
+
                 AuditService.Log(
                     AuditSections.JobOrder, "Job order created",
                     $"{inserted.JobOrderId} from {proformaId}"

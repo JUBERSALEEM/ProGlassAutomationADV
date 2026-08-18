@@ -626,6 +626,14 @@ namespace ProGlassAutomation.ViewModels.JobOrder.JobOrderDetail
 
                 if (confirm != MessageBoxResult.Yes) return;
 
+                try
+                {
+                    await ProGlassAutomation.Services.DeliveryNote
+                        .MasterDeliveryNoteService
+                        .EnsureForJobOrderAsync(_entity);
+                }
+                catch { /* real DN still created */ }
+
                 // ── Generate next DN ID + sequence ────────────────────────
                 int nextSeq = await App.DeliveryNotes
                     .GetNextSequenceAsync(_entity.JobOrderId);

@@ -14,6 +14,7 @@ using ProGlassAutomation.Utilities;
 using ProGlassAutomation.ViewModels;
 using ProGlassAutomation.Views.DeliveryNote.DeliveryNoteDetail.Attachments.Rename;
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.IO;
@@ -50,6 +51,12 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
         /// on a Master DN detail view.
         /// </summary>
         public Action<SavedDeliveryNote>? OnRequestCreateDnFromMaster { get; set; }
+
+        /// <summary>
+        /// After dispatch, persist a Draft tax invoice for THIS delivery.
+        /// Returns the invoice number or empty.
+        /// </summary>
+        public Func<string, Task<string>>? OnRequestAutoCreateTaxInvoice { get; set; }
 
         // ── loaded entity + snapshot ──────────────────────────────────────
         private SavedDeliveryNote? _entity;
@@ -402,31 +409,60 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
             }
         }
 
+        private ObservableCollection<DnItemRowViewModel> _visibleRows = new();
+
+        private int _hiddenFullyDeliveredCount;
+        public int HiddenFullyDeliveredCount
+        {
+            get => _hiddenFullyDeliveredCount;
+            private set
+            {
+                if (_hiddenFullyDeliveredCount == value) return;
+                _hiddenFullyDeliveredCount = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasHiddenFullyDeliveredRows));
+                OnPropertyChanged(nameof(HiddenFullyDeliveredSummary));
+            }
+        }
+
+        public int VisiblePendingRowCount => _visibleRows.Count;
+
+        public bool HasHiddenFullyDeliveredRows =>
+            _isMasterDn && HiddenFullyDeliveredCount > 0;
+
+        public bool HasNoPendingBalanceItems =>
+            _isMasterDn && _itemRows.Count > 0 && _visibleRows.Count == 0;
+
+        public string HiddenFullyDeliveredSummary =>
+            HiddenFullyDeliveredCount == 1
+                ? "1 item fully delivered — hidden. Showing remaining balance only."
+                : $"{HiddenFullyDeliveredCount} items fully delivered — hidden. Showing remaining balance only.";
+
         /// <summary>
-        /// CHAT 19: On Master DN — filter hides rows where BalanceQty = 0
-        /// (fully delivered items not shown — only pending balance items).
-        /// On real DN — all rows shown (user needs to enter qty).
+        /// Master DN is a balance tracker. ICollectionView.Filter is ignored
+        /// once GroupStyle is applied, so completed rows are omitted from
+        /// the source. Real DNs keep every line so qty can be entered.
         /// </summary>
         private void RebuildGroupedView()
         {
-            var view = CollectionViewSource.GetDefaultView(_itemRows);
+            IEnumerable<DnItemRowViewModel> source = _itemRows;
+            if (_isMasterDn)
+                source = _itemRows.Where(r => r.BalanceQty > 0);
+
+            _visibleRows = new ObservableCollection<DnItemRowViewModel>(source);
+            HiddenFullyDeliveredCount = _isMasterDn
+                ? _itemRows.Count(r => r.BalanceQty <= 0)
+                : 0;
+
+            var view = CollectionViewSource.GetDefaultView(_visibleRows);
             view.GroupDescriptions.Clear();
             view.GroupDescriptions.Add(
                 new PropertyGroupDescription(
                     nameof(DnItemRowViewModel.SpecGroupName)));
 
-            // CHAT 19: Master DN hides fully delivered rows
-            if (_isMasterDn)
-            {
-                view.Filter = obj =>
-                    obj is DnItemRowViewModel row && row.BalanceQty > 0;
-            }
-            else
-            {
-                view.Filter = null;
-            }
-
             GroupedItemsView = view;
+            OnPropertyChanged(nameof(VisiblePendingRowCount));
+            OnPropertyChanged(nameof(HasNoPendingBalanceItems));
         }
 
         // ── Qty summary ───────────────────────────────────────────────────
@@ -1347,15 +1383,40 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     $"{_entity.DeliveryNoteId} dispatched",
                     "DN", _entity.DeliveryNoteId);
 
+                int deliveredThisDn = _entity.Items.Sum(i => i.DeliveredQty);
                 int totalBalance = _entity.Items.Sum(i => i.BalanceQty);
+                int balanceItemCount = _entity.Items.Count(i => i.BalanceQty > 0);
 
-                // ── FULLY DELIVERED ───────────────────────────────────────────
+                string invoiceNote = "";
+                if (deliveredThisDn > 0 && !_entity.HasTaxInvoice
+                    && OnRequestAutoCreateTaxInvoice != null)
+                {
+                    try
+                    {
+                        string invoiceNo = await OnRequestAutoCreateTaxInvoice(
+                            _entity.DeliveryNoteId);
+                        if (!string.IsNullOrWhiteSpace(invoiceNo))
+                            invoiceNote =
+                                $"Tax Invoice {invoiceNo} created as Draft " +
+                                $"for this delivery ({deliveredThisDn} pcs).\n" +
+                                "Open Tax Invoice to edit dates, bank or rates.\n\n";
+                    }
+                    catch (Exception tiEx)
+                    {
+                        invoiceNote =
+                            "Delivery saved, but the tax invoice could not " +
+                            $"be created automatically:\n{tiEx.Message}\n" +
+                            "Use Convert to Tax Invoice from History.\n\n";
+                    }
+                }
+
                 if (totalBalance <= 0)
                 {
                     MessageBox.Show(
                         "✅  Dispatched successfully!\n\n" +
                         "All items fully delivered.\n" +
-                        "Master DN updated to complete.",
+                        "Master DN now shows no remaining balance.\n\n" +
+                        invoiceNote,
                         "Dispatched",
                         MessageBoxButton.OK,
                         MessageBoxImage.Information);
@@ -1364,18 +1425,15 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                     return;
                 }
 
-                // ── BALANCE REMAINING — offer to create next DN ───────────────
-                int deliveredThisDn = _entity.Items.Sum(i => i.DeliveredQty);
-                int balanceItemCount = _entity.Items.Count(i => i.BalanceQty > 0);
-
                 var nextDn = MessageBox.Show(
                     $"✅  Dispatched successfully!\n\n" +
                     $"This delivery     :  {deliveredThisDn} pcs\n" +
                     $"Balance remaining :  {totalBalance} pcs " +
-                    $"({balanceItemCount} items)\n\n" +
-                    "Would you like to create the next delivery note now?\n\n" +
+                    $"({balanceItemCount} items)\n" +
+                    "Master DN now shows only remaining pcs.\n\n" +
+                    invoiceNote +
+                    "Create the next delivery note for the balance?\n\n" +
                     "  Yes  →  Create next DN pre-filled with balance\n" +
-                    "           (use SELECT ALL REMAINING to fill instantly)\n" +
                     "  No   →  Go back to list",
                     "Dispatched — Balance Remaining",
                     MessageBoxButton.YesNo,
@@ -1888,37 +1946,6 @@ namespace ProGlassAutomation.ViewModels.DeliveryNote.DeliveryNoteDetail
                 AuditService.Log(
                     AuditSections.DeliveryNote, "Attachment deleted",
                     $"'{row.FileName}' removed from {_deliveryNoteId}",
-                    "DN", _deliveryNoteId);
-            }
-            catch (Exception ex)
-            {
-                MessageBox.Show(
-                    $"Failed to delete attachment:\n\n{ex.Message}",
-                    "Delete Failed",
-                    MessageBoxButton.OK,
-                    MessageBoxImage.Error);
-            }
-        }
-
-        // ─────────────────────────────────────────────────────────────────
-
-        private void OnItemDeliveredQtyChanged()
-        {
-            RecalculateTotals();
-            MarkDirty();   // v2 §28: user changed a delivered quantity
-        }
-
-        private void RecalculateTotals()
-        {
-            TotalOrderedQty = ItemRows.Sum(r => r.OrderedQty);
-            TotalPreviouslyDeliveredQty =
-                ItemRows.Sum(r => r.PreviouslyDeliveredQty);
-            TotalDeliveredQty = ItemRows.Sum(r => r.DeliveredQty);
-            TotalBalanceQty = ItemRows.Sum(r => r.BalanceQty);
-        }
-    }
-}
-d}",
                     "DN", _deliveryNoteId);
             }
             catch (Exception ex)

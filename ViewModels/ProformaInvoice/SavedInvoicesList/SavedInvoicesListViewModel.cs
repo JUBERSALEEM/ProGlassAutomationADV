@@ -883,6 +883,25 @@ namespace ProGlassAutomation.ViewModels.ProformaInvoice.SavedInvoicesList
                     jobSnapshot, piEntity.GrandTotalVatInclusive);
                 await App.Jobs.InsertAsync(jobEntity);
 
+                try
+                {
+                    await ProGlassAutomation.Services.DeliveryNote
+                        .MasterDeliveryNoteService
+                        .EnsureForJobOrderAsync(jobEntity);
+                }
+                catch (Exception masterEx)
+                {
+                    ProGlassAutomation.Services.Logging.AppLogService.Error(
+                        "Job Order saved but Master DN was not created.",
+                        masterEx,
+                        new ProGlassAutomation.Services.Logging.LogContext
+                        {
+                            Module = "DeliveryNote",
+                            Class = nameof(SavedInvoicesListViewModel),
+                            Operation = "EnsureMasterDn"
+                        });
+                }
+
                 AuditService.Log(
                     AuditSections.JobOrder, "Job Order auto-created on approval",
                     $"{jobEntity.JobOrderId} ← {piEntity.ProformaId}",
