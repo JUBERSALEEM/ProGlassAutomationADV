@@ -12,7 +12,6 @@
 //   (marshalled to the UI thread by the service).
 // • Capped at 200 rows in memory; older rows stay in audit.db.
 // ═══════════════════════════════════════════════════════════════════════
-
 using ProGlassAutomation.Models.Audit;
 using ProGlassAutomation.Services.Audit;
 using System;
@@ -23,84 +22,6 @@ using ProGlassAutomation.Commands;
 
 namespace ProGlassAutomation.ViewModels.Shared
 {
-    /// <summary>One rendered activity row.</summary>
-    public class ActivityRowViewModel
-    {
-        public string TimeDisplay { get; set; } = "";
-        public string Username { get; set; } = "";
-        public string Action { get; set; } = "";
-        public string Details { get; set; } = "";
-        public string Section { get; set; } = "";
-
-        /// <summary>Raw before/after change set JSON (empty = no diff).</summary>
-        public string ChangesJson { get; set; } = "";
-
-        /// <summary>True when a GitHub-style diff can be shown.</summary>
-        public bool HasChanges =>
-            !string.IsNullOrWhiteSpace(ChangesJson);
-
-        /// <summary>
-        /// PHASE D — the WHY the user typed when performing this action.
-        /// Empty for entries recorded without a reason.
-        /// </summary>
-        public string Reason { get; set; } = "";
-
-        /// <summary>True when a WHY note was recorded.</summary>
-        public bool HasReason =>
-            !string.IsNullOrWhiteSpace(Reason);
-
-        /// <summary>
-        /// Full row tooltip: date/time · user · module · action · details.
-        /// Shown on hover so every field is discoverable even when the
-        /// row is trimmed.
-        /// </summary>
-        public string RowTooltip
-        {
-            get
-            {
-                var parts = new System.Collections.Generic.List<string>
-                {
-                    $"When:   {TimeDisplay}",
-                    $"User:   {Username}",
-                    $"Module: {Section}",
-                    $"Action: {Action}"
-                };
-                if (!string.IsNullOrWhiteSpace(Details))
-                    parts.Add($"Details: {Details}");
-                if (!string.IsNullOrWhiteSpace(Reason))
-                    parts.Add($"Why:     {Reason}");
-                return string.Join("\n", parts);
-            }
-        }
-    }
-
-    /// <summary>
-    /// Activity feed filtered to a single section.
-    /// Create one per module shell and bind the Activity tab to it.
-    /// Pass section = null for an ALL-sections feed (Diagnostics module).
-    /// </summary>
-    /// <summary>
-    /// Live audit feed for one section.
-    /// </summary>
-    /// <remarks>
-    /// IMPLEMENTS IDisposable — audit finding M-1.
-    ///
-    /// This type subscribes to <see cref="AuditService.ActivityLogged"/>,
-    /// which is a STATIC event. A static event is a garbage-collection
-    /// root that lives for the whole process, so every instance that
-    /// subscribes stays reachable — together with its Rows collection and
-    /// anything those rows reference — until the process exits, even after
-    /// the owning view is long gone.
-    ///
-    /// That matters here because this class is instantiated at TWELVE
-    /// sites, nine of them inside DiagnosticsViewModel (one tab per
-    /// module). Without an unsubscribe path there is no way for a caller
-    /// to release an instance at all.
-    ///
-    /// Callers that create instances dynamically must call Dispose().
-    /// Instances owned for the lifetime of the application (the module
-    /// ViewModels created once by MainViewModel) need not, but can.
-    /// </remarks>
     public class SectionActivityViewModel : ViewModelBase, IDisposable
     {
         private readonly string? _section;

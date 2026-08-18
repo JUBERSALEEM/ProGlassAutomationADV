@@ -15,7 +15,6 @@
 //   C-11  BUG-33/34/35/36/37 preserved
 //   E-FIX DateTime.HasValue removed — LastUsedAt is DateTime not DateTime?
 // ═══════════════════════════════════════════════════════════════════════
-
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Models.MasterData;
 using System;
@@ -27,74 +26,6 @@ using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.ProformaInvoice.Step1CompanySetup
 {
-    // ═══════════════════════════════════════════════════════════════════
-    //  COMPANY PROFILE CARD
-    // ═══════════════════════════════════════════════════════════════════
-
-    /// <summary>
-    /// Display model for a saved company card in the Fast Setup grid.
-    /// Built from <see cref="SavedCompany"/> retrieved from masterdata.db.
-    /// </summary>
-    public class CompanyProfileCard : ViewModelBase
-    {
-        public int Id { get; set; }
-        public string CompanyName { get; set; } = "";
-        public string Trn { get; set; } = "";
-        public string Location { get; set; } = "";
-        public int UsageCount { get; set; }
-        public string LastUsed { get; set; } = "";
-        public string LogoPath { get; set; } = "";
-        public string Representative { get; set; } = "";
-        public bool IsDefault { get; set; }
-
-        /// <summary>
-        /// Privacy-safe TRN display — "100**********003".
-        /// Shows first 3 + last 3 digits, masks middle with *.
-        /// </summary>
-        public string TrnMasked
-        {
-            get
-            {
-                if (string.IsNullOrWhiteSpace(Trn))
-                    return "No TRN";
-
-                var digits = new string(Trn.Where(char.IsDigit).ToArray());
-                if (digits.Length < 6) return digits;
-
-                int visibleEnd = Math.Min(3, digits.Length);
-                int visibleStart = Math.Max(0, digits.Length - 3);
-                int maskLen = Math.Max(0, digits.Length - visibleEnd
-                                               - (digits.Length - visibleStart));
-
-                return digits.Substring(0, visibleEnd)
-                     + new string('*', maskLen)
-                     + digits.Substring(visibleStart);
-            }
-        }
-
-        /// <summary>Usage badge label — "Used 5×" or "New".</summary>
-        public string UsageBadgeText =>
-            UsageCount > 0 ? $"Used {UsageCount}×" : "New";
-    }
-
-    // ═══════════════════════════════════════════════════════════════════
-    //  COMPANY SETUP VIEW MODEL
-    // ═══════════════════════════════════════════════════════════════════
-
-    /// <summary>
-    /// ViewModel for Step 1 of the Proforma Invoice wizard.
-    /// Handles company identity, TRN, dates, and fast-load profile cards.
-    ///
-    /// BUG-33 [HIGH]:   ProformaId uses DB-verified unique ID.
-    /// BUG-34 [HIGH]:   SavedProfiles loaded from masterdata.db.
-    /// BUG-35 [MEDIUM]: UAE TRN 15-digit validation.
-    /// BUG-36 [MEDIUM]: StatusOptions in sync with list VM.
-    /// BUG-37 [LOW]:    LoadedProfileName cleared on manual edit.
-    /// C-08:            CompanyName required field inline warning.
-    /// C-09:            ProformaId required field inline warning.
-    /// C-10:            View all (N) when more than 6 companies exist.
-    /// E-FIX:           DateTime.HasValue removed — non-nullable DateTime.
-    /// </summary>
     public class CompanySetupViewModel : ViewModelBase
     {
         // ── Callback to parent wizard ─────────────────────────────────

@@ -24,7 +24,6 @@
 //   New property on POCO — no consumer impact.
 //   Projection change adds index — existing property values unchanged.
 // ═══════════════════════════════════════════════════════════════════════
-
 using ProGlassAutomation.Commands;
 using ProGlassAutomation.Services.Statement.Pdf;
 using System;
@@ -36,12 +35,6 @@ using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.Dashboard.Statement
 {
-    /// <summary>
-    /// Dashboard tab for Account Statements / Sales Reports.
-    /// Lazy-loaded on first tab selection via DashboardViewModel.ActivePage setter.
-    /// Uses App.Statements (registered singleton).
-    /// Overrides LoadCoreAsync() — called by DashboardPageBase.LoadAsync().
-    /// </summary>
     public class StDashboardViewModel : DashboardPageBase
     {
         // ── Tab identity ──────────────────────────────────────────────────
@@ -187,37 +180,5 @@ namespace ProGlassAutomation.ViewModels.Dashboard.Statement
                 OnPropertyChanged(string.Empty);
             });
         }
-    }
-
-    // ═════════════════════════════════════════════════════════════════════
-    //  RECENT STATEMENT ITEM — display DTO
-    // ═════════════════════════════════════════════════════════════════════
-
-    /// <summary>
-    /// One row in the dashboard recent statements list.
-    /// POCO — no INotifyPropertyChanged needed (list rebuilt on each load).
-    /// CHAT 23 v1.1: added Index (1-based serial number for row badge).
-    /// </summary>
-    public class RecentStatementItem
-    {
-        /// <summary>
-        /// 1-based serial number displayed as "#1", "#2", etc.
-        /// Assigned during VM projection — reflects display order,
-        /// not database ID.
-        /// </summary>
-        public int Index { get; init; }
-
-        public string StatementNumber { get; init; } = "";
-        public string Title { get; init; } = "";
-        public string SubTitle { get; init; } = "";
-        public string TotalInvoicedDisplay { get; init; } = "";
-        public string OutstandingDisplay { get; init; } = "";
-        public string OverdueDisplay { get; init; } = "";
-        public bool HasOverdue { get; init; }
-        public string CreatedAtDisplay { get; init; } = "";
-        public string PdfPath { get; init; } = "";
-        public bool HasPdf { get; init; }
-        public bool HasAttachments { get; init; }
-        public int InvoiceCount { get; init; }
     }
 }

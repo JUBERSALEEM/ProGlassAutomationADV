@@ -22,7 +22,6 @@
 //   • SearchAsync never throws: a module whose repository is unavailable
 //     is skipped, the rest still return.
 // ═══════════════════════════════════════════════════════════════════════
-
 using ProGlassAutomation.Commands;
 using System;
 using System.Collections.Generic;
@@ -34,34 +33,6 @@ using System.Windows.Input;
 
 namespace ProGlassAutomation.ViewModels.Shared
 {
-    // ══════════════════════════════════════════════════════════════════════
-    //  RESULT
-    // ══════════════════════════════════════════════════════════════════════
-
-    /// <summary>One hit in the global search popup.</summary>
-    public class GlobalSearchResult
-    {
-        /// <summary>Module label shown as the leading chip ("Job Orders").</summary>
-        public string ModuleLabel { get; set; } = "";
-
-        /// <summary>Navigation key passed to MainViewModel.Navigate.</summary>
-        public string NavigateTarget { get; set; } = "";
-
-        /// <summary>Primary line — usually the document id or name.</summary>
-        public string Title { get; set; } = "";
-
-        /// <summary>Secondary line — customer, project, status…</summary>
-        public string Subtitle { get; set; } = "";
-
-        /// <summary>Segoe MDL2 glyph for the row icon.</summary>
-        public string Glyph { get; set; } = "\uE71E";
-    }
-
-    // ══════════════════════════════════════════════════════════════════════
-    //  VIEW-MODEL
-    // ══════════════════════════════════════════════════════════════════════
-
-    /// <summary>Cross-module search shown in the application top bar.</summary>
     public class GlobalSearchViewModel : ViewModelBase
     {
         /// <summary>Below this length the search is not run at all.</summary>
